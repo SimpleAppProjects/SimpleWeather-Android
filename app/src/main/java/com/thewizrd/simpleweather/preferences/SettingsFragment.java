@@ -70,20 +70,19 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.radar.RadarProvider;
+import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 import com.thewizrd.simpleweather.services.UpdaterUtils;
+import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
-import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker;
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.splits.InstallRequest;
 import com.thewizrd.simpleweather.splits.SplitLocaleInstaller;
 import com.thewizrd.simpleweather.utils.PowerUtils;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver;
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -264,8 +263,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 AnalyticsLogger.logEvent("Update_API", bundle);
 
                 WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-            } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
+            } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                WeatherUpdaterService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 if (WeatherUpdaterWorker.ACTION_REQUEUEWORK.equals(filter.getIntent().getAction())) {
                     UpdaterUtils.updateAlarm(getAppCompatActivity());
@@ -278,6 +277,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 }
             } else if (WearableWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 WearableWorker.enqueueAction(getAppCompatActivity(), filter.getIntent().getAction());
+            } else if (CommonActionsBroadcastReceiver.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                LocalBroadcastManager.getInstance(getAppCompatActivity()).sendBroadcast(filter.getIntent());
             } else {
                 getAppCompatActivity().startService(filter.getIntent());
             }
@@ -595,12 +596,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         onGoingNotification.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Context context = App.getInstance().getAppContext();
+                final Context context = preference.getContext().getApplicationContext();
 
                 // On-going notification
                 if ((boolean) newValue) {
-                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                            .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+                    WeatherNotificationWorker.requestRefreshNotification(context);
 
                     if (notCategory.findPreference(KEY_NOTIFICATIONICON) == null)
                         notCategory.addPreference(notificationIcon);
@@ -608,8 +608,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     enqueueIntent(new Intent(context, WeatherUpdaterWorker.class)
                             .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK));
                 } else {
-                    WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                            .setAction(WeatherNotificationWorker.ACTION_REMOVENOTIFICATION));
+                    WeatherNotificationWorker.removeNotification(context);
 
                     notCategory.removePreference(notificationIcon);
 
@@ -625,9 +624,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         notificationIcon.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Context context = App.getInstance().getAppContext();
-                WeatherNotificationWorker.enqueueAction(context, new Intent(context, WeatherNotificationWorker.class)
-                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
+                WeatherNotificationWorker.requestRefreshNotification(preference.getContext().getApplicationContext());
                 return true;
             }
         });
@@ -955,8 +952,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 enqueueIntent(new Intent(context, WearableWorker.class)
                         .setAction(WearableWorker.ACTION_SENDWEATHERUPDATE));
-                enqueueIntent(new Intent(context, WeatherWidgetService.class)
-                        .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
+                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
+                        .setAction(value ? WeatherUpdaterService.ACTION_REFRESHGPSWIDGETS : WeatherUpdaterService.ACTION_RESETGPSWIDGETS));
                 break;
             // Refresh interval changed
             case KEY_REFRESHINTERVAL:
@@ -1158,19 +1155,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             super.onSelectionPerformed(success);
 
             final Context context = getPrefContext().getApplicationContext();
-            if (WeatherWidgetService.widgetsExist(context)) {
-                context.sendBroadcast(new Intent(context, WeatherWidgetBroadcastReceiver.class)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET));
-            }
-
-            if (Settings.showOngoingNotification()) {
-                context.sendBroadcast(new Intent(context, WeatherNotificationBroadcastReceiver.class)
-                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION));
-            }
-
+            WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS);
             WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE);
-
-            ShortcutCreatorWorker.requestUpdateShortcuts(context);
         }
     }
 

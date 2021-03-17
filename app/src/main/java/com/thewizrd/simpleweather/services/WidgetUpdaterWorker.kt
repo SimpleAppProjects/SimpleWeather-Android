@@ -1,21 +1,17 @@
 package com.thewizrd.simpleweather.services
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.Settings
-import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
-import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService
-import java.util.concurrent.ExecutionException
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import java.util.concurrent.TimeUnit
 
-class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val mContext = context.applicationContext
 
     companion object {
@@ -26,7 +22,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
         const val ACTION_CANCELWORK = "SimpleWeather.Droid.action.CANCEL_ALARM"
         const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
-        private const val JOB_ID = 1005
+        suspend fun executeWork(context: Context) {
+            WidgetUpdaterWork.executeWork(context.applicationContext)
+        }
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
@@ -64,6 +62,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
             Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
             val updateRequest = PeriodicWorkRequest.Builder(WidgetUpdaterWorker::class.java, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                     .setConstraints(Constraints.NONE)
+                    .addTag(TAG)
                     .build()
             WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
@@ -75,10 +74,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
             var statuses: List<WorkInfo>? = null
             try {
                 statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: ExecutionException) {
-            } catch (ignored: InterruptedException) {
+            } catch (ignored: Exception) {
             }
-            if (statuses == null || statuses.isEmpty()) return false
+            if (statuses?.isNullOrEmpty() == true) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING
@@ -93,21 +91,24 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
         }
     }
 
-    override fun doWork(): Result {
-        if (Settings.isWeatherLoaded()) {
-            if (WeatherWidgetService.widgetsExist(mContext)) {
-                mContext.sendBroadcast(Intent(mContext, WeatherWidgetBroadcastReceiver::class.java)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET))
-            }
-
-            if (Settings.showOngoingNotification()) {
-                mContext.sendBroadcast(Intent(mContext, WeatherNotificationBroadcastReceiver::class.java)
-                        .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION))
-            }
-
-            ShortcutCreatorWorker.requestUpdateShortcuts(mContext)
-        }
-
+    override suspend fun doWork(): Result {
+        WidgetUpdaterWork.executeWork(applicationContext)
         return Result.success()
+    }
+
+    private object WidgetUpdaterWork {
+        suspend fun executeWork(context: Context) {
+            if (Settings.isWeatherLoaded()) {
+                if (WidgetUpdaterHelper.widgetsExist()) {
+                    WidgetUpdaterHelper.refreshWidgets(context)
+                }
+
+                if (Settings.showOngoingNotification()) {
+                    WeatherNotificationWorker.refreshNotification(context)
+                }
+
+                ShortcutCreatorWorker.updateShortcuts(context)
+            }
+        }
     }
 }

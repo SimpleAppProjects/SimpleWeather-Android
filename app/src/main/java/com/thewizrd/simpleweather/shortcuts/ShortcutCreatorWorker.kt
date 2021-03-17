@@ -30,6 +30,10 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
     companion object {
         private const val TAG = "ShortcutCreatorWorker"
 
+        suspend fun updateShortcuts(context: Context) {
+            ShortcutCreatorHelper.executeWork(context.applicationContext)
+        }
+
         @JvmStatic
         fun requestUpdateShortcuts(context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
@@ -57,75 +61,79 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.N_MR1)
     override suspend fun doWork(): Result {
-        val wim = WeatherIconsManager.getInstance()
+        ShortcutCreatorHelper.executeWork(mContext)
+        return Result.success()
+    }
 
-        val locations: MutableList<LocationData> = ArrayList(Settings.getLocationData()
-                ?: Collections.emptyList())
-        if (Settings.useFollowGPS()) {
-            locations.add(0, Settings.getHomeData())
-        }
+    @TargetApi(Build.VERSION_CODES.N_MR1)
+    private object ShortcutCreatorHelper {
+        suspend fun executeWork(context: Context) {
+            val wim = WeatherIconsManager.getInstance()
 
-        var MAX_SHORTCUTS = 4
-        if (locations.size < MAX_SHORTCUTS) {
-            MAX_SHORTCUTS = locations.size
-        }
+            val locations = ArrayList(Settings.getLocationData() ?: Collections.emptyList())
+            if (Settings.useFollowGPS()) {
+                locations.add(0, Settings.getHomeData())
+            }
 
-        val shortcutMan = mContext.getSystemService(ShortcutManager::class.java)
-        val shortcuts: MutableList<ShortcutInfo> = ArrayList(MAX_SHORTCUTS)
+            var MAX_SHORTCUTS = 4
+            if (locations.size < MAX_SHORTCUTS) {
+                MAX_SHORTCUTS = locations.size
+            }
 
-        shortcutMan.removeAllDynamicShortcuts()
+            val shortcutMan = context.getSystemService(ShortcutManager::class.java)
+            val shortcuts: MutableList<ShortcutInfo> = ArrayList(MAX_SHORTCUTS)
 
-        var i = 0
-        while (i < MAX_SHORTCUTS) {
-            val location = locations[i]
-            val weather = Settings.getWeatherData(location.query)
+            shortcutMan.removeAllDynamicShortcuts()
 
-            if (weather == null || !weather.isValid) {
-                locations.removeAt(i)
-                i--
+            var i = 0
+            while (i < MAX_SHORTCUTS) {
+                val location = locations[i]
+                val weather = Settings.getWeatherData(location.query)
 
-                if (locations.size < MAX_SHORTCUTS) {
-                    MAX_SHORTCUTS = locations.size
+                if (weather == null || !weather.isValid) {
+                    locations.removeAt(i)
+                    i--
+
+                    if (locations.size < MAX_SHORTCUTS) {
+                        MAX_SHORTCUTS = locations.size
+                    }
+
+                    i++
+                    continue
                 }
 
+                // Start WeatherNow Activity with weather data
+                val intent = Intent(context, MainActivity::class.java).apply {
+                    action = Intent.ACTION_MAIN
+                    putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY
+                }
+
+                val bmp = withContext(Dispatchers.IO) {
+                    ImageUtils.adaptiveBitmapFromDrawable(context, wim.getWeatherIconResource(weather.condition.icon))
+                }
+
+                val shortCutIco = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Icon.createWithAdaptiveBitmap(bmp)
+                } else {
+                    Icon.createWithBitmap(bmp)
+                }
+
+                val shortcut = ShortcutInfo.Builder(context, if (location.locationType == LocationType.GPS) Constants.KEY_GPS else "${location.query}_$i").apply {
+                    setShortLabel(weather.location.name)
+                    setIcon(shortCutIco)
+                    setIntent(intent)
+                }.build()
+
+                shortcuts.add(shortcut)
+
                 i++
-                continue
             }
 
-            // Start WeatherNow Activity with weather data
-            val intent = Intent(mContext, MainActivity::class.java).apply {
-                action = Intent.ACTION_MAIN
-                putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY
-            }
+            shortcutMan.dynamicShortcuts = shortcuts
 
-            val bmp = withContext(Dispatchers.IO) {
-                ImageUtils.adaptiveBitmapFromDrawable(mContext, wim.getWeatherIconResource(weather.condition.icon))
-            }
-
-            val shortCutIco = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Icon.createWithAdaptiveBitmap(bmp)
-            } else {
-                Icon.createWithBitmap(bmp)
-            }
-
-            val shortcut = ShortcutInfo.Builder(mContext, if (location.locationType == LocationType.GPS) Constants.KEY_GPS else "${location.query}_$i").apply {
-                setShortLabel(weather.location.name)
-                setIcon(shortCutIco)
-                setIntent(intent)
-            }.build()
-
-            shortcuts.add(shortcut)
-
-            i++
+            Logger.writeLine(Log.INFO, "%s: Shortcuts updated", TAG)
         }
-
-        shortcutMan.dynamicShortcuts = shortcuts
-
-        Logger.writeLine(Log.INFO, "%s: Shortcuts updated", TAG)
-
-        return Result.success()
     }
 }

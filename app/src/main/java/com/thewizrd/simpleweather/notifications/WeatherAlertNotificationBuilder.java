@@ -205,7 +205,7 @@ public class WeatherAlertNotificationBuilder {
 
     private static PendingIntent GetDeleteNotificationIntent(int notId) {
         Context context = App.getInstance().getAppContext();
-        Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
+        Intent intent = new Intent(context, WeatherAlertNotificationBroadcastReceiver.class)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELNOTIFICATION)
                 .putExtra(WeatherAlertNotificationService.EXTRA_NOTIFICATIONID, notId);
 
@@ -215,7 +215,7 @@ public class WeatherAlertNotificationBuilder {
 
     private static PendingIntent GetDeleteAllNotificationsIntent() {
         Context context = App.getInstance().getAppContext();
-        Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
+        Intent intent = new Intent(context, WeatherAlertNotificationBroadcastReceiver.class)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS);
 
         return PendingIntent.getBroadcast(context, 19, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -223,7 +223,7 @@ public class WeatherAlertNotificationBuilder {
 
     private static PendingIntent GetDeleteAllNotificationsIntentJB() {
         Context context = App.getInstance().getAppContext();
-        Intent intent = new Intent(context, WeatherNotificationBroadcastReceiver.class)
+        Intent intent = new Intent(context, WeatherAlertNotificationBroadcastReceiver.class)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
                 .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true);
 

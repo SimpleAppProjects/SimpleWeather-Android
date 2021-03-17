@@ -61,6 +61,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
 
             val updateRequest = PeriodicWorkRequest.Builder(WidgetUpdaterWorker::class.java, 60, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
                     .setConstraints(Constraints.NONE)
+                    .addTag(TAG)
                     .build()
 
             WorkManager.getInstance(context)
@@ -78,7 +79,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
             } catch (ignored: ExecutionException) {
             } catch (ignored: InterruptedException) {
             }
-            if (statuses == null || statuses.isEmpty()) return false
+            if (statuses?.isNullOrEmpty() == true) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING

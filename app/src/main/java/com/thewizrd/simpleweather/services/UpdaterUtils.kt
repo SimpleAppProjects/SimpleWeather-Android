@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.simpleweather.utils.PowerUtils
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 
 class UpdaterUtils {
     companion object {
@@ -32,7 +32,7 @@ class UpdaterUtils {
         @JvmStatic
         fun startAlarm(context: Context) {
             // Enable alarm if dependent features are enabled
-            if (WeatherWidgetService.widgetsExist(context) || Settings.showOngoingNotification() || Settings.useAlerts()) {
+            if (WidgetUpdaterHelper.widgetsExist() || Settings.showOngoingNotification() || Settings.useAlerts()) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
                             .setAction(WeatherUpdaterService.ACTION_STARTALARM))
@@ -46,7 +46,7 @@ class UpdaterUtils {
         @JvmStatic
         fun cancelAlarm(context: Context) {
             // Cancel alarm if dependent features are turned off
-            if (!WeatherWidgetService.widgetsExist(context) && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
+            if (!WidgetUpdaterHelper.widgetsExist() && !Settings.showOngoingNotification() && !Settings.useAlerts()) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
                             .setAction(WeatherUpdaterService.ACTION_CANCELALARM))

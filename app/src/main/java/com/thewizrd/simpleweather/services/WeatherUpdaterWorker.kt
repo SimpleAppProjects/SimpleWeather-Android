@@ -36,12 +36,13 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.notifications.WeatherNotificationBroadcastReceiver
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
-import com.thewizrd.simpleweather.widgets.WeatherWidgetBroadcastReceiver
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -54,9 +55,6 @@ import kotlin.coroutines.resumeWithException
 import kotlin.math.absoluteValue
 
 class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-    private val wm = WeatherManager.getInstance()
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
-
     companion object {
         private const val TAG = "WeatherUpdaterWorker"
 
@@ -66,6 +64,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         private const val JOB_ID = 1004
+
+        suspend fun executeWork(context: Context) {
+            WeatherUpdaterHelper.executeWork(context.applicationContext)
+        }
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
@@ -110,6 +112,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .build()
             val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, Settings.getRefreshInterval().toLong(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                     .setConstraints(constraints)
+                    .addTag(TAG)
                     .build()
             WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
@@ -122,10 +125,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             var statuses: List<WorkInfo>? = null
             try {
                 statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: ExecutionException) {
-            } catch (ignored: InterruptedException) {
+            } catch (ignored: Exception) {
             }
-            if (statuses == null || statuses.isEmpty()) return false
+            if (statuses?.isNullOrEmpty() == true) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING
@@ -141,8 +143,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         @TargetApi(Build.VERSION_CODES.O)
         private fun getForegroundNotification(context: Context): Notification {
-            WeatherUpdaterService.initChannel(context)
-            val mBuilder = NotificationCompat.Builder(context, WeatherUpdaterService.NOT_CHANNEL_ID)
+            initChannel(context)
+            val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.wi_day_cloudy)
                     .setContentTitle(context.getString(R.string.not_title_weather_update))
                     .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
@@ -150,12 +152,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setNotificationSilent()
                     .setPriority(NotificationCompat.PRIORITY_LOW)
             return mBuilder.build()
-        }
-    }
-
-    init {
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
         }
     }
 
@@ -174,6 +170,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
             }
 
+            if (!WeatherUpdaterHelper.executeWork(context))
+                return@withContext Result.failure()
+
+            Result.success()
+        }
+    }
+
+    private object WeatherUpdaterHelper {
+        private const val TAG = "WeatherUpdaterHelper"
+
+        suspend fun executeWork(context: Context): Boolean {
+            val wm = WeatherManager.getInstance()
+
             // Update configuration
             RemoteConfig.checkConfig()
 
@@ -188,18 +197,18 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     }
                 }
 
-                // Update for home
+                // Refresh weather data for widgets
+                preloadWeather()
+
                 val weather = getWeather()
 
-                if (WeatherWidgetService.widgetsExist(context)) {
-                    context.sendBroadcast(Intent(context, WeatherWidgetBroadcastReceiver::class.java)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET))
+                if (WidgetUpdaterHelper.widgetsExist()) {
+                    WidgetUpdaterHelper.refreshWidgets(context)
                 }
 
                 if (weather != null) {
                     if (Settings.showOngoingNotification()) {
-                        context.sendBroadcast(Intent(context, WeatherNotificationBroadcastReceiver::class.java)
-                                .setAction(WeatherNotificationWorker.ACTION_REFRESHNOTIFICATION))
+                        WeatherNotificationWorker.refreshNotification(context)
                     }
                     if (Settings.useAlerts() && wm.supportsAlerts()) {
                         WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.weatherAlerts)
@@ -212,204 +221,230 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     LocalBroadcastManager.getInstance(context)
                             .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                 } else {
-                    return@withContext Result.retry()
+                    return false
                 }
             }
-            Result.success()
+
+            return true
         }
-    }
 
-    // Re-schedule alarm at selected interval from now
-    private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
-        val weather = try {
-            WeatherDataLoader(Settings.getHomeData())
-                    .loadWeatherData(WeatherRequest.Builder()
-                            .forceRefresh(false)
-                            .loadAlerts()
-                            .loadForecasts()
-                            .build()
-                    ).await()
-        } catch (ex: Exception) {
-            Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG)
-            null
+        // Re-schedule alarm at selected interval from now
+        private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
+            val weather = try {
+                WeatherDataLoader(Settings.getHomeData())
+                        .loadWeatherData(WeatherRequest.Builder()
+                                .forceRefresh(false)
+                                .loadAlerts()
+                                .loadForecasts()
+                                .build()
+                        ).await()
+            } catch (ex: Exception) {
+                Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
+                null
+            }
+            weather
         }
-        weather
-    }
 
-    @SuppressLint("MissingPermission")
-    private suspend fun updateLocation(): Boolean = withContext(Dispatchers.IO) {
-        val context = applicationContext
+        private suspend fun preloadWeather() = withContext(Dispatchers.IO) {
+            val locations = Settings.getFavorites() ?: emptyList()
 
-        if (Settings.useFollowGPS()) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return@withContext false
+            for (location in locations) {
+                if (WidgetUtils.exists(location.query)) {
+                    try {
+                        WeatherDataLoader(location)
+                                .loadWeatherData(WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .loadAlerts()
+                                        .build()
+                                ).await()
+                    } catch (ex: Exception) {
+                        Logger.writeLine(Log.ERROR, ex, "%s: preloadWeather error", TAG)
+                    }
+                }
             }
+        }
 
-            var location: Location? = null
-            val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                return@withContext false
-            }
+        @SuppressLint("MissingPermission")
+        private suspend fun updateLocation(): Boolean = withContext(Dispatchers.IO) {
+            val context = App.instance.appContext
+            val wm = WeatherManager.getInstance()
+            var mFusedLocationClient: FusedLocationProviderClient? = null
 
             if (WearableHelper.isGooglePlayServicesInstalled()) {
-                location = try {
-                    withTimeoutOrNull(10 * 1000) {
-                        mFusedLocationClient?.lastLocation?.await()
-                    }
-                } catch (e: Exception) {
-                    Logger.writeLine(Log.ERROR, e)
-                    null
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+            }
+
+            if (Settings.useFollowGPS()) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return@withContext false
                 }
 
-                if (location == null) {
-                    val mLocationRequest = LocationRequest.create().apply {
-                        numUpdates = 1
-                        interval = 10000
-                        fastestInterval = 1000
-                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                var location: Location? = null
+                val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                    return@withContext false
+                }
+
+                if (WearableHelper.isGooglePlayServicesInstalled()) {
+                    location = try {
+                        withTimeoutOrNull(10 * 1000) {
+                            mFusedLocationClient?.lastLocation?.await()
+                        }
+                    } catch (e: Exception) {
+                        Logger.writeLine(Log.ERROR, e)
+                        null
                     }
 
-                    val handlerThread = HandlerThread("location")
-                    handlerThread.start()
+                    if (location == null) {
+                        val mLocationRequest = LocationRequest.create().apply {
+                            numUpdates = 1
+                            interval = 10000
+                            fastestInterval = 1000
+                            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                        }
 
-                    Timber.tag(TAG).i("Fused: Requesting location updates...")
+                        val handlerThread = HandlerThread("location")
+                        handlerThread.start()
 
-                    val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
-                        // Handler for timeout callback
-                        val handler = Handler(handlerThread.looper)
-                        val timeoutToken = Object()
+                        Timber.tag(TAG).i("Fused: Requesting location updates...")
 
-                        val locationCallback = object : LocationCallback() {
-                            override fun onLocationResult(locationResult: LocationResult) {
-                                handler.removeCallbacksAndMessages(timeoutToken)
-                                mFusedLocationClient!!.removeLocationUpdates(this)
+                        val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
+                            // Handler for timeout callback
+                            val handler = Handler(handlerThread.looper)
+                            val timeoutToken = Object()
 
-                                Timber.tag(TAG).i("Fused: Location update received...")
-                                continuation.resume(locationResult)
-                                handlerThread.quitSafely()
-                            }
-
-                            override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                                if (!locationAvailability.isLocationAvailable) {
+                            val locationCallback = object : LocationCallback() {
+                                override fun onLocationResult(locationResult: LocationResult) {
                                     handler.removeCallbacksAndMessages(timeoutToken)
                                     mFusedLocationClient!!.removeLocationUpdates(this)
 
-                                    Timber.tag(TAG).i("Fused: Location update unavailable...")
+                                    Timber.tag(TAG).i("Fused: Location update received...")
+                                    continuation.resume(locationResult)
+                                    handlerThread.quitSafely()
+                                }
+
+                                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+                                    if (!locationAvailability.isLocationAvailable) {
+                                        handler.removeCallbacksAndMessages(timeoutToken)
+                                        mFusedLocationClient!!.removeLocationUpdates(this)
+
+                                        Timber.tag(TAG).i("Fused: Location update unavailable...")
+                                        continuation.resume(null)
+                                        handlerThread.quitSafely()
+                                    }
+                                }
+                            }
+
+                            mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, locationCallback, handlerThread.looper)
+
+                            // Timeout after 60s
+                            handler.postDelayed(60000, timeoutToken) {
+                                mFusedLocationClient?.removeLocationUpdates(locationCallback)
+                                Timber.tag(TAG).i("Fused: Location update timed out...")
+                                continuation.resume(null)
+                                handlerThread.quitSafely()
+                            }
+                        }
+
+                        location = locationResult?.lastLocation
+                    }
+                } else {
+                    val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                    val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+                    if (isGPSEnabled || isNetEnabled) {
+                        val locCriteria = Criteria().apply {
+                            accuracy = Criteria.ACCURACY_COARSE
+                            isCostAllowed = false
+                            powerRequirement = Criteria.POWER_LOW
+                        }
+
+                        val provider = locMan.getBestProvider(locCriteria, true)!!
+                        location = locMan.getLastKnownLocation(provider)
+
+                        if (location == null) {
+                            val handlerThread = HandlerThread("location")
+                            handlerThread.start()
+
+                            Timber.tag(TAG).i("LocMan: Requesting location update...")
+
+                            location = suspendCancellableCoroutine { continuation ->
+                                // Handler for timeout callback
+                                val handler = Handler(handlerThread.looper)
+                                val timeoutToken = Object()
+
+                                val locationListener = object : LocationListener {
+                                    override fun onLocationChanged(location: Location) {
+                                        handler.removeCallbacksAndMessages(timeoutToken)
+                                        locMan.removeUpdates(this)
+
+                                        Timber.tag(TAG).i("LocMan: Location update received...")
+
+                                        continuation.resume(location)
+                                        handlerThread.quitSafely()
+                                    }
+
+                                    override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {}
+                                    override fun onProviderEnabled(s: String) {}
+                                    override fun onProviderDisabled(s: String) {}
+                                }
+
+                                try {
+                                    locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)
+                                } catch (e: Exception) {
+                                    locMan.removeUpdates(locationListener)
+                                    continuation.resumeWithException(e)
+                                    handlerThread.quitSafely()
+                                }
+
+                                // Timeout after 60s
+                                handler.postDelayed(60000, timeoutToken) {
+                                    locMan.removeUpdates(locationListener)
+                                    Timber.tag(TAG).i("LocMan: Location update timed out...")
                                     continuation.resume(null)
                                     handlerThread.quitSafely()
                                 }
                             }
                         }
+                    }
+                }
 
-                        mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, locationCallback, handlerThread.looper)
+                if (location != null) {
+                    val lastGPSLocData = Settings.getLastGPSLocData()
 
-                        // Timeout after 60s
-                        handler.postDelayed(60000, timeoutToken) {
-                            mFusedLocationClient?.removeLocationUpdates(locationCallback)
-                            Timber.tag(TAG).i("Fused: Location update timed out...")
-                            continuation.resume(null)
-                            handlerThread.quitSafely()
+                    // Check previous location difference
+                    if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
+                        return@withContext false
+                    }
+
+                    val query_vm = try {
+                        withContext(Dispatchers.IO) {
+                            wm.getLocation(location)
+                        }
+                    } catch (e: WeatherException) {
+                        Logger.writeLine(Log.ERROR, e)
+                        return@withContext false
+                    }
+
+                    if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.locationQuery)) {
+                        // Stop since there is no valid query
+                        return@withContext false
+                    } else if (query_vm.locationTZLong?.isNotBlank() == true && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
+                        val tzId = TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
+
+                        if ("unknown" != tzId) {
+                            query_vm.locationTZLong = tzId
                         }
                     }
 
-                    location = locationResult?.lastLocation
-                }
-            } else {
-                val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-                if (isGPSEnabled || isNetEnabled) {
-                    val locCriteria = Criteria().apply {
-                        accuracy = Criteria.ACCURACY_COARSE
-                        isCostAllowed = false
-                        powerRequirement = Criteria.POWER_LOW
-                    }
-
-                    val provider = locMan.getBestProvider(locCriteria, true)!!
-                    location = locMan.getLastKnownLocation(provider)
-
-                    if (location == null) {
-                        val handlerThread = HandlerThread("location")
-                        handlerThread.start()
-
-                        Timber.tag(TAG).i("LocMan: Requesting location update...")
-
-                        location = suspendCancellableCoroutine { continuation ->
-                            // Handler for timeout callback
-                            val handler = Handler(handlerThread.looper)
-                            val timeoutToken = Object()
-
-                            val locationListener = object : LocationListener {
-                                override fun onLocationChanged(location: Location) {
-                                    handler.removeCallbacksAndMessages(timeoutToken)
-                                    locMan.removeUpdates(this)
-
-                                    Timber.tag(TAG).i("LocMan: Location update received...")
-
-                                    continuation.resume(location)
-                                    handlerThread.quitSafely()
-                                }
-
-                                override fun onStatusChanged(s: String, i: Int, bundle: Bundle) {}
-                                override fun onProviderEnabled(s: String) {}
-                                override fun onProviderDisabled(s: String) {}
-                            }
-
-                            try {
-                                locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)
-                            } catch (e: Exception) {
-                                locMan.removeUpdates(locationListener)
-                                continuation.resumeWithException(e)
-                                handlerThread.quitSafely()
-                            }
-
-                            // Timeout after 60s
-                            handler.postDelayed(60000, timeoutToken) {
-                                locMan.removeUpdates(locationListener)
-                                Timber.tag(TAG).i("LocMan: Location update timed out...")
-                                continuation.resume(null)
-                                handlerThread.quitSafely()
-                            }
-                        }
-                    }
+                    // Save location as last known
+                    lastGPSLocData!!.setData(query_vm, location)
+                    Settings.saveLastGPSLocData(lastGPSLocData)
+                    return@withContext true
                 }
             }
-
-            if (location != null) {
-                val lastGPSLocData = Settings.getLastGPSLocData()
-
-                // Check previous location difference
-                if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
-                    return@withContext false
-                }
-
-                val query_vm = try {
-                    withContext(Dispatchers.IO) {
-                        wm.getLocation(location)
-                    }
-                } catch (e: WeatherException) {
-                    Logger.writeLine(Log.ERROR, e)
-                    return@withContext false
-                }
-
-                if (query_vm == null || StringUtils.isNullOrWhitespace(query_vm.locationQuery)) {
-                    // Stop since there is no valid query
-                    return@withContext false
-                } else if (query_vm.locationTZLong?.isNotBlank() == true && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
-
-                    if ("unknown" != tzId) {
-                        query_vm.locationTZLong = tzId
-                    }
-                }
-
-                // Save location as last known
-                lastGPSLocData!!.setData(query_vm, location)
-                Settings.saveLastGPSLocData(lastGPSLocData)
-                return@withContext true
-            }
+            false
         }
-        false
     }
 }

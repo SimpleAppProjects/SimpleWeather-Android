@@ -97,6 +97,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .build()
             val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, Settings.DEFAULTINTERVAL.toLong(), TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
                     .setConstraints(constraints)
+                    .addTag(TAG)
                     .build()
             WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)

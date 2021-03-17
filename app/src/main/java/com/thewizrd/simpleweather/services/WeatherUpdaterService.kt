@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.services
 
 import android.app.*
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,19 +9,31 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.NotificationUtils
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
+import com.thewizrd.simpleweather.utils.PowerUtils
+import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider
+import com.thewizrd.simpleweather.widgets.WidgetType
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import com.thewizrd.simpleweather.widgets.WidgetUtils
+import kotlinx.coroutines.*
 import java.time.Duration
 
 class WeatherUpdaterService : Service() {
     private lateinit var mNotificationManager: NotificationManager
     private lateinit var mTickReceiver: TickReceiver
 
+    private lateinit var mAppWidgetManager: AppWidgetManager
+
+    // Foreground service
     private var mReceiverRegistered = false
     private var mLastWeatherUpdateTime: Long = -1
     private var mLastWidgetUpdateTime: Long = -1
@@ -28,31 +41,32 @@ class WeatherUpdaterService : Service() {
     companion object {
         const val TAG = "WeatherUpdaterService"
 
+        // Actions
         const val ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM"
         const val ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM"
         const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         private const val ACTION_REQUESTUPDATE = "SimpleWeather.Droid.action.REQUEST_UPDATE"
 
-        internal const val NOT_CHANNEL_ID = "SimpleWeather.generalnotif"
-        private const val JOB_ID = 1006
+        // Widget Actions
+        const val ACTION_REFRESHWIDGET = "SimpleWeather.Droid.action.REFRESH_WIDGET"
+        const val ACTION_RESIZEWIDGET = "SimpleWeather.Droid.action.RESIZE_WIDGET"
+        const val ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS"
+        const val ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS"
+        const val ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.REFRESH_WIDGETS"
 
-        @RequiresApi(Build.VERSION_CODES.O)
-        internal fun initChannel(context: Context) {
-            // Gets an instance of the NotificationManager service
-            val mNotifyMgr = context.getSystemService(NotificationManager::class.java)
-            var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-            val notchannel_name = context.resources.getString(R.string.not_channel_name_general)
-            if (mChannel == null) {
-                mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
-            }
+        const val ACTION_UPDATECLOCK = "SimpleWeather.Droid.action.UPDATE_CLOCK"
+        const val ACTION_UPDATEDATE = "SimpleWeather.Droid.action.UPDATE_DATE"
 
-            // Configure the notification channel.
-            mChannel.name = notchannel_name
-            mChannel.setShowBadge(false)
-            mChannel.enableLights(false)
-            mChannel.enableVibration(false)
-            mNotifyMgr.createNotificationChannel(mChannel)
+        // Extras
+        const val EXTRA_LOCATIONNAME = "SimpleWeather.Droid.extra.LOCATION_NAME"
+        const val EXTRA_LOCATIONQUERY = "SimpleWeather.Droid.extra.LOCATION_QUERY"
+
+        private const val JOB_ID = 1000
+
+        @JvmStatic
+        fun enqueueWork(context: Context, work: Intent) {
+            ContextCompat.startForegroundService(context, work)
         }
     }
 
@@ -62,6 +76,8 @@ class WeatherUpdaterService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
 
         mTickReceiver = TickReceiver()
         mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -131,17 +147,101 @@ class WeatherUpdaterService : Service() {
                 stopSelf()
             }
             ACTION_REQUESTUPDATE -> {
-                WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+                updateWeather()
             }
             WidgetUpdaterWorker.ACTION_UPDATEWIDGETS -> {
-                WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
+                updateWidgets()
             }
             WeatherUpdaterWorker.ACTION_UPDATEWEATHER -> {
-                WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+                updateWeather()
+            }
+            // Widget update actions
+            // Note: should end service if fg option is disabled
+            ACTION_REFRESHWIDGET -> {
+                val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
+                val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
+
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
+                                ?: return@withContext
+                        WidgetUpdaterHelper.refreshWidget(applicationContext, info, mAppWidgetManager, appWidgetIds)
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_RESIZEWIDGET -> {
+                val appWidgetId = intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, -1)
+                val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
+                val newOptions = intent.getBundleExtra(WeatherWidgetProvider.EXTRA_WIDGET_OPTIONS)!!
+
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        if (Settings.isWeatherLoaded()) {
+                            val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
+                                    ?: return@withContext
+                            WidgetUpdaterHelper.rebuildWidget(applicationContext, info, mAppWidgetManager, appWidgetId, newOptions)
+                        }
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_RESETGPSWIDGETS -> {
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        // GPS feature disabled; reset widget
+                        WidgetUpdaterHelper.resetGPSWidgets(applicationContext);
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_REFRESHGPSWIDGETS -> {
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        WidgetUpdaterHelper.refreshWidgets(applicationContext, Constants.KEY_GPS);
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_REFRESHWIDGETS -> {
+                val locationQuery = intent.getStringExtra(EXTRA_LOCATIONQUERY)
+                GlobalScope.launch {
+                    locationQuery?.let {
+                        withContext(Dispatchers.Unconfined) {
+                            WidgetUpdaterHelper.refreshWidgets(applicationContext, it);
+                        }
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_UPDATECLOCK -> {
+                val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
+                val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
+
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
+                                ?: return@withContext
+                        WidgetUpdaterHelper.refreshClock(applicationContext, info, appWidgetIds)
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            ACTION_UPDATEDATE -> {
+                val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
+                val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
+
+                GlobalScope.launch {
+                    withContext(Dispatchers.Unconfined) {
+                        val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
+                                ?: return@withContext
+                        WidgetUpdaterHelper.refreshDate(applicationContext, info, appWidgetIds)
+                    }
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
             }
         }
 
-        return START_STICKY
+        return if (PowerUtils.useForegroundService) START_STICKY else START_NOT_STICKY
+    }
+
+    private val checkStopSelfCompletionHandler = { _: Throwable? ->
+        if (!PowerUtils.useForegroundService) {
+            stopSelf()
+        }
     }
 
     private fun checkReceiver() {
@@ -160,13 +260,25 @@ class WeatherUpdaterService : Service() {
 
         if (Duration.ofMillis(nowMillis - mLastWeatherUpdateTime).toMinutes() >= Settings.getRefreshInterval()) {
             Logger.writeLine(Log.INFO, "${TAG}: updating weather...")
-            WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+            updateWeather()
             mLastWeatherUpdateTime = nowMillis
             mLastWidgetUpdateTime = nowMillis
         } else if (Duration.ofMillis(nowMillis - mLastWidgetUpdateTime).toMinutes() >= 60) {
             Logger.writeLine(Log.INFO, "${TAG}: updating widgets...")
-            WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
+            updateWidgets()
             mLastWidgetUpdateTime = nowMillis
+        }
+    }
+
+    private fun updateWeather() {
+        GlobalScope.launch {
+            WeatherUpdaterWorker.executeWork(applicationContext)
+        }
+    }
+
+    private fun updateWidgets() {
+        GlobalScope.launch {
+            WidgetUpdaterWorker.executeWork(applicationContext)
         }
     }
 

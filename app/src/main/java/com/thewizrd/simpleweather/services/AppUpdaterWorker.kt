@@ -46,6 +46,7 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) : Corou
 
             val updateRequest = PeriodicWorkRequest.Builder(AppUpdaterWorker::class.java, 1, TimeUnit.DAYS)
                     .setConstraints(constraints)
+                    .addTag(TAG)
                     .build()
 
             WorkManager.getInstance(context)
@@ -63,7 +64,7 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) : Corou
             } catch (ignored: ExecutionException) {
             } catch (ignored: InterruptedException) {
             }
-            if (statuses == null || statuses.isEmpty()) return false
+            if (statuses?.isNullOrEmpty() == true) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING

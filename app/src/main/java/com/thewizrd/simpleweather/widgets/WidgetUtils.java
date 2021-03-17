@@ -270,14 +270,14 @@ public class WidgetUtils {
 
     private static int[] getAllWidgetIds() {
         AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
-        WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
-        WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
-        WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
-        WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
-        WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
-        WeatherWidgetProvider4x1Notification mAppWidget4x1N = WeatherWidgetProvider4x1Notification.getInstance();
-        WeatherWidgetProvider4x2Clock mAppWidget4x2C = WeatherWidgetProvider4x2Clock.getInstance();
-        WeatherWidgetProvider4x2Huawei mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.getInstance();
+        WidgetProviderInfo mAppWidget1x1 = Widget1x1Info.getInstance();
+        WidgetProviderInfo mAppWidget2x2 = Widget2x2Info.getInstance();
+        WidgetProviderInfo mAppWidget4x1 = Widget4x1Info.getInstance();
+        WidgetProviderInfo mAppWidget4x2 = Widget4x2Info.getInstance();
+        WidgetProviderInfo mAppWidget4x1G = Widget4x1Info.getInstance();
+        WidgetProviderInfo mAppWidget4x1N = Widget4x1NotificationInfo.getInstance();
+        WidgetProviderInfo mAppWidget4x2C = Widget4x2ClockInfo.getInstance();
+        WidgetProviderInfo mAppWidget4x2BC = Widget4x2HuaweiInfo.getInstance();
 
         return ArrayUtils.concat(
                 mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName()),
@@ -293,35 +293,52 @@ public class WidgetUtils {
 
     private static int[] getWidgetIds(WidgetType widgetType) {
         AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(App.getInstance().getAppContext());
-        WeatherWidgetProvider1x1 mAppWidget1x1 = WeatherWidgetProvider1x1.getInstance();
-        WeatherWidgetProvider2x2 mAppWidget2x2 = WeatherWidgetProvider2x2.getInstance();
-        WeatherWidgetProvider4x1 mAppWidget4x1 = WeatherWidgetProvider4x1.getInstance();
-        WeatherWidgetProvider4x2 mAppWidget4x2 = WeatherWidgetProvider4x2.getInstance();
-        WeatherWidgetProvider4x1Google mAppWidget4x1G = WeatherWidgetProvider4x1Google.getInstance();
-        WeatherWidgetProvider4x1Notification mAppWidget4x1N = WeatherWidgetProvider4x1Notification.getInstance();
-        WeatherWidgetProvider4x2Clock mAppWidget4x2C = WeatherWidgetProvider4x2Clock.getInstance();
-        WeatherWidgetProvider4x2Huawei mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.getInstance();
 
         switch (widgetType) {
             default:
             case Unknown:
                 return new int[0];
             case Widget1x1:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget1x1Info.getInstance().getComponentName());
             case Widget2x2:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget2x2Info.getInstance().getComponentName());
             case Widget4x1:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x1Info.getInstance().getComponentName());
             case Widget4x2:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x2Info.getInstance().getComponentName());
             case Widget4x1Google:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x1GoogleInfo.getInstance().getComponentName());
             case Widget4x1Notification:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x1NotificationInfo.getInstance().getComponentName());
             case Widget4x2Clock:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x2ClockInfo.getInstance().getComponentName());
             case Widget4x2Huawei:
-                return mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.getComponentName());
+                return mAppWidgetManager.getAppWidgetIds(Widget4x2HuaweiInfo.getInstance().getComponentName());
+        }
+    }
+
+    @Nullable
+    public static WidgetProviderInfo getWidgetProviderInfoFromType(final WidgetType widgetType) {
+        switch (widgetType) {
+            default:
+            case Unknown:
+                return null;
+            case Widget1x1:
+                return Widget1x1Info.getInstance();
+            case Widget2x2:
+                return Widget2x2Info.getInstance();
+            case Widget4x1:
+                return Widget4x1Info.getInstance();
+            case Widget4x2:
+                return Widget4x2Info.getInstance();
+            case Widget4x1Google:
+                return Widget4x1GoogleInfo.getInstance();
+            case Widget4x1Notification:
+                return Widget4x1NotificationInfo.getInstance();
+            case Widget4x2Clock:
+                return Widget4x2ClockInfo.getInstance();
+            case Widget4x2Huawei:
+                return Widget4x2HuaweiInfo.getInstance();
         }
     }
 
@@ -632,21 +649,21 @@ public class WidgetUtils {
                 .getAppWidgetInfo(appWidgetId);
 
         if (providerInfo != null) {
-            if (providerInfo.initialLayout == WeatherWidgetProvider1x1.getInstance().getWidgetLayoutId()) {
+            if (providerInfo.initialLayout == Widget1x1Info.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget1x1;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider2x2.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget2x2Info.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget2x2;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x1Info.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x1;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x2Info.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x2;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Google.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x1GoogleInfo.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x1Google;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x1Notification.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x1NotificationInfo.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x1Notification;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2Clock.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x2ClockInfo.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x2Clock;
-            } else if (providerInfo.initialLayout == WeatherWidgetProvider4x2Huawei.getInstance().getWidgetLayoutId()) {
+            } else if (providerInfo.initialLayout == Widget4x2HuaweiInfo.getInstance().getWidgetLayoutId()) {
                 return WidgetType.Widget4x2Huawei;
             }
         }

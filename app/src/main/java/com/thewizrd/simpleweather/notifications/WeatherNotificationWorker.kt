@@ -20,41 +20,34 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-    private val mContext = context.applicationContext
-
     companion object {
         private const val TAG = "WeatherNotificationWorker"
 
         // Actions
         private const val KEY_ACTION = "action"
-        const val ACTION_REFRESHNOTIFICATION = "SimpleWeather.Droid.action.REFRESH_NOTIFICATION"
-        const val ACTION_REMOVENOTIFICATION = "SimpleWeather.Droid.action.REMOVE_NOTIFICATION"
+        private const val ACTION_REFRESHNOTIFICATION = "SimpleWeather.Droid.action.REFRESH_NOTIFICATION"
+        private const val ACTION_REMOVENOTIFICATION = "SimpleWeather.Droid.action.REMOVE_NOTIFICATION"
 
         // Extras
-        const val EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH"
+        private const val EXTRA_FORCEREFRESH = "SimpleWeather.Droid.extra.FORCE_REFRESH"
 
-        // Sets an ID for the notification
-        private const val NOT_CHANNEL_ID = "SimpleWeather.ongoingweather"
-        private const val JOB_ID = 1003
-        private const val PERSISTENT_NOT_ID = JOB_ID
+        suspend fun refreshNotification(context: Context, forceRefresh: Boolean = false) {
+            WeatherNotificationHelper.refreshNotification(context.applicationContext, forceRefresh)
+        }
 
         @JvmStatic
-        fun enqueueAction(context: Context, intent: Intent) {
-            val context = context.applicationContext
+        fun removeNotification(context: Context) {
+            WeatherNotificationHelper.removeNotification(context.applicationContext)
+        }
 
-            if (intent.action != null) {
-                when (intent.action) {
-                    ACTION_REFRESHNOTIFICATION,
-                    ACTION_REMOVENOTIFICATION -> {
-                        startWork(context, intent)
-                    }
-                }
-            }
+        @JvmStatic
+        @JvmOverloads
+        fun requestRefreshNotification(context: Context, forceRefresh: Boolean = false) {
+            startWork(context.applicationContext, Intent(ACTION_REFRESHNOTIFICATION)
+                    .putExtra(EXTRA_FORCEREFRESH, forceRefresh))
         }
 
         private fun startWork(context: Context, intent: Intent) {
-            val context = context.applicationContext
-
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val updateRequest = OneTimeWorkRequest.Builder(WeatherNotificationWorker::class.java)
@@ -84,6 +77,21 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
         Logger.writeLine(Log.INFO, "%s: Action: %s", TAG, intentAction)
 
         if (ACTION_REFRESHNOTIFICATION == intentAction) {
+            WeatherNotificationHelper.refreshNotification(applicationContext, forceRefresh)
+        } else if (ACTION_REMOVENOTIFICATION == intentAction) {
+            WeatherNotificationHelper.removeNotification(applicationContext)
+        }
+
+        return Result.success()
+    }
+
+    private object WeatherNotificationHelper {
+        // Sets an ID for the notification
+        private const val NOT_CHANNEL_ID = "SimpleWeather.ongoingweather"
+        private const val JOB_ID = 1003
+        private const val PERSISTENT_NOT_ID = JOB_ID
+
+        suspend fun refreshNotification(context: Context, forceRefresh: Boolean) {
             if (Settings.isWeatherLoaded()) {
                 val weather = withContext(Dispatchers.IO) {
                     val locData = Settings.getHomeData()
@@ -105,45 +113,41 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
 
                 if (Settings.showOngoingNotification() && weather != null) {
                     // Gets an instance of the NotificationManager service
-                    val mNotifyMgr = mContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    initChannel(mNotifyMgr)
+                    val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    initChannel(context, mNotifyMgr)
 
                     // Update notification
                     val mNotification = WeatherNotificationBuilder.updateNotification(NOT_CHANNEL_ID, WeatherNowViewModel(weather))
                     mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification)
                 } else if (!Settings.showOngoingNotification()) {
-                    removeNotification()
+                    removeNotification(context)
                 }
             }
-        } else if (ACTION_REMOVENOTIFICATION == intentAction) {
-            removeNotification()
         }
 
-        return Result.success()
-    }
+        fun removeNotification(context: Context) {
+            val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            mNotifyMgr.cancel(PERSISTENT_NOT_ID)
+        }
 
-    private fun initChannel(mNotifyMgr: NotificationManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
+        private fun initChannel(context: Context, mNotifyMgr: NotificationManager) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
 
-            val notchannel_name = mContext.resources.getString(R.string.not_channel_name_weather)
-            val notchannel_desc = mContext.resources.getString(R.string.not_channel_desc_weather)
+                val notchannel_name = context.resources.getString(R.string.not_channel_name_weather)
+                val notchannel_desc = context.resources.getString(R.string.not_channel_desc_weather)
 
-            if (mChannel == null) {
-                mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
+                if (mChannel == null) {
+                    mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
+                }
+                mChannel.name = notchannel_name
+                mChannel.description = notchannel_desc
+                // Configure the notification channel.
+                mChannel.setShowBadge(true)
+                mChannel.enableLights(false)
+                mChannel.enableVibration(false)
+                mNotifyMgr.createNotificationChannel(mChannel)
             }
-            mChannel.name = notchannel_name
-            mChannel.description = notchannel_desc
-            // Configure the notification channel.
-            mChannel.setShowBadge(true)
-            mChannel.enableLights(false)
-            mChannel.enableVibration(false)
-            mNotifyMgr.createNotificationChannel(mChannel)
         }
-    }
-
-    private fun removeNotification() {
-        val mNotifyMgr = mContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mNotifyMgr.cancel(PERSISTENT_NOT_ID)
     }
 }

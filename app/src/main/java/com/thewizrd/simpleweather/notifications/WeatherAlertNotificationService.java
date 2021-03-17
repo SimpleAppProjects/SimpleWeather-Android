@@ -37,8 +37,8 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
     private static HashMap<Integer, String> mNotifications;
 
     // Shared Settings
-    private static SharedPreferences notifPrefs = App.getInstance().getAppContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
-    private static SharedPreferences.Editor editor = notifPrefs.edit();
+    private static final SharedPreferences notifPrefs = App.getInstance().getAppContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
+    private static final SharedPreferences.Editor editor = notifPrefs.edit();
 
     private static final String KEY_NOTIFS = "notifications";
 

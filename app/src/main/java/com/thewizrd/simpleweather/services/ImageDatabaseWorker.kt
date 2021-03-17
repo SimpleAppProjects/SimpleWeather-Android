@@ -68,6 +68,7 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) : Co
 
             val updateRequest = PeriodicWorkRequest.Builder(ImageDatabaseWorker::class.java, 7, TimeUnit.DAYS)
                     .setConstraints(constraints)
+                    .addTag(TAG)
                     .build()
 
             WorkManager.getInstance(context)
@@ -85,7 +86,7 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) : Co
             } catch (ignored: ExecutionException) {
             } catch (ignored: InterruptedException) {
             }
-            if (statuses == null || statuses.isEmpty()) return false
+            if (statuses?.isNullOrEmpty() == true) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING

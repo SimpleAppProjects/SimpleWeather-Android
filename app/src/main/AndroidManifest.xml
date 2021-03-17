@@ -158,17 +158,8 @@
                 android:resource="@xml/app_widget_4x2_huawei_info" />
         </receiver>
         <receiver
-            android:name=".widgets.WeatherWidgetBroadcastReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".notifications.WeatherNotificationBroadcastReceiver"
-            android:enabled="true"
+            android:name=".notifications.WeatherAlertNotificationBroadcastReceiver"
+            android:enabled="@bool/enable_alertnotifservice"
             android:exported="false">
             <intent-filter>
                 <action android:name="SimpleWeather.Droid.action.CANCEL_NOTIFICATION" />
@@ -199,15 +190,13 @@
                     android:scheme="wear" />
             </intent-filter>
         </service>
-        <service
-            android:name=".widgets.WeatherWidgetService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".notifications.WeatherAlertNotificationService"
             android:enabled="@bool/enable_alertnotifservice"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".services.FCMService"
             android:exported="false">
