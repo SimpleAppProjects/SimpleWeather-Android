@@ -2,16 +2,17 @@ package com.thewizrd.shared_resources;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.okhttp3.CacheInterceptor;
-import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 
 import java.io.File;
@@ -61,11 +62,21 @@ public final class SimpleLibrary {
             sSimpleLib.mContext = app.getAppContext();
         }
 
-        try {
-            ProviderInstaller.installIfNeeded(sSimpleLib.getAppContext());
-        } catch (Exception e) {
-            Logger.writeLine(Log.ERROR, e);
-        }
+        ProviderInstaller.installIfNeededAsync(sSimpleLib.getAppContext(), new ProviderInstaller.ProviderInstallListener() {
+            @Override
+            public void onProviderInstalled() {
+                // no-op
+            }
+
+            @Override
+            public void onProviderInstallFailed(int errorCode, @Nullable Intent intent) {
+                GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+                if (googleApiAvailability.isUserResolvableError(errorCode)) {
+                    // Prompt the user to install/update/enable Google Play services.
+                    googleApiAvailability.showErrorNotification(sSimpleLib.getAppContext(), errorCode);
+                }
+            }
+        });
     }
 
     public static void unRegister() {
