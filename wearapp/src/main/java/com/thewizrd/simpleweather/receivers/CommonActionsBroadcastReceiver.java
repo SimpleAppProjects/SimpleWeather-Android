@@ -23,7 +23,7 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
             } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT.equals(intent.getAction()) ||
                     CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
-                WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS);
+                WidgetUpdaterWorker.requestWidgetUpdate(context);
             } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(intent.getAction())) {
                 // Reset UpdateTime value to force a refresh
                 Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());

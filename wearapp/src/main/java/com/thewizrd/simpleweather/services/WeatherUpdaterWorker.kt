@@ -6,7 +6,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.Criteria
@@ -37,8 +36,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.wearable.WearableWorker
-import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker
-import com.thewizrd.simpleweather.wearable.WeatherTileWorker
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -64,32 +61,29 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
-            val context = context.applicationContext
             when (intentAction) {
-                ACTION_UPDATEALARM -> enqueueWork(context)
+                ACTION_UPDATEALARM -> enqueueWork(context.applicationContext)
                 ACTION_UPDATEWEATHER, ACTION_STARTALARM ->
                     // For immediate action
-                    startWork(context)
-                ACTION_CANCELALARM -> cancelWork(context)
+                    startWork(context.applicationContext)
+                ACTION_CANCELALARM -> cancelWork(context.applicationContext)
             }
         }
 
         private fun startWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
             val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java)
                     .setInitialDelay(60, TimeUnit.SECONDS)
                     .build()
-            WorkManager.getInstance(context)
+            WorkManager.getInstance(context.applicationContext)
                     .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well
-            enqueueWork(context)
+            enqueueWork(context.applicationContext)
         }
 
         private fun enqueueWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -99,15 +93,14 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setConstraints(constraints)
                     .addTag(TAG)
                     .build()
-            WorkManager.getInstance(context)
+            WorkManager.getInstance(context.applicationContext)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
         private fun cancelWork(context: Context): Boolean {
             // Cancel alarm if dependent features are turned off
-            val context = context.applicationContext
-            WorkManager.getInstance(context).cancelUniqueWork(TAG)
+            WorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
             return true
         }
@@ -183,11 +176,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 val weather = getWeather()
 
                 if (weather != null) {
-                    // Update complications
-                    WeatherComplicationWorker.enqueueAction(context, Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS))
-
-                    // Update tiles
-                    WeatherTileWorker.enqueueAction(context, Intent(WeatherTileWorker.ACTION_UPDATETILES))
+                    WidgetUpdaterWorker.requestWidgetUpdate(context)
                 } else {
                     if (Settings.getDataSync() != WearableDataSync.OFF) {
                         // Check if data has been updated

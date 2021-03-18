@@ -47,9 +47,8 @@ import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
-import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker
-import com.thewizrd.simpleweather.wearable.WeatherTileWorker
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -124,11 +123,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.DEFAULTINTERVAL) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             } else {
-                // Update complications if they haven't been already
-                WeatherComplicationWorker.enqueueAction(context, Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS))
-
-                // Update tile if it hasn't been already
-                WeatherTileWorker.enqueueAction(context, Intent(WeatherTileWorker.ACTION_UPDATETILES))
+                WidgetUpdaterWorker.requestWidgetUpdate(context)
             }
         } else {
             Toast.makeText(fragmentActivity, R.string.werror_noweather, Toast.LENGTH_LONG).show()

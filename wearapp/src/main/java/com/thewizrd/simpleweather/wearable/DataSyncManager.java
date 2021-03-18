@@ -33,6 +33,7 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -97,8 +98,7 @@ public class DataSyncManager {
                 final String newIcons = Settings.getIconsProvider();
                 if (!ObjectsCompat.equals(oldIcons, newIcons)) {
                     // Update tiles and complications
-                    WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
-                    WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                    WidgetUpdaterWorker.requestWidgetUpdate(context);
                 }
 
                 setSettingsUpdateTime(context, updateTimeMillis);
@@ -181,11 +181,7 @@ public class DataSyncManager {
 
                             Timber.tag("DataSyncManager").d("Updated weather data");
 
-                            // Update complications
-                            WeatherComplicationWorker.enqueueAction(context, new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
-
-                            // Update tile
-                            WeatherTileWorker.enqueueAction(context, new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+                            WidgetUpdaterWorker.requestWidgetUpdate(context);
                         } else {
                             Timber.tag("DataSyncManager").d("Weather data invalid");
                         }

@@ -62,8 +62,8 @@ import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
 import com.thewizrd.simpleweather.preferences.iconpreference.iconpreference.IconProviderPickerFragment;
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
-import com.thewizrd.simpleweather.wearable.WeatherComplicationWorker;
-import com.thewizrd.simpleweather.wearable.WeatherTileWorker;
+import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper;
+import com.thewizrd.simpleweather.wearable.WeatherTileHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -833,8 +833,8 @@ public class SettingsActivity extends WearableListenerActivity {
             super.onSelectionPerformed(success);
 
             // Update tiles and complications
-            WeatherComplicationWorker.enqueueAction(getContext(), new Intent(WeatherComplicationWorker.ACTION_UPDATECOMPLICATIONS));
-            WeatherTileWorker.enqueueAction(getContext(), new Intent(WeatherTileWorker.ACTION_UPDATETILES));
+            WeatherComplicationHelper.requestComplicationUpdateAll(getContext());
+            WeatherTileHelper.requestTileUpdateAll(getContext());
         }
     }
 
