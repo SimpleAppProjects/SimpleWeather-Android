@@ -23,21 +23,14 @@
                 android:orientation="vertical"
                 android:descendantFocusability="blocksDescendants">
 
-                <FrameLayout
-                    android:id="@+id/widget_frame_container"
+                <com.thewizrd.simpleweather.widgets.WidgetPreviewLayout
+                    android:id="@+id/widget_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="225dp"
+                    android:layout_gravity="center"
                     android:background="#242424">
 
-                    <com.thewizrd.simpleweather.widgets.WidgetPreviewLayout
-                        android:id="@+id/widget_container"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center">
-
-                    </com.thewizrd.simpleweather.widgets.WidgetPreviewLayout>
-
-                </FrameLayout>
+                </com.thewizrd.simpleweather.widgets.WidgetPreviewLayout>
 
             </LinearLayout>
 

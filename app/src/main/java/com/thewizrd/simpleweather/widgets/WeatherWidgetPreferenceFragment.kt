@@ -21,6 +21,7 @@ import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorInt
@@ -37,6 +38,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
+import com.bumptech.glide.load.DecodeFormat
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
@@ -49,6 +51,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayListPreference
@@ -668,7 +671,12 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
             val views = withContext(Dispatchers.Default) {
                 buildMockData()
-                WidgetUpdaterHelper.buildUpdate(requireContext(), info, mAppWidgetId, mockLocData!!, mockWeatherModel!!, mWidgetOptions)
+
+                val view = WidgetUpdaterHelper.buildUpdate(requireContext(), info, mAppWidgetId,
+                        mockLocData!!, mockWeatherModel!!, mWidgetOptions, false)
+                WidgetUpdaterHelper.buildExtras(requireContext(), mWidgetInfo,
+                        mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions)
+                view
             }
 
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
@@ -676,6 +684,22 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             binding.widgetContainer.addView(widgetView)
 
             updateLocationView()
+            updateBackground()
+        }
+    }
+
+    private fun updateBackground() {
+        if (WidgetBackground.valueOf(bgChoicePref.value.toInt()) == WidgetBackground.CURRENT_CONDITIONS) {
+            val imageView = binding.widgetContainer.findViewById<ImageView>(R.id.widgetBackground)
+            if (imageView != null) {
+                GlideApp.with(this)
+                        .load("file:///android_asset/backgrounds/day.jpg")
+                        .format(DecodeFormat.PREFER_RGB_565)
+                        .centerCrop()
+                        .transform(TransparentOverlay(0x33))
+                        .thumbnail(0.75f)
+                        .into(imageView)
+            }
         }
     }
 
@@ -693,8 +717,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 val views = withContext(Dispatchers.Default) {
                     buildMockData()
 
-                    val view = WidgetUpdaterHelper.buildUpdate(requireContext(), mWidgetInfo, mAppWidgetId, mockLocData!!, mockWeatherModel!!, mWidgetOptions)
-                    WidgetUpdaterHelper.buildExtras(requireContext(), mWidgetInfo, mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions)
+                    val view = WidgetUpdaterHelper.buildUpdate(requireContext(), mWidgetInfo, mAppWidgetId,
+                            mockLocData!!, mockWeatherModel!!, mWidgetOptions, false)
+                    WidgetUpdaterHelper.buildExtras(requireContext(), mWidgetInfo,
+                            mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions)
                     view
                 }
 
@@ -702,6 +728,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
                 // Create view
                 updateLocationView()
+                updateBackground()
             } else {
                 initializeWidget()
             }
@@ -735,13 +762,13 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     }
 
     private fun resizeWidgetContainer() {
-        val widgetFrameContainer = binding.scrollView.findViewById<View>(R.id.widget_frame_container)
         val widgetView = binding.widgetContainer.findViewById<View>(R.id.widget)
 
-        val width = binding.scrollView.measuredWidth
+        val screenWidth = binding.scrollView.measuredWidth
 
         val preferredHeight = ContextUtils.dpToPx(appCompatActivity, 225f).toInt()
         var minHeight = ContextUtils.dpToPx(appCompatActivity, 96f).toInt()
+        val maxCellWidth = minHeight * 5
 
         if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
             minHeight *= 2
@@ -750,18 +777,20 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         TransitionManager.beginDelayedTransition(binding.scrollView, AutoTransition())
 
         if (appCompatActivity.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            widgetFrameContainer.minimumHeight = preferredHeight
+            binding.widgetContainer.minimumHeight = preferredHeight
         } else {
             if (mWidgetType == WidgetType.Widget1x1 || mWidgetType == WidgetType.Widget4x1Google) {
                 minHeight = (minHeight * 1.5f).toInt()
             }
-            widgetFrameContainer.minimumHeight = minHeight
+            binding.widgetContainer.minimumHeight = minHeight
         }
 
         if (widgetView != null) {
             val widgetParams = widgetView.layoutParams as FrameLayout.LayoutParams
-            if (widgetView.measuredWidth > width) {
-                widgetParams.width = width
+            if (widgetView.measuredWidth > screenWidth) {
+                widgetParams.width = screenWidth
+            } else if (widgetView.measuredWidth > maxCellWidth) {
+                widgetParams.width = maxCellWidth
             }
             widgetParams.gravity = Gravity.CENTER
             widgetView.layoutParams = widgetParams
