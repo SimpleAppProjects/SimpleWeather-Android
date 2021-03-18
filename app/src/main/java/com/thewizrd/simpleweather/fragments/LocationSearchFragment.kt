@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -20,7 +19,6 @@ import android.widget.TextView.OnEditorActionListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -91,28 +89,8 @@ class LocationSearchFragment : WindowColorFragment() {
         val props = Bundle()
         props.putString("method", "recyclerClickListener.onClick")
         AnalyticsLogger.logEvent("$TAG: onClick", props)
-        val navController = Navigation.findNavController(binding.root)
-        val savedStateHandle = if (navController.previousBackStackEntry != null) {
-            navController.previousBackStackEntry!!.savedStateHandle
-        } else {
-            // NOTE: This shouldn't happen btw
-            val args = Bundle()
-            args.putString("method", "recyclerClickListener.onClick")
-            args.putBoolean("isAlive", isAlive)
-            args.putBoolean("isViewAlive", isViewAlive)
-            args.putBoolean("isDetached", isDetached)
-            args.putBoolean("isResumed", isResumed)
-            args.putBoolean("isRemoving", isRemoving)
-            if (navController.currentBackStackEntry != null) {
-                args.putString("currentBackStackEntry", navController.currentBackStackEntry!!.destination.toString())
-            }
-            if (navController.currentDestination != null) {
-                args.putString("currentDestination", navController.currentDestination.toString())
-            }
-            AnalyticsLogger.logEvent("$TAG: prevBackStack null", args)
-            Logger.writeLine(Log.ERROR, "$TAG: prevBackStack null")
-            return@RecyclerOnClickListenerInterface
-        }
+
+        val navController = binding.root.findNavController()
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
             showLoading(true)
@@ -236,7 +214,9 @@ class LocationSearchFragment : WindowColorFragment() {
                         val result = deferredJob.getCompleted()
                         runWithView { // Go back to where we started
                             if (result != null) {
-                                savedStateHandle.set(Constants.KEY_DATA, JSONParser.serializer(result, LocationData::class.java))
+                                navController.previousBackStackEntry?.savedStateHandle?.set(Constants.KEY_DATA, withContext(Dispatchers.Default) {
+                                    JSONParser.serializer(result, LocationData::class.java)
+                                })
                             }
                             navController.navigateUp()
                         }

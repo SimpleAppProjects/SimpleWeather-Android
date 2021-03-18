@@ -585,39 +585,41 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         args = WeatherWidgetPreferenceFragmentArgs.fromBundle(requireArguments())
 
-        val savedStateHandle = view.findNavController().currentBackStackEntry!!
-                .savedStateHandle
-        val liveData = savedStateHandle.getLiveData<String>(Constants.KEY_DATA)
+        val savedStateHandle = view.findNavController().currentBackStackEntry?.savedStateHandle
+        savedStateHandle?.getLiveData<String>(Constants.KEY_DATA)
+                ?.observe(viewLifecycleOwner, { result ->
+                    // Do something with the result.
+                    if (result != null) {
+                        // Save data
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val data = withContext(Dispatchers.IO) {
+                                JSONParser.deserializer(result, LocationData::class.java)
+                            }
 
-        liveData.observe(viewLifecycleOwner, { result ->
-            // Do something with the result.
-            if (result != null) {
-                // Save data
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val data = withContext(Dispatchers.IO) {
-                        JSONParser.deserializer(result, LocationData::class.java)
-                    }
+                            if (data != null) {
+                                query_vm = LocationQueryViewModel(data)
+                                val item = ComboBoxItem(query_vm!!.locationName, query_vm!!.locationQuery)
+                                val idx = locationPref.entryCount - 1
 
-                    if (data != null) {
-                        query_vm = LocationQueryViewModel(data)
-                        val item = ComboBoxItem(query_vm!!.locationName, query_vm!!.locationQuery)
-                        val idx = locationPref.entryCount - 1
-                        locationPref.insertEntry(idx, item.display, item.value)
-                        locationPref.setValueIndex(idx)
-                        if (locationPref.entryCount > MAX_LOCATIONS) {
-                            locationPref.removeEntry(locationPref.entryCount - 1)
+                                locationPref.insertEntry(idx, item.display, item.value)
+                                locationPref.setValueIndex(idx)
+
+                                if (locationPref.entryCount > MAX_LOCATIONS) {
+                                    locationPref.removeEntry(locationPref.entryCount - 1)
+                                }
+
+                                locationPref.callChangeListener(item.value)
+
+                                savedStateHandle.remove(Constants.KEY_DATA)
+                            } else {
+                                query_vm = null
+                            }
                         }
-                        locationPref.callChangeListener(item.value)
-
-                        savedStateHandle.remove(Constants.KEY_DATA)
-                    } else {
-                        query_vm = null
                     }
-                }
-            }
-        })
+                })
 
         initializeWidget()
+
         // Resize necessary views
         binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {

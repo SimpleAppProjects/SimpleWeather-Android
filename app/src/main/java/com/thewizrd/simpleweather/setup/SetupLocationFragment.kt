@@ -18,8 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.navigation.Navigation
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import com.google.android.gms.location.*
@@ -164,7 +163,7 @@ class SetupLocationFragment : CustomFragment() {
             bottomNavBar.visibility = View.GONE
 
             try {
-                Navigation.findNavController(v)
+                v.findNavController()
                         .navigate(
                                 SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
                                 FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
@@ -197,27 +196,32 @@ class SetupLocationFragment : CustomFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val navController = Navigation.findNavController(view)
-        val liveData = navController.currentBackStackEntry!!
-                .savedStateHandle
-                .getLiveData<String>(Constants.KEY_DATA)
-        liveData.observe(viewLifecycleOwner, Observer { result ->
-            // Do something with the result.
-            enableControls(false)
-            if (result != null) {
-                // Save data
-                val data = JSONParser.deserializer(result, LocationData::class.java)
-                if (data != null) {
-                    // Setup complete
-                    viewModel.locationData = data
-                    navController.navigate(
-                            SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
-                    )
-                    return@Observer
-                }
-            }
-            enableControls(true)
-        })
+        val navController = view.findNavController()
+        navController.currentBackStackEntry?.savedStateHandle
+                ?.getLiveData<String>(Constants.KEY_DATA)
+                ?.observe(viewLifecycleOwner, { result ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        // Do something with the result.
+                        enableControls(false)
+
+                        if (result != null) {
+                            // Save data
+                            val data = withContext(Dispatchers.Default) {
+                                JSONParser.deserializer(result, LocationData::class.java)
+                            }
+
+                            if (data != null) {
+                                // Setup complete
+                                viewModel.locationData = data
+                                navController.navigate(
+                                        SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+                                )
+                                return@launch
+                            }
+                        }
+                        enableControls(true)
+                    }
+                })
     }
 
     override fun onDestroyView() {
