@@ -80,6 +80,8 @@ class WeatherTileProviderService : TileProviderService() {
         Timber.tag(TAG).d("sendRemoteViews")
 
         scope.launch {
+            Timber.tag(TAG).d("building update...")
+
             val weather = withContext(Dispatchers.IO) {
                 try {
                     WeatherDataLoader(Settings.getHomeData())
@@ -99,7 +101,10 @@ class WeatherTileProviderService : TileProviderService() {
                         .setRemoteViews(updateViews)
                         .build()
 
+                Timber.tag(TAG).d("sending update...")
                 sendData(id, tileData)
+            } else {
+                Timber.tag(TAG).d("unable to update tile...")
             }
         }
     }
