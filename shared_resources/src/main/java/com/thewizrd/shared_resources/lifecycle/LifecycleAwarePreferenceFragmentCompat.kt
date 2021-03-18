@@ -37,24 +37,13 @@ abstract class LifecycleAwarePreferenceFragmentCompat : PreferenceFragmentCompat
         }
 
     /**
-     * Runs the action on the main UI thread
-     *
-     * @param action The action to be run
-     */
-    protected fun runOnUiThread(action: Runnable) {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
-            action.run()
-        }
-    }
-
-    /**
      * Launches and runs the given runnable if the fragment is at least initialized
      * The action will be signalled to cancel if the fragment goes into the destroyed state
      * Note: This will run on the UI thread
      *
      * @param action The runnable to be executed
      */
-    protected fun run(action: Runnable) {
+    protected fun runOnUiThread(action: Runnable) {
         lifecycleScope.launch(Dispatchers.Main.immediate) {
             action.run()
         }

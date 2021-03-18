@@ -29,9 +29,7 @@ import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
@@ -71,7 +69,6 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
 
     private var mParentRecyclerView: RecyclerView? = null
     private var mSnackMgr: SnackbarManager? = null
-    private var isFragmentAlive = false
     private var isInEditMode = false
 
     // Event listeners
@@ -80,6 +77,8 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     private val onLongClickToDragListener: ViewHolderLongClickListener?
     private var onListChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
     private var onSelectionChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
+
+    private val scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
 
     fun setOnClickListener(onClickListener: RecyclerOnClickListenerInterface?) {
         this.onClickListener = onClickListener
@@ -186,7 +185,6 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         super.onAttachedToRecyclerView(recyclerView)
         mParentRecyclerView = recyclerView
         mSnackMgr = SnackbarManager(recyclerView)
-        isFragmentAlive = true
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -194,16 +192,15 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         mSnackMgr?.dismissAll()
         mSnackMgr = null
         mParentRecyclerView = null
+        scope.cancel()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event >= Lifecycle.Event.ON_PAUSE) {
-            isFragmentAlive = false
+            scope.cancel()
 
             mSnackMgr?.dismissAll()
             mSnackMgr = null
-        } else {
-            isFragmentAlive = true
         }
     }
 
@@ -463,7 +460,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         Settings.deleteLocation(panel.locationData!!.query)
 
         // Remove panel
-        GlobalScope.launch(Dispatchers.Main.immediate) {
+        scope.launch {
             remove(panel)
         }
     }
@@ -481,7 +478,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         dismissedPanel.isChecked = false
         mSelectedItems.remove(dismissedPanel)
 
-        GlobalScope.launch {
+        scope.launch {
             if (mParentRecyclerView != null) {
                 launch(Dispatchers.Main.immediate) {
                     PanelDeleteHandler(dismissedPanel).deletePanels()
@@ -524,7 +521,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     private class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     fun removeSelectedItems() {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
+        scope.launch(Dispatchers.Main.immediate) {
             PanelDeleteHandler(mSelectedItems).deletePanels()
         }
     }
@@ -576,7 +573,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         fun deletePanels() {
             if (panelPairs.isEmpty()) return
 
-            GlobalScope.launch(Dispatchers.Main.immediate) {
+            scope.launch(Dispatchers.Main.immediate) {
                 for (panelPair in panelPairs) {
                     panelPair.second.isEditMode = false
                     panelPair.second.isChecked = false
@@ -588,10 +585,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                 if (getFavoritesCount() <= 0) {
                     undoAction()
 
-                    if (mParentRecyclerView != null && isFragmentAlive) {
-                        if (mSnackMgr == null) {
-                            mSnackMgr = SnackbarManager(mParentRecyclerView!!)
-                        }
+                    if (isActive) {
                         mSnackMgr?.show(Snackbar.make(R.string.message_needfavorite, Snackbar.Duration.SHORT), null)
                     }
 
@@ -603,7 +597,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         }
 
         private fun showUndoSnackbar() {
-            if (mParentRecyclerView != null && isFragmentAlive) {
+            if (mSnackMgr != null) {
                 // Make SnackBar
                 val snackbar = Snackbar.make(R.string.message_locationremoved, Snackbar.Duration.SHORT)
                 snackbar.setAction(R.string.undo) { undoAction() }
@@ -613,7 +607,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                         super.onDismissed(transientBottomBar, event)
 
                         if (event != DISMISS_EVENT_ACTION) {
-                            GlobalScope.launch(Dispatchers.IO) {
+                            scope.launch(Dispatchers.IO) {
                                 for (panelPair in panelPairs) {
                                     if (panelPair.second == null)
                                         return@launch
@@ -626,10 +620,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                     }
                 }
 
-                if (mSnackMgr == null)
-                    mSnackMgr = SnackbarManager(mParentRecyclerView!!)
-
-                GlobalScope.launch(Dispatchers.Main.immediate) {
+                scope.launch(Dispatchers.Main.immediate) {
                     mSnackMgr?.show(snackbar, callback)
                 }
             }

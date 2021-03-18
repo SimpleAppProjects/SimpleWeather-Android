@@ -17,6 +17,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             val oldKey = intent.getStringExtra(Constants.WIDGETKEY_OLDKEY)
             val locationJson = intent.getStringExtra(Constants.WIDGETKEY_LOCATION)
 
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.Default) {
                 val location = JSONParser.deserializer(locationJson, LocationData::class.java)
 
                 if (WidgetUtils.exists(oldKey)) {
@@ -57,10 +58,10 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             val locationQuery = intent.getStringExtra(Constants.WIDGETKEY_LOCATIONQUERY)
             val weatherJson = intent.getStringExtra(Constants.WIDGETKEY_WEATHER)
 
-            GlobalScope.launch {
-                val weather = JSONParser.deserializer(weatherJson, Weather::class.java)
-
+            GlobalScope.launch(Dispatchers.Default) {
                 if (WidgetUtils.exists(locationQuery)) {
+                    val weather = JSONParser.deserializer(weatherJson, Weather::class.java)
+
                     val ids = WidgetUtils.getWidgetIds(locationQuery)
                     for (id in ids) {
                         WidgetUtils.saveWeatherData(id, weather)

@@ -1071,7 +1071,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                                     if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
                                         // Alerts are posted to the user here. Set them as notified.
-                                        GlobalScope.launch {
+                                        GlobalScope.launch(Dispatchers.Default) {
                                             if (BuildConfig.DEBUG) {
                                                 WeatherAlertHandler.postAlerts(locationData, weatherAlerts)
                                             }

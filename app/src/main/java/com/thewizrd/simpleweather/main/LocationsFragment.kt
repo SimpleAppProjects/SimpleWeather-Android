@@ -1065,7 +1065,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         val query = view.locationData!!.query
         var dataPosition = mAdapter.getDataset().indexOf(view)
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.Default) {
             Settings.moveLocation(query, pos)
         }
     }

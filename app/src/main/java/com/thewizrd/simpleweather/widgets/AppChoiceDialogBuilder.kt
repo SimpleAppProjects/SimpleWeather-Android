@@ -16,14 +16,14 @@ import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 class AppChoiceDialogBuilder(private val context: Context) {
     private lateinit var mAdapter: AppsListAdapter
     private var onItemSelectedListener: OnAppSelectedListener? = null
     private lateinit var binding: DialogAppchooserBinding
+    private val scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
 
     interface OnAppSelectedListener {
         fun onItemSelected(key: String?)
@@ -74,6 +74,10 @@ class AppChoiceDialogBuilder(private val context: Context) {
             updateAppsList()
         }
 
+        dialog.setOnDismissListener {
+            scope.cancel()
+        }
+
         mAdapter.setOnClickListener { view, position ->
             onItemSelectedListener?.onItemSelected(mAdapter.currentList[position]?.key)
             dialog.dismiss()
@@ -91,7 +95,7 @@ class AppChoiceDialogBuilder(private val context: Context) {
     }
 
     private fun updateAppsList() {
-        GlobalScope.launch {
+        scope.launch(Dispatchers.Default) {
             val infos = context.packageManager.getInstalledApplications(0)
 
             // Sort result
