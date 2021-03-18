@@ -183,16 +183,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
 
                     if (root?.radar != null) {
                         if (root.radar?.past?.isNotEmpty() == true) {
-                            root.radar.past.removeAll(setOf<Any?>(null))
-                            availableRadarFrames.addAll(root.radar.past.map { input: RadarItem ->
-                                RadarFrame(input.time.toLong(), root.host, input.path)
+                            availableRadarFrames.addAll(root.radar.past.mapNotNull { input: RadarItem? ->
+                                input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                             })
                         }
 
                         if (root.radar?.nowcast?.isNotEmpty() == true) {
-                            root.radar.nowcast.removeAll(setOf<Any?>(null))
-                            availableRadarFrames.addAll(root.radar.nowcast.map { input: RadarItem ->
-                                RadarFrame(input.time.toLong(), root.host, input.path)
+                            availableRadarFrames.addAll(root.radar.nowcast.mapNotNull { input: RadarItem? ->
+                                input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                             })
                         }
                     }
