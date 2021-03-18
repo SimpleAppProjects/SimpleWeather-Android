@@ -167,7 +167,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             if (Settings.getDataSync() == WearableDataSync.OFF) {
                 // Update configuration
-                RemoteConfig.checkConfig()
+                RemoteConfig.checkConfigAsync()
             }
 
             if (Settings.isWeatherLoaded()) {

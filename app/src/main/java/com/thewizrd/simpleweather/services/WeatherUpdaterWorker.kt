@@ -183,7 +183,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val wm = WeatherManager.getInstance()
 
             // Update configuration
-            RemoteConfig.checkConfig()
+            RemoteConfig.checkConfigAsync()
 
             if (Settings.isWeatherLoaded()) {
                 if (Settings.useFollowGPS()) {
