@@ -101,9 +101,7 @@ public final class WeatherDataLoader {
                             }
                         }
                     }
-                    if (request.isShouldSaveData()) {
-                        checkForOutdatedObservation();
-                    }
+                    checkForOutdatedObservation(request);
                 } catch (WeatherException wEx) {
                     if (request.getErrorListener() != null) {
                         request.getErrorListener().onWeatherError(wEx);
@@ -315,13 +313,7 @@ public final class WeatherDataLoader {
 
             if (request.isLoadForecasts() && weather != null) {
                 Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
-                List<HourlyForecast> hrForecasts;
-
-                if (request.getForecastLength() <= 0) {
-                    hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
-                } else {
-                    hrForecasts = Settings.getHourlyWeatherForecastDataByLimit(location.getQuery(), request.getForecastLength());
-                }
+                List<HourlyForecast> hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
 
                 if (forecasts != null) {
                     weather.setForecast(forecasts.getForecast());
@@ -345,13 +337,7 @@ public final class WeatherDataLoader {
 
                 if (request.isLoadForecasts() && weather != null) {
                     Forecasts forecasts = Settings.getWeatherForecastData(location.getQuery());
-                    List<HourlyForecast> hrForecasts;
-
-                    if (request.getForecastLength() <= 0) {
-                        hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
-                    } else {
-                        hrForecasts = Settings.getHourlyWeatherForecastDataByLimit(location.getQuery(), request.getForecastLength());
-                    }
+                    List<HourlyForecast> hrForecasts = Settings.getHourlyWeatherForecastData(location.getQuery());
 
                     if (forecasts != null) {
                         weather.setForecast(forecasts.getForecast());
@@ -369,7 +355,7 @@ public final class WeatherDataLoader {
         return isDataValid(_override);
     }
 
-    private void checkForOutdatedObservation() {
+    private void checkForOutdatedObservation(final WeatherRequest request) {
         if (weather != null) {
             // Check for outdated observation
             final ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(location.getTzOffset());
@@ -448,7 +434,9 @@ public final class WeatherDataLoader {
                         weather.getPrecipitation().setQpfSnowCm(hrf.getExtras() != null && hrf.getExtras().getQpfSnowCm() != null && hrf.getExtras().getQpfSnowCm() >= 0 ? hrf.getExtras().getQpfSnowCm() : 0.0f);
                     }
 
-                    Settings.saveWeatherData(weather);
+                    if (request.isShouldSaveData()) {
+                        Settings.saveWeatherData(weather);
+                    }
                 }
             }
 
