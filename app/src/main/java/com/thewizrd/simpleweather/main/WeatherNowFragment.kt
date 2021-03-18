@@ -126,16 +126,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     // Views
     private lateinit var binding: FragmentWeatherNowBinding
     private lateinit var conditionPanelBinding: WeathernowConditionPanelBinding
-    private lateinit var forecastPanelBinding: WeathernowForecastgraphpanelBinding
-    private lateinit var hrForecastPanelBinding: WeathernowHrforecastlistpanelBinding
-    private lateinit var precipPanelBinding: WeathernowPrecipitationgraphpanelBinding
-    private lateinit var detailsContainerBinding: WeathernowDetailscontainerBinding
-    private lateinit var uvControlBinding: WeathernowUvcontrolBinding
-    private lateinit var beaufortControlBinding: WeathernowBeaufortcontrolBinding
-    private lateinit var aqiControlBinding: WeathernowAqicontrolBinding
-    private lateinit var moonphaseControlBinding: WeathernowMoonphasecontrolBinding
-    private lateinit var sunphaseControlBinding: WeathernowSunphasecontrolBinding
-    private lateinit var radarControlBinding: WeathernowRadarcontrolBinding
+    private var forecastPanelBinding: WeathernowForecastgraphpanelBinding? = null
+    private var hrForecastPanelBinding: WeathernowHrforecastlistpanelBinding? = null
+    private var precipPanelBinding: WeathernowPrecipitationgraphpanelBinding? = null
+    private var detailsContainerBinding: WeathernowDetailscontainerBinding? = null
+    private var uvControlBinding: WeathernowUvcontrolBinding? = null
+    private var beaufortControlBinding: WeathernowBeaufortcontrolBinding? = null
+    private var aqiControlBinding: WeathernowAqicontrolBinding? = null
+    private var moonphaseControlBinding: WeathernowMoonphasecontrolBinding? = null
+    private var sunphaseControlBinding: WeathernowSunphasecontrolBinding? = null
+    private var radarControlBinding: WeathernowRadarcontrolBinding? = null
     private val dataBindingComponent = WeatherFragmentDataBindingComponent(this)
 
     // Data
@@ -555,10 +555,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         if (FeatureSettings.isForecastEnabled()) {
             // Forecast
             forecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_forecastgraphpanel, binding.listLayout, false, dataBindingComponent)
-            forecastPanelBinding.forecastsView = forecastsView
-            forecastPanelBinding.lifecycleOwner = viewLifecycleOwner
+            forecastPanelBinding!!.forecastsView = forecastsView
+            forecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            forecastPanelBinding.rangebarGraphPanel.setOnClickPositionListener { view, position ->
+            forecastPanelBinding!!.rangebarGraphPanel.setOnClickPositionListener { view, position ->
                 AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
                 view.isEnabled = false
                 val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
@@ -568,14 +568,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 Navigation.findNavController(view).navigate(args)
             }
 
-            binding.listLayout.addView(forecastPanelBinding.root, Math.min(binding.listLayout.childCount - 1, 1))
+            binding.listLayout.addView(forecastPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 1))
         }
 
         if (FeatureSettings.isHourlyForecastEnabled()) {
             // Hourly Forecast
             hrForecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_hrforecastlistpanel, binding.listLayout, false, dataBindingComponent)
-            hrForecastPanelBinding.forecastsView = forecastsView
-            hrForecastPanelBinding.lifecycleOwner = viewLifecycleOwner
+            hrForecastPanelBinding!!.forecastsView = forecastsView
+            hrForecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
             // Setup RecyclerView
             val hourlyForecastItemAdapter = HourlyForecastItemAdapter(object : DiffUtil.ItemCallback<HourlyForecastNowViewModel>() {
@@ -598,18 +598,18 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 Navigation.findNavController(view).navigate(args)
             }
 
-            hrForecastPanelBinding.hourlyForecastList.adapter = hourlyForecastItemAdapter
+            hrForecastPanelBinding!!.hourlyForecastList.adapter = hourlyForecastItemAdapter
 
-            binding.listLayout.addView(hrForecastPanelBinding.root, Math.min(binding.listLayout.childCount - 1, 2))
+            binding.listLayout.addView(hrForecastPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 2))
         }
 
         if (FeatureSettings.isChartsEnabled()) {
             // Precipitation graph
             precipPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_precipitationgraphpanel, binding.listLayout, false, dataBindingComponent)
-            precipPanelBinding.forecastsView = forecastsView
-            precipPanelBinding.lifecycleOwner = viewLifecycleOwner
+            precipPanelBinding!!.forecastsView = forecastsView
+            precipPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            precipPanelBinding.precipGraphPanel.setOnClickPositionListener { view, position ->
+            precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener { view, position ->
                 AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
                 view.isEnabled = false
                 val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
@@ -617,24 +617,24 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 Navigation.findNavController(view).navigate(args)
             }
 
-            binding.listLayout.addView(precipPanelBinding.root, Math.min(binding.listLayout.childCount - 1, 3))
+            binding.listLayout.addView(precipPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 3))
         }
 
         if (FeatureSettings.isDetailsEnabled()) {
             detailsContainerBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_detailscontainer, binding.listLayout, false, dataBindingComponent)
 
             // Details
-            detailsContainerBinding.detailsContainer.adapter = DetailsItemGridAdapter()
-            detailsContainerBinding.weatherView = weatherView
-            detailsContainerBinding.lifecycleOwner = viewLifecycleOwner
+            detailsContainerBinding!!.detailsContainer.adapter = DetailsItemGridAdapter()
+            detailsContainerBinding!!.weatherView = weatherView
+            detailsContainerBinding!!.lifecycleOwner = viewLifecycleOwner
 
             // Disable touch events on container
             // View does not scroll
-            detailsContainerBinding.detailsContainer.isFocusable = false
-            detailsContainerBinding.detailsContainer.isFocusableInTouchMode = false
-            detailsContainerBinding.detailsContainer.setOnTouchListener { v, event -> true }
+            detailsContainerBinding!!.detailsContainer.isFocusable = false
+            detailsContainerBinding!!.detailsContainer.isFocusableInTouchMode = false
+            detailsContainerBinding!!.detailsContainer.setOnTouchListener { v, event -> true }
 
-            binding.listLayout.addView(detailsContainerBinding.root, Math.min(binding.listLayout.childCount - 1, 4))
+            binding.listLayout.addView(detailsContainerBinding!!.root, Math.min(binding.listLayout.childCount - 1, 4))
 
             adjustDetailsLayout()
         }
@@ -642,53 +642,53 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         if (FeatureSettings.isUVEnabled()) {
             // UV
             uvControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_uvcontrol, binding.listLayout, false, dataBindingComponent)
-            uvControlBinding.weatherView = weatherView
-            uvControlBinding.lifecycleOwner = viewLifecycleOwner
+            uvControlBinding!!.weatherView = weatherView
+            uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(uvControlBinding.root, Math.min(binding.listLayout.childCount - 1, 5))
+            binding.listLayout.addView(uvControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 5))
         }
 
         if (FeatureSettings.isBeaufortEnabled()) {
             // Beaufort
             beaufortControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_beaufortcontrol, binding.listLayout, false, dataBindingComponent)
-            beaufortControlBinding.weatherView = weatherView
-            beaufortControlBinding.lifecycleOwner = viewLifecycleOwner
+            beaufortControlBinding!!.weatherView = weatherView
+            beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(beaufortControlBinding.root, Math.min(binding.listLayout.childCount - 1, 6))
+            binding.listLayout.addView(beaufortControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 6))
         }
 
         if (FeatureSettings.isAQIndexEnabled()) {
             // Air Quality
             aqiControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_aqicontrol, binding.listLayout, false, dataBindingComponent)
-            aqiControlBinding.weatherView = weatherView
-            aqiControlBinding.lifecycleOwner = viewLifecycleOwner
+            aqiControlBinding!!.weatherView = weatherView
+            aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(aqiControlBinding.root, Math.min(binding.listLayout.childCount - 1, 7))
+            binding.listLayout.addView(aqiControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 7))
         }
 
         if (FeatureSettings.isMoonPhaseEnabled()) {
             // Moon Phase
             moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.listLayout, false, dataBindingComponent)
-            moonphaseControlBinding.weatherView = weatherView
-            moonphaseControlBinding.lifecycleOwner = viewLifecycleOwner
+            moonphaseControlBinding!!.weatherView = weatherView
+            moonphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(moonphaseControlBinding.root, Math.min(binding.listLayout.childCount - 1, 8))
+            binding.listLayout.addView(moonphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 8))
         }
 
         if (FeatureSettings.isSunPhaseEnabled()) {
             // Sun Phase
             sunphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_sunphasecontrol, binding.listLayout, false, dataBindingComponent)
-            sunphaseControlBinding.weatherView = weatherView
-            sunphaseControlBinding.lifecycleOwner = viewLifecycleOwner
+            sunphaseControlBinding!!.weatherView = weatherView
+            sunphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(sunphaseControlBinding.root, Math.min(binding.listLayout.childCount - 1, 9))
+            binding.listLayout.addView(sunphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 9))
         }
 
         // Radar
         if (FeatureSettings.isRadarEnabled()) {
             radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent)
 
-            radarControlBinding.radarWebviewCover.setOnClickListener { v ->
+            radarControlBinding!!.radarWebviewCover.setOnClickListener { v ->
                 AnalyticsLogger.logEvent("WeatherNowFragment: radar view click")
                 v.isEnabled = false
                 Navigation.findNavController(v)
@@ -700,21 +700,21 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         )
             }
 
-            ViewCompat.setTransitionName(radarControlBinding.radarWebviewCover, "radar")
+            ViewCompat.setTransitionName(radarControlBinding!!.radarWebviewCover, "radar")
 
             /*
              * NOTE
              * Compat issue: bring container to the front
              * This is handled on API 21+ with the translationZ attribute
              */
-            radarControlBinding.radarWebviewCover.bringToFront()
+            radarControlBinding!!.radarWebviewCover.bringToFront()
 
-            radarControlBinding.weatherView = weatherView
-            radarControlBinding.lifecycleOwner = viewLifecycleOwner
+            radarControlBinding!!.weatherView = weatherView
+            radarControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(radarControlBinding.root, Math.min(binding.listLayout.childCount - 1, 10))
+            binding.listLayout.addView(radarControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 10))
 
-            radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), radarControlBinding.radarWebviewContainer).apply {
+            radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), radarControlBinding!!.radarWebviewContainer).apply {
                 enableInteractions(false)
                 onCreateView(savedInstanceState)
             }
@@ -1124,9 +1124,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private fun adjustDetailsLayout() {
         if (binding.scrollView.childCount != 1) return
 
-        detailsContainerBinding.detailsContainer.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        detailsContainerBinding?.detailsContainer?.viewTreeObserver?.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                detailsContainerBinding.detailsContainer.viewTreeObserver.removeOnPreDrawListener(this)
+                if (detailsContainerBinding == null) return true
+
+                detailsContainerBinding!!.detailsContainer.viewTreeObserver.removeOnPreDrawListener(this)
 
                 runWithView(Dispatchers.Main.immediate) {
                     val pxWidth = binding.scrollView.getChildAt(0).measuredWidth
@@ -1138,15 +1140,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     // Available columns based on min card width
                     val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
 
-                    detailsContainerBinding.detailsContainer.numColumns = availColumns
+                    detailsContainerBinding!!.detailsContainer.numColumns = availColumns
 
                     val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
 
                     val horizMargin = 16
                     val marginMultiplier = if (isLandscape) 2 else 3
                     val itemSpacing = if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
-                    detailsContainerBinding.detailsContainer.horizontalSpacing = itemSpacing
-                    detailsContainerBinding.detailsContainer.verticalSpacing = itemSpacing
+                    detailsContainerBinding!!.detailsContainer.horizontalSpacing = itemSpacing
+                    detailsContainerBinding!!.detailsContainer.verticalSpacing = itemSpacing
                 }
 
                 return true
