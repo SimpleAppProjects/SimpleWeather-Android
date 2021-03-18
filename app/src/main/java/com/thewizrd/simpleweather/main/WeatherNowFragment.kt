@@ -165,7 +165,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             weatherView.updateView(weather)
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Default) {
                     weatherView.updateBackground()
                 }
 

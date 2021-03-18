@@ -100,7 +100,7 @@ class LocationSearchFragment : WindowColorFragment() {
             job?.cancel()
 
             supervisorScope {
-                val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.IO) {
+                val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
                     var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
 
                     if (!StringUtils.isNullOrEmpty(mAdapter.dataset[position].locationQuery))
