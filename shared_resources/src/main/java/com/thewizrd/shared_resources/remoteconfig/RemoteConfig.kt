@@ -90,7 +90,9 @@ object RemoteConfig {
                     .addOnCompleteListener { task: Task<Boolean?>? ->
                         // Update weather provider if needed
                         updateWeatherProvider()
-                        it.resume(task?.result ?: false)
+                        if (it.isActive) {
+                            it.resume(task?.result ?: false)
+                        }
                     }
         }
     }

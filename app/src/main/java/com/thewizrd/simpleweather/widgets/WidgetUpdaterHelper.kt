@@ -914,7 +914,7 @@ object WidgetUpdaterHelper {
 
         try {
             val bmp = suspendCancellableCoroutine<Bitmap?> {
-                GlideApp.with(context)
+                val task = GlideApp.with(context)
                         .asBitmap()
                         .load(backgroundURI)
                         .format(DecodeFormat.PREFER_RGB_565)
@@ -923,7 +923,9 @@ object WidgetUpdaterHelper {
                         .thumbnail(0.75f)
                         .addListener(object : RequestListener<Bitmap> {
                             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                                it.resume(null)
+                                if (it.isActive) {
+                                    it.resume(null)
+                                }
                                 return true
                             }
 
@@ -931,11 +933,15 @@ object WidgetUpdaterHelper {
                                 // Original image -> firstResource
                                 // Thumbnail -> second resource
                                 // Resume on the second call
-                                if (!isFirstResource) it.resume(resource)
+                                if (it.isActive && !isFirstResource) it.resume(resource)
                                 return true
                             }
                         })
                         .submit(imgWidth, imgHeight)
+
+                it.invokeOnCancellation {
+                    task.cancel(true)
+                }
             } ?: return@withContext
 
             // Add overlay if background is a light overall color
