@@ -25,8 +25,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 
-import static com.thewizrd.shared_resources.utils.Settings.loadIfNeeded;
-
 public class App extends Application implements ApplicationLib, Application.ActivityLifecycleCallbacks {
     private static ApplicationLib sInstance = null;
 
@@ -82,6 +80,8 @@ public class App extends Application implements ApplicationLib, Application.Acti
         applicationState = AppState.CLOSED;
         mActivitiesStarted = 0;
 
+        sharedPreferenceChangeListener = new Settings.SettingsListener(context);
+
         // Init shared library
         SimpleLibrary.init(this);
         ExtrasLibrary.Companion.initialize(this);
@@ -112,10 +112,8 @@ public class App extends Application implements ApplicationLib, Application.Acti
             }
         });
 
-        sharedPreferenceChangeListener = new Settings.SettingsListener(context);
-
         // Load data if needed
-        loadIfNeeded();
+        Settings.loadIfNeeded();
     }
 
     private void registerCommonReceiver() {

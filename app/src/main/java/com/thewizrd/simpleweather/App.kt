@@ -11,10 +11,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -27,7 +27,6 @@ import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.Settings.SettingsListener
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlin.system.exitProcess
 
@@ -79,7 +78,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         registerActivityLifecycleCallbacks(this)
         applicationState = AppState.CLOSED
         mActivitiesStarted = 0
-        sharedPreferenceChangeListener = SettingsListener(context)
+
+        sharedPreferenceChangeListener = Settings.SettingsListener(context)
 
         // Init shared library
         SimpleLibrary.init(this)
@@ -87,6 +87,7 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
 
         // Start logger
         Logger.init(context)
+
         FirebaseCrashlytics.getInstance().apply {
             setCrashlyticsCollectionEnabled(true)
             sendUnsentReports()
