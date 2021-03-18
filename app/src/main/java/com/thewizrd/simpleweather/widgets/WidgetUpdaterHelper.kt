@@ -42,6 +42,7 @@ import kotlinx.coroutines.tasks.await
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 
 object WidgetUpdaterHelper {
@@ -201,7 +202,7 @@ object WidgetUpdaterHelper {
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             } else {
-                Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.javaClass.name, appWidgetId)
+                Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.className, appWidgetId)
                 resetWidget(context, appWidgetId, appWidgetManager)
             }
         }
@@ -209,23 +210,33 @@ object WidgetUpdaterHelper {
 
     internal suspend fun buildUpdate(context: Context, info: WidgetProviderInfo,
                                      appWidgetId: Int, location: LocationData,
-                                     weather: WeatherNowViewModel, newOptions: Bundle): RemoteViews {
+                                     weather: WeatherNowViewModel, newOptions: Bundle,
+                                     loadBackground: Boolean = true): RemoteViews {
         // Build an update that holds the updated widget contents
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
+
         // Widget dimensions
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
         val cellHeight = WidgetUtils.getCellsForSize(minHeight)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
+
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         var style: WidgetUtils.WidgetBackgroundStyle? = null
+
         if (WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
             val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId, background)
+
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId)
-                if (weather.imageData == null) weather.updateBackground()
+
+                if (loadBackground && weather.imageData == null) {
+                    weather.updateBackground()
+                }
+
                 updateViews.removeAllViews(R.id.panda_container)
                 updateViews.addView(R.id.panda_container, RemoteViews(context.packageName, R.layout.layout_panda_bg))
+
                 if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                     // No-op
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
@@ -240,15 +251,22 @@ object WidgetUpdaterHelper {
                 } else {
                     updateViews.removeAllViews(R.id.panda_container)
                 }
+
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor)
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
-                loadBackgroundImage(context, updateViews, info, appWidgetId, weather.imageData?.imageURI, cellWidth, cellHeight)
+
+                if (loadBackground) {
+                    loadBackgroundImage(context, updateViews, info, appWidgetId, weather.imageData?.imageURI, cellWidth, cellHeight)
+                } else {
+                    updateViews.setImageViewBitmap(R.id.widgetBackground, null)
+                }
             } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
                 updateViews.setImageViewResource(R.id.widgetBackground, R.drawable.widget_background)
                 updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK)
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00)
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
                 updateViews.setImageViewBitmap(R.id.panda_background, null)
+
                 if (info.widgetType == WidgetType.Widget4x2) {
                     updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE)
                 }
@@ -258,6 +276,7 @@ object WidgetUpdaterHelper {
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
                 updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
                 updateViews.setImageViewBitmap(R.id.panda_background, null)
+
                 if (info.widgetType == WidgetType.Widget4x2) {
                     updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE)
                 }
@@ -266,10 +285,12 @@ object WidgetUpdaterHelper {
 
         if (info.widgetType == WidgetType.Widget2x2) {
             updateViews.removeAllViews(R.id.weather_notif_layout)
-            if (style != WidgetUtils.WidgetBackgroundStyle.PANDA)
+
+            if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
                 updateViews.addView(R.id.weather_notif_layout, RemoteViews(context.packageName, R.layout.app_widget_2x2_notif_layout))
-            else
+            } else {
                 updateViews.addView(R.id.weather_notif_layout, RemoteViews(context.packageName, R.layout.app_widget_2x2_notif_layout_themed))
+            }
         }
 
         // Colors
@@ -282,11 +303,12 @@ object WidgetUpdaterHelper {
         if (info.widgetType == WidgetType.Widget2x2 || info.widgetType == WidgetType.Widget4x1Notification) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_weather, String.format(Locale.ROOT, "%s - %s",
-                    if (!StringUtils.isNullOrWhitespace(weather.curTemp)) weather.curTemp else WeatherIcons.PLACEHOLDER,
+                    if (weather.curTemp?.isNotBlank() == true) weather.curTemp else WeatherIcons.PLACEHOLDER,
                     weather.curCondition))
-            updateViews.setTextViewText(R.id.condition_hi, if (weather.hiTemp.isNotBlank()) weather.hiTemp else WeatherIcons.PLACEHOLDER)
-            updateViews.setTextViewText(R.id.condition_lo, if (weather.loTemp.isNotBlank()) weather.loTemp else WeatherIcons.PLACEHOLDER)
+            updateViews.setTextViewText(R.id.condition_hi, if (weather.hiTemp?.isNotBlank() == true) weather.hiTemp else WeatherIcons.PLACEHOLDER)
+            updateViews.setTextViewText(R.id.condition_lo, if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER)
             updateViews.setViewVisibility(R.id.condition_hilo_layout, if (weather.isShowHiLo) View.VISIBLE else View.GONE)
+
             var chanceModel: DetailItemViewModel? = null
             var windModel: DetailItemViewModel? = null
             for (input in weather.weatherDetails) {
@@ -301,12 +323,14 @@ object WidgetUpdaterHelper {
                     break
                 }
             }
+
             if (chanceModel != null) {
                 updateViews.setTextViewText(R.id.weather_pop, chanceModel.value)
                 updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE)
             } else {
                 updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE)
             }
+
             if (windModel != null) {
                 var speed = if (TextUtils.isEmpty(windModel.value)) "" else windModel.value.toString()
                 speed = speed.split(",").toTypedArray()[0]
@@ -315,6 +339,7 @@ object WidgetUpdaterHelper {
             } else {
                 updateViews.setViewVisibility(R.id.weather_wind_layout, View.GONE)
             }
+
             updateViews.setViewVisibility(R.id.extra_layout, if (chanceModel != null || windModel != null) View.VISIBLE else View.GONE)
         } else if (info.widgetType == WidgetType.Widget4x2 || info.widgetType == WidgetType.Widget4x2Clock) {
             // Condition text
@@ -322,16 +347,18 @@ object WidgetUpdaterHelper {
         } else if (info.widgetType == WidgetType.Widget4x2Huawei) {
             // Condition text
             updateViews.setTextViewText(R.id.condition_hilo, String.format(Locale.ROOT, "%s | %s",
-                    if (!StringUtils.isNullOrWhitespace(weather.hiTemp)) weather.hiTemp else WeatherIcons.PLACEHOLDER,
-                    if (!StringUtils.isNullOrWhitespace(weather.loTemp)) weather.loTemp else WeatherIcons.PLACEHOLDER))
+                    if (weather.hiTemp?.isNotBlank() == true) weather.hiTemp else WeatherIcons.PLACEHOLDER,
+                    if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER))
             updateViews.setViewVisibility(R.id.condition_hilo, if (weather.isShowHiLo) View.VISIBLE else View.GONE)
         }
+
         if (info.widgetType != WidgetType.Widget2x2 && info.widgetType != WidgetType.Widget4x1Notification) {
             updateViews.setTextViewText(R.id.condition_temp, weather.curTemp)
         }
 
         // Set sizes for views
         updateViewSizes(context, info, updateViews, newOptions)
+
         if (WidgetUtils.isDateWidget(info.widgetType)) {
             // Open default clock/calendar app
             updateViews.setOnClickPendingIntent(R.id.date_panel, getCalendarAppIntent(context))
@@ -340,10 +367,13 @@ object WidgetUpdaterHelper {
             // Open default clock/calendar app
             updateViews.setOnClickPendingIntent(R.id.clock_panel, getClockAppIntent(context))
         }
+
         updateViews.setViewVisibility(R.id.location_name, if (WidgetUtils.isLocationNameHidden(appWidgetId)) View.GONE else View.VISIBLE)
         updateViews.setViewVisibility(R.id.settings_button, if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE)
+
         setOnClickIntent(context, location, updateViews)
         setOnSettingsClickIntent(context, updateViews, location, appWidgetId)
+
         return updateViews
     }
 
@@ -362,32 +392,25 @@ object WidgetUpdaterHelper {
 
     private suspend fun loadWeather(info: WidgetProviderInfo, locData: LocationData?, appWidgetId: Int, @IntRange(from = 1, to = 5) cellWidth: Int): Weather? {
         if (locData != null) {
-            val weather: Weather?
-            val wloader = WeatherDataLoader(locData)
-            weather = try {
-                val request = WeatherRequest.Builder().forceLoadSavedData()
-                if (WidgetUtils.isForecastWidget(info.widgetType)) {
-                    request.loadForecasts()
-                    request.setForecastLength(WidgetUtils.getForecastLength(info.widgetType, cellWidth))
-                }
-                wloader.loadWeatherData(request.build()).await()
+            return try {
+                WeatherDataLoader(locData)
+                        .loadWeatherData(WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .build())
+                        .await()
             } catch (e: Exception) {
                 null
             }
-            return weather
         } else {
-            Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.javaClass.name, appWidgetId)
+            Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.className, appWidgetId)
         }
+
         return null
     }
 
     private suspend fun getWeather(context: Context, info: WidgetProviderInfo, appWidgetId: Int,
                                    cellWidth: Int, locData: LocationData?): Weather? = withContext(Dispatchers.IO) {
-        var weather: Weather? = null
-
-        if (!WidgetUtils.isForecastWidget(info.widgetType)) {
-            weather = WidgetUtils.getWeatherData(appWidgetId)
-        }
+        val weather = WidgetUtils.getWeatherData(appWidgetId)
 
         if (weather == null) {
             return@withContext if (locData == null) {
@@ -443,25 +466,27 @@ object WidgetUpdaterHelper {
             val background = WidgetUtils.getWidgetBackground(appWidgetId)
             val style = WidgetUtils.getBackgroundStyle(appWidgetId)
             val textColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style, context.isNightMode())
-            val tempTextSize = 36
 
             var forecastPanel: RemoteViews? = null
             var hrForecastPanel: RemoteViews? = null
 
-            val forecasts: List<ForecastItemViewModel> = getForecasts(weather?.forecast, forecastLength)
-            val hourlyForecasts: List<HourlyForecastItemViewModel> = getHourlyForecasts(locData, weather?.hrForecast, forecastLength)
+            val forecasts = getForecasts(locData, weather?.forecast, forecastLength)
+            val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, forecastLength)
             val forecastOption = WidgetUtils.getForecastOption(appWidgetId)
 
             if (forecastOption == WidgetUtils.ForecastOption.DAILY) {
                 forecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
             } else if (forecastOption == WidgetUtils.ForecastOption.HOURLY) {
-                if (hourlyForecasts.isNotEmpty())
+                if (hourlyForecasts.isNotEmpty()) {
                     hrForecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                }
             } else {
                 forecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
-                if (hourlyForecasts.isNotEmpty())
+                if (hourlyForecasts.isNotEmpty()) {
                     hrForecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                }
             }
+
             for (i in 0 until Math.min(forecastLength, forecasts.size)) {
                 if (forecastPanel != null) {
                     addForecastItem(context, info, forecastPanel, appWidgetId, forecasts[i], newOptions, textColor)
@@ -480,14 +505,19 @@ object WidgetUpdaterHelper {
             }
 
             if (forecastPanel != null && hrForecastPanel != null) {
-                updateViews.setOnClickPendingIntent(R.id.forecast_layout, getShowNextIntent(context, info, appWidgetId))
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout,
+                        getShowNextIntent(context, info, appWidgetId))
             } else {
-                updateViews.setOnClickPendingIntent(R.id.forecast_layout, getOnClickIntent(context, WidgetUtils.getLocationData(appWidgetId)))
+                updateViews.setOnClickPendingIntent(R.id.forecast_layout,
+                        getOnClickIntent(context, WidgetUtils.getLocationData(appWidgetId)))
             }
         }
     }
 
-    private fun addForecastItem(context: Context, info: WidgetProviderInfo, forecastPanel: RemoteViews, appWidgetId: Int, forecast: BaseForecastItemViewModel, newOptions: Bundle, textColor: Int) {
+    private fun addForecastItem(context: Context, info: WidgetProviderInfo,
+                                forecastPanel: RemoteViews,
+                                appWidgetId: Int, forecast: BaseForecastItemViewModel,
+                                newOptions: Bundle, textColor: Int) {
         // Widget dimensions
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -501,13 +531,16 @@ object WidgetUpdaterHelper {
         val forceSmallHeight = cellHeight == maxCellHeight
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
+
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         val style = WidgetUtils.getBackgroundStyle(appWidgetId)
+
         val forecastItem = if (info.widgetType == WidgetType.Widget4x1 || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
             RemoteViews(context.packageName, R.layout.app_widget_forecast_item)
         } else {
             RemoteViews(context.packageName, R.layout.app_widget_forecast_item_themed)
         }
+
         var maxIconSize: Int
         if (info.widgetType == WidgetType.Widget4x1) {
             maxIconSize = ContextUtils.dpToPx(context, 30f).toInt()
@@ -517,6 +550,7 @@ object WidgetUpdaterHelper {
         } else {
             maxIconSize = ContextUtils.dpToPx(context, 48f).toInt()
         }
+
         forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize)
         forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize)
         forecastItem.setTextViewText(R.id.forecast_date, forecast.shortDate)
@@ -524,6 +558,7 @@ object WidgetUpdaterHelper {
         if (forecast is ForecastItemViewModel) {
             forecastItem.setTextViewText(R.id.forecast_lo, forecast.loTemp)
         }
+
         if (background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
             forecastItem.setTextColor(R.id.forecast_date, textColor)
             forecastItem.setTextColor(R.id.forecast_hi, textColor)
@@ -543,6 +578,7 @@ object WidgetUpdaterHelper {
             forecastItem.setImageViewBitmap(R.id.forecast_icon,
                     ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), forecast.weatherIcon))
         }
+
         if (info.widgetType === WidgetType.Widget4x1) {
             if (cellHeight <= 1) {
                 forecastItem.setViewPadding(R.id.forecast_date, 0, 0, 0, 0)
@@ -550,8 +586,10 @@ object WidgetUpdaterHelper {
                 val padding = ContextUtils.dpToPx(context, 2f).toInt()
                 forecastItem.setViewPadding(R.id.forecast_date, padding, padding, padding, padding)
             }
+
             var textSize = 12
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) textSize = 14
+
             forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
             forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
             if (forecast is ForecastItemViewModel) {
@@ -560,6 +598,7 @@ object WidgetUpdaterHelper {
         } else {
             var textSize = 12
             if (!isSmallHeight && cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) textSize = 14
+
             forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
             forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
             if (forecast is ForecastItemViewModel) {
@@ -567,6 +606,7 @@ object WidgetUpdaterHelper {
                 forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
             }
         }
+
         if (forecast is HourlyForecastItemViewModel) {
             forecastItem.setViewVisibility(R.id.divider, View.GONE)
             forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
@@ -587,6 +627,7 @@ object WidgetUpdaterHelper {
         val forceSmallHeight = cellHeight == maxCellHeight
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
+
         if (info.widgetType == WidgetType.Widget1x1) {
             if (cellWidth > 1 && cellHeight > 1) {
                 updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, 14f)
@@ -611,13 +652,16 @@ object WidgetUpdaterHelper {
             } else if (cellWidth == 4) {
                 textSize *= 0.75f // 18sp
             }
+
             val layoutPadding = ContextUtils.dpToPx(context, if (forceSmall) 0f else 12f).toInt()
             updateViews.setViewPadding(R.id.layout_container, layoutPadding, layoutPadding, layoutPadding, layoutPadding)
+
             updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, textSize)
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize)
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, if (forceSmall) 12f else 14f)
         } else if (info.widgetType == WidgetType.Widget4x2) {
             val maxHeightSize = ContextUtils.dpToPx(context, 60f).toInt()
+
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) {
                 val iconWidth = ContextUtils.dpToPx(context, 45f).toInt()
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth)
@@ -627,16 +671,18 @@ object WidgetUpdaterHelper {
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth)
                 updateViews.setInt(R.id.weather_icon, "setMaxHeight", (maxHeightSize * 7f / 6).toInt()) // 70dp
             }
+
             var textSize = ContextUtils.dpToPx(context, 36f)
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) textSize = ContextUtils.dpToPx(context, 28f)
+
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize)
             updateViews.setViewVisibility(R.id.condition_weather, if (forceSmallHeight && cellHeight <= 2) View.GONE else View.VISIBLE)
         } else if (info.widgetType == WidgetType.Widget4x1) {
             var locTextSize = 12
-            if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) {
-                locTextSize = 14
-            }
+            if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) locTextSize = 14
+
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, locTextSize.toFloat())
+
             if (isSmallHeight && cellHeight == 1) {
                 val padding = ContextUtils.dpToPx(context, 0f).toInt()
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding)
@@ -665,10 +711,12 @@ object WidgetUpdaterHelper {
                                        weather: WeatherNowViewModel, background: WidgetUtils.WidgetBackground, style: WidgetUtils.WidgetBackgroundStyle?) {
         val textColor = WidgetUtils.getTextColor(appWidgetId, background)
         val panelTextColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style, context.isNightMode())
-        if (info.widgetType != WidgetType.Widget2x2 && info.widgetType != WidgetType.Widget4x1Google && info.widgetType != WidgetType.Widget4x1Notification && info.widgetType != WidgetType.Widget4x2Clock && info.widgetType != WidgetType.Widget4x2Huawei && info.widgetType != WidgetType.Widget4x1) {
+        if (info.widgetType == WidgetType.Widget1x1 && info.widgetType == WidgetType.Widget4x2) {
             updateViews.setTextColor(R.id.condition_temp, textColor)
         }
+
         val is4x2 = info.widgetType == WidgetType.Widget4x2
+
         if (info.widgetType != WidgetType.Widget4x1) {
             // WeatherIcon
             val weatherIconResId = WeatherIconsManager.getInstance().getWeatherIconResource(weather.weatherIcon)
@@ -682,6 +730,7 @@ object WidgetUpdaterHelper {
                         ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), weatherIconResId))
             }
         }
+
         if (info.widgetType == WidgetType.Widget2x2) {
             if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
                 updateViews.setTextColor(R.id.location_name, panelTextColor)
@@ -689,6 +738,7 @@ object WidgetUpdaterHelper {
         } else {
             updateViews.setTextColor(R.id.location_name, if (is4x2) textColor else panelTextColor)
         }
+
         if (info.widgetType != WidgetType.Widget4x1Google && info.widgetType != WidgetType.Widget4x1) {
             if (info.widgetType == WidgetType.Widget2x2) {
                 if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
@@ -698,6 +748,7 @@ object WidgetUpdaterHelper {
                 updateViews.setTextColor(R.id.condition_weather, if (is4x2) textColor else panelTextColor)
             }
         }
+
         if (info.widgetType == WidgetType.Widget2x2 || info.widgetType == WidgetType.Widget4x1Notification) {
             updateViews.setImageViewBitmap(R.id.hi_icon,
                     ImageUtils.tintedBitmapFromDrawable(context, R.drawable.wi_direction_up, Colors.WHITE)
@@ -705,12 +756,14 @@ object WidgetUpdaterHelper {
             updateViews.setImageViewBitmap(R.id.lo_icon,
                     ImageUtils.tintedBitmapFromDrawable(context, R.drawable.wi_direction_down, Colors.WHITE)
             )
+
             if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
                 updateViews.setTextColor(R.id.condition_hi, panelTextColor)
                 updateViews.setTextColor(R.id.divider, panelTextColor)
                 updateViews.setTextColor(R.id.condition_lo, panelTextColor)
                 updateViews.setTextColor(R.id.weather_pop, panelTextColor)
                 updateViews.setTextColor(R.id.weather_windspeed, panelTextColor)
+
                 if (background != WidgetUtils.WidgetBackground.TRANSPARENT) {
                     updateViews.setInt(R.id.hi_icon, "setColorFilter", panelTextColor)
                     updateViews.setInt(R.id.lo_icon, "setColorFilter", panelTextColor)
@@ -718,20 +771,22 @@ object WidgetUpdaterHelper {
                     updateViews.setInt(R.id.weather_windicon, "setColorFilter", panelTextColor)
                 }
             }
+
             var chanceModel: DetailItemViewModel? = null
             var windModel: DetailItemViewModel? = null
             for (input in weather.weatherDetails) {
-                if (input != null && input.detailsType == WeatherDetailsType.POPCHANCE) {
+                if (input?.detailsType == WeatherDetailsType.POPCHANCE) {
                     chanceModel = input
-                } else if (chanceModel == null && input != null && input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
+                } else if (chanceModel == null && input?.detailsType == WeatherDetailsType.POPCLOUDINESS) {
                     chanceModel = input
-                } else if (input != null && input.detailsType == WeatherDetailsType.WINDSPEED) {
+                } else if (input?.detailsType == WeatherDetailsType.WINDSPEED) {
                     windModel = input
                 }
                 if (chanceModel != null && windModel != null) {
                     break
                 }
             }
+
             if (chanceModel != null) {
                 if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
                     updateViews.setImageViewBitmap(R.id.weather_popicon,
@@ -745,6 +800,7 @@ object WidgetUpdaterHelper {
                     )
                 }
             }
+
             if (windModel != null) {
                 if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
                     updateViews.setImageViewBitmap(R.id.weather_windicon,
@@ -769,7 +825,9 @@ object WidgetUpdaterHelper {
                 }
             }
         }
+
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
+
         if (WidgetUtils.isDateWidget(info.widgetType) && info.widgetType != WidgetType.Widget4x1Google) {
             updateViews.setTextColor(R.id.date_panel, textColor)
         }
@@ -870,7 +928,10 @@ object WidgetUpdaterHelper {
                             }
 
                             override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                                it.resume(resource)
+                                // Original image -> firstResource
+                                // Thumbnail -> second resource
+                                // Resume on the second call
+                                if (!isFirstResource) it.resume(resource)
                                 return true
                             }
                         })
@@ -898,35 +959,58 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun getForecasts(forecasts: List<Forecast>?, forecastLength: Int): List<ForecastItemViewModel> {
+    private fun getForecasts(locData: LocationData, forecasts: List<Forecast>?, forecastLength: Int): List<ForecastItemViewModel> {
+        val fcasts: List<Forecast>?
+
         if (forecasts?.isNotEmpty() == true) {
-            val fcasts = ArrayList<ForecastItemViewModel>(forecastLength)
-            for (i in 0 until Math.min(forecastLength, forecasts.size)) {
-                fcasts.add(ForecastItemViewModel(forecasts[i]))
-            }
-            return fcasts
+            fcasts = forecasts
+        } else {
+            val fcastData = Settings.getWeatherForecastData(locData.query)
+            fcasts = fcastData?.forecast
         }
+
+        if (fcasts?.isNotEmpty() == true) {
+            return ArrayList<ForecastItemViewModel>(forecastLength).also {
+                for (i in 0 until Math.min(forecastLength, fcasts.size)) {
+                    it.add(ForecastItemViewModel(fcasts[i]))
+                }
+            }
+        }
+
         return emptyList()
     }
 
     private fun getHourlyForecasts(locData: LocationData, forecasts: List<HourlyForecast>?, forecastLength: Int): List<HourlyForecastItemViewModel> {
-        if (forecasts?.isNotEmpty() == true) {
-            val now = ZonedDateTime.now(locData.tzOffset)
-            val fcasts = ArrayList<HourlyForecastItemViewModel>(forecastLength)
-            var count = 0
-            for (fcast in forecasts) {
-                if (!fcast.date.truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS))) {
-                    fcasts.add(HourlyForecastItemViewModel(fcast))
-                    count++
-                }
-                if (count >= forecastLength) break
-            }
-            return fcasts
+        val hrfcasts: List<HourlyForecast>?
+
+        val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
+        hrfcasts = if (forecasts?.isNotEmpty() == true) {
+            forecasts
+        } else {
+            Settings.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now)
         }
+
+        if (hrfcasts?.isNotEmpty() == true) {
+            return ArrayList<HourlyForecastItemViewModel>(forecastLength).also {
+                var count = 0
+                for (fcast in hrfcasts) {
+                    if (!fcast.date.truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS))) {
+                        it.add(HourlyForecastItemViewModel(fcast))
+                        count++
+                    }
+
+                    if (count >= forecastLength) break
+                }
+            }
+        }
+
         return emptyList()
     }
 
-    suspend fun rebuildWidget(context: Context, info: WidgetProviderInfo, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
+    suspend fun rebuildWidget(context: Context, info: WidgetProviderInfo,
+                              appWidgetManager: AppWidgetManager, appWidgetId: Int,
+                              newOptions: Bundle,
+                              loadBackground: Boolean = true) {
         if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
         // Widget dimensions
@@ -955,9 +1039,15 @@ object WidgetUpdaterHelper {
         if (WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
             val background = WidgetUtils.getWidgetBackground(appWidgetId)
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                val imageData = WeatherUtils.getImageData(weather)
-                val backgroundUri = imageData?.imageURI
-                loadBackgroundImage(context, updateViews, info, appWidgetId, backgroundUri, cellWidth, cellHeight)
+                if (loadBackground) {
+                    val imageData = WeatherUtils.getImageData(weather)
+                    val backgroundUri = imageData?.imageURI
+                    loadBackgroundImage(context, updateViews, info, appWidgetId, backgroundUri, cellWidth, cellHeight)
+                } else {
+                    updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT)
+                    updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
+                    updateViews.setImageViewBitmap(R.id.widgetBackground, null)
+                }
             }
         } else {
             if (info.widgetType == WidgetType.Widget4x2) {
@@ -970,8 +1060,7 @@ object WidgetUpdaterHelper {
 
         if (WidgetUtils.isForecastWidget(info.widgetType)) {
             // Determine forecast size
-            var forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
-            if (weather.forecast.size < forecastLength) forecastLength = weather.forecast.size
+            val forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
             updateViews.removeAllViews(R.id.forecast_layout)
             buildForecastPanel(context, info, updateViews, appWidgetId, forecastLength,
                     locData, weather, newOptions)
@@ -1024,6 +1113,7 @@ object WidgetUpdaterHelper {
                 timeStr12hr)
         views.setCharSequence(R.id.clock_panel, "setFormat24Hour",
                 context.getText(R.string.clock_24_hours_format))
+
         if (widgetType == WidgetType.Widget4x2Huawei) {
             views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, if (cellWidth <= 3) 48f else 60f)
         } else if (widgetType == WidgetType.Widget4x2Clock) {
@@ -1038,7 +1128,8 @@ object WidgetUpdaterHelper {
             }
             views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize)
         }
-        if (WidgetUtils.useTimeZone(appWidgetId) && locData != null) {
+
+        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
             views.setString(R.id.clock_panel, "setTimeZone", locData.tzLong)
         } else {
             views.setString(R.id.clock_panel, "setTimeZone", null)
@@ -1077,6 +1168,7 @@ object WidgetUpdaterHelper {
         val forceSmallHeight = cellHeight == maxCellHeight
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
+
         if (widgetType == WidgetType.Widget2x2) {
             var dateTextSize = context.resources.getDimensionPixelSize(R.dimen.date_text_size).toFloat() // 16sp
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) dateTextSize *= 0.875f // 14sp
@@ -1088,6 +1180,7 @@ object WidgetUpdaterHelper {
             }
             views.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, dateTextSize)
         }
+
         val datePattern = if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3 ||
                 widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4 ||
                 widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4) {
@@ -1101,14 +1194,15 @@ object WidgetUpdaterHelper {
         }
         views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern)
         views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern)
-        if (WidgetUtils.useTimeZone(appWidgetId) && locData != null) {
+
+        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
             views.setString(R.id.date_panel, "setTimeZone", locData.tzLong)
         } else {
             views.setString(R.id.date_panel, "setTimeZone", null)
         }
     }
 
-    private fun getCalendarAppIntent(context: Context): PendingIntent? {
+    private fun getCalendarAppIntent(context: Context): PendingIntent {
         val componentName = WidgetUtils.getCalendarAppComponent(context)
         return if (componentName != null) {
             val launchIntent = context.packageManager.getLaunchIntentForPackage(componentName.packageName)
@@ -1119,7 +1213,7 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun getClockAppIntent(context: Context): PendingIntent? {
+    private fun getClockAppIntent(context: Context): PendingIntent {
         val componentName = WidgetUtils.getClockAppComponent(context)
         return if (componentName != null) {
             val launchIntent = context.packageManager.getLaunchIntentForPackage(componentName.packageName)
@@ -1131,7 +1225,8 @@ object WidgetUpdaterHelper {
     }
 
     private fun getShowNextIntent(context: Context?, info: WidgetProviderInfo, appWidgetId: Int): PendingIntent {
-        val showNext = Intent(context, info.javaClass)
+        val showNext = Intent()
+                .setComponent(info.componentName)
                 .setAction(WeatherWidgetProvider.ACTION_SHOWNEXTFORECAST)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId)
         return PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -1149,6 +1244,7 @@ object WidgetUpdaterHelper {
             onClickIntent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
             onClickIntent.putExtra(Constants.FRAGTAG_HOME, false)
         }
+
         return PendingIntent.getActivity(context, location?.hashCode()
                 ?: SystemClock.uptimeMillis().toInt(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
