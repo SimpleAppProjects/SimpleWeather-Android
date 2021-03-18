@@ -267,7 +267,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         @SuppressLint("MissingPermission")
-        private suspend fun updateLocation(): Boolean = withContext(Dispatchers.IO) {
+        private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
             val context = App.instance.appContext
             val wm = WeatherManager.getInstance()
             var mFusedLocationClient: FusedLocationProviderClient? = null
@@ -314,37 +314,48 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
                             // Handler for timeout callback
                             val handler = Handler(handlerThread.looper)
-                            val timeoutToken = Object()
 
                             val locationCallback = object : LocationCallback() {
                                 override fun onLocationResult(locationResult: LocationResult) {
-                                    handler.removeCallbacksAndMessages(timeoutToken)
+                                    handler.removeCallbacksAndMessages(null)
                                     mFusedLocationClient!!.removeLocationUpdates(this)
 
                                     Timber.tag(TAG).i("Fused: Location update received...")
-                                    continuation.resume(locationResult)
+                                    if (continuation.isActive) {
+                                        continuation.resume(locationResult)
+                                    }
                                     handlerThread.quitSafely()
                                 }
 
                                 override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                                     if (!locationAvailability.isLocationAvailable) {
-                                        handler.removeCallbacksAndMessages(timeoutToken)
+                                        handler.removeCallbacksAndMessages(null)
                                         mFusedLocationClient!!.removeLocationUpdates(this)
 
                                         Timber.tag(TAG).i("Fused: Location update unavailable...")
-                                        continuation.resume(null)
+                                        if (continuation.isActive) {
+                                            continuation.resume(null)
+                                        }
                                         handlerThread.quitSafely()
                                     }
                                 }
                             }
 
+                            continuation.invokeOnCancellation {
+                                mFusedLocationClient?.removeLocationUpdates(locationCallback)
+                                handler.removeCallbacksAndMessages(null)
+                                handlerThread.quitSafely()
+                            }
+
                             mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, locationCallback, handlerThread.looper)
 
                             // Timeout after 60s
-                            handler.postDelayed(60000, timeoutToken) {
+                            handler.postDelayed(60000) {
                                 mFusedLocationClient?.removeLocationUpdates(locationCallback)
                                 Timber.tag(TAG).i("Fused: Location update timed out...")
-                                continuation.resume(null)
+                                if (continuation.isActive) {
+                                    continuation.resume(null)
+                                }
                                 handlerThread.quitSafely()
                             }
                         }
@@ -374,16 +385,17 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                             location = suspendCancellableCoroutine { continuation ->
                                 // Handler for timeout callback
                                 val handler = Handler(handlerThread.looper)
-                                val timeoutToken = Object()
 
                                 val locationListener = object : LocationListener {
                                     override fun onLocationChanged(location: Location) {
-                                        handler.removeCallbacksAndMessages(timeoutToken)
+                                        handler.removeCallbacksAndMessages(null)
                                         locMan.removeUpdates(this)
 
                                         Timber.tag(TAG).i("LocMan: Location update received...")
 
-                                        continuation.resume(location)
+                                        if (continuation.isActive) {
+                                            continuation.resume(location)
+                                        }
                                         handlerThread.quitSafely()
                                     }
 
@@ -392,19 +404,29 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                     override fun onProviderDisabled(s: String) {}
                                 }
 
+                                continuation.invokeOnCancellation {
+                                    handler.removeCallbacksAndMessages(null)
+                                    locMan.removeUpdates(locationListener)
+                                    handlerThread.quitSafely()
+                                }
+
                                 try {
                                     locMan.requestSingleUpdate(provider, locationListener, handlerThread.looper)
                                 } catch (e: Exception) {
                                     locMan.removeUpdates(locationListener)
-                                    continuation.resumeWithException(e)
+                                    if (continuation.isActive) {
+                                        continuation.resumeWithException(e)
+                                    }
                                     handlerThread.quitSafely()
                                 }
 
                                 // Timeout after 60s
-                                handler.postDelayed(60000, timeoutToken) {
+                                handler.postDelayed(60000) {
                                     locMan.removeUpdates(locationListener)
                                     Timber.tag(TAG).i("LocMan: Location update timed out...")
-                                    continuation.resume(null)
+                                    if (continuation.isActive) {
+                                        continuation.resume(null)
+                                    }
                                     handlerThread.quitSafely()
                                 }
                             }
