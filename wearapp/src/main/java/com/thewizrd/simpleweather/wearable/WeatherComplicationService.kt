@@ -8,18 +8,21 @@ import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
 import android.support.wearable.complications.ComplicationText
-import android.util.Log
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ImageUtils
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.LaunchActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 class WeatherComplicationService : ComplicationProviderService() {
     companion object {
@@ -43,7 +46,7 @@ class WeatherComplicationService : ComplicationProviderService() {
     override fun onComplicationUpdate(complicationId: Int, type: Int, manager: ComplicationManager) {
         if (type != ComplicationData.TYPE_SHORT_TEXT && type != ComplicationData.TYPE_LONG_TEXT) {
             manager.noUpdateRequired(complicationId)
-            Logger.writeLine(Log.DEBUG, "%s: Complication %d no update required", TAG, complicationId)
+            Timber.tag(TAG).d("Complication %d no update required", complicationId)
             return
         }
 
@@ -68,12 +71,12 @@ class WeatherComplicationService : ComplicationProviderService() {
 
             if (complicationData != null) {
                 manager.updateComplicationData(complicationId, complicationData)
-                Logger.writeLine(Log.DEBUG, "%s: Complication %d updated", TAG, complicationId)
+                Timber.tag(TAG).d("Complication %d updated", complicationId)
             } else {
                 // If no data is sent, we still need to inform the ComplicationManager, so
                 // the update job can finish and the wake lock isn't held any longer.
                 manager.noUpdateRequired(complicationId)
-                Logger.writeLine(Log.DEBUG, "%s: Complication %d no update required", TAG, complicationId)
+                Timber.tag(TAG).d("Complication %d no update required", complicationId)
             }
         }
     }
@@ -114,16 +117,25 @@ class WeatherComplicationService : ComplicationProviderService() {
             // Weather Icon
             val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
             val weatherIcon = wip.getWeatherIconResource(weather.condition.icon)
-            builder.setIcon(Icon.createWithResource(applicationContext, weatherIcon))
+            builder.setIcon(Icon.createWithBitmap(
+                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(this, false), weatherIcon))
+            )
         } else if (dataType == ComplicationData.TYPE_LONG_TEXT) {
-            builder.setLongText(ComplicationText.plainText("$temp - $condition"))
+            builder.setLongText(ComplicationText.plainText(condition))
+            builder.setLongTitle(ComplicationText.plainText(temp))
 
             // Weather Icon
-            val weatherIcon = WeatherIconsManager.getInstance().getWeatherIconResource(weather.condition.icon)
-            builder.setImageStyle(ComplicationData.IMAGE_STYLE_ICON)
-                    .setSmallImage(Icon.createWithBitmap(
-                            ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(applicationContext, false), weatherIcon))
-                    )
+            val wim = WeatherIconsManager.getInstance()
+
+            val weatherIcon = wim.getWeatherIconResource(weather.condition.icon)
+            val icon = Icon.createWithBitmap(
+                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(this, false), weatherIcon))
+
+            if (wim.isFontIcon) {
+                builder.setIcon(icon)
+            } else {
+                builder.setImageStyle(ComplicationData.IMAGE_STYLE_ICON).setSmallImage(icon)
+            }
         }
 
         builder.setTapAction(getTapIntent(this))
