@@ -80,7 +80,7 @@ class SetupFragment : CustomFragment() {
                     runWithView {
                         if (mLocation == null) {
                             enableControls(true)
-                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+                            showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                         } else {
                             fetchGeoLocation()
                         }
@@ -95,7 +95,7 @@ class SetupFragment : CustomFragment() {
                         Timber.tag(TAG).i("Fused: Location update unavailable...")
                         runWithView {
                             enableControls(true)
-                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+                            showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                         }
                     }
                 }
@@ -112,7 +112,7 @@ class SetupFragment : CustomFragment() {
                     runWithView {
                         if (mLocation == null) {
                             enableControls(true)
-                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+                            showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                         } else {
                             fetchGeoLocation()
                         }
@@ -268,12 +268,10 @@ class SetupFragment : CustomFragment() {
                                     enableControls(true)
                                     Settings.setFollowGPS(false)
                                     Settings.setWeatherLoaded(false)
-                                    if (fragmentActivity != null) {
-                                        if (e is WeatherException || e is CustomException) {
-                                            Toast.makeText(fragmentActivity, e.message, Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
-                                        }
+                                    if (e is WeatherException || e is CustomException) {
+                                        showToast(e.message, Toast.LENGTH_SHORT)
+                                    } else {
+                                        showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                                     }
                                 }
                             }
@@ -397,12 +395,10 @@ class SetupFragment : CustomFragment() {
                                 enableControls(true)
                                 Settings.setFollowGPS(false)
                                 Settings.setWeatherLoaded(false)
-                                if (fragmentActivity != null) {
-                                    if (t is WeatherException || t is CustomException) {
-                                        Toast.makeText(fragmentActivity, t.message, Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
-                                    }
+                                if (t is WeatherException || t is CustomException) {
+                                    showToast(t.message, Toast.LENGTH_SHORT)
+                                } else {
+                                    showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                                 }
                             }
                         }
@@ -494,7 +490,7 @@ class SetupFragment : CustomFragment() {
     private val cancelLocRequestRunner = Runnable {
         stopLocationUpdates()
         enableControls(true)
-        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
+        showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -511,7 +507,7 @@ class SetupFragment : CustomFragment() {
                     // functionality that depends on this permission.
                     runWithView {
                         enableControls(true)
-                        Toast.makeText(fragmentActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show()
+                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
                     }
                 }
             }

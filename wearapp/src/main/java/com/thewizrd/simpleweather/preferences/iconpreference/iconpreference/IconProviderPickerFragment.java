@@ -112,7 +112,7 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
     protected void onRadioButtonConfirmed(String selectedKey) {
         if (!Objects.equals(selectedKey, WeatherIconsProvider.KEY) && !ExtrasLibrary.Companion.isEnabled()) {
             // Navigate to premium page
-            Toast.makeText(getContext(), R.string.message_premium_required, Toast.LENGTH_SHORT).show();
+            showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(
                     new Intent(WearableListenerActivity.ACTION_OPENONPHONE)
                             .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true));

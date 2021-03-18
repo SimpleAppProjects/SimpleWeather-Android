@@ -190,7 +190,7 @@ public class SettingsActivity extends WearableListenerActivity {
                     StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
                     WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Set keyentrypref color to red
-                Toast.makeText(getContext(), R.string.message_enter_apikey, Toast.LENGTH_SHORT).show();
+                showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT);
                 return true;
             }
 
@@ -315,7 +315,7 @@ public class SettingsActivity extends WearableListenerActivity {
                         } else {
                             LocationManager locMan = (LocationManager) getParentActivity().getSystemService(Context.LOCATION_SERVICE);
                             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                Toast.makeText(getParentActivity(), R.string.error_enable_location_services, Toast.LENGTH_SHORT).show();
+                                showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT);
 
                                 Settings.setFollowGPS(false);
                                 return false;
@@ -398,11 +398,11 @@ public class SettingsActivity extends WearableListenerActivity {
 
                             dialog.dismiss();
                         } else {
-                            Toast.makeText(getParentActivity(), R.string.message_keyinvalid, Toast.LENGTH_SHORT).show();
+                            showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT);
                         }
                     } catch (WeatherException e) {
                         Logger.writeLine(Log.ERROR, e);
-                        Toast.makeText(getParentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        showToast(e.getMessage(), Toast.LENGTH_SHORT);
                     }
                 }
             });
@@ -453,7 +453,7 @@ public class SettingsActivity extends WearableListenerActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if (Objects.equals(WeatherAPI.HERE, newValue.toString()) && !ExtrasLibrary.Companion.isEnabled()) {
-                        Toast.makeText(getContext(), R.string.message_premium_required, Toast.LENGTH_SHORT).show();
+                        showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
                         LocalBroadcastManager.getInstance(getContext()).sendBroadcast(
                                 new Intent(WearableListenerActivity.ACTION_OPENONPHONE)
                                         .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true));
@@ -707,7 +707,7 @@ public class SettingsActivity extends WearableListenerActivity {
                         // functionality that depends on this permission.
                         followGps.setChecked(false);
                         Settings.setFollowGPS(false);
-                        Toast.makeText(getParentActivity(), R.string.error_location_denied, Toast.LENGTH_SHORT).show();
+                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT);
                     }
                     return;
                 default:

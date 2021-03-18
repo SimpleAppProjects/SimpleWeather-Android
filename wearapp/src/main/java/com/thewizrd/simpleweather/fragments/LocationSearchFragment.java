@@ -70,7 +70,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class LocationSearchFragment extends SwipeDismissFragment {
-    private static final String TAG = "LocationSearchFragment";
+    private static final String TAG = "LocSearchFragment";
 
     private FragmentLocationSearchBinding binding;
     private LocationQueryAdapter mAdapter;
@@ -78,7 +78,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
     private SwipeDismissFrameLayout.Callback swipeCallback;
 
     private CancellationTokenSource cts = new CancellationTokenSource();
-    private WeatherManager wm = WeatherManager.getInstance();
+    private final WeatherManager wm = WeatherManager.getInstance();
 
     private static final int REQUEST_CODE_VOICE_INPUT = 0;
 
@@ -303,9 +303,9 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 @Override
                                 public void run() {
                                     if (e instanceof WeatherException || e instanceof CustomException) {
-                                        Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        showToast(e.getMessage(), Toast.LENGTH_SHORT);
                                     } else {
-                                        Toast.makeText(getFragmentActivity(), R.string.error_retrieve_location, Toast.LENGTH_SHORT).show();
+                                        showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT);
                                     }
 
                                     showLoading(false);
@@ -471,7 +471,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                         @Override
                         public void run() {
                             if (e instanceof WeatherException) {
-                                Toast.makeText(getFragmentActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                showToast(e.getMessage(), Toast.LENGTH_SHORT);
                             }
                             mAdapter.setLocations(Collections.singletonList(new LocationQueryViewModel()));
                         }

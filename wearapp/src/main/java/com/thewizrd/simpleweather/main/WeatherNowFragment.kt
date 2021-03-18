@@ -126,7 +126,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 WidgetUpdaterWorker.requestWidgetUpdate(context)
             }
         } else {
-            Toast.makeText(fragmentActivity, R.string.werror_noweather, Toast.LENGTH_LONG).show()
+            showToast(R.string.werror_noweather, Toast.LENGTH_LONG)
             binding.swipeRefreshLayout.isRefreshing = false
         }
     }
@@ -138,12 +138,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        runWithView {
-            if (wEx.errorStatus == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == Settings.getAPI()) {
-                Toast.makeText(fragmentActivity, R.string.error_message_weather_us_only, Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(fragmentActivity, wEx.message, Toast.LENGTH_LONG).show()
-            }
+        if (wEx.errorStatus == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == Settings.getAPI()) {
+            showToast(R.string.error_message_weather_us_only, Toast.LENGTH_LONG)
+        } else {
+            showToast(wEx.message, Toast.LENGTH_LONG)
         }
     }
 
@@ -647,9 +645,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
                     }
                 } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
-                    }
+                    showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                 }
             }
 
@@ -673,9 +669,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         wm.getLocation(location)
                     }
                 } catch (e: WeatherException) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(fragmentActivity, R.string.error_retrieve_location, Toast.LENGTH_SHORT).show()
-                    }
+                    showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
                     return false
                 }
 
@@ -726,9 +720,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Settings.setFollowGPS(false)
-                    runWithView {
-                        Toast.makeText(fragmentActivity, R.string.error_location_denied, Toast.LENGTH_SHORT).show()
-                    }
+                    showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
                 }
             }
         }
@@ -841,8 +833,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         }
             } else {
                 binding.swipeRefreshLayout.isRefreshing = false
-
-                Toast.makeText(fragmentActivity, R.string.error_syncing, Toast.LENGTH_LONG).show()
+                showToast(R.string.error_syncing, Toast.LENGTH_LONG)
             }
         }
     }

@@ -8,13 +8,28 @@ import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public abstract class SwipeDismissPreferenceFragment extends PreferenceFragment {
+
+    @IntDef({
+            Toast.LENGTH_SHORT,
+            Toast.LENGTH_LONG
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ToastDuration {
+    }
+
     private Activity mActivity;
     private ActivitySettingsBinding binding;
     private SwipeDismissFrameLayout.Callback swipeCallback;
@@ -76,4 +91,24 @@ public abstract class SwipeDismissPreferenceFragment extends PreferenceFragment 
     }
 
     public abstract void onCreatePreferences(@Nullable Bundle savedInstanceState);
+
+    public void showToast(@StringRes int resId, @ToastDuration int duration) {
+        if (mActivity != null) {
+            mActivity.runOnUiThread(() -> {
+                if (mActivity != null && isVisible()) {
+                    Toast.makeText(mActivity, resId, duration).show();
+                }
+            });
+        }
+    }
+
+    public void showToast(CharSequence message, @ToastDuration int duration) {
+        if (mActivity != null) {
+            mActivity.runOnUiThread(() -> {
+                if (mActivity != null && isVisible()) {
+                    Toast.makeText(mActivity, message, duration).show();
+                }
+            });
+        }
+    }
 }
