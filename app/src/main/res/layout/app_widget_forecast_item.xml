@@ -24,11 +24,14 @@
 
     <ImageView
         android:id="@+id/forecast_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="-4dp"
         android:layout_marginBottom="-4dp"
         android:adjustViewBounds="true"
+        android:maxHeight="48dp"
+        android:maxWidth="48dp"
         android:padding="4dp"
         android:scaleType="fitCenter"
         android:src="@drawable/wi_day_thunderstorm" />
@@ -53,7 +56,7 @@
             tools:text="70°" />
 
         <TextView
-            android:id="@+id/divider"
+            android:id="@+id/forecast_divider"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

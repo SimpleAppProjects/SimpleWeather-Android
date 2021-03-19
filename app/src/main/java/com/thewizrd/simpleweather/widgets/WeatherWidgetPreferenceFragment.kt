@@ -376,7 +376,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         hideLocNamePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
             WidgetUtils.setLocationNameHidden(mAppWidgetId, newValue as Boolean)
             hideLocNamePref.isChecked = newValue
-            updateLocationView()
+            updateWidgetView()
             true
         }
 

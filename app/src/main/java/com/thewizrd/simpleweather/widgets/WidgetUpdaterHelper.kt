@@ -595,14 +595,11 @@ object WidgetUpdaterHelper {
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
 
-        var maxIconSize: Int
+        var maxIconSize = ContextUtils.dpToPx(context, 40f).toInt()
         if (info.widgetType == WidgetType.Widget4x1) {
-            maxIconSize = ContextUtils.dpToPx(context, 30f).toInt()
-            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && maxHeight / maxCellHeight >= 72) {
-                maxIconSize *= (8 / 5f).toInt() // 48dp
+            if (WidgetUtils.isLocationNameHidden(appWidgetId) && WidgetUtils.isSettingsButtonHidden(appWidgetId)) {
+                maxIconSize = (maxIconSize * 6 / 5f).toInt() // 48dp
             }
-        } else {
-            maxIconSize = ContextUtils.dpToPx(context, 48f).toInt()
         }
 
         views.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize)

@@ -117,7 +117,7 @@
                 tools:text="Mostly Cloudy. Breezy. Chance of rain"
                 tools:textColor="@color/colorOnSurface" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                 android:id="@+id/weather_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
@@ -133,6 +133,8 @@
                 android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:drawableHeight="24dp"
+                app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_up"
                 app:drawableTint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 app:showIfTrue="@{viewModel.showHiLo}"
@@ -147,7 +149,7 @@
                 tools:text="&#8226;"
                 tools:textColor="@color/colorOnSurface" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                 android:id="@+id/weather_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
@@ -163,6 +165,8 @@
                 android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:drawableHeight="24dp"
+                app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_down"
                 app:drawableTint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 app:showIfTrue="@{viewModel.showHiLo}"

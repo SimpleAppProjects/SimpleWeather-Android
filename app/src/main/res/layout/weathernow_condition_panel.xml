@@ -154,11 +154,11 @@
                     app:showIfTrue="@{weatherView.showHiLo}"
                     tools:visibility="visible">
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                         android:id="@+id/weather_hi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="end"
+                        android:gravity="center_vertical|end"
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
@@ -167,16 +167,18 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         app:fontFamily="@font/open_sans_light"
+                        app:drawableHeight="30dp"
+                        app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_up"
                         app:drawableTint="#FFFF4500"
                         tools:text="75°"
                         tools:visibility="visible" />
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                         android:id="@+id/weather_lo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="end"
+                        android:gravity="center_vertical|end"
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
@@ -185,6 +187,8 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         app:fontFamily="@font/open_sans_light"
+                        app:drawableHeight="30dp"
+                        app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_down"
                         app:drawableTint="#FF87CEFA"
                         tools:text="65°"

@@ -36,7 +36,7 @@ internal object ServiceNotificationHelper {
 
     internal fun createForegroundNotification(context: Context): Notification {
         val notif = NotificationCompat.Builder(context, NOT_CHANNEL_ID).apply {
-            setSmallIcon(R.drawable.ic_wi_cloud_refresh)
+            setSmallIcon(R.drawable.wi_cloud_refresh)
             setSubText(context.getString(R.string.app_name))
             setContentTitle(context.getString(R.string.message_widgetservice_running))
             setOnlyAlertOnce(true)

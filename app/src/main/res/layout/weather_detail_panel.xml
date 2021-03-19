@@ -91,7 +91,7 @@
                     app:layout_constraintVertical_weight="1"
                     app:constraint_referenced_ids="forecast_extra_pop,forecast_extra_clouds,forecast_extra_windspeed" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                     android:id="@+id/forecast_extra_pop"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -106,6 +106,8 @@
                     android:textColor="@color/colorPrimaryLight"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
+                    app:drawableHeight="24dp"
+                    app:drawableWidth="24dp"
                     app:drawableStartCompat="@drawable/wi_raindrop"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -118,7 +120,7 @@
                     tools:text="100%"
                     tools:visibility="visible" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                     android:id="@+id/forecast_extra_clouds"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -133,6 +135,8 @@
                     android:textColor="@color/colorPrimaryLight"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
+                    app:drawableHeight="24dp"
+                    app:drawableWidth="24dp"
                     app:drawableStartCompat="@drawable/wi_cloudy"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -143,7 +147,7 @@
                     tools:text="75%"
                     tools:visibility="visible" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                     android:id="@+id/forecast_extra_windspeed"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -159,6 +163,8 @@
                     android:textColor="@color/colorPrimaryLight"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
+                    app:drawableHeight="24dp"
+                    app:drawableWidth="24dp"
                     app:drawableStartCompat="@drawable/wi_strong_wind"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"

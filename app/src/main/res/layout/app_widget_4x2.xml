@@ -166,7 +166,7 @@
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    android:padding="8dp"
+                    android:padding="4dp"
                     tools:src="@drawable/wi_thunderstorm" />
 
                 <TextView

@@ -1,0 +1,6 @@
+<resources>
+    <declare-styleable name="TextViewDrawableCompat">
+        <attr name="drawableWidth" format="dimension" />
+        <attr name="drawableHeight" format="dimension" />
+    </declare-styleable>
+</resources>
