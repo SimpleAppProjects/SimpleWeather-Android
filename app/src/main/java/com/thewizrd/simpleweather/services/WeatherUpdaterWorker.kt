@@ -72,57 +72,60 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
-            val context = context.applicationContext
             when (intentAction) {
-                ACTION_REQUEUEWORK -> enqueueWork(context)
+                ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
                     if (!isWorkScheduled(context)) {
-                        startWork(context)
+                        startWork(context.applicationContext)
                     }
                 ACTION_UPDATEWEATHER ->
                     // For immediate action
-                    startWork(context)
-                ACTION_CANCELWORK -> cancelWork(context)
+                    startWork(context.applicationContext)
+                ACTION_CANCELWORK -> cancelWork(context.applicationContext)
             }
         }
 
         private fun startWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
+
             val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
                 if (App.instance.appState != AppState.FOREGROUND) {
                     setInitialDelay(60, TimeUnit.SECONDS)
                 }
             }
+
             WorkManager.getInstance(context)
                     .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest.build())
+
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             if (!PowerUtils.useForegroundService) {
                 // Enqueue periodic task as well
-                enqueueWork(context)
+                enqueueWork(context.applicationContext)
             }
         }
 
         private fun enqueueWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
+
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresCharging(false)
                     .build()
+
             val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, Settings.getRefreshInterval().toLong(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                     .setConstraints(constraints)
                     .addTag(TAG)
                     .build()
+
             WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
+
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
         private fun isWorkScheduled(context: Context): Boolean {
-            val context = context.applicationContext
-            val workMgr = WorkManager.getInstance(context)
+            val workMgr = WorkManager.getInstance(context.applicationContext)
             var statuses: List<WorkInfo>? = null
             try {
                 statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()

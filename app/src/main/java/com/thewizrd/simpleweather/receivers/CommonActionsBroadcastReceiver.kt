@@ -12,10 +12,10 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.simpleweather.services.ImageDatabaseWorker
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
-import com.thewizrd.simpleweather.services.WeatherUpdaterService
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -71,11 +71,11 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
         } else if (CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE == intent.action) {
             WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDWEATHERUPDATE)
         } else if (CommonActions.ACTION_WIDGET_RESETWIDGETS == intent.action) {
-            WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                    .setAction(WeatherUpdaterService.ACTION_RESETGPSWIDGETS))
+            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                    .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS))
         } else if (CommonActions.ACTION_WIDGET_REFRESHWIDGETS == intent.action) {
-            WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                    .setAction(WeatherUpdaterService.ACTION_REFRESHGPSWIDGETS))
+            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS))
         } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER == intent.action) {
             ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorker.ACTION_UPDATEALARM)
         }

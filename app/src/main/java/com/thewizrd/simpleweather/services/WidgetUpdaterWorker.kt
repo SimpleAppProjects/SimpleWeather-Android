@@ -27,27 +27,28 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
-            val context = context.applicationContext
             when (intentAction) {
-                ACTION_REQUEUEWORK -> enqueueWork(context)
+                ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    if (!isWorkScheduled(context)) {
-                        startWork(context)
+                    if (!isWorkScheduled(context.applicationContext)) {
+                        startWork(context.applicationContext)
                     }
                 ACTION_UPDATEWIDGETS ->
                     // For immediate action
-                    startWork(context)
-                ACTION_CANCELWORK -> cancelWork(context)
+                    startWork(context.applicationContext)
+                ACTION_CANCELWORK -> cancelWork(context.applicationContext)
             }
         }
 
         private fun startWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
+
             val updateRequest = OneTimeWorkRequest.Builder(WidgetUpdaterWorker::class.java)
                     .build()
+
             WorkManager.getInstance(context)
                     .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             if (!PowerUtils.useForegroundService) {
@@ -57,14 +58,16 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         private fun enqueueWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
+
             val updateRequest = PeriodicWorkRequest.Builder(WidgetUpdaterWorker::class.java, 60, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                     .setConstraints(Constraints.NONE)
                     .addTag(TAG)
                     .build()
+
             WorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
+
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 

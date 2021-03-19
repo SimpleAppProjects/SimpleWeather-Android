@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.widgets
 import android.content.Context
 import android.content.Intent
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.services.WeatherUpdaterService
 
 class WeatherWidgetProvider4x1Google : WeatherWidgetProvider() {
     override val info: WidgetProviderInfo by lazy { Info.getInstance() }
@@ -11,8 +10,8 @@ class WeatherWidgetProvider4x1Google : WeatherWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
         if (Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action) {
-            WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                    .setAction(WeatherUpdaterService.ACTION_UPDATEDATE)
+            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                    .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
                     .putExtra(EXTRA_WIDGET_IDS, info.appWidgetIds)
                     .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
         } else {

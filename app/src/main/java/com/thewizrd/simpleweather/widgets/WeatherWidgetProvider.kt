@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.services.UpdaterUtils
-import com.thewizrd.simpleweather.services.WeatherUpdaterService
 
 abstract class WeatherWidgetProvider : AppWidgetProvider() {
     companion object {
@@ -36,8 +35,8 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                .setAction(WeatherUpdaterService.ACTION_REFRESHWIDGET)
+        WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
                 .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
                 .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
     }
@@ -53,8 +52,8 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
-        WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                .setAction(WeatherUpdaterService.ACTION_RESIZEWIDGET)
+        WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                .setAction(WeatherWidgetService.ACTION_RESIZEWIDGET)
                 .putExtra(EXTRA_WIDGET_ID, appWidgetId)
                 .putExtra(EXTRA_WIDGET_OPTIONS, newOptions)
                 .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))

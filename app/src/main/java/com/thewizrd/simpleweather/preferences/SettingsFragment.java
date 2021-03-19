@@ -75,7 +75,6 @@ import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerF
 import com.thewizrd.simpleweather.radar.RadarProvider;
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 import com.thewizrd.simpleweather.services.UpdaterUtils;
-import com.thewizrd.simpleweather.services.WeatherUpdaterService;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 import com.thewizrd.simpleweather.snackbar.Snackbar;
@@ -83,6 +82,7 @@ import com.thewizrd.simpleweather.splits.InstallRequest;
 import com.thewizrd.simpleweather.splits.SplitLocaleInstaller;
 import com.thewizrd.simpleweather.utils.PowerUtils;
 import com.thewizrd.simpleweather.wearable.WearableWorker;
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -262,8 +262,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 AnalyticsLogger.logEvent("Update_API", bundle);
 
                 WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
-            } else if (WeatherUpdaterService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
-                WeatherUpdaterService.enqueueWork(getAppCompatActivity(), filter.getIntent());
+            } else if (WeatherWidgetService.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
+                WeatherWidgetService.enqueueWork(getAppCompatActivity(), filter.getIntent());
             } else if (WeatherUpdaterWorker.class.getName().equals(filter.getIntent().getComponent().getClassName())) {
                 if (WeatherUpdaterWorker.ACTION_REQUEUEWORK.equals(filter.getIntent().getAction())) {
                     UpdaterUtils.updateAlarm(getAppCompatActivity());
@@ -949,8 +949,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER));
                 enqueueIntent(new Intent(context, WearableWorker.class)
                         .setAction(WearableWorker.ACTION_SENDWEATHERUPDATE));
-                enqueueIntent(new Intent(context, WeatherUpdaterService.class)
-                        .setAction(value ? WeatherUpdaterService.ACTION_REFRESHGPSWIDGETS : WeatherUpdaterService.ACTION_RESETGPSWIDGETS));
+                enqueueIntent(new Intent(context, WeatherWidgetService.class)
+                        .setAction(value ? WeatherWidgetService.ACTION_REFRESHGPSWIDGETS : WeatherWidgetService.ACTION_RESETGPSWIDGETS));
                 break;
             // Refresh interval changed
             case KEY_REFRESHINTERVAL:

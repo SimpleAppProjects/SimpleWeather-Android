@@ -210,6 +210,10 @@
             android:exported="false"
             android:label="@string/pref_title_foreground_service" />
 
+        <service
+            android:name=".widgets.WeatherWidgetService"
+            android:exported="false" />
+
         <uses-library
             android:name="com.google.android.wearable"
             android:required="false" />

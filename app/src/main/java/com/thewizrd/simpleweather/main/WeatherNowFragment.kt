@@ -92,12 +92,12 @@ import com.thewizrd.simpleweather.fragments.WindowColorFragment
 import com.thewizrd.simpleweather.preferences.FeatureSettings
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
-import com.thewizrd.simpleweather.services.WeatherUpdaterService
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
+import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -198,9 +198,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     }
                 } else {
                     // Update widgets anyway
-                    WeatherUpdaterService.enqueueWork(context, Intent(context, WeatherUpdaterService::class.java)
-                            .setAction(WeatherUpdaterService.ACTION_REFRESHWIDGETS)
-                            .putExtra(WeatherUpdaterService.EXTRA_LOCATIONQUERY, locationData?.query))
+                    WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
+                            .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData?.query))
                 }
             }
         }
