@@ -635,7 +635,7 @@ public class WidgetUtils {
         int forecastLength;
 
         if (cellWidth >= 5) {
-            forecastLength = WIDE_FORECAST_LENGTH;
+            forecastLength = WIDE_FORECAST_LENGTH + 1;
         } else if (cellWidth < 2) {
             forecastLength = 1;
         } else {
