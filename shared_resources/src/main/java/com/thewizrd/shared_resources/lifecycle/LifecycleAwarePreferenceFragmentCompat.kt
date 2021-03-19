@@ -75,7 +75,7 @@ abstract class LifecycleAwarePreferenceFragmentCompat : PreferenceFragmentCompat
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.ERROR, it)
+            Logger.writeLine(Log.DEBUG, it)
         }.onSuccess {
             it.launch(Dispatchers.Main.immediate) {
                 action.run()
@@ -96,7 +96,7 @@ abstract class LifecycleAwarePreferenceFragmentCompat : PreferenceFragmentCompat
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.ERROR, it)
+            Logger.writeLine(Log.DEBUG, it)
         }.onSuccess {
             it.launch(context = context, block = block)
         }
@@ -113,7 +113,7 @@ abstract class LifecycleAwarePreferenceFragmentCompat : PreferenceFragmentCompat
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.ERROR, it)
+            Logger.writeLine(Log.DEBUG, it)
         }.onSuccess {
             it.launchWhenStarted {
                 withContext(Dispatchers.Main.immediate) {
@@ -134,7 +134,7 @@ abstract class LifecycleAwarePreferenceFragmentCompat : PreferenceFragmentCompat
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.ERROR, it)
+            Logger.writeLine(Log.DEBUG, it)
         }.onSuccess {
             it.launchWhenStarted(block = block)
         }
