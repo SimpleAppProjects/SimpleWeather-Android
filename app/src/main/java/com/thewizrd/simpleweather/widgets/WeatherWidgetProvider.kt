@@ -52,11 +52,7 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
-        WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                .setAction(WeatherWidgetService.ACTION_RESIZEWIDGET)
-                .putExtra(EXTRA_WIDGET_ID, appWidgetId)
-                .putExtra(EXTRA_WIDGET_OPTIONS, newOptions)
-                .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
+        WidgetUpdaterHelper.resizeWidget(context, info, appWidgetManager, appWidgetId, newOptions)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {

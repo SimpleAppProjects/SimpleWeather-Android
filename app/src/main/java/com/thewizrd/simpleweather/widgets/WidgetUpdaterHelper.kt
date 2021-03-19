@@ -440,6 +440,21 @@ object WidgetUpdaterHelper {
         }
     }
 
+    private fun resizeExtras(context: Context, info: WidgetProviderInfo,
+                             views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
+        if (WidgetUtils.isForecastWidget(info.widgetType)) {
+            updateForecastSizes(context, info, appWidgetId, views, newOptions)
+        }
+
+        if (WidgetUtils.isDateWidget(info.widgetType)) {
+            updateDateSize(context, info, views, appWidgetId, newOptions)
+        }
+
+        if (WidgetUtils.isClockWidget(info.widgetType)) {
+            updateClockSize(context, info, views, appWidgetId, newOptions)
+        }
+    }
+
     private fun buildForecast(context: Context, info: WidgetProviderInfo,
                               updateViews: RemoteViews, appWidgetId: Int,
                               locData: LocationData, weather: Weather?,
@@ -518,20 +533,6 @@ object WidgetUpdaterHelper {
                                 forecastPanel: RemoteViews,
                                 appWidgetId: Int, forecast: BaseForecastItemViewModel,
                                 newOptions: Bundle, textColor: Int) {
-        // Widget dimensions
-        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-        val maxCellHeight = WidgetUtils.getCellsForSize(maxHeight)
-        val maxCellWidth = WidgetUtils.getCellsForSize(maxWidth)
-        val cellHeight = WidgetUtils.getCellsForSize(minHeight)
-        val cellWidth = WidgetUtils.getCellsForSize(minWidth)
-        val forceSmallWidth = cellWidth == maxCellWidth
-        val forceSmallHeight = cellHeight == maxCellHeight
-        val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
-        val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
-
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         val style = WidgetUtils.getBackgroundStyle(appWidgetId)
 
@@ -541,18 +542,6 @@ object WidgetUpdaterHelper {
             RemoteViews(context.packageName, R.layout.app_widget_forecast_item_themed)
         }
 
-        var maxIconSize: Int
-        if (info.widgetType == WidgetType.Widget4x1) {
-            maxIconSize = ContextUtils.dpToPx(context, 30f).toInt()
-            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && maxHeight / maxCellHeight >= 72) {
-                maxIconSize *= (8 / 5f).toInt() // 48dp
-            }
-        } else {
-            maxIconSize = ContextUtils.dpToPx(context, 48f).toInt()
-        }
-
-        forecastItem.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize)
-        forecastItem.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize)
         forecastItem.setTextViewText(R.id.forecast_date, forecast.shortDate)
         forecastItem.setTextViewText(R.id.forecast_hi, forecast.hiTemp)
         if (forecast is ForecastItemViewModel) {
@@ -563,7 +552,7 @@ object WidgetUpdaterHelper {
             forecastItem.setTextColor(R.id.forecast_date, textColor)
             forecastItem.setTextColor(R.id.forecast_hi, textColor)
             if (forecast is ForecastItemViewModel) {
-                forecastItem.setTextColor(R.id.divider, textColor)
+                forecastItem.setTextColor(R.id.forecast_divider, textColor)
                 forecastItem.setTextColor(R.id.forecast_lo, textColor)
             }
         }
@@ -579,39 +568,69 @@ object WidgetUpdaterHelper {
                     ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), forecast.weatherIcon))
         }
 
+        if (forecast is HourlyForecastItemViewModel) {
+            forecastItem.setViewVisibility(R.id.forecast_divider, View.GONE)
+            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
+        }
+
+        updateForecastSizes(context, info, appWidgetId, forecastItem, newOptions)
+
+        forecastPanel.addView(R.id.forecast_container, forecastItem)
+    }
+
+    private fun updateForecastSizes(context: Context, info: WidgetProviderInfo,
+                                    appWidgetId: Int,
+                                    views: RemoteViews, newOptions: Bundle) {
+        // Widget dimensions
+        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+        val maxCellHeight = WidgetUtils.getCellsForSize(maxHeight)
+        val maxCellWidth = WidgetUtils.getCellsForSize(maxWidth)
+        val cellHeight = WidgetUtils.getCellsForSize(minHeight)
+        val cellWidth = WidgetUtils.getCellsForSize(minWidth)
+        val forceSmallWidth = cellWidth == maxCellWidth
+        val forceSmallHeight = cellHeight == maxCellHeight
+        val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
+        val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
+
+        var maxIconSize: Int
+        if (info.widgetType == WidgetType.Widget4x1) {
+            maxIconSize = ContextUtils.dpToPx(context, 30f).toInt()
+            if ((!isSmallWidth || cellWidth > 4) && maxCellHeight > 0 && maxHeight / maxCellHeight >= 72) {
+                maxIconSize *= (8 / 5f).toInt() // 48dp
+            }
+        } else {
+            maxIconSize = ContextUtils.dpToPx(context, 48f).toInt()
+        }
+
+        views.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize)
+        views.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize)
+
         if (info.widgetType === WidgetType.Widget4x1) {
             if (cellHeight <= 1) {
-                forecastItem.setViewPadding(R.id.forecast_date, 0, 0, 0, 0)
+                views.setViewPadding(R.id.forecast_date, 0, 0, 0, 0)
             } else {
                 val padding = ContextUtils.dpToPx(context, 2f).toInt()
-                forecastItem.setViewPadding(R.id.forecast_date, padding, padding, padding, padding)
+                views.setViewPadding(R.id.forecast_date, padding, padding, padding, padding)
             }
 
             var textSize = 12
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) textSize = 14
 
-            forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            if (forecast is ForecastItemViewModel) {
-                forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            }
+            views.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            views.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            views.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
         } else {
             var textSize = 12
             if (!isSmallHeight && cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) textSize = 14
 
-            forecastItem.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            forecastItem.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            if (forecast is ForecastItemViewModel) {
-                forecastItem.setTextViewTextSize(R.id.divider, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-                forecastItem.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            }
+            views.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            views.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            views.setTextViewTextSize(R.id.forecast_divider, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            views.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
         }
-
-        if (forecast is HourlyForecastItemViewModel) {
-            forecastItem.setViewVisibility(R.id.divider, View.GONE)
-            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
-        }
-        forecastPanel.addView(R.id.forecast_container, forecastItem)
     }
 
     private fun updateViewSizes(context: Context, info: WidgetProviderInfo, updateViews: RemoteViews, newOptions: Bundle) {
@@ -1013,64 +1032,18 @@ object WidgetUpdaterHelper {
         return emptyList()
     }
 
-    suspend fun rebuildWidget(context: Context, info: WidgetProviderInfo,
-                              appWidgetManager: AppWidgetManager, appWidgetId: Int,
-                              newOptions: Bundle,
-                              loadBackground: Boolean = true) {
+    fun resizeWidget(context: Context, info: WidgetProviderInfo,
+                     appWidgetManager: AppWidgetManager, appWidgetId: Int,
+                     newOptions: Bundle) {
         if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
-        // Widget dimensions
-        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-        val maxCellHeight = WidgetUtils.getCellsForSize(maxHeight)
-        val maxCellWidth = WidgetUtils.getCellsForSize(maxWidth)
-        val cellHeight = WidgetUtils.getCellsForSize(minHeight)
-        val cellWidth = WidgetUtils.getCellsForSize(minWidth)
-        val forceSmallHeight = cellHeight == maxCellHeight
-        val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
-        val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
-
-        // Get weather data from cache
-        val locData = getLocation(context, appWidgetId)
-        if (locData == null) {
-            resetWidget(context, appWidgetId, appWidgetManager)
-            return
-        }
-        val weather = getWeather(context, info, appWidgetId, cellWidth, locData) ?: return
-
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
-
-        if (WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
-            val background = WidgetUtils.getWidgetBackground(appWidgetId)
-            if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                if (loadBackground) {
-                    val imageData = WeatherUtils.getImageData(weather)
-                    val backgroundUri = imageData?.imageURI
-                    loadBackgroundImage(context, updateViews, info, appWidgetId, backgroundUri, cellWidth, cellHeight)
-                } else {
-                    updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT)
-                    updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
-                    updateViews.setImageViewBitmap(R.id.widgetBackground, null)
-                }
-            }
-        } else {
-            if (info.widgetType == WidgetType.Widget4x2) {
-                updateViews.setViewVisibility(R.id.weather_icon_overlay, View.GONE)
-            }
-        }
 
         // Set sizes for views
         updateViewSizes(context, info, updateViews, newOptions)
 
-        if (WidgetUtils.isForecastWidget(info.widgetType)) {
-            // Determine forecast size
-            val forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
-            updateViews.removeAllViews(R.id.forecast_layout)
-            buildForecastPanel(context, info, updateViews, appWidgetId, forecastLength,
-                    locData, weather, newOptions)
-        }
+        // Rebuild extras
+        resizeExtras(context, info, updateViews, appWidgetId, newOptions)
 
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
@@ -1095,6 +1068,17 @@ object WidgetUpdaterHelper {
 
     private fun buildClock(context: Context, info: WidgetProviderInfo, locData: LocationData?, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
         if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+
+        updateClockSize(context, info, views, appWidgetId, newOptions)
+
+        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
+            views.setString(R.id.clock_panel, "setTimeZone", locData.tzLong)
+        } else {
+            views.setString(R.id.clock_panel, "setTimeZone", null)
+        }
+    }
+
+    private fun updateClockSize(context: Context, info: WidgetProviderInfo, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
         val widgetType: WidgetType = info.widgetType
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -1134,12 +1118,6 @@ object WidgetUpdaterHelper {
             }
             views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_PX, clockTextSize)
         }
-
-        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
-            views.setString(R.id.clock_panel, "setTimeZone", locData.tzLong)
-        } else {
-            views.setString(R.id.clock_panel, "setTimeZone", null)
-        }
     }
 
     suspend fun refreshDate(context: Context, info: WidgetProviderInfo, appWidgetIds: IntArray) {
@@ -1162,6 +1140,17 @@ object WidgetUpdaterHelper {
 
     private fun buildDate(context: Context, info: WidgetProviderInfo, locData: LocationData?, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
         if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+
+        updateDateSize(context, info, views, appWidgetId, newOptions)
+
+        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
+            views.setString(R.id.date_panel, "setTimeZone", locData.tzLong)
+        } else {
+            views.setString(R.id.date_panel, "setTimeZone", null)
+        }
+    }
+
+    private fun updateDateSize(context: Context, info: WidgetProviderInfo, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
         val widgetType = info.widgetType
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -1200,12 +1189,6 @@ object WidgetUpdaterHelper {
         }
         views.setCharSequence(R.id.date_panel, "setFormat12Hour", datePattern)
         views.setCharSequence(R.id.date_panel, "setFormat24Hour", datePattern)
-
-        if (locData != null && WidgetUtils.useTimeZone(appWidgetId)) {
-            views.setString(R.id.date_panel, "setTimeZone", locData.tzLong)
-        } else {
-            views.setString(R.id.date_panel, "setTimeZone", null)
-        }
     }
 
     private fun getCalendarAppIntent(context: Context): PendingIntent {

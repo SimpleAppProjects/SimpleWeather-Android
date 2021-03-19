@@ -5,7 +5,7 @@
     android:minHeight="110dp"
     android:minWidth="250dp"
     android:minResizeHeight="110dp"
-    android:minResizeWidth="180dp"
+    android:minResizeWidth="250dp"
     android:previewImage="@drawable/appwidget_preview_4x2_huawei"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
