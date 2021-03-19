@@ -906,6 +906,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                         Settings.setFollowGPS(true)
 
                                         // Save data for widget
+                                        WidgetUtils.deleteWidget(mAppWidgetId)
                                         WidgetUtils.saveLocationData(mAppWidgetId, null)
                                         WidgetUtils.addWidgetId(Constants.KEY_GPS, mAppWidgetId)
                                         finalizeWidgetUpdate()
@@ -961,6 +962,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                 lifecycleScope.launch {
                                     if (locationData != null) {
                                         // Save data for widget
+                                        WidgetUtils.deleteWidget(mAppWidgetId)
                                         WidgetUtils.saveLocationData(mAppWidgetId, locationData)
                                         WidgetUtils.addWidgetId(locationData.query, mAppWidgetId)
                                         finalizeWidgetUpdate()
