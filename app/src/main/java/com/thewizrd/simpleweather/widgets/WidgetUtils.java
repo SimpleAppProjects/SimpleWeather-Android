@@ -57,6 +57,7 @@ public class WidgetUtils {
     private static final String KEY_CLOCKAPP = "key_clockapp";
     private static final String KEY_CALENDARAPP = "key_calendarapp";
     private static final String KEY_FORECASTOPTION = "key_fcastoption";
+    private static final String KEY_TAP2SWITCH = "key_tap2switch";
     private static final String KEY_USETIMEZONE = "key_usetimezone";
     private static final String KEY_BGCOLORCODE = "key_bgcolorcode";
     private static final String KEY_TXTCOLORCODE = "key_txtcolorcode";
@@ -902,6 +903,18 @@ public class WidgetUtils {
         SharedPreferences.Editor editor = getEditor(widgetId);
 
         editor.putString(KEY_FORECASTOPTION, Integer.toString(value));
+        editor.commit();
+    }
+
+    public static boolean isTap2Switch(int widgetId) {
+        SharedPreferences prefs = getPreferences(widgetId);
+        return prefs.getBoolean(KEY_TAP2SWITCH, true);
+    }
+
+    public static void setTap2Switch(int widgetId, boolean value) {
+        SharedPreferences.Editor editor = getEditor(widgetId);
+
+        editor.putBoolean(KEY_TAP2SWITCH, value);
         editor.commit();
     }
 

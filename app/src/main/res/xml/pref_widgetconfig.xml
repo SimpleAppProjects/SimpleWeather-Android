@@ -123,6 +123,15 @@
             android:title="@string/pref_title_fcastoption"
             app:iconSpaceReserved="false" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_tap2switch"
+            android:persistent="false"
+            android:summaryOff="@string/pref_tap2switch_summaryOff"
+            android:summaryOn="@string/pref_tap2switch_summaryOn"
+            android:title="@string/pref_title_tap2switch"
+            app:iconSpaceReserved="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

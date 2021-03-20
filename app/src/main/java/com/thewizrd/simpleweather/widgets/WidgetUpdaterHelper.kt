@@ -534,7 +534,7 @@ object WidgetUpdaterHelper {
 
             updateForecastSizes(context, info, appWidgetId, updateViews, newOptions)
 
-            if (forecastPanel != null && hrForecastPanel != null) {
+            if (forecastPanel != null && hrForecastPanel != null && WidgetUtils.isTap2Switch(appWidgetId)) {
                 updateViews.setOnClickPendingIntent(R.id.forecast_layout,
                         getShowNextIntent(context, info, appWidgetId))
             } else {

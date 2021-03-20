@@ -43,6 +43,9 @@
     <string name="label_fcast_full">Daily Forecast and Hourly Forecast (if available)</string>
     <string name="label_fcast_daily">Daily Forecast</string>
     <string name="label_fcast_hourly">Hourly Forecast (if available)</string>
+    <string name="pref_title_tap2switch">Tap Action</string>
+    <string name="pref_tap2switch_summaryOn">Tap to switch forecast</string>
+    <string name="pref_tap2switch_summaryOff">Open app</string>
 
     <string name="pref_category_timeanddate">Time and Date</string>
     <string name="pref_title_timezone">Time zone</string>

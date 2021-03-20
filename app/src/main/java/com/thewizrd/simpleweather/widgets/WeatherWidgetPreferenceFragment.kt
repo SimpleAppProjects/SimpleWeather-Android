@@ -122,6 +122,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var bgStylePref: ListPreference
 
     private lateinit var fcastOptPref: ListPreference
+    private lateinit var tap2switchPref: SwitchPreference
 
     companion object {
         private val MAX_LOCATIONS = Settings.getMaxLocations()
@@ -147,6 +148,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         private const val KEY_FORECAST = "key_forecast"
         private const val KEY_FORECASTOPTION = "key_fcastoption"
+        private const val KEY_TAP2SWITCH = "key_tap2switch"
 
         fun newInstance(args: Bundle): WeatherWidgetPreferenceFragment {
             val fragment = WeatherWidgetPreferenceFragment()
@@ -554,8 +556,18 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         // Forecast Preferences
         fcastOptPref = findPreference(KEY_FORECASTOPTION)!!
         fcastOptPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setForecastOption(mAppWidgetId, newValue.toString().toInt())
+            val fcastOptValue = newValue.toString().toInt()
+            WidgetUtils.setForecastOption(mAppWidgetId, fcastOptValue)
             updateWidgetView()
+
+            tap2switchPref.isVisible = (fcastOptValue == WidgetUtils.ForecastOption.FULL.value)
+
+            true
+        }
+
+        tap2switchPref = findPreference(KEY_TAP2SWITCH)!!
+        tap2switchPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+            WidgetUtils.setTap2Switch(mAppWidgetId, newValue as Boolean)
             true
         }
 
@@ -563,6 +575,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).value)
             fcastOptPref.callChangeListener(fcastOptPref.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = true
+            tap2switchPref.isChecked = WidgetUtils.isTap2Switch(mAppWidgetId)
         } else {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = false
@@ -993,6 +1006,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked)
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
         WidgetUtils.setForecastOption(mAppWidgetId, fcastOptPref.value.toInt())
+        WidgetUtils.setTap2Switch(mAppWidgetId, tap2switchPref.isChecked)
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
 
         // Trigger widget service to update widget
