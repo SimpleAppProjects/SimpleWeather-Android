@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/forecast_container"
+    android:id="@+id/hrforecast_container"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,7 +11,7 @@
     android:baselineAligned="false">
 
     <LinearLayout
-        android:id="@+id/forecast1"
+        android:id="@+id/hrforecast1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -23,7 +23,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast1_date"
+            android:id="@+id/hrforecast1_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,16 +31,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast1_icon"
+            android:id="@+id/hrforecast1_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -57,19 +56,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast1_hi"
+                android:id="@+id/hrforecast1_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast1_divider"
+                android:id="@+id/hrforecast1_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,18 +79,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast1_lo"
+                android:id="@+id/hrforecast1_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -100,7 +99,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/forecast2"
+        android:id="@+id/hrforecast2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -112,7 +111,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast2_date"
+            android:id="@+id/hrforecast2_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -120,16 +119,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast2_icon"
+            android:id="@+id/hrforecast2_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -146,19 +144,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast2_hi"
+                android:id="@+id/hrforecast2_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast2_divider"
+                android:id="@+id/hrforecast2_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -169,18 +167,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast2_lo"
+                android:id="@+id/hrforecast2_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -189,7 +187,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/forecast3"
+        android:id="@+id/hrforecast3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -201,7 +199,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast3_date"
+            android:id="@+id/hrforecast3_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -209,16 +207,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast3_icon"
+            android:id="@+id/hrforecast3_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -235,19 +232,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast3_hi"
+                android:id="@+id/hrforecast3_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast3_divider"
+                android:id="@+id/hrforecast3_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -258,18 +255,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast3_lo"
+                android:id="@+id/hrforecast3_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -278,7 +275,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/forecast4"
+        android:id="@+id/hrforecast4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -290,7 +287,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast4_date"
+            android:id="@+id/hrforecast4_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -298,16 +295,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast4_icon"
+            android:id="@+id/hrforecast4_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -324,19 +320,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast4_hi"
+                android:id="@+id/hrforecast4_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast4_divider"
+                android:id="@+id/hrforecast4_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -347,18 +343,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast4_lo"
+                android:id="@+id/hrforecast4_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -367,7 +363,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/forecast5"
+        android:id="@+id/hrforecast5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -379,7 +375,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast5_date"
+            android:id="@+id/hrforecast5_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -387,16 +383,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast5_icon"
+            android:id="@+id/hrforecast5_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -413,19 +408,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast5_hi"
+                android:id="@+id/hrforecast5_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast5_divider"
+                android:id="@+id/hrforecast5_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -436,18 +431,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast5_lo"
+                android:id="@+id/hrforecast5_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -456,7 +451,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/forecast6"
+        android:id="@+id/hrforecast6"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -468,7 +463,7 @@
         tools:layout_width="144dp">
 
         <TextView
-            android:id="@+id/forecast6_date"
+            android:id="@+id/hrforecast6_date"
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -476,16 +471,15 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
         <ImageView
-            android:id="@+id/forecast6_icon"
+            android:id="@+id/hrforecast6_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -502,19 +496,19 @@
             android:padding="0dp">
 
             <TextView
-                android:id="@+id/forecast6_hi"
+                android:id="@+id/hrforecast6_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
             <TextView
-                android:id="@+id/forecast6_divider"
+                android:id="@+id/hrforecast6_divider"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -525,18 +519,18 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/forecast6_lo"
+                android:id="@+id/hrforecast6_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 

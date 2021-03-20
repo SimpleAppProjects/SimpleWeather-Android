@@ -188,7 +188,7 @@ object WidgetUpdaterHelper {
         for (appWidgetId in appWidgetIds) {
             val locData = getLocation(context, appWidgetId)
             if (locData != null) {
-                val weather = getWeather(context, info, appWidgetId, 5, locData)
+                val weather = getWeather(context, info, appWidgetId, 6, locData)
                 if (weather != null) {
                     val viewModel = WeatherNowViewModel(weather)
                     val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
@@ -476,7 +476,7 @@ object WidgetUpdaterHelper {
                                    forecastLength: Int,
                                    locData: LocationData, weather: Weather?,
                                    newOptions: Bundle) {
-        if (info.widgetType == WidgetType.Widget4x1 || info.widgetType == WidgetType.Widget4x2) {
+        if (WidgetUtils.isForecastWidget(info.widgetType)) {
             // Background & Text Color
             val background = WidgetUtils.getWidgetBackground(appWidgetId)
             val style = WidgetUtils.getBackgroundStyle(appWidgetId)
@@ -489,27 +489,40 @@ object WidgetUpdaterHelper {
             val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, forecastLength)
             val forecastOption = WidgetUtils.getForecastOption(appWidgetId)
 
+            val forecastLayoutId: Int;
+            val hrForecastLayoutId: Int
+            if (info.widgetType == WidgetType.Widget4x1 || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
+                forecastLayoutId = R.layout.app_widget_forecast_layout_container
+                hrForecastLayoutId = R.layout.app_widget_hrforecast_layout_container
+            } else {
+                forecastLayoutId = R.layout.app_widget_forecast_layout_container_themed
+                hrForecastLayoutId = R.layout.app_widget_hrforecast_layout_container_themed
+            }
+
             if (forecastOption == WidgetUtils.ForecastOption.DAILY) {
-                forecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                forecastPanel = RemoteViews(context.packageName, forecastLayoutId)
             } else if (forecastOption == WidgetUtils.ForecastOption.HOURLY) {
                 if (hourlyForecasts.isNotEmpty()) {
-                    hrForecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                    hrForecastPanel = RemoteViews(context.packageName, hrForecastLayoutId)
                 }
             } else {
-                forecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                forecastPanel = RemoteViews(context.packageName, forecastLayoutId)
                 if (hourlyForecasts.isNotEmpty()) {
-                    hrForecastPanel = RemoteViews(context.packageName, R.layout.app_widget_forecast_layout_container)
+                    hrForecastPanel = RemoteViews(context.packageName, hrForecastLayoutId)
                 }
             }
 
-            for (i in 0 until Math.min(forecastLength, forecasts.size)) {
-                if (forecastPanel != null) {
-                    addForecastItem(context, info, forecastPanel, appWidgetId, forecasts[i], newOptions, textColor)
+            for (i in 0 until forecastLength) {
+                if (forecastPanel != null && i < forecasts.size) {
+                    setForecastItem(context, info, forecastPanel, background, style, forecasts[i], i, textColor)
                 }
 
                 if (hrForecastPanel != null && i < hourlyForecasts.size) {
-                    addForecastItem(context, info, hrForecastPanel, appWidgetId, hourlyForecasts[i], newOptions, textColor)
+                    setForecastItem(context, info, hrForecastPanel, background, style, hourlyForecasts[i], i, textColor)
                 }
+
+                if (i >= forecasts.size && i >= hourlyForecasts.size)
+                    break
             }
 
             if (forecastPanel != null) {
@@ -518,6 +531,8 @@ object WidgetUpdaterHelper {
             if (hrForecastPanel != null) {
                 updateViews.addView(R.id.forecast_layout, hrForecastPanel)
             }
+
+            updateForecastSizes(context, info, appWidgetId, updateViews, newOptions)
 
             if (forecastPanel != null && hrForecastPanel != null) {
                 updateViews.setOnClickPendingIntent(R.id.forecast_layout,
@@ -529,53 +544,57 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun addForecastItem(context: Context, info: WidgetProviderInfo,
+    private fun setForecastItem(context: Context, info: WidgetProviderInfo,
                                 forecastPanel: RemoteViews,
-                                appWidgetId: Int, forecast: BaseForecastItemViewModel,
-                                newOptions: Bundle, textColor: Int) {
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
-        val style = WidgetUtils.getBackgroundStyle(appWidgetId)
+                                background: WidgetUtils.WidgetBackground,
+                                style: WidgetUtils.WidgetBackgroundStyle,
+                                forecast: BaseForecastItemViewModel,
+                                forecastIdx: Int,
+                                textColor: Int) {
+        val prefix = if (forecast is HourlyForecastItemViewModel) "hrforecast" else "forecast"
 
-        val forecastItem = if (info.widgetType == WidgetType.Widget4x1 || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
-            RemoteViews(context.packageName, R.layout.app_widget_forecast_item)
-        } else {
-            RemoteViews(context.packageName, R.layout.app_widget_forecast_item_themed)
-        }
+        val viewId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}") ?: return
+        val dateId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}_date")
+                ?: return
+        val hiId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}_hi") ?: return
+        val iconId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}_icon")
+                ?: return
+        val loId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}_lo") ?: return
+        val dividerId = getResIdentifier(R.id::class.java, "${prefix}${forecastIdx + 1}_divider")
+                ?: return
 
-        forecastItem.setTextViewText(R.id.forecast_date, forecast.shortDate)
-        forecastItem.setTextViewText(R.id.forecast_hi, forecast.hiTemp)
+        forecastPanel.setTextViewText(dateId, forecast.shortDate)
+        forecastPanel.setTextViewText(hiId, forecast.hiTemp)
         if (forecast is ForecastItemViewModel) {
-            forecastItem.setTextViewText(R.id.forecast_lo, forecast.loTemp)
+            forecastPanel.setTextViewText(loId, forecast.loTemp)
         }
 
         if (background != WidgetUtils.WidgetBackground.CURRENT_CONDITIONS || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
-            forecastItem.setTextColor(R.id.forecast_date, textColor)
-            forecastItem.setTextColor(R.id.forecast_hi, textColor)
+            forecastPanel.setTextColor(dateId, textColor)
+            forecastPanel.setTextColor(hiId, textColor)
             if (forecast is ForecastItemViewModel) {
-                forecastItem.setTextColor(R.id.forecast_divider, textColor)
-                forecastItem.setTextColor(R.id.forecast_lo, textColor)
+                forecastPanel.setTextColor(dividerId, textColor)
+                forecastPanel.setTextColor(loId, textColor)
             }
         }
 
         // WeatherIcon
         if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
-            forecastItem.setImageViewBitmap(R.id.forecast_icon,
+            forecastPanel.setImageViewBitmap(iconId,
                     ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, false), forecast.weatherIcon))
         } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-            forecastItem.setImageViewResource(R.id.forecast_icon, forecast.weatherIcon)
+            forecastPanel.setImageViewResource(iconId, forecast.weatherIcon)
         } else {
-            forecastItem.setImageViewBitmap(R.id.forecast_icon,
+            forecastPanel.setImageViewBitmap(iconId,
                     ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), forecast.weatherIcon))
         }
 
         if (forecast is HourlyForecastItemViewModel) {
-            forecastItem.setViewVisibility(R.id.forecast_divider, View.GONE)
-            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
+            forecastPanel.setViewVisibility(dividerId, View.GONE)
+            forecastPanel.setViewVisibility(loId, View.GONE)
         }
 
-        updateForecastSizes(context, info, appWidgetId, forecastItem, newOptions)
-
-        forecastPanel.addView(R.id.forecast_container, forecastItem)
+        forecastPanel.setViewVisibility(viewId, View.VISIBLE)
     }
 
     private fun updateForecastSizes(context: Context, info: WidgetProviderInfo,
@@ -595,6 +614,8 @@ object WidgetUpdaterHelper {
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
 
+        val forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
+
         var maxIconSize = ContextUtils.dpToPx(context, 40f).toInt()
         if (info.widgetType == WidgetType.Widget4x1) {
             if (WidgetUtils.isLocationNameHidden(appWidgetId) && WidgetUtils.isSettingsButtonHidden(appWidgetId)) {
@@ -602,31 +623,50 @@ object WidgetUpdaterHelper {
             }
         }
 
-        views.setInt(R.id.forecast_icon, "setMaxWidth", maxIconSize)
-        views.setInt(R.id.forecast_icon, "setMaxHeight", maxIconSize)
-
+        var datePadding = 0
+        var textSize = 12f
         if (info.widgetType === WidgetType.Widget4x1) {
-            if (cellHeight <= 1) {
-                views.setViewPadding(R.id.forecast_date, 0, 0, 0, 0)
+            datePadding = if (cellHeight <= 1) {
+                0
             } else {
-                val padding = ContextUtils.dpToPx(context, 2f).toInt()
-                views.setViewPadding(R.id.forecast_date, padding, padding, padding, padding)
+                ContextUtils.dpToPx(context, 2f).toInt()
             }
 
-            var textSize = 12
-            if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) textSize = 14
-
-            views.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            views.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            views.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+            if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) textSize = 14f
         } else {
-            var textSize = 12
-            if (!isSmallHeight && cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) textSize = 14
+            if (!isSmallHeight && cellHeight > 2 && (!isSmallWidth || cellWidth > 4)) textSize = 14f
+        }
 
-            views.setTextViewTextSize(R.id.forecast_date, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            views.setTextViewTextSize(R.id.forecast_hi, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            views.setTextViewTextSize(R.id.forecast_divider, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-            views.setTextViewTextSize(R.id.forecast_lo, TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+        for (i in 0 until forecastLength) {
+            val fcastDateId = getResIdentifier(R.id::class.java, "forecast${i + 1}_date") ?: break
+            val fcastHiId = getResIdentifier(R.id::class.java, "forecast${i + 1}_hi") ?: break
+            val fcastIconId = getResIdentifier(R.id::class.java, "forecast${i + 1}_icon") ?: break
+            val fcastLoId = getResIdentifier(R.id::class.java, "forecast${i + 1}_lo") ?: break
+            val fcastDividerId = getResIdentifier(R.id::class.java, "forecast${i + 1}_divider")
+                    ?: break
+
+            val hrfcastDateId = getResIdentifier(R.id::class.java, "hrforecast${i + 1}_date")
+                    ?: break
+            val hrfcastHiId = getResIdentifier(R.id::class.java, "hrforecast${i + 1}_hi") ?: break
+            val hrfcastIconId = getResIdentifier(R.id::class.java, "hrforecast${i + 1}_icon")
+                    ?: break
+
+            views.setInt(fcastIconId, "setMaxWidth", maxIconSize)
+            views.setInt(fcastIconId, "setMaxHeight", maxIconSize)
+
+            views.setInt(hrfcastIconId, "setMaxWidth", maxIconSize)
+            views.setInt(hrfcastIconId, "setMaxHeight", maxIconSize)
+
+            views.setViewPadding(fcastDateId, datePadding, datePadding, datePadding, datePadding)
+            views.setViewPadding(hrfcastDateId, datePadding, datePadding, datePadding, datePadding)
+
+            views.setTextViewTextSize(fcastDateId, TypedValue.COMPLEX_UNIT_SP, textSize)
+            views.setTextViewTextSize(fcastHiId, TypedValue.COMPLEX_UNIT_SP, textSize)
+            views.setTextViewTextSize(fcastDividerId, TypedValue.COMPLEX_UNIT_SP, textSize)
+            views.setTextViewTextSize(fcastLoId, TypedValue.COMPLEX_UNIT_SP, textSize)
+
+            views.setTextViewTextSize(hrfcastDateId, TypedValue.COMPLEX_UNIT_SP, textSize)
+            views.setTextViewTextSize(hrfcastHiId, TypedValue.COMPLEX_UNIT_SP, textSize)
         }
     }
 
@@ -1260,5 +1300,15 @@ object WidgetUpdaterHelper {
     private fun Context.getMaxBitmapSize(): Float {
         val metrics = this.resources.displayMetrics
         return metrics.heightPixels * metrics.widthPixels * 4 * 0.75f
+    }
+
+    private fun getResIdentifier(res: Class<*>, fieldName: String): Int? {
+        return try {
+            val field = res.getField(fieldName)
+            val resId = field.getInt(null)
+            resId
+        } catch (e: Exception) {
+            null
+        }
     }
 }

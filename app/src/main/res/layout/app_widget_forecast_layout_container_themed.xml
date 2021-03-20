@@ -31,7 +31,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -40,7 +40,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -64,7 +63,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -80,7 +79,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -91,7 +90,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -120,7 +119,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -129,7 +128,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -153,7 +151,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -169,7 +167,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -180,7 +178,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -209,7 +207,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -218,7 +216,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -242,7 +239,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -258,7 +255,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -269,7 +266,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -298,7 +295,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -307,7 +304,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -331,7 +327,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -347,7 +343,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -358,7 +354,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -387,7 +383,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -396,7 +392,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -420,7 +415,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -436,7 +431,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -447,7 +442,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
@@ -476,7 +471,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorOnSurface"
             android:textSize="12sp"
             tools:text="Mon" />
 
@@ -485,7 +480,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="-4dp"
             android:layout_marginBottom="-4dp"
             android:adjustViewBounds="true"
             android:maxHeight="48dp"
@@ -509,7 +503,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="70°" />
 
@@ -525,7 +519,7 @@
                 android:paddingRight="2dp"
                 android:text="|"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp" />
 
             <TextView
@@ -536,7 +530,7 @@
                 android:layout_gravity="start"
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
                 tools:text="52°" />
 
