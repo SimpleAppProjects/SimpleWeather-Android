@@ -53,6 +53,13 @@ public class TextViewDrawableCompat extends AppCompatTextView {
 
     private void initCompoundDrawableSize() {
         Drawable[] drawables = getCompoundDrawablesRelative();
+
+        scaleDrawables(drawables);
+
+        super.setCompoundDrawablesRelative(drawables[0], drawables[1], drawables[2], drawables[3]);
+    }
+
+    private void scaleDrawables(Drawable... drawables) {
         for (Drawable drawable : drawables) {
             if (drawable == null) {
                 continue;
@@ -86,6 +93,11 @@ public class TextViewDrawableCompat extends AppCompatTextView {
 
             drawable.setBounds(realBounds);
         }
-        setCompoundDrawablesRelative(drawables[0], drawables[1], drawables[2], drawables[3]);
+    }
+
+    @Override
+    public void setCompoundDrawablesRelative(@Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end, @Nullable Drawable bottom) {
+        scaleDrawables(start, top, end, bottom);
+        super.setCompoundDrawablesRelative(start, top, end, bottom);
     }
 }
