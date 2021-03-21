@@ -1,14 +1,16 @@
 package com.thewizrd.simpleweather.databinding;
 
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RotateDrawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.databinding.BindingAdapter;
 
 import com.google.common.base.Predicate;
@@ -43,12 +45,11 @@ public class BindingAdapters {
         view.bindModel(models);
     }
 
-    @BindingAdapter(value = {"popData", "hideIfTrue"}, requireAll = false)
-    public static void updatePopLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details, boolean hideIfTrue) {
-        ImageView popIcon = view.findViewWithTag("popicon");
+    @BindingAdapter("popData")
+    public static void updatePopLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details) {
         TextView pop = view.findViewWithTag("pop");
 
-        if (popIcon == null || pop == null) return;
+        if (pop == null) return;
 
         if (details != null) {
             DetailItemViewModel chanceModel = Iterables.find(details, new Predicate<DetailItemViewModel>() {
@@ -59,33 +60,25 @@ public class BindingAdapters {
             }, null);
 
             if (chanceModel != null) {
-                popIcon.setImageResource(chanceModel.getIcon());
-                pop.setText(chanceModel.getValue());
-                popIcon.setVisibility(View.VISIBLE);
-                pop.setVisibility(View.VISIBLE);
-                view.setVisibility(View.VISIBLE);
-            } else {
-                popIcon.setVisibility(View.GONE);
-                pop.setVisibility(View.GONE);
-                if (hideIfTrue) {
-                    view.setVisibility(View.GONE);
+                Drawable[] oldDrawables = TextViewCompat.getCompoundDrawablesRelative(pop);
+                if (oldDrawables[0] == null) {
+                    pop.setCompoundDrawablesRelative(ContextCompat.getDrawable(pop.getContext(), chanceModel.getIcon()), null, null, null);
                 }
+                pop.setText(chanceModel.getValue());
+                pop.setVisibility(View.VISIBLE);
+            } else {
+                pop.setVisibility(View.GONE);
             }
         } else {
-            popIcon.setVisibility(View.GONE);
             pop.setVisibility(View.GONE);
-            if (hideIfTrue) {
-                view.setVisibility(View.GONE);
-            }
         }
     }
 
-    @BindingAdapter(value = {"windData", "hideIfTrue"}, requireAll = false)
-    public static void updateWindLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details, boolean hideIfTrue) {
-        ImageView windIcon = view.findViewWithTag("windicon");
+    @BindingAdapter("windData")
+    public static void updateWindLayout(@NonNull ViewGroup view, List<DetailItemViewModel> details) {
         TextView windSpeed = view.findViewWithTag("windspeed");
 
-        if (windIcon == null || windSpeed == null) return;
+        if (windSpeed == null) return;
 
         if (details != null) {
             DetailItemViewModel windModel = Iterables.find(details, new Predicate<DetailItemViewModel>() {
@@ -96,32 +89,50 @@ public class BindingAdapters {
             }, null);
 
             if (windModel != null) {
-                if (windIcon.getDrawable() == null) {
-                    windIcon.setImageResource(windModel.getIcon());
+                Drawable[] oldDrawables = TextViewCompat.getCompoundDrawablesRelative(windSpeed);
+                if (oldDrawables[0] == null) {
+                    RotateDrawable d = new RotateDrawable();
+                    d.setFromDegrees(windModel.getIconRotation());
+                    d.setToDegrees(windModel.getIconRotation());
+                    d.setDrawable(ContextCompat.getDrawable(windSpeed.getContext(), windModel.getIcon()));
+                    // Change level to trigger onLevelChange event
+                    // which forces the drawable state to change
+                    d.setLevel(10000);
+                    d.setLevel(0);
+                    TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null);
+                } else if (oldDrawables[0] instanceof RotateDrawable) {
+                    RotateDrawable d = (RotateDrawable) oldDrawables[0];
+                    if (d.getFromDegrees() != windModel.getIconRotation()) {
+                        d.setFromDegrees(windModel.getIconRotation());
+                        d.setToDegrees(windModel.getIconRotation());
+                        // Change level to trigger onLevelChange event
+                        // which forces the drawable state to change
+                        d.setLevel(10000);
+                        d.setLevel(0);
+                    }
+                } else {
+                    RotateDrawable d = new RotateDrawable();
+                    d.setFromDegrees(windModel.getIconRotation());
+                    d.setToDegrees(windModel.getIconRotation());
+                    d.setDrawable(oldDrawables[0]);
+                    // Change level to trigger onLevelChange event
+                    // which forces the drawable state to change
+                    d.setLevel(10000);
+                    d.setLevel(0);
+                    TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null);
                 }
-                windIcon.setRotation(windModel.getIconRotation());
 
                 String speed = TextUtils.isEmpty(windModel.getValue()) ? "" : windModel.getValue().toString();
                 speed = speed.split(",")[0];
 
                 windSpeed.setText(speed);
 
-                windIcon.setVisibility(View.VISIBLE);
                 windSpeed.setVisibility(View.VISIBLE);
-                view.setVisibility(View.VISIBLE);
             } else {
-                windIcon.setVisibility(View.GONE);
                 windSpeed.setVisibility(View.GONE);
-                if (hideIfTrue) {
-                    view.setVisibility(View.GONE);
-                }
             }
         } else {
-            windIcon.setVisibility(View.GONE);
             windSpeed.setVisibility(View.GONE);
-            if (hideIfTrue) {
-                view.setVisibility(View.GONE);
-            }
         }
     }
 

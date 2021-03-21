@@ -27,7 +27,7 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel>
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     static class ForecastViewHolder extends RecyclerView.ViewHolder {
-        private WeatherForecastPanelBinding binding;
+        private final WeatherForecastPanelBinding binding;
 
         public ForecastViewHolder(WeatherForecastPanelBinding binding) {
             super(binding.getRoot());
@@ -41,7 +41,7 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel>
     }
 
     static class HourlyForecastViewHolder extends RecyclerView.ViewHolder {
-        private WeatherHrforecastPanelBinding binding;
+        private final WeatherHrforecastPanelBinding binding;
 
         public HourlyForecastViewHolder(WeatherHrforecastPanelBinding binding) {
             super(binding.getRoot());
@@ -68,7 +68,7 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel>
         super((DiffUtil.ItemCallback<T>) diffCallback);
     }
 
-    private static DiffUtil.ItemCallback<BaseForecastItemViewModel> diffCallback = new DiffUtil.ItemCallback<BaseForecastItemViewModel>() {
+    private static final DiffUtil.ItemCallback<BaseForecastItemViewModel> diffCallback = new DiffUtil.ItemCallback<BaseForecastItemViewModel>() {
         @Override
         public boolean areItemsTheSame(@NonNull BaseForecastItemViewModel oldItem, @NonNull BaseForecastItemViewModel newItem) {
             return ObjectsCompat.equals(oldItem.getDate(), newItem.getDate());
