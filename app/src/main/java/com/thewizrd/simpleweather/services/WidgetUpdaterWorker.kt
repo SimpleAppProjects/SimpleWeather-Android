@@ -26,11 +26,12 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         @JvmStatic
-        fun enqueueAction(context: Context, intentAction: String) {
+        @JvmOverloads
+        fun enqueueAction(context: Context, intentAction: String, onBoot: Boolean = false) {
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    if (!isWorkScheduled(context.applicationContext)) {
+                    if (onBoot || !isWorkScheduled(context.applicationContext)) {
                         startWork(context.applicationContext)
                     }
                 ACTION_UPDATEWIDGETS ->

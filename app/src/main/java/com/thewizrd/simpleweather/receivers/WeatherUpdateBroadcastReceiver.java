@@ -13,7 +13,7 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()) ||
                 Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            UpdaterUtils.startAlarm(context);
+            UpdaterUtils.startAlarm(context, true);
 
             if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
                 ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorker.ACTION_STARTALARM);

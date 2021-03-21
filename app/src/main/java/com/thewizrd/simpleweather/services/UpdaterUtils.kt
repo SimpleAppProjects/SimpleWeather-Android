@@ -30,15 +30,16 @@ class UpdaterUtils {
         }
 
         @JvmStatic
-        fun startAlarm(context: Context) {
+        @JvmOverloads
+        fun startAlarm(context: Context, onBoot: Boolean = false) {
             // Enable alarm if dependent features are enabled
             if (WidgetUpdaterHelper.widgetsExist() || Settings.showOngoingNotification() || Settings.useAlerts()) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
                             .setAction(WeatherUpdaterService.ACTION_STARTALARM))
                 } else {
-                    WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
-                    WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                    WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
+                    WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
                 }
             }
         }
@@ -64,7 +65,7 @@ class UpdaterUtils {
                         .setAction(WeatherUpdaterService.ACTION_UPDATEALARM))
             } else {
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)
             }
         }
 
@@ -81,7 +82,7 @@ class UpdaterUtils {
                         .setAction(WeatherUpdaterService.ACTION_CANCELALARM))
 
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)
             }
         }
     }

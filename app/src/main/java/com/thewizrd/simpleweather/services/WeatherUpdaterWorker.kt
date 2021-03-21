@@ -71,11 +71,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         @JvmStatic
-        fun enqueueAction(context: Context, intentAction: String) {
+        @JvmOverloads
+        fun enqueueAction(context: Context, intentAction: String, onBoot: Boolean = false) {
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    if (!isWorkScheduled(context)) {
+                    if (onBoot || !isWorkScheduled(context.applicationContext)) {
                         startWork(context.applicationContext)
                     }
                 ACTION_UPDATEWEATHER ->
