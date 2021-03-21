@@ -189,7 +189,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 windDir = WeatherUtils.getWindDirection(windDirection);
 
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection));
+                        String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection + 180));
             }
 
             if (forecast.getExtras().getWindGustMph() != null && forecast.getExtras().getWindGustKph() != null && forecast.getExtras().getWindGustMph() >= 0) {

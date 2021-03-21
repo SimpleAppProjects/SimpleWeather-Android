@@ -197,7 +197,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (!StringUtils.isNullOrWhitespace(windSpeed)) {
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection));
+                        String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection + 180));
             }
 
             if (forecast.getExtras().getWindGustMph() != null && forecast.getExtras().getWindGustKph() != null && forecast.getExtras().getWindGustMph() >= 0) {

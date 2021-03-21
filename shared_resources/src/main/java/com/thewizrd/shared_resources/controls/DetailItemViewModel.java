@@ -24,7 +24,7 @@ public class DetailItemViewModel {
     private CharSequence value;
     private int iconRotation;
 
-    private WeatherIconsManager wim = WeatherIconsManager.getInstance();
+    private final WeatherIconsManager wim = WeatherIconsManager.getInstance();
 
     public DetailItemViewModel(@NonNull WeatherDetailsType detailsType, CharSequence value) {
         this(detailsType, value, 0);
@@ -70,22 +70,18 @@ public class DetailItemViewModel {
             case POPCHANCE:
                 this.label = context.getString(R.string.label_chance);
                 this.icon = wim.getWeatherIconResource(WeatherIcons.UMBRELLA);
-                ;
                 break;
             case POPCLOUDINESS:
                 this.label = context.getString(R.string.label_cloudiness);
                 this.icon = wim.getWeatherIconResource(WeatherIcons.CLOUDY);
-                ;
                 break;
             case POPRAIN:
                 this.label = context.getString(R.string.label_qpf_rain);
                 this.icon = wim.getWeatherIconResource(WeatherIcons.RAINDROPS);
-                ;
                 break;
             case POPSNOW:
                 this.label = context.getString(R.string.label_qpf_snow);
                 this.icon = wim.getWeatherIconResource(WeatherIcons.SNOWFLAKE_COLD);
-                ;
                 break;
             case DEWPOINT:
                 this.label = context.getString(R.string.label_dewpoint);
