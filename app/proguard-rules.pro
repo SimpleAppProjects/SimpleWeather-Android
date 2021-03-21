@@ -44,3 +44,20 @@
 
 # RevenueCat
 -keep class com.revenuecat.purchases.** { *; }
+
+# Widgets
+-keepclassmembers class com.thewizrd.simpleweather.R$id {
+    public static int forecast?;
+    public static int forecast?_date;
+    public static int forecast?_icon;
+    public static int forecast?_hi;
+    public static int forecast?_divider;
+    public static int forecast?_lo;
+
+    public static int hrforecast?;
+    public static int hrforecast?_date;
+    public static int hrforecast?_icon;
+    public static int hrforecast?_hi;
+    public static int hrforecast?_divider;
+    public static int hrforecast?_lo;
+}

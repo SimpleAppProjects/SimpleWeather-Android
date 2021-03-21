@@ -47,6 +47,7 @@ android {
         }
         release {
             minifyEnabled true
+            shrinkResources true
             crunchPngs true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [allowBackup: true]
