@@ -478,7 +478,13 @@ public final class WeatherDataLoader {
 
         if (_override || isInvalid) return !isInvalid;
 
-        int ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
+        int ttl;
+        // TODO: make this a premium feature
+        if (WeatherAPI.HERE.equals(wm.getWeatherAPI())) {
+            ttl = Settings.getRefreshInterval();
+        } else {
+            ttl = Math.max(weather.getTtl(), Settings.getRefreshInterval());
+        }
 
         // Check file age
         ZonedDateTime updateTime = weather.getUpdateTime();
