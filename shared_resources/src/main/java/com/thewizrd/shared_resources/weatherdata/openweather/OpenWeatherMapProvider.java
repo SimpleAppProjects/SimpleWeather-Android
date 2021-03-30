@@ -163,13 +163,13 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
         try {
             Request currentRequest = new Request.Builder()
                     .cacheControl(new CacheControl.Builder()
-                            .maxAge(15, TimeUnit.MINUTES)
+                            .maxAge(1, TimeUnit.HOURS)
                             .build())
                     .url(String.format(CURRENT_QUERY_URL, query, key, locale))
                     .build();
             Request forecastRequest = new Request.Builder()
                     .cacheControl(new CacheControl.Builder()
-                            .maxAge(1, TimeUnit.HOURS)
+                            .maxAge(3, TimeUnit.HOURS)
                             .build())
                     .url(String.format(FORECAST_QUERY_URL, query, key, locale))
                     .build();

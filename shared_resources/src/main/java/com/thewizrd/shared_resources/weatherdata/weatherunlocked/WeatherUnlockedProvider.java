@@ -115,7 +115,7 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
                     .build();
             Request forecastRequest = new Request.Builder()
                     .cacheControl(new CacheControl.Builder()
-                            .maxAge(1, TimeUnit.HOURS)
+                            .maxAge(3, TimeUnit.HOURS)
                             .build())
                     .addHeader("Accept", "application/json")
                     .url(String.format(FORECAST_QUERY_URL, location_query, getAppID(), getAppKey(), locale))

@@ -153,7 +153,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
 
             // Add weather alerts if available
             if (root.getAlerts() != null && root.getAlerts().getAlerts().size() > 0) {
-                weather.setWeatherAlerts(new ArrayList<WeatherAlert>(root.getAlerts().getAlerts().size()));
+                weather.setWeatherAlerts(new ArrayList<>(root.getAlerts().getAlerts().size()));
 
                 for (AlertsItem result : root.getAlerts().getAlerts()) {
                     weather.getWeatherAlerts().add(new WeatherAlert(result));
@@ -162,7 +162,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
                 final int numOfAlerts = (root.getNwsAlerts().getWatch() != null ? root.getNwsAlerts().getWatch().size() : 0) +
                         (root.getNwsAlerts().getWarning() != null ? root.getNwsAlerts().getWarning().size() : 0);
 
-                weather.setWeatherAlerts(new HashSet<WeatherAlert>(numOfAlerts));
+                weather.setWeatherAlerts(new HashSet<>(numOfAlerts));
 
                 final double lat = weather.getLocation().getLatitude();
                 final double lon = weather.getLocation().getLongitude();
@@ -271,7 +271,11 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
             Request request = new Request.Builder()
                     .url(url)
                     .addHeader("Authorization", authorization)
-                    .build();
+                    .cacheControl(new CacheControl.Builder()
+                            // Updates 4x per day
+                            .maxAge(6, TimeUnit.HOURS)
+                            .build()
+                    ).build();
 
             // Connect to webstream
             response = client.newCall(request).execute();
