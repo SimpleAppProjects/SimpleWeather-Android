@@ -410,17 +410,11 @@ object WidgetUpdaterHelper {
 
     private suspend fun getWeather(context: Context, info: WidgetProviderInfo, appWidgetId: Int,
                                    cellWidth: Int, locData: LocationData?): Weather? = withContext(Dispatchers.IO) {
-        val weather = WidgetUtils.getWeatherData(appWidgetId)
-
-        if (weather == null) {
-            return@withContext if (locData == null) {
-                loadWeather(info, getLocation(context, appWidgetId), appWidgetId, cellWidth)
-            } else {
-                loadWeather(info, locData, appWidgetId, cellWidth)
-            }
+        return@withContext if (locData == null) {
+            loadWeather(info, getLocation(context, appWidgetId), appWidgetId, cellWidth)
+        } else {
+            loadWeather(info, locData, appWidgetId, cellWidth)
         }
-
-        return@withContext weather
     }
 
     internal fun buildExtras(context: Context, info: WidgetProviderInfo,

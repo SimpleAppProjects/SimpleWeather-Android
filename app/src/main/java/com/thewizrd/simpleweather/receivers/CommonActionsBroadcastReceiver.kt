@@ -9,7 +9,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.simpleweather.services.ImageDatabaseWorker
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
@@ -52,20 +51,6 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
 
                 if (WidgetUtils.exists(oldKey)) {
                     WidgetUtils.updateWidgetIds(oldKey, location)
-                }
-            }
-        } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER == intent.action) {
-            val locationQuery = intent.getStringExtra(Constants.WIDGETKEY_LOCATIONQUERY)
-            val weatherJson = intent.getStringExtra(Constants.WIDGETKEY_WEATHER)
-
-            GlobalScope.launch(Dispatchers.Default) {
-                if (WidgetUtils.exists(locationQuery)) {
-                    val weather = JSONParser.deserializer(weatherJson, Weather::class.java)
-
-                    val ids = WidgetUtils.getWidgetIds(locationQuery)
-                    for (id in ids) {
-                        WidgetUtils.saveWeatherData(id, weather)
-                    }
                 }
             }
         } else if (CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE == intent.action) {

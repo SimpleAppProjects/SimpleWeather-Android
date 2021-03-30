@@ -499,14 +499,7 @@ public final class WeatherDataLoader {
 
         Settings.saveWeatherData(weather);
 
-        if (SimpleLibrary.getInstance().getApp().isPhone()) {
-            // Update cached weather data for widgets
-            mLocalBroadcastManager.sendBroadcast(
-                    new Intent(CommonActions.ACTION_WEATHER_UPDATEWIDGETWEATHER)
-                            .putExtra(Constants.WIDGETKEY_LOCATIONQUERY,
-                                    location.getLocationType() == LocationType.GPS ? Constants.KEY_GPS : location.getQuery())
-                            .putExtra(Constants.WIDGETKEY_WEATHER, JSONParser.serializer(weather, Weather.class)));
-        } else {
+        if (!SimpleLibrary.getInstance().getApp().isPhone()) {
             Settings.setUpdateTime(weather.getUpdateTime().withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
         }
     }

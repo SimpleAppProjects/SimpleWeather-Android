@@ -24,7 +24,6 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
 
@@ -47,7 +46,6 @@ public class WidgetUtils {
 
     // Keys
     private static final String KEY_VERSION = "key_version";
-    private static final String KEY_WEATHERDATA = "key_weatherdata";
     private static final String KEY_LOCATIONDATA = "key_locationdata";
     private static final String KEY_LOCATIONQUERY = "key_locationquery";
     private static final String KEY_WIDGETBACKGROUND = "key_widgetbackground";
@@ -471,19 +469,6 @@ public class WidgetUtils {
         return getPreferences(appWidgetId).edit();
     }
 
-    public static void saveAllData(int appWidgetId, LocationData location, Weather weather) {
-        SharedPreferences.Editor editor = getEditor(appWidgetId);
-
-        String locJson = JSONParser.serializer(location, LocationData.class);
-        String weatherJson = JSONParser.serializer(weather, Weather.class);
-
-        if (locJson != null)
-            editor.putString(KEY_LOCATIONDATA, locJson);
-        if (weatherJson != null)
-            editor.putString(KEY_WEATHERDATA, weatherJson);
-        editor.commit();
-    }
-
     static void saveLocationData(int appWidgetId, LocationData location) {
         SharedPreferences.Editor editor = getEditor(appWidgetId);
 
@@ -491,16 +476,6 @@ public class WidgetUtils {
 
         if (locJson != null)
             editor.putString(KEY_LOCATIONDATA, locJson);
-        editor.commit();
-    }
-
-    public static void saveWeatherData(int appWidgetId, Weather weather) {
-        SharedPreferences.Editor editor = getEditor(appWidgetId);
-
-        String weatherJson = JSONParser.serializer(weather, Weather.class);
-
-        if (weatherJson != null)
-            editor.putString(KEY_WEATHERDATA, weatherJson);
         editor.commit();
     }
 
@@ -512,17 +487,6 @@ public class WidgetUtils {
             return null;
         } else {
             return JSONParser.deserializer(locDataJson, LocationData.class);
-        }
-    }
-
-    static Weather getWeatherData(int appWidgetId) {
-        SharedPreferences prefs = getPreferences(appWidgetId);
-        String weatherDataJson = prefs.getString(KEY_WEATHERDATA, null);
-
-        if (StringUtils.isNullOrWhitespace(weatherDataJson)) {
-            return null;
-        } else {
-            return JSONParser.deserializer(weatherDataJson, Weather.class);
         }
     }
 
