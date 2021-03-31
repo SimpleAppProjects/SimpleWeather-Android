@@ -136,6 +136,7 @@
 
     <!-- Refresh Intervals -->
     <string name="pref_title_refreshinterval">Update Interval</string>
+    <string name="refresh_30min">30 minutes</string>
     <string name="refresh_60min">1 hour</string>
     <string name="refresh_2hrs">2 hours</string>
     <string name="refresh_3hrs">3 hours</string>

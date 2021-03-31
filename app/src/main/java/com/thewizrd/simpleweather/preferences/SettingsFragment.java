@@ -123,6 +123,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     // Preferences
     private SwitchPreferenceCompat followGps;
+    private ListPreference intervalPref;
     private ListPreference providerPref;
     private ListPreference radarProviderPref;
     private SwitchPreferenceCompat personalKeyPref;
@@ -356,6 +357,15 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 return true;
             }
         });
+
+        intervalPref = findPreference(KEY_REFRESHINTERVAL);
+        if (ExtrasLibrary.Companion.isEnabled()) {
+            intervalPref.setEntries(R.array.premium_refreshinterval_entries);
+            intervalPref.setEntryValues(R.array.premium_refreshinterval_values);
+        } else {
+            intervalPref.setEntries(R.array.refreshinterval_entries);
+            intervalPref.setEntryValues(R.array.refreshinterval_values);
+        }
 
         themePref = findPreference(KEY_USERTHEME);
         themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
