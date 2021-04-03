@@ -1,10 +1,8 @@
 package com.thewizrd.shared_resources.lifecycle
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.thewizrd.shared_resources.utils.Logger
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -75,7 +73,7 @@ abstract class LifecycleAwareFragment : Fragment() {
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.DEBUG, it)
+            // no-op
         }.onSuccess {
             it.launch(Dispatchers.Main.immediate) {
                 action.run()
@@ -96,7 +94,7 @@ abstract class LifecycleAwareFragment : Fragment() {
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.DEBUG, it)
+            // no-op
         }.onSuccess {
             it.launch(context = context, block = block)
         }
@@ -113,7 +111,7 @@ abstract class LifecycleAwareFragment : Fragment() {
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.DEBUG, it)
+            // no-op
         }.onSuccess {
             it.launchWhenStarted {
                 withContext(Dispatchers.Main.immediate) {
@@ -134,7 +132,7 @@ abstract class LifecycleAwareFragment : Fragment() {
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
-            Logger.writeLine(Log.DEBUG, it)
+            // no-op
         }.onSuccess {
             it.launchWhenStarted(block = block)
         }
