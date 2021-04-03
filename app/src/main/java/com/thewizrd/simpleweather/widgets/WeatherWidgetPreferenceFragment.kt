@@ -1157,7 +1157,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private fun buildMockData() {
         if (mockLocData == null) {
             mockLocData = LocationData().apply {
-                name = if (mLastSelectedValue != null) locationPref.findEntryFromValue(mLastSelectedValue).toString() else getString(R.string.pref_location)
+                name = locationPref.findEntryFromValue(mLastSelectedValue)?.toString()
+                        ?: getString(R.string.pref_location)
                 query = locationPref.value
                 latitude = 0.toDouble()
                 longitude = 0.toDouble()
