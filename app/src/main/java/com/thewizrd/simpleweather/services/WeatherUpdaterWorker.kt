@@ -186,8 +186,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         suspend fun executeWork(context: Context): Boolean {
             val wm = WeatherManager.getInstance()
 
-            // Update configuration
-            RemoteConfig.checkConfigAsync()
+            try {
+                // Update configuration
+                RemoteConfig.checkConfigAsync()
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e)
+            }
 
             if (Settings.isWeatherLoaded()) {
                 if (Settings.useFollowGPS()) {
