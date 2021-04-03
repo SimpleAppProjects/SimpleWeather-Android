@@ -216,7 +216,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.weatherAlerts)
                     }
 
-                    ShortcutCreatorWorker.updateShortcuts(context)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                        ShortcutCreatorWorker.updateShortcuts(context)
+                    }
 
                     // Update data for Wearables
                     LocalBroadcastManager.getInstance(context)

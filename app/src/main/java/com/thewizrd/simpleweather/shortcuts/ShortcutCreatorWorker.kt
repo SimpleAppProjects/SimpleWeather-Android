@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.shortcuts
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
@@ -8,6 +7,7 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.work.*
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
@@ -24,12 +24,14 @@ import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+@RequiresApi(Build.VERSION_CODES.N_MR1)
 class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val mContext = context.applicationContext
 
     companion object {
         private const val TAG = "ShortcutCreatorWorker"
 
+        @RequiresApi(Build.VERSION_CODES.N_MR1)
         suspend fun updateShortcuts(context: Context) {
             ShortcutCreatorHelper.executeWork(context.applicationContext)
         }
@@ -66,7 +68,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
         return Result.success()
     }
 
-    @TargetApi(Build.VERSION_CODES.N_MR1)
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     private object ShortcutCreatorHelper {
         suspend fun executeWork(context: Context) {
             val wim = WeatherIconsManager.getInstance()

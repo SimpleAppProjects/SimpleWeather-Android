@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.services
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.Logger
@@ -110,7 +111,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
                     WeatherNotificationWorker.refreshNotification(context)
                 }
 
-                ShortcutCreatorWorker.updateShortcuts(context)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    ShortcutCreatorWorker.updateShortcuts(context)
+                }
             }
 
             Timber.tag(TAG).i("Work completed successfully...")
