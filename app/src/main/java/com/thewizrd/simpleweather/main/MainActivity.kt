@@ -15,7 +15,6 @@ import androidx.core.util.ObjectsCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -47,6 +46,7 @@ import kotlinx.coroutines.launch
 class MainActivity : UserLocaleActivity(),
         BottomNavigationView.OnNavigationItemSelectedListener,
         OnThemeChangeListener {
+
     companion object {
         private const val TAG = "MainActivity"
         private const val INSTALL_REQUESTCODE = 168
@@ -60,7 +60,7 @@ class MainActivity : UserLocaleActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AnalyticsLogger.logEvent("MainActivity: onCreate")
+        AnalyticsLogger.logEvent("$TAG: onCreate")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -128,13 +128,11 @@ class MainActivity : UserLocaleActivity(),
                 if (isUpdateAvailable) {
                     appUpdateManager!!.startImmediateUpdateFlow(this@MainActivity, INSTALL_REQUESTCODE)
                 } else {
-                    lifecycleScope.launch(Dispatchers.Main) {
+                    lifecycleScope.launch(Dispatchers.Main.immediate) {
                         initializeNavFragment(args)
                         // Don't initialize the controller to early
                         // The fragment may not have called onCreate yet; which is where the NavController gets assigned
-                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                            initializeNavController()
-                        }
+                        initializeNavController()
                     }
                 }
             }
@@ -150,12 +148,14 @@ class MainActivity : UserLocaleActivity(),
             supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, hostFragment)
                     .setPrimaryNavigationFragment(hostFragment)
-                    .commit()
+                    .commitAllowingStateLoss()
         }
     }
 
     override fun onStart() {
         super.onStart()
+
+        AnalyticsLogger.logEvent("$TAG: onStart")
 
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment != null) {
@@ -167,39 +167,41 @@ class MainActivity : UserLocaleActivity(),
     }
 
     private fun initializeNavController() {
-        mNavController = Navigation.findNavController(this, R.id.fragment_container)
+        lifecycleScope.launchWhenStarted {
+            mNavController = Navigation.findNavController(this@MainActivity, R.id.fragment_container)
 
-        binding.bottomNavBar.setupWithNavController(mNavController!!)
-        mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
+            binding.bottomNavBar.setupWithNavController(mNavController!!)
+            mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
+                refreshNavViewCheckedItem()
+
+                if (destination.id == R.id.weatherNowFragment || destination.id == R.id.locationsFragment) {
+                    binding.bottomNavBar.visibility = View.VISIBLE
+                } else {
+                    binding.bottomNavBar.postOnAnimationDelayed({
+                        if (destination.id == R.id.locationSearchFragment3 || destination.id == R.id.weatherNowFragment) {
+                            TransitionManager.beginDelayedTransition((binding.root as ViewGroup))
+                        }
+                        binding.bottomNavBar.visibility = if (destination.id == R.id.locationSearchFragment) View.GONE else View.VISIBLE
+                    }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
+                }
+            }
+
+            // Alerts: from weather alert notification
+            if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
+                val destination = mNavController!!.currentDestination
+                if (destination != null && destination.id != R.id.weatherListFragment) {
+                    val locationData = Settings.getHomeData()
+                    val args = WeatherListFragmentDirections.actionGlobalWeatherListFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                            .setWeatherListType(WeatherListType.ALERTS)
+                    mNavController!!.navigate(args)
+                }
+            }
+
+            // Check nav item in bottom nav view
+            // based on current fragment
             refreshNavViewCheckedItem()
-
-            if (destination.id == R.id.weatherNowFragment || destination.id == R.id.locationsFragment) {
-                binding.bottomNavBar.visibility = View.VISIBLE
-            } else {
-                binding.bottomNavBar.postOnAnimationDelayed({
-                    if (destination.id == R.id.locationSearchFragment3 || destination.id == R.id.weatherNowFragment) {
-                        TransitionManager.beginDelayedTransition((binding.root as ViewGroup))
-                    }
-                    binding.bottomNavBar.visibility = if (destination.id == R.id.locationSearchFragment) View.GONE else View.VISIBLE
-                }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
-            }
         }
-
-        // Alerts: from weather alert notification
-        if (intent != null && WeatherAlertNotificationService.ACTION_SHOWALERTS == intent.action) {
-            val destination = mNavController!!.currentDestination
-            if (destination != null && destination.id != R.id.weatherListFragment) {
-                val locationData = Settings.getHomeData()
-                val args = WeatherListFragmentDirections.actionGlobalWeatherListFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                        .setWeatherListType(WeatherListType.ALERTS)
-                mNavController!!.navigate(args)
-            }
-        }
-
-        // Check nav item in bottom nav view
-        // based on current fragment
-        refreshNavViewCheckedItem()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -247,12 +249,13 @@ class MainActivity : UserLocaleActivity(),
 
     override fun onResume() {
         super.onResume()
-        AnalyticsLogger.logEvent("MainActivity: onResume")
+
+        AnalyticsLogger.logEvent("$TAG: onResume")
 
         // Checks that the update is not stalled during 'onResume()'.
         // However, you should execute this check at all entry points into the app.
         if (FeatureSettings.isUpdateAvailable()) {
-            appUpdateManager!!.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE)
+            appUpdateManager?.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE)
         }
 
         val container = binding.fragmentContainer.findViewById<View>(R.id.radar_webview_container)
@@ -264,7 +267,9 @@ class MainActivity : UserLocaleActivity(),
 
     override fun onPause() {
         super.onPause()
-        AnalyticsLogger.logEvent("MainActivity: onPause")
+
+        AnalyticsLogger.logEvent("$TAG: onPause")
+
         val container = binding.fragmentContainer.findViewById<View>(R.id.radar_webview_container)
         if (container is ViewGroup && container.getChildAt(0) is WebView) {
             val webView = container.getChildAt(0) as WebView
@@ -294,9 +299,9 @@ class MainActivity : UserLocaleActivity(),
 
     @SuppressLint("RestrictedApi")
     private fun refreshNavViewCheckedItem() {
-        if (mNavController != null && mNavController!!.currentDestination != null) {
+        if (mNavController?.currentDestination != null) {
             val currentId = mNavController!!.currentDestination!!.id
-            val currentName = if (mNavController!!.currentDestination is FragmentNavigator.Destination) {
+            val currentName = if (mNavController?.currentDestination is FragmentNavigator.Destination) {
                 (mNavController!!.currentDestination as FragmentNavigator.Destination).className
             } else {
                 mNavController!!.currentDestination!!.displayName
