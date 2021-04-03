@@ -113,7 +113,7 @@
 
     <!-- Locations -->
     <string name="label_btn_add_location">Add Location</string>
-    <string name="action_editmode">Edit Mode</string>
+    <string name="action_editmode">Edit</string>
     <string name="label_currentlocation">Current Location</string>
     <string name="label_favoritelocations">Favorite Locations</string>
     <string name="error_location_denied">Location access denied</string>

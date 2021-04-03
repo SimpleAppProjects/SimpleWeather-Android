@@ -93,7 +93,7 @@
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Pridať lokalitu"</string>
-    <string name="action_editmode">"Režim úprav"</string>
+    <string name="action_editmode">"Upraviť"</string>
     <string name="label_currentlocation">"Súčasná poloha"</string>
     <string name="label_favoritelocations">"Obľúbené lokality"</string>
     <string name="error_location_denied">"Prístup k polohe zamietnutý"</string>

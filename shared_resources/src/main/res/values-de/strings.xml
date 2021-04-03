@@ -125,7 +125,7 @@
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Ort hinzufügen"</string>
-    <string name="action_editmode">"Bearbeitungsmodus"</string>
+    <string name="action_editmode">"Bearbeiten"</string>
     <string name="label_currentlocation">"Standort"</string>
     <string name="label_favoritelocations">"Favoriten"</string>
     <string name="error_location_denied">"Standortzugriff verweigert"</string>

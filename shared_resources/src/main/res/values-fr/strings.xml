@@ -93,7 +93,7 @@
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Ajout d'un emplacement"</string>
-    <string name="action_editmode">"Mode d'édition"</string>
+    <string name="action_editmode">"Modifier"</string>
     <string name="label_currentlocation">"Emplacement actuel"</string>
     <string name="label_favoritelocations">"Emplacements préférés"</string>
     <string name="error_location_denied">"Accès à la localisation refusé"</string>
