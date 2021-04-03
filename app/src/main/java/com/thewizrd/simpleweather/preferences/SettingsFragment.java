@@ -872,8 +872,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             }
         }
 
-        registerPref.setIntent(new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse(prov.getApiRegisterURL())));
+        if (prov != null) {
+            registerPref.setIntent(new Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse(prov.getApiRegisterURL())));
+        }
     }
 
     private void updateAlertPreference(boolean enable) {

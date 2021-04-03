@@ -685,8 +685,10 @@ public class SettingsActivity extends WearableListenerActivity {
                 }
             }
 
-            registerPref.setIntent(new Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse(prov.getApiRegisterURL())));
+            if (prov != null) {
+                registerPref.setIntent(new Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse(prov.getApiRegisterURL())));
+            }
         }
 
         @Override
