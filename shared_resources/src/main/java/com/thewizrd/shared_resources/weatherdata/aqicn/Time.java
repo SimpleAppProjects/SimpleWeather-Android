@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.aqicn;
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
+@UseStag(UseStag.FieldOption.ALL)
 public class Time {
 
     @SerializedName("s")
@@ -14,7 +16,7 @@ public class Time {
     private String tz;
 
     @SerializedName("v")
-    private int V;
+    private long V;
 
     public void setS(String S) {
         this.S = S;
@@ -40,11 +42,11 @@ public class Time {
         return tz;
     }
 
-    public void setV(int V) {
+    public void setV(long V) {
         this.V = V;
     }
 
-    public int getV() {
+    public long getV() {
         return V;
     }
 }

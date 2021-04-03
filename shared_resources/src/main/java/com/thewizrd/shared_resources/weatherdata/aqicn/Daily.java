@@ -8,7 +8,6 @@ import java.util.List;
 @UseStag(UseStag.FieldOption.ALL)
 public class Daily {
 
-	/*
 	@SerializedName("o3")
 	private List<O3Item> o3;
 
@@ -17,12 +16,10 @@ public class Daily {
 
 	@SerializedName("pm10")
 	private List<Pm10Item> pm10;
-	*/
 
     @SerializedName("uvi")
     private List<UviItem> uvi;
 
-	/*
 	public void setO3(List<O3Item> o3){
 		this.o3 = o3;
 	}
@@ -46,7 +43,6 @@ public class Daily {
 	public List<Pm10Item> getPm10(){
 		return pm10;
 	}
-	*/
 
     public void setUvi(List<UviItem> uvi) {
         this.uvi = uvi;

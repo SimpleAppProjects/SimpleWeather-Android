@@ -3,10 +3,11 @@ package com.thewizrd.shared_resources.weatherdata.aqicn;
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
+import java.util.List;
+
 @UseStag(UseStag.FieldOption.ALL)
 public class Data {
 
-	/*
 	@SerializedName("iaqi")
 	private Iaqi iaqi;
 
@@ -15,7 +16,6 @@ public class Data {
 
 	@SerializedName("city")
 	private City city;
-	*/
 
     @SerializedName("aqi")
     private int aqi;
@@ -23,7 +23,6 @@ public class Data {
     @SerializedName("forecast")
     private Forecast forecast;
 
-	/*
 	@SerializedName("time")
 	private Time time;
 
@@ -59,7 +58,6 @@ public class Data {
 	public City getCity(){
 		return city;
 	}
-	*/
 
     public void setAqi(int aqi) {
         this.aqi = aqi;
@@ -77,7 +75,6 @@ public class Data {
         return forecast;
     }
 
-	/*
 	public void setTime(Time time){
 		this.time = time;
 	}
@@ -109,5 +106,4 @@ public class Data {
 	public String getDominentpol(){
 		return dominentpol;
 	}
-	*/
 }
