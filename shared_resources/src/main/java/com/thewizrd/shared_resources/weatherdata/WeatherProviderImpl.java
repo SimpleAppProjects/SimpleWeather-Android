@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.google.common.collect.Iterables;
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
@@ -16,7 +17,6 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -113,10 +113,11 @@ public abstract class WeatherProviderImpl implements WeatherProviderImplInterfac
             }
 
             // Update DB here or somewhere else
-            if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                Settings.updateLocation(location);
+            final ApplicationLib app = SimpleLibrary.getInstance().getApp();
+            if (app.isPhone()) {
+                app.getSettingsManager().updateLocation(location);
             } else {
-                Settings.saveHomeData(location);
+                app.getSettingsManager().saveHomeData(location);
             }
         }
 

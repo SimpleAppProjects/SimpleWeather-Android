@@ -8,7 +8,7 @@ import android.util.Log;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker;
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker;
 
@@ -25,8 +25,9 @@ public class CommonActionsBroadcastReceiver extends BroadcastReceiver {
                     CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE.equals(intent.getAction())) {
                 WidgetUpdaterWorker.requestWidgetUpdate(context);
             } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC.equals(intent.getAction())) {
+                final SettingsManager settingsMgr = new SettingsManager(context.getApplicationContext());
                 // Reset UpdateTime value to force a refresh
-                Settings.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
+                settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN());
             }
 
             Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.getAction());

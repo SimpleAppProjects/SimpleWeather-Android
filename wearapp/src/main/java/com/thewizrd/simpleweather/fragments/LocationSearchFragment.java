@@ -46,7 +46,7 @@ import com.thewizrd.shared_resources.utils.CustomException;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocationUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -57,6 +57,7 @@ import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
 import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.SetupGraphDirections;
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding;
@@ -79,6 +80,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
     private CancellationTokenSource cts = new CancellationTokenSource();
     private final WeatherManager wm = WeatherManager.getInstance();
+    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
     private static final int REQUEST_CODE_VOICE_INPUT = 0;
 
@@ -147,7 +149,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                 throw new CustomException(R.string.error_retrieve_location);
                             }
 
-                            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired()) {
+                            if (settingsMgr.usePersonalKey() && StringUtils.isNullOrWhitespace(settingsMgr.getAPIKEY()) && wm.isKeyRequired()) {
                                 throw new WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY);
                             }
 
@@ -193,19 +195,19 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                             final boolean isUS = LocationUtils.isUS(queryResult.getLocationCountry());
 
-                            if (!Settings.isWeatherLoaded()) {
+                            if (!settingsMgr.isWeatherLoaded()) {
                                 // Default US provider to NWS
                                 if (isUS) {
-                                    Settings.setAPI(WeatherAPI.NWS);
+                                    settingsMgr.setAPI(WeatherAPI.NWS);
                                     queryResult.updateWeatherSource(WeatherAPI.NWS);
                                 } else {
-                                    Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
+                                    settingsMgr.setAPI(WeatherAPI.WEATHERUNLOCKED);
                                     queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED);
                                 }
                                 wm.updateAPI();
                             }
 
-                            if (WeatherAPI.NWS.equals(Settings.getAPI()) && !isUS) {
+                            if (WeatherAPI.NWS.equals(settingsMgr.getAPI()) && !isUS) {
                                 throw new CustomException(R.string.error_message_weather_us_only);
                             }
 
@@ -214,7 +216,7 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                             if (!location.isValid()) {
                                 throw new CustomException(R.string.werror_noweather);
                             }
-                            Weather weather = Settings.getWeatherData(location.getQuery());
+                            Weather weather = settingsMgr.getWeatherData(location.getQuery());
                             if (weather == null) {
                                 weather = wm.getWeather(location);
                             }
@@ -228,13 +230,13 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                             TaskUtils.throwIfCancellationRequested(token);
 
                             // Save weather data
-                            Settings.saveHomeData(location);
+                            settingsMgr.saveHomeData(location);
                             if (wm.supportsAlerts() && weather.getWeatherAlerts() != null)
-                                Settings.saveWeatherAlerts(location, weather.getWeatherAlerts());
-                            Settings.saveWeatherData(weather);
-                            Settings.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
+                                settingsMgr.saveWeatherAlerts(location, weather.getWeatherAlerts());
+                            settingsMgr.saveWeatherData(weather);
+                            settingsMgr.saveWeatherForecasts(new Forecasts(weather.getQuery(), weather.getForecast(), weather.getTxtForecast()));
                             final Weather finalWeather = weather;
-                            Settings.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
+                            settingsMgr.saveWeatherForecasts(location.getQuery(), weather.getHrForecast() == null ? null :
                                     Collections2.transform(weather.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
                                         @NonNull
                                         @Override
@@ -244,16 +246,16 @@ public class LocationSearchFragment extends SwipeDismissFragment {
                                     }));
 
                             // If we're changing locations, trigger an update
-                            if (Settings.isWeatherLoaded()) {
+                            if (settingsMgr.isWeatherLoaded()) {
                                 LocalBroadcastManager.getInstance(getFragmentActivity())
                                         .sendBroadcast(new Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE));
                             }
 
                             // If we're using search
                             // make sure gps feature is off
-                            Settings.setFollowGPS(false);
-                            Settings.setWeatherLoaded(true);
-                            Settings.setDataSync(WearableDataSync.OFF);
+                            settingsMgr.setFollowGPS(false);
+                            settingsMgr.setWeatherLoaded(true);
+                            settingsMgr.setDataSync(WearableDataSync.OFF);
 
                             return location;
                         }
@@ -364,8 +366,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // If we're using searchfragment
                 // make sure gps feature is off
-                if (Settings.useFollowGPS()) {
-                    Settings.setFollowGPS(false);
+                if (settingsMgr.useFollowGPS()) {
+                    settingsMgr.setFollowGPS(false);
                 }
             }
 
@@ -392,8 +394,8 @@ public class LocationSearchFragment extends SwipeDismissFragment {
 
                     // If we're using searchfragment
                     // make sure gps feature is off
-                    if (Settings.useFollowGPS()) {
-                        Settings.setFollowGPS(false);
+                    if (settingsMgr.useFollowGPS()) {
+                        settingsMgr.setFollowGPS(false);
                     }
 
                     return true;

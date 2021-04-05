@@ -13,7 +13,6 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.simpleweather.activity.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
@@ -78,13 +77,14 @@ class LaunchActivity : UserLocaleActivity() {
     }
 
     private fun startMainActivity() {
+        val settingsMgr = App.instance.settingsManager
         var intent: Intent? = null
 
         try {
-            intent = if (Settings.isWeatherLoaded() && Settings.isOnBoardingComplete()) {
+            intent = if (settingsMgr.isWeatherLoaded() && settingsMgr.isOnBoardingComplete()) {
                 Intent(this, MainActivity::class.java)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(Settings.getHomeData(), LocationData::class.java))
+                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(settingsMgr.getHomeData(), LocationData::class.java))
                         .putExtra(Constants.FRAGTAG_HOME, true)
             } else {
                 Intent(this, SetupActivity::class.java)

@@ -107,6 +107,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         private fun enqueueWork(context: Context) {
+            val settingsManager = SettingsManager(context.applicationContext)
             Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
 
             val constraints = Constraints.Builder()
@@ -114,7 +115,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setRequiresCharging(false)
                     .build()
 
-            val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, Settings.getRefreshInterval().toLong(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+            val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, settingsManager.getRefreshInterval().toLong(), TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
                     .setConstraints(constraints)
                     .addTag(TAG)
                     .build()
@@ -185,6 +186,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     private object WeatherUpdaterHelper {
         suspend fun executeWork(context: Context): Boolean {
             val wm = WeatherManager.getInstance()
+            val settingsManager = App.instance.settingsManager
 
             try {
                 // Update configuration
@@ -193,8 +195,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 Timber.tag(TAG).e(e)
             }
 
-            if (Settings.isWeatherLoaded()) {
-                if (Settings.useFollowGPS()) {
+            if (settingsManager.isWeatherLoaded()) {
+                if (settingsManager.useFollowGPS()) {
                     try {
                         updateLocation()
                     } catch (e: Exception) {
@@ -212,12 +214,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 if (weather != null) {
-                    if (Settings.showOngoingNotification()) {
+                    if (settingsManager.showOngoingNotification()) {
                         WeatherNotificationWorker.refreshNotification(context)
                     }
 
-                    if (Settings.useAlerts() && wm.supportsAlerts()) {
-                        WeatherAlertHandler.postAlerts(Settings.getHomeData(), weather.weatherAlerts)
+                    if (settingsManager.useAlerts() && wm.supportsAlerts()) {
+                        WeatherAlertHandler.postAlerts(settingsManager.getHomeData(), weather.weatherAlerts)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
@@ -242,8 +244,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         // Re-schedule alarm at selected interval from now
         private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
+            val settingsManager = App.instance.settingsManager
             val weather = try {
-                WeatherDataLoader(Settings.getHomeData())
+                WeatherDataLoader(settingsManager.getHomeData()!!)
                         .loadWeatherData(WeatherRequest.Builder()
                                 .forceRefresh(false)
                                 .loadAlerts()
@@ -258,7 +261,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         private suspend fun preloadWeather() = withContext(Dispatchers.IO) {
-            val locations = Settings.getFavorites() ?: emptyList()
+            val settingsManager = App.instance.settingsManager
+            val locations = settingsManager.getFavorites() ?: emptyList()
 
             for (location in locations) {
                 if (WidgetUtils.exists(location.query)) {
@@ -280,13 +284,14 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
             val context = App.instance.appContext
             val wm = WeatherManager.getInstance()
+            val settingsManager = App.instance.settingsManager
             var mFusedLocationClient: FusedLocationProviderClient? = null
 
             if (WearableHelper.isGooglePlayServicesInstalled()) {
                 mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             }
 
-            if (Settings.useFollowGPS()) {
+            if (settingsManager.useFollowGPS()) {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return@withContext false
@@ -445,7 +450,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 if (location != null) {
-                    val lastGPSLocData = Settings.getLastGPSLocData()
+                    val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                     // Check previous location difference
                     if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
@@ -474,7 +479,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                     // Save location as last known
                     lastGPSLocData!!.setData(query_vm, location)
-                    Settings.saveLastGPSLocData(lastGPSLocData)
+                    settingsManager.saveLastGPSLocData(lastGPSLocData)
                     return@withContext true
                 }
             }

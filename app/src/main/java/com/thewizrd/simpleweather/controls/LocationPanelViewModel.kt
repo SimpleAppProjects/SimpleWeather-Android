@@ -5,16 +5,21 @@ import androidx.core.util.ObjectsCompat
 import com.thewizrd.shared_resources.controls.ImageDataViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Units
+import com.thewizrd.shared_resources.utils.WeatherUtils
 import com.thewizrd.shared_resources.weatherdata.LocationType
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.simpleweather.App.Companion.instance
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class LocationPanelViewModel {
+    private val settingsManager = App.instance.settingsManager
+
     private var weather: Weather? = null
     private var unitCode: String? = null
     private var localeCode: String? = null
@@ -79,18 +84,12 @@ class LocationPanelViewModel {
                 weatherSource = weather.source
 
                 if (locationData == null) {
-                    locationData = LocationData().apply {
-                        query = weather.query
-                        name = weather.location.name
-                        latitude = (weather.location?.latitude ?: 0f).toDouble()
-                        longitude = (weather.location?.longitude ?: 0f).toDouble()
-                        tzLong = weather.location.tzLong
-                    }
+                    locationData = LocationData(weather)
                 }
 
                 // Refresh locale/unit dependent values
                 refreshView()
-            } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+            } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
                 refreshView()
             }
         }
@@ -98,10 +97,10 @@ class LocationPanelViewModel {
 
     private fun refreshView() {
         val provider = WeatherManager.getProvider(weather!!.source)
-        val context = instance.appContext
+        val context = App.instance.appContext
 
-        val isFahrenheit = Units.FAHRENHEIT == Settings.getTemperatureUnit()
-        unitCode = Settings.getUnitString()
+        val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
+        unitCode = settingsManager.getUnitString()
         localeCode = LocaleUtils.getLocaleCode()
 
         currTemp = if (weather?.condition?.tempF != null && !ObjectsCompat.equals(weather?.condition?.tempF, weather?.condition?.tempC)) {
@@ -133,7 +132,7 @@ class LocationPanelViewModel {
 
         if ((weather?.condition?.windMph ?: -1f) >= 0 && (weather?.condition?.windDegrees
                         ?: -1) >= 0) {
-            val unit = Settings.getSpeedUnit()
+            val unit = settingsManager.getSpeedUnit()
             val speedVal: Int
             val speedUnit: String
 

@@ -32,6 +32,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.activity.UserLocaleActivity
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
@@ -52,13 +53,17 @@ class MainActivity : UserLocaleActivity(),
         private const val INSTALL_REQUESTCODE = 168
     }
 
+    private lateinit var settingsManager: SettingsManager
+
     private lateinit var binding: ActivityMainBinding
     private var mNavController: NavController? = null
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private var appUpdateManager: InAppUpdateManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settingsManager = App.instance.settingsManager
 
         AnalyticsLogger.logEvent("$TAG: onCreate")
 
@@ -95,7 +100,7 @@ class MainActivity : UserLocaleActivity(),
         // Back stack listener
         supportFragmentManager.addOnBackStackChangedListener { refreshNavViewCheckedItem() }
 
-        updateWindowColors(Settings.getUserThemeMode())
+        updateWindowColors(settingsManager.getUserThemeMode())
 
         val args = Bundle()
         if (intent != null && intent.extras != null) {
@@ -113,7 +118,7 @@ class MainActivity : UserLocaleActivity(),
             if (!args.containsKey(Constants.FRAGTAG_HOME)) {
                 val locData = JSONParser.deserializer(
                         args.getString(Constants.KEY_DATA), LocationData::class.java)
-                args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, Settings.getHomeData()))
+                args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, settingsManager.getHomeData()))
             }
         }
 
@@ -190,7 +195,7 @@ class MainActivity : UserLocaleActivity(),
             if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
                 val destination = mNavController!!.currentDestination
                 if (destination != null && destination.id != R.id.weatherListFragment) {
-                    val locationData = Settings.getHomeData()
+                    val locationData = settingsManager.getHomeData()
                     val args = WeatherListFragmentDirections.actionGlobalWeatherListFragment()
                             .setData(JSONParser.serializer(locationData, LocationData::class.java))
                             .setWeatherListType(WeatherListType.ALERTS)

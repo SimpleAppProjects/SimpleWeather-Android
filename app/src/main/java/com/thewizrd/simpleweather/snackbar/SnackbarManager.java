@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
 import java.util.Stack;
@@ -25,9 +25,9 @@ import static com.google.android.material.snackbar.BaseTransientBottomBar.BaseCa
  */
 public final class SnackbarManager {
     private com.google.android.material.snackbar.Snackbar mSnackbarView;
-    private Stack<SnackbarPair> mSnacks;
-    private Handler mMainHandler;
-    private View mParentView;
+    private final Stack<SnackbarPair> mSnacks;
+    private final Handler mMainHandler;
+    private final View mParentView;
     private @BaseTransientBottomBar.AnimationMode
     int mAnimationMode = BaseTransientBottomBar.ANIMATION_MODE_SLIDE;
     private boolean isSwipeDismissEnabled = false;
@@ -180,12 +180,12 @@ public final class SnackbarManager {
 
             mMainHandler.removeCallbacks(mHideRunnable);
             int durationMs = snackPair.snackbar.getDuration();
-            durationMs *= Settings.getAnimatorScale();
+            durationMs *= App.getInstance().getSettingsManager().getAnimatorScale();
             mMainHandler.postDelayed(mHideRunnable, durationMs);
         }
     }
 
-    private com.google.android.material.snackbar.Snackbar.Callback callback = new com.google.android.material.snackbar.Snackbar.Callback() {
+    private final com.google.android.material.snackbar.Snackbar.Callback callback = new com.google.android.material.snackbar.Snackbar.Callback() {
         @Override
         public void onShown(com.google.android.material.snackbar.Snackbar sb) {
             super.onShown(sb);
@@ -209,9 +209,9 @@ public final class SnackbarManager {
         return mSnacks.peek();
     }
 
-    private class SnackbarPair {
-        private Snackbar snackbar;
-        private com.google.android.material.snackbar.Snackbar.Callback callback;
+    private static class SnackbarPair {
+        private final Snackbar snackbar;
+        private final com.google.android.material.snackbar.Snackbar.Callback callback;
 
         public SnackbarPair(@NonNull Snackbar snackbar, @Nullable com.google.android.material.snackbar.Snackbar.Callback callback) {
             this.snackbar = snackbar;

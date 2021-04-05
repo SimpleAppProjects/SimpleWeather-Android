@@ -18,7 +18,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class WeatherNowViewModel extends ObservableViewModel {
+    private final SettingsManager settingsMgr;
+
     private String location;
     private String updateDate;
 
@@ -191,6 +193,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private String iconProvider;
 
     public WeatherNowViewModel() {
+        settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
         locationCoord = new WeatherUtils.Coordinate(0, 0);
     }
@@ -250,10 +254,10 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
                 // Refresh locale/unit dependent values
                 refreshView(false);
-            } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+            } else if (!ObjectsCompat.equals(unitCode, settingsMgr.getUnitString()) ||
                     !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
-                    !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
-                boolean iconChanged = !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider());
+                    !ObjectsCompat.equals(iconProvider, settingsMgr.getIconsProvider())) {
+                boolean iconChanged = !ObjectsCompat.equals(iconProvider, settingsMgr.getIconsProvider());
                 refreshView(iconChanged);
             }
         }
@@ -265,17 +269,17 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         final WeatherProviderImpl provider = WeatherManager.getProvider(weather.getSource());
 
-        final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
 
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
 
-        tempUnit = Settings.getTemperatureUnit();
-        unitCode = Settings.getUnitString();
+        tempUnit = settingsMgr.getTemperatureUnit();
+        unitCode = settingsMgr.getUnitString();
         notifyPropertyChanged(BR.tempUnit);
 
         localeCode = LocaleUtils.getLocaleCode();
-        iconProvider = Settings.getIconsProvider();
+        iconProvider = settingsMgr.getIconsProvider();
 
         // Date Updated
         if (!ObjectsCompat.equals(updateDate, WeatherUtils.getLastBuildDate(weather))) {
@@ -352,7 +356,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 weatherDetails.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, weather.getPrecipitation().getPop() + "%"));
             }
             if (weather.getPrecipitation().getQpfRainIn() != null && weather.getPrecipitation().getQpfRainIn() >= 0) {
-                final String unit = Settings.getPrecipitationUnit();
+                final String unit = settingsMgr.getPrecipitationUnit();
                 float precipValue;
                 String precipUnit;
 
@@ -374,7 +378,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                 );
             }
             if (weather.getPrecipitation().getQpfSnowIn() != null && weather.getPrecipitation().getQpfSnowIn() >= 0) {
-                final String unit = Settings.getPrecipitationUnit();
+                final String unit = settingsMgr.getPrecipitationUnit();
                 float precipValue;
                 String precipUnit;
 
@@ -402,7 +406,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         // Atmosphere
         if (weather.getAtmosphere().getPressureMb() != null) {
-            final String unit = Settings.getPressureUnit();
+            final String unit = settingsMgr.getPressureUnit();
             float pressureVal;
             String pressureUnit;
 
@@ -437,7 +441,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         }
 
         if (weather.getAtmosphere().getVisibilityMi() != null && weather.getAtmosphere().getVisibilityMi() >= 0) {
-            final String unit = Settings.getDistanceUnit();
+            final String unit = settingsMgr.getDistanceUnit();
             int visibilityVal;
             String visibilityUnit;
 
@@ -491,7 +495,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         // Wind
         if (weather.getCondition().getWindMph() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getWindMph(), weather.getCondition().getWindKph())) {
-            final String unit = Settings.getSpeedUnit();
+            final String unit = settingsMgr.getSpeedUnit();
             int speedVal;
             String speedUnit;
 
@@ -523,7 +527,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
 
         if (weather.getCondition().getWindGustMph() != null && weather.getCondition().getWindGustKph() != null &&
                 !ObjectsCompat.equals(weather.getCondition().getWindGustMph(), weather.getCondition().getWindGustKph())) {
-            final String unit = Settings.getSpeedUnit();
+            final String unit = settingsMgr.getSpeedUnit();
             int speedVal;
             String speedUnit;
 

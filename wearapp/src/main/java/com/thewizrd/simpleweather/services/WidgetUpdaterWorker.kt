@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import timber.log.Timber
@@ -21,7 +21,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
 
         @JvmStatic
         fun requestWidgetUpdate(context: Context) {
-            if (Settings.isWeatherLoaded()) {
+            if (App.instance.settingsManager.isWeatherLoaded()) {
                 Timber.tag(TAG).i("Requesting widget update...")
 
                 // Update complications

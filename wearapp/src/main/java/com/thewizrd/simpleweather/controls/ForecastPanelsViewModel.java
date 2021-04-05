@@ -14,9 +14,10 @@ import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.simpleweather.App;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -25,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ForecastPanelsViewModel extends ViewModel {
+    private final SettingsManager settingsMgr;
+
     private LocationData locationData;
     private String unitCode;
     private String localeCode;
@@ -37,6 +40,8 @@ public class ForecastPanelsViewModel extends ViewModel {
     private LiveData<List<HourlyForecast>> currentHrForecastsData;
 
     public ForecastPanelsViewModel() {
+        settingsMgr = App.getInstance().getSettingsManager();
+
         forecasts = new MutableLiveData<>();
         hourlyForecasts = new MutableLiveData<>();
     }
@@ -55,14 +60,14 @@ public class ForecastPanelsViewModel extends ViewModel {
             // Clone location data
             this.locationData = new LocationData(new LocationQueryViewModel(location));
 
-            unitCode = Settings.getUnitString();
+            unitCode = settingsMgr.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
-            iconProvider = Settings.getIconsProvider();
+            iconProvider = settingsMgr.getIconsProvider();
 
             if (currentForecastsData != null) {
                 currentForecastsData.removeObserver(forecastObserver);
             }
-            currentForecastsData = Settings.getWeatherDAO().getLiveForecastData(location.getQuery());
+            currentForecastsData = settingsMgr.getWeatherDAO().getLiveForecastData(location.getQuery());
 
             currentForecastsData.observeForever(forecastObserver);
             if (forecasts != null)
@@ -71,16 +76,16 @@ public class ForecastPanelsViewModel extends ViewModel {
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
             }
-            currentHrForecastsData = Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 6, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
+            currentHrForecastsData = settingsMgr.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 6, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));
-        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+        } else if (!ObjectsCompat.equals(unitCode, settingsMgr.getUnitString()) ||
                 !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
-                !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
-            unitCode = Settings.getUnitString();
+                !ObjectsCompat.equals(iconProvider, settingsMgr.getIconsProvider())) {
+            unitCode = settingsMgr.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
-            iconProvider = Settings.getIconsProvider();
+            iconProvider = settingsMgr.getIconsProvider();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
                 forecasts.postValue(forecastMapper.apply(currentForecastsData.getValue()));

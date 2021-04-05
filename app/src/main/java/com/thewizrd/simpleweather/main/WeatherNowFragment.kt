@@ -77,7 +77,7 @@ import com.thewizrd.shared_resources.utils.WeatherUtils.ErrorStatus
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
-import com.thewizrd.simpleweather.App.Companion.instance
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
@@ -186,11 +186,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             if (locationData != null) {
                 forecastsView.updateForecasts(locationData!!)
 
-                val context = instance.appContext
+                val context = App.instance.appContext
 
-                if (Settings.getHomeData() == locationData) {
+                if (getSettingsManager().getHomeData() == locationData) {
                     // Update widgets if they haven't been already
-                    if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), Settings.getUpdateTime()).toMinutes() > Settings.getRefreshInterval()) {
+                    if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), getSettingsManager().getUpdateTime()).toMinutes() > getSettingsManager().getRefreshInterval()) {
                         WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
                     } else {
                         // Update widgets
@@ -228,7 +228,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     showSnackbar(snackBar, null)
                 }
                 ErrorStatus.QUERYNOTFOUND -> {
-                    if (WeatherAPI.NWS == Settings.getAPI()) {
+                    if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
                         showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
                         return@runWithView
                     }
@@ -275,7 +275,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -296,7 +296,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     stopLocationUpdates()
 
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -511,7 +511,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
             runWithView {
-                if (Settings.useFollowGPS() && updateLocation()) {
+                if (getSettingsManager().useFollowGPS() && updateLocation()) {
                     // Setup loader from updated location
                     wLoader = WeatherDataLoader(locationData!!)
                 }
@@ -926,7 +926,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
         // Check if current location still exists (is valid)
         if (locationData?.locationType == LocationType.SEARCH) {
-            if (Settings.getLocation(locationData?.query) == null) {
+            if (getSettingsManager().getLocation(locationData?.query) == null) {
                 locationData = null
                 wLoader = null
                 locationChanged = true
@@ -936,7 +936,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         if (args.home) {
             // Check if home location changed
             // For ex. due to GPS setting change
-            val homeData = Settings.getHomeData()
+            val homeData = getSettingsManager().getHomeData()
             if (!ObjectsCompat.equals(locationData, homeData)) {
                 locationData = homeData
                 locationChanged = true
@@ -968,12 +968,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                 // Check current weather source (API)
                 // Reset if source OR locale is different
-                if (Settings.getAPI() != weatherView.weatherSource
+                if (getSettingsManager().getAPI() != weatherView.weatherSource
                         || wm.supportsWeatherLocale() && locale != weatherView.weatherLocale) {
                     restore()
                 } else {
                     // Update weather if needed on resume
-                    if (Settings.useFollowGPS() && updateLocation()) {
+                    if (getSettingsManager().useFollowGPS() && updateLocation()) {
                         // Setup loader from updated location
                         wLoader = WeatherDataLoader(locationData!!)
                     }
@@ -998,15 +998,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     var forceRefresh = false
 
                     // GPS Follow location
-                    if (Settings.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-                        val locData = Settings.getLastGPSLocData()
+                    if (getSettingsManager().useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
+                        val locData = getSettingsManager().getLastGPSLocData()
                         if (locData == null) {
                             // Update location if not setup
                             updateLocation()
                             forceRefresh = true
                         } else {
                             // Reset locdata if source is different
-                            if (Settings.getAPI() != locData.weatherSource) Settings.saveLastGPSLocData(LocationData())
+                            if (getSettingsManager().getAPI() != locData.weatherSource) getSettingsManager().saveLastGPSLocData(LocationData())
                             if (updateLocation()) {
                                 // Setup loader from updated location
                                 forceRefresh = true
@@ -1017,7 +1017,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         }
                     } else if (locationData == null && wLoader == null) {
                         // Weather was loaded before. Lets load it up...
-                        locationData = Settings.getHomeData()
+                        locationData = getSettingsManager().getHomeData()
                     }
                     if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
                     forceRefresh
@@ -1158,7 +1158,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
     override fun updateWindowColors() {
         var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }
 
@@ -1171,7 +1171,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private suspend fun updateLocation(): Boolean {
         var locationChanged = false
 
-        if (appCompatActivity != null && Settings.useFollowGPS() && locationData?.locationType == LocationType.GPS) {
+        if (appCompatActivity != null && getSettingsManager().useFollowGPS() && locationData?.locationType == LocationType.GPS) {
             if (ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
@@ -1184,7 +1184,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                locationData = Settings.getLastGPSLocData()
+                locationData = getSettingsManager().getLastGPSLocData()
                 return false
             }
 
@@ -1246,7 +1246,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                val lastGPSLocData = Settings.getLastGPSLocData()
+                val lastGPSLocData = getSettingsManager().getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
@@ -1282,7 +1282,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                 // Save location as last known
                 lastGPSLocData?.setData(view, location)
-                Settings.saveLastGPSLocData(lastGPSLocData)
+                getSettingsManager().saveLastGPSLocData(lastGPSLocData)
 
                 LocalBroadcastManager.getInstance(appCompatActivity!!)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
@@ -1308,7 +1308,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     // permission was granted, yay!
                     // Do the task you need to do.
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -1318,7 +1318,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Settings.setFollowGPS(false)
+                    getSettingsManager().setFollowGPS(false)
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
                 }
             }

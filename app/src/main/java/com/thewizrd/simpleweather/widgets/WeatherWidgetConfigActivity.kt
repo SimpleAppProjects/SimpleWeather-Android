@@ -9,8 +9,8 @@ import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.utils.UserThemeMode
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.activity.UserLocaleActivity
 
@@ -39,7 +39,7 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         setContentView(R.layout.activity_widget_setup)
 
         var color = ContextUtils.getColor(this, android.R.attr.colorBackground)
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (App.instance.settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }
 

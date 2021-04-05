@@ -34,6 +34,7 @@ import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
@@ -47,6 +48,7 @@ import kotlin.math.absoluteValue
 class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private var mFusedLocationClient: FusedLocationProviderClient? = null
     private val wm = WeatherManager.getInstance()
+    private val settingsMgr = App.instance.settingsManager
 
     companion object {
         private const val TAG = "WeatherUpdaterWorker"
@@ -89,7 +91,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresCharging(false)
                     .build()
-            val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, Settings.DEFAULTINTERVAL.toLong(), TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
+            val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, SettingsManager.DEFAULTINTERVAL.toLong(), TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
                     .setConstraints(constraints)
                     .addTag(TAG)
                     .build()
@@ -158,7 +160,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
             }
 
-            if (Settings.getDataSync() == WearableDataSync.OFF) {
+            if (settingsMgr.getDataSync() == WearableDataSync.OFF) {
                 try {
                     // Update configuration
                     RemoteConfig.checkConfigAsync()
@@ -167,8 +169,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
             }
 
-            if (Settings.isWeatherLoaded()) {
-                if (Settings.getDataSync() == WearableDataSync.OFF && Settings.useFollowGPS()) {
+            if (settingsMgr.isWeatherLoaded()) {
+                if (settingsMgr.getDataSync() == WearableDataSync.OFF && settingsMgr.useFollowGPS()) {
                     try {
                         updateLocation()
                     } catch (e: Exception) {
@@ -182,7 +184,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 if (weather != null) {
                     WidgetUpdaterWorker.requestWidgetUpdate(context)
                 } else {
-                    if (Settings.getDataSync() != WearableDataSync.OFF) {
+                    if (settingsMgr.getDataSync() != WearableDataSync.OFF) {
                         // Check if data has been updated
                         WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTWEATHERUPDATE)
                     }
@@ -195,9 +197,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
     private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
         val weather = try {
-            val wloader = WeatherDataLoader(Settings.getHomeData())
+            val wloader = WeatherDataLoader(settingsMgr.getHomeData()!!)
             val request = WeatherRequest.Builder()
-            if (Settings.getDataSync() == WearableDataSync.OFF) {
+            if (settingsMgr.getDataSync() == WearableDataSync.OFF) {
                 request.forceRefresh(false).loadAlerts()
             } else {
                 request.forceLoadSavedData()
@@ -214,7 +216,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
         val context = applicationContext
 
-        if (Settings.useFollowGPS()) {
+        if (settingsMgr.useFollowGPS()) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return@withContext false
@@ -373,7 +375,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             }
 
             if (location != null) {
-                val lastGPSLocData = Settings.getLastGPSLocData()
+                val lastGPSLocData = settingsMgr.getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(
@@ -403,7 +405,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                 // Save location as last known
                 lastGPSLocData!!.setData(query_vm, location)
-                Settings.saveLastGPSLocData(lastGPSLocData)
+                settingsMgr.saveLastGPSLocData(lastGPSLocData)
                 return@withContext true
             }
         }

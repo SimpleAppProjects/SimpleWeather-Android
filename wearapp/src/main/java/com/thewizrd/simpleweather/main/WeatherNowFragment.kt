@@ -118,9 +118,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
             binding.swipeRefreshLayout.isRefreshing = false
 
-            val context = App.getInstance().appContext
-            val span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), Settings.getUpdateTime())
-            if (Settings.getDataSync() != WearableDataSync.OFF && span.toMinutes() > Settings.DEFAULTINTERVAL) {
+            val context = App.instance.appContext
+            val span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), settingsManager.getUpdateTime())
+            if (settingsManager.getDataSync() != WearableDataSync.OFF && span.toMinutes() > SettingsManager.DEFAULTINTERVAL) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             } else {
                 WidgetUpdaterWorker.requestWidgetUpdate(context)
@@ -138,7 +138,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        if (wEx.errorStatus == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == Settings.getAPI()) {
+        if (wEx.errorStatus == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == settingsManager.getAPI()) {
             showToast(R.string.error_message_weather_us_only, Toast.LENGTH_LONG)
         } else {
             showToast(wEx.message, Toast.LENGTH_LONG)
@@ -147,7 +147,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        App.getInstance().preferences.registerOnSharedPreferenceChangeListener(this)
+        App.instance.registerAppSharedPreferenceListener(this)
     }
 
     override fun onDestroy() {
@@ -156,7 +156,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onDetach() {
-        App.getInstance().preferences.unregisterOnSharedPreferenceChangeListener(this)
+        App.instance.unregisterAppSharedPreferenceListener(this)
         wLoader = null
         super.onDetach()
     }
@@ -188,7 +188,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -209,7 +209,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -239,7 +239,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
                         if (WearableHelper.LocationPath == intent.action) {
                             // We got the location data
-                            locationData = Settings.getHomeData()
+                            locationData = settingsManager.getHomeData()
                             locationDataReceived = true
                         }
 
@@ -290,7 +290,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             private fun onStart() {
                 // Use normal if sync is off
-                if (Settings.getDataSync() == WearableDataSync.OFF) {
+                if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                     resume()
                 } else {
                     dataSyncResume()
@@ -329,7 +329,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
             runWithView {
-                if (Settings.useFollowGPS() && updateLocation()) {
+                if (settingsManager.useFollowGPS() && updateLocation()) {
                     // Setup loader from updated location
                     wLoader = WeatherDataLoader(locationData!!)
                 }
@@ -479,12 +479,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 val locale = wm.localeToLangCode(currentLocale.language, currentLocale.toLanguageTag())
 
                 // Reset if source || locale is different
-                if (Settings.getAPI() != weatherView.weatherSource ||
+                if (settingsManager.getAPI() != weatherView.weatherSource ||
                         wm.supportsWeatherLocale() && locale != weatherView.weatherLocale) {
                     restore()
                 } else {
                     // Update weather if needed on resume
-                    if (Settings.useFollowGPS() && updateLocation()) {
+                    if (settingsManager.useFollowGPS() && updateLocation()) {
                         // Setup loader from updated location
                         wLoader = WeatherDataLoader(locationData!!)
                     }
@@ -502,15 +502,15 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     var forceRefresh = false
 
                     // GPS Follow location
-                    if (Settings.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-                        val locData = Settings.getLastGPSLocData()
+                    if (settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
+                        val locData = settingsManager.getLastGPSLocData()
                         if (locData == null) {
                             // Update location if not setup
                             updateLocation()
                             forceRefresh = true
                         } else {
                             // Reset locdata if source is different
-                            if (Settings.getAPI() != locData.weatherSource) Settings.saveHomeData(LocationData())
+                            if (settingsManager.getAPI() != locData.weatherSource) settingsManager.saveHomeData(LocationData())
                             if (updateLocation()) {
                                 // Setup loader from updated location
                                 forceRefresh = true
@@ -521,7 +521,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         }
                     } else if (locationData == null && wLoader == null) {
                         // Weather was loaded before. Lets load it up...
-                        locationData = Settings.getHomeData()
+                        locationData = settingsManager.getHomeData()
                     }
                     if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
                     forceRefresh
@@ -541,7 +541,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         runWithView {
             binding.swipeRefreshLayout.isRefreshing = true
 
-            if (Settings.getDataSync() == WearableDataSync.OFF) {
+            if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                 wLoader?.loadWeatherResult(WeatherRequest.Builder()
                         .forceRefresh(forceRefresh)
                         .setErrorListener(this@WeatherNowFragment)
@@ -567,7 +567,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                                 }
                             }
                         }
-            } else if (Settings.getDataSync() != WearableDataSync.OFF) {
+            } else if (settingsManager.getDataSync() != WearableDataSync.OFF) {
                 dataSyncResume(forceRefresh)
             }
         }
@@ -577,8 +577,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     private suspend fun updateLocation(): Boolean {
         var locationChanged = false
 
-        if (Settings.getDataSync() == WearableDataSync.OFF &&
-                Settings.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
+        if (settingsManager.getDataSync() == WearableDataSync.OFF &&
+                settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
             if (fragmentActivity != null && ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                         PERMISSION_LOCATION_REQUEST_CODE)
@@ -590,7 +590,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             val locMan = fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                locationData = Settings.getHomeData()
+                locationData = settingsManager.getHomeData()
                 return false
             }
 
@@ -650,7 +650,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                val lastGPSLocData = Settings.getLastGPSLocData()
+                val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
@@ -686,7 +686,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
                 // Save location as last known
                 lastGPSLocData?.setData(view, location)
-                Settings.saveHomeData(lastGPSLocData)
+                settingsManager.saveHomeData(lastGPSLocData)
 
                 locationData = lastGPSLocData
                 mLocation = location
@@ -709,7 +709,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     // permission was granted, yay!
                     // Do the task you need to do.
                     runWithView {
-                        if (Settings.useFollowGPS() && updateLocation()) {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -719,7 +719,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Settings.setFollowGPS(false)
+                    settingsManager.setFollowGPS(false)
                     showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
                 }
             }
@@ -731,18 +731,18 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         if (key.isNullOrBlank()) return
 
         when (key) {
-            Settings.KEY_DATASYNC -> {
+            SettingsManager.KEY_DATASYNC -> {
                 // If data sync settings changes,
                 // reset so we can properly reload
                 wLoader = null
                 locationData = null
             }
-            Settings.KEY_TEMPUNIT,
-            Settings.KEY_DISTANCEUNIT,
-            Settings.KEY_PRECIPITATIONUNIT,
-            Settings.KEY_PRESSUREUNIT,
-            Settings.KEY_SPEEDUNIT,
-            Settings.KEY_ICONSSOURCE -> {
+            SettingsManager.KEY_TEMPUNIT,
+            SettingsManager.KEY_DISTANCEUNIT,
+            SettingsManager.KEY_PRECIPITATIONUNIT,
+            SettingsManager.KEY_PRESSUREUNIT,
+            SettingsManager.KEY_SPEEDUNIT,
+            SettingsManager.KEY_ICONSSOURCE -> {
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                     refreshWeather(false)
                 }
@@ -788,8 +788,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             dataSyncRestore(forceRefresh)
         } else {
             // Update weather if needed on resume
-            if (locationData == null || locationData != Settings.getHomeData())
-                locationData = Settings.getHomeData()
+            if (locationData == null || locationData != settingsManager.getHomeData())
+                locationData = settingsManager.getHomeData()
 
             binding.swipeRefreshLayout.isRefreshing = true
             wLoader = WeatherDataLoader(locationData!!)
@@ -813,10 +813,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         if (syncTimerEnabled)
             cancelTimer()
 
-        if (isViewAlive && Settings.getDataSync() != WearableDataSync.OFF) {
+        if (isViewAlive && settingsManager.getDataSync() != WearableDataSync.OFF) {
             if (locationData == null) {
                 // Load whatever we have available
-                locationData = Settings.getHomeData()
+                locationData = settingsManager.getHomeData()
             }
 
             if (locationData != null) {

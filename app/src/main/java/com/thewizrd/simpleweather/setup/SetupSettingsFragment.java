@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialSharedAxis;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
@@ -70,9 +70,9 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_setup, null);
 
-        final ListPreference intervalPref = findPreference(Settings.KEY_REFRESHINTERVAL);
-        final ListPreference notIconPref = findPreference(Settings.KEY_NOTIFICATIONICON);
-        final SwitchPreferenceCompat onGoingPref = findPreference(Settings.KEY_ONGOINGNOTIFICATION);
+        final ListPreference intervalPref = findPreference(SettingsManager.KEY_REFRESHINTERVAL);
+        final ListPreference notIconPref = findPreference(SettingsManager.KEY_NOTIFICATIONICON);
+        final SwitchPreferenceCompat onGoingPref = findPreference(SettingsManager.KEY_ONGOINGNOTIFICATION);
 
         if (ExtrasLibrary.Companion.isEnabled()) {
             intervalPref.setEntries(R.array.premium_refreshinterval_entries);

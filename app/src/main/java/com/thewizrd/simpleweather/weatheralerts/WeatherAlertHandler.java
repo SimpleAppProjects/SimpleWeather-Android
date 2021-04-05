@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.thewizrd.shared_resources.AppState;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
@@ -52,7 +52,8 @@ public class WeatherAlertHandler {
             }
 
             // Save alert data
-            Settings.saveWeatherAlerts(location, alerts);
+            final SettingsManager settingsManager = App.getInstance().getSettingsManager();
+            settingsManager.saveWeatherAlerts(location, alerts);
         }
     }
 }

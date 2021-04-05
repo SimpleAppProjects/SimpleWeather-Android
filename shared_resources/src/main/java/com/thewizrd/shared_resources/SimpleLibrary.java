@@ -13,7 +13,7 @@ import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.okhttp3.CacheInterceptor;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 
 import java.io.File;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public final class SimpleLibrary {
         return sSimpleLib;
     }
 
-    public static void init(ApplicationLib app) {
+    public static void initialize(ApplicationLib app) {
         if (sSimpleLib == null) {
             sSimpleLib = new SimpleLibrary(app);
         } else {
@@ -79,7 +79,7 @@ public final class SimpleLibrary {
         });
     }
 
-    public static void unRegister() {
+    public static void unregister() {
         sSimpleLib = null;
     }
 
@@ -94,8 +94,8 @@ public final class SimpleLibrary {
     public OkHttpClient getHttpClient() {
         if (client == null) {
             client = new OkHttpClient.Builder()
-                    .readTimeout(Settings.READ_TIMEOUT, TimeUnit.MILLISECONDS)
-                    .connectTimeout(Settings.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .readTimeout(SettingsManager.READ_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .connectTimeout(SettingsManager.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
                     .followRedirects(true)
                     .retryOnConnectionFailure(true)
                     .cache(new Cache(new File(mContext.getCacheDir(), "okhttp3"), 50L * 1024 * 1024))

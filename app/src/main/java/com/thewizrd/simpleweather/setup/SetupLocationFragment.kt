@@ -302,8 +302,8 @@ class SetupLocationFragment : CustomFragment() {
                                 if (mLocation == null) {
                                     // Restore controls
                                     enableControls(true)
-                                    Settings.setFollowGPS(false)
-                                    Settings.setWeatherLoaded(false)
+                                    getSettingsManager().setFollowGPS(false)
+                                    getSettingsManager().setWeatherLoaded(false)
                                     if (e is WeatherException || e is CustomException) {
                                         showSnackbar(Snackbar.make(e.message, Snackbar.Duration.SHORT), null)
                                     } else {
@@ -336,37 +336,37 @@ class SetupLocationFragment : CustomFragment() {
 
                         val isUS = LocationUtils.isUS(view.locationCountry)
 
-                        if (!Settings.isWeatherLoaded()) {
+                        if (!getSettingsManager().isWeatherLoaded()) {
                             // Default US provider to NWS
                             if (isUS) {
-                                Settings.setAPI(WeatherAPI.NWS)
+                                getSettingsManager().setAPI(WeatherAPI.NWS)
                                 view.updateWeatherSource(WeatherAPI.NWS)
                             } else {
-                                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED)
+                                getSettingsManager().setAPI(WeatherAPI.WEATHERUNLOCKED)
                                 view.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
                             }
                             wm.updateAPI()
                         }
 
-                        if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired) {
+                        if (getSettingsManager().usePersonalKey() && StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && wm.isKeyRequired) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 
                         ensureActive()
 
-                        if (WeatherAPI.NWS == Settings.getAPI() && !isUS) {
+                        if (WeatherAPI.NWS == getSettingsManager().getAPI() && !isUS) {
                             throw CustomException(R.string.error_message_weather_us_only)
                         }
 
                         // Get Weather Data
-                        val location = LocationData(view, mLocation)
+                        val location = LocationData(view, mLocation!!)
                         if (!location.isValid) {
                             throw CustomException(R.string.werror_noweather)
                         }
 
                         ensureActive()
 
-                        var weather = Settings.getWeatherData(location.query)
+                        var weather = getSettingsManager().getWeatherData(location.query)
                         if (weather == null) {
                             ensureActive()
 
@@ -384,17 +384,17 @@ class SetupLocationFragment : CustomFragment() {
                         ensureActive()
 
                         // Save weather data
-                        Settings.saveLastGPSLocData(location)
-                        Settings.deleteLocations()
-                        Settings.addLocation(LocationData(view))
+                        getSettingsManager().saveLastGPSLocData(location)
+                        getSettingsManager().deleteLocations()
+                        getSettingsManager().addLocation(LocationData(view))
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                            Settings.saveWeatherAlerts(location, weather.weatherAlerts)
-                        Settings.saveWeatherData(weather)
-                        Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
-                        Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
+                            getSettingsManager().saveWeatherAlerts(location, weather.weatherAlerts)
+                        getSettingsManager().saveWeatherData(weather)
+                        getSettingsManager().saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                        getSettingsManager().saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
 
-                        Settings.setFollowGPS(true)
-                        Settings.setWeatherLoaded(true)
+                        getSettingsManager().setFollowGPS(true)
+                        getSettingsManager().setWeatherLoaded(true)
 
                         // Send data for wearables
                         if (appCompatActivity != null) {
@@ -437,7 +437,7 @@ class SetupLocationFragment : CustomFragment() {
                                     }
                                 } else {
                                     enableControls(true)
-                                    Settings.setFollowGPS(false)
+                                    getSettingsManager().setFollowGPS(false)
 
                                     val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
@@ -452,8 +452,8 @@ class SetupLocationFragment : CustomFragment() {
                             runWithView {
                                 // Restore controls
                                 enableControls(true)
-                                Settings.setFollowGPS(false)
-                                Settings.setWeatherLoaded(false)
+                                getSettingsManager().setFollowGPS(false)
+                                getSettingsManager().setWeatherLoaded(false)
 
                                 if (t is WeatherException || t is CustomException) {
                                     showSnackbar(Snackbar.make(t.message, Snackbar.Duration.SHORT), null)

@@ -9,9 +9,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
 
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class WeatherAlertsViewModel extends ObservableViewModel {
+    private final SettingsManager settingsMgr;
+
     private LocationData locationData;
 
     private MutableLiveData<List<WeatherAlertViewModel>> alerts;
@@ -29,6 +32,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
     private LiveData<List<WeatherAlertViewModel>> currentAlertsData;
 
     public WeatherAlertsViewModel() {
+        settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
         alerts = new MutableLiveData<>();
     }
 
@@ -49,7 +53,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
             LiveData<WeatherAlerts> weatherAlertsLiveData = AsyncTask.await(new Callable<LiveData<WeatherAlerts>>() {
                 @Override
                 public LiveData<WeatherAlerts> call() {
-                    return Settings.getWeatherDAO().getLiveWeatherAlertData(location.getQuery());
+                    return settingsMgr.getWeatherDAO().getLiveWeatherAlertData(location.getQuery());
                 }
             });
             currentAlertsData = Transformations.map(weatherAlertsLiveData,
@@ -86,7 +90,7 @@ public class WeatherAlertsViewModel extends ObservableViewModel {
         }
     }
 
-    private Observer<List<WeatherAlertViewModel>> alertObserver = new Observer<List<WeatherAlertViewModel>>() {
+    private final Observer<List<WeatherAlertViewModel>> alertObserver = new Observer<List<WeatherAlertViewModel>>() {
         @Override
         public void onChanged(List<WeatherAlertViewModel> alertViewModels) {
             if (alerts != null) {

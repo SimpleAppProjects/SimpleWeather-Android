@@ -11,13 +11,15 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tasks.AsyncTask
 import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast
+import com.thewizrd.simpleweather.App
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Callable
 
 class ChartsViewModel : ViewModel() {
+    private val settingsManager = App.instance.settingsManager
+
     var locationData: LocationData? = null
     var unitCode: String? = null
     var localeCode: String? = null
@@ -37,22 +39,22 @@ class ChartsViewModel : ViewModel() {
             // Clone location data
             locationData = LocationData(LocationQueryViewModel(location))
 
-            unitCode = Settings.getUnitString()
+            unitCode = settingsManager.getUnitString()
             localeCode = LocaleUtils.getLocaleCode()
-            iconProvider = Settings.getIconsProvider()
+            iconProvider = settingsManager.getIconsProvider()
 
             currentHrForecastsData?.removeObserver(hrforecastObserver)
             currentHrForecastsData = AsyncTask.await(Callable<LiveData<List<HourlyForecast>>?> {
-                Settings.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
+                settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
             })
             currentHrForecastsData!!.observeForever(hrforecastObserver)
             graphModelData.postValue(graphDataMapper.apply(currentHrForecastsData!!.value))
-        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) ||
+        } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
                 !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
-                !ObjectsCompat.equals(iconProvider, Settings.getIconsProvider())) {
-            unitCode = Settings.getUnitString()
+                !ObjectsCompat.equals(iconProvider, settingsManager.getIconsProvider())) {
+            unitCode = settingsManager.getUnitString()
             localeCode = LocaleUtils.getLocaleCode()
-            iconProvider = Settings.getIconsProvider()
+            iconProvider = settingsManager.getIconsProvider()
 
             if (currentHrForecastsData?.value != null) {
                 graphModelData.postValue(graphDataMapper.apply(currentHrForecastsData!!.value))

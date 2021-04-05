@@ -19,7 +19,7 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -36,6 +36,7 @@ class InAppUpdateManager private constructor(context: Context) {
         }
     }
 
+    private val settingsManager = SettingsManager(context.applicationContext)
     private val appUpdateManager = AppUpdateManagerFactory.create(context.applicationContext)
     private var appUpdateInfo: AppUpdateInfo? = null
     private var configUpdateinfo: UpdateInfo? = null
@@ -93,7 +94,7 @@ class InAppUpdateManager private constructor(context: Context) {
             val lastUpdate = remoteUpdateInfo.lastOrNull()
 
             if (lastUpdate != null) {
-                return Settings.getVersionCode() < lastUpdate.versionCode
+                return settingsManager.getVersionCode() < lastUpdate.versionCode
             }
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e)

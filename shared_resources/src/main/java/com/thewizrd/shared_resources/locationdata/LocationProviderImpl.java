@@ -7,13 +7,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.ibm.icu.util.ULocale;
+import com.thewizrd.shared_resources.ApplicationLib;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.tzdb.TZDBCache;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -206,10 +207,12 @@ public abstract class LocationProviderImpl implements LocationProviderImplInterf
             location.setLocationSource(qview.getLocationSource());
 
             // Update DB here or somewhere else
-            if (SimpleLibrary.getInstance().getApp().isPhone()) {
-                Settings.updateLocation(location);
+            final ApplicationLib app = SimpleLibrary.getInstance().getApp();
+            final SettingsManager settingsMgr = app.getSettingsManager();
+            if (app.isPhone()) {
+                settingsMgr.updateLocation(location);
             } else {
-                Settings.saveHomeData(location);
+                settingsMgr.saveHomeData(location);
             }
         }
     }

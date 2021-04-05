@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import com.thewizrd.shared_resources.lifecycle.LifecycleAwareFragment
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface
@@ -12,6 +14,11 @@ abstract class CustomFragment : LifecycleAwareFragment(), SnackbarManagerInterfa
     var appCompatActivity: AppCompatActivity? = null
         private set
     private var mSnackMgr: SnackbarManager? = null
+
+    private val settingsMgr = App.instance.settingsManager
+    protected fun getSettingsManager(): SettingsManager {
+        return settingsMgr
+    }
 
     abstract override fun createSnackManager(): SnackbarManager
 

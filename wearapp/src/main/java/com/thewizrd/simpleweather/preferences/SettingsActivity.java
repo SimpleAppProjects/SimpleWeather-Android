@@ -46,7 +46,6 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherException;
@@ -70,16 +69,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_DATASYNC;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_DISTANCEUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_PRECIPITATIONUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_PRESSUREUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_SPEEDUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_TEMPUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_API;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_APIKEY;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_DATASYNC;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_DISTANCEUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_FOLLOWGPS;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_PRECIPITATIONUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_PRESSUREUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_SPEEDUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_TEMPUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_USEPERSONALKEY;
 
 public class SettingsActivity extends WearableListenerActivity {
     private BroadcastReceiver mBroadcastReceiver;
@@ -186,8 +185,8 @@ public class SettingsActivity extends WearableListenerActivity {
 
         @Override
         public boolean onBackPressed() {
-            if (Settings.usePersonalKey() &&
-                    StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
+            if (getSettingsManager().usePersonalKey() &&
+                    StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) &&
                     WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Set keyentrypref color to red
                 showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT);
@@ -205,8 +204,8 @@ public class SettingsActivity extends WearableListenerActivity {
 
             // Register listener
             ApplicationLib app = App.getInstance();
-            app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
-            app.getPreferences().registerOnSharedPreferenceChangeListener(this);
+            app.unregisterAppSharedPreferenceListener();
+            app.registerAppSharedPreferenceListener(this);
             // Initialize queue
             intentQueue = new HashSet<>();
 
@@ -232,23 +231,23 @@ public class SettingsActivity extends WearableListenerActivity {
         public void onPause() {
             AnalyticsLogger.logEvent("SettingsFragment: onPause");
 
-            if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
+            if (getSettingsManager().usePersonalKey() && StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
                 // Fallback to supported weather provider
                 final String API = RemoteConfig.getDefaultWeatherProvider();
                 providerPref.setValue(API);
                 providerPref.getOnPreferenceChangeListener()
                         .onPreferenceChange(providerPref, API);
-                Settings.setAPI(API);
+                getSettingsManager().setAPI(API);
                 WeatherManager.getInstance().updateAPI();
 
-                Settings.setPersonalKey(false);
-                Settings.setKeyVerified(true);
+                getSettingsManager().setPersonalKey(false);
+                getSettingsManager().setKeyVerified(true);
             }
 
             // Unregister listener
             ApplicationLib app = App.getInstance();
-            app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-            app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+            app.unregisterAppSharedPreferenceListener(this);
+            app.registerAppSharedPreferenceListener();
 
             LocalBroadcastManager mLocalBroadcastManager =
                     LocalBroadcastManager.getInstance(getParentActivity());
@@ -261,8 +260,8 @@ public class SettingsActivity extends WearableListenerActivity {
                             new Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI));
                     // Log event
                     Bundle bundle = new Bundle();
-                    bundle.putString("API", Settings.getAPI());
-                    bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                    bundle.putString("API", getSettingsManager().getAPI());
+                    bundle.putString("API_IsInternalKey", Boolean.toString(!getSettingsManager().usePersonalKey()));
                     AnalyticsLogger.logEvent("Update_API", bundle);
                 } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS.equals(filter.getIntent().getAction())) {
                     mLocalBroadcastManager.sendBroadcast(
@@ -317,7 +316,7 @@ public class SettingsActivity extends WearableListenerActivity {
                             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                                 showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT);
 
-                                Settings.setFollowGPS(false);
+                                getSettingsManager().setFollowGPS(false);
                                 return false;
                             }
                         }
@@ -390,10 +389,10 @@ public class SettingsActivity extends WearableListenerActivity {
                     String API = providerPref.getValue();
                     try {
                         if (WeatherManager.isKeyValid(key, API)) {
-                            Settings.setAPIKEY(key);
-                            Settings.setAPI(API);
+                            getSettingsManager().setAPIKEY(key);
+                            getSettingsManager().setAPI(API);
 
-                            Settings.setKeyVerified(true);
+                            getSettingsManager().setKeyVerified(true);
                             updateKeySummary();
 
                             dialog.dismiss();
@@ -422,8 +421,8 @@ public class SettingsActivity extends WearableListenerActivity {
 
                         if (!selectedWProv.isKeyRequired() || !StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
                             // We're using our own (verified) keys
-                            Settings.setKeyVerified(true);
-                            Settings.setAPI(providerPref.getValue());
+                            getSettingsManager().setKeyVerified(true);
+                            getSettingsManager().setAPI(providerPref.getValue());
                         }
 
                         keyEntry.setEnabled(false);
@@ -465,7 +464,7 @@ public class SettingsActivity extends WearableListenerActivity {
 
                     if (selectedWProv.isKeyRequired()) {
                         if (StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
-                            Settings.setPersonalKey(true);
+                            getSettingsManager().setPersonalKey(true);
                             personalKeyPref.setChecked(true);
                             personalKeyPref.setEnabled(false);
                             keyEntry.setEnabled(false);
@@ -475,17 +474,17 @@ public class SettingsActivity extends WearableListenerActivity {
                             personalKeyPref.setEnabled(true);
                         }
 
-                        if (!Settings.usePersonalKey()) {
+                        if (!getSettingsManager().usePersonalKey()) {
                             // We're using our own (verified) keys
-                            Settings.setKeyVerified(true);
+                            getSettingsManager().setKeyVerified(true);
                             keyEntry.setEnabled(false);
                             apiCategory.removePreference(keyEntry);
                             apiCategory.removePreference(registerPref);
                         } else {
                             // User is using personal (unverified) keys
-                            Settings.setKeyVerified(false);
+                            getSettingsManager().setKeyVerified(false);
                             // Clear API KEY entry to avoid issues
-                            Settings.setAPIKEY("");
+                            getSettingsManager().setAPIKEY("");
 
                             keyEntry.setEnabled(true);
 
@@ -499,10 +498,10 @@ public class SettingsActivity extends WearableListenerActivity {
                             apiCategory.addPreference(personalKeyPref);
 
                         // Reset to old value if not verified
-                        if (!Settings.isKeyVerified())
-                            Settings.setAPI(pref.getValue());
+                        if (!getSettingsManager().isKeyVerified())
+                            getSettingsManager().setAPI(pref.getValue());
                         else
-                            Settings.setAPI(newValue.toString());
+                            getSettingsManager().setAPI(newValue.toString());
 
                         ProviderEntry providerEntry = null;
                         for (ProviderEntry entry : providers) {
@@ -514,13 +513,13 @@ public class SettingsActivity extends WearableListenerActivity {
                         updateKeySummary(providerEntry.getDisplay());
                         updateRegisterLink(providerEntry.getValue());
                     } else {
-                        Settings.setKeyVerified(false);
+                        getSettingsManager().setKeyVerified(false);
                         keyEntry.setEnabled(false);
                         personalKeyPref.setEnabled(false);
 
-                        Settings.setAPI(newValue.toString());
+                        getSettingsManager().setAPI(newValue.toString());
                         // Clear API KEY entry to avoid issues
-                        Settings.setAPIKEY("");
+                        getSettingsManager().setAPIKEY("");
 
                         apiCategory.removePreference(personalKeyPref);
                         apiCategory.removePreference(keyEntry);
@@ -540,11 +539,11 @@ public class SettingsActivity extends WearableListenerActivity {
             if (WeatherManager.getInstance().isKeyRequired()) {
                 keyEntry.setEnabled(true);
 
-                if (!StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && !Settings.isKeyVerified())
-                    Settings.setKeyVerified(true);
+                if (!StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && !getSettingsManager().isKeyVerified())
+                    getSettingsManager().setKeyVerified(true);
 
                 if (StringUtils.isNullOrWhitespace(WeatherManager.getInstance().getAPIKey())) {
-                    Settings.setPersonalKey(true);
+                    getSettingsManager().setPersonalKey(true);
                     personalKeyPref.setChecked(true);
                     personalKeyPref.setEnabled(false);
                     keyEntry.setEnabled(false);
@@ -554,17 +553,17 @@ public class SettingsActivity extends WearableListenerActivity {
                     personalKeyPref.setEnabled(true);
                 }
 
-                if (!Settings.usePersonalKey()) {
+                if (!getSettingsManager().usePersonalKey()) {
                     // We're using our own (verified) keys
-                    Settings.setKeyVerified(true);
+                    getSettingsManager().setKeyVerified(true);
                     keyEntry.setEnabled(false);
                     apiCategory.removePreference(keyEntry);
                     apiCategory.removePreference(registerPref);
                 } else {
                     // User is using personal (unverified) keys
-                    //Settings.setKeyVerified(false);
+                    //getSettingsManager().setKeyVerified(false);
                     // Clear API KEY entry to avoid issues
-                    //Settings.setAPIKEY("");
+                    //getSettingsManager().setAPIKEY("");
 
                     keyEntry.setEnabled(true);
 
@@ -579,9 +578,9 @@ public class SettingsActivity extends WearableListenerActivity {
                 apiCategory.removePreference(personalKeyPref);
                 apiCategory.removePreference(keyEntry);
                 apiCategory.removePreference(registerPref);
-                Settings.setKeyVerified(false);
+                getSettingsManager().setKeyVerified(false);
                 // Clear API KEY entry to avoid issues
-                Settings.setAPIKEY("");
+                getSettingsManager().setAPIKEY("");
             }
 
             updateKeySummary();
@@ -605,7 +604,7 @@ public class SettingsActivity extends WearableListenerActivity {
                 }
             });
             syncPreference.setSummary(syncPreference.getEntries()[Integer.parseInt(syncPreference.getValue())]);
-            enableSyncedSettings(Settings.getDataSync() == WearableDataSync.OFF);
+            enableSyncedSettings(getSettingsManager().getDataSync() == WearableDataSync.OFF);
 
             connStatusPref = findPreference(KEY_CONNSTATUS);
         }
@@ -658,8 +657,8 @@ public class SettingsActivity extends WearableListenerActivity {
         }
 
         private void updateKeySummary(CharSequence providerAPI) {
-            if (!StringUtils.isNullOrWhitespace(Settings.getAPIKEY())) {
-                boolean keyVerified = Settings.isKeyVerified();
+            if (!StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY())) {
+                boolean keyVerified = getSettingsManager().isKeyVerified();
 
                 ForegroundColorSpan colorSpan = new ForegroundColorSpan(keyVerified ?
                         Color.GREEN : Color.RED);
@@ -701,14 +700,14 @@ public class SettingsActivity extends WearableListenerActivity {
                         // permission was granted, yay!
                         // Do the task you need to do.
                         followGps.setChecked(true);
-                        Settings.setFollowGPS(true);
+                        getSettingsManager().setFollowGPS(true);
                         // Reset home location data
-                        //Settings.SaveLastGPSLocData(new WeatherData.LocationData());
+                        //getSettingsManager().SaveLastGPSLocData(new WeatherData.LocationData());
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.
                         followGps.setChecked(false);
-                        Settings.setFollowGPS(false);
+                        getSettingsManager().setFollowGPS(false);
                         showToast(R.string.error_location_denied, Toast.LENGTH_SHORT);
                     }
                     return;

@@ -195,9 +195,9 @@ class SetupFragment : CustomFragment() {
         when (requestCode) {
             REQUEST_CODE_SYNC_ACTIVITY -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (Settings.getHomeData() != null) {
-                        Settings.setDataSync(WearableDataSync.DEVICEONLY)
-                        Settings.setWeatherLoaded(true)
+                    if (settingsManager.getHomeData() != null) {
+                        settingsManager.setDataSync(WearableDataSync.DEVICEONLY)
+                        settingsManager.setWeatherLoaded(true)
                         // Start WeatherNow Activity
                         startActivity(Intent(requireActivity(), MainActivity::class.java))
                         requireActivity().finishAffinity()
@@ -266,8 +266,8 @@ class SetupFragment : CustomFragment() {
                                 if (mLocation == null) {
                                     // Restore controls
                                     enableControls(true)
-                                    Settings.setFollowGPS(false)
-                                    Settings.setWeatherLoaded(false)
+                                    settingsManager.setFollowGPS(false)
+                                    settingsManager.setWeatherLoaded(false)
                                     if (e is WeatherException || e is CustomException) {
                                         showToast(e.message, Toast.LENGTH_SHORT)
                                     } else {
@@ -300,37 +300,37 @@ class SetupFragment : CustomFragment() {
 
                         val isUS = LocationUtils.isUS(view.locationCountry)
 
-                        if (!Settings.isWeatherLoaded()) {
+                        if (!settingsManager.isWeatherLoaded()) {
                             // Default US provider to NWS
                             if (isUS) {
-                                Settings.setAPI(WeatherAPI.NWS)
+                                settingsManager.setAPI(WeatherAPI.NWS)
                                 view.updateWeatherSource(WeatherAPI.NWS)
                             } else {
-                                Settings.setAPI(WeatherAPI.WEATHERUNLOCKED)
+                                settingsManager.setAPI(WeatherAPI.WEATHERUNLOCKED)
                                 view.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
                             }
                             wm.updateAPI()
                         }
 
-                        if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired) {
+                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(settingsManager.getAPIKEY()) && wm.isKeyRequired) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 
                         ensureActive()
 
-                        if (WeatherAPI.NWS == Settings.getAPI() && !isUS) {
+                        if (WeatherAPI.NWS == settingsManager.getAPI() && !isUS) {
                             throw CustomException(R.string.error_message_weather_us_only)
                         }
 
                         // Get Weather Data
-                        val location = LocationData(view, mLocation)
+                        val location = LocationData(view, mLocation!!)
                         if (!location.isValid) {
                             throw CustomException(R.string.werror_noweather)
                         }
 
                         ensureActive()
 
-                        var weather = Settings.getWeatherData(location.query)
+                        var weather = settingsManager.getWeatherData(location.query)
                         if (weather == null) {
                             ensureActive()
 
@@ -348,22 +348,22 @@ class SetupFragment : CustomFragment() {
                         ensureActive()
 
                         // Save weather data
-                        Settings.saveHomeData(location)
+                        settingsManager.saveHomeData(location)
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                            Settings.saveWeatherAlerts(location, weather.weatherAlerts)
-                        Settings.saveWeatherData(weather)
-                        Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
-                        Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
+                            settingsManager.saveWeatherAlerts(location, weather.weatherAlerts)
+                        settingsManager.saveWeatherData(weather)
+                        settingsManager.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                        settingsManager.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
 
                         // If we're changing locations, trigger an update
-                        if (Settings.isWeatherLoaded()) {
+                        if (settingsManager.isWeatherLoaded()) {
                             LocalBroadcastManager.getInstance(fragmentActivity)
                                     .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
                         }
 
-                        Settings.setFollowGPS(true)
-                        Settings.setWeatherLoaded(true)
-                        Settings.setDataSync(WearableDataSync.OFF)
+                        settingsManager.setFollowGPS(true)
+                        settingsManager.setWeatherLoaded(true)
+                        settingsManager.setDataSync(WearableDataSync.OFF)
 
                         location
                     }.also {
@@ -393,8 +393,8 @@ class SetupFragment : CustomFragment() {
                             runWithView {
                                 // Restore controls
                                 enableControls(true)
-                                Settings.setFollowGPS(false)
-                                Settings.setWeatherLoaded(false)
+                                settingsManager.setFollowGPS(false)
+                                settingsManager.setWeatherLoaded(false)
                                 if (t is WeatherException || t is CustomException) {
                                     showToast(t.message, Toast.LENGTH_SHORT)
                                 } else {

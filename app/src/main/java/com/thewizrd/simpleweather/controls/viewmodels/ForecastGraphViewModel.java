@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.weatherdata.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.Forecast;
@@ -38,6 +38,8 @@ public class ForecastGraphViewModel extends ViewModel {
         RAIN,
         SNOW
     }
+
+    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
     private List<XLabelData> labelData;
     private List<LineDataSeries> seriesData;
@@ -89,7 +91,7 @@ public class ForecastGraphViewModel extends ViewModel {
 
     private void addEntryData(BaseForecast forecast, List<XLabelData> xData, List<YEntryData> yData, ForecastGraphType graphType) {
         Context context = App.getInstance().getAppContext();
-        final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
 
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
@@ -143,7 +145,7 @@ public class ForecastGraphViewModel extends ViewModel {
             case WIND:
                 if (forecast.getExtras() != null &&
                         forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0) {
-                    final String unit = Settings.getSpeedUnit();
+                    final String unit = settingsMgr.getSpeedUnit();
                     int speedVal;
                     String speedUnit;
 
@@ -170,7 +172,7 @@ public class ForecastGraphViewModel extends ViewModel {
                 break;
             case RAIN:
                 if (forecast.getExtras() != null && forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainMm() != null) {
-                    final String unit = Settings.getPrecipitationUnit();
+                    final String unit = settingsMgr.getPrecipitationUnit();
                     float precipValue;
                     String precipUnit;
 
@@ -191,7 +193,7 @@ public class ForecastGraphViewModel extends ViewModel {
                 break;
             case SNOW:
                 if (forecast.getExtras() != null && forecast.getExtras().getQpfSnowIn() != null && forecast.getExtras().getQpfSnowCm() != null) {
-                    final String unit = Settings.getPrecipitationUnit();
+                    final String unit = settingsMgr.getPrecipitationUnit();
                     float precipValue;
                     String precipUnit;
 

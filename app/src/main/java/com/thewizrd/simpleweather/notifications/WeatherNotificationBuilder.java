@@ -23,7 +23,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.ImageUtils;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -36,6 +36,7 @@ public class WeatherNotificationBuilder {
 
     static Notification updateNotification(String notificationID, @NonNull final WeatherNowViewModel viewModel) {
         final Context context = App.getInstance().getAppContext();
+        final SettingsManager settingsManager = App.getInstance().getSettingsManager();
         final WeatherIconsManager wim = WeatherIconsManager.getInstance();
 
         // Build update
@@ -148,7 +149,7 @@ public class WeatherNotificationBuilder {
                         .setOngoing(true)
                         .setShowWhen(false);
 
-        if (Settings.getNotificationIcon().equals(Settings.TEMPERATURE_ICON)) {
+        if (settingsManager.getNotificationIcon().equals(SettingsManager.TEMPERATURE_ICON)) {
             Integer tempLevel = NumberUtils.tryParseInt(temp.replace("°", ""));
 
             if (tempLevel == null) {
@@ -156,7 +157,7 @@ public class WeatherNotificationBuilder {
             } else {
                 mBuilder.setSmallIcon(WeatherNotificationTemp.getTempDrawable(tempLevel));
             }
-        } else if (Settings.getNotificationIcon().equals(Settings.CONDITION_ICON)) {
+        } else if (settingsManager.getNotificationIcon().equals(SettingsManager.CONDITION_ICON)) {
             if (wim.isFontIcon()) {
                 mBuilder.setSmallIcon(wim.getWeatherIconResource(viewModel.getWeatherIcon()));
             } else {

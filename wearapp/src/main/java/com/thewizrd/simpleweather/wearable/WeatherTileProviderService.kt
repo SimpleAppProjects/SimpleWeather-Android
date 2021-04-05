@@ -12,11 +12,11 @@ import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.ImageUtils
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.*
@@ -34,6 +34,8 @@ class WeatherTileProviderService : TileProviderService() {
     private var id = -1
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    private val settingsMgr = App.instance.settingsManager
 
     override fun onDestroy() {
         Timber.tag(TAG).d("destroying service...")
@@ -84,7 +86,7 @@ class WeatherTileProviderService : TileProviderService() {
 
             val weather = withContext(Dispatchers.IO) {
                 try {
-                    WeatherDataLoader(Settings.getHomeData())
+                    WeatherDataLoader(settingsMgr.getHomeData()!!)
                             .loadWeatherData(WeatherRequest.Builder()
                                     .forceLoadSavedData()
                                     .build())
@@ -200,10 +202,10 @@ class WeatherTileProviderService : TileProviderService() {
     }
 
     private fun getForecasts(): List<ForecastItemViewModel> {
-        val locationData = Settings.getHomeData()
+        val locationData = settingsMgr.getHomeData()
 
         if (locationData?.isValid == true) {
-            val forecasts = Settings.getWeatherForecastData(locationData.query)
+            val forecasts = settingsMgr.getWeatherForecastData(locationData.query)
 
             if (forecasts?.forecast?.isNotEmpty() == true) {
                 val size = Math.min(FORECAST_LENGTH, forecasts.forecast.size)
@@ -221,11 +223,11 @@ class WeatherTileProviderService : TileProviderService() {
     }
 
     private fun getHourlyForecasts(): List<HourlyForecastItemViewModel> {
-        val locationData = Settings.getHomeData()
+        val locationData = settingsMgr.getHomeData()
 
         if (locationData?.isValid == true) {
             val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
-            val forecasts = Settings.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now)
+            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now)
 
             if (forecasts?.isNotEmpty() == true) {
                 val fcasts = ArrayList<HourlyForecastItemViewModel>()

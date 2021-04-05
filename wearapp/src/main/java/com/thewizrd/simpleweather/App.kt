@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
@@ -8,36 +7,31 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.os.Build
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.VmPolicy
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import androidx.work.Configuration
-import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.utils.SettingsManager.SettingsListener
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configuration.Provider {
+class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
     companion object {
-        const val HOMEIDX = 0
-
         @JvmStatic
         lateinit var instance: ApplicationLib
             private set
@@ -84,14 +78,13 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
     }
 
     override fun isPhone(): Boolean {
-        return true
+        return false
     }
 
     override fun getProperties(): Bundle {
         return appProperties
     }
 
-    @SuppressLint("MissingPermission")
     override fun onCreate() {
         super.onCreate()
         context = LocaleUtils.attachBaseContext(applicationContext)
@@ -103,7 +96,7 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
 
         // Initialize settings
         settingsMgr = SettingsManager(this)
-        sharedPreferenceChangeListener = SettingsManager.SettingsListener(this)
+        sharedPreferenceChangeListener = SettingsListener(this)
 
         // Init shared library
         SimpleLibrary.initialize(this)
@@ -116,31 +109,11 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
             setCrashlyticsCollectionEnabled(true)
             sendUnsentReports()
         }
-        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "mobile")
+        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "watch")
         FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
 
         // Init common action broadcast receiver
         registerCommonReceiver()
-
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                    StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .penaltyLog()
-                            .build())
-
-            val vmPolicyBuild = VmPolicy.Builder()
-                    .detectActivityLeaks()
-                    .detectLeakedClosableObjects()
-                    .detectLeakedSqlLiteObjects()
-                    .penaltyLog()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                vmPolicyBuild.detectCleartextNetwork()
-            }
-
-            StrictMode.setVmPolicy(vmPolicyBuild.build())
-        }
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -156,40 +129,6 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         GlobalScope.launch(Dispatchers.Default) {
             settingsMgr.loadIfNeeded()
         }
-
-        when (settingsMgr.getUserThemeMode()) {
-            UserThemeMode.FOLLOW_SYSTEM -> {
-                if (Build.VERSION.SDK_INT >= 29) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                }
-            }
-            UserThemeMode.DARK, UserThemeMode.AMOLED_DARK -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            UserThemeMode.LIGHT -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            else -> {
-                if (Build.VERSION.SDK_INT >= 29) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                }
-            }
-        }
-
-        // Receive Firebase messages
-        FirebaseMessaging.getInstance().subscribeToTopic("all")
-        if (BuildConfig.DEBUG) {
-            FirebaseMessaging.getInstance().subscribeToTopic("debug_all")
-        }
-    }
-
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
-        SplitCompat.install(this)
     }
 
     private fun registerCommonReceiver() {
@@ -198,13 +137,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI)
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS)
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEREFRESH)
+        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
         filter.addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-        filter.addAction(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE)
-        filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-        filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS)
-        filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS)
-        filter.addAction(CommonActions.ACTION_IMAGES_UPDATEWORKER)
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mCommonReceiver, filter)
     }
@@ -247,11 +181,5 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         if (activity.localClassName.contains("MainActivity")) {
             applicationState = AppState.CLOSED
         }
-    }
-
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
-                .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
-                .build()
     }
 }

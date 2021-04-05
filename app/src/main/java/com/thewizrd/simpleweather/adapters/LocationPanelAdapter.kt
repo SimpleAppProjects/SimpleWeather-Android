@@ -18,7 +18,6 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.weatherdata.LocationType
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
@@ -58,6 +57,8 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     interface ViewHolderLongClickListener {
         fun onLongClick(holder: RecyclerView.ViewHolder)
     }
+
+    private val settingsManager = App.instance.settingsManager
 
     private val mDataset: ObservableArrayList<LocationPanelViewModel>
     private val mSelectedItems: ObservableArrayList<LocationPanelViewModel>
@@ -165,8 +166,8 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
 
     // Provide a suitable constructor (depends on the kind of dataset)
     constructor(longClickListener: ViewHolderLongClickListener?) : super() {
-        mDataset = ObservableArrayList<LocationPanelViewModel>(Settings.getMaxLocations())
-        mSelectedItems = ObservableArrayList<LocationPanelViewModel>(Settings.getMaxLocations())
+        mDataset = ObservableArrayList<LocationPanelViewModel>(settingsManager.getMaxLocations())
+        mSelectedItems = ObservableArrayList<LocationPanelViewModel>(settingsManager.getMaxLocations())
         onLongClickToDragListener = longClickListener
     }
 
@@ -457,7 +458,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
 
     private fun removeLocation(panel: LocationPanelViewModel) {
         // Remove location from list
-        Settings.deleteLocation(panel.locationData!!.query)
+        settingsManager.deleteLocation(panel.locationData!!.query)
 
         // Remove panel
         scope.launch {
@@ -613,7 +614,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                                         return@launch
 
                                     val key: String = panelPair.second.locationData!!.query
-                                    Settings.deleteLocation(key)
+                                    settingsManager.deleteLocation(key)
                                 }
                             }
                         }

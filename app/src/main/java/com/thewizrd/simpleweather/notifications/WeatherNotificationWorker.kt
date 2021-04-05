@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
@@ -92,9 +92,11 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
         private const val PERSISTENT_NOT_ID = JOB_ID
 
         suspend fun refreshNotification(context: Context, forceRefresh: Boolean) {
-            if (Settings.isWeatherLoaded()) {
+            val settingsManager = SettingsManager(context.applicationContext)
+
+            if (settingsManager.isWeatherLoaded()) {
                 val weather = withContext(Dispatchers.IO) {
-                    val locData = Settings.getHomeData()
+                    val locData = settingsManager.getHomeData()!!
                     val wLoader = WeatherDataLoader(locData)
                     val request = WeatherRequest.Builder()
                     if (forceRefresh)
@@ -111,7 +113,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
                     }
                 }
 
-                if (Settings.showOngoingNotification() && weather != null) {
+                if (settingsManager.showOngoingNotification() && weather != null) {
                     // Gets an instance of the NotificationManager service
                     val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                     initChannel(context, mNotifyMgr)
@@ -119,7 +121,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
                     // Update notification
                     val mNotification = WeatherNotificationBuilder.updateNotification(NOT_CHANNEL_ID, WeatherNowViewModel(weather))
                     mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification)
-                } else if (!Settings.showOngoingNotification()) {
+                } else if (!settingsManager.showOngoingNotification()) {
                     removeNotification(context)
                 }
             }

@@ -8,7 +8,7 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
 
@@ -21,13 +21,21 @@ public class WearableDataListenerService extends WearableListenerService {
         acceptDataUpdates = value;
     }
 
+    private SettingsManager settingsMgr;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        settingsMgr = new SettingsManager(this.getApplicationContext());
+    }
+
     @Override
     public void onDataChanged(DataEventBuffer dataEventBuffer) {
         // Only handle data changes if
         // DataSync is on,
         // App hasn't been setup yet,
         // Or if we are setup but want to change location and sync data (SetupSyncActivity)
-        if (Settings.getDataSync() != WearableDataSync.OFF || acceptDataUpdates) {
+        if (settingsMgr.getDataSync() != WearableDataSync.OFF || acceptDataUpdates) {
             for (DataEvent event : dataEventBuffer) {
                 if (event.getType() == DataEvent.TYPE_CHANGED) {
                     DataItem item = event.getDataItem();

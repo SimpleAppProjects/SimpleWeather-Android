@@ -22,7 +22,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.utils.ArrayUtils;
@@ -38,6 +38,7 @@ import java.util.Map;
 
 public class WidgetUtils {
     // Shared Settings
+    private static final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
     private static final SharedPreferences widgetPrefs = App.getInstance().getAppContext().getSharedPreferences("appwidgets", Context.MODE_PRIVATE);
     private static final SharedPreferences.Editor editor = widgetPrefs.edit();
 
@@ -161,8 +162,8 @@ public class WidgetUtils {
             switch (getVersion()) {
                 case -1:
                     // First time, so load all current widgets under Home location
-                    if (Settings.isWeatherLoaded()) {
-                        LocationData homeLocation = Settings.getHomeData();
+                    if (settingsMgr.isWeatherLoaded()) {
+                        LocationData homeLocation = settingsMgr.getHomeData();
                         if (homeLocation != null) {
                             saveIds(homeLocation.getQuery(), ArrayUtils.toArrayList(getAllWidgetIds()));
                         } else {
@@ -197,8 +198,8 @@ public class WidgetUtils {
                     }
                     break;
                 case 2:
-                    if (Settings.isWeatherLoaded()) {
-                        LocationData homeLocation = Settings.getHomeData();
+                    if (settingsMgr.isWeatherLoaded()) {
+                        LocationData homeLocation = settingsMgr.getHomeData();
                         widgetMap = widgetPrefs.getAll();
                         for (String key : widgetMap.keySet()) {
                             if (key.equals(homeLocation.getQuery())) {
@@ -491,8 +492,8 @@ public class WidgetUtils {
     }
 
     public static void cleanupWidgetIds() {
-        List<LocationData> locs = new ArrayList<>(Settings.getLocationData());
-        LocationData homeData = Settings.getLastGPSLocData();
+        List<LocationData> locs = new ArrayList<>(settingsMgr.getLocationData());
+        LocationData homeData = settingsMgr.getLastGPSLocData();
         if (homeData != null) locs.add(homeData);
         List<String> currLocQueries = new ArrayList<>(locs.size());
         for (LocationData loc : locs) {

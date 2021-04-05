@@ -3,7 +3,7 @@ package com.thewizrd.shared_resources.icons;
 import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 
 public final class WeatherIconsManager implements WeatherIconsProviderInterface {
     private static WeatherIconsManager instance;
@@ -22,7 +22,8 @@ public final class WeatherIconsManager implements WeatherIconsProviderInterface 
     }
 
     public void updateIconProvider() {
-        String iconsSource = Settings.getIconsProvider();
+        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+        String iconsSource = settingsMgr.getIconsProvider();
         iconsProvider = getProvider(iconsSource);
     }
 

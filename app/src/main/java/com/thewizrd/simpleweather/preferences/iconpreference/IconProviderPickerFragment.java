@@ -11,7 +11,6 @@ import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPickerFragment;
@@ -61,14 +60,14 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
     }
 
     protected String getDefaultKey() {
-        return Settings.getIconsProvider();
+        return getSettingsManager().getIconsProvider();
     }
 
     protected boolean setDefaultKey(String key) {
         if (TextUtils.isEmpty(key)) {
             return false;
         }
-        Settings.setIconsProvider(key);
+        getSettingsManager().setIconsProvider(key);
         return true;
     }
 

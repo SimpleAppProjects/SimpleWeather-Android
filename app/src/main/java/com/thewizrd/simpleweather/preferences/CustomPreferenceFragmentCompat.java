@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.thewizrd.shared_resources.lifecycle.LifecycleAwarePreferenceFragmentCompat;
+import com.thewizrd.shared_resources.utils.SettingsManager;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 
@@ -15,9 +17,14 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     private AppCompatActivity mActivity;
     private SnackbarManager mSnackMgr;
+    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
     public final AppCompatActivity getAppCompatActivity() {
         return mActivity;
+    }
+
+    protected final SettingsManager getSettingsManager() {
+        return settingsMgr;
     }
 
     @Nullable
@@ -32,26 +39,20 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     @Override
     public void showSnackbar(@NonNull final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
-        runWithView(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr == null && isAlive()) {
-                    mSnackMgr = createSnackManager();
-                }
-                if (mSnackMgr != null && mActivity != null) {
-                    mSnackMgr.show(snackbar, callback);
-                }
+        runWithView(() -> {
+            if (mSnackMgr == null && isAlive()) {
+                mSnackMgr = createSnackManager();
+            }
+            if (mSnackMgr != null && mActivity != null) {
+                mSnackMgr.show(snackbar, callback);
             }
         });
     }
 
     @Override
     public void dismissAllSnackbars() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mSnackMgr != null) mSnackMgr.dismissAll();
-            }
+        runOnUiThread(() -> {
+            if (mSnackMgr != null) mSnackMgr.dismissAll();
         });
     }
 

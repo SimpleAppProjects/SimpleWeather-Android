@@ -12,7 +12,7 @@ import androidx.preference.PreferenceViewHolder;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 
@@ -43,8 +43,9 @@ public class OSSCreditsPreference extends Preference {
         super.onBindViewHolder(holder);
 
         final Context context = getContext();
+        final SettingsManager settingsManager = new SettingsManager(context.getApplicationContext());
 
-        int bg_color = Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
+        int bg_color = settingsManager.getUserThemeMode() != UserThemeMode.AMOLED_DARK ?
                 ContextUtils.getColor(context, android.R.attr.colorBackground) : Colors.BLACK;
         holder.itemView.setBackgroundColor(bg_color);
 

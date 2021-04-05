@@ -29,7 +29,6 @@ import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding;
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment;
@@ -74,7 +73,7 @@ public class WeatherListFragment extends SwipeDismissFragment {
         }
 
         if (locationData == null) {
-            locationData = Settings.getHomeData();
+            locationData = getSettingsManager().getHomeData();
         }
 
         getLifecycle().addObserver(new LifecycleObserver() {

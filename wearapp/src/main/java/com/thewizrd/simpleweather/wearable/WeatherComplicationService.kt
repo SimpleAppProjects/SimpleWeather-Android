@@ -12,10 +12,14 @@ import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ImageUtils
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
@@ -27,6 +31,7 @@ class WeatherComplicationService : ComplicationProviderService() {
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val settingsMgr = App.instance.settingsManager
 
     override fun onDestroy() {
         super.onDestroy()
@@ -50,10 +55,10 @@ class WeatherComplicationService : ComplicationProviderService() {
         scope.launch {
             var complicationData: ComplicationData? = null
 
-            if (Settings.isWeatherLoaded()) {
+            if (settingsMgr.isWeatherLoaded()) {
                 val weather = withContext(Dispatchers.IO) {
                     try {
-                        WeatherDataLoader(Settings.getHomeData())
+                        WeatherDataLoader(settingsMgr.getHomeData()!!)
                                 .loadWeatherData(WeatherRequest.Builder()
                                         .forceLoadSavedData()
                                         .build()
@@ -89,7 +94,7 @@ class WeatherComplicationService : ComplicationProviderService() {
             return null
         }
 
-        val isFahrenheit = Units.FAHRENHEIT == Settings.getTemperatureUnit()
+        val isFahrenheit = Units.FAHRENHEIT == settingsMgr.getTemperatureUnit()
 
         // Temperature
         val currTemp = if (weather.condition.tempF != null && weather.condition.tempF != weather.condition.tempC) {

@@ -2,12 +2,12 @@ package com.thewizrd.shared_resources.remoteconfig
 
 import com.google.android.gms.tasks.Task
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
 import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherAPIs
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -47,7 +47,8 @@ object RemoteConfig {
 
     @JvmStatic
     fun updateWeatherProvider(): Boolean {
-        val API = Settings.getAPI()
+        val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+        val API = settingsMgr.getAPI() ?: return false
 
         val configJson = FirebaseRemoteConfig.getInstance().getString(API)
         val config = JSONParser.deserializer<WeatherProviderConfig>(configJson, WeatherProviderConfig::class.java)
@@ -57,10 +58,10 @@ object RemoteConfig {
 
             if (!isEnabled) {
                 if (config.newWeatherSource?.isNotBlank() == true) {
-                    Settings.setAPI(config.newWeatherSource)
+                    settingsMgr.setAPI(config.newWeatherSource)
                     WeatherManager.getInstance().updateAPI()
                 } else {
-                    Settings.setAPI(getDefaultWeatherProvider())
+                    settingsMgr.setAPI(getDefaultWeatherProvider())
                     WeatherManager.getInstance().updateAPI()
                 }
                 return true

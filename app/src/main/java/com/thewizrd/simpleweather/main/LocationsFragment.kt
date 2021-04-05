@@ -70,7 +70,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     companion object {
         private const val TAG = "LocationsFragment"
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
-        private val MAX_LOCATIONS = Settings.getMaxLocations()
     }
 
     private var mEditMode = false
@@ -176,7 +175,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         mErrorCounter[wEx.errorStatus.ordinal] = true
                     }
                 ErrorStatus.QUERYNOTFOUND -> {
-                    if (!mErrorCounter[wEx.errorStatus.ordinal] && WeatherAPI.NWS == Settings.getAPI()) {
+                    if (!mErrorCounter[wEx.errorStatus.ordinal] && WeatherAPI.NWS == getSettingsManager().getAPI()) {
                         showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
                         mErrorCounter[wEx.errorStatus.ordinal] = true
                         return@runWithView
@@ -214,7 +213,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             val locData = view.tag as LocationData
             val vm = mAdapter.getPanelViewModel(position)
 
-            val isHome = ObjectsCompat.equals(locData, Settings.getHomeData())
+            val isHome = ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
 
             val args = LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
                     .setData(JSONParser.serializer(locData, LocationData::class.java))
@@ -636,7 +635,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun loadLocations() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             // Load up saved locations
-            val locations = ArrayList(Settings.getFavorites() ?: Collections.emptyList())
+            val locations = ArrayList(getSettingsManager().getFavorites()
+                    ?: Collections.emptyList())
             launch(Dispatchers.Main) {
                 mAdapter.removeAll()
             }
@@ -645,7 +645,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
             // Setup saved favorite locations
             var gpsData: LocationData? = null
-            if (Settings.useFollowGPS()) {
+            if (getSettingsManager().useFollowGPS()) {
                 gpsData = getGPSPanel()
 
                 if (gpsData != null) {
@@ -698,8 +698,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private suspend fun getGPSPanel(): LocationData? = withContext(Dispatchers.IO) {
         // Setup gps panel
-        if (appCompatActivity != null && Settings.useFollowGPS()) {
-            var locData = Settings.getLastGPSLocData()
+        if (appCompatActivity != null && getSettingsManager().useFollowGPS()) {
+            var locData = getSettingsManager().getLastGPSLocData()
 
             if (locData?.query == null) {
                 locData = updateLocation()
@@ -717,24 +717,25 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun refreshLocations() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             // Reload all panels if needed
-            val locations = ArrayList(Settings.getLocationData() ?: Collections.emptyList())
-            if (Settings.useFollowGPS()) {
-                val homeData = Settings.getLastGPSLocData()
+            val locations = ArrayList(getSettingsManager().getLocationData()
+                    ?: Collections.emptyList())
+            if (getSettingsManager().useFollowGPS()) {
+                val homeData = getSettingsManager().getLastGPSLocData()
                 locations.add(0, homeData)
             }
             val gpsPanelViewModel = mAdapter.getGPSPanel()
 
             var reload = locations.size != mAdapter.getDataCount() ||
-                    Settings.useFollowGPS() && gpsPanelViewModel == null ||
-                    !Settings.useFollowGPS() && gpsPanelViewModel != null
+                    getSettingsManager().useFollowGPS() && gpsPanelViewModel == null ||
+                    !getSettingsManager().useFollowGPS() && gpsPanelViewModel != null
 
             // Reload if weather source differs
-            if (Settings.getAPI() != gpsPanelViewModel?.weatherSource ||
-                    mAdapter.getFavoritesCount() > 0 && Settings.getAPI() != mAdapter.getFirstFavPanel()?.weatherSource) {
+            if (getSettingsManager().getAPI() != gpsPanelViewModel?.weatherSource ||
+                    mAdapter.getFavoritesCount() > 0 && getSettingsManager().getAPI() != mAdapter.getFirstFavPanel()?.weatherSource) {
                 reload = true
             }
 
-            if (Settings.useFollowGPS()) {
+            if (getSettingsManager().useFollowGPS()) {
                 if (!reload && !ObjectsCompat.equals(locations[0]?.query, gpsPanelViewModel?.locationData?.query)) {
                     reload = true
                 }
@@ -770,7 +771,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             // Setup saved favorite locations
             val gpsData: LocationData?
-            if (Settings.useFollowGPS()) {
+            if (getSettingsManager().useFollowGPS()) {
                 gpsData = getGPSPanel()
 
                 if (gpsData != null) {
@@ -813,7 +814,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private suspend fun updateLocation(): LocationData? {
         var locationData: LocationData? = null
 
-        if (Settings.useFollowGPS()) {
+        if (getSettingsManager().useFollowGPS()) {
             if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                         PERMISSION_LOCATION_REQUEST_CODE)
@@ -913,7 +914,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
 
                 // Save location as last known
-                locationData = LocationData(view, location)
+                locationData = LocationData(view!!, location)
             }
         }
 
@@ -936,7 +937,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         // Do the task you need to do.
                         val locData = updateLocation()
                         if (locData != null) {
-                            Settings.saveLastGPSLocData(locData)
+                            getSettingsManager().saveLastGPSLocData(locData)
                             refreshLocations()
                             Timber.tag("LocationsFragment").d("Location changed; sending update")
                             LocalBroadcastManager.getInstance(appCompatActivity!!)
@@ -950,7 +951,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Settings.setFollowGPS(false)
+                    getSettingsManager().setFollowGPS(false)
                     removeGPSPanel()
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
                 }
@@ -973,7 +974,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     mHomeChanged = true
 
                 // Hide FAB; Don't allow adding more locations
-                if (mAdapter.getDataCount() >= MAX_LOCATIONS) {
+                if (mAdapter.getDataCount() >= getSettingsManager().getMaxLocations()) {
                     binding.fab.hide()
                 } else {
                     binding.fab.show()
@@ -1066,7 +1067,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         var dataPosition = mAdapter.getDataset().indexOf(view)
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
         GlobalScope.launch(Dispatchers.Default) {
-            Settings.moveLocation(query, pos)
+            getSettingsManager().moveLocation(query, pos)
         }
     }
 }

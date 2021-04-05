@@ -5,12 +5,13 @@ import android.location.Location;
 import androidx.annotation.WorkerThread;
 
 import com.thewizrd.shared_resources.BuildConfig;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.tasks.CallableEx;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider;
@@ -39,7 +40,8 @@ public final class WeatherManager implements WeatherProviderImplInterface {
     }
 
     public void updateAPI() {
-        String API = Settings.getAPI();
+        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+        String API = settingsMgr.getAPI();
         weatherProvider = getProvider(API);
     }
 

@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.wear.widget.SwipeDismissFrameLayout;
 
+import com.thewizrd.shared_resources.utils.SettingsManager;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding;
 
 import java.lang.annotation.Retention;
@@ -31,11 +33,17 @@ public abstract class SwipeDismissPreferenceFragment extends PreferenceFragment 
     }
 
     private Activity mActivity;
+    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
+
     private ActivitySettingsBinding binding;
     private SwipeDismissFrameLayout.Callback swipeCallback;
 
     public final Activity getParentActivity() {
         return mActivity;
+    }
+
+    protected final SettingsManager getSettingsManager() {
+        return settingsMgr;
     }
 
     @Override

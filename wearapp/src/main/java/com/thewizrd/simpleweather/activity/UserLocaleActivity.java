@@ -24,25 +24,22 @@ public abstract class UserLocaleActivity extends FragmentActivity {
     protected void onStart() {
         super.onStart();
         if (enableLocaleChangeListener()) {
-            App.getInstance().getPreferences().registerOnSharedPreferenceChangeListener(listener);
+            App.getInstance().registerAppSharedPreferenceListener(listener);
         }
     }
 
     @Override
     protected void onStop() {
         if (enableLocaleChangeListener()) {
-            App.getInstance().getPreferences().unregisterOnSharedPreferenceChangeListener(listener);
+            App.getInstance().unregisterAppSharedPreferenceListener(listener);
         }
         super.onStop();
     }
 
-    private final SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (!StringUtils.isNullOrWhitespace(key)) {
-                if (LocaleUtils.KEY_LANGUAGE.equals(key)) {
-                    ActivityCompat.recreate(UserLocaleActivity.this);
-                }
+    private final SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> {
+        if (!StringUtils.isNullOrWhitespace(key)) {
+            if (LocaleUtils.KEY_LANGUAGE.equals(key)) {
+                ActivityCompat.recreate(UserLocaleActivity.this);
             }
         }
     };

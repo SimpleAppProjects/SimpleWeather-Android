@@ -13,7 +13,7 @@ import com.thewizrd.shared_resources.utils.ExceptionUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -154,7 +154,8 @@ public final class OpenWeatherMapProvider extends WeatherProviderImpl {
             query = location_query;
         }
 
-        String key = Settings.usePersonalKey() ? Settings.getAPIKEY() : getAPIKey();
+        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+        final String key = settingsMgr.usePersonalKey() ? settingsMgr.getAPIKEY() : getAPIKey();
 
         OkHttpClient client = SimpleLibrary.getInstance().getHttpClient();
         Response currentResponse = null, forecastResponse = null;

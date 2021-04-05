@@ -4,9 +4,9 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
 import com.thewizrd.shared_resources.tzdb.TZDB;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 
-@Database(entities = {TZDB.class}, version = Settings.CURRENT_DBVERSION)
+@Database(entities = {TZDB.class}, version = SettingsManager.CURRENT_DBVERSION)
 public abstract class TZDatabase extends RoomDatabase {
     public abstract TzdbDAO tzdbDAO();
 }

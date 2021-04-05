@@ -23,7 +23,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
@@ -121,7 +120,7 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     @Override
     public final void updateWindowColors() {
         super.updateWindowColors();
-        updateWindowColors(Settings.getUserThemeMode());
+        updateWindowColors(getSettingsManager().getUserThemeMode());
     }
 
     protected final void updateWindowColors(UserThemeMode mode) {

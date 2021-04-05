@@ -74,7 +74,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         }
 
         if (location == null)
-            location = Settings.getHomeData()
+            location = getSettingsManager().getHomeData()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -189,7 +189,7 @@ class WeatherChartsFragment : ToolbarFragment() {
                                         showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
                                     }
                                     ErrorStatus.QUERYNOTFOUND -> {
-                                        if (WeatherAPI.NWS == Settings.getAPI()) {
+                                        if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
                                             showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
                                             return@setErrorListener
                                         }
@@ -229,7 +229,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         super.updateWindowColors()
 
         var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }
         binding.locationHeader.setCardBackgroundColor(color)

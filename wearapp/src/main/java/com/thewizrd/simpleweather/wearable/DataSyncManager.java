@@ -23,7 +23,7 @@ import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
@@ -51,6 +51,7 @@ public class DataSyncManager {
     @WorkerThread
     public static void updateSettings(@NonNull Context context, final DataMap dataMap) {
         context = context.getApplicationContext();
+        final SettingsManager settingsMgr = new SettingsManager(context);
 
         if (dataMap != null && !dataMap.isEmpty()) {
             LocalBroadcastManager localBroadcastMgr = LocalBroadcastManager.getInstance(context);
@@ -62,30 +63,30 @@ public class DataSyncManager {
                 String API_KEY = dataMap.getString(WearableSettings.KEY_APIKEY, "");
                 boolean keyVerified = dataMap.getBoolean(WearableSettings.KEY_APIKEY_VERIFIED, false);
                 if (!StringUtils.isNullOrWhitespace(API)) {
-                    Settings.setAPI(API);
+                    settingsMgr.setAPI(API);
                     if (WeatherManager.isKeyRequired(API)) {
-                        Settings.setAPIKEY(API_KEY);
-                        Settings.setKeyVerified(false);
+                        settingsMgr.setAPIKEY(API_KEY);
+                        settingsMgr.setKeyVerified(false);
                     } else {
-                        Settings.setAPIKEY("");
-                        Settings.setKeyVerified(false);
+                        settingsMgr.setAPIKEY("");
+                        settingsMgr.setKeyVerified(false);
                     }
                 }
 
-                Settings.setFollowGPS(dataMap.getBoolean(WearableSettings.KEY_FOLLOWGPS, false));
+                settingsMgr.setFollowGPS(dataMap.getBoolean(WearableSettings.KEY_FOLLOWGPS, false));
 
                 DataMap unitMap = dataMap.getDataMap(WearableSettings.KEY_UNITS);
-                final String oldUnits = Settings.getUnitString();
+                final String oldUnits = settingsMgr.getUnitString();
                 if (unitMap != null) {
-                    Settings.setTemperatureUnit(unitMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
-                    Settings.setSpeedUnit(unitMap.getString(WearableSettings.KEY_SPEEDUNIT, Units.MILES_PER_HOUR));
-                    Settings.setDistanceUnit(unitMap.getString(WearableSettings.KEY_DISTANCEUNIT, Units.MILES));
-                    Settings.setPressureUnit(unitMap.getString(WearableSettings.KEY_PRESSUREUNIT, Units.INHG));
-                    Settings.setPrecipitationUnit(unitMap.getString(WearableSettings.KEY_PRECIPITATIONUNIT, Units.INCHES));
+                    settingsMgr.setTemperatureUnit(unitMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
+                    settingsMgr.setSpeedUnit(unitMap.getString(WearableSettings.KEY_SPEEDUNIT, Units.MILES_PER_HOUR));
+                    settingsMgr.setDistanceUnit(unitMap.getString(WearableSettings.KEY_DISTANCEUNIT, Units.MILES));
+                    settingsMgr.setPressureUnit(unitMap.getString(WearableSettings.KEY_PRESSUREUNIT, Units.INHG));
+                    settingsMgr.setPrecipitationUnit(unitMap.getString(WearableSettings.KEY_PRECIPITATIONUNIT, Units.INCHES));
                 } else {
-                    Settings.setDefaultUnits(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
+                    settingsMgr.setDefaultUnits(dataMap.getString(WearableSettings.KEY_TEMPUNIT, Units.FAHRENHEIT));
                 }
-                final String newUnits = Settings.getUnitString();
+                final String newUnits = settingsMgr.getUnitString();
 
                 if (!ObjectsCompat.equals(oldUnits, newUnits)) {
                     localBroadcastMgr.sendBroadcast(new Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT));
@@ -93,9 +94,9 @@ public class DataSyncManager {
 
                 LocaleUtils.setLocaleCode(dataMap.getString(WearableSettings.KEY_LANGUAGE, ""));
 
-                final String oldIcons = Settings.getIconsProvider();
-                Settings.setIconsProvider(dataMap.getString(WearableSettings.KEY_ICONPROVIDER, WeatherIconsProvider.KEY));
-                final String newIcons = Settings.getIconsProvider();
+                final String oldIcons = settingsMgr.getIconsProvider();
+                settingsMgr.setIconsProvider(dataMap.getString(WearableSettings.KEY_ICONPROVIDER, WeatherIconsProvider.KEY));
+                final String newIcons = settingsMgr.getIconsProvider();
                 if (!ObjectsCompat.equals(oldIcons, newIcons)) {
                     // Update tiles and complications
                     WidgetUpdaterWorker.requestWidgetUpdate(context);
@@ -114,6 +115,7 @@ public class DataSyncManager {
     @WorkerThread
     public static void updateLocation(@NonNull Context context, final DataMap dataMap) {
         context = context.getApplicationContext();
+        final SettingsManager settingsMgr = new SettingsManager(context);
 
         if (dataMap != null && !dataMap.isEmpty()) {
             String locationJSON = dataMap.getString(WearableSettings.KEY_LOCATIONDATA, "");
@@ -124,8 +126,8 @@ public class DataSyncManager {
                     long updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME);
 
                     if (updateTimeMillis != getLocationDataUpdateTime(context) ||
-                            !locationData.equals(Settings.getHomeData())) {
-                        Settings.saveHomeData(locationData);
+                            !locationData.equals(settingsMgr.getHomeData())) {
+                        settingsMgr.saveHomeData(locationData);
                     }
 
                     setLocationDataUpdateTime(context, updateTimeMillis);
@@ -143,14 +145,15 @@ public class DataSyncManager {
     @WorkerThread
     public static void updateWeather(@NonNull Context context, final DataMap dataMap) {
         context = context.getApplicationContext();
+        final SettingsManager settingsMgr = new SettingsManager(context);
 
         if (dataMap != null && !dataMap.isEmpty()) {
             long updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME);
             // Check if data actually exists to force an update
             boolean dataExists = false;
-            LocationData homeData = Settings.getHomeData();
+            LocationData homeData = settingsMgr.getHomeData();
             if (homeData != null) {
-                dataExists = Settings.getWeatherDAO().getWeatherDataCountByKey(homeData.getQuery()) > 0;
+                dataExists = settingsMgr.getWeatherDAO().getWeatherDataCountByKey(homeData.getQuery()) > 0;
             }
 
             if (updateTimeMillis != getWeatherUpdateTime(context) || !dataExists) {
@@ -165,10 +168,10 @@ public class DataSyncManager {
                         });
 
                         if (weatherData != null && weatherData.isValid()) {
-                            Settings.saveWeatherAlerts(homeData, weatherData.getWeatherAlerts());
-                            Settings.saveWeatherData(weatherData);
-                            Settings.saveWeatherForecasts(new Forecasts(weatherData.getQuery(), weatherData.getForecast(), weatherData.getTxtForecast()));
-                            Settings.saveWeatherForecasts(weatherData.getQuery(), weatherData.getHrForecast() == null ? null :
+                            settingsMgr.saveWeatherAlerts(homeData, weatherData.getWeatherAlerts());
+                            settingsMgr.saveWeatherData(weatherData);
+                            settingsMgr.saveWeatherForecasts(new Forecasts(weatherData.getQuery(), weatherData.getForecast(), weatherData.getTxtForecast()));
+                            settingsMgr.saveWeatherForecasts(weatherData.getQuery(), weatherData.getHrForecast() == null ? null :
                                     Collections2.transform(weatherData.getHrForecast(), new Function<HourlyForecast, HourlyForecasts>() {
                                         @NonNull
                                         @Override
@@ -176,7 +179,7 @@ public class DataSyncManager {
                                             return new HourlyForecasts(weatherData.getQuery(), input);
                                         }
                                     }));
-                            Settings.setUpdateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(updateTimeMillis), ZoneOffset.UTC));
+                            settingsMgr.setUpdateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(updateTimeMillis), ZoneOffset.UTC));
                             setWeatherUpdateTime(context, updateTimeMillis);
 
                             Timber.tag("DataSyncManager").d("Updated weather data");

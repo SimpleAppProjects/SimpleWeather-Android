@@ -12,7 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
 public class KeyEntryPreference extends EditTextPreference {
@@ -116,6 +116,6 @@ public class KeyEntryPreference extends EditTextPreference {
             }
         });
 
-        key = Settings.getAPIKEY();
+        key = App.getInstance().getSettingsManager().getAPIKEY();
     }
 }

@@ -5,7 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
@@ -102,12 +102,14 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
     private object WidgetUpdaterWork {
         suspend fun executeWork(context: Context) {
-            if (Settings.isWeatherLoaded()) {
+            val settingsManager = SettingsManager(context.applicationContext)
+
+            if (settingsManager.isWeatherLoaded()) {
                 if (WidgetUpdaterHelper.widgetsExist()) {
                     WidgetUpdaterHelper.refreshWidgets(context)
                 }
 
-                if (Settings.showOngoingNotification()) {
+                if (settingsManager.showOngoingNotification()) {
                     WeatherNotificationWorker.refreshNotification(context)
                 }
 

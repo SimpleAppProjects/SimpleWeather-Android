@@ -41,7 +41,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.JSONParser;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -128,7 +127,7 @@ public class WeatherListFragment extends ToolbarFragment {
         }
 
         if (location == null)
-            location = Settings.getHomeData();
+            location = getSettingsManager().getHomeData();
     }
 
     @Override
@@ -267,7 +266,7 @@ public class WeatherListFragment extends ToolbarFragment {
                                             showSnackbar(Snackbar.make(wEx.getMessage(), Snackbar.Duration.LONG), null);
                                             break;
                                         case QUERYNOTFOUND:
-                                            if (WeatherAPI.NWS.equals(Settings.getAPI())) {
+                                            if (WeatherAPI.NWS.equals(getSettingsManager().getAPI())) {
                                                 showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null);
                                                 break;
                                             }
@@ -398,7 +397,7 @@ public class WeatherListFragment extends ToolbarFragment {
         super.updateWindowColors();
 
         int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        if (Settings.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK;
         }
         binding.locationHeader.setCardBackgroundColor(color);

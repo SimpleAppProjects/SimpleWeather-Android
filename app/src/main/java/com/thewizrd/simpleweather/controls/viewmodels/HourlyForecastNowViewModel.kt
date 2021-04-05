@@ -6,13 +6,13 @@ import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.simpleweather.App
 import java.text.DecimalFormat
 
 class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
@@ -26,8 +26,9 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
     var windDirection: Int = 0
 
     init {
-        val context = SimpleLibrary.getInstance().appContext
-        val isFahrenheit = Units.FAHRENHEIT == Settings.getTemperatureUnit()
+        val context = App.instance.appContext
+        val settingsManager = App.instance.settingsManager
+        val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
 
         val df = DecimalFormat.getInstance(LocaleUtils.getLocale()) as DecimalFormat
         df.applyPattern("0.##")
@@ -35,7 +36,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
         val wm = WeatherManager.getInstance()
         val wim = WeatherIconsManager.getInstance()
 
-        date = if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().app.appContext)) {
+        date = if (DateFormat.is24HourFormat(context)) {
             val skeleton = if (ContextUtils.isLargeTablet(context)) {
                 DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR
             } else {
@@ -68,7 +69,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
         condition = if (wm.supportsWeatherLocale()) forecast.condition else wm.getWeatherCondition(forecast.icon)
 
         if (forecast.windMph != null && forecast.windKph != null && forecast.windMph >= 0 && forecast.windDegrees != null && forecast.windDegrees >= 0) {
-            val unit = Settings.getSpeedUnit()
+            val unit = settingsManager.getSpeedUnit()
             val speedVal: Int
             val speedUnit: String
 

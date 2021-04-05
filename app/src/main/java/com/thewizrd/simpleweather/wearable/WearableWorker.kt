@@ -9,7 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.wearable.WearableSettings
 import com.thewizrd.shared_resources.weatherdata.Weather
@@ -23,7 +23,7 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 class WearableWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-    private val mContext = context.applicationContext
+    private val settingsManager = SettingsManager(context.applicationContext)
 
     companion object {
         private const val TAG = "WearableWorker"
@@ -39,21 +39,17 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         @JvmStatic
         @JvmOverloads
         fun enqueueAction(context: Context, intentAction: String, urgent: Boolean = true) {
-            val context = context.applicationContext
-
             when (intentAction) {
                 ACTION_SENDUPDATE,
                 ACTION_SENDSETTINGSUPDATE,
                 ACTION_SENDLOCATIONUPDATE,
                 ACTION_SENDWEATHERUPDATE -> {
-                    startWork(context, intentAction, urgent)
+                    startWork(context.applicationContext, intentAction, urgent)
                 }
             }
         }
 
         private fun startWork(context: Context, intentAction: String, urgent: Boolean) {
-            val context = context.applicationContext
-
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val updateRequest = OneTimeWorkRequest.Builder(WearableWorker::class.java)
@@ -65,7 +61,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
                     )
                     .build()
 
-            WorkManager.getInstance(context)
+            WorkManager.getInstance(context.applicationContext)
                     .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction), ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
@@ -81,7 +77,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         Logger.writeLine(Log.INFO, "%s: Action: %s", TAG, intentAction)
 
         // Don't send anything unless we're setup
-        if (!Settings.isWeatherLoaded())
+        if (!settingsManager.isWeatherLoaded())
             return Result.success()
 
         val mWearNodesWithApp = findWearDevicesWithApp()
@@ -105,7 +101,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     /* Wearable Functions */
     private suspend fun findWearDevicesWithApp(): Collection<Node> = withContext(Dispatchers.IO) {
         val capabilityInfo = try {
-            Wearable.getCapabilityClient(mContext)
+            Wearable.getCapabilityClient(applicationContext)
                     .getCapability(WearableHelper.CAPABILITY_WEAR_APP, CapabilityClient.FILTER_ALL)
                     .await()
         } catch (e: ExecutionException) {
@@ -141,27 +137,27 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     private suspend fun createSettingsDataRequest(urgent: Boolean) {
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.SettingsPath)
-            mapRequest.dataMap.putString(WearableSettings.KEY_API, Settings.getAPI())
-            mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, Settings.getAPIKEY())
-            mapRequest.dataMap.putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, Settings.isKeyVerified())
-            mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, Settings.useFollowGPS())
-            mapRequest.dataMap.putString(WearableSettings.KEY_TEMPUNIT, Settings.getTemperatureUnit())
+            mapRequest.dataMap.putString(WearableSettings.KEY_API, settingsManager.getAPI())
+            mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKEY())
+            mapRequest.dataMap.putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, settingsManager.isKeyVerified())
+            mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, settingsManager.useFollowGPS())
+            mapRequest.dataMap.putString(WearableSettings.KEY_TEMPUNIT, settingsManager.getTemperatureUnit())
 
             val unitMap = DataMap()
-            unitMap.putString(WearableSettings.KEY_TEMPUNIT, Settings.getTemperatureUnit())
-            unitMap.putString(WearableSettings.KEY_SPEEDUNIT, Settings.getSpeedUnit())
-            unitMap.putString(WearableSettings.KEY_DISTANCEUNIT, Settings.getDistanceUnit())
-            unitMap.putString(WearableSettings.KEY_PRESSUREUNIT, Settings.getPressureUnit())
-            unitMap.putString(WearableSettings.KEY_PRECIPITATIONUNIT, Settings.getPrecipitationUnit())
+            unitMap.putString(WearableSettings.KEY_TEMPUNIT, settingsManager.getTemperatureUnit())
+            unitMap.putString(WearableSettings.KEY_SPEEDUNIT, settingsManager.getSpeedUnit())
+            unitMap.putString(WearableSettings.KEY_DISTANCEUNIT, settingsManager.getDistanceUnit())
+            unitMap.putString(WearableSettings.KEY_PRESSUREUNIT, settingsManager.getPressureUnit())
+            unitMap.putString(WearableSettings.KEY_PRECIPITATIONUNIT, settingsManager.getPrecipitationUnit())
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_UNITS, unitMap)
 
             mapRequest.dataMap.putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode())
-            mapRequest.dataMap.putString(WearableSettings.KEY_ICONPROVIDER, Settings.getIconsProvider())
+            mapRequest.dataMap.putString(WearableSettings.KEY_ICONPROVIDER, settingsManager.getIconsProvider())
             mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()
             try {
-                val client = Wearable.getDataClient(mContext)
+                val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
             } catch (e: ExecutionException) {
@@ -177,13 +173,13 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     private suspend fun createLocationDataRequest(urgent: Boolean) {
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath)
-            val homeData = Settings.getHomeData()
+            val homeData = settingsManager.getHomeData()
             mapRequest.dataMap.putString(WearableSettings.KEY_LOCATIONDATA, JSONParser.serializer(homeData, LocationData::class.java))
             mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()
             try {
-                val client = Wearable.getDataClient(mContext)
+                val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
             } catch (e: ExecutionException) {
@@ -199,11 +195,11 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     private suspend fun createWeatherDataRequest(urgent: Boolean) {
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath)
-            val homeData = Settings.getHomeData()
-            val weatherData = Settings.getWeatherData(homeData.query)
-            val alertData = Settings.getWeatherAlertData(homeData.query)
-            val forecasts = Settings.getWeatherForecastData(homeData.query)
-            val hrForecasts = Settings.getHourlyWeatherForecastData(homeData.query)
+            val homeData = settingsManager.getHomeData()!!
+            val weatherData = settingsManager.getWeatherData(homeData.query)
+            val alertData = settingsManager.getWeatherAlertData(homeData.query)
+            val forecasts = settingsManager.getWeatherForecastData(homeData.query)
+            val hrForecasts = settingsManager.getHourlyWeatherForecastData(homeData.query)
 
             if (weatherData != null) {
                 weatherData.forecast = forecasts!!.forecast
@@ -218,7 +214,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()
             try {
-                val client = Wearable.getDataClient(mContext)
+                val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
             } catch (e: ExecutionException) {

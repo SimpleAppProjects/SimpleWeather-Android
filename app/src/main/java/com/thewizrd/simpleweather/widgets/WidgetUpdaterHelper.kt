@@ -34,6 +34,7 @@ import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
@@ -47,6 +48,7 @@ import kotlin.coroutines.resume
 
 object WidgetUpdaterHelper {
     private const val TAG = "WidgetUpdaterHelper"
+    private val settingsManager = App.instance.settingsManager
 
     @JvmStatic
     fun widgetsExist(): Boolean =
@@ -379,11 +381,11 @@ object WidgetUpdaterHelper {
 
     suspend fun getLocation(context: Context, appWidgetId: Int): LocationData? = withContext(Dispatchers.IO) {
         return@withContext if (WidgetUtils.isGPS(appWidgetId)) {
-            if (!Settings.useFollowGPS()) {
+            if (!settingsManager.useFollowGPS()) {
                 resetGPSWidgets(context, listOf(appWidgetId))
                 null
             } else {
-                Settings.getLastGPSLocData()
+                settingsManager.getLastGPSLocData()
             }
         } else {
             WidgetUtils.getLocationData(appWidgetId)
@@ -1021,7 +1023,7 @@ object WidgetUpdaterHelper {
         if (forecasts?.isNotEmpty() == true) {
             fcasts = forecasts
         } else {
-            val fcastData = Settings.getWeatherForecastData(locData.query)
+            val fcastData = settingsManager.getWeatherForecastData(locData.query)
             fcasts = fcastData?.forecast
         }
 
@@ -1043,7 +1045,7 @@ object WidgetUpdaterHelper {
         hrfcasts = if (forecasts?.isNotEmpty() == true) {
             forecasts
         } else {
-            Settings.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now)
+            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now)
         }
 
         if (hrfcasts?.isNotEmpty() == true) {
@@ -1066,7 +1068,7 @@ object WidgetUpdaterHelper {
     fun resizeWidget(context: Context, info: WidgetProviderInfo,
                      appWidgetManager: AppWidgetManager, appWidgetId: Int,
                      newOptions: Bundle) {
-        if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+        if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
 
@@ -1087,7 +1089,7 @@ object WidgetUpdaterHelper {
 
             val views = RemoteViews(context.packageName, info.widgetLayoutId)
             for (appWidgetId in appWidgetIds) {
-                if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+                if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
                 val locationData = getLocation(context, appWidgetId)
 
                 // Widget dimensions
@@ -1098,7 +1100,7 @@ object WidgetUpdaterHelper {
     }
 
     private fun buildClock(context: Context, info: WidgetProviderInfo, locData: LocationData?, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
-        if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+        if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
         updateClockSize(context, info, views, appWidgetId, newOptions)
 
@@ -1159,7 +1161,7 @@ object WidgetUpdaterHelper {
             val views = RemoteViews(context.packageName, info.widgetLayoutId)
 
             for (appWidgetId in appWidgetIds) {
-                if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+                if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
                 val locationData = getLocation(context, appWidgetId)
 
                 // Widget dimensions
@@ -1170,7 +1172,7 @@ object WidgetUpdaterHelper {
     }
 
     private fun buildDate(context: Context, info: WidgetProviderInfo, locData: LocationData?, views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
-        if (!Settings.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+        if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
         updateDateSize(context, info, views, appWidgetId, newOptions)
 
@@ -1260,7 +1262,7 @@ object WidgetUpdaterHelper {
         // When user clicks on widget, launch to WeatherNow page
         val onClickIntent = Intent(context.applicationContext, MainActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        if (Settings.getHomeData() != location) {
+        if (settingsManager.getHomeData() != location) {
             onClickIntent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
             onClickIntent.putExtra(Constants.FRAGTAG_HOME, false)
         }

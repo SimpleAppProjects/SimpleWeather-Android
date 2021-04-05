@@ -12,7 +12,6 @@ import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -29,7 +28,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
     public ForecastItemViewModel(Forecast forecast, TextForecast... txtForecasts) {
         final Context context = SimpleLibrary.getInstance().getAppContext();
-        final boolean isFahrenheit = Units.FAHRENHEIT.equals(Settings.getTemperatureUnit());
+        final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
 
@@ -73,7 +72,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0)
                 detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, forecast.getExtras().getPop() + "%"));
             if (forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainIn() >= 0) {
-                final String unit = Settings.getPrecipitationUnit();
+                final String unit = settingsMgr.getPrecipitationUnit();
                 float precipValue;
                 String precipUnit;
 
@@ -95,7 +94,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
                 );
             }
             if (forecast.getExtras().getQpfSnowIn() != null && forecast.getExtras().getQpfSnowIn() >= 0) {
-                final String unit = Settings.getPrecipitationUnit();
+                final String unit = settingsMgr.getPrecipitationUnit();
                 float precipValue;
                 String precipUnit;
 
@@ -141,7 +140,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             }
 
             if (forecast.getExtras().getPressureIn() != null && forecast.getExtras().getPressureMb() != null) {
-                final String unit = Settings.getPressureUnit();
+                final String unit = settingsMgr.getPressureUnit();
                 float pressureVal;
                 String pressureUnit;
 
@@ -163,7 +162,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
             if (forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
                     forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
-                final String unit = Settings.getSpeedUnit();
+                final String unit = settingsMgr.getSpeedUnit();
                 int speedVal;
                 String speedUnit;
 
@@ -193,7 +192,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             }
 
             if (forecast.getExtras().getWindGustMph() != null && forecast.getExtras().getWindGustKph() != null && forecast.getExtras().getWindGustMph() >= 0) {
-                final String unit = Settings.getSpeedUnit();
+                final String unit = settingsMgr.getSpeedUnit();
                 int speedVal;
                 String speedUnit;
 
@@ -218,7 +217,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
             }
 
             if (forecast.getExtras().getVisibilityMi() != null && forecast.getExtras().getVisibilityMi() >= 0) {
-                final String unit = Settings.getDistanceUnit();
+                final String unit = settingsMgr.getDistanceUnit();
                 int visibilityVal;
                 String visibilityUnit;
 

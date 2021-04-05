@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -18,7 +19,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.FileUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.Weather;
@@ -57,6 +58,8 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+    private SettingsManager settingsManager;
+
     @Before
     public void init() {
         // Context of the app under test.
@@ -74,8 +77,23 @@ public class ExampleInstrumentedTest {
             }
 
             @Override
-            public SharedPreferences.OnSharedPreferenceChangeListener getSharedPreferenceListener() {
-                return null;
+            public void registerAppSharedPreferenceListener() {
+
+            }
+
+            @Override
+            public void unregisterAppSharedPreferenceListener() {
+
+            }
+
+            @Override
+            public void registerAppSharedPreferenceListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
+            }
+
+            @Override
+            public void unregisterAppSharedPreferenceListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
             }
 
             @Override
@@ -92,13 +110,20 @@ public class ExampleInstrumentedTest {
             public Bundle getProperties() {
                 return new Bundle();
             }
+
+            @Override
+            public SettingsManager getSettingsManager() {
+                return new SettingsManager(appContext.getApplicationContext());
+            }
         };
 
-        SimpleLibrary.init(app);
+        SimpleLibrary.initialize(app);
 
         // Start logger
         Logger.init(appContext);
-        Settings.loadIfNeeded();
+
+        settingsManager = app.getSettingsManager();
+        settingsManager.loadIfNeededSync();
     }
 
     @Test
@@ -121,7 +146,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void getWeatherTest() throws WeatherException {
         WeatherManager wm = WeatherManager.getInstance();
-        Settings.setAPI(WeatherAPI.HERE);
+        settingsManager.setAPI(WeatherAPI.HERE);
         wm.updateAPI();
 
         Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
@@ -166,7 +191,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void updateLocationQueryTest() throws WeatherException {
         WeatherManager wm = WeatherManager.getInstance();
-        Settings.setAPI(WeatherAPI.HERE);
+        settingsManager.setAPI(WeatherAPI.HERE);
         wm.updateAPI();
 
         Collection<LocationQueryViewModel> collection = wm.getLocations("Houston, Texas");
@@ -206,11 +231,11 @@ public class ExampleInstrumentedTest {
         LocationData locationData = new LocationData(loc);
         Weather weather = wm.getWeather(locationData);
 
-        Settings.setAPI(WeatherAPI.WEATHERUNLOCKED);
+        settingsManager.setAPI(WeatherAPI.WEATHERUNLOCKED);
         wm.updateAPI();
 
-        if ((weather != null && !weather.getSource().equals(Settings.getAPI()))
-                || (weather == null && locationData != null && !locationData.getWeatherSource().equals(Settings.getAPI()))) {
+        if ((weather != null && !weather.getSource().equals(settingsManager.getAPI()))
+                || (weather == null && locationData != null && !locationData.getWeatherSource().equals(settingsManager.getAPI()))) {
             // Update location query and source for new API
             String oldKey = locationData.getQuery();
 
@@ -219,7 +244,7 @@ public class ExampleInstrumentedTest {
             else
                 locationData.setQuery(wm.updateLocationQuery(locationData));
 
-            locationData.setWeatherSource(Settings.getAPI());
+            locationData.setWeatherSource(settingsManager.getAPI());
         }
 
         weather = wm.getWeather(locationData);

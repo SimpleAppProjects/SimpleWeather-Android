@@ -111,7 +111,7 @@ class LocationSearchFragment : WindowColorFragment() {
                         throw CustomException(R.string.error_retrieve_location)
                     }
 
-                    if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && wm.isKeyRequired) {
+                    if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired) {
                         throw CustomException(R.string.werror_invalidkey)
                     }
 
@@ -146,24 +146,24 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     val isUS = LocationUtils.isUS(queryResult.locationCountry)
 
-                    if (!Settings.isWeatherLoaded()) {
+                    if (!getSettingsManager().isWeatherLoaded()) {
                         // Default US provider to NWS
                         if (isUS) {
-                            Settings.setAPI(WeatherAPI.NWS)
+                            getSettingsManager().setAPI(WeatherAPI.NWS)
                             queryResult.updateWeatherSource(WeatherAPI.NWS)
                         } else {
-                            Settings.setAPI(WeatherAPI.WEATHERUNLOCKED)
+                            getSettingsManager().setAPI(WeatherAPI.WEATHERUNLOCKED)
                             queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
                         }
                         wm.updateAPI()
                     }
 
-                    if (WeatherAPI.NWS == Settings.getAPI() && !isUS) {
+                    if (WeatherAPI.NWS == getSettingsManager().getAPI() && !isUS) {
                         throw CustomException(R.string.error_message_weather_us_only)
                     }
 
                     // Check if location already exists
-                    val locData = Settings.getLocationData()
+                    val locData = getSettingsManager().getLocationData()
                     val finalQueryResult: LocationQueryViewModel = queryResult
                     val loc = locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
@@ -178,7 +178,7 @@ class LocationSearchFragment : WindowColorFragment() {
                     if (!location.isValid) {
                         throw CustomException(R.string.werror_noweather)
                     }
-                    var weather = Settings.getWeatherData(location.query)
+                    var weather = getSettingsManager().getWeatherData(location.query)
                     if (weather == null) {
                         weather = wm.getWeather(location)
                     }
@@ -190,14 +190,14 @@ class LocationSearchFragment : WindowColorFragment() {
                     }
 
                     // Save data
-                    Settings.addLocation(location)
+                    getSettingsManager().addLocation(location)
                     if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                        Settings.saveWeatherAlerts(location, weather.weatherAlerts)
-                    Settings.saveWeatherData(weather)
-                    Settings.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
-                    Settings.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
+                        getSettingsManager().saveWeatherAlerts(location, weather.weatherAlerts)
+                    getSettingsManager().saveWeatherData(weather)
+                    getSettingsManager().saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                    getSettingsManager().saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
 
-                    Settings.setWeatherLoaded(true)
+                    getSettingsManager().setWeatherLoaded(true)
 
                     location
                 }.also {
@@ -400,7 +400,7 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     override fun updateWindowColors() {
-        val bg_color = if (Settings.getUserThemeMode() != UserThemeMode.AMOLED_DARK) {
+        val bg_color = if (getSettingsManager().getUserThemeMode() != UserThemeMode.AMOLED_DARK) {
             ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
         } else {
             Colors.BLACK

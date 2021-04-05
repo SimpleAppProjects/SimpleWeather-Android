@@ -15,7 +15,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.LocationType
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.main.MainActivity
@@ -72,10 +72,11 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
     private object ShortcutCreatorHelper {
         suspend fun executeWork(context: Context) {
             val wim = WeatherIconsManager.getInstance()
+            val settingsManager = SettingsManager(context.applicationContext)
 
-            val locations = ArrayList(Settings.getLocationData() ?: Collections.emptyList())
-            if (Settings.useFollowGPS()) {
-                locations.add(0, Settings.getHomeData())
+            val locations = ArrayList(settingsManager.getLocationData() ?: Collections.emptyList())
+            if (settingsManager.useFollowGPS()) {
+                locations.add(0, settingsManager.getHomeData())
             }
 
             var MAX_SHORTCUTS = 4
@@ -91,7 +92,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
             var i = 0
             while (i < MAX_SHORTCUTS) {
                 val location = locations[i]
-                val weather = Settings.getWeatherData(location.query)
+                val weather = settingsManager.getWeatherData(location.query)
 
                 if (weather == null || !weather.isValid) {
                     locations.removeAt(i)

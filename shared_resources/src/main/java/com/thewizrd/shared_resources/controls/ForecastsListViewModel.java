@@ -14,11 +14,12 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.paging.PositionalDataSource;
 
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class ForecastsListViewModel extends ViewModel {
+    private final SettingsManager settingsMgr;
+
     private LocationData locationData;
     private String unitCode;
     private String localeCode;
@@ -42,6 +45,8 @@ public class ForecastsListViewModel extends ViewModel {
     private LiveData<PagedList<HourlyForecastItemViewModel>> currentHrForecastsData;
 
     public ForecastsListViewModel() {
+        settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+
         forecasts = new MutableLiveData<>();
         hourlyForecasts = new MutableLiveData<>();
     }
@@ -60,7 +65,7 @@ public class ForecastsListViewModel extends ViewModel {
             // Clone location data
             this.locationData = new LocationData(new LocationQueryViewModel(location));
 
-            unitCode = Settings.getUnitString();
+            unitCode = settingsMgr.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null) {
@@ -68,7 +73,7 @@ public class ForecastsListViewModel extends ViewModel {
             }
 
             currentForecastsData = new LivePagedListBuilder<>(
-                    new ForecastDataSourceFactory(locationData, Settings.getWeatherDAO()),
+                    new ForecastDataSourceFactory(locationData, settingsMgr.getWeatherDAO()),
                     new PagedList.Config.Builder()
                             .setEnablePlaceholders(true)
                             .setPageSize(7)
@@ -80,7 +85,7 @@ public class ForecastsListViewModel extends ViewModel {
                 forecasts.postValue(currentForecastsData.getValue());
 
             int hrInterval = WeatherManager.getInstance().getHourlyForecastInterval();
-            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = Settings.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).minusHours((long) (hrInterval * 0.5d)).truncatedTo(ChronoUnit.HOURS))
+            DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = settingsMgr.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).minusHours((long) (hrInterval * 0.5d)).truncatedTo(ChronoUnit.HOURS))
                     .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
                         @Override
                         public HourlyForecastItemViewModel apply(HourlyForecast input) {
@@ -103,8 +108,8 @@ public class ForecastsListViewModel extends ViewModel {
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(currentHrForecastsData.getValue());
-        } else if (!ObjectsCompat.equals(unitCode, Settings.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
-            unitCode = Settings.getUnitString();
+        } else if (!ObjectsCompat.equals(unitCode, settingsMgr.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+            unitCode = settingsMgr.getUnitString();
             localeCode = LocaleUtils.getLocaleCode();
 
             if (currentForecastsData != null && currentForecastsData.getValue() != null) {
@@ -116,7 +121,7 @@ public class ForecastsListViewModel extends ViewModel {
         }
     }
 
-    private Observer<PagedList<ForecastItemViewModel>> forecastObserver = new Observer<PagedList<ForecastItemViewModel>>() {
+    private final Observer<PagedList<ForecastItemViewModel>> forecastObserver = new Observer<PagedList<ForecastItemViewModel>>() {
         @Override
         public void onChanged(PagedList<ForecastItemViewModel> forecastItemViewModels) {
             if (forecasts != null) {
@@ -125,7 +130,7 @@ public class ForecastsListViewModel extends ViewModel {
         }
     };
 
-    private Observer<PagedList<HourlyForecastItemViewModel>> hrforecastObserver = new Observer<PagedList<HourlyForecastItemViewModel>>() {
+    private final Observer<PagedList<HourlyForecastItemViewModel>> hrforecastObserver = new Observer<PagedList<HourlyForecastItemViewModel>>() {
         @Override
         public void onChanged(PagedList<HourlyForecastItemViewModel> forecastItemViewModels) {
             if (hourlyForecasts != null) {

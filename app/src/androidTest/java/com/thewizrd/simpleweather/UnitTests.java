@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -28,7 +29,7 @@ import com.thewizrd.shared_resources.tasks.CallableEx;
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.WeatherException;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
@@ -81,8 +82,23 @@ public class UnitTests {
             }
 
             @Override
-            public SharedPreferences.OnSharedPreferenceChangeListener getSharedPreferenceListener() {
-                return null;
+            public void registerAppSharedPreferenceListener() {
+
+            }
+
+            @Override
+            public void unregisterAppSharedPreferenceListener() {
+
+            }
+
+            @Override
+            public void registerAppSharedPreferenceListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
+            }
+
+            @Override
+            public void unregisterAppSharedPreferenceListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
             }
 
             @Override
@@ -99,13 +115,18 @@ public class UnitTests {
             public Bundle getProperties() {
                 return new Bundle();
             }
+
+            @Override
+            public SettingsManager getSettingsManager() {
+                return new SettingsManager(appContext.getApplicationContext());
+            }
         };
 
-        SimpleLibrary.init(app);
+        SimpleLibrary.initialize(app);
 
         // Start logger
         Logger.init(appContext);
-        Settings.loadIfNeeded();
+        app.getSettingsManager().loadIfNeededSync();
     }
 
     private Weather getWeather(WeatherProviderImpl providerImpl) throws WeatherException {

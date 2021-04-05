@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.utils.Settings
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.Forecast
 import com.thewizrd.simpleweather.App
@@ -19,7 +18,7 @@ class RangeBarGraphViewModel(forecasts: Collection<Forecast>) : ViewModel() {
 
     init {
         val context = App.instance.appContext
-        val isFahrenheit = Units.FAHRENHEIT == Settings.getTemperatureUnit()
+        val isFahrenheit = Units.FAHRENHEIT == App.instance.settingsManager.getTemperatureUnit()
 
         val wim = WeatherIconsManager.getInstance()
 
@@ -31,7 +30,7 @@ class RangeBarGraphViewModel(forecasts: Collection<Forecast>) : ViewModel() {
             val date = forecast.date.format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)))
 
             // Temp Data
-            val xTemp = XLabelData(date, wim.getWeatherIconResource(forecast.getIcon()), 0)
+            val xTemp = XLabelData(date, wim.getWeatherIconResource(forecast.icon), 0)
             if (forecast.highF != null && forecast.highC != null) {
                 val value = if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
                 val hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value)

@@ -7,7 +7,7 @@ import android.util.Log;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
@@ -19,11 +19,12 @@ public class LaunchActivity extends UserLocaleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
         Intent intent = null;
 
         try {
-            if (Settings.isWeatherLoaded()) {
+            if (settingsMgr.isWeatherLoaded()) {
                 intent = new Intent(this, MainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             } else {

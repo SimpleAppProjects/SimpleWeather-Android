@@ -27,13 +27,15 @@ import com.thewizrd.shared_resources.helpers.ActivityUtils;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.JSONParser;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.SetupGraphDirections;
 import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
 
 public class SetupActivity extends UserLocaleActivity {
+    private SettingsManager settingsManager;
 
     private ActivitySetupBinding binding;
     private SetupViewModel viewModel;
@@ -46,8 +48,9 @@ public class SetupActivity extends UserLocaleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settingsManager = App.getInstance().getSettingsManager();
 
-        isWeatherLoaded = Settings.isWeatherLoaded();
+        isWeatherLoaded = settingsManager.isWeatherLoaded();
 
         AnalyticsLogger.logEvent("SetupActivity: onCreate");
 
@@ -55,7 +58,7 @@ public class SetupActivity extends UserLocaleActivity {
         if (getIntent() != null && AppWidgetManager.ACTION_APPWIDGET_CONFIGURE.equals(getIntent().getAction())) {
             mAppWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
-            if (Settings.isWeatherLoaded() || mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            if (settingsManager.isWeatherLoaded() || mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 // This shouldn't happen, but just in case
                 setResult(RESULT_OK);
                 finish();
@@ -107,7 +110,7 @@ public class SetupActivity extends UserLocaleActivity {
         setupBottomNavBar();
 
         if (isWeatherLoaded && viewModel.getLocationData() == null) {
-            viewModel.setLocationData(Settings.getHomeData());
+            viewModel.setLocationData(settingsManager.getHomeData());
         }
     }
 
@@ -245,8 +248,8 @@ public class SetupActivity extends UserLocaleActivity {
 
     private void onCompleted() {
         // Completion
-        Settings.setWeatherLoaded(true);
-        Settings.setOnBoardingComplete(true);
+        settingsManager.setWeatherLoaded(true);
+        settingsManager.setOnBoardingComplete(true);
 
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // Start WeatherNow Activity with weather data

@@ -59,7 +59,6 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.CommonActions;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
@@ -91,20 +90,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.thewizrd.shared_resources.utils.Settings.KEY_API;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_APIKEY;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_DISTANCEUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_FOLLOWGPS;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_NOTIFICATIONICON;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_ONGOINGNOTIFICATION;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_PRECIPITATIONUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_PRESSUREUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_REFRESHINTERVAL;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_SPEEDUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_TEMPUNIT;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USEALERTS;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USEPERSONALKEY;
-import static com.thewizrd.shared_resources.utils.Settings.KEY_USERTHEME;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_API;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_APIKEY;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_DISTANCEUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_FOLLOWGPS;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_NOTIFICATIONICON;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_ONGOINGNOTIFICATION;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_PRECIPITATIONUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_PRESSUREUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_REFRESHINTERVAL;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_SPEEDUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_TEMPUNIT;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_USEALERTS;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_USEPERSONALKEY;
+import static com.thewizrd.shared_resources.utils.SettingsManager.KEY_USERTHEME;
 
 public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener, UserThemeMode.OnThemeChangeListener {
@@ -215,8 +214,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
         // Register listener
         ApplicationLib app = App.getInstance();
-        app.getPreferences().unregisterOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
-        app.getPreferences().registerOnSharedPreferenceChangeListener(this);
+        app.unregisterAppSharedPreferenceListener();
+        app.registerAppSharedPreferenceListener(this);
         registerOnThemeChangeListener(this);
         registerOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) getAppCompatActivity());
 
@@ -234,22 +233,22 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     public void onPause() {
         AnalyticsLogger.logEvent("SettingsFragment: onPause");
 
-        if (Settings.usePersonalKey() && StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
+        if (getSettingsManager().usePersonalKey() && StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Fallback to supported weather provider
             final String API = RemoteConfig.getDefaultWeatherProvider();
             providerPref.setValue(API);
             providerPref.callChangeListener(API);
-            Settings.setAPI(API);
+            getSettingsManager().setAPI(API);
             WeatherManager.getInstance().updateAPI();
 
-            Settings.setPersonalKey(false);
-            Settings.setKeyVerified(true);
+            getSettingsManager().setPersonalKey(false);
+            getSettingsManager().setKeyVerified(true);
         }
 
         // Unregister listener
         ApplicationLib app = App.getInstance();
-        app.getPreferences().unregisterOnSharedPreferenceChangeListener(this);
-        app.getPreferences().registerOnSharedPreferenceChangeListener(app.getSharedPreferenceListener());
+        app.unregisterAppSharedPreferenceListener(this);
+        app.registerAppSharedPreferenceListener();
         unregisterOnThemeChangeListener((UserThemeMode.OnThemeChangeListener) getAppCompatActivity());
         unregisterOnThemeChangeListener(this);
 
@@ -258,8 +257,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 WeatherManager.getInstance().updateAPI();
                 // Log event
                 Bundle bundle = new Bundle();
-                bundle.putString("API", Settings.getAPI());
-                bundle.putString("API_IsInternalKey", Boolean.toString(!Settings.usePersonalKey()));
+                bundle.putString("API", getSettingsManager().getAPI());
+                bundle.putString("API_IsInternalKey", Boolean.toString(!getSettingsManager().usePersonalKey()));
                 AnalyticsLogger.logEvent("Update_API", bundle);
 
                 WeatherUpdaterWorker.enqueueAction(getAppCompatActivity(), WeatherUpdaterWorker.ACTION_UPDATEWEATHER);
@@ -289,8 +288,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
     @Override
     public boolean onBackPressed() {
-        if (Settings.usePersonalKey() &&
-                StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) &&
+        if (getSettingsManager().usePersonalKey() &&
+                StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) &&
                 WeatherManager.isKeyRequired(providerPref.getValue())) {
             // Set keyentrypref color to red
             showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null);
@@ -348,7 +347,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.SHORT), null);
 
-                            Settings.setFollowGPS(false);
+                            getSettingsManager().setFollowGPS(false);
                             return false;
                         }
                     }
@@ -419,8 +418,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                     if (!selectedWProv.isKeyRequired() || !StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
                         // We're using our own (verified) keys
-                        Settings.setKeyVerified(true);
-                        Settings.setAPI(providerPref.getValue());
+                        getSettingsManager().setKeyVerified(true);
+                        getSettingsManager().setAPI(providerPref.getValue());
                     }
 
                     keyEntry.setEnabled(false);
@@ -464,7 +463,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
 
                 if (selectedWProv.isKeyRequired()) {
                     if (StringUtils.isNullOrWhitespace(selectedWProv.getAPIKey())) {
-                        Settings.setPersonalKey(true);
+                        getSettingsManager().setPersonalKey(true);
                         personalKeyPref.setChecked(true);
                         personalKeyPref.setEnabled(false);
                         keyEntry.setEnabled(false);
@@ -474,17 +473,17 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         personalKeyPref.setEnabled(true);
                     }
 
-                    if (!Settings.usePersonalKey()) {
+                    if (!getSettingsManager().usePersonalKey()) {
                         // We're using our own (verified) keys
-                        Settings.setKeyVerified(true);
+                        getSettingsManager().setKeyVerified(true);
                         keyEntry.setEnabled(false);
                         apiCategory.removePreference(keyEntry);
                         apiCategory.removePreference(registerPref);
                     } else {
                         // User is using personal (unverified) keys
-                        Settings.setKeyVerified(false);
+                        getSettingsManager().setKeyVerified(false);
                         // Clear API KEY entry to avoid issues
-                        Settings.setAPIKEY("");
+                        getSettingsManager().setAPIKEY("");
 
                         keyEntry.setEnabled(true);
 
@@ -498,10 +497,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                         apiCategory.addPreference(personalKeyPref);
 
                     // Reset to old value if not verified
-                    if (!Settings.isKeyVerified())
-                        Settings.setAPI(pref.getValue());
+                    if (!getSettingsManager().isKeyVerified())
+                        getSettingsManager().setAPI(pref.getValue());
                     else
-                        Settings.setAPI(newValue.toString());
+                        getSettingsManager().setAPI(newValue.toString());
 
                     ProviderEntry providerEntry = null;
                     for (ProviderEntry entry : providers) {
@@ -513,13 +512,13 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     updateKeySummary(providerEntry.getDisplay());
                     updateRegisterLink(providerEntry.getValue());
                 } else {
-                    Settings.setKeyVerified(false);
+                    getSettingsManager().setKeyVerified(false);
                     keyEntry.setEnabled(false);
                     personalKeyPref.setEnabled(false);
 
-                    Settings.setAPI(newValue.toString());
+                    getSettingsManager().setAPI(newValue.toString());
                     // Clear API KEY entry to avoid issues
-                    Settings.setAPIKEY("");
+                    getSettingsManager().setAPIKEY("");
 
                     apiCategory.removePreference(personalKeyPref);
                     apiCategory.removePreference(keyEntry);
@@ -540,11 +539,11 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         if (WeatherManager.getInstance().isKeyRequired()) {
             keyEntry.setEnabled(true);
 
-            if (!StringUtils.isNullOrWhitespace(Settings.getAPIKEY()) && !Settings.isKeyVerified())
-                Settings.setKeyVerified(true);
+            if (!StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && !getSettingsManager().isKeyVerified())
+                getSettingsManager().setKeyVerified(true);
 
             if (StringUtils.isNullOrWhitespace(WeatherManager.getInstance().getAPIKey())) {
-                Settings.setPersonalKey(true);
+                getSettingsManager().setPersonalKey(true);
                 personalKeyPref.setChecked(true);
                 personalKeyPref.setEnabled(false);
                 keyEntry.setEnabled(false);
@@ -554,17 +553,17 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 personalKeyPref.setEnabled(true);
             }
 
-            if (!Settings.usePersonalKey()) {
+            if (!getSettingsManager().usePersonalKey()) {
                 // We're using our own (verified) keys
-                Settings.setKeyVerified(true);
+                getSettingsManager().setKeyVerified(true);
                 keyEntry.setEnabled(false);
                 apiCategory.removePreference(keyEntry);
                 apiCategory.removePreference(registerPref);
             } else {
                 // User is using personal (unverified) keys
-                //Settings.setKeyVerified(false);
+                //getSettingsManager().setKeyVerified(false);
                 // Clear API KEY entry to avoid issues
-                //Settings.setAPIKEY("");
+                //getSettingsManager().setAPIKEY("");
 
                 keyEntry.setEnabled(true);
 
@@ -579,9 +578,9 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
             apiCategory.removePreference(personalKeyPref);
             apiCategory.removePreference(keyEntry);
             apiCategory.removePreference(registerPref);
-            Settings.setKeyVerified(false);
+            getSettingsManager().setKeyVerified(false);
             // Clear API KEY entry to avoid issues
-            Settings.setAPIKEY("");
+            getSettingsManager().setAPIKEY("");
         }
 
         updateKeySummary();
@@ -816,10 +815,10 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     String API = providerPref.getValue();
                     try {
                         if (WeatherManager.isKeyValid(key, API)) {
-                            Settings.setAPIKEY(key);
-                            Settings.setAPI(API);
+                            getSettingsManager().setAPIKEY(key);
+                            getSettingsManager().setAPI(API);
 
-                            Settings.setKeyVerified(true);
+                            getSettingsManager().setKeyVerified(true);
                             updateKeySummary();
                             updateAlertPreference(WeatherManager.getInstance().supportsAlerts());
 
@@ -845,8 +844,8 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
     }
 
     private void updateKeySummary(CharSequence providerAPI) {
-        if (!StringUtils.isNullOrWhitespace(Settings.getAPIKEY())) {
-            boolean keyVerified = Settings.isKeyVerified();
+        if (!StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY())) {
+            boolean keyVerified = getSettingsManager().isKeyVerified();
 
             ForegroundColorSpan colorSpan = new ForegroundColorSpan(keyVerified ?
                     Color.GREEN : Color.RED);
@@ -894,14 +893,14 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                     // permission was granted, yay!
                     // Do the task you need to do.
                     followGps.setChecked(true);
-                    Settings.setFollowGPS(true);
+                    getSettingsManager().setFollowGPS(true);
                     // Reset home location data
-                    //Settings.SaveLastGPSLocData(new WeatherData.LocationData());
+                    //getSettingsManager().SaveLastGPSLocData(new WeatherData.LocationData());
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     followGps.setChecked(false);
-                    Settings.setFollowGPS(false);
+                    getSettingsManager().setFollowGPS(false);
                     showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null);
                 }
                 return;
@@ -1062,7 +1061,7 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
                 });
             }
 
-            key = Settings.getAPIKEY();
+            key = App.getInstance().getSettingsManager().getAPIKEY();
         }
     }
 

@@ -51,6 +51,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
@@ -125,7 +126,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var tap2switchPref: SwitchPreference
 
     companion object {
-        private val MAX_LOCATIONS = Settings.getMaxLocations()
+        private val MAX_LOCATIONS = App.instance.settingsManager.getMaxLocations()
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val SETUP_REQUEST_CODE = 10
 
@@ -285,7 +286,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         mRequestingLocationUpdates = false
 
-        if (!Settings.isWeatherLoaded()) {
+        if (!settingsManager.isWeatherLoaded()) {
             Toast.makeText(appCompatActivity, R.string.prompt_setup_app_first, Toast.LENGTH_SHORT).show()
 
             val intent = Intent(appCompatActivity, SetupActivity::class.java)
@@ -328,7 +329,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS)
         locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH)
 
-        val favs = Settings.getFavorites()
+        val favs = settingsManager.getFavorites()
         favorites = ArrayList(favs ?: emptyList())
         for (location in favorites) {
             locationPref.insertEntry(locationPref.entryCount - 1,
@@ -898,7 +899,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                 throw CustomException(R.string.error_enable_location_services)
                             }
 
-                            val lastGPSLocData = Settings.getLastGPSLocData()
+                            val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                             // Check if last location exists
                             if ((lastGPSLocData == null || !lastGPSLocData.isValid) && !updateLocation()) {
@@ -916,7 +917,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                 val success = task.getCompleted()
                                 if (success) {
                                     lifecycleScope.launch {
-                                        Settings.setFollowGPS(true)
+                                        settingsManager.setFollowGPS(true)
 
                                         // Save data for widget
                                         WidgetUtils.deleteWidget(mAppWidgetId)
@@ -951,7 +952,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                 locData = favorites.firstOrNull { input -> input.query == itemValue }
 
                                 if (locData == null && query_vm != null) {
-                                    locData = LocationData(query_vm)
+                                    locData = LocationData(query_vm!!)
 
                                     if (!locData.isValid) {
                                         return@async null
@@ -959,7 +960,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
                                     // Add location to favs
                                     withContext(Dispatchers.IO) {
-                                        Settings.addLocation(locData)
+                                        settingsManager.addLocation(locData)
                                     }
                                 }
                             }
@@ -1121,7 +1122,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             if (!coroutineContext.isActive) return false
 
             // Save location as last known
-            Settings.saveLastGPSLocData(LocationData(query_vm, location))
+            settingsManager.saveLastGPSLocData(LocationData(query_vm, location))
 
             LocalBroadcastManager.getInstance(appCompatActivity!!)
                     .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))

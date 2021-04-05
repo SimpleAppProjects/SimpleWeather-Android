@@ -28,10 +28,10 @@ import com.google.android.gms.wearable.WearableStatusCodes;
 import com.google.android.wearable.intent.RemoteIntent;
 import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus;
 import com.thewizrd.shared_resources.wearable.WearableDataSync;
 import com.thewizrd.shared_resources.wearable.WearableHelper;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.activity.UserLocaleActivity;
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver;
@@ -196,7 +196,7 @@ public abstract class WearableListenerActivity extends UserLocaleActivity implem
 
     @Override
     public void onMessageReceived(@NonNull MessageEvent messageEvent) {
-        if (Settings.getDataSync() != WearableDataSync.OFF || acceptDataUpdates) {
+        if (App.getInstance().getSettingsManager().getDataSync() != WearableDataSync.OFF || acceptDataUpdates) {
             if (messageEvent.getPath().equals(WearableHelper.IsSetupPath)) {
                 byte[] data = messageEvent.getData();
                 boolean isDeviceSetup = !(data[0] == 0);

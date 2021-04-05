@@ -11,7 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.Settings
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.createForegroundNotification
@@ -21,6 +21,7 @@ import kotlinx.coroutines.*
 import java.time.Duration
 
 class WeatherUpdaterService : Service() {
+    private lateinit var settingsMgr: SettingsManager
     private lateinit var mNotificationManager: NotificationManager
     private lateinit var mTickReceiver: TickReceiver
 
@@ -53,6 +54,8 @@ class WeatherUpdaterService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        settingsMgr = SettingsManager(applicationContext)
 
         mTickReceiver = TickReceiver()
         mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -118,7 +121,7 @@ class WeatherUpdaterService : Service() {
     private fun doWork() {
         val nowMillis = System.currentTimeMillis()
 
-        if (Duration.ofMillis(nowMillis - mLastWeatherUpdateTime).toMinutes() >= Settings.getRefreshInterval()) {
+        if (Duration.ofMillis(nowMillis - mLastWeatherUpdateTime).toMinutes() >= settingsMgr.getRefreshInterval()) {
             Logger.writeLine(Log.INFO, "${TAG}: updating weather...")
             updateWeather()
             mLastWeatherUpdateTime = nowMillis

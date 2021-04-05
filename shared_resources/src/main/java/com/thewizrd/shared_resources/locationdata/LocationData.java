@@ -14,13 +14,15 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.util.TimeZone;
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.Settings;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.LocationType;
+import com.thewizrd.shared_resources.weatherdata.Weather;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -139,11 +141,24 @@ public class LocationData extends CustomJsonObject {
     }
 
     public LocationData() {
-        weatherSource = Settings.getAPI();
+        if (SettingsManager.Companion.isLoaded()) {
+            final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+            weatherSource = settingsMgr.getAPI();
+        }
     }
 
     @Ignore
-    public LocationData(LocationQueryViewModel query_vm) {
+    public LocationData(@NonNull Weather weather) {
+        query = weather.getQuery();
+        name = weather.getLocation().getName();
+        latitude = weather.getLocation().getLatitude();
+        longitude = weather.getLocation().getLongitude();
+        tzLong = weather.getLocation().getTzLong();
+        weatherSource = weather.getSource();
+    }
+
+    @Ignore
+    public LocationData(@NonNull LocationQueryViewModel query_vm) {
         query = query_vm.getLocationQuery();
         name = query_vm.getLocationName();
         latitude = query_vm.getLocationLat();
@@ -154,11 +169,11 @@ public class LocationData extends CustomJsonObject {
     }
 
     @Ignore
-    public LocationData(LocationQueryViewModel query_vm, Location location) {
+    public LocationData(@NonNull LocationQueryViewModel query_vm, @NonNull Location location) {
         setData(query_vm, location);
     }
 
-    public void setData(LocationQueryViewModel query_vm, Location location) {
+    public void setData(@NonNull LocationQueryViewModel query_vm, @NonNull Location location) {
         query = query_vm.getLocationQuery();
         name = query_vm.getLocationName();
         latitude = location.getLatitude();
