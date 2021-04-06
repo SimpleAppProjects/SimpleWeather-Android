@@ -225,7 +225,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val context = root.context
-        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!)
+        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!).mutate()
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
         appCompatActivity.supportActionBar?.setHomeAsUpIndicator(navIcon)
 

@@ -115,7 +115,7 @@ public class ImageUtils {
 
     private static Drawable tintedDrawable(@NonNull Context context, @DrawableRes int resDrawable, int color) {
         Drawable drawable = ContextCompat.getDrawable(context, resDrawable);
-        Drawable wrapped = DrawableCompat.wrap(drawable);
+        Drawable wrapped = DrawableCompat.wrap(drawable).mutate();
         DrawableCompat.setTint(wrapped, color);
         return wrapped;
     }

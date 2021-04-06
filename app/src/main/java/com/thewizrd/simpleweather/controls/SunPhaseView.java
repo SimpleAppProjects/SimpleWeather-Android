@@ -38,6 +38,7 @@ public class SunPhaseView extends View {
     private int mViewWidth;
     private float bottomTextHeight = 0;
 
+    private Drawable iconDrawable;
     private Paint bottomTextPaint;
     private int bottomTextDescent;
 
@@ -65,6 +66,8 @@ public class SunPhaseView extends View {
     public SunPhaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
+
+        iconDrawable = ContextCompat.getDrawable(getContext(), R.drawable.wi_day_sunny).mutate();
 
         bottomTextPaint = new Paint();
 
@@ -284,7 +287,6 @@ public class SunPhaseView extends View {
 
         if (isDay) {
             final float iconSize = ContextUtils.dpToPx(getContext(), 28); // old: 24dp
-            Drawable iconDrawable = ContextCompat.getDrawable(getContext(), R.drawable.wi_day_sunny);
             DrawableCompat.setTint(iconDrawable, PAINT_COLOR);
             iconDrawable.setBounds(0, 0, (int) iconSize, (int) iconSize);
 

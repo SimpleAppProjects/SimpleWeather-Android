@@ -85,7 +85,7 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         });
 
         Context context = root.getContext();
-        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp));
+        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)).mutate();
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
         binding.toolbar.setNavigationIcon(navIcon);
 

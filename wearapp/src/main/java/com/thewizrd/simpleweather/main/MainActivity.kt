@@ -276,8 +276,8 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
         }
 
         override fun getItemDrawable(pos: Int): Drawable {
-            val drawable = ContextCompat.getDrawable(mContext, navItems[pos].drawableIcon)
-            drawable!!.setTint(ContextUtils.getColor(mContext, R.attr.colorOnSurface))
+            val drawable = ContextCompat.getDrawable(mContext, navItems[pos].drawableIcon)!!.mutate()
+            drawable.setTint(ContextUtils.getColor(mContext, R.attr.colorOnSurface))
             return drawable
         }
 

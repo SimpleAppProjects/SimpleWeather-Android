@@ -85,7 +85,7 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         // Setup Actionbar
         val context = binding.root.context
-        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!)
+        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!).mutate()
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
         toolbar.navigationIcon = navIcon
 
