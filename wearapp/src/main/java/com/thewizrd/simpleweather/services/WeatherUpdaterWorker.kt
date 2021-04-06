@@ -248,13 +248,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                     val handlerThread = HandlerThread("location")
                     handlerThread.start()
+                    // Handler for timeout callback
+                    val handler = Handler(handlerThread.looper)
 
                     Timber.tag(TAG).i("Fused: Requesting location updates...")
 
                     val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
-                        // Handler for timeout callback
-                        val handler = Handler(handlerThread.looper)
-
                         val locationCallback = object : LocationCallback() {
                             override fun onLocationResult(locationResult: LocationResult) {
                                 handler.removeCallbacksAndMessages(null)
@@ -319,13 +318,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     if (location == null) {
                         val handlerThread = HandlerThread("location")
                         handlerThread.start()
+                        // Handler for timeout callback
+                        val handler = Handler(handlerThread.looper)
 
                         Timber.tag(TAG).i("LocMan: Requesting location update...")
 
                         location = suspendCancellableCoroutine { continuation ->
-                            // Handler for timeout callback
-                            val handler = Handler(handlerThread.looper)
-
                             val locationListener = object : LocationListener {
                                 override fun onLocationChanged(location: Location) {
                                     handler.removeCallbacksAndMessages(null)

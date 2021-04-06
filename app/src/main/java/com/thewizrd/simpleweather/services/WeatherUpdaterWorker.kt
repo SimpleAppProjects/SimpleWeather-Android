@@ -44,11 +44,8 @@ import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import com.thewizrd.simpleweather.widgets.WidgetUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import java.util.concurrent.*
 import kotlin.coroutines.resume
@@ -321,15 +318,16 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                         }
 
+                        if (!isActive) return@withContext false
+
                         val handlerThread = HandlerThread("location")
                         handlerThread.start()
+                        // Handler for timeout callback
+                        val handler = Handler(handlerThread.looper)
 
                         Timber.tag(TAG).i("Fused: Requesting location updates...")
 
                         val locationResult = suspendCancellableCoroutine<LocationResult?> { continuation ->
-                            // Handler for timeout callback
-                            val handler = Handler(handlerThread.looper)
-
                             val locationCallback = object : LocationCallback() {
                                 override fun onLocationResult(locationResult: LocationResult) {
                                     handler.removeCallbacksAndMessages(null)
@@ -392,15 +390,16 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         location = locMan.getLastKnownLocation(provider)
 
                         if (location == null) {
+                            if (!isActive) return@withContext false
+
                             val handlerThread = HandlerThread("location")
                             handlerThread.start()
+                            // Handler for timeout callback
+                            val handler = Handler(handlerThread.looper)
 
                             Timber.tag(TAG).i("LocMan: Requesting location update...")
 
                             location = suspendCancellableCoroutine { continuation ->
-                                // Handler for timeout callback
-                                val handler = Handler(handlerThread.looper)
-
                                 val locationListener = object : LocationListener {
                                     override fun onLocationChanged(location: Location) {
                                         handler.removeCallbacksAndMessages(null)
