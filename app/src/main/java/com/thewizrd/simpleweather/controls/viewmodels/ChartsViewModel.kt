@@ -3,19 +3,17 @@ package com.thewizrd.simpleweather.controls.viewmodels
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.tasks.AsyncTask
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast
 import com.thewizrd.simpleweather.App
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.Callable
 
 class ChartsViewModel : ViewModel() {
     private val settingsManager = App.instance.settingsManager
@@ -36,19 +34,21 @@ class ChartsViewModel : ViewModel() {
     @MainThread
     fun updateForecasts(location: LocationData) {
         if (locationData == null || !ObjectsCompat.equals(locationData?.query, location.query)) {
-            // Clone location data
-            locationData = LocationData(LocationQueryViewModel(location))
+            viewModelScope.launch {
+                // Clone location data
+                locationData = LocationData(LocationQueryViewModel(location))
 
-            unitCode = settingsManager.getUnitString()
-            localeCode = LocaleUtils.getLocaleCode()
-            iconProvider = settingsManager.getIconsProvider()
+                unitCode = settingsManager.getUnitString()
+                localeCode = LocaleUtils.getLocaleCode()
+                iconProvider = settingsManager.getIconsProvider()
 
-            currentHrForecastsData?.removeObserver(hrforecastObserver)
-            currentHrForecastsData = AsyncTask.await(Callable<LiveData<List<HourlyForecast>>?> {
-                settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
-            })
-            currentHrForecastsData!!.observeForever(hrforecastObserver)
-            graphModelData.postValue(graphDataMapper.apply(currentHrForecastsData!!.value))
+                currentHrForecastsData?.removeObserver(hrforecastObserver)
+                currentHrForecastsData = withContext(Dispatchers.IO) {
+                    settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
+                }
+                currentHrForecastsData!!.observeForever(hrforecastObserver)
+                graphModelData.postValue(graphDataMapper.apply(currentHrForecastsData!!.value))
+            }
         } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
                 !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
                 !ObjectsCompat.equals(iconProvider, settingsManager.getIconsProvider())) {

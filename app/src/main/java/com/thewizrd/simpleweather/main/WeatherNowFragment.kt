@@ -1069,13 +1069,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                                 if (wm.supportsAlerts() && locationData != null) {
                                     val weatherAlerts = task.result
 
-                                    if (weatherAlerts != null && !weatherAlerts.isEmpty()) {
+                                    if (weatherAlerts?.isNotEmpty() == true) {
                                         // Alerts are posted to the user here. Set them as notified.
                                         GlobalScope.launch(Dispatchers.Default) {
                                             if (BuildConfig.DEBUG) {
-                                                WeatherAlertHandler.postAlerts(locationData, weatherAlerts)
+                                                WeatherAlertHandler.postAlerts(locationData!!, weatherAlerts)
                                             }
-                                            WeatherAlertHandler.setAsNotified(locationData, weatherAlerts)
+                                            WeatherAlertHandler.setAsNotified(locationData!!, weatherAlerts)
                                         }
                                     }
                                 }

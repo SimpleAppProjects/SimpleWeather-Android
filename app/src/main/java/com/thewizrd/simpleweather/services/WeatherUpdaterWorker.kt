@@ -219,7 +219,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     }
 
                     if (settingsManager.useAlerts() && wm.supportsAlerts()) {
-                        WeatherAlertHandler.postAlerts(settingsManager.getHomeData(), weather.weatherAlerts)
+                        WeatherAlertHandler.postAlerts(settingsManager.getHomeData()!!, weather.weatherAlerts)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
