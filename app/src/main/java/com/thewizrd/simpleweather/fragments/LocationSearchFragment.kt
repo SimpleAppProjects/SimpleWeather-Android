@@ -103,10 +103,10 @@ class LocationSearchFragment : WindowColorFragment() {
                 val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
                     var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
 
-                    if (!StringUtils.isNullOrEmpty(mAdapter.dataset[position].locationQuery))
+                    if (!mAdapter.dataset[position].locationQuery.isNullOrBlank())
                         queryResult = mAdapter.dataset[position]
 
-                    if (StringUtils.isNullOrWhitespace(queryResult!!.locationQuery)) {
+                    if (queryResult?.locationQuery.isNullOrBlank()) {
                         // Stop since there is no valid query
                         throw CustomException(R.string.error_retrieve_location)
                     }
@@ -119,18 +119,18 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     // Need to get FULL location data for HERE API
                     // Data provided is incomplete
-                    if (queryResult.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
+                    if (queryResult?.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
                         val loc = queryResult
                         queryResult = withContext(Dispatchers.IO) {
                             wm.locationProvider.getLocationFromID(loc)
                         }
                     } else if (wm.locationProvider.needsLocationFromName()) {
-                        val loc = queryResult
+                        val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
                             wm.locationProvider.getLocationFromName(loc)
                         }
                     } else if (wm.locationProvider.needsLocationFromGeocoder()) {
-                        val loc = queryResult
+                        val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
                             wm.locationProvider.getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
                         }
@@ -138,8 +138,10 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     if (queryResult == null) {
                         throw InterruptedException()
-                    } else if (StringUtils.isNullOrWhitespace(queryResult.locationTZLong) && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                        val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                    } else if (queryResult.locationTZLong.isNullOrBlank() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
+                        val tzId = withContext(Dispatchers.IO) {
+                            TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                        }
                         if ("unknown" != tzId)
                             queryResult.locationTZLong = tzId
                     }
@@ -241,7 +243,7 @@ class LocationSearchFragment : WindowColorFragment() {
     private fun showLoading(show: Boolean) {
         searchBarBinding.searchProgressBar.visibility = if (show) View.VISIBLE else View.GONE
 
-        if (show || StringUtils.isNullOrEmpty(searchBarBinding.searchView.text.toString()))
+        if (show || searchBarBinding.searchView.text.isNullOrBlank())
             searchBarBinding.searchCloseButton.visibility = View.GONE
         else
             searchBarBinding.searchCloseButton.visibility = View.VISIBLE
@@ -292,7 +294,7 @@ class LocationSearchFragment : WindowColorFragment() {
 
             override fun afterTextChanged(e: Editable) {
                 // If string is null or empty (ex. from clearing text) run right away
-                if (StringUtils.isNullOrEmpty(e.toString())) {
+                if (e.isBlank()) {
                     runSearchOp(e)
                 } else {
                     timer = Timer().apply {
@@ -386,7 +388,7 @@ class LocationSearchFragment : WindowColorFragment() {
 
         if (savedInstanceState != null) {
             val text = savedInstanceState.getString(KEY_SEARCHTEXT)
-            if (!StringUtils.isNullOrWhitespace(text)) {
+            if (!text.isNullOrBlank()) {
                 searchBarBinding.searchView.setText(text, TextView.BufferType.EDITABLE)
             }
         }
@@ -413,13 +415,14 @@ class LocationSearchFragment : WindowColorFragment() {
 
     override fun onDestroyView() {
         job?.cancel()
+        hideInputMethod(searchBarBinding.searchView)
         super.onDestroyView()
     }
 
     fun fetchLocations(queryString: String?) {
         // Cancel pending searches
         job?.cancel()
-        if (!StringUtils.isNullOrWhitespace(queryString)) {
+        if (!queryString.isNullOrBlank()) {
             job = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                 try {
                     val results = withContext(Dispatchers.IO) {
@@ -439,7 +442,7 @@ class LocationSearchFragment : WindowColorFragment() {
                     }
                 }
             }
-        } else if (StringUtils.isNullOrWhitespace(queryString)) {
+        } else if (queryString.isNullOrBlank()) {
             // Cancel pending searches
             job?.cancel()
             // Hide flyout if query is empty or null
@@ -454,21 +457,23 @@ class LocationSearchFragment : WindowColorFragment() {
 
     private fun showInputMethod(view: View?) {
         val imm = appCompatActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-        if (imm != null && view != null) {
-            imm.showSoftInput(view, 0)
+                ?: return
+        view?.let {
+            imm.showSoftInput(it, 0)
         }
     }
 
     private fun hideInputMethod(view: View?) {
         val imm = appCompatActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-        if (imm != null && view != null) {
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
+                ?: return
+        view?.let {
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(KEY_SEARCHTEXT,
-                if (searchBarBinding.searchView.text != null && !StringUtils.isNullOrWhitespace(searchBarBinding.searchView.text.toString())) {
+                if (!searchBarBinding.searchView.text.isNullOrBlank()) {
                     searchBarBinding.searchView.text.toString()
                 } else {
                     ""

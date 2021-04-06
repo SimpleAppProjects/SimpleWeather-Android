@@ -39,7 +39,7 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             private void load() {
-                mAdapter.updateItems(weatherView.getWeatherDetails());
+                mAdapter.submitList(weatherView.getWeatherDetails());
             }
         });
     }
@@ -92,15 +92,12 @@ public class WeatherDetailsFragment extends SwipeDismissFragment {
         super.onPause();
     }
 
-    private Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
+    private final Observable.OnPropertyChangedCallback propertyChangedCallback = new Observable.OnPropertyChangedCallback() {
         @Override
         public void onPropertyChanged(Observable sender, final int propertyId) {
-            runWithView(new Runnable() {
-                @Override
-                public void run() {
-                    if (propertyId == BR.weatherDetails) {
-                        mAdapter.updateItems(weatherView.getWeatherDetails());
-                    }
+            runWithView(() -> {
+                if (propertyId == BR.weatherDetails) {
+                    mAdapter.submitList(weatherView.getWeatherDetails());
                 }
             });
         }
