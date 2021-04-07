@@ -11,9 +11,9 @@ public class Logger {
     public static void init(Context context) {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
-            Timber.plant(new FileLoggingTree(context));
+            Timber.plant(new FileLoggingTree(context.getApplicationContext()));
         } else {
-            cleanupLogs(context);
+            cleanupLogs(context.getApplicationContext());
             Timber.plant(new CrashlyticsLoggingTree());
         }
     }

@@ -49,13 +49,18 @@ public class CrashlyticsLoggingTree extends Timber.Tree {
             crashlytics.setCustomKey(KEY_TAG, tag);
             crashlytics.setCustomKey(KEY_MESSAGE, message);
 
-            crashlytics.log(String.format("%s/%s: %s", priority, tag, message));
+            if (tag != null) {
+                crashlytics.log(String.format("%s/%s: %s", priorityTAG, tag, message));
+            } else {
+                crashlytics.log(String.format("%s/%s", priorityTAG, message));
+
+            }
 
             if (t != null) {
                 crashlytics.recordException(t);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error while logging into file : " + e);
+            Log.e(TAG, "Error while logging : " + e);
         }
     }
 }
