@@ -206,6 +206,11 @@
         </service>
 
         <service
+            android:name=".services.UpdaterTimerService"
+            android:exported="false"
+            android:process=":widget" />
+
+        <service
             android:name=".services.WeatherUpdaterService"
             android:exported="false"
             android:label="@string/pref_title_foreground_service" />

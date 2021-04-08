@@ -36,8 +36,8 @@ class UpdaterUtils {
             // Enable alarm if dependent features are enabled
             if (WidgetUpdaterHelper.widgetsExist() || settingsManager.showOngoingNotification() || settingsManager.useAlerts()) {
                 if (PowerUtils.useForegroundService) {
-                    ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                            .setAction(WeatherUpdaterService.ACTION_STARTALARM))
+                    ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                            .setAction(UpdaterTimerService.ACTION_STARTALARM))
                 } else {
                     WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
                     WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
@@ -51,8 +51,8 @@ class UpdaterUtils {
             // Cancel alarm if dependent features are turned off
             if (!WidgetUpdaterHelper.widgetsExist() && !settingsManager.showOngoingNotification() && !settingsManager.useAlerts()) {
                 if (PowerUtils.useForegroundService) {
-                    ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                            .setAction(WeatherUpdaterService.ACTION_CANCELALARM))
+                    ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                            .setAction(UpdaterTimerService.ACTION_CANCELALARM))
                 } else {
                     WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_CANCELWORK)
                     WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_CANCELWORK)
@@ -63,8 +63,8 @@ class UpdaterUtils {
         @JvmStatic
         fun updateAlarm(context: Context) {
             if (PowerUtils.useForegroundService) {
-                ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEALARM))
+                ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                        .setAction(UpdaterTimerService.ACTION_UPDATEALARM))
             } else {
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)
@@ -74,14 +74,14 @@ class UpdaterUtils {
         @JvmStatic
         fun enableForegroundService(context: Context, enable: Boolean) {
             if (enable) {
-                ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                        .setAction(WeatherUpdaterService.ACTION_UPDATEALARM))
+                ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                        .setAction(UpdaterTimerService.ACTION_UPDATEALARM))
 
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_CANCELWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_CANCELWORK)
             } else {
-                ContextCompat.startForegroundService(context, Intent(context, WeatherUpdaterService::class.java)
-                        .setAction(WeatherUpdaterService.ACTION_CANCELALARM))
+                ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                        .setAction(UpdaterTimerService.ACTION_CANCELALARM))
 
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)

@@ -32,6 +32,7 @@ import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
 class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configuration.Provider {
@@ -50,6 +51,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
     private lateinit var applicationState: AppState
     private var mActivitiesStarted = 0
     private lateinit var mCommonReceiver: CommonActionsBroadcastReceiver
+
+    private var isMainProcess = true
 
     override fun getAppContext(): Context {
         return context
@@ -94,33 +97,37 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
     @SuppressLint("MissingPermission")
     override fun onCreate() {
         super.onCreate()
-        context = LocaleUtils.attachBaseContext(applicationContext)
+        isMainProcess = packageName == getProcessNameCompat()
+        context = if (isMainProcess) LocaleUtils.attachBaseContext(applicationContext) else applicationContext
         appProperties = Bundle()
         instance = this
-        registerActivityLifecycleCallbacks(this)
         applicationState = AppState.CLOSED
         mActivitiesStarted = 0
 
-        // Initialize settings
-        settingsMgr = SettingsManager(this)
-        sharedPreferenceChangeListener = SettingsManager.SettingsListener(this)
+        if (isMainProcess) {
+            registerActivityLifecycleCallbacks(this)
 
-        // Init shared library
-        SimpleLibrary.initialize(this)
-        ExtrasLibrary.initialize(this)
+            // Initialize settings
+            settingsMgr = SettingsManager(this)
+            sharedPreferenceChangeListener = SettingsManager.SettingsListener(this)
 
-        // Start logger
-        Logger.init(context)
+            // Init shared library
+            SimpleLibrary.initialize(this)
+            ExtrasLibrary.initialize(this)
 
-        FirebaseCrashlytics.getInstance().apply {
-            setCrashlyticsCollectionEnabled(true)
-            sendUnsentReports()
+            // Start logger
+            Logger.init(context)
+
+            FirebaseCrashlytics.getInstance().apply {
+                setCrashlyticsCollectionEnabled(true)
+                sendUnsentReports()
+            }
+            FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "mobile")
+            FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
+
+            // Init common action broadcast receiver
+            registerCommonReceiver()
         }
-        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "mobile")
-        FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
-
-        // Init common action broadcast receiver
-        registerCommonReceiver()
 
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
@@ -152,38 +159,40 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
             }
         }
 
-        // Load data if needed
-        GlobalScope.launch(Dispatchers.Default) {
-            settingsMgr.loadIfNeeded()
-        }
+        if (isMainProcess) {
+            // Load data if needed
+            GlobalScope.launch(Dispatchers.Default) {
+                settingsMgr.loadIfNeeded()
+            }
 
-        when (settingsMgr.getUserThemeMode()) {
-            UserThemeMode.FOLLOW_SYSTEM -> {
-                if (Build.VERSION.SDK_INT >= 29) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+            when (settingsMgr.getUserThemeMode()) {
+                UserThemeMode.FOLLOW_SYSTEM -> {
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
+                }
+                UserThemeMode.DARK, UserThemeMode.AMOLED_DARK -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
+                UserThemeMode.LIGHT -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
+                else -> {
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
                 }
             }
-            UserThemeMode.DARK, UserThemeMode.AMOLED_DARK -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            UserThemeMode.LIGHT -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            else -> {
-                if (Build.VERSION.SDK_INT >= 29) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                }
-            }
-        }
 
-        // Receive Firebase messages
-        FirebaseMessaging.getInstance().subscribeToTopic("all")
-        if (BuildConfig.DEBUG) {
-            FirebaseMessaging.getInstance().subscribeToTopic("debug_all")
+            // Receive Firebase messages
+            FirebaseMessaging.getInstance().subscribeToTopic("all")
+            if (BuildConfig.DEBUG) {
+                FirebaseMessaging.getInstance().subscribeToTopic("debug_all")
+            }
         }
     }
 
@@ -215,12 +224,14 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
     }
 
     override fun onTerminate() {
-        unregisterCommonReceiver()
+        if (isMainProcess) {
+            unregisterCommonReceiver()
+            unregisterActivityLifecycleCallbacks(this)
+            // Shutdown logger
+            Logger.shutdown()
+            SimpleLibrary.unregister()
+        }
         super.onTerminate()
-        unregisterActivityLifecycleCallbacks(this)
-        // Shutdown logger
-        Logger.shutdown()
-        SimpleLibrary.unregister()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -253,5 +264,20 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         return Configuration.Builder()
                 .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
                 .build()
+    }
+
+    private fun getProcessNameCompat(): String? {
+        return if (Build.VERSION.SDK_INT >= 28) {
+            getProcessName()
+        } else try {
+            @SuppressLint("PrivateApi")
+            val activityThread = Class.forName("android.app.ActivityThread")
+
+            val methodName = "currentProcessName"
+            val getProcessName: Method = activityThread.getDeclaredMethod(methodName)
+            getProcessName.invoke(null) as String?
+        } catch (e: Exception) {
+            null
+        }
     }
 }
