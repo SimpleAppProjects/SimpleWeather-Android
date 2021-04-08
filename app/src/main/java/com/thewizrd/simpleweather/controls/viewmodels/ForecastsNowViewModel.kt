@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.math.roundToLong
 
 class ForecastsNowViewModel : ViewModel() {
     private val settingsManager = App.instance.settingsManager
@@ -67,7 +66,7 @@ class ForecastsNowViewModel : ViewModel() {
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 currentHrForecastsData = withContext(Dispatchers.IO) {
                     val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
-                    settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).roundToLong()).truncatedTo(ChronoUnit.HOURS))
+                    settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
                 }
                 currentHrForecastsData!!.observeForever(hrforecastObserver)
                 hourlyForecastsData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))

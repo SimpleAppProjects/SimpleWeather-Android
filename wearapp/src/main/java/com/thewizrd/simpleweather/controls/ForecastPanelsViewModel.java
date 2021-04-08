@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 import com.thewizrd.simpleweather.App;
 
 import java.time.ZonedDateTime;
@@ -76,7 +77,8 @@ public class ForecastPanelsViewModel extends ViewModel {
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
             }
-            currentHrForecastsData = settingsMgr.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 6, ZonedDateTime.now(location.getTzOffset()).truncatedTo(ChronoUnit.HOURS));
+            int hrInterval = WeatherManager.getInstance().getHourlyForecastInterval();
+            currentHrForecastsData = settingsMgr.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.getQuery(), 6, ZonedDateTime.now(location.getTzOffset()).minusHours((long) (hrInterval * 0.5)).truncatedTo(ChronoUnit.HOURS));
             currentHrForecastsData.observeForever(hrforecastObserver);
             if (hourlyForecasts != null)
                 hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData.getValue()));

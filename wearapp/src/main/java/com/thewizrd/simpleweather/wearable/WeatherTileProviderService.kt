@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
@@ -23,6 +24,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class WeatherTileProviderService : TileProviderService() {
@@ -227,16 +229,20 @@ class WeatherTileProviderService : TileProviderService() {
 
         if (locationData?.isValid == true) {
             val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
-            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now)
+
+            val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
 
             if (forecasts?.isNotEmpty() == true) {
-                val fcasts = ArrayList<HourlyForecastItemViewModel>()
+                return ArrayList<HourlyForecastItemViewModel>(FORECAST_LENGTH).apply {
+                    var count = 0
+                    for (fcast in forecasts) {
+                        add(HourlyForecastItemViewModel(fcast))
+                        count++
 
-                for (fcast in forecasts) {
-                    fcasts.add(HourlyForecastItemViewModel(fcast))
+                        if (count >= FORECAST_LENGTH) break
+                    }
                 }
-
-                return fcasts
             }
         }
 

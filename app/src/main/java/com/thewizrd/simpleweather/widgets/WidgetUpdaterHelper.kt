@@ -17,7 +17,6 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import androidx.annotation.IntRange
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
@@ -190,7 +189,7 @@ object WidgetUpdaterHelper {
         for (appWidgetId in appWidgetIds) {
             val locData = getLocation(context, appWidgetId)
             if (locData != null) {
-                val weather = getWeather(context, info, appWidgetId, 6, locData)
+                val weather = getWeather(context, info, appWidgetId, locData)
                 if (weather != null) {
                     val viewModel = WeatherNowViewModel(weather)
                     val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
@@ -392,7 +391,7 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private suspend fun loadWeather(info: WidgetProviderInfo, locData: LocationData?, appWidgetId: Int, @IntRange(from = 1, to = 5) cellWidth: Int): Weather? {
+    private suspend fun loadWeather(info: WidgetProviderInfo, locData: LocationData?, appWidgetId: Int): Weather? {
         if (locData != null) {
             return try {
                 WeatherDataLoader(locData)
@@ -411,11 +410,11 @@ object WidgetUpdaterHelper {
     }
 
     private suspend fun getWeather(context: Context, info: WidgetProviderInfo, appWidgetId: Int,
-                                   cellWidth: Int, locData: LocationData?): Weather? = withContext(Dispatchers.IO) {
+                                   locData: LocationData?): Weather? = withContext(Dispatchers.IO) {
         return@withContext if (locData == null) {
-            loadWeather(info, getLocation(context, appWidgetId), appWidgetId, cellWidth)
+            loadWeather(info, getLocation(context, appWidgetId), appWidgetId)
         } else {
-            loadWeather(info, locData, appWidgetId, cellWidth)
+            loadWeather(info, locData, appWidgetId)
         }
     }
 
@@ -1045,17 +1044,16 @@ object WidgetUpdaterHelper {
         hrfcasts = if (forecasts?.isNotEmpty() == true) {
             forecasts
         } else {
-            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now)
+            val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
         }
 
         if (hrfcasts?.isNotEmpty() == true) {
-            return ArrayList<HourlyForecastItemViewModel>(forecastLength).also {
+            return ArrayList<HourlyForecastItemViewModel>(forecastLength).apply {
                 var count = 0
                 for (fcast in hrfcasts) {
-                    if (!fcast.date.truncatedTo(ChronoUnit.HOURS).isBefore(now.truncatedTo(ChronoUnit.HOURS))) {
-                        it.add(HourlyForecastItemViewModel(fcast))
-                        count++
-                    }
+                    add(HourlyForecastItemViewModel(fcast))
+                    count++
 
                     if (count >= forecastLength) break
                 }
