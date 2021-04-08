@@ -71,6 +71,8 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker;
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment;
+import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
+import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference;
 import com.thewizrd.simpleweather.radar.RadarProvider;
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver;
 import com.thewizrd.simpleweather.services.UpdaterUtils;
@@ -1156,6 +1158,12 @@ public class SettingsFragment extends ToolbarPreferenceFragmentCompat
         @Override
         protected int getTitle() {
             return R.string.pref_title_icons;
+        }
+
+        @Override
+        public void bindPreferenceExtra(RadioButtonPreference pref, String key, CandidateInfo info, String defaultKey, String systemDefaultKey) {
+            super.bindPreferenceExtra(pref, key, info, defaultKey, systemDefaultKey);
+            pref.setPersistent(false);
         }
 
         @Override

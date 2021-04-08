@@ -41,7 +41,9 @@ import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
-import com.thewizrd.simpleweather.preferences.iconpreference.iconpreference.IconProviderPickerFragment
+import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
+import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
+import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
@@ -702,6 +704,11 @@ class SettingsActivity : WearableListenerActivity() {
     }
 
     class IconsFragment : IconProviderPickerFragment() {
+        override fun bindPreferenceExtra(pref: RadioButtonPreference?, key: String?, info: CandidateInfo?, defaultKey: String?, systemDefaultKey: String?) {
+            super.bindPreferenceExtra(pref, key, info, defaultKey, systemDefaultKey)
+            pref?.isPersistent = false
+        }
+
         override fun onSelectionPerformed(success: Boolean) {
             super.onSelectionPerformed(success)
 

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.preferences.iconpreference.iconpreference;
+package com.thewizrd.simpleweather.preferences.iconpreference;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
