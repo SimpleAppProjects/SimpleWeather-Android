@@ -77,9 +77,10 @@ class WeatherWidgetService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
-
+        startForegroundIfNeeded()
         stopServiceJob?.cancel()
+
+        Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
 
         when (intent?.action) {
             // Widget update actions

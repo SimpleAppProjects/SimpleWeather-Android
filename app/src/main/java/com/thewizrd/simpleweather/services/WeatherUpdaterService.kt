@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.services
 
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -15,8 +14,6 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import kotlinx.coroutines.*
 
 class WeatherUpdaterService : Service() {
-    private lateinit var mNotificationManager: NotificationManager
-
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
     private var stopServiceJob: Job? = null
 
@@ -35,8 +32,6 @@ class WeatherUpdaterService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-
-        mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initChannel(this)
@@ -63,6 +58,8 @@ class WeatherUpdaterService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForegroundIfNeeded()
+
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
 
         stopServiceJob?.cancel()
@@ -77,6 +74,9 @@ class WeatherUpdaterService : Service() {
                 scope.launch {
                     WeatherUpdaterWorker.executeWork(applicationContext)
                 }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            else -> {
+                postStopService()
             }
         }
 
