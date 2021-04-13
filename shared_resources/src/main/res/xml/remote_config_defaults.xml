@@ -5,7 +5,7 @@
         <value>
             {
             "enabled": true,
-            "locSource": "LocIQ",
+            "locSource": "google",
             "newWeatherSource": ""
             }
         </value>
@@ -45,7 +45,7 @@
         <value>
             {
             "enabled": true,
-            "locSource": "google",
+            "locSource": "LocIQ",
             "newWeatherSource": ""
             }
         </value>
@@ -55,7 +55,7 @@
         <value>
             {
             "enabled": true,
-            "locSource": "google",
+            "locSource": "weatherapi",
             "newWeatherSource": ""
             }
         </value>

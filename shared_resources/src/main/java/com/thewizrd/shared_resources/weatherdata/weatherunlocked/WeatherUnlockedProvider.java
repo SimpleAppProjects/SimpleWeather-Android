@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
+import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -47,7 +47,7 @@ public final class WeatherUnlockedProvider extends WeatherProviderImpl {
 
         locationProvider = RemoteConfig.getLocationProvider(getWeatherAPI());
         if (locationProvider == null) {
-            locationProvider = new GoogleLocationProvider();
+            locationProvider = new WeatherApiLocationProvider();
         }
     }
 

@@ -6,7 +6,7 @@ import com.ibm.icu.util.ULocale;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider;
+import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -58,7 +58,7 @@ public final class HEREWeatherProvider extends WeatherProviderImpl implements We
 
         locationProvider = RemoteConfig.getLocationProvider(getWeatherAPI());
         if (locationProvider == null) {
-            locationProvider = new LocationIQProvider();
+            locationProvider = new GoogleLocationProvider();
         }
     }
 
