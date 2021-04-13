@@ -161,11 +161,13 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             }
 
             if (settingsMgr.getDataSync() == WearableDataSync.OFF) {
-                try {
-                    // Update configuration
-                    RemoteConfig.checkConfigAsync()
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e)
+                supervisorScope {
+                    try {
+                        // Update configuration
+                        RemoteConfig.checkConfigAsync()
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).e(e)
+                    }
                 }
             }
 

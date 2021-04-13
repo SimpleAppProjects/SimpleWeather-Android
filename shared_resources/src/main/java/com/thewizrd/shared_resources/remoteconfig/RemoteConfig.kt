@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 object RemoteConfig {
     private const val DEFAULT_WEATHERPROVIDER_KEY = "default_weather_provider"
@@ -86,13 +87,17 @@ object RemoteConfig {
     }
 
     suspend fun checkConfigAsync() = withContext(Dispatchers.Default) {
-        suspendCancellableCoroutine<Boolean> {
+        suspendCancellableCoroutine<Boolean> { continuation ->
             FirebaseRemoteConfig.getInstance().fetchAndActivate()
-                    .addOnCompleteListener { task: Task<Boolean?>? ->
+                    .addOnCompleteListener {
                         // Update weather provider if needed
                         updateWeatherProvider()
-                        if (it.isActive) {
-                            it.resume(task?.result ?: false)
+                        if (continuation.isActive) {
+                            if (it.exception == null) {
+                                continuation.resume(it.result)
+                            } else {
+                                continuation.resumeWithException(it.exception!!)
+                            }
                         }
                     }
         }
