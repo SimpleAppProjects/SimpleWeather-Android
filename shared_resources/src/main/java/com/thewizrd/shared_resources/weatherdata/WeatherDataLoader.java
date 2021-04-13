@@ -258,8 +258,8 @@ public final class WeatherDataLoader {
                 Logger.writeLine(Log.DEBUG, "%s: Saved weather data invalid for %s", TAG, location == null ? "null" : location.toString());
                 Logger.writeLine(Log.DEBUG, "%s: Retrieving data from weather provider", TAG);
 
-                if ((weather != null && !weather.getSource().equals(settingsMgr.getAPI()))
-                        || (weather == null && location != null && !location.getWeatherSource().equals(settingsMgr.getAPI()))) {
+                if ((weather != null && !ObjectsCompat.equals(weather.getSource(), settingsMgr.getAPI()))
+                        || (weather == null && location != null && !ObjectsCompat.equals(location.getWeatherSource(), settingsMgr.getAPI()))) {
                     // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
                     if (!WeatherAPI.NWS.equals(settingsMgr.getAPI()) || LocationUtils.isUS(location.getCountryCode())) {
                         // Update location query and source for new API
@@ -469,14 +469,14 @@ public final class WeatherDataLoader {
 
         String API = settingsMgr.getAPI();
         boolean isInvalid = weather == null || !weather.isValid();
-        if (!isInvalid && !weather.getSource().equals(API)) {
+        if (!isInvalid && !ObjectsCompat.equals(weather.getSource(), API)) {
             if (!API.equals(WeatherAPI.NWS) || LocationUtils.isUS(location.getCountryCode())) {
                 isInvalid = true;
             }
         }
 
         if (wm.supportsWeatherLocale() && !isInvalid)
-            isInvalid = !weather.getLocale().equals(locale);
+            isInvalid = !ObjectsCompat.equals(weather.getLocale(), locale);
 
         if (_override || isInvalid) return !isInvalid;
 

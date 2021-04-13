@@ -899,7 +899,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     null
                 }
 
-                if (view?.locationQuery?.isEmpty() == true) {
+                if (view?.locationQuery.isNullOrBlank()) {
                     view = LocationQueryViewModel()
                 } else if (view?.locationTZLong?.isBlank() == true && view.locationLat != 0.0 && view.locationLong != 0.0) {
                     val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
@@ -907,7 +907,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         view.locationTZLong = tzId
                 }
 
-                if (view?.locationQuery?.isBlank() == true) {
+                if (view?.locationQuery.isNullOrBlank()) {
                     // Stop since there is no valid query
                     withContext(Dispatchers.Main) { removeGPSPanel() }
                     return null
