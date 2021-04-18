@@ -58,6 +58,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
 
     private var animationPosition = 0
     private val mMainHandler: Handler
+    private var mProcessingFrames: Boolean = false
 
     private val gson: Gson
 
@@ -178,8 +179,17 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
 
                     // Load data
                     val root = gson.fromJson<WeatherMapsResponse>(JsonReader(InputStreamReader(stream)), WeatherMapsResponse::class.java)
+                    mProcessingFrames = true
+
+                    // Remove already added tile overlays
+                    val overlaysToDelete = ArrayList(radarLayers.values)
+                    radarLayers.clear()
+                    for (overlay in overlaysToDelete) {
+                        mMainHandler.post { overlay.remove() }
+                    }
 
                     availableRadarFrames.clear()
+                    animationPosition = 0
 
                     if (root?.radar != null) {
                         if (root.radar?.past?.isNotEmpty() == true) {
@@ -195,16 +205,12 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                         }
                     }
 
-                    // Remove already added tile overlays
-                    val overlaysToDelete = ArrayList(radarLayers.values)
-                    mMainHandler.post { radarLayers.clear() }
-                    for (overlay in overlaysToDelete) {
-                        mMainHandler.post { overlay.remove() }
-                    }
+                    mProcessingFrames = false
 
                     mMainHandler.post {
                         if (isViewAlive) {
-                            showFrame(-1)
+                            val lastPastFramePosition = (root?.radar?.past?.size ?: 0) - 1
+                            showFrame(lastPastFramePosition)
                         }
                     }
 
@@ -214,6 +220,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                     Logger.writeLine(Log.ERROR, ex)
                 } finally {
                     response.close()
+                    mProcessingFrames = false
                 }
             }
         })
@@ -232,8 +239,10 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         radarContainerBinding!!.animationSeekbar.valueTo = (availableRadarFrames.size - 1).toFloat()
     }
 
-    private fun changeRadarPosition(position: Int, preloadOnly: Boolean = false) {
-        var position = position
+    private fun changeRadarPosition(pos: Int, preloadOnly: Boolean = false) {
+        if (mProcessingFrames) return
+
+        var position = pos
         while (position >= availableRadarFrames.size) {
             position -= availableRadarFrames.size
         }
@@ -245,10 +254,10 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
             return
         }
 
-        val currentFrame = availableRadarFrames[animationPosition]
+        val currentFrame = availableRadarFrames[animationPosition] ?: return
         val currentTimeStamp = currentFrame.timeStamp
 
-        val nextFrame = availableRadarFrames[position]
+        val nextFrame = availableRadarFrames[position] ?: return
         val nextTimeStamp = nextFrame.timeStamp
 
         addLayer(nextFrame)
@@ -290,6 +299,8 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
      * Check availability and show particular frame position from the timestamps list
      */
     private fun showFrame(nextPosition: Int) {
+        if (mProcessingFrames) return
+
         val preloadingDirection = if (nextPosition - animationPosition > 0) 1 else -1
 
         changeRadarPosition(nextPosition)
