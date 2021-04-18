@@ -25,6 +25,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.AppState
+import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
@@ -455,7 +456,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                     // Check previous location difference
-                    if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
+                    if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(
+                                    lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
                         return@withContext false
                     }
 
@@ -480,8 +482,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     }
 
                     // Save location as last known
-                    lastGPSLocData!!.setData(query_vm, location)
-                    settingsManager.saveLastGPSLocData(lastGPSLocData)
+                    settingsManager.saveLastGPSLocData(LocationData(query_vm, location))
                     return@withContext true
                 }
             }

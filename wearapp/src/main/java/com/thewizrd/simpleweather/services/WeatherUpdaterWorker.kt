@@ -24,6 +24,7 @@ import androidx.core.location.LocationManagerCompat
 import androidx.core.os.postDelayed
 import androidx.work.*
 import com.google.android.gms.location.*
+import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
@@ -405,8 +406,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 // Save location as last known
-                lastGPSLocData!!.setData(query_vm, location)
-                settingsMgr.saveLastGPSLocData(lastGPSLocData)
+                settingsMgr.saveLastGPSLocData(LocationData(query_vm, location))
                 return@withContext true
             }
         }
