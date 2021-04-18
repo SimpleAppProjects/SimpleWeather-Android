@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.*
-import java.util.concurrent.ExecutionException
 
 class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     companion object {
@@ -96,7 +95,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
 
             if (settingsManager.isWeatherLoaded()) {
                 val weather = withContext(Dispatchers.IO) {
-                    val locData = settingsManager.getHomeData()!!
+                    val locData = settingsManager.getHomeData() ?: return@withContext null
                     val wLoader = WeatherDataLoader(locData)
                     val request = WeatherRequest.Builder()
                     if (forceRefresh)
@@ -106,9 +105,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
 
                     try {
                         wLoader.loadWeatherData(request.build()).await()
-                    } catch (e: ExecutionException) {
-                        null
-                    } catch (e: InterruptedException) {
+                    } catch (e: Exception) {
                         null
                     }
                 }

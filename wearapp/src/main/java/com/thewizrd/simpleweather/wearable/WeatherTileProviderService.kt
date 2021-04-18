@@ -88,7 +88,8 @@ class WeatherTileProviderService : TileProviderService() {
 
             val weather = withContext(Dispatchers.IO) {
                 try {
-                    WeatherDataLoader(settingsMgr.getHomeData()!!)
+                    val locData = settingsMgr.getHomeData() ?: return@withContext null
+                    WeatherDataLoader(locData)
                             .loadWeatherData(WeatherRequest.Builder()
                                     .forceLoadSavedData()
                                     .build())

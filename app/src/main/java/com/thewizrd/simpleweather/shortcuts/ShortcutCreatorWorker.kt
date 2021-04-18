@@ -74,9 +74,10 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
             val wim = WeatherIconsManager.getInstance()
             val settingsManager = SettingsManager(context.applicationContext)
 
-            val locations = ArrayList(settingsManager.getLocationData() ?: Collections.emptyList())
+            val locations: MutableList<LocationData> = ArrayList(settingsManager.getLocationData()
+                    ?: Collections.emptyList())
             if (settingsManager.useFollowGPS()) {
-                locations.add(0, settingsManager.getHomeData())
+                settingsManager.getHomeData()?.let { locations.add(0, it) }
             }
 
             var MAX_SHORTCUTS = 4

@@ -199,7 +199,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
     private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
         val weather = try {
-            val wloader = WeatherDataLoader(settingsMgr.getHomeData()!!)
+            val locData = settingsMgr.getHomeData() ?: return@withContext null
+            val wloader = WeatherDataLoader(locData)
             val request = WeatherRequest.Builder()
             if (settingsMgr.getDataSync() == WearableDataSync.OFF) {
                 request.forceRefresh(false).loadAlerts()

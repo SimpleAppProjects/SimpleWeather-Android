@@ -245,7 +245,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
             val settingsManager = App.instance.settingsManager
             val weather = try {
-                WeatherDataLoader(settingsManager.getHomeData()!!)
+                val locData = settingsManager.getHomeData() ?: return@withContext null
+                WeatherDataLoader(locData)
                         .loadWeatherData(WeatherRequest.Builder()
                                 .forceRefresh(false)
                                 .loadAlerts()
