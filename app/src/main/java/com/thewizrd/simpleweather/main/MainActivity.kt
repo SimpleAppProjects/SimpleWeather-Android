@@ -17,7 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.onNavDestinationSelected
@@ -103,7 +103,7 @@ class MainActivity : UserLocaleActivity(),
         updateWindowColors(settingsManager.getUserThemeMode())
 
         val args = Bundle()
-        if (intent != null && intent.extras != null) {
+        if (intent?.extras != null) {
             args.putAll(intent.extras)
         }
 
@@ -134,9 +134,9 @@ class MainActivity : UserLocaleActivity(),
                     appUpdateManager!!.startImmediateUpdateFlow(this@MainActivity, INSTALL_REQUESTCODE)
                 } else {
                     lifecycleScope.launch(Dispatchers.Main.immediate) {
-                        initializeNavFragment(args)
-                        // Don't initialize the controller to early
-                        // The fragment may not have called onCreate yet; which is where the NavController gets assigned
+                        // Commit transaction now, if needed, since we'll try to access
+                        // the NavController almost immediately after
+                        initializeNavFragment(args, true)
                         initializeNavController()
                     }
                 }
@@ -146,14 +146,18 @@ class MainActivity : UserLocaleActivity(),
         initializeNavFragment(args)
     }
 
-    private fun initializeNavFragment(args: Bundle) {
+    private fun initializeNavFragment(args: Bundle, commitNow: Boolean = false) {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment == null) {
             val hostFragment = NavHostFragment.create(R.navigation.nav_graph, args)
-            supportFragmentManager.beginTransaction()
+            val transaction = supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, hostFragment)
                     .setPrimaryNavigationFragment(hostFragment)
-                    .commitAllowingStateLoss()
+
+            if (commitNow)
+                transaction.commitNowAllowingStateLoss()
+            else
+                transaction.commitAllowingStateLoss()
         }
     }
 
@@ -172,8 +176,11 @@ class MainActivity : UserLocaleActivity(),
     }
 
     private fun initializeNavController() {
+        // Don't initialize the controller to early
+        // The fragment may not have called onCreate yet; which is where the NavController gets assigned
+        // It should be ready once we reach onStart
         lifecycleScope.launchWhenStarted {
-            mNavController = Navigation.findNavController(this@MainActivity, R.id.fragment_container)
+            mNavController = getNavController()
 
             binding.bottomNavBar.setupWithNavController(mNavController!!)
             mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
@@ -207,6 +214,27 @@ class MainActivity : UserLocaleActivity(),
             // based on current fragment
             refreshNavViewCheckedItem()
         }
+    }
+
+    private fun getNavController(): NavController {
+        var mNavController: NavController? = null
+        try {
+            mNavController = findNavController(R.id.fragment_container)
+        } catch (e: IllegalStateException) {
+            // View not yet created
+            // Retrieve by fragment
+        }
+
+        if (mNavController == null) {
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragment !is NavHostFragment) {
+                throw IllegalStateException("NavHostFragment not yet initialized!")
+            } else {
+                mNavController = fragment.navController
+            }
+        }
+
+        return mNavController
     }
 
     override fun onNewIntent(intent: Intent) {
