@@ -806,13 +806,10 @@ class SettingsManager(context: Context) {
     }
 
     fun isOnBoardingComplete(): Boolean {
-        return runBlocking(Dispatchers.Default) {
-            loadIfNeeded()
-            if (!preferences.contains(KEY_ONBOARDINGCOMPLETE)) {
-                return@runBlocking false
-            } else {
-                return@runBlocking preferences.getBoolean(KEY_ONBOARDINGCOMPLETE, false)
-            }
+        return if (!preferences.contains(KEY_ONBOARDINGCOMPLETE)) {
+            false
+        } else {
+            preferences.getBoolean(KEY_ONBOARDINGCOMPLETE, false)
         }
     }
 
