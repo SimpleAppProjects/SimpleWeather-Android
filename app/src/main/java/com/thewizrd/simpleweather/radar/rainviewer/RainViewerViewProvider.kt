@@ -59,6 +59,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
     private var animationPosition = 0
     private val mMainHandler: Handler
     private var mProcessingFrames: Boolean = false
+    private var mFrameCall: Call? = null
 
     private val gson: Gson
 
@@ -168,62 +169,67 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                 .build()
 
         // Connect to webstream
-        httpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Logger.writeLine(Log.ERROR, e)
-            }
+        mFrameCall?.cancel()
+        mFrameCall = httpClient.newCall(request)
+        mFrameCall!!.enqueue(mFrameCallBack)
+    }
 
-            override fun onResponse(call: Call, response: Response) {
-                try {
-                    val stream = response.body!!.byteStream()
+    private val mFrameCallBack = object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Logger.writeLine(Log.ERROR, e)
+        }
 
-                    // Load data
-                    val root = gson.fromJson<WeatherMapsResponse>(JsonReader(InputStreamReader(stream)), WeatherMapsResponse::class.java)
-                    mProcessingFrames = true
+        @Synchronized
+        override fun onResponse(call: Call, response: Response) {
+            try {
+                val stream = response.body!!.byteStream()
 
-                    // Remove already added tile overlays
-                    val overlaysToDelete = ArrayList(radarLayers.values)
-                    radarLayers.clear()
-                    for (overlay in overlaysToDelete) {
-                        mMainHandler.post { overlay.remove() }
-                    }
+                // Load data
+                val root = gson.fromJson<WeatherMapsResponse>(JsonReader(InputStreamReader(stream)), WeatherMapsResponse::class.java)
+                mProcessingFrames = true
 
-                    availableRadarFrames.clear()
-                    animationPosition = 0
-
-                    if (root?.radar != null) {
-                        if (root.radar?.past?.isNotEmpty() == true) {
-                            availableRadarFrames.addAll(root.radar.past.mapNotNull { input: RadarItem? ->
-                                input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
-                            })
-                        }
-
-                        if (root.radar?.nowcast?.isNotEmpty() == true) {
-                            availableRadarFrames.addAll(root.radar.nowcast.mapNotNull { input: RadarItem? ->
-                                input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
-                            })
-                        }
-                    }
-
-                    mProcessingFrames = false
-
-                    mMainHandler.post {
-                        if (isViewAlive) {
-                            val lastPastFramePosition = (root?.radar?.past?.size ?: 0) - 1
-                            showFrame(lastPastFramePosition)
-                        }
-                    }
-
-                    // End Stream
-                    stream.close()
-                } catch (ex: Exception) {
-                    Logger.writeLine(Log.ERROR, ex)
-                } finally {
-                    response.close()
-                    mProcessingFrames = false
+                // Remove already added tile overlays
+                val overlaysToDelete = ArrayList(radarLayers.values)
+                radarLayers.clear()
+                for (overlay in overlaysToDelete) {
+                    mMainHandler.post { overlay.remove() }
                 }
+
+                availableRadarFrames.clear()
+                animationPosition = 0
+
+                if (root?.radar != null) {
+                    if (root.radar?.past?.isNotEmpty() == true) {
+                        availableRadarFrames.addAll(root.radar.past.mapNotNull { input: RadarItem? ->
+                            input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
+                        })
+                    }
+
+                    if (root.radar?.nowcast?.isNotEmpty() == true) {
+                        availableRadarFrames.addAll(root.radar.nowcast.mapNotNull { input: RadarItem? ->
+                            input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
+                        })
+                    }
+                }
+
+                mProcessingFrames = false
+
+                mMainHandler.post {
+                    if (isViewAlive) {
+                        val lastPastFramePosition = (root?.radar?.past?.size ?: 0) - 1
+                        showFrame(lastPastFramePosition)
+                    }
+                }
+
+                // End Stream
+                stream.close()
+            } catch (ex: Exception) {
+                Logger.writeLine(Log.ERROR, ex)
+            } finally {
+                response.close()
+                mProcessingFrames = false
             }
-        })
+        }
     }
 
     private fun addLayer(mapFrame: RadarFrame) {
