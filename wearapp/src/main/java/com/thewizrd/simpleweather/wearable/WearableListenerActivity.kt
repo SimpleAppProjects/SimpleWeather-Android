@@ -132,13 +132,17 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                             ConfirmationResultReceiver(this@WearableListenerActivity))
                 }
                 PhoneDeviceType.DEVICE_TYPE_IOS -> {
-                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                        Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
+                    launch(Dispatchers.Main) {
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                            Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 else -> {
-                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                        Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
+                    launch(Dispatchers.Main) {
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                            Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
