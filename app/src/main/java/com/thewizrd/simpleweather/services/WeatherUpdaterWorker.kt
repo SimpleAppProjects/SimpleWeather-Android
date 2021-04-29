@@ -187,12 +187,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val settingsManager = App.instance.settingsManager
 
             supervisorScope {
-                try {
-                    // Update configuration
-                    RemoteConfig.checkConfigAsync()
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e)
-                }
+                // Update configuration
+                RemoteConfig.checkConfigAsync()
             }
 
             if (settingsManager.isWeatherLoaded()) {
