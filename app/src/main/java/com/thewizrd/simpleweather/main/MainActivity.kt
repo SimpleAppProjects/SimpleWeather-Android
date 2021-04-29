@@ -268,7 +268,7 @@ class MainActivity : UserLocaleActivity(),
         // Handle navigation view item clicks here.
         val id = item.itemId
 
-        if (mNavController!!.currentDestination != null && id != mNavController!!.currentDestination!!.id) {
+        if (mNavController?.currentDestination != null && id != mNavController!!.currentDestination!!.id) {
             item.onNavDestinationSelected(mNavController!!)
         }
 
