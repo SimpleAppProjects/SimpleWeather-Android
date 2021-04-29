@@ -309,9 +309,12 @@ class LocationSearchFragment : WindowColorFragment() {
 
             private fun runSearchOp(e: Editable) {
                 runWithView {
-                    val newText = e.toString()
-                    searchBarBinding.searchCloseButton.visibility = if (newText.isEmpty()) View.GONE else View.VISIBLE
-                    fetchLocations(newText)
+                    supervisorScope {
+                        ensureActive()
+                        val newText = e.toString()
+                        searchBarBinding.searchCloseButton.visibility = if (newText.isEmpty()) View.GONE else View.VISIBLE
+                        fetchLocations(newText)
+                    }
                 }
             }
         })
