@@ -245,7 +245,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
                         Timber.tag("SyncDataReceiver").d("Action: %s", intent.action)
 
-                        if (locationDataReceived && weatherDataReceived || weatherDataReceived && locationData != null) {
+                        if (locationDataReceived && weatherDataReceived && locationData != null) {
                             if (syncTimerEnabled)
                                 cancelTimer()
 
