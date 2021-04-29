@@ -125,7 +125,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
                 }
 
                 val shortcut = ShortcutInfo.Builder(context, if (location.locationType == LocationType.GPS) Constants.KEY_GPS else "${location.query}_$i").apply {
-                    setShortLabel(weather.location.name)
+                    setShortLabel(if (weather.location.name.isNullOrBlank()) location.name else weather.location.name)
                     setIcon(shortCutIco)
                     setIntent(intent)
                 }.build()
