@@ -1246,7 +1246,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                val lastGPSLocData = getSettingsManager().getLastGPSLocData()
+                var lastGPSLocData = getSettingsManager().getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
@@ -1281,7 +1281,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 if (!coroutineContext.isActive) return false
 
                 // Save location as last known
-                lastGPSLocData?.setData(view, location)
+                lastGPSLocData = LocationData(view, location)
                 getSettingsManager().saveLastGPSLocData(lastGPSLocData)
 
                 LocalBroadcastManager.getInstance(appCompatActivity!!)

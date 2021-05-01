@@ -650,7 +650,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                val lastGPSLocData = settingsManager.getLastGPSLocData()
+                var lastGPSLocData = settingsManager.getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
@@ -685,7 +685,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 if (!coroutineContext.isActive) return false
 
                 // Save location as last known
-                lastGPSLocData?.setData(view, location)
+                lastGPSLocData = LocationData(view, location)
                 settingsManager.saveHomeData(lastGPSLocData)
 
                 locationData = lastGPSLocData
