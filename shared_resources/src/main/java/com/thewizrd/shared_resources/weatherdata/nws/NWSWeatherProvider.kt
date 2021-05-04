@@ -56,10 +56,6 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         return false
     }
 
-    override fun needsExternalAlertData(): Boolean {
-        return true
-    }
-
     override suspend fun isKeyValid(key: String?): Boolean {
         return false
     }

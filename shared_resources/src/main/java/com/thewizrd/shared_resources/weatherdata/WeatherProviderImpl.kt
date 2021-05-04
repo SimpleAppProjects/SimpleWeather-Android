@@ -31,7 +31,9 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         return true
     }
 
-    abstract override fun needsExternalAlertData(): Boolean
+    override fun needsExternalAlertData(): Boolean {
+        return true
+    }
 
     override fun getHourlyForecastInterval(): Int {
         return 1

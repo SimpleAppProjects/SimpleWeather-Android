@@ -50,10 +50,6 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
         return false
     }
 
-    override fun needsExternalAlertData(): Boolean {
-        return true
-    }
-
     override fun getHourlyForecastInterval(): Int {
         return 3
     }

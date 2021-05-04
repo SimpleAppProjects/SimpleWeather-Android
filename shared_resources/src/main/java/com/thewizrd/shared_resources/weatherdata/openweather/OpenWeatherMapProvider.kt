@@ -53,10 +53,6 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         return true
     }
 
-    override fun needsExternalAlertData(): Boolean {
-        return true
-    }
-
     override fun getHourlyForecastInterval(): Int {
         return 3
     }

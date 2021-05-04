@@ -96,6 +96,7 @@ class WeatherDataLoader(private val location: LocationData) {
     private suspend fun getWeatherData(request: WeatherRequest): WeatherResult {
         var wEx: WeatherException? = null
         var loadedSavedData = false
+        var loadedSavedAlertData = false
 
         // Try to get weather from provider API
         try {
@@ -120,11 +121,16 @@ class WeatherDataLoader(private val location: LocationData) {
             weather = null
         }
 
-        if (request.isLoadAlerts && weather != null && wm.supportsAlerts() && wm.needsExternalAlertData()) {
-            weather!!.weatherAlerts = wm.getAlerts(location)
+        if (request.isLoadAlerts && weather != null && wm.supportsAlerts()) {
+            if (wm.needsExternalAlertData()) {
+                weather!!.weatherAlerts = wm.getAlerts(location)
+            }
 
             if (weather!!.weatherAlerts == null) {
-                weather!!.weatherAlerts = settingsMgr.getWeatherAlertData(location.query)
+                weather!!.weatherAlerts = settingsMgr.getWeatherAlertData(location.query).also {
+                    weatherAlerts = it
+                }
+                loadedSavedAlertData = true
             }
         }
 
@@ -132,6 +138,7 @@ class WeatherDataLoader(private val location: LocationData) {
             // Load old data if available and we can't get new data
             if (weather == null) {
                 loadedSavedData = loadSavedWeatherData(request, true)
+                loadedSavedAlertData = loadedSavedData
             } else {
                 // Handle upgrades
                 if (location.name.isNullOrBlank() || location.tzLong.isNullOrBlank()) {
@@ -160,12 +167,16 @@ class WeatherDataLoader(private val location: LocationData) {
                         settingsMgr.saveHomeData(location)
                 }
 
-                saveWeatherData()
-                saveWeatherForecasts()
+                if (!loadedSavedData) {
+                    saveWeatherData()
+                    saveWeatherForecasts()
+                }
 
-                if ((request.isLoadAlerts || weather?.weatherAlerts != null) && wm.supportsAlerts() && !wm.needsExternalAlertData()) {
+                if ((request.isLoadAlerts || weather?.weatherAlerts != null) && wm.supportsAlerts()) {
                     weatherAlerts = weather!!.weatherAlerts
-                    saveWeatherAlerts()
+                    if (!loadedSavedAlertData) {
+                        saveWeatherAlerts()
+                    }
                 }
             }
         }
