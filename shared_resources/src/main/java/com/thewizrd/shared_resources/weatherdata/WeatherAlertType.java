@@ -38,7 +38,7 @@ public enum WeatherAlertType {
         this.value = value;
     }
 
-    private static SparseArray<WeatherAlertType> map = new SparseArray<>();
+    private static final SparseArray<WeatherAlertType> map = new SparseArray<>();
 
     static {
         for (WeatherAlertType alertType : values()) {

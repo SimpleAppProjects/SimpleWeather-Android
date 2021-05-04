@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.navigation.Navigation;
 import androidx.preference.PreferenceScreen;
 
@@ -111,7 +112,7 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
     }
 
     @Override
-    protected void onRadioButtonConfirmed(String selectedKey) {
+    protected void onRadioButtonConfirmed(@Nullable String selectedKey) {
         if (!Objects.equals(selectedKey, WeatherIconsProvider.KEY) && !ExtrasLibrary.Companion.isEnabled()) {
             // Navigate to premium page
             Navigation.findNavController(getRootView()).navigate(R.id.action_iconsFragment_to_premiumFragment);

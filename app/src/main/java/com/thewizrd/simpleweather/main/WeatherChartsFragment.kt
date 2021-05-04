@@ -7,7 +7,6 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.annotation.CallSuper
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.util.ObjectsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +31,9 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import java.util.*
 
 class WeatherChartsFragment : ToolbarFragment() {
@@ -178,38 +179,39 @@ class WeatherChartsFragment : ToolbarFragment() {
     // Initialize views here
     @CallSuper
     protected fun initialize() {
-        if (!weatherView.isValid || location != null && !ObjectsCompat.equals(location!!.query, weatherView.query)) {
-            WeatherDataLoader(location!!)
-                    .loadWeatherData(WeatherRequest.Builder()
-                            .forceLoadSavedData()
-                            .setErrorListener { wEx ->
-                                when (wEx.errorStatus) {
-                                    ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                                        // Show error message and prompt to refresh
-                                        showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
-                                    }
-                                    ErrorStatus.QUERYNOTFOUND -> {
-                                        if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
-                                            showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
-                                            return@setErrorListener
+        if (!weatherView.isValid || location != null && location!!.query != weatherView.query) {
+            runWithView(Dispatchers.Default) {
+                supervisorScope {
+                    val weather = WeatherDataLoader(location!!)
+                            .loadWeatherData(WeatherRequest.Builder()
+                                    .forceLoadSavedData()
+                                    .setErrorListener { wEx ->
+                                        when (wEx.errorStatus) {
+                                            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER ->
+                                                // Show error message and prompt to refresh
+                                                showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                                            ErrorStatus.QUERYNOTFOUND -> {
+                                                if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
+                                                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
+                                                    return@setErrorListener
+                                                }
+                                                // Show error message
+                                                showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                                            }
+                                            else -> showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
                                         }
-                                        // Show error message
-                                        showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
-                                    }
-                                    else -> {
-                                        // Show error message
-                                        showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
-                                    }
-                                }
-                            }
-                            .build())
-                    .addOnSuccessListener { weather ->
-                        if (isAlive) {
-                            weatherView.updateView(weather)
-                            chartsView.updateForecasts(location!!)
-                            binding.locationName.text = weatherView.location
-                        }
+
+                                    }.build())
+
+                    ensureActive()
+
+                    launch(Dispatchers.Main) {
+                        weatherView.updateView(weather)
+                        chartsView.updateForecasts(location!!)
+                        binding.locationName.text = weatherView.location
                     }
+                }
+            }
         } else {
             chartsView.updateForecasts(location!!)
             binding.locationName.text = weatherView.location
@@ -237,9 +239,9 @@ class WeatherChartsFragment : ToolbarFragment() {
     }
 
     override fun createSnackManager(): SnackbarManager {
-        return SnackbarManager(binding.root).also {
-            it.setSwipeDismissEnabled(true)
-            it.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
         }
     }
 }

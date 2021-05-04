@@ -60,10 +60,10 @@ object RemoteConfig {
             if (!isEnabled) {
                 if (config.newWeatherSource?.isNotBlank() == true) {
                     settingsMgr.setAPI(config.newWeatherSource)
-                    WeatherManager.getInstance().updateAPI()
+                    WeatherManager.instance.updateAPI()
                 } else {
                     settingsMgr.setAPI(getDefaultWeatherProvider())
-                    WeatherManager.getInstance().updateAPI()
+                    WeatherManager.instance.updateAPI()
                 }
                 return true
             }

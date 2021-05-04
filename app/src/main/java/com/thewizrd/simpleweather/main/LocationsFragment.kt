@@ -101,7 +101,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private var onBackPressedCallback: OnBackPressedCallback? = null
 
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
 
     override fun getTitle(): Int {
         return R.string.label_nav_locations
@@ -633,15 +633,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun loadLocations() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+        runWithView(Dispatchers.Default) {
             // Load up saved locations
             val locations = ArrayList(getSettingsManager().getFavorites()
-                    ?: Collections.emptyList())
-            launch(Dispatchers.Main) {
+                                      ?: Collections.emptyList())
+            withContext(Dispatchers.Main) {
                 mAdapter.removeAll()
             }
 
-            if (!isActive) return@launch
+            if (!isActive) return@runWithView
 
             // Setup saved favorite locations
             var gpsData: LocationData? = null
@@ -652,7 +652,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     val gpsPanelViewModel = LocationPanelViewModel()
                     gpsPanelViewModel.locationData = gpsData
 
-                    launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         mAdapter.add(0, gpsPanelViewModel)
                     }
                 }
@@ -661,37 +661,39 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             for (location in locations) {
                 val panel = LocationPanelViewModel()
                 panel.locationData = location
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     mAdapter.add(panel)
                 }
 
-                WeatherDataLoader(location)
-                        .loadWeatherData(WeatherRequest.Builder()
-                                .forceRefresh(false)
-                                .setErrorListener(this@LocationsFragment)
-                                .build())
-                        .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Default) {
-                                onWeatherLoaded(location, weather)
-                            }
-                        }
+                launch(Dispatchers.Default) {
+                    supervisorScope {
+                        val weather = WeatherDataLoader(location)
+                                .loadWeatherData(WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .setErrorListener(this@LocationsFragment)
+                                        .build())
+
+                        onWeatherLoaded(location, weather)
+                    }
+                }
             }
 
-            if (!isActive) return@launch
+            if (!isActive) return@runWithView
 
             if (gpsData != null) {
                 locations.add(0, gpsData)
 
-                WeatherDataLoader(gpsData)
-                        .loadWeatherData(WeatherRequest.Builder()
-                                .forceRefresh(false)
-                                .setErrorListener(this@LocationsFragment)
-                                .build())
-                        .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Default) {
-                                onWeatherLoaded(gpsData, weather)
-                            }
-                        }
+                launch(Dispatchers.Default) {
+                    supervisorScope {
+                        val weather = WeatherDataLoader(gpsData)
+                                .loadWeatherData(WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .setErrorListener(this@LocationsFragment)
+                                        .build())
+
+                        onWeatherLoaded(gpsData, weather)
+                    }
+                }
             }
         }
     }
@@ -715,10 +717,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun refreshLocations() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+        runWithView(Dispatchers.Default) {
             // Reload all panels if needed
             val locations = ArrayList(getSettingsManager().getLocationData()
-                    ?: Collections.emptyList())
+                                      ?: Collections.emptyList())
             if (getSettingsManager().useFollowGPS()) {
                 val homeData = getSettingsManager().getLastGPSLocData()
                 locations.add(0, homeData)
@@ -741,7 +743,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
             }
 
-            if (!isActive) return@launch
+            if (!isActive) return@runWithView
 
             if (reload) {
                 launch(Dispatchers.Main) {
@@ -752,23 +754,22 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 val dataset = mAdapter.getDataset()
 
                 for (view in dataset) {
-                    WeatherDataLoader(view.locationData!!)
-                            .loadWeatherData(WeatherRequest.Builder()
-                                    .forceRefresh(false)
-                                    .setErrorListener(this@LocationsFragment)
-                                    .build())
-                            .addOnSuccessListener { weather ->
-                                runWithView(Dispatchers.Default) {
-                                    onWeatherLoaded(view.locationData!!, weather)
-                                }
-                            }
+                    launch(Dispatchers.Default) {
+                        val weather = WeatherDataLoader(view.locationData!!)
+                                .loadWeatherData(WeatherRequest.Builder()
+                                        .forceRefresh(false)
+                                        .setErrorListener(this@LocationsFragment)
+                                        .build())
+
+                        onWeatherLoaded(view.locationData!!, weather)
+                    }
                 }
             }
         }
     }
 
     private fun addGPSPanel() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+        runWithView(Dispatchers.Default) {
             // Setup saved favorite locations
             val gpsData: LocationData?
             if (getSettingsManager().useFollowGPS()) {
@@ -786,19 +787,18 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 gpsData = null
             }
 
-            if (!isActive) return@launch
+            if (!isActive) return@runWithView
 
             if (gpsData != null) {
-                WeatherDataLoader(gpsData)
-                        .loadWeatherData(WeatherRequest.Builder()
-                                .forceRefresh(false)
-                                .setErrorListener(this@LocationsFragment)
-                                .build())
-                        .addOnSuccessListener { weather ->
-                            runWithView(Dispatchers.Default) {
-                                onWeatherLoaded(gpsData, weather)
-                            }
-                        }
+                launch(Dispatchers.Default) {
+                    val weather = WeatherDataLoader(gpsData)
+                            .loadWeatherData(WeatherRequest.Builder()
+                                    .forceRefresh(false)
+                                    .setErrorListener(this@LocationsFragment)
+                                    .build())
+
+                    onWeatherLoaded(gpsData, weather)
+                }
             }
         }
     }
@@ -932,7 +932,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             PERMISSION_LOCATION_REQUEST_CODE -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+                    runWithView(Dispatchers.Default) {
                         // permission was granted, yay!
                         // Do the task you need to do.
                         val locData = updateLocation()
@@ -1050,7 +1050,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
 
         if (!mEditMode && mHomeChanged) {
-            Log.d("LocationsFragment", "Home changed; sending update")
+            Timber.tag(TAG).d("Home changed; sending update")
             LocalBroadcastManager.getInstance(instance.appContext)
                     .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                             .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))

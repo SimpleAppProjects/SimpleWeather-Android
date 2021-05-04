@@ -1,8 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata;
 
-import androidx.annotation.Nullable;
-
-import com.google.android.gms.tasks.CancellationToken;
 import com.thewizrd.shared_resources.utils.WeatherException;
 
 public final class WeatherRequest {
@@ -19,7 +16,6 @@ public final class WeatherRequest {
     private boolean forceLoadSavedData;
     private boolean shouldSaveData = true;
     private WeatherErrorListener errorListener;
-    private CancellationToken cancellationToken;
 
     public boolean isForceRefresh() {
         return forceRefresh;
@@ -43,10 +39,6 @@ public final class WeatherRequest {
 
     public WeatherErrorListener getErrorListener() {
         return errorListener;
-    }
-
-    public CancellationToken getCancellationToken() {
-        return cancellationToken;
     }
 
     public static final class Builder {
@@ -87,11 +79,6 @@ public final class WeatherRequest {
 
         public Builder setErrorListener(WeatherErrorListener listener) {
             request.errorListener = listener;
-            return this;
-        }
-
-        public Builder setCancellationToken(@Nullable CancellationToken token) {
-            request.cancellationToken = token;
             return this;
         }
 

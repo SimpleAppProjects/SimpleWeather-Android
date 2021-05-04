@@ -33,7 +33,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
         val df = DecimalFormat.getInstance(LocaleUtils.getLocale()) as DecimalFormat
         df.applyPattern("0.##")
 
-        val wm = WeatherManager.getInstance()
+        val wm = WeatherManager.instance
         val wim = WeatherIconsManager.getInstance()
 
         date = if (DateFormat.is24HourFormat(context)) {

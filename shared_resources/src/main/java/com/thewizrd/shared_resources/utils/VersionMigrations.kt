@@ -42,7 +42,7 @@ internal object VersionMigrations {
                 if (WeatherAPI.HERE == settingsMgr.getAPI()) {
                     // Set default API to Yahoo
                     settingsMgr.setAPI(WeatherAPI.YAHOO)
-                    val wm = WeatherManager.getInstance()
+                    val wm = WeatherManager.instance
                     wm.updateAPI()
                     settingsMgr.setPersonalKey(false)
                     settingsMgr.setKeyVerified(true)
@@ -63,7 +63,7 @@ internal object VersionMigrations {
                     // Yahoo Weather API is no longer in service
                     // Set default API to WeatherUnlocked
                     settingsMgr.setAPI(WeatherAPI.WEATHERUNLOCKED)
-                    WeatherManager.getInstance().updateAPI()
+                    WeatherManager.instance.updateAPI()
                     settingsMgr.setPersonalKey(false)
                     settingsMgr.setKeyVerified(true)
                 }

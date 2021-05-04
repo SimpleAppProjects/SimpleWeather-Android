@@ -17,6 +17,7 @@
           <package name="" alias="true" withSubpackages="true" />
         </value>
       </option>
+      <option name="WRAP_EXPRESSION_BODY_FUNCTIONS" value="1" />
     </JetCodeStyleSettings>
     <codeStyleSettings language="XML">
       <indentOptions>
@@ -129,6 +130,12 @@
           </section>
         </rules>
       </arrangement>
+    </codeStyleSettings>
+    <codeStyleSettings language="kotlin">
+      <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
+      <option name="METHOD_PARAMETERS_WRAP" value="1" />
+      <option name="METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE" value="true" />
+      <option name="EXTENDS_LIST_WRAP" value="1" />
     </codeStyleSettings>
   </code_scheme>
 </component>

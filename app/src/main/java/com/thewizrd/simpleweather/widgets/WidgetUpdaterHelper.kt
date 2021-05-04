@@ -38,7 +38,6 @@ import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -398,7 +397,6 @@ object WidgetUpdaterHelper {
                         .loadWeatherData(WeatherRequest.Builder()
                                 .forceLoadSavedData()
                                 .build())
-                        .await()
             } catch (e: Exception) {
                 null
             }
@@ -1044,7 +1042,7 @@ object WidgetUpdaterHelper {
         hrfcasts = if (forecasts?.isNotEmpty() == true) {
             forecasts
         } else {
-            val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
             settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
         }
 

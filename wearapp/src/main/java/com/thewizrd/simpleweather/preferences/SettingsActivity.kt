@@ -168,7 +168,7 @@ class SettingsActivity : WearableListenerActivity() {
                 }
             }
 
-            val mBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity)
+            val mBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity!!)
             mBroadcastMgr.registerReceiver(statusReceiver!!,
                     IntentFilter(ACTION_UPDATECONNECTIONSTATUS))
             mBroadcastMgr.sendBroadcast(
@@ -185,7 +185,7 @@ class SettingsActivity : WearableListenerActivity() {
                 providerPref.onPreferenceChangeListener
                         .onPreferenceChange(providerPref, API)
                 settingsManager.setAPI(API)
-                WeatherManager.getInstance().updateAPI()
+                WeatherManager.instance.updateAPI()
 
                 settingsManager.setPersonalKey(false)
                 settingsManager.setKeyVerified(true)
@@ -196,12 +196,12 @@ class SettingsActivity : WearableListenerActivity() {
             app.unregisterAppSharedPreferenceListener(this)
             app.registerAppSharedPreferenceListener()
 
-            val mLocalBroadcastManager = LocalBroadcastManager.getInstance(parentActivity)
+            val mLocalBroadcastManager = LocalBroadcastManager.getInstance(parentActivity!!)
             mLocalBroadcastManager.unregisterReceiver(statusReceiver!!)
 
             for (filter in intentQueue!!) {
                 if (CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action) {
-                    WeatherManager.getInstance().updateAPI()
+                    WeatherManager.instance.updateAPI()
                     mLocalBroadcastManager.sendBroadcast(
                             Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
 
@@ -221,7 +221,7 @@ class SettingsActivity : WearableListenerActivity() {
                     mLocalBroadcastManager.sendBroadcast(
                             Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC))
                 } else {
-                    parentActivity.startService(filter.intent)
+                    parentActivity!!.startService(filter.intent)
                 }
             }
 
@@ -247,13 +247,13 @@ class SettingsActivity : WearableListenerActivity() {
                 AnalyticsLogger.logEvent("Settings: followGps toggled")
 
                 if (newValue as Boolean) {
-                    if (ContextCompat.checkSelfPermission(parentActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(parentActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
                                 PERMISSION_LOCATION_REQUEST_CODE)
                         return@OnPreferenceChangeListener false
                     } else {
-                        val locMan = parentActivity.getSystemService(LOCATION_SERVICE) as LocationManager?
+                        val locMan = parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT)
                             settingsManager.setFollowGPS(false)
@@ -311,24 +311,26 @@ class SettingsActivity : WearableListenerActivity() {
 
             keyEntry = findPreference(SettingsManager.KEY_APIKEY) as KeyEntryPreference
             keyEntry.setPositiveButtonOnClickListener { dialog, which ->
-                val key = keyEntry.apiKey
+                runWithView {
+                    val key = keyEntry.apiKey
 
-                val API = providerPref.value
-                try {
-                    if (WeatherManager.isKeyValid(key, API)) {
-                        settingsManager.setAPIKEY(key)
-                        settingsManager.setAPI(API)
+                    val API = providerPref.value
+                    try {
+                        if (WeatherManager.isKeyValid(key, API)) {
+                            settingsManager.setAPIKEY(key)
+                            settingsManager.setAPI(API)
 
-                        settingsManager.setKeyVerified(true)
-                        updateKeySummary()
+                            settingsManager.setKeyVerified(true)
+                            updateKeySummary()
 
-                        dialog.dismiss()
-                    } else {
-                        showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
+                            dialog.dismiss()
+                        } else {
+                            showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
+                        }
+                    } catch (e: WeatherException) {
+                        Logger.writeLine(Log.ERROR, e)
+                        showToast(e.message, Toast.LENGTH_SHORT)
                     }
-                } catch (e: WeatherException) {
-                    Logger.writeLine(Log.ERROR, e)
-                    showToast(e.message, Toast.LENGTH_SHORT)
                 }
             }
             personalKeyPref = findPreference(SettingsManager.KEY_USEPERSONALKEY) as SwitchPreference
@@ -342,7 +344,7 @@ class SettingsActivity : WearableListenerActivity() {
                 } else {
                     val selectedWProv = WeatherManager.getProvider(providerPref.value)
 
-                    if (!selectedWProv.isKeyRequired || !StringUtils.isNullOrWhitespace(selectedWProv.apiKey)) {
+                    if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey().isNullOrBlank()) {
                         // We're using our own (verified) keys
                         settingsManager.setKeyVerified(true)
                         settingsManager.setAPI(providerPref.value)
@@ -382,8 +384,8 @@ class SettingsActivity : WearableListenerActivity() {
                 val pref = preference as ListPreference
                 val selectedWProv = WeatherManager.getProvider(newValue.toString())
 
-                if (selectedWProv.isKeyRequired) {
-                    if (selectedWProv.apiKey.isNullOrBlank()) {
+                if (selectedWProv.isKeyRequired()) {
+                    if (selectedWProv.getAPIKey().isNullOrBlank()) {
                         settingsManager.setPersonalKey(true)
                         personalKeyPref.isChecked = true
                         personalKeyPref.isEnabled = false
@@ -455,13 +457,13 @@ class SettingsActivity : WearableListenerActivity() {
             registerPref.onPreferenceClickListener = registerPrefClickListener
 
             // Set key as verified if API Key is req for API and its set
-            if (WeatherManager.getInstance().isKeyRequired) {
+            if (WeatherManager.instance.isKeyRequired()) {
                 keyEntry.isEnabled = true
 
                 if (!settingsManager.getAPIKEY().isNullOrBlank() && !settingsManager.isKeyVerified())
                     settingsManager.setKeyVerified(true)
 
-                if (WeatherManager.getInstance().apiKey.isNullOrBlank()) {
+                if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
                     settingsManager.setPersonalKey(true)
                     personalKeyPref.isChecked = true
                     personalKeyPref.isEnabled = false
@@ -671,7 +673,7 @@ class SettingsActivity : WearableListenerActivity() {
 
             preferenceScreen.setTitle(R.string.pref_title_units)
 
-            localBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity)
+            localBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity!!)
 
             tempUnitPref = findPreference(SettingsManager.KEY_TEMPUNIT) as ListPreference
             speedUnitPref = findPreference(SettingsManager.KEY_SPEEDUNIT) as ListPreference
@@ -748,7 +750,7 @@ class SettingsActivity : WearableListenerActivity() {
             }
 
             try {
-                val packageInfo = parentActivity.packageManager.getPackageInfo(parentActivity.packageName, 0)
+                val packageInfo = parentActivity!!.packageManager.getPackageInfo(parentActivity!!.packageName, 0)
                 findPreference(KEY_ABOUTVERSION).summary = String.format("v%s", packageInfo.versionName)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
@@ -762,14 +764,14 @@ class SettingsActivity : WearableListenerActivity() {
         }
 
         override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            if (preference?.intent != null) {
+            if (preference.intent != null) {
                 RemoteIntent.startRemoteActivity(parentActivity, preference.intent
                         .setAction(Intent.ACTION_VIEW).addCategory(Intent.CATEGORY_BROWSABLE),
                         null)
 
                 // Show open on phone animation
                 ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                        .setMessage(parentActivity.getString(R.string.message_openedonphone))
+                        .setMessage(parentActivity!!.getString(R.string.message_openedonphone))
                         .showAbove(view)
 
                 return true

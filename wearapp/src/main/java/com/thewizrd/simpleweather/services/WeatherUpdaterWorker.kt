@@ -160,7 +160,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
     private object WeatherUpdaterHelper {
         suspend fun executeWork(context: Context): Boolean {
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
@@ -209,7 +209,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 } else {
                     request.forceLoadSavedData()
                 }
-                wloader.loadWeatherData(request.build()).await()
+                wloader.loadWeatherData(request.build())
             } catch (ex: Exception) {
                 Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG)
                 null
@@ -220,7 +220,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         @SuppressLint("MissingPermission")
         private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
             val context = App.instance.appContext
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
             var mFusedLocationClient: FusedLocationProviderClient? = null
 

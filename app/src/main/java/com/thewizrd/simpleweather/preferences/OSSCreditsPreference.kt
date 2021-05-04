@@ -3,6 +3,8 @@ package com.thewizrd.simpleweather.preferences
 import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.preference.Preference
@@ -36,17 +38,21 @@ class OSSCreditsPreference : Preference {
         holder.itemView.setBackgroundColor(bg_color)
 
         val webView = holder.itemView.findViewById<TextView>(R.id.textview)
+        val progressBar = holder.itemView.findViewById<ProgressBar>(R.id.progressBar)
 
         loadJob?.cancel()
         loadJob = GlobalScope.launch(Dispatchers.Main.immediate) {
             supervisorScope {
+                progressBar.visibility = View.VISIBLE
+
                 val creditsText = withContext(Dispatchers.IO) {
                     val sBuilder = StringBuilder()
 
                     InputStreamReader(context.assets.open("credits/licenses.html")).use { sReader ->
                         var c: Int
                         while (sReader.read().also { c = it } != -1) {
-                            sBuilder.append(c.toChar())
+                            val char = c.toChar()
+                            sBuilder.append(if (char == '\n') "<br/>" else char)
                         }
                     }
 
@@ -55,8 +61,10 @@ class OSSCreditsPreference : Preference {
 
                 ensureActive()
 
-                webView.text = HtmlCompat.fromHtml(creditsText.replace("\n", "<br/>"), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                webView.text = HtmlCompat.fromHtml(creditsText, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 webView.movementMethod = LinkMovementMethod.getInstance()
+
+                progressBar.visibility = View.GONE
             }
         }
     }

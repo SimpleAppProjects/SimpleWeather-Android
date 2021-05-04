@@ -29,7 +29,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.wear.widget.drawer.WearableActionDrawerView
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Tasks
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
@@ -70,7 +69,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     private lateinit var args: WeatherNowFragmentArgs
 
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
     private var wLoader: WeatherDataLoader? = null
 
     // Views
@@ -256,15 +255,18 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                                 binding.swipeRefreshLayout.isRefreshing = true
                             }
 
-                            wLoader = WeatherDataLoader(locationData!!)
-                            wLoader!!.loadWeatherData(WeatherRequest.Builder()
-                                    .forceLoadSavedData()
-                                    .loadAlerts()
-                                    .setErrorListener(this@WeatherNowFragment)
-                                    .build())
-                                    .addOnSuccessListener { weather ->
-                                        weatherLiveData.value = weather
-                                    }
+                            launch(Dispatchers.IO) {
+                                supervisorScope {
+                                    wLoader = WeatherDataLoader(locationData!!)
+                                    val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
+                                            .forceLoadSavedData()
+                                            .loadAlerts()
+                                            .setErrorListener(this@WeatherNowFragment)
+                                            .build())
+
+                                    weatherLiveData.postValue(weather)
+                                }
+                            }
 
                             weatherDataReceived = false
                             locationDataReceived = false
@@ -542,31 +544,29 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             binding.swipeRefreshLayout.isRefreshing = true
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
-                wLoader?.loadWeatherResult(WeatherRequest.Builder()
-                        .forceRefresh(forceRefresh)
-                        .setErrorListener(this@WeatherNowFragment)
-                        .build())
-                        ?.addOnSuccessListener { weather ->
-                            weatherLiveData.value = weather.weather
+                launch(Dispatchers.IO) {
+                    supervisorScope {
+                        val result = wLoader?.loadWeatherResult(WeatherRequest.Builder()
+                                .forceRefresh(forceRefresh)
+                                .setErrorListener(this@WeatherNowFragment)
+                                .build())
+
+                        weatherLiveData.postValue(result!!.weather)
+
+                        runWithView {
+                            val isRound = resources.configuration.isScreenRound
+                            binding.alertButton.visibility = if (isRound) View.INVISIBLE else View.GONE
                         }
-                        ?.continueWithTask { task ->
-                            if (task.isSuccessful) {
-                                runWithView {
-                                    val isRound = resources.configuration.isScreenRound
-                                    binding.alertButton.visibility = if (isRound) View.INVISIBLE else View.GONE
-                                }
-                                wLoader?.loadWeatherAlerts(task.result.isSavedData)
-                            } else {
-                                Tasks.forCanceled()
+
+                        val weatherAlerts = wLoader?.loadWeatherAlerts(result.isSavedData)
+
+                        runWithView {
+                            if (locationData != null) {
+                                alertsView.updateAlerts(locationData!!)
                             }
                         }
-                        ?.addOnCompleteListener {
-                            runWithView {
-                                if (locationData != null) {
-                                    alertsView.updateAlerts(locationData!!)
-                                }
-                            }
-                        }
+                    }
+                }
             } else if (settingsManager.getDataSync() != WearableDataSync.OFF) {
                 dataSyncResume(forceRefresh)
             }
@@ -673,10 +673,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     return false
                 }
 
-                if (view.locationQuery?.isBlank() == true) {
+                if (view == null || view.locationQuery.isNullOrBlank()) {
                     // Stop since there is no valid query
                     return false
-                } else if (view.locationTZLong?.isBlank() == true && view.locationLat != 0.0 && view.locationLong != 0.0) {
+                } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
                     val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
                     if ("unknown" != tzId)
                         view.locationTZLong = tzId
@@ -792,20 +792,24 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 locationData = settingsManager.getHomeData()
 
             binding.swipeRefreshLayout.isRefreshing = true
-            wLoader = WeatherDataLoader(locationData!!)
-            wLoader!!.loadWeatherData(WeatherRequest.Builder()
-                    .forceLoadSavedData()
-                    .loadAlerts()
-                    .setErrorListener(this@WeatherNowFragment)
-                    .build())
-                    .addOnSuccessListener(fun(weather: Weather?) {
-                        if (weather != null) {
-                            weatherLiveData.setValue(weather)
-                        } else {
-                            // Data is null; restore
-                            dataSyncRestore()
-                        }
-                    })
+
+            runWithView(Dispatchers.IO) {
+                supervisorScope {
+                    wLoader = WeatherDataLoader(locationData!!)
+                    val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
+                            .forceLoadSavedData()
+                            .loadAlerts()
+                            .setErrorListener(this@WeatherNowFragment)
+                            .build())
+
+                    if (weather != null) {
+                        weatherLiveData.postValue(weather)
+                    } else {
+                        // Data is null; restore
+                        dataSyncRestore()
+                    }
+                }
+            }
         }
     }
 
@@ -822,15 +826,18 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             if (locationData != null) {
                 binding.swipeRefreshLayout.isRefreshing = true
 
-                wLoader = WeatherDataLoader(locationData!!)
-                wLoader!!.loadWeatherData(WeatherRequest.Builder()
-                        .forceLoadSavedData()
-                        .loadAlerts()
-                        .setErrorListener(this@WeatherNowFragment)
-                        .build())
-                        .addOnSuccessListener { weather ->
-                            weatherLiveData.value = weather
-                        }
+                runWithView(Dispatchers.IO) {
+                    supervisorScope {
+                        wLoader = WeatherDataLoader(locationData!!)
+                        val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .loadAlerts()
+                                .setErrorListener(this@WeatherNowFragment)
+                                .build())
+
+                        weatherLiveData.postValue(weather)
+                    }
+                }
             } else {
                 binding.swipeRefreshLayout.isRefreshing = false
                 showToast(R.string.error_syncing, Toast.LENGTH_LONG)

@@ -97,7 +97,7 @@ class DetailItemAdapter : ListAdapter<DetailItemViewModel, RecyclerView.ViewHold
         override fun setHeader() {
             val context = header.context
             val creditPrefix = context.getString(R.string.credit_prefix)
-            val weatherAPI = WeatherManager.getInstance().weatherAPI
+            val weatherAPI = WeatherManager.instance.getWeatherAPI()
 
             val entry = WeatherAPI.APIs.find { wapi: ProviderEntry? -> wapi != null && weatherAPI == wapi.value }
             val credit = String.format("%s %s",

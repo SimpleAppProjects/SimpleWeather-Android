@@ -60,7 +60,7 @@ class SetupFragment : CustomFragment() {
     private var mRequestingLocationUpdates = false
     private val mMainHandler = Handler(Looper.getMainLooper())
 
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
 
     private var job: Job? = null
 
@@ -287,7 +287,7 @@ class SetupFragment : CustomFragment() {
                         ensureActive()
 
                         val view = withContext(Dispatchers.IO) {
-                            wm.getLocation(mLocation)
+                            wm.getLocation(mLocation!!)
                         }
 
                         if (view == null || view.locationQuery?.isBlank() == true) {
@@ -312,7 +312,7 @@ class SetupFragment : CustomFragment() {
                             wm.updateAPI()
                         }
 
-                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(settingsManager.getAPIKEY()) && wm.isKeyRequired) {
+                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(settingsManager.getAPIKEY()) && wm.isKeyRequired()) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 

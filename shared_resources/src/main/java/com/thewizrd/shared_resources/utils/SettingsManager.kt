@@ -188,7 +188,7 @@ class SettingsManager(context: Context) {
             when (key) {
                 KEY_API -> {
                     // Weather Provider changed
-                    WeatherManager.getInstance().updateAPI()
+                    WeatherManager.instance.updateAPI()
                     mLocalBroadcastManager.sendBroadcast(
                             Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
                 }

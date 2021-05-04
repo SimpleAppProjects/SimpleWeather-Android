@@ -183,7 +183,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
     private object WeatherUpdaterHelper {
         suspend fun executeWork(context: Context): Boolean {
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
 
             supervisorScope {
@@ -249,7 +249,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                 .loadAlerts()
                                 .loadForecasts()
                                 .build()
-                        ).await()
+                        )
             } catch (ex: Exception) {
                 Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
                 null
@@ -269,7 +269,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                         .forceRefresh(false)
                                         .loadAlerts()
                                         .build()
-                                ).await()
+                                )
                     } catch (ex: Exception) {
                         Logger.writeLine(Log.ERROR, ex, "%s: preloadWeather error", TAG)
                     }
@@ -280,7 +280,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         @SuppressLint("MissingPermission")
         private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
             val context = App.instance.appContext
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
             var mFusedLocationClient: FusedLocationProviderClient? = null
 

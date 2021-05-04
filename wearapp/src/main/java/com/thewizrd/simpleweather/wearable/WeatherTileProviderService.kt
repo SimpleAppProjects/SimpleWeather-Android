@@ -21,7 +21,6 @@ import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -93,7 +92,6 @@ class WeatherTileProviderService : TileProviderService() {
                             .loadWeatherData(WeatherRequest.Builder()
                                     .forceLoadSavedData()
                                     .build())
-                            .await()
                 } catch (e: Exception) {
                     null
                 }
@@ -231,7 +229,7 @@ class WeatherTileProviderService : TileProviderService() {
         if (locationData?.isValid == true) {
             val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
 
-            val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
             val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
 
             if (forecasts?.isNotEmpty() == true) {

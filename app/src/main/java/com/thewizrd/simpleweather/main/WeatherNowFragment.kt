@@ -61,7 +61,6 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Tasks
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
@@ -119,7 +118,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
     private lateinit var args: WeatherNowFragmentArgs
 
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
     private var wLoader: WeatherDataLoader? = null
     private var radarViewProvider: RadarViewProvider? = null
 
@@ -1039,49 +1038,43 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 wLoader = WeatherDataLoader(locationData!!)
             }
 
-            wLoader?.loadWeatherResult(WeatherRequest.Builder()
-                    .forceRefresh(forceRefresh)
-                    .setErrorListener(this@WeatherNowFragment)
-                    .build())
-                    ?.addOnSuccessListener { weather ->
-                        weatherLiveData.setValue(weather.weather)
-                    }
-                    ?.continueWithTask { task ->
-                        if (task.isSuccessful) {
-                            runWithView {
-                                if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                                    conditionPanelBinding.alertButton.visibility = View.GONE
-                                    adjustConditionPanelLayout()
-                                }
-                            }
-                            wLoader?.loadWeatherAlerts(task.result.isSavedData)
-                        } else {
-                            Tasks.forCanceled()
+            launch(Dispatchers.Default) {
+                supervisorScope {
+                    val result = wLoader?.loadWeatherResult(WeatherRequest.Builder()
+                            .forceRefresh(forceRefresh)
+                            .setErrorListener(this@WeatherNowFragment)
+                            .build())
+
+                    weatherLiveData.postValue(result!!.weather)
+
+                    runWithView {
+                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
+                            conditionPanelBinding.alertButton.visibility = View.GONE
+                            adjustConditionPanelLayout()
                         }
                     }
-                    ?.addOnCompleteListener { task ->
-                        runWithView {
-                            if (locationData != null) {
-                                alertsView.updateAlerts(locationData!!)
-                            }
 
-                            if (task.isSuccessful) {
-                                if (wm.supportsAlerts() && locationData != null) {
-                                    val weatherAlerts = task.result
+                    val weatherAlerts = wLoader?.loadWeatherAlerts(result.isSavedData)
 
-                                    if (weatherAlerts?.isNotEmpty() == true) {
-                                        // Alerts are posted to the user here. Set them as notified.
-                                        GlobalScope.launch(Dispatchers.Default) {
-                                            if (BuildConfig.DEBUG) {
-                                                WeatherAlertHandler.postAlerts(locationData!!, weatherAlerts)
-                                            }
-                                            WeatherAlertHandler.setAsNotified(locationData!!, weatherAlerts)
-                                        }
+                    runWithView {
+                        if (locationData != null) {
+                            alertsView.updateAlerts(locationData!!)
+                        }
+
+                        if (wm.supportsAlerts() && locationData != null) {
+                            if (!weatherAlerts.isNullOrEmpty()) {
+                                // Alerts are posted to the user here. Set them as notified.
+                                GlobalScope.launch(Dispatchers.Default) {
+                                    if (BuildConfig.DEBUG) {
+                                        WeatherAlertHandler.postAlerts(locationData!!, weatherAlerts)
                                     }
+                                    WeatherAlertHandler.setAsNotified(locationData!!, weatherAlerts)
                                 }
                             }
                         }
                     }
+                }
+            }
         }
     }
 
@@ -1269,10 +1262,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     return false
                 }
 
-                if (view.locationQuery?.isBlank() == true) {
+                if (view == null || view.locationQuery.isNullOrBlank()) {
                     // Stop since there is no valid query
                     return false
-                } else if (view.locationTZLong?.isBlank() == true && view.locationLat != 0.0 && view.locationLong != 0.0) {
+                } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
                     val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
                     if ("unknown" != tzId)
                         view.locationTZLong = tzId

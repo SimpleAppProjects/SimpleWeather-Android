@@ -87,7 +87,9 @@ class ExampleInstrumentedTest {
             }
         }
 
-        SimpleLibrary.initialize(app)
+        runBlocking(Dispatchers.Main.immediate) {
+            SimpleLibrary.initialize(app)
+        }
 
         // Start logger
         Logger.init(appContext)
@@ -117,7 +119,7 @@ class ExampleInstrumentedTest {
     @Test
     fun getWeatherTest() {
         runBlocking(Dispatchers.Default) {
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             settingsManager.setAPI(WeatherAPI.HERE)
             wm.updateAPI()
 
@@ -129,20 +131,20 @@ class ExampleInstrumentedTest {
 
             // Need to get FULL location data for HERE API
             // Data provided is incomplete
-            if (loc.locationLat == -1.0 && loc.locationLong == -1.0 && loc.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
+            if (loc.locationLat == -1.0 && loc.locationLong == -1.0 && loc.locationTZLong == null && wm.getLocationProvider().needsLocationFromID()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocationFromID(query_vm)
+                    wm.getLocationProvider().getLocationFromID(query_vm)
                 }
-            } else if (wm.locationProvider.needsLocationFromName()) {
+            } else if (wm.getLocationProvider().needsLocationFromName()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocationFromName(query_vm)
+                    wm.getLocationProvider().getLocationFromName(query_vm)
                 }
-            } else if (wm.locationProvider.needsLocationFromGeocoder()) {
+            } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocation(Coordinate(query_vm.locationLat, query_vm.locationLong), query_vm.weatherSource)
+                    wm.getLocationProvider().getLocation(Coordinate(query_vm.locationLat, query_vm.locationLong), query_vm.weatherSource)
                 }
             }
 
@@ -151,7 +153,7 @@ class ExampleInstrumentedTest {
                 wm.getWeather(locationData)
             }
 
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -159,7 +161,7 @@ class ExampleInstrumentedTest {
     @Throws(WeatherException::class)
     fun updateLocationQueryTest() {
         runBlocking(Dispatchers.Default) {
-            val wm = WeatherManager.getInstance()
+            val wm = WeatherManager.instance
             settingsManager.setAPI(WeatherAPI.HERE)
             wm.updateAPI()
 
@@ -171,20 +173,20 @@ class ExampleInstrumentedTest {
 
             // Need to get FULL location data for HERE API
             // Data provided is incomplete
-            if (loc.locationLat == -1.0 && loc.locationLong == -1.0 && loc.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
+            if (loc.locationLat == -1.0 && loc.locationLong == -1.0 && loc.locationTZLong == null && wm.getLocationProvider().needsLocationFromID()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocationFromID(query_vm)
+                    wm.getLocationProvider().getLocationFromID(query_vm)
                 }
-            } else if (wm.locationProvider.needsLocationFromName()) {
+            } else if (wm.getLocationProvider().needsLocationFromName()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocationFromName(query_vm)
+                    wm.getLocationProvider().getLocationFromName(query_vm)
                 }
-            } else if (wm.locationProvider.needsLocationFromGeocoder()) {
+            } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
                 val query_vm = loc
                 loc = withContext(Dispatchers.IO) {
-                    wm.locationProvider.getLocation(Coordinate(query_vm.locationLat, query_vm.locationLong), query_vm.weatherSource)
+                    wm.getLocationProvider().getLocation(Coordinate(query_vm.locationLat, query_vm.locationLong), query_vm.weatherSource)
                 }
             }
 
@@ -209,7 +211,7 @@ class ExampleInstrumentedTest {
                 wm.getWeather(locationData)
             }
 
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 

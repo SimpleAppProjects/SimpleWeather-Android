@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 
 object WeatherAlertHandler {
     suspend fun postAlerts(location: LocationData, alerts: Collection<WeatherAlert>?) = withContext(Dispatchers.Default) {
-        val wm = WeatherManager.getInstance()
+        val wm = WeatherManager.instance
 
         if (wm.supportsAlerts() && alerts?.isNotEmpty() == true) {
             // Only alert if we're in the background

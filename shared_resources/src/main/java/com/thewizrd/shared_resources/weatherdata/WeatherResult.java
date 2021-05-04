@@ -11,6 +11,7 @@ public final class WeatherResult {
         return isSavedData;
     }
 
+    @Nullable
     public Weather getWeather() {
         return weather;
     }

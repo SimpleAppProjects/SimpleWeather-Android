@@ -26,6 +26,7 @@ import com.google.gson.stream.JsonReader
 import com.thewizrd.extras.ExtrasLibrary.Companion.isEnabled
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
@@ -182,7 +183,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         @Synchronized
         override fun onResponse(call: Call, response: Response) {
             try {
-                val stream = response.body!!.byteStream()
+                val stream = response.getStream()
 
                 // Load data
                 val root = gson.fromJson<WeatherMapsResponse>(JsonReader(InputStreamReader(stream)), WeatherMapsResponse::class.java)

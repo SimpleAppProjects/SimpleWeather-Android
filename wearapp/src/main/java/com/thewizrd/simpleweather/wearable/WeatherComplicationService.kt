@@ -22,7 +22,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
 class WeatherComplicationService : ComplicationProviderService() {
@@ -63,7 +62,7 @@ class WeatherComplicationService : ComplicationProviderService() {
                                 .loadWeatherData(WeatherRequest.Builder()
                                         .forceLoadSavedData()
                                         .build()
-                                ).await()
+                                )
                     } catch (e: Exception) {
                         null
                     }

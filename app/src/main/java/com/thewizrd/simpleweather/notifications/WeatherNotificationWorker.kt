@@ -14,7 +14,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -104,7 +103,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
                         request.forceLoadSavedData()
 
                     try {
-                        wLoader.loadWeatherData(request.build()).await()
+                        wLoader.loadWeatherData(request.build())
                     } catch (e: Exception) {
                         null
                     }

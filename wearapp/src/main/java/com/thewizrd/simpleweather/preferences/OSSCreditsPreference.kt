@@ -4,6 +4,7 @@ import android.content.Context
 import android.preference.Preference
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.*
@@ -19,11 +20,15 @@ class OSSCreditsPreference : Preference {
 
     override fun onBindView(view: View) {
         super.onBindView(view)
+
         val textView = view.findViewById<TextView>(R.id.textview)
+        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
         loadJob?.cancel()
         loadJob = GlobalScope.launch(Dispatchers.Main.immediate) {
             supervisorScope {
+                progressBar.visibility = View.VISIBLE
+
                 val creditsText = withContext(Dispatchers.IO) {
                     val sBuilder = StringBuilder()
 
@@ -40,6 +45,7 @@ class OSSCreditsPreference : Preference {
                 ensureActive()
 
                 textView.text = creditsText
+                progressBar.visibility = View.GONE
             }
         }
     }

@@ -20,7 +20,7 @@ public enum WeatherAlertSeverity {
     }
 
 
-    private static SparseArray<WeatherAlertSeverity> map = new SparseArray<>();
+    private static final SparseArray<WeatherAlertSeverity> map = new SparseArray<>();
 
     static {
         for (WeatherAlertSeverity severity : values()) {

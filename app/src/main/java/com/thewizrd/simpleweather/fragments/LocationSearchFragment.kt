@@ -53,7 +53,7 @@ class LocationSearchFragment : WindowColorFragment() {
     private lateinit var searchBarBinding: SearchActionBarBinding
     private lateinit var mAdapter: LocationQueryAdapter
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
 
     private var job: Job? = null
 
@@ -111,7 +111,7 @@ class LocationSearchFragment : WindowColorFragment() {
                         throw CustomException(R.string.error_retrieve_location)
                     }
 
-                    if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired) {
+                    if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
                         throw CustomException(R.string.werror_invalidkey)
                     }
 
@@ -119,20 +119,20 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     // Need to get FULL location data for HERE API
                     // Data provided is incomplete
-                    if (queryResult?.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.locationProvider.needsLocationFromID()) {
+                    if (queryResult?.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.getLocationProvider().needsLocationFromID()) {
                         val loc = queryResult
                         queryResult = withContext(Dispatchers.IO) {
-                            wm.locationProvider.getLocationFromID(loc)
+                            wm.getLocationProvider().getLocationFromID(loc)
                         }
-                    } else if (wm.locationProvider.needsLocationFromName()) {
+                    } else if (wm.getLocationProvider().needsLocationFromName()) {
                         val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
-                            wm.locationProvider.getLocationFromName(loc)
+                            wm.getLocationProvider().getLocationFromName(loc)
                         }
-                    } else if (wm.locationProvider.needsLocationFromGeocoder()) {
+                    } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
                         val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
-                            wm.locationProvider.getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
+                            wm.getLocationProvider().getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
                         }
                     }
 

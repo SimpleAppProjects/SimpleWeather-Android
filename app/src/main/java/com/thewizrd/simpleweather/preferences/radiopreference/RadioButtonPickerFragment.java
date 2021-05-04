@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
@@ -45,7 +46,7 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
     protected void onSelectionPerformed(boolean success) {
     }
 
-    protected void onRadioButtonConfirmed(String selectedKey) {
+    protected void onRadioButtonConfirmed(@Nullable String selectedKey) {
         final boolean success = setDefaultKey(selectedKey);
         if (success) {
             updateCheckedState(selectedKey);
@@ -57,7 +58,7 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
      * A chance for subclasses to bind additional things to the preference.
      */
     public void bindPreferenceExtra(RadioButtonPreference pref,
-                                    String key, CandidateInfo info, String defaultKey, String systemDefaultKey) {
+                                    String key, CandidateInfo info, @Nullable String defaultKey, @Nullable String systemDefaultKey) {
     }
 
     public void updateCandidates() {
@@ -85,7 +86,7 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
     }
 
     public RadioButtonPreference bindPreference(RadioButtonPreference pref,
-                                                String key, CandidateInfo info, String defaultKey) {
+                                                String key, CandidateInfo info, @Nullable String defaultKey) {
         pref.setTitle(info.loadLabel());
         pref.setIcon(info.loadIcon());
         pref.setKey(key);
@@ -95,7 +96,7 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
         return pref;
     }
 
-    public void updateCheckedState(String selectedKey) {
+    public void updateCheckedState(@Nullable String selectedKey) {
         final PreferenceScreen screen = getPreferenceScreen();
         if (screen != null) {
             final int count = screen.getPreferenceCount();
@@ -125,10 +126,12 @@ public abstract class RadioButtonPickerFragment extends ToolbarPreferenceFragmen
 
     protected abstract List<? extends CandidateInfo> getCandidates();
 
+    @Nullable
     protected abstract String getDefaultKey();
 
-    protected abstract boolean setDefaultKey(String key);
+    protected abstract boolean setDefaultKey(@Nullable String key);
 
+    @Nullable
     protected String getSystemDefaultKey() {
         return null;
     }

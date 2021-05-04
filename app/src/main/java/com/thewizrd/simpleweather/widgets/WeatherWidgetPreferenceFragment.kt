@@ -99,7 +99,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private var job: Job? = null
 
     // Weather
-    private val wm = WeatherManager.getInstance()
+    private val wm = WeatherManager.instance
 
     // Views
     private lateinit var binding: FragmentWidgetSetupBinding
@@ -1108,10 +1108,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 throw e
             }
 
-            if (query_vm?.locationQuery.isNullOrBlank()) {
+            if (query_vm == null || query_vm.locationQuery.isNullOrBlank()) {
                 // Stop since there is no valid query
                 return false
-            } else if (query_vm?.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
+            } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
                 val tzId = withContext(Dispatchers.IO) {
                     TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
                 }
@@ -1159,14 +1159,14 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         if (mockLocData == null) {
             mockLocData = LocationData().apply {
                 name = locationPref.findEntryFromValue(mLastSelectedValue)?.toString()
-                        ?: getString(R.string.pref_location)
+                       ?: getString(R.string.pref_location)
                 query = locationPref.value
                 latitude = 0.toDouble()
                 longitude = 0.toDouble()
                 tzLong = "UTC"
                 locationType = if (locationPref.value == Constants.KEY_GPS) LocationType.GPS else LocationType.SEARCH
-                weatherSource = wm.weatherAPI
-                locationSource = wm.locationProvider.locationAPI
+                weatherSource = wm.getWeatherAPI()
+                locationSource = wm.getLocationProvider().getLocationAPI()
             }
         } else {
             mockLocData?.name = if (mLastSelectedValue != null) locationPref.findEntryFromValue(mLastSelectedValue).toString() else getString(R.string.pref_location)
@@ -1218,7 +1218,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 precipitation = Precipitation().apply {
                     pop = 15
                 }
-                source = wm.weatherAPI
+                source = wm.getWeatherAPI()
                 query = locationPref.value
 
                 mockWeatherData = this

@@ -65,7 +65,7 @@ class ForecastsNowViewModel : ViewModel() {
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 currentHrForecastsData = withContext(Dispatchers.IO) {
-                    val hrInterval = WeatherManager.getInstance().hourlyForecastInterval
+                    val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
                     settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
                 }
                 currentHrForecastsData!!.observeForever(hrforecastObserver)

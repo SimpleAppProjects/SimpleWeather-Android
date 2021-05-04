@@ -83,7 +83,10 @@ class UnitTests {
             }
         }
 
-        SimpleLibrary.initialize(app)
+        // Needs to be called on main thread
+        runBlocking(Dispatchers.Main.immediate) {
+            SimpleLibrary.initialize(app)
+        }
 
         // Start logger
         Logger.init(app.appContext)
@@ -93,7 +96,7 @@ class UnitTests {
     @Throws(WeatherException::class)
     private suspend fun getWeather(providerImpl: WeatherProviderImpl) = withContext(Dispatchers.IO) {
         val location = providerImpl.getLocation(Coordinate(47.6721646, -122.1706614))
-        val locData = LocationData(location)
+        val locData = LocationData(location!!)
         return@withContext providerImpl.getWeather(locData)
     }
 
@@ -103,7 +106,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.HERE)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -113,7 +116,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.METNO)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -123,7 +126,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val location = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                     .getLocation(Coordinate(47.6721646, -122.1706614))
-            val locData = LocationData(location)
+            val locData = LocationData(location!!)
             val alerts = withContext(Dispatchers.IO) {
                 NWSAlertProvider().getAlerts(locData)
             }
@@ -137,8 +140,8 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.NWS)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather?.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -148,7 +151,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -158,8 +161,8 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.WEATHERUNLOCKED)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather?.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
-            Assert.assertTrue(weather?.isValid == true)
+            Assert.assertTrue(!weather.forecast.isNullOrEmpty() && !weather.hrForecast.isNullOrEmpty())
+            Assert.assertTrue(weather.isValid)
         }
     }
 
@@ -308,7 +311,7 @@ class UnitTests {
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocation(51.5073884, -0.1334347, 1) // London
             }
-            Assert.assertTrue(addressList?.isNotEmpty() == true)
+            Assert.assertFalse(addressList.isNullOrEmpty())
             val result = addressList!![0]
             Assert.assertNotNull(result)
         }
@@ -322,7 +325,7 @@ class UnitTests {
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Berlin, Germany", null)
             }
-            Assert.assertTrue(locations?.isNotEmpty() == true)
+            Assert.assertFalse(locations.isNullOrEmpty())
 
             val queryVM = Iterables.getFirst(locations, null)
             Assert.assertNotNull(queryVM)
@@ -344,9 +347,9 @@ class UnitTests {
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Redmond, WA", null)
             }
-            Assert.assertTrue(locations?.isNotEmpty() == true)
+            Assert.assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = locations?.find { it != null && it.locationName.startsWith("Redmond, ") }
+            val queryVM = locations.find { it.locationName.startsWith("Redmond, ") }
             Assert.assertNotNull(queryVM)
 
             val nameModel = locationProvider.getLocationFromName(queryVM!!)
