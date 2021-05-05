@@ -1112,9 +1112,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 // Stop since there is no valid query
                 return false
             } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
-                val tzId = withContext(Dispatchers.IO) {
-                    TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
-                }
+                val tzId = TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
+
                 if ("unknown" != tzId)
                     query_vm.locationTZLong = tzId
             }

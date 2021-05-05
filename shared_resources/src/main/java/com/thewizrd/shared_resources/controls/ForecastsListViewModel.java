@@ -3,7 +3,6 @@ package com.thewizrd.shared_resources.controls;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Function;
 import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -17,11 +16,9 @@ import androidx.paging.PositionalDataSource;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.tasks.AsyncTask;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.Forecasts;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
 import java.time.ZonedDateTime;
@@ -29,7 +26,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class ForecastsListViewModel extends ViewModel {
     private final SettingsManager settingsMgr;
@@ -86,12 +82,7 @@ public class ForecastsListViewModel extends ViewModel {
 
             int hrInterval = WeatherManager.getInstance().getHourlyForecastInterval();
             DataSource.Factory<Integer, HourlyForecastItemViewModel> hrFactory = settingsMgr.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(location.getQuery(), ZonedDateTime.now(location.getTzOffset()).minusHours((long) (hrInterval * 0.5d)).truncatedTo(ChronoUnit.HOURS))
-                    .map(new Function<HourlyForecast, HourlyForecastItemViewModel>() {
-                        @Override
-                        public HourlyForecastItemViewModel apply(HourlyForecast input) {
-                            return new HourlyForecastItemViewModel(input);
-                        }
-                    });
+                    .map(HourlyForecastItemViewModel::new);
 
             if (currentHrForecastsData != null) {
                 currentHrForecastsData.removeObserver(hrforecastObserver);
@@ -184,16 +175,11 @@ public class ForecastsListViewModel extends ViewModel {
 
         @Override
         public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<ForecastItemViewModel> callback) {
-            Forecasts forecasts = AsyncTask.await(new Callable<Forecasts>() {
-                @Override
-                public Forecasts call() {
-                    return dao.getForecastData(location.getQuery());
-                }
-            });
+            Forecasts forecasts = dao.getForecastData(location.getQuery());
 
             int totalCount = forecasts != null && forecasts.getForecast() != null ? forecasts.getForecast().size() : 0;
             if (totalCount == 0) {
-                callback.onResult(Collections.<ForecastItemViewModel>emptyList(), 0, 0);
+                callback.onResult(Collections.emptyList(), 0, 0);
                 return;
             }
 
@@ -205,12 +191,7 @@ public class ForecastsListViewModel extends ViewModel {
 
         @Override
         public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<ForecastItemViewModel> callback) {
-            Forecasts forecasts = AsyncTask.await(new Callable<Forecasts>() {
-                @Override
-                public Forecasts call() {
-                    return dao.getForecastData(location.getQuery());
-                }
-            });
+            Forecasts forecasts = dao.getForecastData(location.getQuery());
 
             callback.onResult(loadItems(forecasts, params.startPosition, params.loadSize));
         }

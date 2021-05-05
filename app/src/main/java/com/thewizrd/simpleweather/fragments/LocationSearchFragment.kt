@@ -139,9 +139,7 @@ class LocationSearchFragment : WindowColorFragment() {
                     if (queryResult == null) {
                         throw InterruptedException()
                     } else if (queryResult.locationTZLong.isNullOrBlank() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                        val tzId = withContext(Dispatchers.IO) {
-                            TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
-                        }
+                        val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
                         if ("unknown" != tzId)
                             queryResult.locationTZLong = tzId
                     }
