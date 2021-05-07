@@ -7,8 +7,6 @@
 
         <import type="androidx.core.content.ContextCompat" />
 
-        <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
-
         <variable
             name="viewModel"
             type="com.thewizrd.shared_resources.controls.WeatherAlertViewModel" />
@@ -25,7 +23,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            app:cardBackgroundColor="@{WeatherUtils.getColorFromAlertSeverity(viewModel.alertSeverity)}"
+            app:cardBackgroundColor="@{viewModel.alertSeverityColor}"
             app:cardCornerRadius="0dp"
             tools:background="@android:color/red">
 
@@ -44,7 +42,7 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="8dp"
                     android:paddingStart="24dp"
-                    app:srcCompat="@{WeatherUtils.getDrawableFromAlertType(viewModel.alertType)}"
+                    app:srcCompat="@{viewModel.alertDrawable}"
                     app:tint="@android:color/white"
                     tools:src="@drawable/ic_error_white" />
 

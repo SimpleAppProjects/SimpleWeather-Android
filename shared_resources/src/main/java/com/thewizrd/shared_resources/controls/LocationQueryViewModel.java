@@ -5,9 +5,6 @@ import android.location.Address;
 import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 
-import com.google.android.libraries.places.api.model.AddressComponent;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
-import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
@@ -22,7 +19,6 @@ import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.text.DecimalFormat;
-import java.util.List;
 import java.util.Locale;
 
 public class LocationQueryViewModel {
@@ -358,117 +354,6 @@ public class LocationQueryViewModel {
         updateLocationQuery();
     }
 
-    /* Google Maps Places Autocomplete */
-    public LocationQueryViewModel(AutocompletePrediction result, String weatherAPI) {
-        setLocation(result, weatherAPI);
-    }
-
-    private void setLocation(AutocompletePrediction result, String weatherAPI) {
-        if (result == null)
-            return;
-
-        locationName = result.getPrimaryText(null).toString();
-        locationCountry = result.getSecondaryText(null).toString();
-        locationQuery = result.getPlaceId();
-
-        locationLat = -1;
-        locationLong = -1;
-
-        locationTZLong = null;
-
-        locationSource = WeatherAPI.GOOGLE;
-        weatherSource = weatherAPI;
-    }
-
-    /* Google Places API Place */
-    public LocationQueryViewModel(FetchPlaceResponse response, String weatherAPI) {
-        setLocation(response, weatherAPI);
-    }
-
-    /* Google Places API Place */
-    private void setLocation(FetchPlaceResponse response, String weatherAPI) {
-        if (response == null || response.getPlace() == null)
-            return;
-
-        String town = null, region = null, adminArea = null, countryName = null;
-
-        List<AddressComponent> addressComponents = response.getPlace().getAddressComponents().asList();
-
-        if (addressComponents != null && !addressComponents.isEmpty()) {
-            for (AddressComponent addrCmp : addressComponents) {
-                if (StringUtils.isNullOrWhitespace(town) && addrCmp != null &&
-                        addrCmp.getTypes() != null && addrCmp.getTypes().contains("locality")) {
-                    town = addrCmp.getName();
-                }
-                if (StringUtils.isNullOrWhitespace(adminArea) && addrCmp != null &&
-                        addrCmp.getTypes() != null && addrCmp.getTypes().contains("administrative_area_level_2")) {
-                    adminArea = addrCmp.getShortName();
-                }
-                if (StringUtils.isNullOrWhitespace(region) && addrCmp != null &&
-                        addrCmp.getTypes() != null && addrCmp.getTypes().contains("administrative_area_level_1")) {
-                    region = addrCmp.getShortName();
-                }
-                if (StringUtils.isNullOrWhitespace(locationCountry) && addrCmp != null &&
-                        addrCmp.getTypes() != null && addrCmp.getTypes().contains("country")) {
-                    countryName = addrCmp.getName();
-                    locationCountry = addrCmp.getShortName();
-                }
-
-                if (town != null && adminArea != null && region != null && locationCountry != null) {
-                    break;
-                }
-            }
-        }
-
-        if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region) &&
-                !StringUtils.isNullOrEmpty(adminArea) &&
-                !(ObjectsCompat.equals(adminArea, region) ||
-                        ObjectsCompat.equals(adminArea, town))) {
-            locationName = String.format("%s, %s, %s", town, adminArea, region);
-        } else if (!StringUtils.isNullOrWhitespace(town) && !StringUtils.isNullOrWhitespace(region)) {
-            if (ObjectsCompat.equals(town, region)) {
-                locationName = String.format("%s, %s", town, countryName);
-            } else {
-                locationName = String.format("%s, %s", town, region);
-            }
-        } else {
-            if (StringUtils.isNullOrWhitespace(town) || StringUtils.isNullOrWhitespace(region)) {
-                if (!StringUtils.isNullOrWhitespace(response.getPlace().getName())) {
-                    locationName = response.getPlace().getName();
-
-                    if (locationName != null && locationName.contains(", " + countryName)) {
-                        locationName = locationName.replace(", " + countryName, "");
-                    } else if (locationName != null && locationName.contains(", " + locationCountry)) {
-                        locationName = locationName.replace(", " + locationCountry, "");
-                    }
-                } else {
-                    if (StringUtils.isNullOrWhitespace(town)) {
-                        locationName = String.format("%s, %s", region, countryName);
-                    } else {
-                        locationName = String.format("%s, %s", town, countryName);
-                    }
-                }
-            }
-        }
-
-        if (StringUtils.isNullOrWhitespace(locationName)) {
-            locationName = response.getPlace().getName();
-        }
-        if (StringUtils.isNullOrWhitespace(locationCountry)) {
-            locationCountry = countryName;
-        }
-
-        locationLat = response.getPlace().getLatLng().latitude;
-        locationLong = response.getPlace().getLatLng().longitude;
-
-        locationTZLong = null;
-
-        locationSource = WeatherAPI.GOOGLE;
-        weatherSource = weatherAPI;
-
-        updateLocationQuery();
-    }
-
     /* WeatherAPI Search/AutoComplete Query */
     public LocationQueryViewModel(LocationItem result, String weatherAPI) {
         setLocation(result, weatherAPI);
@@ -517,7 +402,7 @@ public class LocationQueryViewModel {
         }
     }
 
-    public void updateWeatherSource(@WeatherAPI.WeatherAPIs @NonNull String API) {
+    public void updateWeatherSource(@WeatherAPI.WeatherProviders @NonNull String API) {
         weatherSource = API;
         updateLocationQuery();
     }

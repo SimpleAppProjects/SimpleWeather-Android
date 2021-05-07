@@ -1,9 +1,11 @@
 package com.thewizrd.shared_resources.utils;
 
+import androidx.annotation.Nullable;
+
 import java.util.Locale;
 
 public class LocationUtils {
-    public static boolean isUS(String countryCode) {
+    public static boolean isUS(@Nullable String countryCode) {
         if (StringUtils.isNullOrWhitespace(countryCode))
             return false;
         else {
@@ -11,7 +13,7 @@ public class LocationUtils {
         }
     }
 
-    public static boolean isUSorCanada(String countryCode) {
+    public static boolean isUSorCanada(@Nullable String countryCode) {
         if (StringUtils.isNullOrWhitespace(countryCode))
             return false;
         else {

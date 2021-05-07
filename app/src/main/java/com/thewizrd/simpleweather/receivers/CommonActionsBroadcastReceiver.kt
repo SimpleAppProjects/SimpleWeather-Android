@@ -10,10 +10,12 @@ import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.services.ImageDatabaseWorker
+import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
@@ -27,18 +29,18 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (CommonActions.ACTION_SETTINGS_UPDATEAPI == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
         } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDUPDATE)
         } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
             WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
         } else if (CommonActions.ACTION_SETTINGS_UPDATEREFRESH == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
             updateAlarm(context)
         } else if (CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDLOCATIONUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDLOCATIONUPDATE)
             if (intent.getBooleanExtra(CommonActions.EXTRA_FORCEUPDATE, true)) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             }
@@ -54,7 +56,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 }
             }
         } else if (CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE == intent.action) {
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDWEATHERUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDWEATHERUPDATE)
         } else if (CommonActions.ACTION_WIDGET_RESETWIDGETS == intent.action) {
             WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
                     .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS))
@@ -62,7 +64,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
                     .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS))
         } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER == intent.action) {
-            ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorker.ACTION_UPDATEALARM)
+            ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorkerActions.ACTION_UPDATEALARM)
         }
 
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.action)

@@ -17,17 +17,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.work.Configuration
-import com.google.android.play.core.splitcompat.SplitCompat
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.simpleweather.extras.attachToBaseContext
+import com.thewizrd.simpleweather.extras.initializeExtras
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -113,20 +108,14 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
 
             // Init shared library
             SimpleLibrary.initialize(this)
-            ExtrasLibrary.initialize(this)
 
             // Start logger
             Logger.init(context)
 
-            FirebaseCrashlytics.getInstance().apply {
-                setCrashlyticsCollectionEnabled(true)
-                sendUnsentReports()
-            }
-            FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "mobile")
-            FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
-
             // Init common action broadcast receiver
             registerCommonReceiver()
+
+            initializeExtras(this)
         }
 
         if (BuildConfig.DEBUG) {
@@ -187,18 +176,12 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
                     }
                 }
             }
-
-            // Receive Firebase messages
-            FirebaseMessaging.getInstance().subscribeToTopic("all")
-            if (BuildConfig.DEBUG) {
-                FirebaseMessaging.getInstance().subscribeToTopic("debug_all")
-            }
         }
     }
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-        SplitCompat.install(this)
+        attachToBaseContext(base)
     }
 
     private fun registerCommonReceiver() {

@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.activity.UserLocaleActivity
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
 
 class WeatherWidgetConfigActivity : UserLocaleActivity() {
     private var mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID

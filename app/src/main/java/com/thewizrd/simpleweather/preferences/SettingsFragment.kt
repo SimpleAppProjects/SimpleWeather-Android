@@ -1,9 +1,7 @@
 package com.thewizrd.simpleweather.preferences
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Dialog
 import android.content.*
 import android.content.Intent.FilterComparison
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -15,18 +13,12 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
 import android.text.SpannableString
 import android.text.TextUtils
-import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
@@ -35,18 +27,19 @@ import androidx.navigation.findNavController
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.extras.*
+import com.thewizrd.simpleweather.locale.InstallRequest
+import com.thewizrd.simpleweather.locale.LocaleInstaller
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
@@ -57,10 +50,9 @@ import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
-import com.thewizrd.simpleweather.splits.InstallRequest
-import com.thewizrd.simpleweather.splits.SplitLocaleInstaller
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import java.util.*
 
@@ -80,7 +72,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var registerPref: Preference
     private lateinit var themePref: ListPreference
     private lateinit var languagePref: ListPreference
-    private lateinit var premiumPref: Preference
+    private var premiumPref: Preference? = null
 
     // Background ops
     private lateinit var foregroundPref: SwitchPreferenceCompat
@@ -296,7 +288,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
         }
         intervalPref = findPreference(SettingsManager.KEY_REFRESHINTERVAL)!!
-        if (ExtrasLibrary.isEnabled()) {
+        if (enableAdditionalRefreshIntervals()) {
             intervalPref.setEntries(R.array.premium_refreshinterval_entries)
             intervalPref.setEntryValues(R.array.premium_refreshinterval_values)
         } else {
@@ -385,13 +377,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         providerPref.isPersistent = false
         providerPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-                if (Objects.equals(newValue.toString(), WeatherAPI.HERE) && !ExtrasLibrary.isEnabled()) {
-                    // Navigate to premium page
-                    if (ExtrasLibrary.areSubscriptionsSupported) {
-                        rootView.findNavController().navigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
-                    } else {
-                        showSnackbar(Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT), null)
-                    }
+                if (isWeatherAPISupported(newValue.toString())) {
+                    navigateToPremiumFragment()
                     return false
                 }
 
@@ -435,13 +422,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     else
                         settingsManager.setAPI(newValue.toString())
 
-                    var providerEntry: ProviderEntry? = null
-                    for (entry: ProviderEntry in providers) {
-                        if ((entry.value == newValue.toString())) {
-                            providerEntry = entry
-                            break
-                        }
-                    }
+                    val providerEntry =
+                        providers.find { entry -> entry.value == newValue.toString() }
                     updateKeySummary(providerEntry!!.display)
                     updateRegisterLink(providerEntry.value)
                 } else {
@@ -592,14 +574,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             true
         }
 
-        findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener = object :
-                Preference.OnPreferenceClickListener {
-            override fun onPreferenceClick(preference: Preference): Boolean {
-                // Display the fragment as the main content.
-                appCompatActivity.findNavController(R.id.fragment_container)
-                        .navigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
-                return true
-            }
+        findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            // Display the fragment as the main content.
+            appCompatActivity.findNavController(R.id.fragment_container)
+                    .navigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
+            true
         }
 
         languagePref = findPreference(LocaleUtils.KEY_LANGUAGE)!!
@@ -618,13 +597,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
         languagePref.entries = langEntries
 
-        languagePref.summaryProvider = object : SummaryProvider<ListPreference> {
-            override fun provideSummary(preference: ListPreference): CharSequence {
-                return if (preference.value.isNullOrBlank()) {
-                    preference.context.getString(R.string.summary_default)
-                } else {
-                    LocaleUtils.getLocaleDisplayName()
-                }
+        languagePref.summaryProvider = SummaryProvider<ListPreference> { preference ->
+            if (preference.value.isNullOrBlank()) {
+                preference.context.getString(R.string.summary_default)
+            } else {
+                LocaleUtils.getLocaleDisplayName()
             }
         }
 
@@ -632,19 +609,12 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         languagePref.value = LocaleUtils.getLocaleCode()
         languagePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
             val requestedLang = newValue.toString()
-            splitInstallRequest = SplitLocaleInstaller.installLocale(requireActivity(), requestedLang)
+            splitInstallRequest = LocaleInstaller.installLocale(requireActivity(), requestedLang)
             false
         }
 
-        premiumPref = findPreference(KEY_PREMIUM)!!
-        premiumPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (ExtrasLibrary.areSubscriptionsSupported) {
-                rootView.findNavController().navigate(
-                        SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
-            } else {
-                showSnackbar(Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT), null)
-            }
-            true
+        if (isPremiumSupported()) {
+            premiumPref = createPremiumPreference()
         }
 
         foregroundPref = findPreference(PowerUtils.KEY_USE_FOREGROUNDSERVICE)!!
@@ -662,22 +632,29 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
         }
 
-        foregroundPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
-            true
-        }
+        foregroundPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
+                true
+            }
 
-        aboutCategory = findPreference<Preference>(KEY_ABOUTAPP)!!.parent as PreferenceCategory
+        val aboutPref = findPreference<Preference>(KEY_ABOUTAPP)!!
+        aboutCategory = aboutPref.parent as PreferenceCategory
 
         // Remove if subs are not supported
-        if (!ExtrasLibrary.areSubscriptionsSupported) {
-            aboutCategory.removePreference(premiumPref)
+        if (!isPremiumSupported()) {
+            premiumPref?.let {
+                aboutCategory.removePreference(it)
+            }
+        } else if (premiumPref != null && aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
+            aboutCategory.addPreference(premiumPref)
         }
+
         tintIcons(preferenceScreen, ContextUtils.getColor(appCompatActivity, R.attr.colorPrimary))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == SplitLocaleInstaller.CONFIRMATION_REQUEST_CODE) {
+        if (requestCode == LocaleInstaller.CONFIRMATION_REQUEST_CODE) {
             // Handle the user's decision. For example, if the user selects "Cancel",
             // you may want to disable certain functionality that depends on the module.
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -820,18 +797,18 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             SettingsManager.KEY_API -> {
                 enqueueIntent(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
                 enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE))
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
             }
             SettingsManager.KEY_FOLLOWGPS -> {
                 val value = sharedPreferences.getBoolean(key, false)
                 enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE))
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
                 enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorker.ACTION_SENDLOCATIONUPDATE))
+                        .setAction(WearableWorkerActions.ACTION_SENDLOCATIONUPDATE))
                 enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER))
                 enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorker.ACTION_SENDWEATHERUPDATE))
+                        .setAction(WearableWorkerActions.ACTION_SENDWEATHERUPDATE))
                 enqueueIntent(Intent(context, WeatherWidgetService::class.java)
                         .setAction(if (value) WeatherWidgetService.ACTION_REFRESHGPSWIDGETS else WeatherWidgetService.ACTION_RESETGPSWIDGETS))
             }
@@ -841,75 +818,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
             LocaleUtils.KEY_LANGUAGE -> {
                 enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorker.ACTION_SENDSETTINGSUPDATE))
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
             }
-        }
-    }
-
-    class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat() {
-        private var posButtonClickListener: View.OnClickListener? = null
-        private var negButtonClickListener: View.OnClickListener? = null
-
-        var key: String? = null
-            private set
-        private var keyEntry: EditText? = null
-
-        companion object {
-            fun newInstance(key: String?): KeyEntryPreferenceDialogFragment {
-                val fragment = KeyEntryPreferenceDialogFragment()
-                val b = Bundle(1)
-                b.putString(ARG_KEY, key)
-                fragment.arguments = b
-                return fragment
-            }
-        }
-
-        override fun onCreateDialogView(context: Context): View {
-            val inflater = LayoutInflater.from(context)
-            return inflater.inflate(R.layout.layout_keyentry_dialog, null)
-        }
-
-        override fun onBindDialogView(view: View) {
-            super.onBindDialogView(view)
-
-            keyEntry = view.findViewById(android.R.id.edit)
-            keyEntry!!.addTextChangedListener(editTextWatcher)
-        }
-
-        private val editTextWatcher: TextWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                key = s.toString()
-            }
-
-            override fun afterTextChanged(s: Editable) {}
-        }
-
-        fun setPositiveButtonOnClickListener(listener: View.OnClickListener?) {
-            posButtonClickListener = listener
-        }
-
-        fun setNegativeButtonOnClickListener(listener: View.OnClickListener?) {
-            negButtonClickListener = listener
-        }
-
-        @SuppressLint("RestrictedApi")
-        override fun setupDialog(dialog: Dialog, style: Int) {
-            super.setupDialog(dialog, style)
-            val alertDialog = getDialog() as AlertDialog?
-            alertDialog?.setOnShowListener { dialog ->
-                val posButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                val negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-                posButton.setOnClickListener(posButtonClickListener)
-                if (negButtonClickListener == null) {
-                    negButton.setOnClickListener { dialog.dismiss() }
-                } else {
-                    negButton.setOnClickListener(negButtonClickListener)
-                }
-            }
-
-            key = App.instance.settingsManager.getAPIKEY()
         }
     }
 
@@ -991,6 +901,18 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             return R.string.pref_title_icons
         }
 
+        override fun getDefaultKey(): String {
+            return settingsManager.getIconsProvider()
+        }
+
+        override fun setDefaultKey(key: String?): Boolean {
+            if (TextUtils.isEmpty(key)) {
+                return false
+            }
+            settingsManager.setIconsProvider(key)
+            return true
+        }
+
         override fun bindPreferenceExtra(pref: RadioButtonPreference, key: String,
                                          info: CandidateInfo, defaultKey: String?,
                                          systemDefaultKey: String?
@@ -1003,7 +925,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             super.onSelectionPerformed(success)
             val context = prefContext.applicationContext
             WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
-            WearableWorker.enqueueAction(context, WearableWorker.ACTION_SENDSETTINGSUPDATE)
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
+        }
+
+        override fun onRadioButtonConfirmed(selectedKey: String?) {
+            if (!isIconPackSupported(selectedKey)) {
+                navigateUnsupportedIconPack()
+                return
+            }
+            super.onRadioButtonConfirmed(selectedKey)
         }
     }
 
@@ -1056,29 +986,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 true
             }
 
-            findPreference<Preference>(KEY_RATEREVIEW)!!.onPreferenceClickListener = object :
-                    Preference.OnPreferenceClickListener {
-                override fun onPreferenceClick(preference: Preference): Boolean {
-                    openPlayStore()
-                    return true
-                }
-
-                private fun openPlayStore() {
-                    try {
-                        startActivity(Intent(Intent.ACTION_VIEW)
-                                .addCategory(Intent.CATEGORY_BROWSABLE)
-                                .setData(WearableHelper.getPlayStoreURI()))
-                    } catch (e: ActivityNotFoundException) {
-                        val i: Intent = Intent(Intent.ACTION_VIEW)
-                                .addCategory(Intent.CATEGORY_BROWSABLE)
-                                .setData(WearableHelper.getPlayStoreWebURI())
-
-                        if (i.resolveActivity(appCompatActivity.packageManager) != null) {
-                            startActivity(i)
-                        }
-                    }
-                }
-            }
+            setupReviewPreference(findPreference<Preference>(KEY_RATEREVIEW)!!)
 
             findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 if (preference.intent != null) {

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <ListPreference
+        android:key="API"
+        android:summary="%s"
+        android:title="@string/api_label"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="key_apiregister"
+        android:summary="@string/pref_summary_apiregister"
+        android:title="@string/pref_title_apiregister"
+        app:iconSpaceReserved="false" />
+
+    <EditTextPreference
+        android:key="API_KEY"
+        android:singleLine="true"
+        android:summary="@string/pref_summary_apikey"
+        android:title="@string/key_hint"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>

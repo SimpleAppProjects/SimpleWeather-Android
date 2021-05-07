@@ -2,13 +2,9 @@ package com.thewizrd.shared_resources;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.security.ProviderInstaller;
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
@@ -62,21 +58,8 @@ public final class SimpleLibrary {
             sSimpleLib.mContext = app.getAppContext();
         }
 
-        ProviderInstaller.installIfNeededAsync(sSimpleLib.getAppContext(), new ProviderInstaller.ProviderInstallListener() {
-            @Override
-            public void onProviderInstalled() {
-                // no-op
-            }
-
-            @Override
-            public void onProviderInstallFailed(int errorCode, @Nullable Intent intent) {
-                GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-                if (googleApiAvailability.isUserResolvableError(errorCode)) {
-                    // Prompt the user to install/update/enable Google Play services.
-                    googleApiAvailability.showErrorNotification(sSimpleLib.getAppContext(), errorCode);
-                }
-            }
-        });
+        // For added network security
+        GMSSecurityProvider.installAsync(app.getAppContext());
     }
 
     public static void unregister() {

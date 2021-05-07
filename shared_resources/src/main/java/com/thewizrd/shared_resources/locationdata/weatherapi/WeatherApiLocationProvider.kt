@@ -11,7 +11,7 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -29,7 +29,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
         private const val QUERY_URL = "https://api.weatherapi.com/v1/search.json?key=%s&q=%s&lang=%s"
     }
 
-    @LocationAPIs
+    @LocationProviders
     override fun getLocationAPI(): String {
         return WeatherAPI.WEATHERAPI
     }

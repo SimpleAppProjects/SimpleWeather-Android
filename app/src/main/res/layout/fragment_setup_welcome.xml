@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    tools:background="@color/colorPrimaryDark"
+    tools:background="@color/colorPrimaryBackground"
     tools:context=".setup.SetupActivity">
 
     <androidx.appcompat.widget.AppCompatImageView

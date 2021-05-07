@@ -6,30 +6,30 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 public final class WeatherProviderConfig {
 
     @SerializedName("locSource")
-    @WeatherAPI.LocationAPIs
+    @WeatherAPI.LocationProviders
     private String locSource;
 
     @SerializedName("newWeatherSource")
-    @WeatherAPI.WeatherAPIs
+    @WeatherAPI.WeatherProviders
     private String newWeatherSource;
 
     @SerializedName("enabled")
     private boolean enabled;
 
-    public void setLocSource(@WeatherAPI.LocationAPIs String locSource) {
+    public void setLocSource(@WeatherAPI.LocationProviders String locSource) {
         this.locSource = locSource;
     }
 
-    @WeatherAPI.LocationAPIs
+    @WeatherAPI.LocationProviders
     public String getLocSource() {
         return locSource;
     }
 
-    public void setNewWeatherSource(@WeatherAPI.WeatherAPIs String newWeatherSource) {
+    public void setNewWeatherSource(@WeatherAPI.WeatherProviders String newWeatherSource) {
         this.newWeatherSource = newWeatherSource;
     }
 
-    @WeatherAPI.WeatherAPIs
+    @WeatherAPI.WeatherProviders
     public String getNewWeatherSource() {
         return newWeatherSource;
     }

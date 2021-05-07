@@ -30,9 +30,11 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
@@ -143,21 +145,15 @@ class LocationSearchFragment : WindowColorFragment() {
                             queryResult.locationTZLong = tzId
                     }
 
-                    val isUS = LocationUtils.isUS(queryResult.locationCountry)
-
-                    if (!getSettingsManager().isWeatherLoaded()) {
-                        // Default US provider to NWS
-                        if (isUS) {
-                            getSettingsManager().setAPI(WeatherAPI.NWS)
-                            queryResult.updateWeatherSource(WeatherAPI.NWS)
-                        } else {
-                            getSettingsManager().setAPI(WeatherAPI.WEATHERUNLOCKED)
-                            queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
-                        }
+                    if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                        // Set default provider based on location
+                        val provider = RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                        getSettingsManager().setAPI(provider)
+                        queryResult.updateWeatherSource(provider)
                         wm.updateAPI()
                     }
 
-                    if (WeatherAPI.NWS == getSettingsManager().getAPI() && !isUS) {
+                    if (WeatherAPI.NWS == getSettingsManager().getAPI() && !LocationUtils.isUS(queryResult.locationCountry)) {
                         throw CustomException(R.string.error_message_weather_us_only)
                     }
 

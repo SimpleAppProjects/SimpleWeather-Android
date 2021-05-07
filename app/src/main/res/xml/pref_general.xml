@@ -129,15 +129,10 @@
     <PreferenceCategory android:title="@string/pref_title_about">
 
         <Preference
-            android:key="key_premium"
-            android:title="@string/pref_title_premium"
-            android:summary="@string/message_premium_prompt"
-            app:icon="@drawable/ic_star_24dp" />
-
-        <Preference
             android:key="key_aboutapp"
             android:title="@string/pref_title_about_app"
-            app:icon="@drawable/ic_info_outline_white_24dp" />
+            app:icon="@drawable/ic_info_outline_white_24dp"
+            app:order="1" />
 
     </PreferenceCategory>
 

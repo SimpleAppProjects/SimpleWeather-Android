@@ -14,13 +14,14 @@ import com.google.android.gms.wearable.*
 import com.google.android.gms.wearable.CapabilityClient.OnCapabilityChangedListener
 import com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener
 import com.google.android.wearable.intent.RemoteIntent
+import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.activity.UserLocaleActivity
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -126,7 +127,7 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                 PhoneDeviceType.DEVICE_TYPE_ANDROID -> {
                     val intentAndroid = Intent(Intent.ACTION_VIEW)
                             .addCategory(Intent.CATEGORY_BROWSABLE)
-                            .setData(WearableHelper.getPlayStoreURI())
+                            .setData(PlayStoreUtils.getPlayStoreURI())
 
                     RemoteIntent.startRemoteActivity(this@WearableListenerActivity, intentAndroid,
                             ConfirmationResultReceiver(this@WearableListenerActivity))

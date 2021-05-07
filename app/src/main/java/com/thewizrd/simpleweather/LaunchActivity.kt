@@ -6,14 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
-import com.thewizrd.extras.ExtrasLibrary.Companion.checkPremiumStatus
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.activity.UserLocaleActivity
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
+import com.thewizrd.simpleweather.extras.checkPremiumStatus
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager

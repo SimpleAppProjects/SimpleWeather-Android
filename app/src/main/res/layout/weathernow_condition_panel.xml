@@ -19,7 +19,7 @@
 
         <variable
             name="imageData"
-            type="com.thewizrd.shared_resources.controls.ImageDataViewModel" />
+            type="com.thewizrd.simpleweather.controls.ImageDataViewModel" />
 
     </data>
 

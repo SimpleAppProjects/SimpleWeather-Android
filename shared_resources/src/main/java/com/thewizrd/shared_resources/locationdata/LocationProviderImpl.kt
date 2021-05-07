@@ -7,14 +7,14 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
 abstract class LocationProviderImpl : LocationProviderImplInterface {
     // Variables
-    @LocationAPIs
+    @LocationProviders
     abstract override fun getLocationAPI(): String
 
     abstract override fun isKeyRequired(): Boolean

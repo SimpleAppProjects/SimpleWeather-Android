@@ -31,6 +31,7 @@ import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
@@ -544,7 +545,7 @@ class SettingsActivity : WearableListenerActivity() {
         private val connStatusPrefClickListener = Preference.OnPreferenceClickListener {
             val intentAndroid = Intent(Intent.ACTION_VIEW)
                     .addCategory(Intent.CATEGORY_BROWSABLE)
-                    .setData(WearableHelper.getPlayStoreURI())
+                    .setData(PlayStoreUtils.getPlayStoreURI())
 
             RemoteIntent.startRemoteActivity(parentActivity, intentAndroid,
                     ConfirmationResultReceiver(parentActivity))

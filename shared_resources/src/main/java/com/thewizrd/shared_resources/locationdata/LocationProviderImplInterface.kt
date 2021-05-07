@@ -3,10 +3,10 @@ package com.thewizrd.shared_resources.locationdata
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 
 interface LocationProviderImplInterface {
-    @LocationAPIs
+    @LocationProviders
     fun getLocationAPI(): String
 
     fun isKeyRequired(): Boolean

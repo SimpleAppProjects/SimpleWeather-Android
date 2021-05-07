@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
@@ -21,24 +20,25 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
-import com.google.android.gms.location.*
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import kotlin.coroutines.coroutineContext
 
@@ -50,10 +50,9 @@ class SetupLocationFragment : CustomFragment() {
 
     // Views
     private lateinit var binding: FragmentSetupLocationBinding
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLocation: Location? = null
-    private var mLocCallback: LocationCallback? = null
-    private var mLocListnr: LocationListener? = null
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var locationCallback: LocationProvider.Callback
 
     /**
      * Tracks the status of the location updates request.
@@ -87,62 +86,23 @@ class SetupLocationFragment : CustomFragment() {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
 
         // Location Listener
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
-            mLocCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-                    mLocation = locationResult.lastLocation
+        locationProvider = LocationProvider(appCompatActivity!!)
+        locationCallback = object : LocationProvider.Callback {
+            override fun onLocationChanged(location: Location?) {
+                stopLocationUpdates()
+                mMainHandler.removeCallbacks(cancelLocRequestRunner)
+                mLocation = location
 
-                    Timber.tag(TAG).i("Fused: Location update received...")
+                Timber.tag(TAG).i("Location update received...")
 
-                    runWithView {
-                        if (mLocation == null) {
-                            enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
-                        } else {
-                            fetchGeoLocation()
-                        }
+                runWithView {
+                    if (mLocation == null) {
+                        enableControls(true)
+                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                    } else {
+                        fetchGeoLocation()
                     }
                 }
-
-                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    if (!locationAvailability.isLocationAvailable) {
-                        stopLocationUpdates()
-                        mMainHandler.removeCallbacks(cancelLocRequestRunner)
-
-                        Timber.tag(TAG).i("Fused: Location update unavailable...")
-                        runWithView {
-                            enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
-                        }
-                    }
-                }
-            }
-        } else {
-            mLocListnr = object : LocationListener {
-                @SuppressLint("MissingPermission")
-                override fun onLocationChanged(location: Location) {
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-                    stopLocationUpdates()
-
-                    Timber.tag(TAG).i("LocMan: Location update received...")
-
-                    mLocation = location
-                    runWithView {
-                        if (mLocation == null) {
-                            enableControls(true)
-                            showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
-                        } else {
-                            fetchGeoLocation()
-                        }
-                    }
-                }
-
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
             }
         }
         mRequestingLocationUpdates = false
@@ -242,15 +202,8 @@ class SetupLocationFragment : CustomFragment() {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mLocCallback?.let {
-            mFusedLocationClient?.removeLocationUpdates(it)
-                    ?.addOnCompleteListener { mRequestingLocationUpdates = false }
-        }
-        mLocListnr?.let {
-            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-            locMan?.removeUpdates(it)
-            mRequestingLocationUpdates = false
-        }
+        locationProvider.stopLocationUpdates()
+        mRequestingLocationUpdates = false
     }
 
     override fun onResume() {
@@ -334,27 +287,21 @@ class SetupLocationFragment : CustomFragment() {
                                 view.locationTZLong = tzId
                         }
 
-                        val isUS = LocationUtils.isUS(view.locationCountry)
-
-                        if (!getSettingsManager().isWeatherLoaded()) {
-                            // Default US provider to NWS
-                            if (isUS) {
-                                getSettingsManager().setAPI(WeatherAPI.NWS)
-                                view.updateWeatherSource(WeatherAPI.NWS)
-                            } else {
-                                getSettingsManager().setAPI(WeatherAPI.WEATHERUNLOCKED)
-                                view.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
-                            }
+                        if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                            // Set default provider based on location
+                            val provider = RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
+                            getSettingsManager().setAPI(provider)
+                            view.updateWeatherSource(provider)
                             wm.updateAPI()
                         }
 
-                        if (getSettingsManager().usePersonalKey() && StringUtils.isNullOrWhitespace(getSettingsManager().getAPIKEY()) && wm.isKeyRequired()) {
+                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 
                         ensureActive()
 
-                        if (WeatherAPI.NWS == getSettingsManager().getAPI() && !isUS) {
+                        if (WeatherAPI.NWS == getSettingsManager().getAPI() && !LocationUtils.isUS(view.locationCountry)) {
                             throw CustomException(R.string.error_message_weather_us_only)
                         }
 
@@ -398,7 +345,7 @@ class SetupLocationFragment : CustomFragment() {
 
                         // Send data for wearables
                         if (appCompatActivity != null) {
-                            WearableWorker.enqueueAction(appCompatActivity!!, WearableWorker.ACTION_SENDUPDATE)
+                            WearableWorker.enqueueAction(appCompatActivity!!, WearableWorkerActions.ACTION_SENDUPDATE)
                         }
 
                         location
@@ -478,65 +425,30 @@ class SetupLocationFragment : CustomFragment() {
             return
         }
 
-        var location: Location? = null
-
         val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
             throw CustomException(R.string.error_enable_location_services)
         }
 
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            location = withContext(Dispatchers.IO) {
-                withTimeoutOrNull(5000) {
-                    mFusedLocationClient?.lastLocation?.await()
-                }
+        val location = withContext(Dispatchers.IO) {
+            withTimeoutOrNull(5000) {
+                locationProvider.getLastLocation()
             }
+        }
 
-            coroutineContext.ensureActive()
+        coroutineContext.ensureActive()
 
-            /*
-             * Request start of location updates. Does nothing if
-             * updates have already been requested.
-             */
-            if (location == null && !mRequestingLocationUpdates) {
-                Timber.tag(TAG).i("Fused: Requesting location updates...")
+        /*
+         * Request start of location updates. Does nothing if
+         * updates have already been requested.
+         */
+        if (location == null && !mRequestingLocationUpdates) {
+            Timber.tag(TAG).i("Requesting location updates...")
 
-                val mLocationRequest = LocationRequest.create().apply {
-                    numUpdates = 1
-                    interval = 10000
-                    fastestInterval = 1000
-                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                }
-                mRequestingLocationUpdates = true
-                mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback!!, Looper.getMainLooper())
-                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-            }
-        } else {
-            val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-            coroutineContext.ensureActive()
-
-            if (isGPSEnabled) {
-                location = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            }
-
-            if (isGPSEnabled || isNetEnabled) {
-                val provider = if (isGPSEnabled) LocationManager.GPS_PROVIDER else LocationManager.NETWORK_PROVIDER
-
-                if ((isGPSEnabled && location == null) || (!isGPSEnabled && isNetEnabled)) {
-                    location = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                }
-
-                if (location == null) {
-                    Timber.tag(TAG).i("LocMan: Requesting location update...")
-
-                    mRequestingLocationUpdates = true
-                    locMan.requestSingleUpdate(provider, mLocListnr!!, Looper.getMainLooper())
-                    mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-                }
-            }
+            mRequestingLocationUpdates = true
+            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
+            mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
         }
 
         coroutineContext.ensureActive()

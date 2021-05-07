@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener
 import com.google.android.wearable.intent.RemoteIntent
+import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableHelper
@@ -84,7 +85,7 @@ class SetupSyncActivity : WearableListenerActivity() {
                                 // Open store on remote device
                                 val intentAndroid = Intent(Intent.ACTION_VIEW)
                                         .addCategory(Intent.CATEGORY_BROWSABLE)
-                                        .setData(WearableHelper.getPlayStoreURI())
+                                        .setData(PlayStoreUtils.getPlayStoreURI())
 
                                 RemoteIntent.startRemoteActivity(this@SetupSyncActivity, intentAndroid,
                                         ConfirmationResultReceiver(this@SetupSyncActivity))

@@ -1,6 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -28,13 +26,6 @@ android {
                 ]
             }
         }
-
-        // Read the API key from ./secure.properties into R.string.maps_api_key
-        def secureProps = new Properties()
-        if (file("../secure.properties").exists()) {
-            file("../secure.properties")?.withInputStream { secureProps.load(it) }
-        }
-        resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
     }
 
     buildTypes {
@@ -73,15 +64,47 @@ android {
 
     // Workaround for binding class errors
     sourceSets {
-        debug {
-            java.srcDirs += 'build/generated/data_binding_base_class_source_out/debug/out'
+        fullgmsDebug {
+            java.srcDirs += 'build/generated/data_binding_base_class_source_out/fullgmsDebug/out'
+        }
+        nongmsDebug {
+            java.srcDirs += 'build/generated/data_binding_base_class_source_out/nongmsDebug/out'
+        }
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+        }
+        fullgms {
+            manifest.srcFile 'src/fullgms/AndroidManifest.xml'
+        }
+        nongms {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+        }
+    }
+
+    flavorDimensions 'gms'
+    productFlavors {
+        nongms {
+            dimension 'gms'
+            applicationIdSuffix ".foss"
+            versionNameSuffix "-nongms"
+            buildConfigField "boolean", "IS_NONGMS", "true"
+        }
+        fullgms {
+            dimension 'gms'
+            // Read the API key from ./secure.properties into R.string.maps_api_key
+            def secureProps = new Properties()
+            if (file("../secure.properties").exists()) {
+                file("../secure.properties")?.withInputStream { secureProps.load(it) }
+            }
+            resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
+            buildConfigField "boolean", "IS_NONGMS", "false"
         }
     }
 }
 
 dependencies {
     implementation project(":shared_resources")
-    implementation project(":extras")
+    fullgmsImplementation project(":extras")
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.3.0'
@@ -101,7 +124,6 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.32'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.0'
 
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -122,25 +144,6 @@ dependencies {
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.4'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.4'
-
-    implementation 'com.google.android.gms:play-services-base:17.6.0'
-    implementation 'com.google.android.gms:play-services-location:18.0.0'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.android.gms:play-services-wearable:17.0.0'
-    implementation 'com.google.android.play:core:1.10.0'
-    implementation 'com.google.android.play:core-ktx:1.8.1'
-    implementation 'com.google.android.libraries.places:places:2.4.0'
-
-    // Firebase
-    implementation platform('com.google.firebase:firebase-bom:26.7.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-config'
-    implementation 'com.google.firebase:firebase-perf'
 
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'androidx.room:room-runtime:2.2.6'
@@ -163,7 +166,34 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations-java5"
     }
 
-    implementation 'com.revenuecat.purchases:purchases:4.0.4'
+    fullgmsImplementation 'com.revenuecat.purchases:purchases:4.0.4'
+
+    // Firebase
+    fullgmsImplementation platform('com.google.firebase:firebase-bom:26.7.0')
+    fullgmsImplementation 'com.google.firebase:firebase-analytics'
+    fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
+    fullgmsImplementation 'com.google.firebase:firebase-auth'
+    fullgmsImplementation 'com.google.firebase:firebase-firestore'
+    fullgmsImplementation 'com.google.firebase:firebase-messaging'
+    fullgmsImplementation 'com.google.firebase:firebase-storage'
+    fullgmsImplementation 'com.google.firebase:firebase-database'
+    fullgmsImplementation 'com.google.firebase:firebase-config'
+    fullgmsImplementation 'com.google.firebase:firebase-perf'
+
+    fullgmsImplementation 'com.google.android.gms:play-services-base:17.6.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-location:18.0.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-maps:17.0.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.0.0'
+    fullgmsImplementation 'com.google.android.play:core:1.10.0'
+    fullgmsImplementation 'com.google.android.play:core-ktx:1.8.1'
+    fullgmsImplementation 'com.google.android.libraries.places:places:2.4.0'
+    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.0'
+
+    nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.10'
 }
 
-apply plugin: 'com.google.gms.google-services'
+if (getGradle().getStartParameter().getTaskRequests().toString().contains("Fullgms")) {
+    apply plugin: 'com.google.firebase.crashlytics'
+    apply plugin: 'com.google.firebase.firebase-perf'
+    apply plugin: 'com.google.gms.google-services'
+}

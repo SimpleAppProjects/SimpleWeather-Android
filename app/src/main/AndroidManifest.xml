@@ -177,33 +177,10 @@
         </receiver>
 
         <service
-            android:name=".wearable.WearableDataListenerService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
-                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
-
-                <data
-                    android:host="*"
-                    android:scheme="wear" />
-            </intent-filter>
-        </service>
-
-        <service
             android:name=".notifications.WeatherAlertNotificationService"
             android:enabled="@bool/enable_alertnotifservice"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-
-        <service
-            android:name=".services.FCMService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
 
         <service
             android:name=".services.UpdaterTimerService"
@@ -219,23 +196,6 @@
             android:name=".widgets.WeatherWidgetService"
             android:exported="false" />
 
-        <uses-library
-            android:name="com.google.android.wearable"
-            android:required="false" />
-
-        <activity
-            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
-
         <provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
@@ -245,10 +205,6 @@
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync|location"
             tools:node="merge" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/maps_api_key" />
 
     </application>
 

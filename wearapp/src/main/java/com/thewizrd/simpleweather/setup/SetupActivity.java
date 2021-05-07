@@ -9,7 +9,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.activity.UserLocaleActivity;
+import com.thewizrd.simpleweather.locale.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
 
 public class SetupActivity extends UserLocaleActivity {

@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -33,7 +33,7 @@ class LocationIQProvider : LocationProviderImpl() {
         private const val KEY_QUERY_URL = "https://us1.unwiredlabs.com/v2/timezone.php?token=%s"
     }
 
-    @LocationAPIs
+    @LocationProviders
     override fun getLocationAPI(): String {
         return WeatherAPI.LOCATIONIQ
     }

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
@@ -70,6 +70,15 @@ android {
     sourceSets {
         debug {
             java.srcDirs += 'build/generated/data_binding_base_class_source_out/debug/out'
+        }
+    }
+    flavorDimensions 'gms'
+    productFlavors {
+        nongms {
+            dimension 'gms'
+        }
+        fullgms {
+            dimension 'gms'
         }
     }
 }

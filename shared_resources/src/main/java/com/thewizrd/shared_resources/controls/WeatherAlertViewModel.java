@@ -2,11 +2,15 @@ package com.thewizrd.shared_resources.controls;
 
 import android.content.Context;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
@@ -118,6 +122,16 @@ public class WeatherAlertViewModel {
 
     public String getAlertBodyMessage() {
         return String.format("%s\n\n%s\n\n%s", getExpireDate(), getMessage(), getAttribution());
+    }
+
+    @ColorInt
+    public int getAlertSeverityColor() {
+        return WeatherUtils.getColorFromAlertSeverity(getAlertSeverity());
+    }
+
+    @DrawableRes
+    public int getAlertDrawable() {
+        return WeatherUtils.getDrawableFromAlertType(getAlertType());
     }
 
     @Override

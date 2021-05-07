@@ -10,9 +10,7 @@ import android.content.res.Configuration
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.hardware.SensorManager
-import android.location.Criteria
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -60,7 +58,6 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.google.android.gms.location.*
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
@@ -68,11 +65,11 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.simpleweather.App
@@ -80,6 +77,7 @@ import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
+import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
 import com.thewizrd.simpleweather.controls.SunPhaseView
@@ -87,6 +85,7 @@ import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.*
 import com.thewizrd.simpleweather.fragments.WindowColorFragment
+import com.thewizrd.simpleweather.images.getImageData
 import com.thewizrd.simpleweather.preferences.FeatureSettings
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
@@ -97,7 +96,6 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.lang.Runnable
 import java.time.Duration
@@ -148,10 +146,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private val imageData = MutableLiveData<ImageDataViewModel?>()
 
     // GPS location
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLocation: Location? = null
-    private var mLocCallback: LocationCallback? = null
-    private var mLocListnr: LocationListener? = null
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var locationCallback: LocationProvider.Callback
 
     /**
      * Tracks the status of the location updates request.
@@ -266,50 +263,22 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             locationData = JSONParser.deserializer(args.data, LocationData::class.java)
         }
 
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(appCompatActivity!!)
-            mLocCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+        locationProvider = LocationProvider(appCompatActivity!!)
+        locationCallback = object : LocationProvider.Callback {
+            override fun onLocationChanged(location: Location?) {
+                stopLocationUpdates()
+                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
-                    runWithView {
-                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
+                runWithView {
+                    if (getSettingsManager().useFollowGPS() && updateLocation()) {
+                        // Setup loader from updated location
+                        wLoader = WeatherDataLoader(locationData!!)
 
-                            refreshWeather(false)
-                        }
+                        refreshWeather(false)
                     }
                 }
-
-                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-                }
-            }
-        } else {
-            mLocListnr = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-                    stopLocationUpdates()
-
-                    runWithView {
-                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
-
-                            refreshWeather(false)
-                        }
-                    }
-                }
-
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
             }
         }
-
         mRequestingLocationUpdates = false
 
         // Live Data
@@ -920,15 +889,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mLocCallback?.let {
-            mFusedLocationClient?.removeLocationUpdates(it)
-                    ?.addOnCompleteListener { mRequestingLocationUpdates = false }
-        }
-        mLocListnr?.let {
-            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-            locMan?.removeUpdates(it)
-            mRequestingLocationUpdates = false
-        }
+        locationProvider.stopLocationUpdates()
+        mRequestingLocationUpdates = false
     }
 
     private suspend fun verifyLocationData(): Boolean = withContext(Dispatchers.IO) {
@@ -1183,8 +1145,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 return false
             }
 
-            var location: Location? = null
-
             val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
@@ -1192,61 +1152,27 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 return false
             }
 
-            if (WearableHelper.isGooglePlayServicesInstalled()) {
-                location = withContext(Dispatchers.IO) {
-                    val result: Location? = try {
-                        withTimeoutOrNull(5000) {
-                            mFusedLocationClient?.lastLocation?.await()
-                        }
-                    } catch (e: Exception) {
-                        null
+            val location = withContext(Dispatchers.IO) {
+                val result: Location? = try {
+                    withTimeoutOrNull(5000) {
+                        locationProvider.getLastLocation()
                     }
-                    result
+                } catch (e: Exception) {
+                    null
                 }
+                result
+            }
 
-                if (!coroutineContext.isActive) return false
+            if (!coroutineContext.isActive) return false
 
-                /*
-                 * Request start of location updates. Does nothing if
-                 * updates have already been requested.
-                 */
-                if (location == null && !mRequestingLocationUpdates) {
-                    val mLocationRequest = LocationRequest.create().apply {
-                        numUpdates = 1
-                        interval = 10000
-                        fastestInterval = 1000
-                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                    }
-                    mRequestingLocationUpdates = true
-                    mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback!!, Looper.getMainLooper())
-                    mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-                }
-            } else {
-                val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-                if (!coroutineContext.isActive) return false
-
-                if (isGPSEnabled || isNetEnabled) {
-                    val locCriteria = Criteria().apply {
-                        accuracy = Criteria.ACCURACY_COARSE
-                        isCostAllowed = false
-                        powerRequirement = Criteria.POWER_LOW
-                    }
-
-                    val provider = locMan.getBestProvider(locCriteria, true)!!
-                    location = locMan.getLastKnownLocation(provider)
-
-                    if (location == null) {
-                        mRequestingLocationUpdates = true
-                        locMan.requestSingleUpdate(provider, mLocListnr!!, Looper.getMainLooper())
-                        mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.LONG), null)
-                    }
-                }
+            /*
+             * Request start of location updates. Does nothing if
+             * updates have already been requested.
+             */
+            if (location == null && !mRequestingLocationUpdates) {
+                mRequestingLocationUpdates = true
+                locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
+                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
             }
 
             if (location != null && !mRequestingLocationUpdates) {
@@ -1254,7 +1180,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
-                        mLocation != null && ConversionMethods.calculateGeopositionDistance(mLocation, location) < 1600) {
+                    mLocation != null && ConversionMethods.calculateGeopositionDistance(mLocation, location) < 1600) {
                     return false
                 }
 

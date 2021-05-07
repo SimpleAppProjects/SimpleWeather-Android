@@ -11,7 +11,7 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -36,7 +36,7 @@ class HERELocationProvider  // Keep hidden for now
                                                "&locationattributes=adminInfo,timeZone,-mapView,-mapReference&language=%s"
     }
 
-    @LocationAPIs
+    @LocationProviders
     override fun getLocationAPI(): String {
         return WeatherAPI.HERE
     }

@@ -9,9 +9,10 @@
         android:label="SetupWelcomeFragment">
         <action
             android:id="@+id/action_setupWelcomeFragment_to_setupLocationFragment"
-            app:destination="@id/setupLocationFragment"
-            app:popUpTo="@id/setupWelcomeFragment"
-            app:popUpToInclusive="true" />
+            app:destination="@id/setupLocationFragment" />
+        <action
+            android:id="@+id/action_setupWelcomeFragment_to_setupProviderFragment"
+            app:destination="@id/setupProviderFragment" />
     </fragment>
     <fragment
         android:id="@+id/setupLocationFragment"
@@ -64,4 +65,12 @@
         android:id="@+id/action_global_mainActivity"
         app:destination="@id/mainActivity"
         app:launchSingleTop="true" />
+    <fragment
+        android:id="@+id/setupProviderFragment"
+        android:name="com.thewizrd.simpleweather.setup.SetupProviderFragment"
+        android:label="SetupProviderFragment">
+        <action
+            android:id="@+id/action_setupProviderFragment_to_setupLocationFragment"
+            app:destination="@id/setupLocationFragment" />
+    </fragment>
 </navigation>

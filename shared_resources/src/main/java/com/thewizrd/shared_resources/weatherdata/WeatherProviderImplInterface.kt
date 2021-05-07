@@ -8,7 +8,7 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
 
 interface WeatherProviderImplInterface {
-    @WeatherAPI.WeatherAPIs
+    @WeatherAPI.WeatherProviders
     fun getWeatherAPI(): String
 
     fun isKeyRequired(): Boolean

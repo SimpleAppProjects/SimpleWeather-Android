@@ -34,7 +34,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.activity.UserLocaleActivity
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
 import com.thewizrd.simpleweather.preferences.SettingsFragment

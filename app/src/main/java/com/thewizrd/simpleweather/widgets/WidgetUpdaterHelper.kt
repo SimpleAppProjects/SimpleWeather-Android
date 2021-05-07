@@ -36,6 +36,9 @@ import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.controls.ImageDataViewModel
+import com.thewizrd.simpleweather.controls.getBackgroundColor
+import com.thewizrd.simpleweather.controls.getImageData
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.*
 import java.time.ZonedDateTime
@@ -313,12 +316,12 @@ object WidgetUpdaterHelper {
 
             var chanceModel: DetailItemViewModel? = null
             var windModel: DetailItemViewModel? = null
-            for (input in weather.weatherDetails) {
-                if (input != null && input.detailsType == WeatherDetailsType.POPCHANCE) {
+            for (input in weather.getWeatherDetails()) {
+                if (input.detailsType == WeatherDetailsType.POPCHANCE) {
                     chanceModel = input
-                } else if (chanceModel == null && input != null && input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
+                } else if (chanceModel == null && input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
                     chanceModel = input
-                } else if (input != null && input.detailsType == WeatherDetailsType.WINDSPEED) {
+                } else if (input.detailsType == WeatherDetailsType.WINDSPEED) {
                     windModel = input
                 }
                 if (chanceModel != null && windModel != null) {
@@ -484,7 +487,7 @@ object WidgetUpdaterHelper {
             val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, forecastLength)
             val forecastOption = WidgetUtils.getForecastOption(appWidgetId)
 
-            val forecastLayoutId: Int;
+            val forecastLayoutId: Int
             val hrForecastLayoutId: Int
             if (info.widgetType == WidgetType.Widget4x1 || style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
                 forecastLayoutId = R.layout.app_widget_forecast_layout_container
@@ -825,12 +828,12 @@ object WidgetUpdaterHelper {
 
             var chanceModel: DetailItemViewModel? = null
             var windModel: DetailItemViewModel? = null
-            for (input in weather.weatherDetails) {
-                if (input?.detailsType == WeatherDetailsType.POPCHANCE) {
+            for (input in weather.getWeatherDetails()) {
+                if (input.detailsType == WeatherDetailsType.POPCHANCE) {
                     chanceModel = input
-                } else if (chanceModel == null && input?.detailsType == WeatherDetailsType.POPCLOUDINESS) {
+                } else if (chanceModel == null && input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
                     chanceModel = input
-                } else if (input?.detailsType == WeatherDetailsType.WINDSPEED) {
+                } else if (input.detailsType == WeatherDetailsType.WINDSPEED) {
                     windModel = input
                 }
                 if (chanceModel != null && windModel != null) {

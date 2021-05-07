@@ -11,9 +11,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
@@ -105,15 +102,10 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
         // Start logger
         Logger.init(context)
 
-        FirebaseCrashlytics.getInstance().apply {
-            setCrashlyticsCollectionEnabled(true)
-            sendUnsentReports()
-        }
-        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", "watch")
-        FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
-
         // Init common action broadcast receiver
         registerCommonReceiver()
+
+        FirebaseConfigurator.initialize(context)
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

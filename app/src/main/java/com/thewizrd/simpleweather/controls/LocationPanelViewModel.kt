@@ -2,13 +2,12 @@ package com.thewizrd.simpleweather.controls
 
 import androidx.annotation.DrawableRes
 import androidx.core.util.ObjectsCompat
-import com.thewizrd.shared_resources.controls.ImageDataViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.utils.getImageData
+import com.thewizrd.simpleweather.images.getImageData
 import com.thewizrd.shared_resources.weatherdata.LocationType
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherManager

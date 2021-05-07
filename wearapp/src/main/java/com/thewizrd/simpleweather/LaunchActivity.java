@@ -8,7 +8,7 @@ import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.simpleweather.activity.UserLocaleActivity;
+import com.thewizrd.simpleweather.locale.UserLocaleActivity;
 import com.thewizrd.simpleweather.main.MainActivity;
 import com.thewizrd.simpleweather.setup.SetupActivity;
 

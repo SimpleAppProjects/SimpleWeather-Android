@@ -14,13 +14,14 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialSharedAxis;
-import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+
+import static com.thewizrd.simpleweather.extras.ExtrasKt.enableAdditionalRefreshIntervals;
 
 public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
@@ -74,7 +75,7 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
         final ListPreference notIconPref = findPreference(SettingsManager.KEY_NOTIFICATIONICON);
         final SwitchPreferenceCompat onGoingPref = findPreference(SettingsManager.KEY_ONGOINGNOTIFICATION);
 
-        if (ExtrasLibrary.Companion.isEnabled()) {
+        if (enableAdditionalRefreshIntervals()) {
             intervalPref.setEntries(R.array.premium_refreshinterval_entries);
             intervalPref.setEntryValues(R.array.premium_refreshinterval_values);
         } else {

@@ -24,11 +24,11 @@ import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig.getDefaultWeatherProvider
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.Units.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.*
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherAPIs
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.StringReader
@@ -633,10 +633,10 @@ class SettingsManager(context: Context) {
         editor.commit()
     }
 
-    @WeatherAPIs
+    @WeatherProviders
     fun getAPI(): String? {
         return if (!preferences.contains(KEY_API)) {
-            val API = getDefaultWeatherProvider()
+            val API = RemoteConfig.getDefaultWeatherProvider()
             setAPI(API)
             API
         } else {
@@ -644,7 +644,7 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun setAPI(@WeatherAPIs api: String?) {
+    fun setAPI(@WeatherProviders api: String?) {
         editor.putString(KEY_API, api)
         editor.commit()
     }
