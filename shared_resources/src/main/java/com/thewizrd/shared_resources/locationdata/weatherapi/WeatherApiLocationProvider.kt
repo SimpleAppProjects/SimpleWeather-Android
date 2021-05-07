@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 import kotlinx.coroutines.Dispatchers
@@ -96,7 +95,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
             stream.closeQuietly()
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             }
             Logger.writeLine(Log.ERROR, ex, "WeatherApiLocationProvider: error getting locations")
         } finally {
@@ -172,7 +171,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location")
         } finally {

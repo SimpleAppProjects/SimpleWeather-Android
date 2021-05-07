@@ -60,7 +60,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
     @Throws(WeatherException::class)
     override suspend fun isKeyValid(key: String?): Boolean = withContext(Dispatchers.IO) {
         if (key.isNullOrBlank()) {
-            throw WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY)
+            throw WeatherException(ErrorStatus.INVALIDAPIKEY)
         }
 
         var isValid = false
@@ -83,13 +83,13 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
                 HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY)
+                    wEx = WeatherException(ErrorStatus.INVALIDAPIKEY)
                     isValid = false
                 }
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
             }
 
             isValid = false
@@ -97,7 +97,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             response?.closeQuietly()
         }
 
-        if (wEx != null && wEx.errorStatus != WeatherUtils.ErrorStatus.INVALIDAPIKEY) {
+        if (wEx != null && wEx.errorStatus != ErrorStatus.INVALIDAPIKEY) {
             throw wEx
         }
 
@@ -162,7 +162,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     }
                     Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data")
                 } finally {
@@ -171,7 +171,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 }
 
                 if (wEx == null && weather?.isValid == false) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                    wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
 

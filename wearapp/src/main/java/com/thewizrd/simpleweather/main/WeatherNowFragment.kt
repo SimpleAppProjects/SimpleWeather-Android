@@ -137,7 +137,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        if (wEx.errorStatus == WeatherUtils.ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == settingsManager.getAPI()) {
+        if (wEx.errorStatus == ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == settingsManager.getAPI()) {
             showToast(R.string.error_message_weather_us_only, Toast.LENGTH_LONG)
         } else {
             showToast(wEx.message, Toast.LENGTH_LONG)

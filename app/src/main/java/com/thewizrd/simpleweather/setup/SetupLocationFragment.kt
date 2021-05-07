@@ -376,7 +376,7 @@ class SetupLocationFragment : CustomFragment() {
                         }
 
                         if (weather == null) {
-                            throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                            throw WeatherException(ErrorStatus.NOWEATHER)
                         } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
                             weather.weatherAlerts = wm.getAlerts(location)
                         }

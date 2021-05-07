@@ -3,8 +3,8 @@ package com.thewizrd.shared_resources.controls;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
 import androidx.core.util.ObjectsCompat;
 import androidx.databinding.Bindable;
 
@@ -14,8 +14,8 @@ import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
+import com.thewizrd.shared_resources.utils.Coordinate;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
@@ -55,12 +55,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
     private AirQualityViewModel airQuality;
 
     // Radar
-    private final WeatherUtils.Coordinate locationCoord;
-
-    // Background
-    private ImageDataViewModel imageData;
-    private static final int DEFAULT_COLOR = Colors.SIMPLEBLUE;
-    private int pendingBackground = -1;
+    private final Coordinate locationCoord;
 
     private String weatherCredit;
     private String weatherSource;
@@ -143,18 +138,8 @@ public class WeatherNowViewModel extends ObservableViewModel {
     }
 
     @Bindable
-    public WeatherUtils.Coordinate getLocationCoord() {
+    public Coordinate getLocationCoord() {
         return locationCoord;
-    }
-
-    @Bindable
-    public ImageDataViewModel getImageData() {
-        return imageData;
-    }
-
-    @Bindable
-    public int getPendingBackground() {
-        return pendingBackground;
     }
 
     @Bindable
@@ -178,12 +163,19 @@ public class WeatherNowViewModel extends ObservableViewModel {
         return tempUnit;
     }
 
+    @Nullable
     public String getQuery() {
         if (weather != null) {
             return weather.getQuery();
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    Weather getWeatherData() {
+        return weather;
     }
 
     private Weather weather;
@@ -196,7 +188,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
 
         weatherDetails = new ArrayList<>(WeatherDetailsType.values().length);
-        locationCoord = new WeatherUtils.Coordinate(0, 0);
+        locationCoord = new Coordinate(0, 0);
     }
 
     public WeatherNowViewModel(Weather weather) {
@@ -207,9 +199,9 @@ public class WeatherNowViewModel extends ObservableViewModel {
     public void updateView(final Weather weather) {
         if (weather != null && weather.isValid()) {
             if (!ObjectsCompat.equals(this.weather, weather)) {
-                final boolean isPhone = SimpleLibrary.getInstance().getApp().isPhone();
                 this.weather = weather;
 
+                /*
                 // Update backgrounds
                 if (imageData != null) {
                     imageData = null;
@@ -227,6 +219,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
                         notifyPropertyChanged(BR.pendingBackground);
                     }
                 }
+                 */
 
                 // Location
                 if (!ObjectsCompat.equals(location, weather.getLocation().getName())) {
@@ -619,8 +612,6 @@ public class WeatherNowViewModel extends ObservableViewModel {
         weatherIcon = WeatherIcons.NA;
         sunPhase = null;
         weatherDetails.clear();
-        imageData = null;
-        pendingBackground = -1;
         weatherCredit = null;
         weatherSource = null;
         weatherLocale = null;
@@ -635,46 +626,7 @@ public class WeatherNowViewModel extends ObservableViewModel {
         reset();
     }
 
-    @WorkerThread
-    public void updateBackground() {
-        if (weather != null) {
-            ImageDataViewModel imageVM = WeatherUtils.getImageData(weather);
-
-            if (imageVM != null) {
-                imageData = imageVM;
-                pendingBackground = imageVM.getColor();
-            } else {
-                imageData = null;
-                pendingBackground = DEFAULT_COLOR;
-            }
-
-            notifyPropertyChanged(BR.imageData);
-            notifyPropertyChanged(BR.pendingBackground);
-        }
-    }
-
     public boolean isValid() {
         return weather != null && weather.isValid();
-    }
-
-    private String getPressureStateIcon(String state) {
-        if (state == null) state = "";
-
-        switch (state) {
-            // Steady
-            case "0":
-            default:
-                return "";
-            // Rising
-            case "1":
-            case "+":
-            case "Rising":
-                return "\uf058\uf058";
-            // Falling
-            case "2":
-            case "-":
-            case "Falling":
-                return "\uf044\uf044";
-        }
     }
 }

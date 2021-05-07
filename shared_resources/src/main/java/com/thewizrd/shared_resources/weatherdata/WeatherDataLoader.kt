@@ -107,7 +107,7 @@ class WeatherDataLoader(private val location: LocationData) {
                 if (!location.weatherSource.isNullOrBlank() && WeatherAPI.NWS != location.weatherSource) {
                     WeatherManager.getProvider(location.weatherSource).getWeather(location)
                 } else {
-                    throw WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
                 }
             } else {
                 // Load weather from provider
@@ -185,7 +185,7 @@ class WeatherDataLoader(private val location: LocationData) {
         if (weather == null && wEx != null) {
             throw wEx
         } else if (weather == null && wEx == null) {
-            throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+            throw WeatherException(ErrorStatus.NOWEATHER)
         } else if (weather != null && wEx != null && loadedSavedData) {
             throw wEx
         }
@@ -305,7 +305,7 @@ class WeatherDataLoader(private val location: LocationData) {
         } catch (ex: Exception) {
             Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error loading saved weather data")
             weather = null
-            throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+            throw WeatherException(ErrorStatus.NOWEATHER)
         }
 
         return isDataValid(_override)
@@ -338,7 +338,7 @@ class WeatherDataLoader(private val location: LocationData) {
                     weather!!.condition.windDegrees = hrf.windDegrees
 
                     if (hrf.windMph != null) {
-                        weather!!.condition.beaufort = Beaufort(WeatherUtils.getBeaufortScale(Math.round(hrf.windMph)).value)
+                        weather!!.condition.beaufort = Beaufort(getBeaufortScale(Math.round(hrf.windMph)).value)
                     }
                     weather!!.condition.feelslikeF = hrf.getExtras()?.feelslikeF
                     weather!!.condition.feelslikeC = hrf.getExtras()?.feelslikeC

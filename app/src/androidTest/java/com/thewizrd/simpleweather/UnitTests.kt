@@ -20,7 +20,6 @@ import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
@@ -30,7 +29,6 @@ import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.junit.Assert
 import org.junit.Before
@@ -257,7 +255,7 @@ class UnitTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun firebaseDBTest() {
         runBlocking(Dispatchers.Default) {
-            val updateTime = ImageDatabase.getLastUpdateTime().await()
+            val updateTime = ImageDatabase.getLastUpdateTime()
             Assert.assertTrue(updateTime > 0)
         }
     }
@@ -297,7 +295,7 @@ class UnitTests {
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocationName("Redmond", 5) // Redmond
             }
-            Assert.assertTrue(addressList?.isNotEmpty() == true)
+            Assert.assertFalse(addressList.isNullOrEmpty())
         }
     }
 

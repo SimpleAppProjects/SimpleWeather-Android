@@ -14,11 +14,7 @@ import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.FileUtils
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertType
@@ -274,7 +270,9 @@ class ExampleInstrumentedTest {
             val file = File(filePath + File.separator + "Log." + i + ".log")
             Assert.assertTrue(file.createNewFile())
         }
-        Assert.assertTrue(FileUtils.deleteDirectory(filePath))
+        runBlocking(Dispatchers.IO) {
+            Assert.assertTrue(FileUtils.deleteDirectory(filePath))
+        }
     }
 
     @Test

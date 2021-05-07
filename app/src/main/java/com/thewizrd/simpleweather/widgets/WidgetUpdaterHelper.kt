@@ -229,9 +229,10 @@ object WidgetUpdaterHelper {
 
             if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
                 style = WidgetUtils.getBackgroundStyle(appWidgetId)
+                var imageData: ImageDataViewModel? = null
 
-                if (loadBackground && weather.imageData == null) {
-                    weather.updateBackground()
+                if (loadBackground) {
+                    imageData = weather.getImageData()
                 }
 
                 updateViews.removeAllViews(R.id.panda_container)
@@ -241,7 +242,8 @@ object WidgetUpdaterHelper {
                     // No-op
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.PENDINGCOLOR) {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background)
-                    updateViews.setInt(R.id.panda_background, "setColorFilter", weather.pendingBackground)
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", imageData?.color
+                                                                                ?: weather.getBackgroundColor())
                 } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
                     updateViews.setImageViewResource(R.id.panda_background, R.drawable.widget_background)
                     updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE)
@@ -256,7 +258,7 @@ object WidgetUpdaterHelper {
                 updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
 
                 if (loadBackground) {
-                    loadBackgroundImage(context, updateViews, info, appWidgetId, weather.imageData?.imageURI, cellWidth, cellHeight)
+                    loadBackgroundImage(context, updateViews, info, appWidgetId, imageData?.imageURI, cellWidth, cellHeight)
                 } else {
                     updateViews.setImageViewBitmap(R.id.widgetBackground, null)
                 }

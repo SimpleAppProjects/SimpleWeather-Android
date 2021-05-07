@@ -6,15 +6,15 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 
 public class WeatherException extends Exception {
-    private final WeatherUtils.ErrorStatus errorStatus;
+    private final ErrorStatus errorStatus;
     private final Context context;
 
-    public WeatherException(WeatherUtils.ErrorStatus errorStatus) {
+    public WeatherException(ErrorStatus errorStatus) {
         this.errorStatus = errorStatus;
         this.context = SimpleLibrary.getInstance().getApp().getAppContext();
     }
 
-    public WeatherUtils.ErrorStatus getErrorStatus() {
+    public ErrorStatus getErrorStatus() {
         return errorStatus;
     }
 

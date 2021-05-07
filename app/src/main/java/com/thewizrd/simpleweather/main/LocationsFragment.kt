@@ -43,7 +43,6 @@ import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.ErrorStatus
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener

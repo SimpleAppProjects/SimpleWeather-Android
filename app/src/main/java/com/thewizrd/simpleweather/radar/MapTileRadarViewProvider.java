@@ -17,7 +17,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.Coordinate;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public abstract class MapTileRadarViewProvider extends RadarViewProvider implements OnMapReadyCallback {
@@ -25,7 +25,7 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
 
     private MapView mapView;
 
-    private WeatherUtils.Coordinate locationCoords;
+    private Coordinate locationCoords;
     protected Marker locationMarker = null;
 
     private boolean isViewAlive = false;
@@ -35,7 +35,7 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
     }
 
     @Override
-    public void updateCoordinates(@NonNull WeatherUtils.Coordinate coordinates, boolean updateView) {
+    public void updateCoordinates(@NonNull Coordinate coordinates, boolean updateView) {
         locationCoords = coordinates;
         if (updateView) updateRadarView();
     }

@@ -12,8 +12,8 @@ import androidx.annotation.RequiresApi
 import com.google.android.material.snackbar.Snackbar
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.StringUtils
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.simpleweather.helpers.RadarWebClient
 import com.thewizrd.simpleweather.helpers.WebViewHelper.disableInteractions
 import com.thewizrd.simpleweather.helpers.WebViewHelper.enableInteractions

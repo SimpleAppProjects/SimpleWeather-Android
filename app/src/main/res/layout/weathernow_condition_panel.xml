@@ -17,6 +17,10 @@
             name="alertsView"
             type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
 
+        <variable
+            name="imageData"
+            type="com.thewizrd.shared_resources.controls.ImageDataViewModel" />
+
     </data>
 
     <LinearLayout
@@ -79,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled &amp;&amp; weatherView.imageData != null}"
+                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled &amp;&amp; imageData != null}"
                 tools:src="#83808080" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -100,7 +104,7 @@
                 android:textColor="@android:color/white"
                 android:textColorLink="@android:color/white"
                 android:textSize="12sp"
-                app:imageData="@{weatherView.imageData}"
+                app:imageData="@{imageData}"
                 app:showIfTrue="@{FeatureSettings.backgroundImageEnabled}"
                 tools:text="Attribution text goes here" />
 

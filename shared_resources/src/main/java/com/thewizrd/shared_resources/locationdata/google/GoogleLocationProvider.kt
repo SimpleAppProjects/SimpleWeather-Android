@@ -17,11 +17,7 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
-import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +72,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
     override suspend fun getLocations(ac_query: String?, weatherAPI: String?
     ): Collection<LocationQueryViewModel> = withContext(Dispatchers.IO) {
         if (!Geocoder.isPresent()) {
-            throw WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+            throw WeatherException(ErrorStatus.UNKNOWN)
         }
 
         var locations: Collection<LocationQueryViewModel>? = null
@@ -107,19 +103,19 @@ class GoogleLocationProvider : LocationProviderImpl() {
             }
 
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
             } else if (ex is ApiException) {
                 when (ex.statusCode) {
                     CommonStatusCodes.NETWORK_ERROR,
                     CommonStatusCodes.RECONNECTION_TIMED_OUT,
                     CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE,
                     CommonStatusCodes.API_NOT_CONNECTED -> {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     }
                     CommonStatusCodes.ERROR, CommonStatusCodes.INTERNAL_ERROR -> {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+                        wEx = WeatherException(ErrorStatus.UNKNOWN)
                     }
                 }
             }
@@ -139,7 +135,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
     override suspend fun getLocationFromID(model: LocationQueryViewModel): LocationQueryViewModel =
             withContext(Dispatchers.IO) {
                 if (!Geocoder.isPresent()) {
-                    throw WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                    throw WeatherException(ErrorStatus.NETWORKERROR)
                 }
 
                 val location: LocationQueryViewModel
@@ -162,19 +158,19 @@ class GoogleLocationProvider : LocationProviderImpl() {
                     }
 
                     if (ex is IOException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     } else if (ex is IllegalArgumentException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                        wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
                     } else if (ex is ApiException) {
                         when (ex.statusCode) {
                             CommonStatusCodes.NETWORK_ERROR,
                             CommonStatusCodes.RECONNECTION_TIMED_OUT,
                             CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE,
                             CommonStatusCodes.API_NOT_CONNECTED -> {
-                                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                                wEx = WeatherException(ErrorStatus.NETWORKERROR)
                             }
                             CommonStatusCodes.ERROR, CommonStatusCodes.INTERNAL_ERROR -> {
-                                wEx = WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+                                wEx = WeatherException(ErrorStatus.UNKNOWN)
                             }
                         }
                     }
@@ -193,7 +189,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
     override suspend fun getLocationFromName(model: LocationQueryViewModel
     ): LocationQueryViewModel = withContext(Dispatchers.IO) {
         if (!Geocoder.isPresent()) {
-            throw WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+            throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 
         val location: LocationQueryViewModel
@@ -208,9 +204,9 @@ class GoogleLocationProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }
@@ -227,7 +223,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
     override suspend fun getLocation(coordinate: Coordinate, weatherAPI: String?
     ): LocationQueryViewModel = withContext(Dispatchers.IO) {
         if (!Geocoder.isPresent()) {
-            throw WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+            throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 
         val location: LocationQueryViewModel
@@ -242,9 +238,9 @@ class GoogleLocationProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }

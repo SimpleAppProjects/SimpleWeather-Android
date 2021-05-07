@@ -7,7 +7,6 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -79,9 +78,9 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
             } catch (ex: Exception) {
                 result = null
                 if (ex is IOException) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR)
                 } else if (ex is IllegalArgumentException) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                    wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
                 }
                 Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
             }
@@ -133,9 +132,9 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
             } catch (ex: Exception) {
                 result = null
                 if (ex is IOException) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR)
                 } else if (ex is IllegalArgumentException) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                    wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
                 }
                 Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
             }

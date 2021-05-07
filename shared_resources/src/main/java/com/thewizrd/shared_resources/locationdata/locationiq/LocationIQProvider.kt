@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +99,7 @@ class LocationIQProvider : LocationProviderImpl() {
             stream.closeQuietly()
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting locations")
         } finally {
@@ -159,7 +158,7 @@ class LocationIQProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR)
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location")
         } finally {
@@ -190,7 +189,7 @@ class LocationIQProvider : LocationProviderImpl() {
     @Throws(WeatherException::class)
     override suspend fun isKeyValid(key: String?): Boolean {
         if (key.isNullOrBlank()) {
-            throw WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY)
+            throw WeatherException(ErrorStatus.INVALIDAPIKEY)
         }
 
         var isValid = false
@@ -213,13 +212,13 @@ class LocationIQProvider : LocationProviderImpl() {
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
                 HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY)
+                    wEx = WeatherException(ErrorStatus.INVALIDAPIKEY)
                     isValid = false
                 }
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
             }
 
             isValid = false
@@ -227,7 +226,7 @@ class LocationIQProvider : LocationProviderImpl() {
             response?.closeQuietly()
         }
 
-        if (wEx != null && wEx.errorStatus != WeatherUtils.ErrorStatus.INVALIDAPIKEY) {
+        if (wEx != null && wEx.errorStatus != ErrorStatus.INVALIDAPIKEY) {
             throw wEx
         }
 

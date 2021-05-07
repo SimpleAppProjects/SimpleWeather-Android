@@ -8,7 +8,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.utils.WeatherUtils
+import com.thewizrd.shared_resources.utils.getImageData
 import com.thewizrd.shared_resources.weatherdata.LocationType
 import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -164,8 +164,8 @@ class LocationPanelViewModel {
     }
 
     suspend fun updateBackground() = withContext(Dispatchers.IO) {
-        if (weather != null && imageData == null) {
-            imageData = WeatherUtils.getImageData(weather!!)
+        if (imageData == null) {
+            imageData = weather?.getImageData()
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.thewizrd.shared_resources.locationdata
 
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 
 interface LocationProviderImplInterface {

@@ -29,7 +29,6 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.simpleweather.R
@@ -154,7 +153,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     }
 
                     if (weather == null) {
-                        throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                        throw WeatherException(ErrorStatus.NOWEATHER)
                     } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
                         weather.weatherAlerts = wm.getAlerts(location)
                     }

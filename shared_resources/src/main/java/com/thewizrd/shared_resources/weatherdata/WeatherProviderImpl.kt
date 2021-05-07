@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import java.time.LocalDate
@@ -102,7 +101,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
     @Throws(WeatherException::class)
     override suspend fun getWeather(location: LocationData?): Weather {
         if (location?.query == null)
-            throw WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+            throw WeatherException(ErrorStatus.UNKNOWN)
 
         val weather = getWeather(location.query, location.countryCode)
 

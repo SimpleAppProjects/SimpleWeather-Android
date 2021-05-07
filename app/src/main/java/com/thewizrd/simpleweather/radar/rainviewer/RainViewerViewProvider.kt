@@ -27,9 +27,9 @@ import com.thewizrd.extras.ExtrasLibrary.Companion.isEnabled
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
+import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider

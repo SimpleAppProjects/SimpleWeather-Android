@@ -115,6 +115,7 @@ public class ImageData {
         return newData;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ImageData{" +

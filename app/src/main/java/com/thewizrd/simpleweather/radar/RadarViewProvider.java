@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.thewizrd.shared_resources.utils.WeatherUtils;
+import com.thewizrd.shared_resources.utils.Coordinate;
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 public abstract class RadarViewProvider {
@@ -32,7 +32,7 @@ public abstract class RadarViewProvider {
         return mRootLayout;
     }
 
-    public abstract void updateCoordinates(@NonNull WeatherUtils.Coordinate coordinates, boolean updateView);
+    public abstract void updateCoordinates(@NonNull Coordinate coordinates, boolean updateView);
 
     public abstract void updateRadarView();
 
@@ -51,7 +51,7 @@ public abstract class RadarViewProvider {
     public void onCreateView(@Nullable Bundle savedInstanceState) {
     }
 
-    public void onViewCreated(WeatherUtils.Coordinate coordinates) {
+    public void onViewCreated(Coordinate coordinates) {
         updateCoordinates(coordinates, false);
     }
 

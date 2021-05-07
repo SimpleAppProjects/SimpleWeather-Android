@@ -81,7 +81,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                     val authorization = HEREOAuthUtils.getBearerToken(false)
 
                     if (authorization.isNullOrBlank()) {
-                        throw WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        throw WeatherException(ErrorStatus.NETWORKERROR)
                     }
 
                     val url = if (LocationUtils.isUSorCanada(country_code)) {
@@ -107,8 +107,8 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
 
                     // Check for errors
                     when (root?.type) {
-                        "Invalid Request" -> wEx = WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
-                        "Unauthorized" -> wEx = WeatherException(WeatherUtils.ErrorStatus.INVALIDAPIKEY)
+                        "Invalid Request" -> wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                        "Unauthorized" -> wEx = WeatherException(ErrorStatus.INVALIDAPIKEY)
                     }
 
                     // End Stream
@@ -151,7 +151,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     }
                     Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather data")
                 } finally {
@@ -159,7 +159,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                 }
 
                 if (wEx == null && weather?.isValid == false) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                    wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale())
                         weather.locale = locale
@@ -218,7 +218,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
             val authorization = HEREOAuthUtils.getBearerToken(false)
 
             if (authorization.isNullOrBlank()) {
-                throw WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                throw WeatherException(ErrorStatus.NETWORKERROR)
             }
 
             val country_code = location.countryCode

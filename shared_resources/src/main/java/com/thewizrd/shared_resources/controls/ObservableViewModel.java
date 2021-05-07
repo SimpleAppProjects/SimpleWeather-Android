@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 public abstract class ObservableViewModel extends ViewModel implements Observable {
     private boolean isCleared = false;
-    private PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
+    private final PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
 
     @Override
     public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {

@@ -7,8 +7,8 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider

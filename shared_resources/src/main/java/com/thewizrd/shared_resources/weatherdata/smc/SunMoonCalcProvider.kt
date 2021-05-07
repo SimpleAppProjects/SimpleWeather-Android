@@ -1,8 +1,8 @@
 package com.thewizrd.shared_resources.weatherdata.smc
 
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.utils.ErrorStatus
 import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderDateInterface
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface
 import com.thewizrd.shared_resources.weatherdata.Astronomy
@@ -69,7 +69,7 @@ class SunMoonCalcProvider : AstroDataProviderInterface, AstroDataProviderDateInt
                     val moonPhaseType = getMoonPhase(smc.moonAge)
                     astroData.moonPhase = MoonPhase(moonPhaseType)
                 } catch (e: Exception) {
-                    throw WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+                    throw WeatherException(ErrorStatus.UNKNOWN)
                 }
 
                 return@withContext astroData

@@ -4,8 +4,8 @@ import android.location.Location
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
-import com.thewizrd.shared_resources.utils.WeatherUtils.Coordinate
 
 interface WeatherProviderImplInterface {
     @WeatherAPI.WeatherAPIs

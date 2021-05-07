@@ -8,8 +8,6 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.images.ImageDataHelper
 import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase
-import kotlinx.coroutines.tasks.await
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 class FCMWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -20,14 +18,12 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) : CoroutineWor
 
         @JvmStatic
         fun enqueueAction(context: Context, intentAction: String) {
-            val context = context.applicationContext
             if (ACTION_INVALIDATE == intentAction) {
-                startWork(context)
+                startWork(context.applicationContext)
             }
         }
 
         private fun startWork(context: Context) {
-            val context = context.applicationContext
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val constraints = Constraints.Builder()
@@ -40,7 +36,7 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) : CoroutineWor
                     .setInitialDelay(1, TimeUnit.HOURS)
                     .build()
 
-            WorkManager.getInstance(context)
+            WorkManager.getInstance(context.applicationContext)
                     .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
@@ -54,11 +50,8 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) : CoroutineWor
         if (!ImageDataHelper.getImageDataHelper().isEmpty && !FeatureSettings.isUpdateAvailable()) {
             // If so, check if we need to invalidate
             val updateTime = try {
-                ImageDatabase.getLastUpdateTime().await()
-            } catch (e: ExecutionException) {
-                Logger.writeLine(Log.ERROR, e)
-                0L
-            } catch (e: InterruptedException) {
+                ImageDatabase.getLastUpdateTime()
+            } catch (e: Exception) {
                 Logger.writeLine(Log.ERROR, e)
                 0L
             }

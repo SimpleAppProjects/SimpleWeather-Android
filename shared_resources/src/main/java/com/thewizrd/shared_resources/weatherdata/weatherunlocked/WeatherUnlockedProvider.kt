@@ -114,7 +114,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     }
                     Logger.writeLine(Log.ERROR, ex, "WeatherUnlockedProvider: error getting weather data")
                 } finally {
@@ -122,7 +122,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                     forecastResponse?.closeQuietly()
                 }
                 if (wEx == null && weather?.isValid == false) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                    wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
 

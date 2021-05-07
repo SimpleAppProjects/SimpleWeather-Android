@@ -13,10 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.utils.ImageUtils
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.WeatherUtils
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAlert
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
@@ -68,14 +65,14 @@ object WeatherAlertNotificationBuilder {
             view.setTextViewText(R.id.alert_text, alertVM.expireDate)
 
             // Alert icon
-            view.setImageViewResource(R.id.alert_icon, WeatherUtils.getDrawableFromAlertType(alertVM.alertType))
+            view.setImageViewResource(R.id.alert_icon, alertVM.alertType.getDrawableFromAlertType())
 
             val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_error_white)
                     .setContentIntent(clickPendingIntent)
                     .setOnlyAlertOnce(true)
                     .setAutoCancel(true)
-                    .setColor(WeatherUtils.getColorFromAlertSeverity(alert.severity))
+                    .setColor(alert.severity.getColorFromAlertSeverity())
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
             mBuilder.setStyle(NotificationCompat.DecoratedCustomViewStyle())

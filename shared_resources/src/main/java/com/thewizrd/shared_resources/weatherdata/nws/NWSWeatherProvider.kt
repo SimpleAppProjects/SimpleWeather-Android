@@ -129,7 +129,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(WeatherUtils.ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
                     }
                     Logger.writeLine(Log.ERROR, ex, "NWSWeatherProvider: error getting weather data")
                 } finally {
@@ -137,7 +137,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 }
 
                 if (wEx == null && weather?.isValid == false) {
-                    wEx = WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                    wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     weather.query = location_query!!
                 }
@@ -329,16 +329,16 @@ class NWSWeatherProvider : WeatherProviderImpl() {
             HttpURLConnection.HTTP_OK -> {
             }
             HttpURLConnection.HTTP_BAD_REQUEST -> {
-                throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                throw WeatherException(ErrorStatus.NOWEATHER)
             }
             HttpURLConnection.HTTP_NOT_FOUND -> {
-                throw WeatherException(WeatherUtils.ErrorStatus.QUERYNOTFOUND)
+                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
             }
             HttpURLConnection.HTTP_INTERNAL_ERROR -> {
-                throw WeatherException(WeatherUtils.ErrorStatus.UNKNOWN)
+                throw WeatherException(ErrorStatus.UNKNOWN)
             }
             else -> {
-                throw WeatherException(WeatherUtils.ErrorStatus.NOWEATHER)
+                throw WeatherException(ErrorStatus.NOWEATHER)
             }
         }
     }

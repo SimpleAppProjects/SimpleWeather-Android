@@ -72,7 +72,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
-import com.thewizrd.shared_resources.utils.WeatherUtils.ErrorStatus
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
@@ -146,6 +145,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private val weatherView: WeatherNowViewModel by activityViewModels()
     private val forecastsView: ForecastsNowViewModel by activityViewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
+    private val imageData = MutableLiveData<ImageDataViewModel?>()
 
     // GPS location
     private var mFusedLocationClient: FusedLocationProviderClient? = null
@@ -164,12 +164,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             weatherView.updateView(weather)
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                withContext(Dispatchers.Default) {
-                    weatherView.updateBackground()
-                }
+                imageData.postValue(withContext(Dispatchers.Default) {
+                    weather.getImageData()
+                })
 
                 launch(Dispatchers.Main) {
-                    val backgroundUri = weatherView.imageData?.imageURI
+                    val backgroundUri = imageData.value?.imageURI
                     if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(conditionPanelBinding.imageView.tag, backgroundUri) || conditionPanelBinding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
                         loadBackgroundImage(backgroundUri, false)
                     } else {
@@ -527,6 +527,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             conditionPanelBinding.lifecycleOwner = viewLifecycleOwner
             conditionPanelBinding.bgAttribution.movementMethod = LinkMovementMethod.getInstance()
 
+            imageData.observe(viewLifecycleOwner) {
+                conditionPanelBinding.imageData = it
+            }
+
             // Alerts
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 conditionPanelBinding.alertButton.backgroundTintList = ColorStateList.valueOf(Colors.ORANGERED)
@@ -836,7 +840,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         adjustConditionPanelLayout()
         adjustDetailsLayout()
 
-        val backgroundUri = weatherView.imageData?.imageURI
+        val backgroundUri = imageData.value?.imageURI
         loadBackgroundImage(backgroundUri, true)
 
         // Reload Webview
@@ -849,7 +853,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             if (FeatureSettings.isBackgroundImageEnabled()) {
                 if (!ObjectsCompat.equals(conditionPanelBinding.imageView.tag, imageURI)) {
                     conditionPanelBinding.imageView.tag = imageURI
-                    if (!StringUtils.isNullOrWhitespace(imageURI)) {
+                    if (!imageURI.isNullOrBlank()) {
                         Glide.with(this@WeatherNowFragment)
                                 .load(imageURI)
                                 .apply(RequestOptions.centerCropTransform()
@@ -857,14 +861,21 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                                         .skipMemoryCache(skipCache))
                                 .transition(DrawableTransitionOptions.withCrossFade())
                                 .addListener(object : RequestListener<Drawable?> {
-                                    override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable?>, isFirstResource: Boolean): Boolean {
+                                    override fun onLoadFailed(e: GlideException?, model: Any,
+                                                              target: Target<Drawable?>,
+                                                              isFirstResource: Boolean
+                                    ): Boolean {
                                         binding.refreshLayout.isRefreshing = false
                                         binding.progressBar.hide()
                                         binding.scrollView.visibility = View.VISIBLE
                                         return false
                                     }
 
-                                    override fun onResourceReady(resource: Drawable?, model: Any, target: Target<Drawable?>, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+                                    override fun onResourceReady(resource: Drawable?, model: Any,
+                                                                 target: Target<Drawable?>,
+                                                                 dataSource: DataSource,
+                                                                 isFirstResource: Boolean
+                                    ): Boolean {
                                         binding.refreshLayout.postOnAnimation(Runnable {
                                             binding.refreshLayout.isRefreshing = false
                                             binding.progressBar.hide()
@@ -1396,7 +1407,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     temp_f = ConversionMethods.CtoF(temp_f)
                 }
 
-                view.setTextColor(WeatherUtils.getColorFromTempF(temp_f))
+                view.setTextColor(getColorFromTempF(temp_f))
             } else {
                 view.setTextColor(ContextCompat.getColor(view.context, R.color.colorTextPrimary))
             }
