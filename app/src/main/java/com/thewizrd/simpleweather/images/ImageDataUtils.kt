@@ -25,6 +25,26 @@ object ImageDataUtils {
                 imageData.imageURL = "file:///android_asset/backgrounds/storms.jpg"
                 imageData.color = "#ff182830"
             }
+            WeatherBackground.FOG -> {
+                imageData.imageURL = "file:///android_asset/backgrounds/fog.jpg"
+                imageData.color = "#ff808080"
+            }
+            WeatherBackground.PARTLYCLOUDY_DAY -> {
+                imageData.imageURL = "file:///android_asset/backgrounds/day-partlycloudy.jpg"
+                imageData.color = "#ff88b0c8"
+            }
+            WeatherBackground.PARTLYCLOUDY_NIGHT -> {
+                imageData.imageURL = "file:///android_asset/backgrounds/night-partlycloudy.jpg"
+                imageData.color = "#ff182020"
+            }
+            WeatherBackground.MOSTLYCLOUDY_DAY -> {
+                imageData.imageURL = "file:///android_asset/backgrounds/day-cloudy.jpg"
+                imageData.color = "#ff88b0c8"
+            }
+            WeatherBackground.MOSTLYCLOUDY_NIGHT -> {
+                imageData.imageURL = "file:///android_asset/backgrounds/night-cloudy.jpg"
+                imageData.color = "#ff182020"
+            }
             else -> if (wm.isNight(weather)) {
                 imageData.imageURL = "file:///android_asset/backgrounds/night.jpg"
                 imageData.color = "#ff182020"
