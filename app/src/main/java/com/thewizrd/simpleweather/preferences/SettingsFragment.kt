@@ -502,7 +502,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         updateRegisterLink()
 
         radarProviderPref = findPreference(RadarProvider.KEY_RADARPROVIDER)!!
-        val radarProviders = RadarProvider.RadarProviders
+        val radarProviders = RadarProvider.getRadarProviders()
         entries = arrayOfNulls(radarProviders.size)
         entryValues = arrayOfNulls(radarProviders.size)
 
