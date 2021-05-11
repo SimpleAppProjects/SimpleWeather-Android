@@ -40,17 +40,11 @@ public class OWMRadarViewProvider extends MapTileRadarViewProvider {
     }
 
     @Override
-    public void updateRadarView() {
-        super.updateRadarView();
-        // no-op
-    }
-
-    @Override
     public void onMapReady() {
+        super.onMapReady();
+
         IGeoPoint cameraPosition = getMapCameraPosition();
         if (cameraPosition != null) {
-            getMapView().getController().animateTo(cameraPosition);
-
             if (interactionsEnabled()) {
                 if (locationMarker == null) {
                     locationMarker = new Marker(getMapView());
@@ -68,12 +62,12 @@ public class OWMRadarViewProvider extends MapTileRadarViewProvider {
             getMapView().getOverlays().add(tilesOverlay);
         }
 
-        getMapView().setMultiTouchControls(interactionsEnabled());
+        getMapView().postInvalidate();
     }
 
     private static class OWMTileProvider extends XYTileSource {
         public OWMTileProvider() {
-            super("OWM", 6, 6, 256, ".png",
+            super("OWM", DEFAULT_ZOOM_LEVEL, DEFAULT_ZOOM_LEVEL, 256, ".png",
                     new String[]{"https://tile.openweathermap.org/"});
         }
 

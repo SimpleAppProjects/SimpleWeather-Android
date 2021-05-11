@@ -30,7 +30,6 @@ import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.Response
-import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
@@ -118,20 +117,19 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     }
 
     override fun onMapReady() {
-        mapCameraPosition?.let { cameraPosition ->
-            mapView.controller.animateTo(cameraPosition)
+        super.onMapReady()
 
+        mapCameraPosition?.let { cameraPosition ->
             if (interactionsEnabled()) {
                 if (locationMarker == null) {
                     locationMarker = Marker(mapView)
                     locationMarker.setDefaultIcon()
                     mapView.overlays.add(locationMarker)
                 }
-                locationMarker.position = GeoPoint(cameraPosition.latitude, cameraPosition.longitude)
+                locationMarker.position =
+                    GeoPoint(cameraPosition.latitude, cameraPosition.longitude)
             }
         }
-
-        mapView.setMultiTouchControls(interactionsEnabled())
 
         getRadarFrames()
     }
@@ -215,6 +213,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
         if (!radarLayers.containsKey(mapFrame.timeStamp)) {
             val overlay = TilesOverlay(MapTileProviderBasic(context, RainViewTileProvider(mapFrame)), context, false, false)
             overlay.isEnabled = false
+            mapView.overlays.add(overlay)
             radarLayers[mapFrame.timeStamp] = overlay
         }
 
@@ -264,6 +263,8 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
             nextOverlay.isEnabled = true
         }
 
+        mapView.postInvalidate()
+
         updateToolbar(position, nextFrame)
     }
 
@@ -307,7 +308,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     }
 
     private class RainViewTileProvider(private val mapFrame: RadarFrame?) :
-            XYTileSource("RainViewer", 6, 6, 256, ".png", arrayOf(mapFrame?.host)) {
+        XYTileSource(
+            "RainViewer",
+            DEFAULT_ZOOM_LEVEL,
+            DEFAULT_ZOOM_LEVEL,
+            256,
+            ".png",
+            arrayOf(mapFrame?.host)
+        ) {
         override fun getTileURLString(pMapTileIndex: Long): String? {
             val zoom = MapTileIndex.getZoom(pMapTileIndex)
             val x = MapTileIndex.getX(pMapTileIndex)
@@ -315,7 +323,15 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
 
             if (mapFrame != null) {
                 /* Define the URL pattern for the tile images */
-                return String.format(Locale.ROOT, "%s%s/256/%d/%d/%d/1/1_1.png", mapFrame.host, mapFrame.path, zoom, x, y)
+                return String.format(
+                    Locale.ROOT,
+                    "%s%s/256/%d/%d/%d/1/1_1.png",
+                    mapFrame.host,
+                    mapFrame.path,
+                    zoom,
+                    x,
+                    y
+                )
             }
 
             return null
