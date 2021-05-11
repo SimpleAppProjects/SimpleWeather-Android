@@ -12,7 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPickerFragment;
@@ -22,7 +22,6 @@ import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public abstract class IconProviderPickerFragment extends RadioButtonPickerFragment {
 
@@ -109,7 +108,7 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
 
     @Override
     protected void onRadioButtonConfirmed(String selectedKey) {
-        if (!Objects.equals(selectedKey, WeatherIconsProvider.KEY) && !ExtrasLibrary.Companion.isEnabled()) {
+        if (!WeatherIconsManager.DEFAULT_ICONS.containsKey(selectedKey) && !ExtrasLibrary.Companion.isEnabled()) {
             // Navigate to premium page
             showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(

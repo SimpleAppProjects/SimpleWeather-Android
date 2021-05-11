@@ -11,6 +11,7 @@ import androidx.preference.Preference
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -36,7 +37,7 @@ fun UserLocaleActivity.attachToBaseContext() {
 }
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return packKey == WeatherIconsProvider.KEY || ExtrasLibrary.isEnabled()
+    return (packKey != null && WeatherIconsManager.DEFAULT_ICONS.containsKey(packKey)) || ExtrasLibrary.isEnabled()
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {

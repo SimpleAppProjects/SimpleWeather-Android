@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:pathData="M15.84,8.48c-4.16,0 -7.52,3.392 -7.52,7.52s3.392,7.52 7.52,7.52c4.16,0 7.52,-3.36 7.52,-7.52s-3.36,-7.52 -7.52,-7.52z"
+        android:fillColor="@color/wicon_color" />
+</vector>

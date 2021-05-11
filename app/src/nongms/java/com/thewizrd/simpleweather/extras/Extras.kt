@@ -6,6 +6,7 @@ package com.thewizrd.simpleweather.extras
 import android.content.Context
 import androidx.preference.Preference
 import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.FileLoggingTree
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
@@ -28,7 +29,7 @@ fun UserLocaleActivity.attachToBaseContext() {
 }
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return true
+    return packKey != null && WeatherIconsManager.DEFAULT_ICONS.containsKey(packKey)
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider;
 import com.thewizrd.shared_resources.okhttp3.CacheInterceptor;
 import com.thewizrd.shared_resources.utils.SettingsManager;
@@ -33,8 +34,8 @@ public final class SimpleLibrary {
     private SimpleLibrary() {
         mIconProviders = new LinkedHashMap<>();
 
-        // Register default icon provider
-        registerIconProvider(new WeatherIconsProvider());
+        // Register default icon providers
+        resetIconProviders();
     }
 
     private SimpleLibrary(ApplicationLib app) {
@@ -115,17 +116,7 @@ public final class SimpleLibrary {
     }
 
     public void resetIconProviders() {
-        WeatherIconProvider defaultProvider = null;
-        if (mIconProviders.containsKey(WeatherIconsProvider.KEY)) {
-            defaultProvider = mIconProviders.get(WeatherIconsProvider.KEY);
-        }
-
         mIconProviders.clear();
-
-        if (defaultProvider != null) {
-            mIconProviders.put(defaultProvider.getKey(), defaultProvider);
-        } else {
-            registerIconProvider(new WeatherIconsProvider());
-        }
+        mIconProviders.putAll(WeatherIconsManager.DEFAULT_ICONS);
     }
 }
