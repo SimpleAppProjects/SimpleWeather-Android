@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 public class Precipitation extends CustomJsonObject {
 
@@ -115,6 +116,10 @@ public class Precipitation extends CustomJsonObject {
     }
 
     public Precipitation(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
+        // The rest DNE
+    }
+
+    public Precipitation(final long dt, List<com.thewizrd.shared_resources.weatherdata.meteofrance.ProbabilityForecastItem> probForecastList) {
         // The rest DNE
     }
 

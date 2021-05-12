@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.weatherdata.here.AlertsItem;
 import com.thewizrd.shared_resources.weatherdata.here.TimeSegmentItem;
 import com.thewizrd.shared_resources.weatherdata.here.WarningItem;
 import com.thewizrd.shared_resources.weatherdata.here.WatchItem;
+import com.thewizrd.shared_resources.weatherdata.meteofrance.PhenomenonsItemsItem;
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.GraphItem;
 
 import java.io.IOException;
@@ -502,6 +503,117 @@ public class WeatherAlert extends CustomJsonObject {
 
         return span;
     }
+
+    public WeatherAlert(PhenomenonsItemsItem phenom) {
+        String title_en, title_fr;
+        String message_en, message_fr;
+
+        /*
+         * phenomenon_max_color_id (Severity)
+         *
+         * 1 - Green
+         * 2 - Yellow
+         * 3 - Orange
+         * 4 - Red
+         */
+        switch (phenom.getPhenomenonMaxColorId()) {
+            case 1:
+            default:
+                severity = WeatherAlertSeverity.MINOR;
+                message_fr = "Pas de vigilance particulière";
+                message_en = "No particular awareness of the weather is required.";
+                break;
+            case 2:
+                severity = WeatherAlertSeverity.MODERATE;
+                message_fr = "Soyez attentif";
+                message_en = "The weather is potentially dangerous.";
+                break;
+            case 3:
+                severity = WeatherAlertSeverity.SEVERE;
+                message_fr = "Soyez très vigilant";
+                message_en = "The weather is dangerous.";
+                break;
+            case 4:
+                severity = WeatherAlertSeverity.EXTREME;
+                message_fr = "Une vigilance Absolue s'impose";
+                message_en = "The weather is very dangerous.";
+                break;
+        }
+
+        /*
+         * phenomenon_id (Alert Type)
+         *
+         * 1 - Wind
+         * 2 - Rain/Flood
+         * 3 - Thunderstorm
+         * 4 - Flood
+         * 5 - Snow/Ice
+         * 6 - Extreme high temp
+         * 7 - Extreme low temp
+         * 8 - Avalanches
+         * 9 - Coastal event
+         */
+        switch (phenom.getPhenomenonId()) {
+            case 1:
+                type = WeatherAlertType.HIGHWIND;
+                title_fr = "Vent violent";
+                title_en = "High Winds";
+                break;
+            case 2:
+                type = WeatherAlertType.FLOODWATCH;
+                title_fr = "Pluie-inondation";
+                title_en = "Rain/Flood";
+                break;
+            case 3:
+                type = WeatherAlertType.SEVERETHUNDERSTORMWARNING;
+                title_fr = "Orages";
+                title_en = "Thunderstorms";
+                break;
+            case 4:
+                type = WeatherAlertType.FLOODWARNING;
+                title_fr = "Crues";
+                title_en = "Floods";
+                break;
+            case 5:
+                title_fr = "Neige-verglas";
+                title_en = "Snow/Ice";
+            case 7:
+                type = WeatherAlertType.WINTERWEATHER;
+                title_fr = "Grand-froid";
+                title_en = "Extreme low temperatures";
+                break;
+            case 6:
+                type = WeatherAlertType.HEAT;
+                title_fr = "Canicule";
+                title_en = "Extreme high temperatures";
+                break;
+            case 8:
+                title_fr = "Avalanches";
+                title_en = "Avalanches";
+            case 9:
+                title_fr = "Vagues-submersion";
+                title_en = "Coastal Event";
+            default:
+                type = WeatherAlertType.SPECIALWEATHERALERT;
+                title_fr = "Alerte météo";
+                title_en = "Weather Alert";
+                break;
+        }
+
+        title = title_fr;
+
+        message = "français:" +
+                StringUtils.lineSeparator() +
+                title_fr + " - " + message_fr +
+                StringUtils.lineSeparator() +
+                StringUtils.lineSeparator() +
+                "english:" +
+                StringUtils.lineSeparator() +
+                title_en + " - " + message_en;
+
+        attribution = "Meteo France";
+    }
+
 
     public WeatherAlertType getType() {
         return type;

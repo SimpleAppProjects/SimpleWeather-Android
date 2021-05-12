@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -31,8 +32,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Entity(tableName = "weatherdata")
 public class Weather extends CustomJsonObject {
@@ -486,6 +489,76 @@ public class Weather extends CustomJsonObject {
         condition.setObservationTime(updateTime);
 
         source = WeatherAPI.WEATHERUNLOCKED;
+    }
+
+    public Weather(com.thewizrd.shared_resources.weatherdata.meteofrance.CurrentsResponse currRoot,
+                   com.thewizrd.shared_resources.weatherdata.meteofrance.ForecastResponse foreRoot,
+                   @Nullable com.thewizrd.shared_resources.weatherdata.meteofrance.AlertsResponse alertRoot) {
+        location = new Location(foreRoot);
+        updateTime = ZonedDateTime.now(ZoneOffset.UTC);
+
+        forecast = new ArrayList<>(14);
+        hrForecast = new ArrayList<>(219);
+
+        // Forecast
+        for (com.thewizrd.shared_resources.weatherdata.meteofrance.DailyForecastItem daily : Objects.requireNonNull(foreRoot.getDailyForecast())) {
+            forecast.add(new Forecast(daily));
+        }
+
+        for (com.thewizrd.shared_resources.weatherdata.meteofrance.ForecastItem hourly : Objects.requireNonNull(foreRoot.getForecast())) {
+            hrForecast.add(new HourlyForecast(hourly, foreRoot.getProbabilityForecast()));
+        }
+
+        condition = new Condition(currRoot);
+        atmosphere = new Atmosphere(currRoot);
+
+        ttl = 180;
+
+        // Observation only gives temp & wind
+        if (!hrForecast.isEmpty()) {
+            HourlyForecast firstHr = hrForecast.get(0);
+
+            atmosphere.setHumidity(firstHr.extras.getHumidity());
+            atmosphere.setPressureMb(firstHr.extras.getPressureMb());
+            atmosphere.setPressureIn(firstHr.extras.getPressureIn());
+
+            precipitation = new Precipitation();
+            precipitation.setCloudiness(firstHr.extras.getCloudiness());
+            precipitation.setPop(firstHr.extras.getPop());
+            precipitation.setQpfRainIn(firstHr.extras.getQpfRainIn());
+            precipitation.setQpfRainMm(firstHr.extras.getQpfRainMm());
+            precipitation.setQpfSnowIn(firstHr.extras.getQpfSnowIn());
+            precipitation.setQpfSnowCm(firstHr.extras.getQpfSnowCm());
+        }
+
+        // Set feelslike temp
+        if (condition.getFeelslikeF() == null && condition.getTempF() != null && condition.getWindMph() != null && atmosphere.getHumidity() != null) {
+            condition.setFeelslikeF(WeatherUtils.getFeelsLikeTemp(condition.getTempF(), condition.getWindMph(), atmosphere.getHumidity()));
+            condition.setFeelslikeC(ConversionMethods.FtoC(condition.getFeelslikeF()));
+        }
+
+        if ((condition.getHighF() == null || condition.getHighC() == null) && forecast.size() > 0) {
+            condition.setHighF(forecast.get(0).getHighF());
+            condition.setHighC(forecast.get(0).getHighC());
+            condition.setLowF(forecast.get(0).getLowF());
+            condition.setLowC(forecast.get(0).getLowC());
+        }
+
+        if (alertRoot != null && alertRoot.getColorMax() != null &&
+                alertRoot.getColorMax() > 1 && alertRoot.getPhenomenonsItems() != null) {
+            weather_alerts = new HashSet<>(alertRoot.getPhenomenonsItems().size());
+            for (com.thewizrd.shared_resources.weatherdata.meteofrance.PhenomenonsItemsItem phenom : alertRoot.getPhenomenonsItems()) {
+                // phenomenon_max_color_id == 1 -> OK / No Warning or Watches
+                if (phenom.getPhenomenonMaxColorId() != null && phenom.getPhenomenonMaxColorId() > 1) {
+                    WeatherAlert alert = new WeatherAlert(phenom);
+                    alert.setDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(alertRoot.getUpdateTime()), ZoneOffset.UTC));
+                    alert.setExpiresDate(ZonedDateTime.ofInstant(Instant.ofEpochSecond(alertRoot.getEndValidityTime()), ZoneOffset.UTC));
+                    weather_alerts.add(alert);
+                }
+            }
+        }
+
+        source = WeatherAPI.METEOFRANCE;
     }
 
     public Location getLocation() {

@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider
+import com.thewizrd.shared_resources.weatherdata.meteofrance.MeteoFranceProvider
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvider
@@ -33,7 +34,7 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
             }
 
         @JvmStatic
-        fun getProvider(API: String?): WeatherProviderImpl {
+        fun getProvider(@WeatherAPI.WeatherProviders API: String?): WeatherProviderImpl {
             var providerImpl: WeatherProviderImpl? = null
 
             when (API) {
@@ -42,9 +43,13 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
                 WeatherAPI.METNO -> providerImpl = MetnoWeatherProvider()
                 WeatherAPI.NWS -> providerImpl = NWSWeatherProvider()
                 WeatherAPI.WEATHERUNLOCKED -> providerImpl = WeatherUnlockedProvider()
+                WeatherAPI.METEOFRANCE -> providerImpl = MeteoFranceProvider()
                 else -> {
                     if (!BuildConfig.DEBUG) {
-                        providerImpl = WeatherUnlockedProvider()
+                        providerImpl = if (!BuildConfig.IS_NONGMS)
+                            WeatherUnlockedProvider()
+                        else
+                            MetnoWeatherProvider()
                     }
                 }
             }

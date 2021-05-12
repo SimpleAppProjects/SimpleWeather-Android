@@ -61,6 +61,16 @@
         </value>
     </entry>
     <entry>
+        <key>meteofrance</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "LocIQ",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>wunlocked</value>
     </entry>

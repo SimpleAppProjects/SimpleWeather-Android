@@ -24,7 +24,9 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class HourlyForecast extends BaseForecast {
 
@@ -401,6 +403,144 @@ public class HourlyForecast extends BaseForecast {
         extras.setQpfRainIn(timeframe.getRainIn());
         extras.setQpfSnowCm(timeframe.getSnowMm() / 10);
         extras.setQpfSnowIn(timeframe.getSnowIn());
+    }
+
+    public HourlyForecast(com.thewizrd.shared_resources.weatherdata.meteofrance.ForecastItem forecast,
+                          List<com.thewizrd.shared_resources.weatherdata.meteofrance.ProbabilityForecastItem> probabilityForecasts) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE);
+        Locale locale = LocaleUtils.getLocale();
+
+        ZonedDateTime date = Instant.ofEpochSecond(forecast.getDt()).atZone(ZoneOffset.UTC);
+        setDate(date);
+
+        highC = forecast.getT().getValue();
+        highF = ConversionMethods.CtoF(forecast.getT().getValue());
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") ||
+                locale.toString().equals("fr") || locale.toString().startsWith("fr_") ||
+                locale.equals(Locale.ROOT)) {
+            condition = forecast.getWeather().getDesc();
+        } else {
+            condition = provider.getWeatherCondition(forecast.getWeather().getIcon());
+        }
+        icon = forecast.getWeather().getIcon();
+
+        // Extras
+        extras = new ForecastExtras();
+
+        if (forecast.getT().getWindchill() != null) {
+            extras.setFeelslikeC(forecast.getT().getWindchill());
+            extras.setFeelslikeF(ConversionMethods.CtoF(forecast.getT().getWindchill()));
+        }
+
+        if (forecast.getHumidity() != null) {
+            extras.setHumidity(forecast.getHumidity());
+        }
+
+        if (forecast.getSeaLevel() != null) {
+            extras.setPressureMb(forecast.getSeaLevel());
+            extras.setPressureIn(ConversionMethods.mbToInHg(forecast.getSeaLevel()));
+        }
+
+        if (forecast.getWind() != null) {
+            if (forecast.getWind().getSpeed() != null && forecast.getWind().getDirection() != null) {
+                windDegrees = forecast.getWind().getDirection();
+                windKph = ConversionMethods.msecToKph(forecast.getWind().getSpeed().floatValue());
+                windMph = ConversionMethods.msecToMph(forecast.getWind().getSpeed().floatValue());
+
+                extras.setWindDegrees(this.windDegrees);
+                extras.setWindMph(this.windMph);
+                extras.setWindKph(this.windKph);
+            }
+
+            if (forecast.getWind().getGust() != null) {
+                extras.setWindGustKph(ConversionMethods.msecToKph(forecast.getWind().getGust().floatValue()));
+                extras.setWindGustMph(ConversionMethods.msecToMph(forecast.getWind().getGust().floatValue()));
+            }
+        }
+
+        if (forecast.getRain() != null) {
+            if (forecast.getRain().getJsonMember1h() != null) {
+                extras.setQpfRainMm(forecast.getRain().getJsonMember1h());
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain().getJsonMember1h()));
+            } else if (forecast.getRain().getJsonMember3h() != null) {
+                extras.setQpfRainMm(forecast.getRain().getJsonMember3h());
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain().getJsonMember3h()));
+            } else if (forecast.getRain().getJsonMember6h() != null) {
+                extras.setQpfRainMm(forecast.getRain().getJsonMember6h());
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getRain().getJsonMember6h()));
+            }
+        }
+
+        if (forecast.getSnow() != null) {
+            if (forecast.getSnow().getJsonMember1h() != null) {
+                extras.setQpfSnowCm(forecast.getSnow().getJsonMember1h() / 10);
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getSnow().getJsonMember1h()));
+            } else if (forecast.getSnow().getJsonMember3h() != null) {
+                extras.setQpfSnowCm(forecast.getSnow().getJsonMember3h() / 10);
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getSnow().getJsonMember3h()));
+            } else if (forecast.getSnow().getJsonMember6h() != null) {
+                extras.setQpfSnowCm(forecast.getSnow().getJsonMember6h() / 10);
+                extras.setQpfRainIn(ConversionMethods.mmToIn(forecast.getSnow().getJsonMember6h()));
+            }
+        }
+
+        if (forecast.getClouds() != null) {
+            extras.setCloudiness(forecast.getClouds());
+        }
+
+        if (probabilityForecasts != null && !probabilityForecasts.isEmpty()) {
+            // Note: probability forecasts are given either every 3 or 6 hours
+            // Rain/Snow object can contain forecast for either next 3 or 6 hrs, or both
+            final long dt = forecast.getDt(); // Unix time in seconds
+            final long hrsInSec = TimeUnit.HOURS.toSeconds(1);
+            boolean found3hrForecast = false;
+            boolean _3hrForecastNA = false;
+
+            for (com.thewizrd.shared_resources.weatherdata.meteofrance.ProbabilityForecastItem prob : probabilityForecasts) {
+                // Check if timestamp is within 3-hr forecast
+                if (dt == prob.getDt() || dt == (prob.getDt() + hrsInSec) || dt == (prob.getDt() + hrsInSec * 2)) {
+                    if (prob.getRain().getJsonMember3h() != null) {
+                        extras.setPop(prob.getRain().getJsonMember3h().intValue());
+                        found3hrForecast = true;
+                        _3hrForecastNA = false;
+                    } else {
+                        found3hrForecast = false;
+                        _3hrForecastNA = true;
+                    }
+                    if (extras.getPop() == null && prob.getRain().getJsonMember6h() != null) {
+                        extras.setPop(prob.getRain().getJsonMember6h().intValue());
+                        _3hrForecastNA = true;
+                        found3hrForecast = false;
+                    }
+                    if (extras.getPop() == null) {
+                        if (prob.getSnow().getJsonMember3h() != null) {
+                            extras.setPop(prob.getSnow().getJsonMember3h().intValue());
+                        }
+                        if (prob.getSnow().getJsonMember6h() != null) {
+                            extras.setPop(prob.getSnow().getJsonMember6h().intValue());
+                        }
+                    }
+                }
+
+                // Timestamp is not within 3-hr forecast; check 6-hr timeframe
+                // Check if timestamp is within 6-hr forecast
+                if (extras.getPop() == null && (dt == (prob.getDt() + hrsInSec * 3) || dt == (prob.getDt() + hrsInSec * 4) || dt == (prob.getDt() + hrsInSec * 5))) {
+                    if (prob.getRain().getJsonMember6h() != null) {
+                        extras.setPop(prob.getRain().getJsonMember6h().intValue());
+                        _3hrForecastNA = true;
+                        found3hrForecast = false;
+                    }
+                    if (extras.getPop() == null) {
+                        if (prob.getSnow().getJsonMember6h() != null) {
+                            extras.setPop(prob.getSnow().getJsonMember6h().intValue());
+                        }
+                    }
+                }
+
+                if (extras.getPop() != null && (found3hrForecast || _3hrForecastNA)) break;
+            }
+        }
     }
 
     public String get_date() {

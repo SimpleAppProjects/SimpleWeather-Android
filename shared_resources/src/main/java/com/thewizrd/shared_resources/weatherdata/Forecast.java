@@ -297,6 +297,43 @@ public class Forecast extends BaseForecast {
         extras.setQpfSnowIn(day.getSnowTotalIn());
     }
 
+    public Forecast(com.thewizrd.shared_resources.weatherdata.meteofrance.DailyForecastItem day) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE);
+        Locale locale = LocaleUtils.getLocale();
+
+        date = LocalDateTime.ofEpochSecond(day.getDt(), 0, ZoneOffset.UTC);
+        highC = day.getT().getMax();
+        highF = ConversionMethods.CtoF(highC);
+        lowC = day.getT().getMin();
+        lowF = ConversionMethods.CtoF(lowC);
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") ||
+                locale.toString().equals("fr") || locale.toString().startsWith("fr_") ||
+                locale.equals(Locale.ROOT)) {
+            condition = day.getWeather12H().getDesc();
+        } else {
+            condition = provider.getWeatherCondition(day.getWeather12H().getIcon());
+        }
+        icon = provider.getWeatherIcon(false, day.getWeather12H().getIcon());
+
+        // Extras
+        extras = new ForecastExtras();
+        if (day.getHumidity().getMax() != null && day.getHumidity().getMin() != null) {
+            extras.setHumidity(Math.round((day.getHumidity().getMin() + day.getHumidity().getMax()) / 2f));
+        }
+        if (day.getT().getSea() != null) {
+            extras.setPressureMb(day.getT().getSea());
+            extras.setPressureIn(ConversionMethods.mbToInHg(day.getT().getSea()));
+        }
+        if (day.getPrecipitation().getJsonMember24h() != null) {
+            extras.setQpfRainMm(day.getPrecipitation().getJsonMember24h().floatValue());
+            extras.setQpfRainIn(ConversionMethods.mmToIn(day.getPrecipitation().getJsonMember24h().floatValue()));
+        }
+        if (day.getUv() != null) {
+            extras.setUvIndex(day.getUv().floatValue());
+        }
+    }
+
     public LocalDateTime getDate() {
         return date;
     }

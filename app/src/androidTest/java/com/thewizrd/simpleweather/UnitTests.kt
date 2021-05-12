@@ -23,10 +23,10 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
-import com.thewizrd.shared_resources.weatherdata.images.ImageDatabase
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
+import com.thewizrd.simpleweather.images.ImageDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -92,8 +92,14 @@ class UnitTests {
     }
 
     @Throws(WeatherException::class)
-    private suspend fun getWeather(providerImpl: WeatherProviderImpl) = withContext(Dispatchers.IO) {
-        val location = providerImpl.getLocation(Coordinate(47.6721646, -122.1706614))
+    private suspend fun getWeather(
+        providerImpl: WeatherProviderImpl,
+        coordinate: Coordinate = Coordinate(
+            47.6721646,
+            -122.1706614
+        ) /* Redmond, WA */
+    ) = withContext(Dispatchers.IO) {
+        val location = providerImpl.getLocation(coordinate)
         val locData = LocationData(location!!)
         return@withContext providerImpl.getWeather(locData)
     }
@@ -352,6 +358,16 @@ class UnitTests {
 
             val nameModel = locationProvider.getLocationFromName(queryVM!!)
             Assert.assertNotNull(nameModel)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getMeteoFranceWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE)
+            val weather = getWeather(provider, Coordinate(48.85, 2.34))
+            Assert.assertTrue(weather.isValid)
         }
     }
 }

@@ -40,4 +40,8 @@ public class Keys {
     public static String getWUnlockedKey() {
         return null;
     }
+
+    public static String getMeteoFranceKey() {
+        return null;
+    }
 }

@@ -325,6 +325,31 @@ public class Condition extends CustomJsonObject {
         beaufort = new Beaufort(WeatherUtils.getBeaufortScale(currRoot.getWindspdMs()).getValue());
     }
 
+    public Condition(com.thewizrd.shared_resources.weatherdata.meteofrance.CurrentsResponse currRoot) {
+        WeatherProviderImpl provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE);
+        Locale locale = LocaleUtils.getLocale();
+
+        tempC = currRoot.getObservation().getT().floatValue();
+        tempF = ConversionMethods.CtoF(tempC);
+
+        if (locale.toString().equals("en") || locale.toString().startsWith("en_") ||
+                locale.toString().equals("fr") || locale.toString().startsWith("fr_") ||
+                locale.equals(Locale.ROOT)) {
+            weather = currRoot.getObservation().getWeather().getDesc();
+        } else {
+            weather = provider.getWeatherCondition(currRoot.getObservation().getWeather().getIcon());
+        }
+        icon = currRoot.getObservation().getWeather().getIcon();
+
+        if (currRoot.getObservation().getWind() != null) {
+            windDegrees = currRoot.getObservation().getWind().getDirection();
+            windKph = ConversionMethods.msecToKph(currRoot.getObservation().getWind().getSpeed().floatValue());
+            windMph = ConversionMethods.msecToMph(currRoot.getObservation().getWind().getSpeed().floatValue());
+        }
+
+        observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currRoot.getUpdatedOn()), ZoneOffset.UTC);
+    }
+
     public String getWeather() {
         return weather;
     }

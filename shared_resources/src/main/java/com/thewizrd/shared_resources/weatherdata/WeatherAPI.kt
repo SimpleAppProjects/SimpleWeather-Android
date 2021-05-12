@@ -3,8 +3,6 @@ package com.thewizrd.shared_resources.weatherdata
 import androidx.annotation.StringDef
 import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import java.lang.annotation.RetentionPolicy
-import java.util.*
 
 object WeatherAPI {
     // APIs
@@ -15,13 +13,23 @@ object WeatherAPI {
     const val HERE = "Here"
     const val NWS = "NWS"
     const val WEATHERUNLOCKED = "wunlocked"
+    const val METEOFRANCE = "meteofrance"
 
     // Location APIs
     const val LOCATIONIQ = "LocIQ"
     const val GOOGLE = "google"
     const val WEATHERAPI = "weatherapi"
 
-    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERUNLOCKED)
+    /**
+     * Note to self: Common steps to adding a new weather provider
+     * 1) Implement WeatherProviderImpl class
+     * 2) Add constructor for Weather data objects
+     * 3) Update LocationQueryViewModel (if needed)
+     * 4) Add API to provider list below
+     * 5) Add API to WeatherManager
+     * 6) Add to remote_config_defaults.xml
+     */
+    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERUNLOCKED, METEOFRANCE)
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
@@ -48,16 +56,32 @@ object WeatherAPI {
         }
 
     private val GMSFullAPIs = listOf(
-            ProviderEntry("HERE Weather", HERE,
-                    "https://www.here.com/en", "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"),
-            ProviderEntry("MET Norway", METNO,
-                    "https://www.met.no/en", "https://www.met.no/en"),
-            ProviderEntry("National Weather Service (United States)", NWS,
-                    "https://www.weather.gov", "https://www.weather.gov"),
-            ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
-                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
-            ProviderEntry("WeatherUnlocked", WEATHERUNLOCKED,
-                    "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/")
+        ProviderEntry(
+            "HERE Weather",
+            HERE,
+            "https://www.here.com/en",
+            "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
+        ),
+        ProviderEntry(
+            "MET Norway", METNO,
+            "https://www.met.no/en", "https://www.met.no/en"
+        ),
+        ProviderEntry(
+            "National Weather Service (United States)", NWS,
+            "https://www.weather.gov", "https://www.weather.gov"
+        ),
+        ProviderEntry(
+            "OpenWeatherMap", OPENWEATHERMAP,
+            "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+        ),
+        ProviderEntry(
+            "WeatherUnlocked", WEATHERUNLOCKED,
+            "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
+        ),
+        ProviderEntry(
+            "Meteo France", METEOFRANCE,
+            "https://meteofrance.com/", "https://meteofrance.com/"
+        )
     )
 
     private val NonGMSAPIs = listOf(

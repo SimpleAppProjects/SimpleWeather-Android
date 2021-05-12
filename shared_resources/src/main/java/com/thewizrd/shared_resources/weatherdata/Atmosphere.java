@@ -150,6 +150,10 @@ public class Atmosphere extends CustomJsonObject {
         visibilityKm = currRoot.getVisKm();
     }
 
+    public Atmosphere(com.thewizrd.shared_resources.weatherdata.meteofrance.CurrentsResponse currRoot) {
+        // no-op
+    }
+
     public Integer getHumidity() {
         return humidity;
     }

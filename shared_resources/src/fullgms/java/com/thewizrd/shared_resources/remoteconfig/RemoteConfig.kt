@@ -82,6 +82,8 @@ object RemoteConfig {
     fun getDefaultWeatherProvider(countryCode: String?): String {
         return if (LocationUtils.isUS(countryCode)) {
             WeatherAPI.NWS
+        } else if (LocationUtils.isFrance(countryCode)) {
+            WeatherAPI.METEOFRANCE
         } else {
             getDefaultWeatherProvider()
         }

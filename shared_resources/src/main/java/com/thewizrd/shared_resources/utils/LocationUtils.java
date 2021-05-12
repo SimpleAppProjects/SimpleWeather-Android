@@ -20,4 +20,12 @@ public class LocationUtils {
             return isUS(countryCode) || countryCode.equalsIgnoreCase("CA") || countryCode.toLowerCase(Locale.ROOT).contains("canada");
         }
     }
+
+    public static boolean isFrance(@Nullable String countryCode) {
+        if (StringUtils.isNullOrWhitespace(countryCode))
+            return false;
+        else {
+            return countryCode.equalsIgnoreCase("fr") || countryCode.equalsIgnoreCase("france");
+        }
+    }
 }

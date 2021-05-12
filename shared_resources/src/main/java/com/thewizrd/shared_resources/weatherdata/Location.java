@@ -89,6 +89,14 @@ public class Location extends CustomJsonObject {
         tzLong = null;
     }
 
+    public Location(com.thewizrd.shared_resources.weatherdata.meteofrance.ForecastResponse foreRoot) {
+        // Use location name from location provider
+        name = null;
+        latitude = foreRoot.getPosition().getLat().floatValue();
+        longitude = foreRoot.getPosition().getLon().floatValue();
+        tzLong = foreRoot.getPosition().getTimezone();
+    }
+
     public String getName() {
         return name;
     }
