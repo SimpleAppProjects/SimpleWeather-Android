@@ -106,6 +106,10 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
         return sWeatherProvider!!.needsExternalAlertData()
     }
 
+    override fun isRegionSupported(countryCode: String?): Boolean {
+        return sWeatherProvider!!.isRegionSupported(countryCode)
+    }
+
     override fun getHourlyForecastInterval(): Int {
         return sWeatherProvider!!.getHourlyForecastInterval()
     }

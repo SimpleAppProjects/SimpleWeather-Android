@@ -109,7 +109,7 @@
     <string name="pref_summary_alerts_disabled">Weather alerts are not supported by this weather provider</string>
     <string name="pref_title_apiregister">Create an account</string>
     <string name="pref_summary_apiregister">Create an account to register for a Provider key</string>
-    <string name="error_message_weather_us_only">This weather provider only supports locations in the U.S.</string>
+    <string name="error_message_weather_region_unsupported">Country not supported by this weather provider</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">Add Location</string>

@@ -27,6 +27,7 @@ import com.thewizrd.shared_resources.adapters.LocationQueryAdapter
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
@@ -108,33 +109,30 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     if (queryResult == null) {
                         throw InterruptedException()
                     } else if (queryResult.locationTZLong.isNullOrEmpty() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                        val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                        val tzId =
+                            TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
                         if ("unknown" != tzId)
                             queryResult.locationTZLong = tzId
                     }
 
-                    val isUS = LocationUtils.isUS(queryResult.locationCountry)
-
-                    if (!settingsManager.isWeatherLoaded()) {
-                        // Default US provider to NWS
-                        if (isUS) {
-                            settingsManager.setAPI(WeatherAPI.NWS)
-                            queryResult.updateWeatherSource(WeatherAPI.NWS)
-                        } else {
-                            settingsManager.setAPI(WeatherAPI.WEATHERUNLOCKED)
-                            queryResult.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
-                        }
+                    if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                        // Set default provider based on location
+                        val provider =
+                            RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                        settingsManager.setAPI(provider)
+                        queryResult.updateWeatherSource(provider)
                         wm.updateAPI()
                     }
 
-                    if (WeatherAPI.NWS == settingsManager.getAPI() && !isUS) {
-                        throw CustomException(R.string.error_message_weather_us_only)
+                    if (!wm.isRegionSupported(queryResult.locationCountry)) {
+                        throw CustomException(R.string.error_message_weather_region_unsupported)
                     }
 
                     // Check if location already exists
                     val locData = settingsManager.getLocationData()
                     val finalQueryResult: LocationQueryViewModel = queryResult
-                    val loc = locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+                    val loc =
+                        locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
                     if (loc != null) {
                         // Location exists; return

@@ -169,12 +169,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         mErrorCounter[wEx.errorStatus.ordinal] = true
                     }
                 ErrorStatus.QUERYNOTFOUND -> {
-                    if (!mErrorCounter[wEx.errorStatus.ordinal] && WeatherAPI.NWS == getSettingsManager().getAPI()) {
-                        showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
-                        mErrorCounter[wEx.errorStatus.ordinal] = true
-                        return@runWithView
-                    }
-
                     if (!mErrorCounter[wEx.errorStatus.ordinal]) {
                         showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
                         mErrorCounter[wEx.errorStatus.ordinal] = true

@@ -19,6 +19,8 @@ interface WeatherProviderImplInterface {
 
     fun needsExternalAlertData(): Boolean
 
+    fun isRegionSupported(countryCode: String?): Boolean
+
     fun getHourlyForecastInterval(): Int
 
     @Throws(WeatherException::class)

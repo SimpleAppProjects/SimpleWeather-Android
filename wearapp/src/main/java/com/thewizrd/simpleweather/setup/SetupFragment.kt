@@ -25,6 +25,7 @@ import androidx.navigation.findNavController
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
@@ -298,28 +299,26 @@ class SetupFragment : CustomFragment() {
                                 view.locationTZLong = tzId
                         }
 
-                        val isUS = LocationUtils.isUS(view.locationCountry)
-
-                        if (!settingsManager.isWeatherLoaded()) {
-                            // Default US provider to NWS
-                            if (isUS) {
-                                settingsManager.setAPI(WeatherAPI.NWS)
-                                view.updateWeatherSource(WeatherAPI.NWS)
-                            } else {
-                                settingsManager.setAPI(WeatherAPI.WEATHERUNLOCKED)
-                                view.updateWeatherSource(WeatherAPI.WEATHERUNLOCKED)
-                            }
+                        if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                            // Set default provider based on location
+                            val provider =
+                                RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
+                            settingsManager.setAPI(provider)
+                            view.updateWeatherSource(provider)
                             wm.updateAPI()
                         }
 
-                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(settingsManager.getAPIKEY()) && wm.isKeyRequired()) {
+                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(
+                                settingsManager.getAPIKEY()
+                            ) && wm.isKeyRequired()
+                        ) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 
                         ensureActive()
 
-                        if (WeatherAPI.NWS == settingsManager.getAPI() && !isUS) {
-                            throw CustomException(R.string.error_message_weather_us_only)
+                        if (!wm.isRegionSupported(view.locationCountry)) {
+                            throw CustomException(R.string.error_message_weather_region_unsupported)
                         }
 
                         // Get Weather Data

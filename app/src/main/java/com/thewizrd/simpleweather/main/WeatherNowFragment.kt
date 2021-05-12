@@ -224,8 +224,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     showSnackbar(snackBar, null)
                 }
                 ErrorStatus.QUERYNOTFOUND -> {
-                    if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
-                        showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
+                    if (!wm.isRegionSupported(locationData!!.countryCode)) {
+                        showSnackbar(
+                            Snackbar.make(
+                                R.string.error_message_weather_region_unsupported,
+                                Snackbar.Duration.LONG
+                            ), null
+                        )
                         return@runWithView
                     }
                     showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)

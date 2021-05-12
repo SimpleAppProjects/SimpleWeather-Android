@@ -121,7 +121,7 @@
     <string name="pref_summary_alerts_disabled">"Wetterwarnungen werden von diesem Wetteranbieter nicht unterstützt"</string>
     <string name="pref_title_apiregister">"Benutzerkonto erstellen"</string>
     <string name="pref_summary_apiregister">"Benutzerkonto zum Erhalt eines Anbieterschlüssels erstellen"</string>
-    <string name="error_message_weather_us_only">"Dieser Wetteranbieter unterstützt nur Orte in den USA"</string>
+    <string name="error_message_weather_region_unsupported">"Dieser Wetteranbieter unterstützt nur Orte in den USA"</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Ort hinzufügen"</string>

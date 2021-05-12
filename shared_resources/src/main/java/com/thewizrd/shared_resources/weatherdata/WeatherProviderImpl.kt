@@ -34,6 +34,10 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         return true
     }
 
+    override fun isRegionSupported(countryCode: String?): Boolean {
+        return true
+    }
+
     override fun getHourlyForecastInterval(): Int {
         return 1
     }

@@ -137,8 +137,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        if (wEx.errorStatus == ErrorStatus.QUERYNOTFOUND && WeatherAPI.NWS == settingsManager.getAPI()) {
-            showToast(R.string.error_message_weather_us_only, Toast.LENGTH_LONG)
+        if (!wm.isRegionSupported(locationData!!.countryCode)) {
+            showToast(R.string.error_message_weather_region_unsupported, Toast.LENGTH_LONG)
         } else {
             showToast(wEx.message, Toast.LENGTH_LONG)
         }

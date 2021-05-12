@@ -52,6 +52,10 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         return false
     }
 
+    override fun isRegionSupported(countryCode: String?): Boolean {
+        return LocationUtils.isUS(countryCode)
+    }
+
     override fun isKeyRequired(): Boolean {
         return false
     }
@@ -68,6 +72,11 @@ class NWSWeatherProvider : WeatherProviderImpl() {
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
             withContext(Dispatchers.IO) {
                 var weather: Weather?
+
+                // NWS only supports locations in U.S.
+                if (!LocationUtils.isUS(country_code)) {
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                }
 
                 val client = SimpleLibrary.getInstance().httpClient
                 var observationResponse: Response? = null

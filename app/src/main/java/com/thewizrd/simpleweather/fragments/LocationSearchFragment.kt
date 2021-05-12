@@ -147,20 +147,22 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                         // Set default provider based on location
-                        val provider = RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                        val provider =
+                            RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
                         getSettingsManager().setAPI(provider)
                         queryResult.updateWeatherSource(provider)
                         wm.updateAPI()
                     }
 
-                    if (WeatherAPI.NWS == getSettingsManager().getAPI() && !LocationUtils.isUS(queryResult.locationCountry)) {
-                        throw CustomException(R.string.error_message_weather_us_only)
+                    if (!wm.isRegionSupported(queryResult.locationCountry)) {
+                        throw CustomException(R.string.error_message_weather_region_unsupported)
                     }
 
                     // Check if location already exists
                     val locData = getSettingsManager().getLocationData()
                     val finalQueryResult: LocationQueryViewModel = queryResult
-                    val loc = locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+                    val loc =
+                        locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
                     if (loc != null) {
                         // Location exists; return

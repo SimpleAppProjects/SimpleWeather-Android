@@ -295,14 +295,16 @@ class SetupLocationFragment : CustomFragment() {
                             wm.updateAPI()
                         }
 
-                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
+                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY()
+                                .isNullOrBlank() && wm.isKeyRequired()
+                        ) {
                             throw CustomException(R.string.werror_invalidkey)
                         }
 
                         ensureActive()
 
-                        if (WeatherAPI.NWS == getSettingsManager().getAPI() && !LocationUtils.isUS(view.locationCountry)) {
-                            throw CustomException(R.string.error_message_weather_us_only)
+                        if (!wm.isRegionSupported(view.locationCountry)) {
+                            throw CustomException(R.string.error_message_weather_region_unsupported)
                         }
 
                         // Get Weather Data

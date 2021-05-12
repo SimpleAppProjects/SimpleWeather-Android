@@ -60,6 +60,10 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         return false
     }
 
+    override fun isRegionSupported(countryCode: String?): Boolean {
+        return LocationUtils.isFrance(countryCode)
+    }
+
     override fun getHourlyForecastInterval(): Int {
         return 1
     }
@@ -76,6 +80,11 @@ class MeteoFranceProvider : WeatherProviderImpl() {
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
+
+            // MeteoFrance only supports locations in France
+            if (!LocationUtils.isFrance(country_code)) {
+                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+            }
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())

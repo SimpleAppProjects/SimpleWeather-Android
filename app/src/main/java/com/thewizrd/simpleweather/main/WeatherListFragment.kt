@@ -23,8 +23,8 @@ import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter
@@ -50,6 +50,8 @@ open class WeatherListFragment : ToolbarFragment() {
         private set
 
     private var args: WeatherListFragmentArgs? = null
+
+    private val wm = WeatherManager.instance
 
     companion object {
         fun newInstance(type: WeatherListType): WeatherListFragment {
@@ -221,12 +223,22 @@ open class WeatherListFragment : ToolbarFragment() {
                                                 // Show error message and prompt to refresh
                                                 showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
                                             ErrorStatus.QUERYNOTFOUND -> {
-                                                if (WeatherAPI.NWS == getSettingsManager().getAPI()) {
-                                                    showSnackbar(Snackbar.make(R.string.error_message_weather_us_only, Snackbar.Duration.LONG), null)
+                                                if (!wm.isRegionSupported(location!!.countryCode)) {
+                                                    showSnackbar(
+                                                        Snackbar.make(
+                                                            R.string.error_message_weather_region_unsupported,
+                                                            Snackbar.Duration.LONG
+                                                        ), null
+                                                    )
                                                     return@setErrorListener
                                                 }
                                                 // Show error message
-                                                showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                                                showSnackbar(
+                                                    Snackbar.make(
+                                                        wEx.message,
+                                                        Snackbar.Duration.LONG
+                                                    ), null
+                                                )
                                             }
                                             else -> showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
                                         }

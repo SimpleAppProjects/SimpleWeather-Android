@@ -102,16 +102,21 @@ class WeatherDataLoader(private val location: LocationData) {
         try {
             coroutineContext.ensureActive()
 
-            weather = if (WeatherAPI.NWS == settingsMgr.getAPI() && !LocationUtils.isUS(location.countryCode)) {
+            if (!wm.isRegionSupported(location.countryCode)) {
                 // If location data hasn't been updated, try loading weather from the previous provider
-                if (!location.weatherSource.isNullOrBlank() && WeatherAPI.NWS != location.weatherSource) {
-                    WeatherManager.getProvider(location.weatherSource).getWeather(location)
-                } else {
-                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                if (!location.weatherSource.isNullOrBlank()) {
+                    val provider = WeatherManager.getProvider(location.weatherSource)
+                    if (provider.isRegionSupported(location.countryCode)) {
+                        weather =
+                            WeatherManager.getProvider(location.weatherSource).getWeather(location)
+                    }
                 }
+
+                // Nothing to fallback on; error out
+                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
             } else {
                 // Load weather from provider
-                wm.getWeather(location)
+                weather = wm.getWeather(location)
             }
         } catch (weatherEx: WeatherException) {
             wEx = weatherEx
@@ -212,8 +217,9 @@ class WeatherDataLoader(private val location: LocationData) {
 
                 if (weather != null && weather!!.source != settingsMgr.getAPI()
                     || weather == null && location.weatherSource != settingsMgr.getAPI()) {
-                    // Only update location data if weather provider is not NWS or if it is NWS and the location is supported
-                    if (WeatherAPI.NWS != settingsMgr.getAPI() || LocationUtils.isUS(location.countryCode)) {
+                    // Only update location data if location region is supported by new API
+                    // If not don't update so we can use fallback (previously used API)
+                    if (wm.isRegionSupported(location.countryCode)) {
                         // Update location query and source for new API
                         val oldKey = location.query
 
@@ -405,7 +411,9 @@ class WeatherDataLoader(private val location: LocationData) {
         val API = settingsMgr.getAPI()
         var isInvalid = weather == null || !weather!!.isValid
         if (!isInvalid && !ObjectsCompat.equals(weather!!.source, API)) {
-            if (API != WeatherAPI.NWS || LocationUtils.isUS(location.countryCode)) {
+            // Don't mark data as invalid if region is not supported
+            // This is so we can use the fallback, if location data was not already modified
+            if (wm.isRegionSupported(location.countryCode)) {
                 isInvalid = true
             }
         }

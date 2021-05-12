@@ -89,7 +89,7 @@
     <string name="pref_summary_alerts_disabled">"Tento poskytovateľ nepodporuje meteovýstrahy"</string>
     <string name="pref_title_apiregister">"Vytvoriť užívateľa"</string>
     <string name="pref_summary_apiregister">"Vytvoriť registráciu na získanie kľúča poskytovateľa"</string>
-    <string name="error_message_weather_us_only">"Tento poskytovateľ podporuje iba lokality v USA"</string>
+    <string name="error_message_weather_region_unsupported">"Tento poskytovateľ podporuje iba lokality v USA"</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Pridať lokalitu"</string>
