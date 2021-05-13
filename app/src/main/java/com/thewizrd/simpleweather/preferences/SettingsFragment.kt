@@ -377,7 +377,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         providerPref.isPersistent = false
         providerPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-                if (isWeatherAPISupported(newValue.toString())) {
+                if (!isWeatherAPISupported(newValue.toString())) {
                     navigateToPremiumFragment()
                     return false
                 }
