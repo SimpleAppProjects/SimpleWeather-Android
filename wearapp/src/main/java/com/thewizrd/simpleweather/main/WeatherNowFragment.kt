@@ -6,9 +6,7 @@ import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.location.Criteria
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
@@ -33,6 +31,7 @@ import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
@@ -49,7 +48,6 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.lang.Runnable
 import java.time.Duration
@@ -87,10 +85,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
 
     // GPS location
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLocation: Location? = null
-    private var mLocCallback: LocationCallback? = null
-    private var mLocListnr: LocationListener? = null
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var locationCallback: LocationProvider.Callback
 
     /**
      * Tracks the status of the location updates request.
@@ -174,52 +171,28 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
         if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
-            locationData = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData::class.java)
+            locationData = JSONParser.deserializer(
+                savedInstanceState.getString(Constants.KEY_DATA),
+                LocationData::class.java
+            )
         } else if (args.data != null) {
             locationData = JSONParser.deserializer(args.data, LocationData::class.java)
         }
 
-        if (WearableHelper.isGooglePlayServicesInstalled()) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(fragmentActivity)
-            mLocCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
+        locationProvider = LocationProvider(fragmentActivity)
+        locationCallback = object : LocationProvider.Callback {
+            override fun onLocationChanged(location: Location?) {
+                stopLocationUpdates()
+                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
-                    runWithView {
-                        if (settingsManager.useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
+                runWithView {
+                    if (settingsManager.useFollowGPS() && updateLocation()) {
+                        // Setup loader from updated location
+                        wLoader = WeatherDataLoader(locationData!!)
 
-                            refreshWeather(false)
-                        }
+                        refreshWeather(false)
                     }
                 }
-
-                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-                }
-            }
-        } else {
-            mLocListnr = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    stopLocationUpdates()
-                    mMainHandler.removeCallbacks(cancelLocRequestRunner)
-
-                    runWithView {
-                        if (settingsManager.useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
-
-                            refreshWeather(false)
-                        }
-                    }
-                }
-
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
             }
         }
 
@@ -411,22 +384,18 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
      */
     private fun stopLocationUpdates() {
         if (!mRequestingLocationUpdates) {
-            Logger.writeLine(Log.DEBUG, "SetupLocationFragment: stopLocationUpdates: updates never requested, no-op.")
+            Logger.writeLine(
+                Log.DEBUG,
+                "SetupLocationFragment: stopLocationUpdates: updates never requested, no-op."
+            )
             return
         }
 
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mLocCallback?.let {
-            mFusedLocationClient?.removeLocationUpdates(it)
-                    ?.addOnCompleteListener { mRequestingLocationUpdates = false }
-        }
-        mLocListnr?.let {
-            val locMan = fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-            locMan?.removeUpdates(it)
-            mRequestingLocationUpdates = false
-        }
+        locationProvider.stopLocationUpdates()
+        mRequestingLocationUpdates = false
     }
 
     override fun onResume() {
@@ -585,68 +554,35 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 return false
             }
 
-            var location: Location? = null
-
-            val locMan = fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan =
+                fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 locationData = settingsManager.getHomeData()
                 return false
             }
 
-            if (WearableHelper.isGooglePlayServicesInstalled()) {
-                location = withContext(Dispatchers.IO) {
-                    val result: Location? = try {
-                        withTimeoutOrNull(5000) {
-                            mFusedLocationClient?.lastLocation?.await()
-                        }
-                    } catch (e: Exception) {
-                        null
+            val location = withContext(Dispatchers.IO) {
+                val result: Location? = try {
+                    withTimeoutOrNull(5000) {
+                        locationProvider.getLastLocation()
                     }
-                    result
+                } catch (e: Exception) {
+                    null
                 }
+                result
+            }
 
-                if (!coroutineContext.isActive) return false
+            if (!coroutineContext.isActive) return false
 
-                /*
-                 * Request start of location updates. Does nothing if
-                 * updates have already been requested.
-                 */
-                if (location == null && !mRequestingLocationUpdates) {
-                    val mLocationRequest = LocationRequest.create().apply {
-                        numUpdates = 1
-                        interval = 10000
-                        fastestInterval = 1000
-                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                    }
-                    mRequestingLocationUpdates = true
-                    mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocCallback!!, Looper.getMainLooper())
-                    mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-                }
-            } else {
-                val isGPSEnabled = locMan.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                val isNetEnabled = locMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-                if (!coroutineContext.isActive) return false
-
-                if (isGPSEnabled || isNetEnabled) {
-                    val locCriteria = Criteria().apply {
-                        accuracy = Criteria.ACCURACY_COARSE
-                        isCostAllowed = false
-                        powerRequirement = Criteria.POWER_LOW
-                    }
-
-                    val provider = locMan.getBestProvider(locCriteria, true)!!
-                    location = locMan.getLastKnownLocation(provider)
-
-                    if (location == null) {
-                        mRequestingLocationUpdates = true
-                        locMan.requestSingleUpdate(provider, mLocListnr!!, Looper.getMainLooper())
-                        mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
-                    }
-                } else {
-                    showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
-                }
+            /*
+             * Request start of location updates. Does nothing if
+             * updates have already been requested.
+             */
+            if (location == null && !mRequestingLocationUpdates) {
+                mRequestingLocationUpdates = true
+                locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
+                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
             }
 
             if (location != null && !mRequestingLocationUpdates) {
@@ -654,7 +590,11 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
                 // Check previous location difference
                 if (lastGPSLocData?.query != null &&
-                        mLocation != null && ConversionMethods.calculateGeopositionDistance(mLocation, location) < 1600) {
+                    mLocation != null && ConversionMethods.calculateGeopositionDistance(
+                        mLocation,
+                        location
+                    ) < 1600
+                ) {
                     return false
                 }
 

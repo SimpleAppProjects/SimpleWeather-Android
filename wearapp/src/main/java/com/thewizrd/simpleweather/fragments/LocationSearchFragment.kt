@@ -32,6 +32,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import kotlinx.coroutines.*

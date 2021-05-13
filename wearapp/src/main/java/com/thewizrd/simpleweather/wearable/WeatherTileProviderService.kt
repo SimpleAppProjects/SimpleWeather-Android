@@ -133,7 +133,7 @@ class WeatherTileProviderService : TileProviderService() {
         var chanceModel: DetailItemViewModel? = null
         var windModel: DetailItemViewModel? = null
 
-        for (input in viewModel.weatherDetails) {
+        for (input in viewModel.getWeatherDetails()) {
             if (input?.detailsType == WeatherDetailsType.POPCHANCE || input?.detailsType == WeatherDetailsType.POPCLOUDINESS) {
                 chanceModel = input
             } else if (input?.detailsType == WeatherDetailsType.WINDSPEED) {
