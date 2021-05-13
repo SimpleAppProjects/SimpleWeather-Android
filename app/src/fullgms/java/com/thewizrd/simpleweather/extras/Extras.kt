@@ -11,10 +11,7 @@ import androidx.preference.Preference
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.store.PlayStoreUtils
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.FirebaseConfigurator
 import com.thewizrd.simpleweather.R
@@ -37,11 +34,11 @@ fun UserLocaleActivity.attachToBaseContext() {
 }
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return (packKey != null && WeatherIconsManager.DEFAULT_ICONS.containsKey(packKey)) || ExtrasLibrary.isEnabled()
+    return com.thewizrd.extras.isIconPackSupported(packKey)
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {
-    return api != WeatherAPI.HERE || ExtrasLibrary.isEnabled()
+    return com.thewizrd.extras.isWeatherAPISupported(api)
 }
 
 fun SettingsFragment.navigateToPremiumFragment() {
@@ -60,7 +57,14 @@ fun SettingsFragment.navigateToPremiumFragment() {
 
 fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
     // Navigate to premium page
-    rootView.findNavController().navigate(R.id.action_iconsFragment_to_premiumFragment)
+    if (isPremiumSupported()) {
+        rootView.findNavController().navigate(R.id.action_iconsFragment_to_premiumFragment)
+    } else {
+        showSnackbar(
+            Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT),
+            null
+        )
+    }
     return
 }
 

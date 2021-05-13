@@ -26,7 +26,6 @@ import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.wearable.intent.RemoteIntent
-import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
@@ -35,11 +34,14 @@ import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.extras.isIconPackSupported
+import com.thewizrd.simpleweather.extras.isWeatherAPISupported
+import com.thewizrd.simpleweather.extras.navigateToPremiumFragment
+import com.thewizrd.simpleweather.extras.navigateUnsupportedIconPack
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
@@ -374,11 +376,8 @@ class SettingsActivity : WearableListenerActivity() {
             providerPref.entryValues = entryValues
             providerPref.isPersistent = false
             providerPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                if (WeatherAPI.HERE == newValue.toString() && !ExtrasLibrary.isEnabled()) {
-                    showToast(R.string.message_premium_required, Toast.LENGTH_SHORT)
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(
-                            Intent(ACTION_OPENONPHONE)
-                                    .putExtra(EXTRA_SHOWANIMATION, true))
+                if (!isWeatherAPISupported(newValue.toString())) {
+                    navigateToPremiumFragment()
                     return@OnPreferenceChangeListener false
                 }
 
@@ -707,7 +706,25 @@ class SettingsActivity : WearableListenerActivity() {
     }
 
     class IconsFragment : IconProviderPickerFragment() {
-        override fun bindPreferenceExtra(pref: RadioButtonPreference?, key: String?, info: CandidateInfo?, defaultKey: String?, systemDefaultKey: String?) {
+        override fun getDefaultKey(): String {
+            return settingsManager.getIconsProvider()
+        }
+
+        override fun setDefaultKey(key: String?): Boolean {
+            if (TextUtils.isEmpty(key)) {
+                return false
+            }
+            settingsManager.setIconsProvider(key)
+            return true
+        }
+
+        override fun bindPreferenceExtra(
+            pref: RadioButtonPreference?,
+            key: String?,
+            info: CandidateInfo?,
+            defaultKey: String?,
+            systemDefaultKey: String?
+        ) {
             super.bindPreferenceExtra(pref, key, info, defaultKey, systemDefaultKey)
             pref?.isPersistent = false
         }
@@ -718,6 +735,14 @@ class SettingsActivity : WearableListenerActivity() {
             // Update tiles and complications
             WeatherComplicationHelper.requestComplicationUpdateAll(context)
             WeatherTileHelper.requestTileUpdateAll(context)
+        }
+
+        override fun onRadioButtonConfirmed(selectedKey: String?) {
+            if (!isIconPackSupported(selectedKey)) {
+                navigateUnsupportedIconPack()
+                return
+            }
+            super.onRadioButtonConfirmed(selectedKey)
         }
     }
 

@@ -1,23 +1,16 @@
 package com.thewizrd.simpleweather.preferences.iconpreference;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceScreen;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.thewizrd.extras.ExtrasLibrary;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPickerFragment;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference;
-import com.thewizrd.simpleweather.wearable.WearableListenerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,18 +46,6 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
         });
 
         return mCandidates;
-    }
-
-    protected String getDefaultKey() {
-        return getSettingsManager().getIconsProvider();
-    }
-
-    protected boolean setDefaultKey(String key) {
-        if (TextUtils.isEmpty(key)) {
-            return false;
-        }
-        getSettingsManager().setIconsProvider(key);
-        return true;
     }
 
     /**
@@ -104,18 +85,5 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
         }
         mayCheckOnlyRadioButton();
         updateCheckedState(defaultKey);
-    }
-
-    @Override
-    protected void onRadioButtonConfirmed(String selectedKey) {
-        if (!WeatherIconsManager.DEFAULT_ICONS.containsKey(selectedKey) && !ExtrasLibrary.Companion.isEnabled()) {
-            // Navigate to premium page
-            showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
-            LocalBroadcastManager.getInstance(getContext()).sendBroadcast(
-                    new Intent(WearableListenerActivity.ACTION_OPENONPHONE)
-                            .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true));
-            return;
-        }
-        super.onRadioButtonConfirmed(selectedKey);
     }
 }
