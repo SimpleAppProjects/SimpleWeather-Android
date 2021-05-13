@@ -114,40 +114,11 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                     // End Stream
                     stream.closeQuietly()
 
-                    weather = Weather(root)
+                    weather = createWeatherData(root)
 
                     // Add weather alerts if available
-                    if (!root?.alerts?.alerts.isNullOrEmpty()) {
-                        weather.weatherAlerts = ArrayList(root.alerts.alerts.size)
-                        for (result in root.alerts.alerts) {
-                            weather.weatherAlerts.add(WeatherAlert(result))
-                        }
-                    } else if (root?.nwsAlerts?.watch != null || root?.nwsAlerts?.warning != null) {
-                        val numOfAlerts = (root.nwsAlerts?.watch?.size
-                                           ?: 0) + (root.nwsAlerts?.warning?.size ?: 0)
-
-                        weather.weatherAlerts = HashSet(numOfAlerts)
-
-                        val lat = weather.location.latitude.toDouble()
-                        val lon = weather.location.longitude.toDouble()
-
-                        if (root.nwsAlerts?.watch != null) {
-                            for (watchItem in root.nwsAlerts.watch) {
-                                // Add watch item if location is within 20km of the center of the alert zone
-                                if (ConversionMethods.calculateHaversine(lat, lon, watchItem.latitude, watchItem.longitude) < 20000) {
-                                    weather.weatherAlerts.add(WeatherAlert(watchItem))
-                                }
-                            }
-                        }
-                        if (root.nwsAlerts?.warning != null) {
-                            for (warningItem in root.nwsAlerts.warning) {
-                                // Add warning item if location is within 25km of the center of the alert zone
-                                if (ConversionMethods.calculateHaversine(lat, lon, warningItem.latitude, warningItem.longitude) < 25000) {
-                                    weather.weatherAlerts.add(WeatherAlert(warningItem))
-                                }
-                            }
-                        }
-                    }
+                    weather.weatherAlerts = createWeatherAlerts(root,
+                            weather.location.latitude, weather.location.longitude)
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
@@ -164,7 +135,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                     if (supportsWeatherLocale())
                         weather.locale = locale
 
-                    weather.query = location_query!!
+                    weather.query = location_query
                 }
 
                 if (wEx != null) throw wEx
@@ -249,37 +220,8 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
             stream.closeQuietly()
 
             // Add weather alerts if available
-            if (!root?.alerts?.alerts.isNullOrEmpty()) {
-                alerts = ArrayList(root.alerts.alerts.size)
-                for (result in root.alerts.alerts) {
-                    alerts.add(WeatherAlert(result))
-                }
-            } else if (root?.nwsAlerts?.watch != null || root?.nwsAlerts?.warning != null) {
-                val numOfAlerts = (root.nwsAlerts?.watch?.size
-                                   ?: 0) + (root.nwsAlerts?.warning?.size ?: 0)
-
-                alerts = HashSet(numOfAlerts)
-
-                val lat = location.latitude
-                val lon = location.longitude
-
-                if (root.nwsAlerts?.watch != null) {
-                    for (watchItem in root.nwsAlerts.watch) {
-                        // Add watch item if location is within 20km of the center of the alert zone
-                        if (ConversionMethods.calculateHaversine(lat, lon, watchItem.latitude, watchItem.longitude) < 20000) {
-                            alerts.add(WeatherAlert(watchItem))
-                        }
-                    }
-                }
-                if (root.nwsAlerts?.warning != null) {
-                    for (warningItem in root.nwsAlerts.warning) {
-                        // Add warning item if location is within 25km of the center of the alert zone
-                        if (ConversionMethods.calculateHaversine(lat, lon, warningItem.latitude, warningItem.longitude) < 25000) {
-                            alerts.add(WeatherAlert(warningItem))
-                        }
-                    }
-                }
-            }
+            alerts = createWeatherAlerts(root,
+                    location.latitude.toFloat(), location.longitude.toFloat())
         } catch (ex: Exception) {
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather alert data")
         } finally {

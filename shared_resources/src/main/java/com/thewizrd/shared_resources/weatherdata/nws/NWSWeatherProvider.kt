@@ -134,7 +134,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     // End Stream
                     forecastStream.closeQuietly()
 
-                    weather = Weather(observationData, forecastData)
+                    weather = createWeatherData(observationData, forecastData)
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
@@ -148,7 +148,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 if (wEx == null && weather?.isValid == false) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
-                    weather.query = location_query!!
+                    weather.query = location_query
                 }
 
                 if (wEx != null) throw wEx

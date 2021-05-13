@@ -28,7 +28,7 @@ class NWSAlertProvider : WeatherAlertProviderInterface {
 
     override suspend fun getAlerts(location: LocationData): Collection<WeatherAlert> =
             withContext(Dispatchers.IO) {
-                var alerts: List<WeatherAlert>? = null
+                var alerts: Collection<WeatherAlert>? = null
 
                 val client = SimpleLibrary.getInstance().httpClient
                 var response: Response? = null
@@ -65,11 +65,7 @@ class NWSAlertProvider : WeatherAlertProviderInterface {
                                 // Load data
                                 val root = JSONParser.deserializer<AlertRootobject>(stream, AlertRootobject::class.java)
 
-                                alerts = ArrayList(root.graph.size)
-
-                                for (result in root.graph) {
-                                    alerts.add(WeatherAlert(result))
-                                }
+                                alerts = createWeatherAlerts(root)
 
                                 // End Stream
                                 stream.closeQuietly()

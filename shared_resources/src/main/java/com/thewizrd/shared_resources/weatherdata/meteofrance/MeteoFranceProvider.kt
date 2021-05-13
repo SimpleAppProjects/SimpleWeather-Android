@@ -156,7 +156,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 forecastStream.closeQuietly()
                 alertStream?.closeQuietly()
 
-                weather = Weather(currRoot, foreRoot, alertsRoot)
+                weather = createWeatherData(currRoot, foreRoot, alertsRoot)
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {

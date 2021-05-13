@@ -110,7 +110,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     forecastStream.closeQuietly()
                     sunrisesetStream.closeQuietly()
 
-                    weather = Weather(foreRoot, astroRoot)
+                    weather = createWeatherData(foreRoot, astroRoot)
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {

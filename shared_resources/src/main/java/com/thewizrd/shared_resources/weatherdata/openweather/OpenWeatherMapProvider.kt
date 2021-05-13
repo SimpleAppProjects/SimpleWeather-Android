@@ -158,7 +158,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     currentStream.closeQuietly()
                     forecastStream.closeQuietly()
 
-                    weather = Weather(currRoot, foreRoot)
+                    weather = createWeatherData(currRoot, foreRoot)
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {

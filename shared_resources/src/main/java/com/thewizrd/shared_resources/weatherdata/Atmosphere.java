@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
@@ -45,113 +44,6 @@ public class Atmosphere extends CustomJsonObject {
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Atmosphere() {
         // Needed for deserialization
-    }
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.CurrentRootobject root) {
-        humidity = root.getMain().getHumidity();
-        // 1hPa = 1mbar
-        pressureMb = root.getMain().getPressure();
-        pressureIn = ConversionMethods.mbToInHg(root.getMain().getPressure());
-        pressureTrend = "";
-        visibilityKm = root.getVisibility() / 1000f;
-        visibilityMi = ConversionMethods.kmToMi(visibilityKm);
-    }
-
-    /* OpenWeather OneCall
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Current current) {
-        humidity = current.getHumidity();
-        // 1hPa = 1mbar
-        pressureMb = current.getPressure();
-        pressureIn = ConversionMethods.mbToInHg(pressureMb);
-        pressureTrend = "";
-        visibilityKm = current.getVisibility() / 1000f;
-        visibilityMi = ConversionMethods.kmToMi(visibilityKm);
-        dewpointF = ConversionMethods.KtoF(current.getDewPoint());
-        dewpointC = ConversionMethods.KtoC(current.getDewPoint());
-    }
-    */
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.metno.TimeseriesItem time) {
-        humidity = Math.round(time.getData().getInstant().getDetails().getRelativeHumidity());
-        pressureMb = time.getData().getInstant().getDetails().getAirPressureAtSeaLevel();
-        pressureIn = ConversionMethods.mbToInHg(time.getData().getInstant().getDetails().getAirPressureAtSeaLevel());
-        pressureTrend = "";
-
-        if (time.getData().getInstant().getDetails().getFogAreaFraction() != null) {
-            float visMi = 10.0f;
-            visibilityMi = (visMi - (visMi * time.getData().getInstant().getDetails().getFogAreaFraction() / 100));
-            visibilityKm = ConversionMethods.miToKm(visibilityMi);
-        }
-
-        if (time.getData().getInstant().getDetails().getDewPointTemperature() != null) {
-            dewpointF = ConversionMethods.CtoF(time.getData().getInstant().getDetails().getDewPointTemperature());
-            dewpointC = time.getData().getInstant().getDetails().getDewPointTemperature();
-        }
-    }
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.here.ObservationItem observation) {
-        Integer Humidity = NumberUtils.tryParseInt(observation.getHumidity());
-        if (Humidity != null) {
-            humidity = Humidity;
-        }
-
-        Float pressureIN = NumberUtils.tryParseFloat(observation.getBarometerPressure());
-        if (pressureIN != null) {
-            pressureIn = pressureIN;
-            pressureMb = ConversionMethods.inHgToMB(pressureIN);
-        }
-        pressureTrend = observation.getBarometerTrend();
-
-        Float visibilityMI = NumberUtils.tryParseFloat(observation.getVisibility());
-        if (visibilityMI != null) {
-            visibilityMi = visibilityMI;
-            visibilityKm = ConversionMethods.miToKm(visibilityMI);
-        }
-
-        Float dewpoint_f = NumberUtils.tryParseFloat(observation.getDewPoint());
-        if (dewpoint_f != null) {
-            dewpointF = dewpoint_f;
-            dewpointC = ConversionMethods.FtoC(dewpoint_f);
-        }
-    }
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
-        Integer relh = NumberUtils.tryParseInt(forecastResponse.getCurrentobservation().getRelh());
-        if (relh != null) {
-            humidity = relh;
-        }
-
-        Float pressure = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getSLP());
-        if (pressure != null) {
-            pressureIn = pressure;
-            pressureMb = ConversionMethods.inHgToMB(pressure);
-        }
-        pressureTrend = "";
-
-        Float visibility = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getVisibility());
-        if (visibility != null) {
-            visibilityMi = visibility;
-            visibilityKm = ConversionMethods.miToKm(visibility);
-        }
-
-        Float dewp = NumberUtils.tryParseFloat(forecastResponse.getCurrentobservation().getDewp());
-        if (dewp != null) {
-            dewpointF = dewp;
-            dewpointC = ConversionMethods.FtoC(dewp);
-        }
-    }
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot) {
-        humidity = Math.round(currRoot.getHumidPct());
-        pressureIn = currRoot.getSlpIn();
-        pressureMb = currRoot.getSlpMb();
-        pressureTrend = "";
-        visibilityMi = currRoot.getVisMi();
-        visibilityKm = currRoot.getVisKm();
-    }
-
-    public Atmosphere(com.thewizrd.shared_resources.weatherdata.meteofrance.CurrentsResponse currRoot) {
-        // no-op
     }
 
     public Integer getHumidity() {

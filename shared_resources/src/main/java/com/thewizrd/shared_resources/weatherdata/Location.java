@@ -33,68 +33,10 @@ public class Location extends CustomJsonObject {
     @SerializedName("tz_long")
     private String tzLong;
 
-    @RestrictTo({RestrictTo.Scope.LIBRARY})
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Location() {
         // Needed for deserialization
         tzLong = "UTC";
-    }
-
-    public Location(com.thewizrd.shared_resources.weatherdata.openweather.ForecastRootobject root) {
-        // Use location name from location provider
-        name = null;
-        latitude = root.getCity().getCoord().getLat();
-        longitude = root.getCity().getCoord().getLon();
-        tzLong = null;
-    }
-
-    /* OpenWeather OneCall
-    public Location(com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject root) {
-        // Use location name from location provider
-        name = null;
-        latitude = root.getLat();
-        longitude = root.getLon();
-        tzLong = root.getTimezone();
-    }
-     */
-
-    public Location(com.thewizrd.shared_resources.weatherdata.metno.Response foreRoot) {
-        // API doesn't provide location name (at all)
-        name = null;
-        latitude = foreRoot.getGeometry().getCoordinates().get(1);
-        longitude = foreRoot.getGeometry().getCoordinates().get(0);
-        tzLong = null;
-    }
-
-    public Location(com.thewizrd.shared_resources.weatherdata.here.LocationItem location) {
-        // Use location name from location provider
-        name = null;
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        tzLong = null;
-    }
-
-    public Location(com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse forecastResponse) {
-        // Use location name from location provider
-        name = null;
-        latitude = NumberUtils.tryParseFloat(forecastResponse.getLocation().getLatitude());
-        longitude = NumberUtils.tryParseFloat(forecastResponse.getLocation().getLongitude());
-        tzLong = null;
-    }
-
-    public Location(com.thewizrd.shared_resources.weatherdata.weatherunlocked.CurrentResponse currRoot) {
-        // Use location name from location provider
-        name = null;
-        latitude = currRoot.getLat();
-        longitude = currRoot.getLon();
-        tzLong = null;
-    }
-
-    public Location(com.thewizrd.shared_resources.weatherdata.meteofrance.ForecastResponse foreRoot) {
-        // Use location name from location provider
-        name = null;
-        latitude = foreRoot.getPosition().getLat().floatValue();
-        longitude = foreRoot.getPosition().getLon().floatValue();
-        tzLong = foreRoot.getPosition().getTimezone();
     }
 
     public String getName() {
