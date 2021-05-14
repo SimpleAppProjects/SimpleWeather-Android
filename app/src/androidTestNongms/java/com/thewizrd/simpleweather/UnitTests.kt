@@ -18,16 +18,13 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
-import com.thewizrd.shared_resources.tzdb.TimeZoneProvider
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
-import com.thewizrd.simpleweather.images.ImageDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -40,7 +37,6 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.concurrent.ExecutionException
 
 @RunWith(AndroidJUnit4::class)
 class UnitTests {
@@ -107,16 +103,6 @@ class UnitTests {
 
     @Throws(WeatherException::class)
     @Test
-    fun getHEREWeather() {
-        runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.HERE)
-            val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
-        }
-    }
-
-    @Throws(WeatherException::class)
-    @Test
     fun getMetNoWeather() {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.METNO)
@@ -157,38 +143,6 @@ class UnitTests {
             val provider = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
             val weather = getWeather(provider)
             Assert.assertTrue(weather.isValid)
-        }
-    }
-
-    @Throws(WeatherException::class)
-    @Test
-    fun getWUnlockedWeather() {
-        runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERUNLOCKED)
-            val weather = getWeather(provider)
-            Assert.assertTrue(!weather.forecast.isNullOrEmpty() && !weather.hrForecast.isNullOrEmpty())
-            Assert.assertTrue(weather.isValid)
-        }
-    }
-
-    @Test
-    fun getHEREOAuthToken() {
-        runBlocking(Dispatchers.Default) {
-            val token = withContext(Dispatchers.IO) {
-                HEREOAuthUtils.getBearerToken(true)
-            }
-            Assert.assertFalse(token.isNullOrEmpty())
-        }
-    }
-
-    @Test
-    fun getTimeZone() {
-        runBlocking(Dispatchers.Default) {
-            val tz = withContext(Dispatchers.IO) {
-                TimeZoneProvider().getTimeZone(0.0, 0.0)
-            }
-            Log.d("TZTest", "tz = $tz")
-            Assert.assertFalse(tz.isNullOrEmpty())
         }
     }
 
@@ -255,15 +209,6 @@ class UnitTests {
             Log.d("SolCalc", String.format(Locale.ROOT,
                     "Sunrise: %s; Sunset: %s", astro.sunrise.format(fmt), astro.sunset.format(fmt)))
             Assert.assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN)
-        }
-    }
-
-    @Test
-    @Throws(ExecutionException::class, InterruptedException::class)
-    fun firebaseDBTest() {
-        runBlocking(Dispatchers.Default) {
-            val updateTime = ImageDatabase.getLastUpdateTime()
-            Assert.assertTrue(updateTime > 0)
         }
     }
 
