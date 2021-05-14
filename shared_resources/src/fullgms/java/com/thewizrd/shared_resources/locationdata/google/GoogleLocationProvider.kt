@@ -15,12 +15,10 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.controls.setLocation
 import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationAPIs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -94,9 +92,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
             val response = placesClient.findAutocompletePredictions(request).await()
             locations = HashSet()
             for (result in response.autocompletePredictions) {
-                locations.add(LocationQueryViewModel().apply {
-                    this.setLocation(result, weatherAPI)
-                })
+                locations.add(createLocationModel(result, weatherAPI!!))
             }
         } catch (e: Throwable) {
             var ex = e
@@ -183,9 +179,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
                 if (wEx != null) throw wEx
 
                 location = response?.let {
-                    LocationQueryViewModel().apply {
-                        setLocation(it, model.weatherSource)
-                    }
+                    createLocationModel(it, model.weatherSource)
                 } ?: LocationQueryViewModel()
 
                 return@withContext location
@@ -219,8 +213,8 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        location = result?.let { LocationQueryViewModel(it, model.weatherSource) }
-                   ?: LocationQueryViewModel()
+        location = result?.let { createLocationModel(it, model.weatherSource!!) }
+                ?: LocationQueryViewModel()
 
         return@withContext location
     }
@@ -253,8 +247,8 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        location = result?.let { LocationQueryViewModel(it, weatherAPI) }
-                   ?: LocationQueryViewModel()
+        location = result?.let { createLocationModel(it, weatherAPI!!) }
+                ?: LocationQueryViewModel()
 
         return@withContext location
     }

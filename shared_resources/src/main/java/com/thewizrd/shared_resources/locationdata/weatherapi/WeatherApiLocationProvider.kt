@@ -82,7 +82,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
             val root = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
 
             for (result in root) {
-                val added = locations.add(LocationQueryViewModel(result, weatherAPI))
+                val added = locations.add(createLocationModel(result, weatherAPI!!))
 
                 // Limit amount of results
                 if (added) {
@@ -180,8 +180,8 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        return@withContext result?.let { LocationQueryViewModel(it, weatherAPI) }
-                           ?: LocationQueryViewModel()
+        return@withContext result?.let { createLocationModel(it, weatherAPI!!) }
+                ?: LocationQueryViewModel()
     }
 
     override suspend fun isKeyValid(key: String?): Boolean {

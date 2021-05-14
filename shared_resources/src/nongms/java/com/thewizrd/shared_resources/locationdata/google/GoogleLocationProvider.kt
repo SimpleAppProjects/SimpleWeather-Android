@@ -53,7 +53,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
             locations = HashSet()
             for (result in addresses) {
-                locations.add(LocationQueryViewModel(result, weatherAPI))
+                locations.add(createLocationModel(result, weatherAPI!!))
             }
         } catch (ex: Exception) {
             locations = null
@@ -107,8 +107,8 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        location = result?.let { LocationQueryViewModel(it, model.weatherSource) }
-                   ?: LocationQueryViewModel()
+        location = result?.let { createLocationModel(it, model.weatherSource) }
+                ?: LocationQueryViewModel()
 
         return@withContext location
     }
@@ -141,8 +141,8 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        location = result?.let { LocationQueryViewModel(it, weatherAPI) }
-                   ?: LocationQueryViewModel()
+        location = result?.let { createLocationModel(it, weatherAPI!!) }
+                ?: LocationQueryViewModel()
 
         return@withContext location
     }

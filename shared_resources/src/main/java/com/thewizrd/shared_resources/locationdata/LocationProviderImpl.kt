@@ -5,6 +5,7 @@ import android.location.Geocoder
 import android.util.Log
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.locationdata.google.createLocationModel
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
@@ -87,8 +88,8 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
 
             if (wEx != null) throw wEx
 
-            location = result?.let { LocationQueryViewModel(it, weatherAPI) }
-                       ?: LocationQueryViewModel()
+            location = result?.let { createLocationModel(it, weatherAPI!!) }
+                    ?: LocationQueryViewModel()
 
             location.locationSource = getLocationAPI()
 
@@ -141,8 +142,8 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
 
             if (wEx != null) throw wEx
 
-            location = result?.let { LocationQueryViewModel(result, model.weatherSource) }
-                       ?: LocationQueryViewModel()
+            location = result?.let { createLocationModel(result, model.weatherSource) }
+                    ?: LocationQueryViewModel()
 
             location.locationSource = getLocationAPI()
 

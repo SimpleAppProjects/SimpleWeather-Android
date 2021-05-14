@@ -84,7 +84,7 @@ class LocationIQProvider : LocationProviderImpl() {
             for (result in root) {
                 // Filter: only store city results
                 val added = if ("place" == result.jsonMemberClass)
-                    locations.add(LocationQueryViewModel(result, weatherAPI))
+                    locations.add(createLocationModel(result, weatherAPI!!))
                 else
                     continue
 
@@ -168,7 +168,7 @@ class LocationIQProvider : LocationProviderImpl() {
         if (wEx != null) throw wEx
 
         location = if (!result?.osmId.isNullOrBlank())
-            LocationQueryViewModel(result, weatherAPI)
+            createLocationModel(result!!, weatherAPI!!)
         else
             LocationQueryViewModel()
 

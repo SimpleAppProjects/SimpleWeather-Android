@@ -97,7 +97,7 @@ class HERELocationProvider  // Keep hidden for now
                 added = if ("city" == result.matchLevel
                             || "district" == result.matchLevel
                             || "postalCode" == result.matchLevel) {
-                    locations.add(LocationQueryViewModel(result, weatherAPI))
+                    locations.add(createLocationModel(result!!, weatherAPI!!))
                 } else {
                     continue
                 }
@@ -191,7 +191,7 @@ class HERELocationProvider  // Keep hidden for now
         if (wEx != null) throw wEx
 
         location = if (!result?.location?.locationId.isNullOrBlank())
-            LocationQueryViewModel(result, weatherAPI)
+            createLocationModel(result!!, weatherAPI!!)
         else
             LocationQueryViewModel()
 
@@ -249,7 +249,7 @@ class HERELocationProvider  // Keep hidden for now
                 if (wEx != null) throw wEx
 
                 return@withContext if (!result?.location?.locationId.isNullOrBlank())
-                    LocationQueryViewModel(result, model.weatherSource)
+                    createLocationModel(result!!, model.weatherSource!!)
                 else
                     LocationQueryViewModel()
             }
