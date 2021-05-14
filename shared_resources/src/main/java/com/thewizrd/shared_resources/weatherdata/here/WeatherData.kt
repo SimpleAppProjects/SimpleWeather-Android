@@ -5,8 +5,10 @@ import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.NumberUtils
 import com.thewizrd.shared_resources.utils.StringUtils
-import com.thewizrd.shared_resources.weatherdata.*
-import com.thewizrd.shared_resources.weatherdata.Astronomy
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit

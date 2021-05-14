@@ -6,7 +6,7 @@ import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.shared_resources.weatherdata.Favorites;
+import com.thewizrd.shared_resources.weatherdata.model.Favorites;
 
 @Database(entities = {LocationData.class, Favorites.class}, version = SettingsManager.CURRENT_DBVERSION)
 @TypeConverters({LocationDBConverters.class})

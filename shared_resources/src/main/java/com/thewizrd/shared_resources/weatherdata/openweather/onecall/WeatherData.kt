@@ -6,7 +6,9 @@ import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDateTime

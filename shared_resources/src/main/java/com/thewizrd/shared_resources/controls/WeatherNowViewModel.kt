@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.core.util.ObjectsCompat
 import androidx.databinding.Bindable
-import com.google.common.collect.Iterables
 import com.thewizrd.shared_resources.BR
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
@@ -12,9 +11,9 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.text.DecimalFormat
 import java.util.*
 

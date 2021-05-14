@@ -43,6 +43,8 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.App.Companion.instance
 import com.thewizrd.simpleweather.BuildConfig

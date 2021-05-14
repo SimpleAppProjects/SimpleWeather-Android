@@ -5,9 +5,9 @@ import com.thewizrd.shared_resources.utils.ErrorStatus
 import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderDateInterface
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface
-import com.thewizrd.shared_resources.weatherdata.Astronomy
-import com.thewizrd.shared_resources.weatherdata.MoonPhase
-import com.thewizrd.shared_resources.weatherdata.MoonPhase.MoonPhaseType
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalculator.Ephemeris
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

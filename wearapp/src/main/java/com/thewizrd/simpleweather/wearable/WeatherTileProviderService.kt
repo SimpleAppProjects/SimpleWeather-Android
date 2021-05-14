@@ -13,10 +13,10 @@ import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.StringUtils
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R

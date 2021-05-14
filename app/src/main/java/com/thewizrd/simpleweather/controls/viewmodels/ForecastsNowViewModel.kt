@@ -7,9 +7,9 @@ import androidx.lifecycle.*
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.weatherdata.Forecasts
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

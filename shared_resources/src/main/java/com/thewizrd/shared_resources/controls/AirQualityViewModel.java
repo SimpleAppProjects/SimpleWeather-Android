@@ -10,7 +10,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.weatherdata.AirQuality;
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality;
 
 public class AirQualityViewModel {
     @NonNull

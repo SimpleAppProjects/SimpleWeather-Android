@@ -6,6 +6,8 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 
 interface WeatherProviderImplInterface {
     @WeatherAPI.WeatherProviders

@@ -5,7 +5,7 @@ import android.text.format.DateFormat;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
-import com.thewizrd.shared_resources.weatherdata.Astronomy;
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 
 import java.time.format.DateTimeFormatter;
 

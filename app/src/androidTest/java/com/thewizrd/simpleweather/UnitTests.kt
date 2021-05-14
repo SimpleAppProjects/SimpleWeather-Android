@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider

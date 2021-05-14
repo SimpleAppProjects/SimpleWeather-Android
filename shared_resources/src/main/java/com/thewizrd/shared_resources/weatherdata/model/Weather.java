@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.annotation.SuppressLint;
 import android.util.Log;

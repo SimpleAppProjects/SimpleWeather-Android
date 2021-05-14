@@ -16,7 +16,7 @@ import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.weatherdata.LocationType
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.Dispatchers

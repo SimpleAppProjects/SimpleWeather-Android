@@ -5,7 +5,7 @@ import android.graphics.Color;
 import androidx.annotation.ColorInt;
 
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.weatherdata.Beaufort;
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort;
 
 public class BeaufortViewModel {
     private DetailItemViewModel beaufort;

@@ -9,7 +9,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.weatherdata.Favorites;
+import com.thewizrd.shared_resources.weatherdata.model.Favorites;
 
 import java.util.List;
 

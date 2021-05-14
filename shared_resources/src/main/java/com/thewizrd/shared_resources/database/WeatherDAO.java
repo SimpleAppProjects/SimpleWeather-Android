@@ -10,11 +10,11 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.TypeConverters;
 
-import com.thewizrd.shared_resources.weatherdata.Forecasts;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
-import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts;
+import com.thewizrd.shared_resources.weatherdata.model.Weather;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;

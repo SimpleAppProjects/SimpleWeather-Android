@@ -15,9 +15,9 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.Forecast;
-import com.thewizrd.shared_resources.weatherdata.TextForecast;
-import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.model.Forecast;
+import com.thewizrd.shared_resources.weatherdata.model.TextForecast;
+import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

@@ -16,9 +16,9 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import kotlinx.coroutines.*

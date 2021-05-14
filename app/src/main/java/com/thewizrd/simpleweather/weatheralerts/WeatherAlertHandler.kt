@@ -2,8 +2,8 @@ package com.thewizrd.simpleweather.weatheralerts
 
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder

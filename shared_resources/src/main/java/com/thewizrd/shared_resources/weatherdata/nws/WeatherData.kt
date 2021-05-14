@@ -2,7 +2,9 @@ package com.thewizrd.shared_resources.weatherdata.nws
 
 import androidx.core.util.ObjectsCompat
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.nws.hourly.HourlyForecastResponse
 import com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodItem
 import com.thewizrd.shared_resources.weatherdata.nws.observation.ForecastResponse

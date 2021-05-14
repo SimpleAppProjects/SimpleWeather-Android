@@ -8,7 +8,7 @@ import androidx.annotation.ColorInt
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
-import com.thewizrd.shared_resources.weatherdata.Weather
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.ZonedDateTime
 
 fun getLastBuildDate(weather: Weather): String {

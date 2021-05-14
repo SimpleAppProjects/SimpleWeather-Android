@@ -11,6 +11,10 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
+import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
+import com.thewizrd.shared_resources.weatherdata.model.UV
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

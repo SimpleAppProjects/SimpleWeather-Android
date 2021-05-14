@@ -12,9 +12,9 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig.getLocationProvider
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

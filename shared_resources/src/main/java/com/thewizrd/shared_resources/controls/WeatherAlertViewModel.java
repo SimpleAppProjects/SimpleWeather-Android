@@ -11,9 +11,9 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType;
 
 import java.time.Duration;
 import java.time.ZoneOffset;

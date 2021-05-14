@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.wearable.WearableSettings
-import com.thewizrd.shared_resources.weatherdata.Weather
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext

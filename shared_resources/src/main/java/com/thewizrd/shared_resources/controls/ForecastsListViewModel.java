@@ -18,8 +18,8 @@ import com.thewizrd.shared_resources.database.WeatherDAO;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.shared_resources.weatherdata.Forecasts;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;

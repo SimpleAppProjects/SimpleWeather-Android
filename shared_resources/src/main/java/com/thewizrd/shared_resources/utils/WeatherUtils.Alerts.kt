@@ -6,8 +6,8 @@ package com.thewizrd.shared_resources.utils
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 
 @DrawableRes
 fun WeatherAlertType?.getDrawableFromAlertType(): Int {

@@ -6,9 +6,9 @@ package com.thewizrd.simpleweather.images
 import androidx.annotation.ColorInt
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.preferences.FeatureSettings
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherBackground
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 
 suspend fun Weather.getImageData(): ImageDataViewModel? {

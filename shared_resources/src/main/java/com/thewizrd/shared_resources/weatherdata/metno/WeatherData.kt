@@ -4,9 +4,10 @@ import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
-import com.thewizrd.shared_resources.weatherdata.*
-import com.thewizrd.shared_resources.weatherdata.Location
-import com.thewizrd.shared_resources.weatherdata.MoonPhase.MoonPhaseType
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDateTime

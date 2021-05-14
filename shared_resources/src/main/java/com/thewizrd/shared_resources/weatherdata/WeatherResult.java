@@ -3,6 +3,8 @@ package com.thewizrd.shared_resources.weatherdata;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import com.thewizrd.shared_resources.weatherdata.model.Weather;
+
 public final class WeatherResult {
     private boolean isSavedData = false;
     private Weather weather = null;

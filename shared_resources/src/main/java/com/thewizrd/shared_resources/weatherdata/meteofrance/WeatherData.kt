@@ -3,9 +3,11 @@ package com.thewizrd.shared_resources.weatherdata.meteofrance
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
-import com.thewizrd.shared_resources.weatherdata.*
-import com.thewizrd.shared_resources.weatherdata.Precipitation
-import com.thewizrd.shared_resources.weatherdata.Weather
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.weatherdata.model.Precipitation
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset

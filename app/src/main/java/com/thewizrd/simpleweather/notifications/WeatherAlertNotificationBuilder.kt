@@ -14,7 +14,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity

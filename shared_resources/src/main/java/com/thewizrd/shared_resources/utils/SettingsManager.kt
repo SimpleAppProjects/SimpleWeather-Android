@@ -29,6 +29,7 @@ import com.thewizrd.shared_resources.utils.Units.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
+import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.StringReader

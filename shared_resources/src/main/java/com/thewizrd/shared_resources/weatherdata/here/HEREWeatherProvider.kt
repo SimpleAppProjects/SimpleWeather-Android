@@ -12,6 +12,8 @@ import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

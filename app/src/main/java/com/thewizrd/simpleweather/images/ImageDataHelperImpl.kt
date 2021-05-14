@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.images
 
 import android.net.Uri
 import androidx.annotation.WorkerThread
-import com.thewizrd.shared_resources.weatherdata.Weather
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 
 abstract class ImageDataHelperImpl {

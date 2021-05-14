@@ -1,7 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.openweather
 
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset

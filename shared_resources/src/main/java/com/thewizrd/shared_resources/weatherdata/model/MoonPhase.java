@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.util.Log;
 
@@ -10,31 +10,41 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-public class UV extends CustomJsonObject {
+public class MoonPhase extends CustomJsonObject {
 
-    @SerializedName("index")
-    private Float index;
+    public enum MoonPhaseType {
+        NEWMOON,
+        WAXING_CRESCENT,
+        FIRST_QTR,
+        WAXING_GIBBOUS,
+        FULL_MOON,
+        WANING_GIBBOUS,
+        LAST_QTR,
+        WANING_CRESCENT,
+    }
+
+    @SerializedName("phase")
+    private MoonPhaseType phase;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
-    public UV() {
+    public MoonPhase() {
         // Needed for deserialization
     }
 
-    public UV(float index) {
-        this.index = index;
+    public MoonPhase(MoonPhaseType moonPhaseType) {
+        this.phase = moonPhaseType;
     }
 
-    public Float getIndex() {
-        return index;
+    public MoonPhaseType getPhase() {
+        return phase;
     }
 
-    public void setIndex(Float index) {
-        this.index = index;
+    public void setPhase(MoonPhaseType phase) {
+        this.phase = phase;
     }
 
     @Override
@@ -68,8 +78,8 @@ public class UV extends CustomJsonObject {
                 }
 
                 switch (property) {
-                    case "index":
-                        this.index = NumberUtils.tryParseFloat(reader.nextString());
+                    case "phase":
+                        this.phase = MoonPhaseType.valueOf(reader.nextString());
                         break;
                     default:
                         reader.skipValue();
@@ -84,20 +94,19 @@ public class UV extends CustomJsonObject {
         }
     }
 
-    @Override
     public void toJson(JsonWriter writer) {
         try {
             // {
             writer.beginObject();
 
-            // "index" : ""
-            writer.name("index");
-            writer.value(index);
+            // "phase" : ""
+            writer.name("phase");
+            writer.value(phase.name());
 
             // }
             writer.endObject();
         } catch (IOException e) {
-            Logger.writeLine(Log.ERROR, e, "UV: error writing json string");
+            Logger.writeLine(Log.ERROR, e, "MoonPhase: error writing json string");
         }
     }
 }

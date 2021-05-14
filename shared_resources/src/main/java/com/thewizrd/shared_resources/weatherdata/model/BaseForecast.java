@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.weatherdata.model;
 
 import com.google.gson.annotations.SerializedName;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;

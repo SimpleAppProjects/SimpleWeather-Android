@@ -12,6 +12,8 @@ import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.meteofrance.MeteoFranceProvider
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvider
 import com.thewizrd.shared_resources.weatherdata.weatherunlocked.WeatherUnlockedProvider

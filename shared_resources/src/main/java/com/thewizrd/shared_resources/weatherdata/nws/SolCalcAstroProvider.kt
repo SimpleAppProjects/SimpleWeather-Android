@@ -5,7 +5,7 @@ import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderDateInterface
 import com.thewizrd.shared_resources.weatherdata.AstroDataProviderInterface
-import com.thewizrd.shared_resources.weatherdata.Astronomy
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime

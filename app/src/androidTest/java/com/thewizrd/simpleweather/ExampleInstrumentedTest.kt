@@ -16,9 +16,9 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
 import com.thewizrd.simpleweather.widgets.WidgetUtils

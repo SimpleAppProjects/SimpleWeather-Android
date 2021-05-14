@@ -18,7 +18,7 @@ import com.thewizrd.shared_resources.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.weatherdata.LocationType
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R

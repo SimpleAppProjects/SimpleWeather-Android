@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext

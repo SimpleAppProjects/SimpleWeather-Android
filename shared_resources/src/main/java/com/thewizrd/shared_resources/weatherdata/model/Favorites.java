@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.weatherdata.model;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;

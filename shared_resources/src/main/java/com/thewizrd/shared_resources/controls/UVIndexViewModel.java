@@ -9,7 +9,7 @@ import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 public class UVIndexViewModel {
     private CharSequence icon;

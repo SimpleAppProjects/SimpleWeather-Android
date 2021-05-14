@@ -18,9 +18,9 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.WeatherException;
-import com.thewizrd.shared_resources.weatherdata.Weather;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
+import com.thewizrd.shared_resources.weatherdata.model.Weather;
 
 import org.junit.Before;
 import org.junit.Test;

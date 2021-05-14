@@ -5,9 +5,9 @@ import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.NumberUtils
 import com.thewizrd.shared_resources.utils.StringUtils
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertSeverity
-import com.thewizrd.shared_resources.weatherdata.WeatherAlertType
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.ZoneOffset

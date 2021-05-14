@@ -9,7 +9,7 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.Weather
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await

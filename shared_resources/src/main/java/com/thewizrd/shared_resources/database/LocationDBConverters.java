@@ -2,7 +2,7 @@ package com.thewizrd.shared_resources.database;
 
 import androidx.room.TypeConverter;
 
-import com.thewizrd.shared_resources.weatherdata.LocationType;
+import com.thewizrd.shared_resources.weatherdata.model.LocationType;
 
 public class LocationDBConverters {
 

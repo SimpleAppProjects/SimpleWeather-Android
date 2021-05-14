@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata;
+package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.util.Log;
 
@@ -10,32 +10,50 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.weatherdata.aqicn.Rootobject;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class AirQuality extends CustomJsonObject {
+public class TextForecast extends CustomJsonObject {
 
-    @SerializedName("index")
-    private Integer index;
+    @SerializedName("date")
+    private ZonedDateTime date;
+
+    @SerializedName("fcttext")
+    private String fcttext;
+
+    @SerializedName("fcttext_metric")
+    private String fcttextMetric;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
-    public AirQuality() {
+    public TextForecast() {
         // Needed for deserialization
     }
 
-    public AirQuality(Rootobject root) {
-        this.index = root.getData().getAqi();
+    public ZonedDateTime getDate() {
+        return date;
     }
 
-    public Integer getIndex() {
-        return index;
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
+    public String getFcttext() {
+        return fcttext;
+    }
+
+    public void setFcttext(String fcttext) {
+        this.fcttext = fcttext;
+    }
+
+    public String getFcttextMetric() {
+        return fcttextMetric;
+    }
+
+    public void setFcttextMetric(String fcttextMetric) {
+        this.fcttextMetric = fcttextMetric;
     }
 
     @Override
@@ -69,8 +87,14 @@ public class AirQuality extends CustomJsonObject {
                 }
 
                 switch (property) {
-                    case "index":
-                        this.index = NumberUtils.tryParseInt(reader.nextString());
+                    case "date":
+                        this.date = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        break;
+                    case "fcttext":
+                        this.fcttext = reader.nextString();
+                        break;
+                    case "fcttext_metric":
+                        this.fcttextMetric = reader.nextString();
                         break;
                     default:
                         reader.skipValue();
@@ -91,14 +115,22 @@ public class AirQuality extends CustomJsonObject {
             // {
             writer.beginObject();
 
-            // "index" : ""
-            writer.name("index");
-            writer.value(index);
+            // "date" : ""
+            writer.name("date");
+            writer.value(date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+            // "fcttext" : ""
+            writer.name("fcttext");
+            writer.value(fcttext);
+
+            // "fcttext_metric" : ""
+            writer.name("fcttext_metric");
+            writer.value(fcttextMetric);
 
             // }
             writer.endObject();
         } catch (IOException e) {
-            Logger.writeLine(Log.ERROR, e, "AirQuality: error writing json string");
+            Logger.writeLine(Log.ERROR, e, "TextForecast: error writing json string");
         }
     }
 }

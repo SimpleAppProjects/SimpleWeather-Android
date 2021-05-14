@@ -1,6 +1,6 @@
 package com.thewizrd.shared_resources.controls;
 
-import com.thewizrd.shared_resources.weatherdata.MoonPhase;
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase;
 
 public class MoonPhaseViewModel {
     private DetailItemViewModel moonPhase;

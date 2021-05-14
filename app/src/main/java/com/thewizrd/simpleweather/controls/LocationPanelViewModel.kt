@@ -7,12 +7,12 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.simpleweather.images.getImageData
-import com.thewizrd.shared_resources.weatherdata.LocationType
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.images.getImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

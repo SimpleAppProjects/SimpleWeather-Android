@@ -5,10 +5,10 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.shared_resources.weatherdata.Forecasts;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecasts;
-import com.thewizrd.shared_resources.weatherdata.Weather;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts;
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts;
+import com.thewizrd.shared_resources.weatherdata.model.Weather;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts;
 
 @Database(entities = {Weather.class, WeatherAlerts.class, Forecasts.class, HourlyForecasts.class}, version = SettingsManager.CURRENT_DBVERSION)
 @TypeConverters({WeatherDBConverters.class})

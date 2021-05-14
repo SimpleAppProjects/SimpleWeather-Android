@@ -10,10 +10,10 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.weatherdata.AirQuality;
-import com.thewizrd.shared_resources.weatherdata.Beaufort;
-import com.thewizrd.shared_resources.weatherdata.MoonPhase;
-import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality;
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort;
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase;
+import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 public class DetailItemViewModel {
     @NonNull

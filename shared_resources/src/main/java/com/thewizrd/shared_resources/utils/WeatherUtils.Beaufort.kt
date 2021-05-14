@@ -3,7 +3,7 @@
 
 package com.thewizrd.shared_resources.utils
 
-import com.thewizrd.shared_resources.weatherdata.Beaufort.BeaufortScale
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort.BeaufortScale
 import java.math.BigDecimal
 import java.math.RoundingMode
 

@@ -5,7 +5,7 @@ import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.weatherdata.Forecast
+import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.GraphTemperature

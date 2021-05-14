@@ -9,7 +9,9 @@
 
         <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
 
-        <import type="com.thewizrd.shared_resources.weatherdata.MoonPhase.MoonPhaseType" />
+        <import type="com.thewizrd.shared_resources.weatherdata.model.MoonPhase" />
+
+        <import type="com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType" />
 
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
 

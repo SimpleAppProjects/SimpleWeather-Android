@@ -2,7 +2,9 @@ package com.thewizrd.shared_resources.weatherdata.weatherunlocked
 
 import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset

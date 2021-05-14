@@ -21,8 +21,8 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.shared_resources.weatherdata.LocationType;
-import com.thewizrd.shared_resources.weatherdata.Weather;
+import com.thewizrd.shared_resources.weatherdata.model.LocationType;
+import com.thewizrd.shared_resources.weatherdata.model.Weather;
 
 import java.io.IOException;
 import java.time.Instant;

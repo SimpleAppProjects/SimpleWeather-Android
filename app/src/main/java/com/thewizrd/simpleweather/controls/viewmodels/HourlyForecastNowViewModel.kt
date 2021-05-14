@@ -10,8 +10,8 @@ import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.simpleweather.App
 import java.text.DecimalFormat
 

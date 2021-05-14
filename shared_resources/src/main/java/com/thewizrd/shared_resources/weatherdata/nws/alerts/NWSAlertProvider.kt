@@ -7,8 +7,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

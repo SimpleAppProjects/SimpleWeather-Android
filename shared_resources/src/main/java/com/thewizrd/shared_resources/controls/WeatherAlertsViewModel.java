@@ -11,8 +11,8 @@ import androidx.lifecycle.Transformations;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlert;
-import com.thewizrd.shared_resources.weatherdata.WeatherAlerts;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert;
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

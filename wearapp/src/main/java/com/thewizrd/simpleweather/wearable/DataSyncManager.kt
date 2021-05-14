@@ -12,10 +12,10 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.wearable.WearableSettings
-import com.thewizrd.shared_resources.weatherdata.Forecasts
-import com.thewizrd.shared_resources.weatherdata.HourlyForecasts
-import com.thewizrd.shared_resources.weatherdata.Weather
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker.Companion.requestWidgetUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await

@@ -20,8 +20,8 @@ import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.utils.WeatherUtils;
-import com.thewizrd.shared_resources.weatherdata.HourlyForecast;
-import com.thewizrd.shared_resources.weatherdata.UV;
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
