@@ -124,8 +124,6 @@ public class ForecastGraphViewModel extends ViewModel {
             date = "";
         }
 
-        xData.add(new XLabelData(date));
-
         switch (graphType) {
             /*
             case TEMPERATURE:
@@ -140,6 +138,7 @@ public class ForecastGraphViewModel extends ViewModel {
             case PRECIPITATION:
                 if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
                     yData.add(new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%"));
+                    xData.add(new XLabelData(date));
                 }
                 break;
             case WIND:
@@ -168,6 +167,7 @@ public class ForecastGraphViewModel extends ViewModel {
                     String windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
 
                     yData.add(new YEntryData(speedVal, windSpeed));
+                    xData.add(new XLabelData(date));
                 }
                 break;
             case RAIN:
@@ -189,6 +189,7 @@ public class ForecastGraphViewModel extends ViewModel {
                     }
 
                     yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
+                    xData.add(new XLabelData(date));
                 }
                 break;
             case SNOW:
@@ -210,16 +211,19 @@ public class ForecastGraphViewModel extends ViewModel {
                     }
 
                     yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
+                    xData.add(new XLabelData(date));
                 }
                 break;
             case UVINDEX:
                 if (forecast.getExtras() != null && forecast.getExtras().getUvIndex() != null) {
                     yData.add(new YEntryData(forecast.getExtras().getUvIndex(), String.format(LocaleUtils.getLocale(), "%.1f", forecast.getExtras().getUvIndex())));
+                    xData.add(new XLabelData(date));
                 }
                 break;
             case HUMIDITY:
                 if (forecast.getExtras() != null && forecast.getExtras().getHumidity() != null) {
                     yData.add(new YEntryData(forecast.getExtras().getHumidity(), String.format(LocaleUtils.getLocale(), "%d%%", forecast.getExtras().getHumidity())));
+                    xData.add(new XLabelData(date));
                 }
                 break;
         }

@@ -90,22 +90,25 @@ class ChartsViewModel : ViewModel() {
             if (i == 0) {
                 //tempData = ForecastGraphViewModel()
 
-                if (hrfcast.extras?.pop != null) {
+                if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
                     popData = ForecastGraphViewModel()
                 }
-                if (hrfcast.windMph != null && hrfcast.windKph != null) {
+                if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
+                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null) {
                     windData = ForecastGraphViewModel()
                 }
-                if (hrfcast.extras?.qpfRainIn != null && hrfcast.extras?.qpfRainMm != null) {
+                if (hrfcasts.firstOrNull()?.extras?.qpfRainIn != null && hrfcasts.firstOrNull()?.extras?.qpfRainMm != null ||
+                        hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null) {
                     rainData = ForecastGraphViewModel()
                 }
-                if (hrfcast.extras?.qpfSnowIn != null && hrfcast.extras?.qpfSnowCm != null) {
+                if (hrfcasts.firstOrNull()?.extras?.qpfSnowIn != null && hrfcasts.firstOrNull()?.extras?.qpfSnowCm != null ||
+                        hrfcasts.lastOrNull()?.extras?.qpfSnowIn != null && hrfcasts.lastOrNull()?.extras?.qpfSnowCm != null) {
                     snowData = ForecastGraphViewModel()
                 }
-                if (hrfcast.extras?.uvIndex != null) {
+                if (hrfcasts.firstOrNull()?.extras?.uvIndex != null || hrfcasts.lastOrNull()?.extras?.uvIndex != null) {
                     uviData = ForecastGraphViewModel()
                 }
-                if (hrfcast.extras?.humidity != null) {
+                if (hrfcasts.firstOrNull()?.extras?.humidity != null || hrfcasts.lastOrNull()?.extras?.humidity != null) {
                     humidityData = ForecastGraphViewModel()
                 }
             }
