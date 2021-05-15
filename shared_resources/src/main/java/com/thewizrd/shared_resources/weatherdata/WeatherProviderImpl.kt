@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.weatherdata
 
 import android.location.Location
 import android.util.Log
+import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
@@ -143,8 +144,10 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         // Provider-specifc updates/fixes
         updateWeatherData(location, weather)
 
-        // Additional external data
-        updateAQIData(location, weather)
+        if (!BuildConfig.IS_NONGMS) {
+            // Additional external data
+            updateAQIData(location, weather)
+        }
 
         return weather
     }
