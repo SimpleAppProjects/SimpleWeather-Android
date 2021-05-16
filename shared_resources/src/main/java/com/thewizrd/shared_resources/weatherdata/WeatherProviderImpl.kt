@@ -144,9 +144,11 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         // Provider-specifc updates/fixes
         updateWeatherData(location, weather)
 
+        // Additional external data
         if (!BuildConfig.IS_NONGMS) {
-            // Additional external data
             updateAQIData(location, weather)
+        } else if (this is AirQualityProviderInterface) {
+            weather.condition.airQuality = this.getAirQualityData(location)
         }
 
         return weather
@@ -179,11 +181,11 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
                     }
 
                     val forecastObj = weather.forecast.find { it.date.toLocalDate().isEqual(date) }
-                    if (forecastObj != null && forecastObj.getExtras()?.uvIndex == null) {
+                    if (forecastObj != null && forecastObj.extras?.uvIndex == null) {
                         if (forecastObj.extras == null) {
-                            forecastObj.setExtras(ForecastExtras())
+                            forecastObj.extras = ForecastExtras()
                         }
-                        forecastObj.getExtras().uvIndex = uviData.max.toFloat()
+                        forecastObj.extras.uvIndex = uviData.max.toFloat()
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.weatherdata.openweather
+package com.thewizrd.shared_resources.weatherdata.openweather.onecall
 
 import android.util.Log
 import com.ibm.icu.util.ULocale
@@ -11,8 +11,10 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
+import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
@@ -30,11 +32,12 @@ import java.util.concurrent.TimeUnit
 import com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject as OneCallRootobject
 import com.thewizrd.shared_resources.weatherdata.openweather.onecall.createWeatherData as createOneCallWeatherData
 
-class OWMOneCallWeatherProvider : WeatherProviderImpl() {
+class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInterface {
     companion object {
         private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast?appid=%s"
         private const val WEATHER_QUERY_URL = BASE_URL + "onecall?%s&exclude=minutely&appid=%s&lang=%s"
+        private const val AQI_QUERY_URL = BASE_URL + "air_pollution?lat=%s&lon=%s&appid=%s"
     }
 
     init {
@@ -219,6 +222,50 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl() {
             }
         }
     }
+
+    override suspend fun getAirQualityData(location: LocationData): AirQuality? =
+            withContext(Dispatchers.IO) {
+                var aqiData: AirQuality? = null
+
+                val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+
+                val client = SimpleLibrary.getInstance().httpClient
+                var response: Response? = null
+
+                try {
+                    val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
+                    df.applyPattern("0.####")
+
+                    val request = Request.Builder()
+                            .cacheControl(CacheControl.Builder()
+                                    .maxAge(12, TimeUnit.HOURS)
+                                    .build())
+                            .url(String.format(AQI_QUERY_URL, df.format(location.latitude), df.format(location.latitude), key))
+                            .build()
+
+                    // Connect to webstream
+                    response = client.newCall(request).await()
+                    val stream = response.getStream()
+
+                    // Load weather
+                    val root = JSONParser.deserializer<AirPollutionResponse>(stream, AirPollutionResponse::class.java)
+
+                    // End Stream
+                    stream.closeQuietly()
+
+                    aqiData = AirQuality().apply {
+                        index = root.list[0].main.aqi
+                    }
+                } catch (ex: Exception) {
+                    aqiData = null
+                    Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting aqi data")
+                } finally {
+                    response?.closeQuietly()
+                }
+
+                return@withContext aqiData
+            }
 
     override fun updateLocationQuery(weather: Weather): String {
         val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
