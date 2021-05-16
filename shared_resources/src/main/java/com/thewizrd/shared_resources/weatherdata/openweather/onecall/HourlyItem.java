@@ -53,6 +53,9 @@ public class HourlyItem {
     @SerializedName("visibility")
     private Integer visibility;
 
+    @SerializedName("uvi")
+    private Float uvi;
+
     public long getDt() {
         return dt;
     }
@@ -171,5 +174,13 @@ public class HourlyItem {
 
     public void setVisibility(Integer visibility) {
         this.visibility = visibility;
+    }
+
+    public void setUvi(Float uvi) {
+        this.uvi = uvi;
+    }
+
+    public Float getUvi() {
+        return uvi;
     }
 }

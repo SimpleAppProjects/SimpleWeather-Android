@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.nws.NWSWeatherProvider
+import com.thewizrd.shared_resources.weatherdata.openweather.OWMOneCallWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvider
 import com.thewizrd.shared_resources.weatherdata.weatherunlocked.WeatherUnlockedProvider
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +42,15 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
 
             when (API) {
                 WeatherAPI.HERE -> providerImpl = HEREWeatherProvider()
-                WeatherAPI.OPENWEATHERMAP -> providerImpl = OpenWeatherMapProvider()
+                WeatherAPI.OPENWEATHERMAP -> {
+                    val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+
+                    providerImpl = if (BuildConfig.IS_NONGMS || settingsMgr.usePersonalKey()) {
+                        OWMOneCallWeatherProvider()
+                    } else {
+                        OpenWeatherMapProvider()
+                    }
+                }
                 WeatherAPI.METNO -> providerImpl = MetnoWeatherProvider()
                 WeatherAPI.NWS -> providerImpl = NWSWeatherProvider()
                 WeatherAPI.WEATHERUNLOCKED -> providerImpl = WeatherUnlockedProvider()

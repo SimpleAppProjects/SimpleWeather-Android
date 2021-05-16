@@ -790,6 +790,7 @@ class SettingsManager(context: Context) {
     fun setPersonalKey(value: Boolean) {
         editor.putBoolean(KEY_USEPERSONALKEY, value)
         editor.commit()
+        WeatherManager.instance.updateAPI()
     }
 
     fun getVersionCode(): Long {

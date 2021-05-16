@@ -62,6 +62,15 @@ public class DailyItem {
     @SerializedName("visibility")
     private Integer visibility;
 
+    @SerializedName("moonrise")
+    private Long moonrise;
+
+    @SerializedName("moonset")
+    private Long moonset;
+
+    @SerializedName("moon_phase")
+    private Float moon_phase;
+
     public long getSunrise() {
         return sunrise;
     }
@@ -204,5 +213,29 @@ public class DailyItem {
 
     public void setVisibility(Integer visibility) {
         this.visibility = visibility;
+    }
+
+    public Long getMoonrise() {
+        return moonrise;
+    }
+
+    public void setMoonrise(Long moonrise) {
+        this.moonrise = moonrise;
+    }
+
+    public Long getMoonset() {
+        return moonset;
+    }
+
+    public void setMoonset(Long moonset) {
+        this.moonset = moonset;
+    }
+
+    public Float getMoon_phase() {
+        return moon_phase;
+    }
+
+    public void setMoon_phase(Float moon_phase) {
+        this.moon_phase = moon_phase;
     }
 }

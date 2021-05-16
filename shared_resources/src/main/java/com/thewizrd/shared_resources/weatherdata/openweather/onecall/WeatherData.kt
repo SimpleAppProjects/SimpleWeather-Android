@@ -35,7 +35,6 @@ fun createWeatherData(root: Rootobject): Weather {
 
         condition = createCondition(root.current)
         atmosphere = createAtmosphere(root.current)
-        astronomy = createAstronomy(root.current)
         precipitation = createPrecipitation(root.current)
         ttl = 180
 
@@ -51,6 +50,15 @@ fun createWeatherData(root: Rootobject): Weather {
         }
 
         condition.observationTime = updateTime
+
+        val firstDate = LocalDateTime.ofEpochSecond(root.daily[0].dt, 0, ZoneOffset.UTC)
+        astronomy = if (firstDate.toLocalDate().isEqual(condition.observationTime.toLocalDate())) {
+            createAstronomy(root.daily[0])
+        } else {
+            createAstronomy(root.current)
+        }
+
+        weatherAlerts = createWeatherAlerts(root.alerts)
 
         source = WeatherAPI.OPENWEATHERMAP
     }
@@ -123,6 +131,9 @@ fun createHourlyForecast(hr_forecast: HourlyItem): HourlyForecast {
         if (hr_forecast.snow != null) {
             extras.qpfSnowCm = hr_forecast.snow._1h / 10
             extras.qpfSnowIn = ConversionMethods.mmToIn(hr_forecast.snow._1h)
+        }
+        if (hr_forecast.uvi != null) {
+            extras.uvIndex = hr_forecast.uvi
         }
     }
 }
@@ -299,6 +310,51 @@ fun createAstronomy(current: Current): Astronomy {
         }
         runCatching {
             sunset = LocalDateTime.ofEpochSecond(current.sunset, 0, ZoneOffset.UTC)
+        }
+
+        // If the sun won't set/rise, set time to the future
+        if (sunrise == null) {
+            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
+        }
+        if (sunset == null) {
+            sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
+        }
+        if (moonrise == null) {
+            moonrise = DateTimeUtils.getLocalDateTimeMIN()
+        }
+        if (moonset == null) {
+            moonset = DateTimeUtils.getLocalDateTimeMIN()
+        }
+    }
+}
+
+fun createAstronomy(day: DailyItem): Astronomy {
+    return Astronomy().apply {
+        runCatching {
+            sunrise = LocalDateTime.ofEpochSecond(day.sunrise, 0, ZoneOffset.UTC)
+        }
+        runCatching {
+            sunset = LocalDateTime.ofEpochSecond(day.sunset, 0, ZoneOffset.UTC)
+        }
+        runCatching {
+            moonrise = LocalDateTime.ofEpochSecond(day.sunset, 0, ZoneOffset.UTC)
+        }
+        runCatching {
+            moonset = LocalDateTime.ofEpochSecond(day.sunset, 0, ZoneOffset.UTC)
+        }
+        runCatching {
+            val moonPhaseType = when {
+                day.moon_phase == 0f || day.moon_phase == 1f -> MoonPhase.MoonPhaseType.NEWMOON
+                day.moon_phase == 0.25f -> MoonPhase.MoonPhaseType.FIRST_QTR
+                day.moon_phase == 0.5f -> MoonPhase.MoonPhaseType.FULL_MOON
+                day.moon_phase == 0.75f -> MoonPhase.MoonPhaseType.LAST_QTR
+                day.moon_phase > 0f && day.moon_phase < 0.25f -> MoonPhase.MoonPhaseType.WAXING_CRESCENT
+                day.moon_phase > 0.25f && day.moon_phase < 0.5f -> MoonPhase.MoonPhaseType.WAXING_GIBBOUS
+                day.moon_phase > 0.5f && day.moon_phase < 0.75f -> MoonPhase.MoonPhaseType.WANING_GIBBOUS
+                day.moon_phase > 0.75f && day.moon_phase < 1f -> MoonPhase.MoonPhaseType.WANING_CRESCENT
+                else -> MoonPhase.MoonPhaseType.NEWMOON
+            }
+            moonPhase = MoonPhase(moonPhaseType)
         }
 
         // If the sun won't set/rise, set time to the future

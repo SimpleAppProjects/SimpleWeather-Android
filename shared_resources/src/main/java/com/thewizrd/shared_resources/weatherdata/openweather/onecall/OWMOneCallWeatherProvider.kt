@@ -4,12 +4,11 @@ import android.util.Log
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig.getLocationProvider
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -28,17 +27,19 @@ import java.text.DecimalFormat
 import java.time.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject as OneCallRootobject
+import com.thewizrd.shared_resources.weatherdata.openweather.onecall.createWeatherData as createOneCallWeatherData
 
-class OpenWeatherMapProvider : WeatherProviderImpl() {
+class OWMOneCallWeatherProvider : WeatherProviderImpl() {
     companion object {
         private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast?appid=%s"
-        private const val CURRENT_QUERY_URL = BASE_URL + "weather?%s&appid=%s&lang=%s"
-        private const val FORECAST_QUERY_URL = BASE_URL + "forecast?%s&appid=%s&lang=%s"
+        private const val WEATHER_QUERY_URL = BASE_URL + "onecall?%s&exclude=minutely&appid=%s&lang=%s"
     }
 
     init {
-        mLocationProvider = getLocationProvider(getWeatherAPI()) ?: LocationIQProvider()
+        mLocationProvider = RemoteConfig.getLocationProvider(getWeatherAPI())
+                ?: LocationIQProvider()
     }
 
     override fun getWeatherAPI(): String {
@@ -49,12 +50,20 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         return true
     }
 
+    override fun supportsAlerts(): Boolean {
+        return true
+    }
+
+    override fun needsExternalAlertData(): Boolean {
+        return false
+    }
+
     override fun isKeyRequired(): Boolean {
         return true
     }
 
     override fun getHourlyForecastInterval(): Int {
-        return 3
+        return 1
     }
 
     @Throws(WeatherException::class)
@@ -105,7 +114,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
     }
 
     override fun getAPIKey(): String? {
-        return Keys.getOWMKey()
+        return null
     }
 
     @Throws(WeatherException::class)
@@ -126,39 +135,28 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
 
                 val client = SimpleLibrary.getInstance().httpClient
-                var currentResponse: Response? = null
-                var forecastResponse: Response? = null
+                var response: Response? = null
                 var wEx: WeatherException? = null
 
                 try {
-                    val currentRequest = Request.Builder()
+                    val request = Request.Builder()
                             .cacheControl(CacheControl.Builder()
                                     .maxAge(1, TimeUnit.HOURS)
                                     .build())
-                            .url(String.format(CURRENT_QUERY_URL, query, key, locale))
-                            .build()
-                    val forecastRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(FORECAST_QUERY_URL, query, key, locale))
+                            .url(String.format(WEATHER_QUERY_URL, query, key, locale))
                             .build()
 
                     // Connect to webstream
-                    currentResponse = client.newCall(currentRequest).await()
-                    forecastResponse = client.newCall(forecastRequest).await()
-                    val currentStream = currentResponse.getStream()
-                    val forecastStream = forecastResponse.getStream()
+                    response = client.newCall(request).await()
+                    val stream = response.getStream()
 
                     // Load weather
-                    val currRoot = JSONParser.deserializer<CurrentRootobject>(currentStream, CurrentRootobject::class.java)
-                    val foreRoot = JSONParser.deserializer<ForecastRootobject>(forecastStream, ForecastRootobject::class.java)
+                    val root = JSONParser.deserializer<OneCallRootobject>(stream, OneCallRootobject::class.java)
 
                     // End Stream
-                    currentStream.closeQuietly()
-                    forecastStream.closeQuietly()
+                    stream.closeQuietly()
 
-                    weather = createWeatherData(currRoot, foreRoot)
+                    weather = createOneCallWeatherData(root)
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
@@ -166,8 +164,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     }
                     Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data")
                 } finally {
-                    currentResponse?.closeQuietly()
-                    forecastResponse?.closeQuietly()
+                    response?.closeQuietly()
                 }
 
                 if (wEx == null && weather?.isValid == false) {
@@ -195,14 +192,32 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         for (forecast in weather.forecast) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
         }
+
         weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
         weather.astronomy.sunset = weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
 
-        val old = weather.astronomy
-        val newAstro = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
-        newAstro.sunrise = old.sunrise
-        newAstro.sunset = old.sunset
-        weather.astronomy = newAstro
+        if (weather.astronomy.moonrise.isEqual(DateTimeUtils.getLocalDateTimeMIN()) || weather.astronomy.moonset.isEqual(DateTimeUtils.getLocalDateTimeMIN())) {
+            val old = weather.astronomy
+            val newAstro = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+            newAstro.sunrise = old.sunrise
+            newAstro.sunset = old.sunset
+            weather.astronomy = newAstro
+        } else {
+            weather.astronomy.moonrise = weather.astronomy.moonrise.plusSeconds(offset.totalSeconds.toLong())
+            weather.astronomy.moonset = weather.astronomy.moonset.plusSeconds(offset.totalSeconds.toLong())
+        }
+
+        if (weather.weatherAlerts?.isNotEmpty() == true) {
+            for (alert in weather.weatherAlerts) {
+                if (alert.date.offset != offset) {
+                    alert.date = alert.date.withZoneSameLocal(offset)
+                }
+
+                if (alert.expiresDate.offset != offset) {
+                    alert.expiresDate = alert.expiresDate.withZoneSameLocal(offset)
+                }
+            }
+        }
     }
 
     override fun updateLocationQuery(weather: Weather): String {

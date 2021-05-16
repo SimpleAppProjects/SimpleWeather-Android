@@ -8,6 +8,9 @@ import java.util.List;
 @UseStag(UseStag.FieldOption.ALL)
 public class Rootobject {
 
+    @SerializedName("alerts")
+    private List<AlertsItem> alerts;
+
     @SerializedName("current")
     private Current current;
 
@@ -28,6 +31,14 @@ public class Rootobject {
 
     @SerializedName("lat")
     private float lat;
+
+    public List<AlertsItem> getAlerts() {
+        return alerts;
+    }
+
+    public void setAlerts(List<AlertsItem> alerts) {
+        this.alerts = alerts;
+    }
 
     public Current getCurrent() {
         return current;
