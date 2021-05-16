@@ -9,7 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig.getLocationProvider
+import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
@@ -35,7 +35,8 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
     }
 
     init {
-        mLocationProvider = getLocationProvider(getWeatherAPI()) ?: WeatherApiLocationProvider()
+        mLocationProvider = RemoteConfig.getLocationProvider(getWeatherAPI())
+                ?: WeatherApiLocationProvider()
     }
 
     override fun getWeatherAPI(): String {

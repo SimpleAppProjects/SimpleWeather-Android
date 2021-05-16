@@ -16,6 +16,7 @@ object WeatherAPI {
     const val METEOFRANCE = "meteofrance"
 
     // Location APIs
+    const val ANDROID = "android"
     const val LOCATIONIQ = "LocIQ"
     const val GOOGLE = "google"
     const val WEATHERAPI = "weatherapi"
@@ -33,7 +34,7 @@ object WeatherAPI {
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
-    @StringDef(HERE, LOCATIONIQ, GOOGLE, WEATHERAPI)
+    @StringDef(ANDROID, HERE, LOCATIONIQ, GOOGLE, WEATHERAPI)
     @Retention(AnnotationRetention.SOURCE)
     annotation class LocationProviders
 
@@ -94,6 +95,8 @@ object WeatherAPI {
     )
 
     private val GMSFullLocationAPIs = listOf(
+            ProviderEntry("Google", ANDROID,
+                    "https://google.com/maps", "https://google.com/maps"),
             ProviderEntry("LocationIQ", LOCATIONIQ,
                     "https://locationiq.com", "https://locationiq.com"),
             ProviderEntry("Google", GOOGLE,
@@ -103,7 +106,7 @@ object WeatherAPI {
     )
 
     private val NonGMSLocationAPIs = listOf(
-            ProviderEntry("Google", GOOGLE,
+            ProviderEntry("Google", ANDROID,
                     "https://google.com/maps", "https://google.com/maps")
     )
 }

@@ -15,10 +15,10 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.HashSet
 
-class GoogleLocationProvider : LocationProviderImpl() {
+class AndroidLocationProvider : LocationProviderImpl() {
     @LocationProviders
     override fun getLocationAPI(): String {
-        return WeatherAPI.GOOGLE
+        return WeatherAPI.ANDROID
     }
 
     override fun isKeyRequired(): Boolean {

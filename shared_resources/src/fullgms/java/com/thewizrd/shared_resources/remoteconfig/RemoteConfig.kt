@@ -1,9 +1,11 @@
 package com.thewizrd.shared_resources.remoteconfig
 
+import android.location.Geocoder
 import com.google.android.gms.tasks.Task
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.locationdata.google.AndroidLocationProvider
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
@@ -28,6 +30,12 @@ object RemoteConfig {
 
         if (config != null) {
             when (config.locSource) {
+                WeatherAPI.ANDROID -> {
+                    return if (Geocoder.isPresent())
+                        AndroidLocationProvider()
+                    else
+                        WeatherApiLocationProvider()
+                }
                 //WeatherAPI.HERE -> return HERELocationProvider()
                 WeatherAPI.LOCATIONIQ -> return LocationIQProvider()
                 WeatherAPI.GOOGLE -> return GoogleLocationProvider()

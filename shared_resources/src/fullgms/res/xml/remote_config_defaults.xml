@@ -35,7 +35,7 @@
         <value>
             {
             "enabled": true,
-            "locSource": "weatherapi",
+            "locSource": "android",
             "newWeatherSource": ""
             }
         </value>
@@ -55,7 +55,7 @@
         <value>
             {
             "enabled": true,
-            "locSource": "weatherapi",
+            "locSource": "android",
             "newWeatherSource": ""
             }
         </value>
