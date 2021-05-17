@@ -254,9 +254,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
                     // End Stream
                     stream.closeQuietly()
 
-                    aqiData = AirQuality().apply {
-                        index = root.list[0].main.aqi
-                    }
+                    aqiData = createAirQuality(root)
                 } catch (ex: Exception) {
                     aqiData = null
                     Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting aqi data")

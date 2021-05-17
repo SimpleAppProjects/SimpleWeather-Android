@@ -2,6 +2,16 @@ package com.thewizrd.shared_resources.weatherdata.openweather.onecall
 
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIO3
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM10
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM2_5
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQISO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.CO_ugm3_TO_ppm
+import com.thewizrd.shared_resources.utils.AirQualityUtils.NO2_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.O3_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.SO2_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.StringUtils
@@ -386,4 +396,25 @@ fun createPrecipitation(current: Current): Precipitation {
             qpfSnowCm = current.snow._1h / 10
         }
     }
+}
+
+fun createAirQuality(response: AirPollutionResponse): AirQuality? {
+    val data = response.list[0]
+
+    // Convert
+    val idx = maxOf(
+            data.components.co?.let { AQICO(CO_ugm3_TO_ppm(it)) } ?: -1,
+            data.components.no2?.let { AQINO2(NO2_ugm3_to_ppb(it)) } ?: -1,
+            data.components.o3?.let { AQIO3(O3_ugm3_to_ppb(it)) } ?: -1,
+            data.components.so2?.let { AQISO2(SO2_ugm3_to_ppb(it)) } ?: -1,
+            data.components.pm25?.let { AQIPM2_5(it) } ?: -1,
+            data.components.pm10?.let { AQIPM10(it) } ?: -1,
+    )
+
+    if (idx >= 0)
+        return AirQuality().apply {
+            index = idx
+        }
+
+    return null
 }

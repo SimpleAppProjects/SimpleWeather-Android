@@ -7,90 +7,90 @@ import com.vimeo.stag.UseStag;
 public class Components {
 
     @SerializedName("no2")
-    private double no2;
+    private Double no2;
 
     @SerializedName("no")
-    private double no;
+    private Double no;
 
     @SerializedName("o3")
-    private double o3;
+    private Double o3;
 
     @SerializedName("so2")
-    private double so2;
+    private Double so2;
 
     @SerializedName("pm2_5")
-    private double pm25;
+    private Double pm25;
 
     @SerializedName("pm10")
-    private double pm10;
+    private Double pm10;
 
     @SerializedName("nh3")
-    private double nh3;
+    private Double nh3;
 
     @SerializedName("co")
-    private double co;
+    private Double co;
 
-    public void setNo2(double no2) {
+    public void setNo2(Double no2) {
         this.no2 = no2;
     }
 
-    public double getNo2() {
+    public Double getNo2() {
         return no2;
     }
 
-    public void setNo(double no) {
+    public void setNo(Double no) {
         this.no = no;
     }
 
-    public double getNo() {
+    public Double getNo() {
         return no;
     }
 
-    public void setO3(double o3) {
+    public void setO3(Double o3) {
         this.o3 = o3;
     }
 
-    public double getO3() {
+    public Double getO3() {
         return o3;
     }
 
-    public void setSo2(double so2) {
+    public void setSo2(Double so2) {
         this.so2 = so2;
     }
 
-    public double getSo2() {
+    public Double getSo2() {
         return so2;
     }
 
-    public void setPm25(double pm25) {
+    public void setPm25(Double pm25) {
         this.pm25 = pm25;
     }
 
-    public double getPm25() {
+    public Double getPm25() {
         return pm25;
     }
 
-    public void setPm10(double pm10) {
+    public void setPm10(Double pm10) {
         this.pm10 = pm10;
     }
 
-    public double getPm10() {
+    public Double getPm10() {
         return pm10;
     }
 
-    public void setNh3(double nh3) {
+    public void setNh3(Double nh3) {
         this.nh3 = nh3;
     }
 
-    public double getNh3() {
+    public Double getNh3() {
         return nh3;
     }
 
-    public void setCo(double co) {
+    public void setCo(Double co) {
         this.co = co;
     }
 
-    public double getCo() {
+    public Double getCo() {
         return co;
     }
 }
