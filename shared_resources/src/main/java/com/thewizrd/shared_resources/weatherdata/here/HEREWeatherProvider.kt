@@ -5,7 +5,7 @@ import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
+import com.thewizrd.shared_resources.locationdata.google.getGoogleLocationProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
@@ -40,7 +40,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
 
     init {
         mLocationProvider = RemoteConfig.getLocationProvider(getWeatherAPI())
-                            ?: GoogleLocationProvider()
+                ?: getGoogleLocationProvider()
     }
 
     override fun getWeatherAPI(): String {
