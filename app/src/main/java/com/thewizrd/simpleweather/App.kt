@@ -176,6 +176,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
                     }
                 }
             }
+
+            registerAppSharedPreferenceListener()
         }
     }
 

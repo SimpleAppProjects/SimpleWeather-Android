@@ -153,7 +153,6 @@ class LocationSearchFragment : WindowColorFragment() {
                             RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
                         getSettingsManager().setAPI(provider)
                         queryResult.updateWeatherSource(provider)
-                        wm.updateAPI()
                     }
 
                     if (!wm.isRegionSupported(queryResult.locationCountry)) {

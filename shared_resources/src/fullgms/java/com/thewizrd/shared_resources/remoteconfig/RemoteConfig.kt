@@ -12,7 +12,6 @@ import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationP
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -68,10 +67,8 @@ object RemoteConfig {
             if (!isEnabled) {
                 if (config.newWeatherSource?.isNotBlank() == true) {
                     settingsMgr.setAPI(config.newWeatherSource)
-                    WeatherManager.instance.updateAPI()
                 } else {
                     settingsMgr.setAPI(getDefaultWeatherProvider())
-                    WeatherManager.instance.updateAPI()
                 }
                 return true
             }

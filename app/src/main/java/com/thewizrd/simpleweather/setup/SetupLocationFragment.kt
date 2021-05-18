@@ -294,7 +294,6 @@ class SetupLocationFragment : CustomFragment() {
                             val provider = RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
                             getSettingsManager().setAPI(provider)
                             view.updateWeatherSource(provider)
-                            wm.updateAPI()
                         }
 
                         if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY()

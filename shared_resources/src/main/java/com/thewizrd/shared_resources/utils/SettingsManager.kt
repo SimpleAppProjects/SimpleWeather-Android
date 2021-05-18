@@ -186,33 +186,45 @@ class SettingsManager(context: Context) {
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
             if (key.isNullOrBlank()) return
 
+            val isWeatherLoaded = sharedPreferences.getBoolean(KEY_WEATHERLOADED, false)
+
             when (key) {
                 KEY_API -> {
                     // Weather Provider changed
                     WeatherManager.instance.updateAPI()
-                    mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
+                    if (isWeatherLoaded) {
+                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
+                    }
+                }
+                KEY_USEPERSONALKEY -> {
+                    // Weather Provider changed
+                    WeatherManager.instance.updateAPI()
                 }
                 KEY_FOLLOWGPS -> {
-                    val value = sharedPreferences.getBoolean(key, false)
-                    mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS))
-                    if (app.isPhone) mLocalBroadcastManager.sendBroadcast(
-                            Intent(if (value) CommonActions.ACTION_WIDGET_REFRESHWIDGETS else CommonActions.ACTION_WIDGET_RESETWIDGETS))
+                    if (isWeatherLoaded) {
+                        val value = sharedPreferences.getBoolean(key, false)
+                        mLocalBroadcastManager.sendBroadcast(
+                                Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS))
+                        if (app.isPhone) mLocalBroadcastManager.sendBroadcast(
+                                Intent(if (value) CommonActions.ACTION_WIDGET_REFRESHWIDGETS else CommonActions.ACTION_WIDGET_RESETWIDGETS))
+                    }
                 }
-                KEY_REFRESHINTERVAL -> mLocalBroadcastManager.sendBroadcast(
-                        Intent(CommonActions.ACTION_SETTINGS_UPDATEREFRESH))
+                KEY_REFRESHINTERVAL -> {
+                    if (isWeatherLoaded) {
+                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEREFRESH))
+                    }
+                }
                 KEY_DATASYNC -> {
-                    // Reset UpdateTime value to force a refresh
-                    val dataSync = WearableDataSync.valueOf(sharedPreferences.getString(KEY_DATASYNC, "0")!!.toInt())
-                    settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
-                    // Reset interval if setting is off
-                    if (dataSync == WearableDataSync.OFF) settingsMgr.setRefreshInterval(DEFAULTINTERVAL)
+                    if (isWeatherLoaded) {
+                        // Reset UpdateTime value to force a refresh
+                        val dataSync = WearableDataSync.valueOf(sharedPreferences.getString(KEY_DATASYNC, "0")!!.toInt())
+                        settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+                        // Reset interval if setting is off
+                        if (dataSync == WearableDataSync.OFF) settingsMgr.setRefreshInterval(DEFAULTINTERVAL)
+                    }
                 }
                 KEY_ICONSSOURCE -> {
                     WeatherIconsManager.getInstance().updateIconProvider()
-                }
-                else -> {
                 }
             }
         }
@@ -790,7 +802,6 @@ class SettingsManager(context: Context) {
     fun setPersonalKey(value: Boolean) {
         editor.putBoolean(KEY_USEPERSONALKEY, value)
         editor.commit()
-        WeatherManager.instance.updateAPI()
     }
 
     fun getVersionCode(): Long {

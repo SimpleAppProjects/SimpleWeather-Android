@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.LocaleUtils
@@ -121,6 +120,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
         GlobalScope.launch(Dispatchers.Default) {
             settingsMgr.loadIfNeeded()
         }
+
+        registerAppSharedPreferenceListener()
     }
 
     private fun registerCommonReceiver() {

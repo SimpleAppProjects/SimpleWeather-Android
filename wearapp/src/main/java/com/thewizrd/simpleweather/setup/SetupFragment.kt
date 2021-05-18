@@ -263,7 +263,6 @@ class SetupFragment : CustomFragment() {
                                 RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
                             settingsManager.setAPI(provider)
                             view.updateWeatherSource(provider)
-                            wm.updateAPI()
                         }
 
                         if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(
