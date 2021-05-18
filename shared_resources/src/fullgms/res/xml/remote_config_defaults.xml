@@ -71,7 +71,17 @@
         </value>
     </entry>
     <entry>
+        <key>weatherapi</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "android",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
-        <value>wunlocked</value>
+        <value>weatherapi</value>
     </entry>
 </defaultsMap>

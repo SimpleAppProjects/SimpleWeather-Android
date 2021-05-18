@@ -47,7 +47,7 @@ public class LocationQueryViewModel {
 
         if (WeatherAPI.HERE.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(locationLat), df.format(locationLong));
-        } else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherSource)) {
+        } else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherSource) || WeatherAPI.WEATHERAPI.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "%s,%s", df.format(locationLat), df.format(locationLong));
         } else {
             locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(locationLat), df.format(locationLong));

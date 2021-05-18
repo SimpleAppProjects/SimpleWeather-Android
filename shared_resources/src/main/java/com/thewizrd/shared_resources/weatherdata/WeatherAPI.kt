@@ -30,7 +30,7 @@ object WeatherAPI {
      * 5) Add API to WeatherManager
      * 6) Add to remote_config_defaults.xml
      */
-    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERUNLOCKED, METEOFRANCE)
+    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE)
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
@@ -65,24 +65,28 @@ object WeatherAPI {
         ),
         ProviderEntry(
             "MET Norway", METNO,
-            "https://www.met.no/en", "https://www.met.no/en"
+                "https://www.met.no/en", "https://www.met.no/en"
         ),
-        ProviderEntry(
-            "National Weather Service (United States)", NWS,
-            "https://www.weather.gov", "https://www.weather.gov"
-        ),
-        ProviderEntry(
-            "OpenWeatherMap", OPENWEATHERMAP,
-            "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
-        ),
-        ProviderEntry(
-            "WeatherUnlocked", WEATHERUNLOCKED,
-            "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
-        ),
-        ProviderEntry(
-            "Meteo France", METEOFRANCE,
-            "https://meteofrance.com/", "https://meteofrance.com/"
-        )
+            ProviderEntry(
+                    "National Weather Service (United States)", NWS,
+                    "https://www.weather.gov", "https://www.weather.gov"
+            ),
+            ProviderEntry(
+                    "OpenWeatherMap", OPENWEATHERMAP,
+                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+            ),
+            ProviderEntry(
+                    "WeatherAPI.com", WEATHERAPI,
+                    "https://weatherapi.com", "https://weatherapi.com/api"
+            ),
+            ProviderEntry(
+                    "WeatherUnlocked", WEATHERUNLOCKED,
+                    "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
+            ),
+            ProviderEntry(
+                    "Meteo France", METEOFRANCE,
+                    "https://meteofrance.com/", "https://meteofrance.com/"
+            )
     )
 
     private val NonGMSAPIs = listOf(
@@ -91,7 +95,10 @@ object WeatherAPI {
             ProviderEntry("National Weather Service (United States)", NWS,
                     "https://www.weather.gov", "https://www.weather.gov"),
             ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
-                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up")
+                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
+            ProviderEntry(
+                    "WeatherAPI.com", WEATHERAPI,
+                    "https://weatherapi.com", "https://weatherapi.com/api")
     )
 
     private val GMSFullLocationAPIs = listOf(

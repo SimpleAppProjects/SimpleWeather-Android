@@ -145,10 +145,12 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         updateWeatherData(location, weather)
 
         // Additional external data
-        if (!BuildConfig.IS_NONGMS) {
-            updateAQIData(location, weather)
-        } else if (this is AirQualityProviderInterface) {
-            weather.condition.airQuality = this.getAirQualityData(location)
+        if (weather.condition.airQuality == null) {
+            if (!BuildConfig.IS_NONGMS) {
+                updateAQIData(location, weather)
+            } else if (this is AirQualityProviderInterface) {
+                weather.condition.airQuality = this.getAirQualityData(location)
+            }
         }
 
         return weather
@@ -204,6 +206,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
         return if (LocationUtils.isUS(location.countryCode)) {
             NWSAlertProvider().getAlerts(location)
         } else {
+            //WeatherApiProvider().getAlerts(location)
             null
         }
     }

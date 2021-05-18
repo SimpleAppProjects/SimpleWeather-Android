@@ -372,4 +372,14 @@ class UnitTests {
             Assert.assertTrue(weather.isValid)
         }
     }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getWeatherAPIWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERAPI)
+            val weather = getWeather(provider)
+            Assert.assertTrue(weather.isValid)
+        }
+    }
 }

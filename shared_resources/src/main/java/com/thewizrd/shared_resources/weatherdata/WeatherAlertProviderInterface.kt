@@ -4,5 +4,5 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 
 interface WeatherAlertProviderInterface {
-    suspend fun getAlerts(location: LocationData): Collection<WeatherAlert>
+    suspend fun getAlerts(location: LocationData): Collection<WeatherAlert>?
 }
