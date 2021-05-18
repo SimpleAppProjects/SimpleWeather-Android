@@ -28,10 +28,8 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupProvidersBinding
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat
 import com.thewizrd.simpleweather.preferences.KeyEntryPreferenceDialogFragment
-import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.simpleweather.stepper.StepperDataManager
 import com.thewizrd.simpleweather.stepper.StepperFragment
 
 class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment {
@@ -159,6 +157,8 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
             }
 
         registerPref = findPreference(KEY_APIREGISTER)!!
+
+        providerPref.value = settingsManager.getAPI()
 
         // Set key as verified if API Key is req for API and its set
         if (WeatherManager.instance.isKeyRequired()) {
