@@ -22,6 +22,7 @@ public class AirQualityViewModel {
     private int progressMax;
     private @ColorInt
     int progressColor;
+    private String attribution;
 
     public AirQualityViewModel(AirQuality aqi) {
         Context context = SimpleLibrary.getInstance().getAppContext();
@@ -113,6 +114,14 @@ public class AirQualityViewModel {
         this.progressColor = progressColor;
     }
 
+    public String getAttribution() {
+        return attribution;
+    }
+
+    public void setAttribution(String attribution) {
+        this.attribution = attribution;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -124,21 +133,23 @@ public class AirQualityViewModel {
         if (progress != that.progress) return false;
         if (progressMax != that.progressMax) return false;
         if (progressColor != that.progressColor) return false;
-        if (airQuality != null ? !airQuality.equals(that.airQuality) : that.airQuality != null)
-            return false;
+        if (!airQuality.equals(that.airQuality)) return false;
         if (level != null ? !level.equals(that.level) : that.level != null) return false;
-        return description != null ? description.equals(that.description) : that.description == null;
+        if (description != null ? !description.equals(that.description) : that.description != null)
+            return false;
+        return attribution != null ? attribution.equals(that.attribution) : that.attribution == null;
     }
 
     @Override
     public int hashCode() {
-        int result = airQuality != null ? airQuality.hashCode() : 0;
+        int result = airQuality.hashCode();
         result = 31 * result + index;
         result = 31 * result + (level != null ? level.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + progress;
         result = 31 * result + progressMax;
         result = 31 * result + progressColor;
+        result = 31 * result + (attribution != null ? attribution.hashCode() : 0);
         return result;
     }
 }

@@ -11,7 +11,6 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
-import com.thewizrd.shared_resources.weatherdata.aqicn.Rootobject;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -21,13 +20,12 @@ public class AirQuality extends CustomJsonObject {
     @SerializedName("index")
     private Integer index;
 
+    @SerializedName("attribution")
+    private String attribution;
+
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public AirQuality() {
         // Needed for deserialization
-    }
-
-    public AirQuality(Rootobject root) {
-        this.index = root.getData().getAqi();
     }
 
     public Integer getIndex() {
@@ -36,6 +34,14 @@ public class AirQuality extends CustomJsonObject {
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    public String getAttribution() {
+        return attribution;
+    }
+
+    public void setAttribution(String attribution) {
+        this.attribution = attribution;
     }
 
     @Override
@@ -72,6 +78,9 @@ public class AirQuality extends CustomJsonObject {
                     case "index":
                         this.index = NumberUtils.tryParseInt(reader.nextString());
                         break;
+                    case "attribution":
+                        this.attribution = reader.nextString();
+                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -94,6 +103,10 @@ public class AirQuality extends CustomJsonObject {
             // "index" : ""
             writer.name("index");
             writer.value(index);
+
+            // "attribution" : ""
+            writer.name("attribution");
+            writer.value(attribution);
 
             // }
             writer.endObject();

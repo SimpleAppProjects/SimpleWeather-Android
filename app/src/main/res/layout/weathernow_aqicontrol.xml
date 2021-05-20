@@ -125,7 +125,7 @@
             android:paddingEnd="12dp"
             android:paddingRight="12dp"
             android:paddingBottom="12dp"
-            android:text="@{@string/credit_prefix + ` ` + @string/api_waqi}"
+            app:attribution="@{weatherView.airQuality != null ? weatherView.airQuality.attribution : null}"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
             android:textColor="@color/colorTextPrimary"
             android:textSize="14sp"

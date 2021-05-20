@@ -6,17 +6,23 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.databinding.BindingAdapter;
 
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel;
 import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphPanel;
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel;
 import com.thewizrd.simpleweather.controls.viewmodels.RangeBarGraphViewModel;
+
+import java.util.Locale;
 
 public class ViewBindingAdapter {
     @BindingAdapter("progressColor")
@@ -59,5 +65,16 @@ public class ViewBindingAdapter {
     @BindingAdapter("forecast_data")
     public static void updateForecastGraph(final RangeBarGraphPanel view, final RangeBarGraphViewModel graphData) {
         view.updateForecasts(graphData);
+    }
+
+    @BindingAdapter("attribution")
+    public static void updateAttribution(final TextView view, final CharSequence attrib) {
+        if (!TextUtils.isEmpty(attrib)) {
+            view.setText(String.format(Locale.ROOT, "%s %s", view.getContext().getString(R.string.credit_prefix), attrib));
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setText("");
+            view.setVisibility(View.GONE);
+        }
     }
 }

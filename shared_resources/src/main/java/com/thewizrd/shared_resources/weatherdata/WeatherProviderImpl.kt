@@ -168,7 +168,9 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
 
     private suspend fun updateAQIData(location: LocationData, weather: Weather) {
         val aqicnData = AQICNProvider().getAirQualityData(location)
-        weather.condition.airQuality = aqicnData
+        weather.condition.airQuality = aqicnData?.apply {
+            attribution = SimpleLibrary.getInstance().appContext.getString(R.string.api_waqi)
+        }
 
         try {
             if (aqicnData?.uviForecast?.isNotEmpty() == true) {
