@@ -141,6 +141,10 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         this.graph.drawDataLabels = drawDataLabels;
     }
 
+    public void setCenterGraphView(boolean centerGraph) {
+        this.graph.centerGraphView = centerGraph;
+    }
+
     @Override
     protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY);
@@ -226,10 +230,11 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private boolean drawDataLabels = false;
         private boolean drawIconsLabels = false;
+        private boolean centerGraphView = false;
 
         private final Paint linePaint;
 
-        private Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
+        private final Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
 
         RangeBarChartGraph(Context context) {
             this(context, null);
@@ -371,7 +376,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
 
-            if (getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
+            if (!centerGraphView && getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
                 int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
                 float additionalSpace = (float) freeSpace / horizontalGridNum;
                 backgroundGridWidth += additionalSpace;
@@ -386,9 +391,16 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private void refreshXCoordinateList() {
             xCoordinateList.clear();
-            xCoordinateList.ensureCapacity(horizontalGridNum);
-            for (int i = 0; i < (horizontalGridNum + 1); i++) {
-                xCoordinateList.add(sideLineLength + backgroundGridWidth * i);
+            xCoordinateList.ensureCapacity(dataLabels.size());
+
+            for (int i = 0; i < dataLabels.size(); i++) {
+                float x;
+                if (centerGraphView) {
+                    x = (mScrollViewer.getMeasuredWidth() / ((dataLabels.size()) + 1f)) * (i + 1);
+                } else {
+                    x = sideLineLength + backgroundGridWidth * i;
+                }
+                xCoordinateList.add(x);
             }
         }
 
@@ -480,7 +492,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             // draw bottom text
             if (dataLabels != null) {
                 for (int i = 0; i < dataLabels.size(); i++) {
-                    float x = sideLineLength + backgroundGridWidth * i;
+                    float x = xCoordinateList.get(i);
                     float y = mViewHeight - bottomTextDescent;
                     XLabelData xData = dataLabels.get(i);
 

@@ -109,6 +109,7 @@ class RangeBarGraphPanel : LinearLayout {
         if (graphData != null) {
             barChartView.setDrawDataLabels(true)
             barChartView.setDrawIconLabels(true)
+            barChartView.setCenterGraphView(true)
 
             barChartView.dataLabels.addAll(graphData!!.labelData)
             barChartView.dataLists.addAll(graphData!!.tempData)
