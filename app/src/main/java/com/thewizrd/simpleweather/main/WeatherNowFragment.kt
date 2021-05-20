@@ -163,9 +163,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             weatherView.updateView(weather)
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                imageData.postValue(withContext(Dispatchers.Default) {
-                    weather.getImageData()
-                })
+                if (FeatureSettings.isBackgroundImageEnabled()) {
+                    imageData.postValue(withContext(Dispatchers.Default) {
+                        weather.getImageData()
+                    })
+                } else {
+                    imageData.postValue(null)
+                }
 
                 launch(Dispatchers.Main) {
                     val backgroundUri = imageData.value?.imageURI

@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.preferences;
 import android.content.SharedPreferences;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.simpleweather.BuildConfig;
 
 public class FeatureSettings {
     private static final SharedPreferences preferences;
@@ -11,7 +12,7 @@ public class FeatureSettings {
         preferences = SimpleLibrary.getInstance().getApp().getPreferences();
     }
 
-    private static final String KEY_FEATURE_BGIMAGE = "key_feature_bgimage";
+    static final String KEY_FEATURE_BGIMAGE = "key_feature_bgimage";
     private static final String KEY_FEATURE_FORECAST = "key_feature_forecast";
     private static final String KEY_FEATURE_HRFORECAST = "key_feature_hrforecast";
     private static final String KEY_FEATURE_CHARTS = "key_feature_charts";
@@ -25,7 +26,10 @@ public class FeatureSettings {
     private static final String KEY_FEATURE_LOCPANELIMG = "key_feature_locpanelimg";
 
     public static boolean isBackgroundImageEnabled() {
-        return preferences.getBoolean(KEY_FEATURE_BGIMAGE, true);
+        if (BuildConfig.IS_NONGMS)
+            return false;
+        else
+            return preferences.getBoolean(KEY_FEATURE_BGIMAGE, true);
     }
 
     public static boolean isForecastEnabled() {

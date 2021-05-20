@@ -36,6 +36,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.extras.*
 import com.thewizrd.simpleweather.locale.InstallRequest
@@ -944,6 +945,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_features, null)
+
+            findPreference<Preference>(FeatureSettings.KEY_FEATURE_BGIMAGE)?.isVisible = !BuildConfig.IS_NONGMS
         }
     }
 

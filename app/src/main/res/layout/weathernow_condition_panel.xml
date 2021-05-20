@@ -76,6 +76,7 @@
             android:layout_margin="8dp"
             app:cardCornerRadius="@dimen/shape_corner_radius"
             app:cardUseCompatPadding="false"
+            app:showIfTrue="@{FeatureSettings.backgroundImageEnabled &amp;&amp; imageData != null}"
             tools:layout_height="560dp">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -83,7 +84,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled &amp;&amp; imageData != null}"
                 tools:src="#83808080" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -105,7 +105,6 @@
                 android:textColorLink="@android:color/white"
                 android:textSize="12sp"
                 app:imageData="@{imageData}"
-                app:showIfTrue="@{FeatureSettings.backgroundImageEnabled}"
                 tools:text="Attribution text goes here" />
 
         </androidx.cardview.widget.CardView>
