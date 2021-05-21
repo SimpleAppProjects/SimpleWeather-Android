@@ -180,7 +180,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
 
-            supervisorScope {
+            runCatching {
                 // Update configuration
                 RemoteConfig.checkConfigAsync()
             }

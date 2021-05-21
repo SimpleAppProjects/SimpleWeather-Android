@@ -159,7 +159,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val settingsManager = App.instance.settingsManager
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
-                supervisorScope {
+                runCatching {
                     // Update configuration
                     RemoteConfig.checkConfigAsync()
                 }
