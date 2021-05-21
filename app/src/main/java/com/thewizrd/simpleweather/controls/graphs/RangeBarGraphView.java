@@ -375,7 +375,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private void refreshGridWidth() {
             // Reset the grid width
-            backgroundGridWidth = longestTextWidth;
+            backgroundGridWidth = longestTextWidth * 1.1f;
 
             if (!centerGraphView && getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
                 int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
@@ -394,9 +394,11 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             xCoordinateList.clear();
             xCoordinateList.ensureCapacity(dataLabels.size());
 
+            boolean isWithinViewport = getPreferredWidth() < mScrollViewer.getMeasuredWidth();
+
             for (int i = 0; i < dataLabels.size(); i++) {
                 float x;
-                if (centerGraphView) {
+                if (centerGraphView && isWithinViewport) {
                     x = (mScrollViewer.getMeasuredWidth() / ((dataLabels.size()) + 1f)) * (i + 1);
                 } else {
                     x = sideLineLength + backgroundGridWidth * i;
