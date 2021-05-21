@@ -95,7 +95,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
                 val location = locations[i]
                 val weather = settingsManager.getWeatherData(location.query)
 
-                if (weather == null || !weather.isValid) {
+                if (weather == null || !weather.isValid || (location.name == null && weather.location?.name == null)) {
                     locations.removeAt(i)
                     i--
 
