@@ -4,7 +4,6 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.util.ObjectsCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.errorprone.annotations.CanIgnoreReturnValue
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.SimpleLibrary
@@ -30,8 +29,8 @@ class WeatherDataLoader(private val location: LocationData) {
     private var weatherAlerts: Collection<WeatherAlert>? = null
     private val wm = WeatherManager.instance
 
-    private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(SimpleLibrary.getInstance().app.appContext)
-    private val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+    private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(SimpleLibrary.instance.app.appContext)
+    private val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
     suspend fun loadWeatherData(request: WeatherRequest): Weather? {
         val result = getWeatherResult(request)
@@ -92,7 +91,6 @@ class WeatherDataLoader(private val location: LocationData) {
         return weatherAlerts
     }
 
-    @CanIgnoreReturnValue
     @Throws(WeatherException::class)
     private suspend fun getWeatherData(request: WeatherRequest): WeatherResult {
         var wEx: WeatherException? = null
@@ -151,7 +149,7 @@ class WeatherDataLoader(private val location: LocationData) {
                     location.name = weather!!.location.name
                     location.tzLong = weather!!.location.tzLong
 
-                    if (SimpleLibrary.getInstance().app.isPhone)
+                    if (SimpleLibrary.instance.app.isPhone)
                         settingsMgr.updateLocation(location)
                     else
                         settingsMgr.saveHomeData(location)
@@ -160,14 +158,14 @@ class WeatherDataLoader(private val location: LocationData) {
                     location.latitude = weather!!.location.latitude.toDouble()
                     location.longitude = weather!!.location.longitude.toDouble()
 
-                    if (SimpleLibrary.getInstance().app.isPhone)
+                    if (SimpleLibrary.instance.app.isPhone)
                         settingsMgr.updateLocation(location)
                     else
                         settingsMgr.saveHomeData(location)
                 }
                 if (location.locationSource.isNullOrBlank()) {
                     location.locationSource = wm.getLocationProvider().getLocationAPI()
-                    if (SimpleLibrary.getInstance().app.isPhone)
+                    if (SimpleLibrary.instance.app.isPhone)
                         settingsMgr.updateLocation(location)
                     else
                         settingsMgr.saveHomeData(location)
@@ -199,7 +197,6 @@ class WeatherDataLoader(private val location: LocationData) {
         return WeatherResult.create(weather, !loadedSavedData)
     }
 
-    @CanIgnoreReturnValue
     @Throws(WeatherException::class)
     private suspend fun _loadWeatherData(request: WeatherRequest): WeatherResult {
         /*
@@ -232,7 +229,7 @@ class WeatherDataLoader(private val location: LocationData) {
                         location.weatherSource = settingsMgr.getAPI()
 
                         // Update database as well
-                        if (SimpleLibrary.getInstance().app.isPhone) {
+                        if (SimpleLibrary.instance.app.isPhone) {
                             if (location.locationType == LocationType.GPS) {
                                 settingsMgr.saveLastGPSLocData(location)
                                 mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
@@ -444,7 +441,7 @@ class WeatherDataLoader(private val location: LocationData) {
 
         settingsMgr.saveWeatherData(weather)
 
-        if (!SimpleLibrary.getInstance().app.isPhone) {
+        if (!SimpleLibrary.instance.app.isPhone) {
             settingsMgr.setUpdateTime(weather!!.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())
         }
     }

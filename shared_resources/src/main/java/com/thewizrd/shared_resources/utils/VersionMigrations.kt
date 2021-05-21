@@ -33,7 +33,7 @@ internal object VersionMigrations {
                 } else {
                     settingsMgr.setDefaultUnits(Units.FAHRENHEIT)
                 }
-                if (!SimpleLibrary.getInstance().app.isPhone) {
+                if (!SimpleLibrary.instance.app.isPhone) {
                     settingsMgr.setRefreshInterval(SettingsManager.DEFAULTINTERVAL)
                 }
             }
@@ -52,7 +52,7 @@ internal object VersionMigrations {
             if (settingsMgr.getVersionCode() < 294320000) {
                 // Update location keys
                 // NWS key is different now
-                if (SimpleLibrary.getInstance().app.isPhone) {
+                if (SimpleLibrary.instance.app.isPhone) {
                     updateLocationKey(context, locationDB)
                 }
                 settingsMgr.saveLastGPSLocData(LocationData())

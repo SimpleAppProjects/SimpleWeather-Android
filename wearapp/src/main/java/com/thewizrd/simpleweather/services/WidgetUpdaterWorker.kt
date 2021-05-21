@@ -8,10 +8,9 @@ import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import timber.log.Timber
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
-class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     companion object {
         private const val TAG = "WidgetUpdaterWorker"
 
@@ -74,13 +73,8 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
 
         private fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context.applicationContext)
-            var statuses: List<WorkInfo>? = null
-            try {
-                statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: ExecutionException) {
-            } catch (ignored: InterruptedException) {
-            }
-            if (statuses?.isNullOrEmpty() == true) return false
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING
@@ -97,7 +91,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Wo
         }
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         requestWidgetUpdate(applicationContext)
         return Result.success()
     }

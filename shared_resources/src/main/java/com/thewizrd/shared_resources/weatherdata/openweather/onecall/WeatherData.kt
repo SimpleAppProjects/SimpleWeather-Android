@@ -196,7 +196,7 @@ fun createForecast(forecast: DailyItem): Forecast {
 
 fun createTextForecast(forecast: DailyItem): TextForecast {
     return TextForecast().apply {
-        val context = SimpleLibrary.getInstance().app.appContext
+        val context = SimpleLibrary.instance.app.appContext
 
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.dt), ZoneOffset.UTC)
 

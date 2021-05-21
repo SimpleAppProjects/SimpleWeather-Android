@@ -75,12 +75,8 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
         private fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context.applicationContext)
-            var statuses: List<WorkInfo>? = null
-            try {
-                statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: Exception) {
-            }
-            if (statuses?.isNullOrEmpty() == true) return false
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING

@@ -135,7 +135,7 @@ object ImageDatabase {
         }
 
         // Register worker
-        val app = SimpleLibrary.getInstance().app
+        val app = SimpleLibrary.instance.app
         if (app.isPhone) {
             LocalBroadcastManager.getInstance(app.appContext)
                     .sendBroadcast(Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER))

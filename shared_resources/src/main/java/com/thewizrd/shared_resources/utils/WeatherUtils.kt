@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.ZonedDateTime
 
 fun getLastBuildDate(weather: Weather): String {
-    val context = SimpleLibrary.getInstance().app.appContext
+    val context = SimpleLibrary.instance.app.appContext
     val date: String
     val prefix: String
     val update_time = weather.updateTime.toLocalDateTime()

@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 
 fun getWindDirection(angle: Float): String {
-    val context = SimpleLibrary.getInstance().app.appContext
+    val context = SimpleLibrary.instance.app.appContext
 
     return if (angle >= 348.75 && angle <= 11.25) {
         context.getString(R.string.wind_dir_n)

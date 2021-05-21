@@ -8,8 +8,6 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.base.Stopwatch
-import com.google.common.collect.Iterables
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.SimpleLibrary
@@ -216,22 +214,24 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.NWS)
 
-            val s = Stopwatch.createStarted()
+            val startTime = SystemClock.elapsedRealtimeNanos()
             val weather = getWeather(provider)
-            s.stop()
-            Log.d("Serialzer", "JSON GetWeather Test: $s")
+            val endTime = SystemClock.elapsedRealtimeNanos()
+            val dura = Duration.ofNanos(endTime - startTime)
+            Log.d("Serialzer", "JSON GetWeather Test: $dura")
 
             for (i in 0..29) {
-                val s2 = Stopwatch.createStarted()
+                val startTime2 = SystemClock.elapsedRealtimeNanos()
                 val json2 = withContext(Dispatchers.Default) {
                     JSONParser.serializer(weather, Weather::class.java)
                 }
                 val desW2 = withContext(Dispatchers.Default) {
                     JSONParser.deserializer(json2, Weather::class.java)
                 }
-                s2.stop()
+                val endTime2 = SystemClock.elapsedRealtimeNanos()
+                val dura2 = Duration.ofNanos(endTime2 - startTime2)
 
-                Log.d("Serialzer", "JSON2 Test " + (i + 1) + ": " + s2.toString())
+                Log.d("Serialzer", "JSON2 Test ${i + 1}: $dura2")
             }
         }
     }

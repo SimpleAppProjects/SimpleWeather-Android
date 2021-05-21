@@ -76,7 +76,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
         var isValid = false
         var wEx: WeatherException? = null
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
 
         try {
@@ -126,10 +126,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+                val settingsMgr = SimpleLibrary.instance.app.settingsManager
                 val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
                 var wEx: WeatherException? = null
 
@@ -183,10 +183,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+                val settingsMgr = SimpleLibrary.instance.app.settingsManager
                 val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
 
                 try {

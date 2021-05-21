@@ -36,7 +36,7 @@ object HEREOAuthUtils {
         val oAuthRequest = OAuthRequest(Keys.getHERECliID(), Keys.getHERECliSecr(),
                 OAuthRequest.SignatureMethod.HMAC_SHA256, OAuthRequest.HTTPRequestType.POST)
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
 
         try {
@@ -80,7 +80,7 @@ object HEREOAuthUtils {
     }
 
     private suspend fun getTokenFromStorage(): String? {
-        val context = SimpleLibrary.getInstance().appContext
+        val context = SimpleLibrary.instance.appContext
         val prefs = context.getSharedPreferences(WeatherAPI.HERE, Context.MODE_PRIVATE)
 
         if (prefs.contains(KEY_TOKEN)) {
@@ -101,7 +101,7 @@ object HEREOAuthUtils {
 
     private fun storeToken(token: Token) {
         // Shared Settings
-        val context = SimpleLibrary.getInstance().appContext
+        val context = SimpleLibrary.instance.appContext
         val prefs = context.getSharedPreferences(WeatherAPI.HERE, Context.MODE_PRIVATE)
 
         prefs.edit()

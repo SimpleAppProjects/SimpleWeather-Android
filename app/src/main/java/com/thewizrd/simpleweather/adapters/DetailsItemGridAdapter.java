@@ -4,9 +4,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.utils.CollectionUtils;
 import com.thewizrd.simpleweather.controls.DetailCard;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class DetailsItemGridAdapter extends BaseAdapter {
     }
 
     public void updateItems(final List<DetailItemViewModel> dataset) {
-        if (mDataset == null || !Iterables.elementsEqual(mDataset, dataset)) {
+        if (mDataset == null || !CollectionUtils.sequenceEqual(mDataset, dataset)) {
             mDataset = new ArrayList<>(dataset);
             notifyDataSetChanged();
         }

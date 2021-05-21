@@ -40,7 +40,7 @@ object TZDBCache {
             AnalyticsLogger.logEvent("TZDBCache: querying")
             // Initialize db if it hasn't been already
             if (tzDB == null) {
-                val context = SimpleLibrary.getInstance().appContext
+                val context = SimpleLibrary.instance.appContext
                 tzDB = Room.databaseBuilder(context, TZDatabase::class.java, "tzdb.db")
                         .addMigrations(*TZDB_MIGRATION_SET)
                         .fallbackToDestructiveMigration()

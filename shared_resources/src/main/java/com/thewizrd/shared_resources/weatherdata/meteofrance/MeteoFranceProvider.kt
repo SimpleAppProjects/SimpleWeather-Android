@@ -92,7 +92,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
             val key = getAPIKey()
 
-            val client = SimpleLibrary.getInstance().httpClient
+            val client = SimpleLibrary.instance.httpClient
             var currentResponse: Response? = null
             var forecastResponse: Response? = null
             var alertsResponse: Response? = null

@@ -35,11 +35,11 @@ class AQICNProvider : AirQualityProviderInterface {
 
                 if (key.isNullOrBlank()) return@withContext null
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
 
                 try {
-                    val context = SimpleLibrary.getInstance().appContext
+                    val context = SimpleLibrary.instance.appContext
                     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                     val version = String.format("v%s", packageInfo.versionName)
 

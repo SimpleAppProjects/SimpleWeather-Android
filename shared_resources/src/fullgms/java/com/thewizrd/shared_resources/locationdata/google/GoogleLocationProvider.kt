@@ -62,7 +62,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
 
     private val placesClient: PlacesClient
         get() {
-            val ctx = SimpleLibrary.getInstance().appContext
+            val ctx = SimpleLibrary.instance.appContext
             Places.initialize(ctx, getAPIKey()!!, LocaleUtils.getLocale())
             return Places.createClient(ctx)
         }
@@ -197,7 +197,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+            val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
             val addresses = geocoder.getFromLocationName(model.locationName, 1)
 
             result = addresses[0]
@@ -231,7 +231,7 @@ class GoogleLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+            val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
             val addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1)
 
             result = addresses[0]

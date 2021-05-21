@@ -55,7 +55,7 @@ object RemoteConfig {
 
     @JvmStatic
     fun updateWeatherProvider(): Boolean {
-        val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+        val settingsMgr = SimpleLibrary.instance.app.settingsManager
         val API = settingsMgr.getAPI() ?: return false
 
         val configJson = FirebaseRemoteConfig.getInstance().getString(API)

@@ -18,7 +18,7 @@ import java.text.DecimalFormat
 import java.util.*
 
 class WeatherNowViewModel() : ObservableViewModel() {
-    private val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+    private val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
     @get:Bindable
     @set:RestrictTo(RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS)
@@ -166,8 +166,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
     }
 
     private fun refreshView(iconChanged: Boolean) {
-        val context = SimpleLibrary.getInstance().app.appContext
-        val isPhone = SimpleLibrary.getInstance().app.isPhone
+        val context = SimpleLibrary.instance.app.appContext
+        val isPhone = SimpleLibrary.instance.app.isPhone
 
         val provider = WeatherManager.getProvider(weatherData!!.source)
 
@@ -491,7 +491,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
             if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null
                 && weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())
                 && weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
-                if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().app.appContext)) {
+                if (DateFormat.is24HourFormat(SimpleLibrary.instance.app.appContext)) {
                     weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
                             weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
                     weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,

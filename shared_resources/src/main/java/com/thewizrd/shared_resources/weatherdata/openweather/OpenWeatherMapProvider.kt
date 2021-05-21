@@ -67,7 +67,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         var isValid = false
         var wEx: WeatherException? = null
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
 
         try {
@@ -123,10 +123,10 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     location_query
                 }
 
-                val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+                val settingsMgr = SimpleLibrary.instance.app.settingsManager
                 val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var currentResponse: Response? = null
                 var forecastResponse: Response? = null
                 var wEx: WeatherException? = null

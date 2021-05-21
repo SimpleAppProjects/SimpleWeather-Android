@@ -12,7 +12,6 @@ import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CAN
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CHECKUPDATETIME
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_STARTALARM
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_UPDATEALARM
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
@@ -72,17 +71,12 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
 
         private fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context)
-            var statuses: List<WorkInfo>? = null
-            try {
-                statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: ExecutionException) {
-            } catch (ignored: InterruptedException) {
-            }
-            if (statuses?.isNullOrEmpty() == true) return false
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING
-                           || workStatus.state == WorkInfo.State.ENQUEUED)
+                        || workStatus.state == WorkInfo.State.ENQUEUED)
             }
             return running
         }

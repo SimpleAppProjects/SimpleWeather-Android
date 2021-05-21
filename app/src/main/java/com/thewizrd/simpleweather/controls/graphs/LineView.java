@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
@@ -41,6 +40,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+
+import kotlin.collections.CollectionsKt;
 
 public class LineView extends HorizontalScrollView implements IGraph {
 
@@ -954,7 +955,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
             if (mOnSizeChangedListener != null)
-                mOnSizeChangedListener.onSizeChanged(LineView.this, xCoordinateList.size() > 0 ? Iterables.getLast(xCoordinateList).intValue() : 0);
+                mOnSizeChangedListener.onSizeChanged(LineView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
         }
 
         private int getPreferredWidth() {

@@ -44,7 +44,7 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
             when (API) {
                 WeatherAPI.HERE -> providerImpl = HEREWeatherProvider()
                 WeatherAPI.OPENWEATHERMAP -> {
-                    val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+                    val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
                     providerImpl = if (BuildConfig.IS_NONGMS || settingsMgr.usePersonalKey()) {
                         OWMOneCallWeatherProvider()
@@ -93,7 +93,7 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
     }
 
     fun updateAPI() {
-        val settingsMgr = SimpleLibrary.getInstance().app.settingsManager
+        val settingsMgr = SimpleLibrary.instance.app.settingsManager
         val API = settingsMgr.getAPI()
         sWeatherProvider = getProvider(API)
     }

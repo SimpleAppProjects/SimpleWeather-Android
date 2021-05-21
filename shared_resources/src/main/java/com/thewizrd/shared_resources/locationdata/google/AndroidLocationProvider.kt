@@ -48,7 +48,7 @@ class AndroidLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+            val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
             val addresses = geocoder.getFromLocationName(ac_query, 10)
 
             locations = HashSet()
@@ -91,7 +91,7 @@ class AndroidLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+            val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
             val addresses = geocoder.getFromLocationName(model.locationName, 1)
 
             result = addresses[0]
@@ -125,7 +125,7 @@ class AndroidLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+            val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
             val addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1)
 
             result = addresses[0]

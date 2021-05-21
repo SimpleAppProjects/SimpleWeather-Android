@@ -124,7 +124,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
             }
 
             // Update DB here or somewhere else
-            val app = SimpleLibrary.getInstance().app
+            val app = SimpleLibrary.instance.app
             if (app.isPhone) {
                 app.settingsManager.updateLocation(location)
             } else {
@@ -169,7 +169,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
     private suspend fun updateAQIData(location: LocationData, weather: Weather) {
         val aqicnData = AQICNProvider().getAirQualityData(location)
         weather.condition.airQuality = aqicnData?.apply {
-            attribution = SimpleLibrary.getInstance().appContext.getString(R.string.api_waqi)
+            attribution = SimpleLibrary.instance.appContext.getString(R.string.api_waqi)
         }
 
         try {
@@ -280,7 +280,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
      * @return A localized weather condition string (if available)
      */
     override fun getWeatherCondition(icon: String?): String {
-        val context = SimpleLibrary.getInstance().appContext
+        val context = SimpleLibrary.instance.appContext
 
         return when (icon) {
             WeatherIcons.DAY_SUNNY -> {

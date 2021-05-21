@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
-import com.google.common.collect.Iterables;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
@@ -36,6 +35,8 @@ import com.thewizrd.simpleweather.controls.GraphTemperature;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import kotlin.collections.CollectionsKt;
 
 public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
@@ -615,7 +616,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
             if (mOnSizeChangedListener != null)
-                mOnSizeChangedListener.onSizeChanged(RangeBarGraphView.this, xCoordinateList.size() > 0 ? Iterables.getLast(xCoordinateList).intValue() : 0);
+                mOnSizeChangedListener.onSizeChanged(RangeBarGraphView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
         }
 
         private int getPreferredWidth() {

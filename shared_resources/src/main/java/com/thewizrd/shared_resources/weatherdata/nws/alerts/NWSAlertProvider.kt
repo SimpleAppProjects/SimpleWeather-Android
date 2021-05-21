@@ -30,11 +30,11 @@ class NWSAlertProvider : WeatherAlertProviderInterface {
             withContext(Dispatchers.IO) {
                 var alerts: Collection<WeatherAlert>? = null
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
 
                 try {
-                    val context = SimpleLibrary.getInstance().app.appContext
+                    val context = SimpleLibrary.instance.app.appContext
                     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                     val version = String.format("v%s", packageInfo.versionName)
 

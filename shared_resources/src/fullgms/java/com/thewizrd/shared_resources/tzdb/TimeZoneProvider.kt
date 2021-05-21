@@ -17,9 +17,6 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.jvm.java
-import kotlin.text.format
-import kotlin.text.isNullOrBlank
 
 class TimeZoneProvider : TimeZoneProviderInterface {
     private inner class TimeZoneData {
@@ -37,7 +34,7 @@ class TimeZoneProvider : TimeZoneProviderInterface {
                     return@withContext null
 
                 var tzLong: String? = null
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
 
                 try {

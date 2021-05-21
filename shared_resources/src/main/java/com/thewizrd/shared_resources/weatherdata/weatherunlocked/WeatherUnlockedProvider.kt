@@ -76,7 +76,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var currentResponse: Response? = null
                 var forecastResponse: Response? = null
                 var wEx: WeatherException? = null

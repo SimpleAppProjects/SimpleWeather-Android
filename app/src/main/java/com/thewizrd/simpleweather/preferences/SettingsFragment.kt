@@ -2,8 +2,11 @@ package com.thewizrd.simpleweather.preferences
 
 import android.Manifest
 import android.app.Activity
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
 import android.content.Intent.FilterComparison
+import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -1028,7 +1031,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             val iconsCategory = findPreference<PreferenceCategory>(CATEGORY_ICONS)
             iconsCategory!!.removeAll()
 
-            val providers = SimpleLibrary.getInstance().iconProviders
+            val providers = SimpleLibrary.instance.iconProviders
             providers.forEach { (s, wiProvider) ->
                 val pref = Preference(requireContext())
                 pref.title = wiProvider.displayName

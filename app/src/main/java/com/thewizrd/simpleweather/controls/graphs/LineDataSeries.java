@@ -2,11 +2,12 @@ package com.thewizrd.simpleweather.controls.graphs;
 
 import androidx.annotation.ColorInt;
 
-import com.google.common.primitives.Ints;
 import com.thewizrd.shared_resources.utils.Colors;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.collections.ArraysKt;
 
 public class LineDataSeries {
     private static final int[] DEFAULT_COLORS = {Colors.SIMPLEBLUE, Colors.LIGHTSEAGREEN, Colors.YELLOWGREEN};
@@ -25,7 +26,7 @@ public class LineDataSeries {
         }
 
         this.seriesLabel = null;
-        this.seriesColors = Ints.asList(DEFAULT_COLORS);
+        this.seriesColors = ArraysKt.asList(DEFAULT_COLORS);
     }
 
     public LineDataSeries(String seriesLabel, List<YEntryData> seriesData) {

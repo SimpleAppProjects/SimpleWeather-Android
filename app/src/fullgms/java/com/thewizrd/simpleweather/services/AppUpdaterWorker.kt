@@ -17,7 +17,6 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -32,13 +31,11 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
 
         @JvmStatic
         fun registerWorker(context: Context) {
-            val context = context.applicationContext
-            enqueueWork(context)
+            enqueueWork(context.applicationContext)
         }
 
         private fun enqueueWork(context: Context) {
-            val context = context.applicationContext
-            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, isWorkScheduled(context).toString())
+            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, isWorkScheduled(context.applicationContext).toString())
 
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.UNMETERED)
@@ -50,26 +47,20 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
                     .addTag(TAG)
                     .build()
 
-            WorkManager.getInstance(context)
+            WorkManager.getInstance(context.applicationContext)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
         private fun isWorkScheduled(context: Context): Boolean {
-            val context = context.applicationContext
             val workMgr = WorkManager.getInstance(context)
-            var statuses: List<WorkInfo>? = null
-            try {
-                statuses = workMgr.getWorkInfosForUniqueWork(TAG).get()
-            } catch (ignored: ExecutionException) {
-            } catch (ignored: InterruptedException) {
-            }
-            if (statuses?.isNullOrEmpty() == true) return false
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
                 running = (workStatus.state == WorkInfo.State.RUNNING
-                           || workStatus.state == WorkInfo.State.ENQUEUED)
+                        || workStatus.state == WorkInfo.State.ENQUEUED)
             }
             return running
         }

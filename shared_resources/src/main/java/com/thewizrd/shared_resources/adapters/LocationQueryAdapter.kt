@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.common.collect.Iterables
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.databinding.LocationQueryViewBinding
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.icons.WeatherIcons

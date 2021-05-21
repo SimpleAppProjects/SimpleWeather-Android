@@ -59,7 +59,7 @@ class LocationIQProvider : LocationProviderImpl() {
 
         val key = getAPIKey()
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
         var wEx: WeatherException? = null
 
@@ -129,7 +129,7 @@ class LocationIQProvider : LocationProviderImpl() {
 
         val key = getAPIKey()
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
         var result: GeoLocation? = null
         var wEx: WeatherException? = null
@@ -195,7 +195,7 @@ class LocationIQProvider : LocationProviderImpl() {
         var isValid = false
         var wEx: WeatherException? = null
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
 
         try {

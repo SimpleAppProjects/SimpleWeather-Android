@@ -260,7 +260,7 @@ class ExampleInstrumentedTest {
     @Throws(IOException::class)
     fun logCleanupTest() {
         // Context of the app under test.
-        val appContext = SimpleLibrary.getInstance().appContext
+        val appContext = SimpleLibrary.instance.appContext
         val filePath = appContext.getExternalFilesDir(null).toString() + "/logs"
         val directory = File(filePath)
         if (!directory.exists()) {

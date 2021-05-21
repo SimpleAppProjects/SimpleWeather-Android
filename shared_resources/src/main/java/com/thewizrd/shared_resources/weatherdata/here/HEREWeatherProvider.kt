@@ -75,7 +75,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                 val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val client = SimpleLibrary.getInstance().httpClient
+                val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
                 var wEx: WeatherException? = null
 
@@ -184,7 +184,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
         val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
         val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-        val client = SimpleLibrary.getInstance().httpClient
+        val client = SimpleLibrary.instance.httpClient
         var response: Response? = null
 
         try {

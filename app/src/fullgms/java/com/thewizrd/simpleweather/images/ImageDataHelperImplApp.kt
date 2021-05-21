@@ -19,14 +19,14 @@ import java.util.*
 
 class ImageDataHelperImplApp : ImageDataHelperImpl() {
     // Shared Preferences
-    private val imageDataPrefs = SimpleLibrary.getInstance()
+    private val imageDataPrefs = SimpleLibrary.instance
             .appContext.getSharedPreferences("images", Context.MODE_PRIVATE)
 
     private val imageDataFolder: File
 
     init {
         // App data files
-        val cacheDataFolder = SimpleLibrary.getInstance().appContext.cacheDir
+        val cacheDataFolder = SimpleLibrary.instance.appContext.cacheDir
         imageDataFolder = File(cacheDataFolder, "images")
         imageDataFolder.mkdir()
     }

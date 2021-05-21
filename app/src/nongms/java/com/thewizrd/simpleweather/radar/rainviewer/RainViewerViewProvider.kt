@@ -135,7 +135,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     }
 
     private fun getRadarFrames() {
-        val httpClient = SimpleLibrary.getInstance().httpClient
+        val httpClient = SimpleLibrary.instance.httpClient
 
         val request = Request.Builder()
                 .get()

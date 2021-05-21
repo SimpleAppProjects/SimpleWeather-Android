@@ -63,7 +63,7 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
             var wEx: WeatherException? = null
 
             try {
-                val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+                val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
                 val addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 5)
 
                 for (addr in addresses) {
@@ -126,7 +126,7 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
             var wEx: WeatherException? = null
 
             try {
-                val geocoder = Geocoder(SimpleLibrary.getInstance().appContext, LocaleUtils.getLocale())
+                val geocoder = Geocoder(SimpleLibrary.instance.appContext, LocaleUtils.getLocale())
                 val addresses = geocoder.getFromLocationName(model.locationName, 1)
 
                 result = addresses[0]
@@ -194,7 +194,7 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
             location.locationSource = qview.locationSource
 
             // Update DB here or somewhere else
-            val app = SimpleLibrary.getInstance().app
+            val app = SimpleLibrary.instance.app
             val settingsMgr = app.settingsManager
             if (app.isPhone) {
                 settingsMgr.updateLocation(location)

@@ -30,7 +30,7 @@ object FileUtils {
 
                 var stream: InputStream? = null
                 try {
-                    val context = SimpleLibrary.getInstance().appContext
+                    val context = SimpleLibrary.instance.appContext
                     stream = context.resources.assets.open(path)
                     return true
                 } catch (ignored: IOException) {
