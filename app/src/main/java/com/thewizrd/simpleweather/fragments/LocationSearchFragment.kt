@@ -422,7 +422,7 @@ class LocationSearchFragment : WindowColorFragment() {
         // Cancel pending searches
         job?.cancel()
         if (!queryString.isNullOrBlank()) {
-            job = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            job = runWithView(Dispatchers.Default) {
                 try {
                     val results = withContext(Dispatchers.IO) {
                         wm.getLocations(queryString)

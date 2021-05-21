@@ -90,14 +90,18 @@ abstract class LifecycleAwareFragment : Fragment() {
      * @param block the coroutine code which will be invoked in the context of the viewLifeCyclerOwner lifecycle scope.
      */
     fun runWithView(context: CoroutineContext = EmptyCoroutineContext,
-                    block: suspend CoroutineScope.() -> Unit) {
+                    block: suspend CoroutineScope.() -> Unit): Job? {
+        var job: Job? = null
+
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
             // no-op
         }.onSuccess {
-            it.launch(context = context, block = block)
+            job = it.launch(context = context, block = block)
         }
+
+        return job
     }
 
     /**
@@ -128,13 +132,17 @@ abstract class LifecycleAwareFragment : Fragment() {
      *
      * @param block the coroutine code which will be invoked when [Lifecycle] is at least in [Lifecycle.State.STARTED] state.
      */
-    protected fun runWhenViewStarted(block: suspend CoroutineScope.() -> Unit) {
+    protected fun runWhenViewStarted(block: suspend CoroutineScope.() -> Unit): Job? {
+        var job: Job? = null
+
         runCatching {
             viewLifecycleOwner.lifecycleScope
         }.onFailure {
             // no-op
         }.onSuccess {
-            it.launchWhenStarted(block = block)
+            job = it.launchWhenStarted(block = block)
         }
+
+        return job
     }
 }
