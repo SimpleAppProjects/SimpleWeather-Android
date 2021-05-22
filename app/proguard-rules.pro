@@ -61,3 +61,7 @@
     public static int hrforecast?_divider;
     public static int hrforecast?_lo;
 }
+
+# Keep custom model classes (ImageData)
+# Needed for (de)serialization in Firestore
+-keep class com.thewizrd.simpleweather.images.model.** { *; }

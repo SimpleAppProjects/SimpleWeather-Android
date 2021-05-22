@@ -27,7 +27,7 @@ object ImageDatabase {
     @WorkerThread
     suspend fun getAllImageDataForCondition(backgroundCode: String?): List<ImageData> =
             withContext(Dispatchers.IO) {
-                val db = com.thewizrd.shared_resources.firebase.FirebaseHelper.getFirestoreDB()
+                val db = FirebaseHelper.getFirestoreDB()
                 val query = db.collection("background_images")
                         .whereEqualTo("condition", backgroundCode)
 
@@ -75,7 +75,7 @@ object ImageDatabase {
     @WorkerThread
     suspend fun getRandomImageForCondition(backgroundCode: String?): ImageData? =
             withContext(Dispatchers.IO) {
-                val db = com.thewizrd.shared_resources.firebase.FirebaseHelper.getFirestoreDB()
+                val db = FirebaseHelper.getFirestoreDB()
                 val query = db.collection("background_images")
                         .whereEqualTo("condition", backgroundCode)
 

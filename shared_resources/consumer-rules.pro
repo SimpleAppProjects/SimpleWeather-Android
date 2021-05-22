@@ -14,5 +14,3 @@
 -keepattributes *Annotation*
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
-# Keep custom model classes
--keep class com.thewizrd.shared_resources.weatherdata.images.model.** { *; }
