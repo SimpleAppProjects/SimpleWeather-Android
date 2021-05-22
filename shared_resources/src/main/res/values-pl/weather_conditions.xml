@@ -8,8 +8,8 @@
     <string name="weather_severetstorms">"Silne burze"</string>
     <string name="weather_tstorms">"Burze"</string>
     <string name="weather_rainandsnow">"Deszcz ze śniegiem"</string>
-    <string name="weather_rainandsleet">"Deszcz, deszcz ze śniegiem"</string>
-    <string name="weather_snowandsleet">"Śnieg, deszcz ze śniegiem"</string>
+    <string name="weather_rainandsleet">"Deszcz oraz deszcz ze śniegiem"</string>
+    <string name="weather_snowandsleet">"Śnieg oraz deszcz ze śniegiem"</string>
     <string name="weather_freezingrain">"Marznący deszcz"</string>
     <string name="weather_snowflurries">"Przelotne opady śniegu"</string>
     <string name="weather_lightsnowshowers">"Lekkie opady śniegu"</string>

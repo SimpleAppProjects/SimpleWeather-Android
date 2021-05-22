@@ -89,7 +89,9 @@
     <string name="pref_summary_alerts_disabled">"Ten dostawca pogody nie oferuje alarmów pogodowych"</string>
     <string name="pref_title_apiregister">"Utwórz konto"</string>
     <string name="pref_summary_apiregister">"Utwórz konto aby zarejestrować klucz"</string>
-    <string name="error_message_weather_region_unsupported">"Ten dostawca pogody dostarcza dane tylko dla lokalizacji w Stanach Zjednoczonych"</string>
+
+    <!-- Fuzzy -->
+    <string name="error_message_weather_region_unsupported">"Ten kraj nie jest obsługiwany przez tego dostawcę usług pogodowych"</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Dodaj lokalizację"</string>
@@ -165,4 +167,5 @@
 
     <!-- Icons -->
     <string name="pref_title_icons">"Ikony"</string>
+    <string name="refresh_30min">"30 minut"</string>
 </resources>

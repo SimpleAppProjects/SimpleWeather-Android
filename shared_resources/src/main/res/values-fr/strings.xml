@@ -89,7 +89,9 @@
     <string name="pref_summary_alerts_disabled">"Les alertes météo ne sont pas prises en charge par ce fournisseur"</string>
     <string name="pref_title_apiregister">"Créer un compte"</string>
     <string name="pref_summary_apiregister">"Créer un compte pour s'enregistrer pour une clé de fournisseur"</string>
-    <string name="error_message_weather_region_unsupported">"Ce fournisseur de services météo ne prend en charge que les sites situés aux États-Unis."</string>
+
+    <!-- Fuzzy -->
+    <string name="error_message_weather_region_unsupported">"Ce pays n'est pas pris en charge par ce fournisseur de services météo."</string>
 
     <!-- Locations -->
     <string name="label_btn_add_location">"Ajout d'un emplacement"</string>
@@ -163,4 +165,5 @@
 
     <!-- Icons -->
     <string name="pref_title_icons">"Icônes"</string>
+    <string name="refresh_30min">"30 minutes"</string>
 </resources>
