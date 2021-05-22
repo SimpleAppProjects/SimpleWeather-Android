@@ -17,8 +17,12 @@ API_KEY.txt
 /shared_resources/src/fullgms/java/com/thewizrd/shared_resources/keys/Keys.java
 /app/debug
 /app/release
+/app/fullgms
+/app/nongms
 /wearapp/debug
 /wearapp/release
+/wearapp/fullgms
+/wearapp/nongms
 /keycheck.bat
 /keycheck.ps1
 /ImportTranslations.bat

@@ -112,7 +112,7 @@ class AppChoiceDialogBuilder(private val context: Context) {
                 val launchIntent = context.packageManager.getLaunchIntentForPackage(info.packageName)
                         ?: continue
 
-                val activityCmpName = launchIntent.component
+                val activityCmpName = launchIntent.component ?: continue
 
                 val label = context.packageManager.getApplicationLabel(info).toString()
 
@@ -126,7 +126,7 @@ class AppChoiceDialogBuilder(private val context: Context) {
                 val app = AppsViewModel().apply {
                     this.appLabel = label
                     this.packageName = info.packageName
-                    this.activityName = activityCmpName!!.className
+                    this.activityName = activityCmpName.className
                     this.drawable = drawable
                 }
 

@@ -94,7 +94,7 @@ class EarthWindMapViewProvider(context: Context, rootView: ViewGroup) : RadarVie
             val webView = radarWebView
             if (webView != null) {
                 if (radarURL != null) {
-                    webView.forceReload(radarURL)
+                    webView.forceReload(radarURL!!)
                 } else {
                     webView.forceReload(EARTHWINDMAP_DEFAULT_URL)
                 }

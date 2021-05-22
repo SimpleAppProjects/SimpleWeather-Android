@@ -50,7 +50,7 @@ object WebViewHelper {
     }
 
     @JvmStatic
-    fun WebView.forceReload(url: String?) {
+    fun WebView.forceReload(url: String) {
         this.post {
             this.loadData("<html><body style=\"background-color: black;\"></body></html>", "text/html", "UTF-8")
         }

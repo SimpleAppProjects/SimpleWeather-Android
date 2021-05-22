@@ -101,7 +101,7 @@ class LocationProvider {
             }
 
             locationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location?) {
+                override fun onLocationChanged(location: Location) {
                     callback.onLocationChanged(location)
                 }
 
@@ -109,11 +109,11 @@ class LocationProvider {
                     // no-op
                 }
 
-                override fun onProviderEnabled(provider: String?) {
+                override fun onProviderEnabled(provider: String) {
                     // no-op
                 }
 
-                override fun onProviderDisabled(provider: String?) {
+                override fun onProviderDisabled(provider: String) {
                     // no-op
                 }
 
