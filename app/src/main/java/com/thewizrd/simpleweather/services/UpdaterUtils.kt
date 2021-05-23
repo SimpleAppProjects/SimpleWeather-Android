@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorker
+import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorkerActions
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 
@@ -34,13 +36,18 @@ class UpdaterUtils {
         fun startAlarm(context: Context, onBoot: Boolean = false) {
             val settingsManager = SettingsManager(context.applicationContext)
             // Enable alarm if dependent features are enabled
-            if (WidgetUpdaterHelper.widgetsExist() || settingsManager.showOngoingNotification() || settingsManager.useAlerts()) {
+            if (WidgetUpdaterHelper.widgetsExist() || settingsManager.showOngoingNotification() || settingsManager.useAlerts() || settingsManager.isDailyNotificationEnabled()) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
-                            .setAction(UpdaterTimerService.ACTION_STARTALARM))
+                            .setAction(UpdaterTimerService.ACTION_STARTALARM)
+                            .putExtra(UpdaterTimerService.EXTRA_INTERVAL, settingsManager.getRefreshInterval()))
                 } else {
                     WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
                     WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_ENQUEUEWORK, onBoot)
+                }
+
+                if (settingsManager.isDailyNotificationEnabled()) {
+                    enableDailyNotificationService(context, true)
                 }
             }
         }
@@ -49,7 +56,7 @@ class UpdaterUtils {
         fun cancelAlarm(context: Context) {
             val settingsManager = SettingsManager(context.applicationContext)
             // Cancel alarm if dependent features are turned off
-            if (!WidgetUpdaterHelper.widgetsExist() && !settingsManager.showOngoingNotification() && !settingsManager.useAlerts()) {
+            if (!WidgetUpdaterHelper.widgetsExist() && !settingsManager.showOngoingNotification() && !settingsManager.useAlerts() && !settingsManager.isDailyNotificationEnabled()) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
                             .setAction(UpdaterTimerService.ACTION_CANCELALARM))
@@ -63,8 +70,10 @@ class UpdaterUtils {
         @JvmStatic
         fun updateAlarm(context: Context) {
             if (PowerUtils.useForegroundService) {
+                val settingsManager = SettingsManager(context.applicationContext)
                 ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
-                        .setAction(UpdaterTimerService.ACTION_UPDATEALARM))
+                        .setAction(UpdaterTimerService.ACTION_UPDATEALARM)
+                        .putExtra(UpdaterTimerService.EXTRA_INTERVAL, settingsManager.getRefreshInterval()))
             } else {
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)
@@ -79,12 +88,55 @@ class UpdaterUtils {
 
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_CANCELWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_CANCELWORK)
+
+                DailyWeatherNotificationWorker.cancelWork(context)
             } else {
                 ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
                         .setAction(UpdaterTimerService.ACTION_CANCELALARM))
 
                 WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_REQUEUEWORK)
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_REQUEUEWORK)
+
+                val settingsManager = SettingsManager(context.applicationContext)
+                if (settingsManager.isDailyNotificationEnabled())
+                    DailyWeatherNotificationWorker.scheduleNotification(context)
+            }
+        }
+
+        @JvmStatic
+        fun enableDailyNotificationService(context: Context, enable: Boolean) {
+            if (PowerUtils.useForegroundService) {
+                if (enable) {
+                    val settingsManager = SettingsManager(context.applicationContext)
+
+                    ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                            .setAction(DailyWeatherNotificationWorkerActions.ACTION_UPDATENOTIFICATIONTIME)
+                            .putExtra(DailyWeatherNotificationWorkerActions.EXTRA_UPDATETIME, settingsManager.getDailyNotificationTime()))
+                } else {
+                    ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                            .setAction(DailyWeatherNotificationWorkerActions.ACTION_CANCELNOTIFICATION)
+                            .putExtra(DailyWeatherNotificationWorkerActions.EXTRA_UPDATETIME, null as String?))
+                }
+            } else {
+                if (enable) {
+                    DailyWeatherNotificationWorker.scheduleNotification(context)
+                } else {
+                    DailyWeatherNotificationWorker.cancelWork(context)
+                }
+            }
+
+            if (!enable) cancelAlarm(context)
+        }
+
+        @JvmStatic
+        fun rescheduleDailyNotificationService(context: Context) {
+            if (PowerUtils.useForegroundService) {
+                val settingsManager = SettingsManager(context.applicationContext)
+                ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
+                        .setAction(DailyWeatherNotificationWorkerActions.ACTION_UPDATENOTIFICATIONTIME)
+                        .putExtra(DailyWeatherNotificationWorkerActions.EXTRA_UPDATETIME, settingsManager.getDailyNotificationTime()))
+            } else {
+                DailyWeatherNotificationWorker.scheduleNotification(context)
             }
         }
     }

@@ -60,6 +60,10 @@ fun isRadarInteractionEnabled(): Boolean {
     return false
 }
 
+fun areNotificationExtrasEnabled(): Boolean {
+    return false
+}
+
 fun SettingsFragment.createPremiumPreference(): Preference? {
     return null
 }

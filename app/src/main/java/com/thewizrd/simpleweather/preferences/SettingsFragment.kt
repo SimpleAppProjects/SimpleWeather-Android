@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -18,6 +19,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.TextUtils
+import android.text.format.DateFormat
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
@@ -30,6 +32,8 @@ import androidx.navigation.findNavController
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.ContextUtils
@@ -48,6 +52,7 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference
+import com.thewizrd.simpleweather.preferences.timepickerpreference.TimePickerPreference
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import com.thewizrd.simpleweather.services.UpdaterUtils
@@ -76,7 +81,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var registerPref: Preference
     private lateinit var themePref: ListPreference
     private lateinit var languagePref: ListPreference
+
     private var premiumPref: Preference? = null
+    private lateinit var dailyNotifPref: SwitchPreferenceCompat
+    private lateinit var dailyNotifTimePref: TimePickerPreference
 
     // Background ops
     private lateinit var foregroundPref: SwitchPreferenceCompat
@@ -637,10 +645,26 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
 
         foregroundPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
-                UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
-                true
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
+                    true
+                }
+
+        dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
+        dailyNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+            if (newValue == true && !areNotificationExtrasEnabled()) {
+                navigateToPremiumFragment()
+                return@OnPreferenceChangeListener false
             }
+            UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
+            true
+        }
+        dailyNotifTimePref = findPreference(SettingsManager.KEY_DAILYNOTIFICATIONTIME)!!
+        dailyNotifTimePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+            settingsManager.setDailyNotificationTime(newValue.toString())
+            UpdaterUtils.rescheduleDailyNotificationService(preference.context)
+            true
+        }
 
         val aboutPref = findPreference<Preference>(KEY_ABOUTAPP)!!
         aboutCategory = aboutPref.parent as PreferenceCategory
@@ -650,8 +674,12 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             premiumPref?.let {
                 aboutCategory.removePreference(it)
             }
+            dailyNotifPref.isVisible = false
+            dailyNotifTimePref.isVisible = false
         } else if (premiumPref != null && aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
             aboutCategory.addPreference(premiumPref)
+            dailyNotifPref.isVisible = true
+            dailyNotifTimePref.isVisible = true
         }
 
         tintIcons(preferenceScreen, ContextUtils.getColor(appCompatActivity, R.attr.colorPrimary))
@@ -670,14 +698,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    @SuppressLint("Range")
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        val TAG = "KeyEntryPreferenceDialogFragment"
-
-        if (parentFragmentManager.findFragmentByTag(TAG) != null) {
-            return
-        }
-
         if (preference is EditTextPreference && (SettingsManager.KEY_APIKEY == preference.getKey())) {
+            val TAG = KeyEntryPreferenceDialogFragment::class.java.name
+
+            if (parentFragmentManager.findFragmentByTag(TAG) != null) {
+                return
+            }
+
             val fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey())
             fragment.setPositiveButtonOnClickListener {
                 runWithView {
@@ -704,7 +733,30 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
 
             fragment.setTargetFragment(this, 0)
-            fragment.show(parentFragmentManager, TAG)
+            fragment.show(parentFragmentManager, KeyEntryPreferenceDialogFragment::class.java.name)
+        } else if (preference is TimePickerPreference) {
+            val TAG = MaterialTimePicker::class.java.name
+
+            if (parentFragmentManager.findFragmentByTag(TAG) != null) {
+                return
+            }
+
+            val is24hour = DateFormat.is24HourFormat(preference.getContext())
+
+            val f = MaterialTimePicker.Builder()
+                    .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
+                    .setHour(preference.hourOfDay)
+                    .setMinute(preference.minute)
+                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                    .build()
+            f.addOnPositiveButtonClickListener {
+                if (preference.callChangeListener(String.format(Locale.ROOT, "%02d:%02d", f.hour, f.minute))) {
+                    preference.setTime(f.hour, f.minute)
+                }
+            }
+
+            f.setTargetFragment(this, 0)
+            f.show(parentFragmentManager, TAG)
         } else {
             super.onDisplayPreferenceDialog(preference)
         }

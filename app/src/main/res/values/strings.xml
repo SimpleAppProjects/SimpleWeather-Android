@@ -90,4 +90,10 @@
     <string name="splitlang_downloading">Downloading language pack…</string>
     <string name="splitlang_failure">Failed to install language pack</string>
 
+    <!-- Daily Notification -->
+    <string name="not_channel_name_dailynotification">Daily Notification</string>
+    <string name="pref_title_time">Time</string>
+    <string name="pref_summary_off">Off</string>
+    <string name="pref_summary_on">On</string>
+
 </resources>

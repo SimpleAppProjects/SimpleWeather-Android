@@ -8,6 +8,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorker
+import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorkerActions
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.createForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
@@ -73,6 +75,11 @@ class WeatherUpdaterService : Service() {
             WeatherUpdaterWorker.ACTION_UPDATEWEATHER -> {
                 scope.launch {
                     WeatherUpdaterWorker.executeWork(applicationContext)
+                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+            }
+            DailyWeatherNotificationWorkerActions.ACTION_SENDNOTIFICATION -> {
+                scope.launch {
+                    DailyWeatherNotificationWorker.executeWork(applicationContext)
                 }.invokeOnCompletion(checkStopSelfCompletionHandler)
             }
             else -> {

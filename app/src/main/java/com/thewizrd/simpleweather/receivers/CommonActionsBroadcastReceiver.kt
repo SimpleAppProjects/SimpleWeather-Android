@@ -9,11 +9,9 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.services.ImageDatabaseWorker
-import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.simpleweather.services.*
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
-import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
-import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
@@ -65,6 +63,8 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                     .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS))
         } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER == intent.action) {
             ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorkerActions.ACTION_UPDATEALARM)
+        } else if (CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION == intent.action) {
+            UpdaterUtils.enableDailyNotificationService(context, SettingsManager(context.applicationContext).isDailyNotificationEnabled())
         }
 
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.action)

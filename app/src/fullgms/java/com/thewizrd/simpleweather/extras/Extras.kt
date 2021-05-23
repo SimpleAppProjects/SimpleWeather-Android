@@ -84,6 +84,10 @@ fun isRadarInteractionEnabled(): Boolean {
     return ExtrasLibrary.isEnabled()
 }
 
+fun areNotificationExtrasEnabled(): Boolean {
+    return ExtrasLibrary.isEnabled()
+}
+
 fun SettingsFragment.createPremiumPreference(): Preference {
     val premiumPref = Preference(requireContext()).apply {
         title = context.getString(R.string.pref_title_premium)

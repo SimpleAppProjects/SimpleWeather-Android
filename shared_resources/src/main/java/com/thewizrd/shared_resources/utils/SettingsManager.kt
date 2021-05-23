@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.room.Room
@@ -96,6 +97,12 @@ class SettingsManager(context: Context) {
         const val KEY_USERTHEME = "key_usertheme"
         const val TEMPERATURE_ICON = "0"
         const val CONDITION_ICON = "1"
+
+        const val KEY_DAILYNOTIFICATION = "key_dailynotification"
+        const val KEY_DAILYNOTIFICATIONTIME = "key_dailynotificationtime"
+
+        // Format: HH:mm (24-hr)
+        const val DEFAULT_DAILYNOTIFICATION_TIME = "08:00"
 
         // END - !ANDROID_WEAR
         // ANDROID_WEAR - only
@@ -225,6 +232,11 @@ class SettingsManager(context: Context) {
                 }
                 KEY_ICONSSOURCE -> {
                     WeatherIconsManager.getInstance().updateIconProvider()
+                }
+                KEY_DAILYNOTIFICATION -> {
+                    if (isWeatherLoaded) {
+                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION))
+                    }
                 }
             }
         }
@@ -843,5 +855,25 @@ class SettingsManager(context: Context) {
     fun setIconsProvider(iconsSource: String?) {
         editor.putString(KEY_ICONSSOURCE, iconsSource)
         editor.commit()
+    }
+
+    fun isDailyNotificationEnabled(): Boolean {
+        return preferences.getBoolean(KEY_DAILYNOTIFICATION, false)
+    }
+
+    fun setDailyNotificationEnabled(value: Boolean) {
+        preferences.edit(true) {
+            putBoolean(KEY_DAILYNOTIFICATION, value)
+        }
+    }
+
+    fun getDailyNotificationTime(): String {
+        return preferences.getString(KEY_DAILYNOTIFICATIONTIME, DEFAULT_DAILYNOTIFICATION_TIME)!!
+    }
+
+    fun setDailyNotificationTime(value: String) {
+        preferences.edit(true) {
+            putString(KEY_DAILYNOTIFICATIONTIME, value)
+        }
     }
 }

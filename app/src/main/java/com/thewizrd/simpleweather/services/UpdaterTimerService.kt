@@ -12,10 +12,12 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.BuildConfig
+import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorkerActions
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.createForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import java.time.Duration
+import java.util.*
 
 class UpdaterTimerService : Service() {
     private lateinit var mNotificationManager: NotificationManager
@@ -26,6 +28,9 @@ class UpdaterTimerService : Service() {
     private var mLastWeatherUpdateTime: Long = -1
     private var mLastWidgetUpdateTime: Long = -1
     private var mUpdateInterval: Int = SettingsManager.DEFAULTINTERVAL
+
+    private var mTodayForecastTime: String? = SettingsManager.DEFAULT_DAILYNOTIFICATION_TIME
+    private var mLastTodayForecastTime: Long = -1
 
     companion object {
         private const val TAG = "UpdaterTimerService"
@@ -40,6 +45,27 @@ class UpdaterTimerService : Service() {
         @JvmStatic
         fun enqueueWork(context: Context, work: Intent) {
             ContextCompat.startForegroundService(context, work)
+        }
+
+        private fun isDailyForecastTime(forecastTime: String, lastUpdateTime: Long): Boolean {
+            /*
+            val defaultZone = ZoneId.systemDefault()
+            val now = LocalDateTime.now(defaultZone)
+
+            val configuredTime = LocalTime.parse(forecastTime, DateTimeFormatter.ofPattern("[H:mm][HH:mm][H:m][HH:m]"))
+            val configuredDateTime = now.truncatedTo(ChronoUnit.DAYS).plusNanos(configuredTime.toNanoOfDay())
+
+            return now >= configuredDateTime && configuredDateTime > LocalDateTime.ofInstant(Instant.ofEpochMilli(lastUpdateTime), defaultZone)
+            */
+            val now = System.currentTimeMillis()
+
+            val timeSplit = forecastTime.split(":")
+            val cal = Calendar.getInstance()
+            cal.set(Calendar.HOUR_OF_DAY, timeSplit[0].toInt())
+            cal.set(Calendar.MINUTE, timeSplit[1].toInt())
+            val configuredTime = cal.timeInMillis
+
+            return now >= configuredTime && configuredTime > lastUpdateTime
         }
     }
 
@@ -84,6 +110,19 @@ class UpdaterTimerService : Service() {
                 unregisterReceiver()
                 stopSelf()
             }
+            DailyWeatherNotificationWorkerActions.ACTION_UPDATENOTIFICATIONTIME -> {
+                // Start alarm if it hasn't started already
+                mUpdateInterval = intent.getIntExtra(EXTRA_INTERVAL, mUpdateInterval)
+                checkReceiver()
+
+                mTodayForecastTime = intent.getStringExtra(DailyWeatherNotificationWorkerActions.EXTRA_UPDATETIME)
+                mLastTodayForecastTime = System.currentTimeMillis()
+                doWork()
+            }
+            DailyWeatherNotificationWorkerActions.ACTION_CANCELNOTIFICATION -> {
+                mTodayForecastTime = null
+                mLastTodayForecastTime = System.currentTimeMillis()
+            }
         }
 
         return START_STICKY
@@ -121,6 +160,12 @@ class UpdaterTimerService : Service() {
             updateWidgets()
             mLastWidgetUpdateTime = nowMillis
         }
+
+        if (!mTodayForecastTime.isNullOrBlank() && isDailyForecastTime(mTodayForecastTime!!, mLastTodayForecastTime)) {
+            Log.println(Log.INFO, TAG, "creating daily notification...")
+            sendDailyNotification()
+            mLastTodayForecastTime = nowMillis
+        }
     }
 
     private fun updateWeather() {
@@ -131,6 +176,11 @@ class UpdaterTimerService : Service() {
     private fun updateWidgets() {
         WeatherUpdaterService.enqueueWork(this, Intent(this, WeatherUpdaterService::class.java)
                 .setAction(WidgetUpdaterWorker.ACTION_UPDATEWIDGETS))
+    }
+
+    private fun sendDailyNotification() {
+        WeatherUpdaterService.enqueueWork(this, Intent(this, WeatherUpdaterService::class.java)
+                .setAction(DailyWeatherNotificationWorkerActions.ACTION_SENDNOTIFICATION))
     }
 
     override fun onDestroy() {
@@ -154,6 +204,7 @@ class UpdaterTimerService : Service() {
                     val nowMillis = System.currentTimeMillis()
                     mLastWeatherUpdateTime = nowMillis
                     mLastWidgetUpdateTime = nowMillis
+                    mLastTodayForecastTime = nowMillis
                     doWork()
                 }
             }

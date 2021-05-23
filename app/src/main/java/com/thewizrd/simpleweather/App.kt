@@ -199,6 +199,7 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS)
         filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS)
         filter.addAction(CommonActions.ACTION_IMAGES_UPDATEWORKER)
+        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION)
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mCommonReceiver, filter)
     }

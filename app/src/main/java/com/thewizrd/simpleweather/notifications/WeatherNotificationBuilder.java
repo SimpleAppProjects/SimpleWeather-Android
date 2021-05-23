@@ -34,7 +34,7 @@ import com.thewizrd.simpleweather.main.MainActivity;
 public class WeatherNotificationBuilder {
     private static final String TAG = "WeatherNotificationBuilder";
 
-    static Notification updateNotification(String notificationID, @NonNull final WeatherNowViewModel viewModel) {
+    static Notification updateNotification(String notChannelID, @NonNull final WeatherNowViewModel viewModel) {
         final Context context = App.getInstance().getAppContext();
         final SettingsManager settingsManager = App.getInstance().getSettingsManager();
         final WeatherIconsManager wim = WeatherIconsManager.getInstance();
@@ -142,7 +142,7 @@ public class WeatherNotificationBuilder {
         bigUpdateViews.setViewVisibility(R.id.extra2_layout, feelsLikeModel != null || humidityModel != null || popRainModel != null || popSnowModel != null ? View.VISIBLE : View.GONE);
 
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context, notificationID)
+                new NotificationCompat.Builder(context, notChannelID)
                         .setCustomContentView(updateViews)
                         .setCustomBigContentView(bigUpdateViews)
                         .setPriority(NotificationCompat.PRIORITY_LOW)
