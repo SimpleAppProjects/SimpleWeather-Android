@@ -65,6 +65,8 @@ class LocationSearchFragment : SwipeDismissFragment() {
     }
 
     private val recyclerClickListener = RecyclerOnClickListenerInterface { view, position ->
+        val navController = view.findNavController()
+
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
             showLoading(true)
             binding.recyclerView.isEnabled = false
@@ -113,7 +115,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                         throw InterruptedException()
                     } else if (queryResult.locationTZLong.isNullOrEmpty() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
                         val tzId =
-                            TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                                TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
                         if ("unknown" != tzId)
                             queryResult.locationTZLong = tzId
                     }
@@ -121,7 +123,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                         // Set default provider based on location
                         val provider =
-                            RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                                RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
                         settingsManager.setAPI(provider)
                         queryResult.updateWeatherSource(provider)
                         wm.updateAPI()
@@ -135,7 +137,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     val locData = settingsManager.getLocationData()
                     val finalQueryResult: LocationQueryViewModel = queryResult
                     val loc =
-                        locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+                            locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
                     if (loc != null) {
                         // Location exists; return
@@ -199,7 +201,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                 })
 
                                 try {
-                                    view.findNavController().navigate(args)
+                                    navController.navigate(args)
                                 } catch (ex: IllegalArgumentException) {
                                     val props = Bundle().apply {
                                         putString("method", "recyclerClickListener.success")
