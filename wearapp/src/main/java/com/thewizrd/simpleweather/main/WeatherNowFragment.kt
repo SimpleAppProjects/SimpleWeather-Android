@@ -115,6 +115,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             }
 
             binding.swipeRefreshLayout.isRefreshing = false
+            binding.scrollView.visibility = View.VISIBLE
 
             val context = App.instance.appContext
             val span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), settingsManager.getUpdateTime())

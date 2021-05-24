@@ -35,7 +35,9 @@
             android:layout_height="wrap_content"
             android:fillViewport="true"
             android:focusableInTouchMode="true"
-            android:scrollbars="vertical">
+            android:scrollbars="vertical"
+            android:visibility="invisible"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
