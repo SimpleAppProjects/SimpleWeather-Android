@@ -121,7 +121,7 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
                 val notifMgr = context.getSystemService<NotificationManager>()!!
                 val notif = DailyWeatherNotificationBuilder.createNotification(
                         context, NOT_CHANNEL_ID, location, todaysForecast)
-                notifMgr.notify(System.currentTimeMillis().toInt(), notif)
+                notifMgr.notify(NOT_CHANNEL_ID, location.hashCode(), notif)
             }
         }
 

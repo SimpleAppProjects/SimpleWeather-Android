@@ -73,6 +73,7 @@ object DailyWeatherNotificationBuilder {
                 .setContentIntent(getOnClickIntent(context, location))
                 .setContentTitle("$hiTemp / $loTemp - ${location.name.split(",")[0]}")
                 .setContentText(contentText)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
 
         if (wim.isFontIcon) {
             notifBuilder.setSmallIcon(wim.getWeatherIconResource(forecast.icon))
