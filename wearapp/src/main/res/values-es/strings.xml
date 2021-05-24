@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Configuración desde el teléfono"</string>
+    <string name="action_changelocation">"Cambiar de ubicación"</string>
+    <string name="action_openonphone">"Abrir en el teléfono"</string>
+    <string name="message_openedonphone">"Abierto en el teléfono…"</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"Dispositivo no conectado"</string>
+    <string name="status_connecting">"Conectando..."</string>
+    <string name="status_notinstalled">"La aplicación no está instalada en el dispositivo"</string>
+    <string name="status_connected">"Conectado"</string>
+    <string name="status_node_unavailable">"Device is not connected or app is not installed on device…"</string>
+    <string name="status_node_notsupported">"El dispositivo conectado no es compatible"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"¿Desea configurar y sincronizar los datos de su teléfono/dispositivo conectado?"</string>
+    <string name="message_gettingstatus">"Obteniendo el estado de la conexión…"</string>
+    <string name="error_notinstalled">"Instala la aplicación en el dispositivo e inténtalo de nuevo"</string>
+    <string name="message_continueondevice">"Continuar con la configuración en el dispositivo conectado"</string>
+    <string name="message_retrievingdata">"Recuperación de datos del dispositivo conectado…"</string>
+    <string name="error_syncing">"No se pueden sincronizar los datos"</string>
+    <string name="message_settingsretrieved">"Los datos de configuración recibidos…"</string>
+    <string name="message_locationretrieved">"Los datos de localización recibidos…"</string>
+    <string name="message_weatherretrieved">"Los datos meteorológicos recibidos…"</string>
+    <string name="message_synccompleted">"Sincronización de datos exitosa"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Desactivada"</string>
+    <string name="pref_sync_deviceonly">"Sincronización sólo desde el dispositivo"</string>
+    <string name="pref_sync_whenavailable">"Sincronización desde el dispositivo (cuando esté disponible)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Sincronización"</string>
+    <string name="pref_sync_title">"Sincronización de datos"</string>
+    <string name="pref_connectionstatus_title">"Estado de la conexión"</string>
+</resources>

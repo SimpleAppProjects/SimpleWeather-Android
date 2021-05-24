@@ -89,4 +89,20 @@
     <string name="pref_summary_foreground_service">"Włącz usługę aktualizacji widgetów pogodowych i powiadomień"</string>
     <string name="pref_title_ignore_batt_opts">"Ignoruj optymalizacje baterii"</string>
     <string name="pref_summary_ignore_batt_opts">"Wyłączenie ograniczenia usług w tle, jeśli widżety i powiadomienia nie są aktualizowane"</string>
+    <string name="pref_title_tap2switch">"Czynność kliknięcia"</string>
+    <string name="pref_tap2switch_summaryOn">"Kliknij, aby przełączyć prognozę"</string>
+    <string name="pref_tap2switch_summaryOff">"Otwórz aplikację"</string>
+
+    <!-- Daily Notification -->
+    <string name="not_channel_name_dailynotification">"Codzienne powiadomienie"</string>
+    <string name="pref_title_time">"Czas"</string>
+    <string name="pref_summary_off">"Wyłączone"</string>
+    <string name="pref_summary_on">"Włączone"</string>
+
+    <!-- Precipitation Notification -->
+    <string name="not_channel_name_precipnotification">"Powiadomienie o opadach"</string>
+
+    <!-- Example: 80% chance of rain in 2 hours
+(%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">"%1$d%% szans na deszcz w ciągu %2$s"</string>
 </resources>

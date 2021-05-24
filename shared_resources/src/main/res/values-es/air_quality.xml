@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- https://aqicn.org/scale -->
+    <string name="aqi_level_0_50">"Buena"</string>
+    <string name="aqi_level_51_100">"Moderada"</string>
+    <string name="aqi_level_101_150">"Dañina a la Salud de los Grupos Sensitivos"</string>
+    <string name="aqi_level_151_200">"Dañina a la Salud"</string>
+    <string name="aqi_level_201_300">"Muy Dañina a la Salud"</string>
+    <string name="aqi_level_300">"Arriesgado"</string>
+    <string name="aqi_desc_0_50">"No se anticipan impactos a la salud cuando la calidad del aire se encuentra en este intervalo."</string>
+
+    <!-- Fuzzy -->
+    <string name="aqi_desc_51_100">"La calidad del aire es aceptable"</string>
+
+    <!-- Fuzzy -->
+    <string name="aqi_desc_101_150">"Los miembros de grupos sensibles pueden experimentar efectos sobre la salud. No es probable que el público en general se vea afectado."</string>
+
+    <!-- Fuzzy -->
+    <string name="aqi_desc_151_200">"Todo el mundo puede empezar a experimentar efectos sobre la salud; los miembros de grupos sensibles pueden experimentar efectos más graves sobre la salud"</string>
+
+    <!-- Fuzzy -->
+    <string name="aqi_desc_201_300">"Alertas sanitarias de condiciones de emergencia. Es más probable que toda la población se vea afectada."</string>
+
+    <!-- Fuzzy -->
+    <string name="aqi_desc_300">"Alerta sanitaria: todo el mundo puede experimentar efectos de salud más graves"</string>
+</resources>

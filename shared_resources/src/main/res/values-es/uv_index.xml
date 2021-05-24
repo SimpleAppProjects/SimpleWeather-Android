@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="uv_0">"Bajo"</string>
+    <string name="uv_3">"Moderado"</string>
+    <string name="uv_6">"Alto"</string>
+    <string name="uv_8">"Muy Alto"</string>
+    <string name="uv_11">"Extremadamente alto"</string>
+</resources>

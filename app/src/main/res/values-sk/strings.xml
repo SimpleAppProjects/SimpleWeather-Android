@@ -89,4 +89,20 @@
     <string name="pref_summary_foreground_service">"Povoľte službe aktualizáciu widgetov a upozornení na počasie"</string>
     <string name="pref_title_ignore_batt_opts">"Ignorujte optimalizáciu batérie"</string>
     <string name="pref_summary_ignore_batt_opts">"Ak sa widgety a upozornenia neaktualizujú, zakážte obmedzenie služby na pozadí"</string>
+    <string name="pref_title_tap2switch">"Kliknite na akciu"</string>
+    <string name="pref_tap2switch_summaryOn">"Kliknutím prepnete predpoveď"</string>
+    <string name="pref_tap2switch_summaryOff">"Otvoriť aplikáciu"</string>
+
+    <!-- Daily Notification -->
+    <string name="not_channel_name_dailynotification">"Denné upozornenie"</string>
+    <string name="pref_title_time">"Čas"</string>
+    <string name="pref_summary_off">"Vypnuté"</string>
+    <string name="pref_summary_on">"Zapnuté"</string>
+
+    <!-- Precipitation Notification -->
+    <string name="not_channel_name_precipnotification">"Oznámenie o zrážkach"</string>
+
+    <!-- Example: 80% chance of rain in 2 hours
+(%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">"%1$d%% pravdepodobnosť dažďa do %2$s"</string>
 </resources>

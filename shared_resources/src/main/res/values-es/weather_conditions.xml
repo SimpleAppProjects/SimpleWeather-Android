@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <string name="weather_tornado">"Tornado"</string>
+    <string name="weather_tropicalstorm">"Tormenta tropical"</string>
+    <string name="weather_hurricane">"Huracán"</string>
+    <string name="weather_severetstorms">"Tormentas severas"</string>
+    <string name="weather_tstorms">"Tormentas"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandsnow">"Lluvia y nieve mezcladas"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandsleet">"Lluvia y aguanieve mezcladas"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snowandsleet">"Mezcla de nieve y aguanieve"</string>
+    <string name="weather_freezingrain">"Lluvia helada"</string>
+    <string name="weather_snowflurries">"Copos de nieve"</string>
+    <string name="weather_lightsnowshowers">"Nieve ligera"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_blowingsnow">"Soplando nieve"</string>
+    <string name="weather_snow">"Nieve"</string>
+    <string name="weather_hail">"Granizo"</string>
+    <string name="weather_sleet">"Aguanieve"</string>
+    <string name="weather_dust">"Polvo"</string>
+    <string name="weather_foggy">"Niebla"</string>
+    <string name="weather_haze">"Calina"</string>
+    <string name="weather_smoky">"Ahumado"</string>
+    <string name="weather_windy">"Ventoso"</string>
+    <string name="weather_cold">"Frío"</string>
+    <string name="weather_cloudy">"Nublado"</string>
+    <string name="weather_mostlycloudy">"Mayormente nublado"</string>
+    <string name="weather_partlycloudy">"Parcialmente nublado"</string>
+    <string name="weather_clear">"Claro"</string>
+    <string name="weather_sunny">"Soleado"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_fair">"Buen tiempo"</string>
+    <string name="weather_rainandhail">"Mezcla de lluvia y granizo"</string>
+    <string name="weather_hot">"Caliente"</string>
+    <string name="weather_isotstorms">"Tormentas aisladas"</string>
+    <string name="weather_scatteredtstorms">"Tormentas dispersas"</string>
+    <string name="weather_scatteredshowers">"Chubascos dispersos"</string>
+    <string name="weather_heavysnow">"Fuertes nevadas"</string>
+    <string name="weather_fog">"Niebla"</string>
+    <string name="weather_lightrain">"Lluvia ligera"</string>
+    <string name="weather_rain">"Lluvia"</string>
+    <string name="weather_rainshowers">"Chubascos"</string>
+    <string name="weather_blizzard">"Ventisca"</string>
+    <string name="weather_overcast">"Nublado"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_sleet_tstorms">"Aguanieve y truenos"</string>
+    <string name="weather_snow_tstorms">"Nieve y trueno"</string>
+    <string name="weather_clearsky">"Cielo despejado"</string>
+    <string name="weather_heavyrain">"Lluvias fuertes"</string>
+</resources>

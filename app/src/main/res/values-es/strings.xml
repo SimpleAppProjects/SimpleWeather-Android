@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"Funciones"</string>
+    <string name="pref_summary_features">"Seleccione las funciones que desea activar/desactivar"</string>
+    <string name="pref_title_feature_bgimage">"Imagen de fondo"</string>
+    <string name="pref_title_feature_forecast">"Pronóstico"</string>
+    <string name="pref_title_feature_hrforecast">"Pronóstico por hora"</string>
+    <string name="pref_title_feature_details">"Detalles del tiempo"</string>
+    <string name="pref_title_feature_uv">"UV"</string>
+    <string name="pref_title_feature_beaufort">"Beaufort"</string>
+    <string name="pref_title_feature_aqindex">"Índice de calidad del aire"</string>
+    <string name="pref_title_feature_moonphase">"Fase de la luna"</string>
+    <string name="pref_title_feature_sunphase">"Fase solar"</string>
+    <string name="pref_title_feature_radar">"Radar meteorológico"</string>
+    <string name="pref_title_feature_locpanelimg">"Imagen del panel de ubicación"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"Configurar el widget"</string>
+    <string name="title_activity_widget_config">"Preferencias de los widgets"</string>
+    <string name="pref_title_bgcolor">"Fondo"</string>
+    <string name="label_color_currentconditions">"Estado actual"</string>
+    <string name="label_color_transparent">"Transparente"</string>
+    <string name="pref_title_bgstyle">"Estilo de fondo"</string>
+    <string name="label_style_fullbg">"Imagen de fondo completa"</string>
+    <string name="label_style_panda">"Predeterminado"</string>
+
+    <!-- Can be shortened to 'Color' -->
+    <!-- Fuzzy -->
+    <string name="label_style_pendingcolor">"Color del tiempo"</string>
+    <string name="label_style_light">"Claro"</string>
+    <string name="label_style_dark">"Oscuro"</string>
+    <string name="locname_pref_title">"Nombre de la ubicación"</string>
+    <string name="locname_pref_summary">"Ocultar el nombre de la ubicación en el widget"</string>
+    <string name="settingsbtn_pref_title">"Botón de ajustes"</string>
+    <string name="settingsbtn_pref_summary">"Ocultar el botón de configuración del widget"</string>
+    <string name="clock_pref_title">"Reloj"</string>
+    <string name="calendar_pref_title">"Calendario"</string>
+    <string name="pref_title_fcastoption">"Pronóstico"</string>
+    <string name="label_fcast_full">"Pronóstico diario y pronóstico por hora (si está disponible)"</string>
+    <string name="label_fcast_daily">"Pronóstico diario"</string>
+    <string name="label_fcast_hourly">"Pronóstico por hora (si está disponible)"</string>
+    <string name="pref_category_timeanddate">"Hora y fecha"</string>
+    <string name="pref_title_timezone">"Zona horaria"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_timezone_summaryoff">"Utilizar la zona horaria del sistema para la hora y la fecha"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_timezone_summaryon">"Utilizar la zona horaria de la ubicación para la hora y la fecha"</string>
+    <string name="pref_location">"Ubicación"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_item_gpslocation">"Ubicación GPS actual"</string>
+
+    <!-- Fuzzy -->
+    <string name="prompt_setup_app_first">"Por favor, configure primero la aplicación"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"Serie"</string>
+
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">"Actualizaciones de la aplicación"</string>
+
+    <!-- Fuzzy -->
+    <string name="prompt_update_title">"Actualizar SimpleWeather"</string>
+
+    <!-- Fuzzy -->
+    <string name="prompt_update_available">"Actualización disponible. Haga clic para instalar"</string>
+
+    <!-- Support -->
+    <!-- Fuzzy -->
+    <string name="pref_category_support">"Apoyar"</string>
+
+    <!-- Feedback -->
+    <string name="pref_title_feedback">"Comentarios"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_feedback">"Informar de cualquier error o sugerencia para mejorar la aplicación"</string>
+
+    <!-- Rate / Review -->
+    <!-- Fuzzy -->
+    <string name="pref_title_rateandreview">"Calificar y revisar"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_rateandreview">"¿Te gusta la aplicación? Ayude a apoyar proporcionando una reseña"</string>
+
+    <!-- Translate -->
+    <string name="pref_title_translate">"Traducir"</string>
+    <string name="pref_summary_translate">"Ayude a traducir la aplicación"</string>
+
+    <!-- Custom Color -->
+    <!-- Fuzzy -->
+    <string name="label_color_custom">"Personalizado"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_bgcolorcode">"Color de fondo"</string>
+    <string name="pref_title_txtcolorcode">"Color del texto"</string>
+
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">"Iniciando la instalación del paquete de idiomas…"</string>
+    <string name="splitlang_installing">"Instalando el paquete de idiomas…"</string>
+    <string name="splitlang_downloading">"Descargando el paquete de idiomas…"</string>
+    <string name="splitlang_failure">"No se ha podido instalar el paquete de idiomas"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_feature_charts">"Gráficos"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"El servicio de actualización de widgets está en marcha"</string>
+    <string name="pref_title_foreground_service">"Servicio de actualización de widgets"</string>
+    <string name="pref_summary_foreground_service">"Habilitar el servicio para actualizar los widgets del tiempo y las notificaciones"</string>
+    <string name="pref_title_ignore_batt_opts">"Ignorar las optimizaciones de la batería"</string>
+    <string name="pref_summary_ignore_batt_opts">"Desactivar la restricción del servicio en segundo plano si los widgets y las notificaciones no se actualizan"</string>
+    <string name="pref_title_tap2switch">"Acción de clic"</string>
+    <string name="pref_tap2switch_summaryOn">"Haga clic para cambiar la previsión"</string>
+    <string name="pref_tap2switch_summaryOff">"Abrir la aplicación"</string>
+
+    <!-- Daily Notification -->
+    <string name="not_channel_name_dailynotification">"Notificación diaria"</string>
+    <string name="pref_title_time">"Hora"</string>
+    <string name="pref_summary_off">"Desactivado"</string>
+    <string name="pref_summary_on">"Activado"</string>
+
+    <!-- Precipitation Notification -->
+    <string name="not_channel_name_precipnotification">"Notificación de precipitaciones"</string>
+
+    <!-- Example: 80% chance of rain in 2 hours
+(%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">"%1$d%% de probabilidad de lluvia en %2$s"</string>
+</resources>
