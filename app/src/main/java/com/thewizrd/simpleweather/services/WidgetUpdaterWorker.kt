@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
@@ -107,6 +108,10 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
                 if (settingsManager.showOngoingNotification()) {
                     WeatherNotificationWorker.refreshNotification(context)
+                }
+
+                if (settingsManager.isPoPChanceNotificationEnabled()) {
+                    PoPChanceNotificationHelper.postNotification(context)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {

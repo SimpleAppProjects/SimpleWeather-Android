@@ -33,6 +33,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
@@ -206,6 +207,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                     if (settingsManager.useAlerts() && wm.supportsAlerts()) {
                         WeatherAlertHandler.postAlerts(settingsManager.getHomeData()!!, weather.weatherAlerts)
+                    }
+
+                    if (settingsManager.isPoPChanceNotificationEnabled()) {
+                        PoPChanceNotificationHelper.postNotification(context)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {

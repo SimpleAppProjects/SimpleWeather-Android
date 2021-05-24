@@ -34,7 +34,9 @@ import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.StringReader
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -100,6 +102,8 @@ class SettingsManager(context: Context) {
 
         const val KEY_DAILYNOTIFICATION = "key_dailynotification"
         const val KEY_DAILYNOTIFICATIONTIME = "key_dailynotificationtime"
+        const val KEY_POPCHANCENOTIFICATION = "key_popchancenotification"
+        const val KEY_LASTCHANCENOTIFICATIONTIME = "key_lastchancenotificationtime"
 
         // Format: HH:mm (24-hr)
         const val DEFAULT_DAILYNOTIFICATION_TIME = "08:00"
@@ -874,6 +878,33 @@ class SettingsManager(context: Context) {
     fun setDailyNotificationTime(value: String) {
         preferences.edit(true) {
             putString(KEY_DAILYNOTIFICATIONTIME, value)
+        }
+    }
+
+    fun isPoPChanceNotificationEnabled(): Boolean {
+        return preferences.getBoolean(KEY_POPCHANCENOTIFICATION, false)
+    }
+
+    fun setPoPChanceNotificationEnabled(value: Boolean) {
+        preferences.edit(true) {
+            putBoolean(KEY_POPCHANCENOTIFICATION, value)
+        }
+    }
+
+    fun getLastPoPChanceNotificationTime(): ZonedDateTime {
+        return if (!preferences.contains(KEY_LASTCHANCENOTIFICATIONTIME)) {
+            Instant.EPOCH.atZone(ZoneOffset.UTC)
+        } else {
+            ZonedDateTime.parse(
+                    preferences.getString(KEY_LASTCHANCENOTIFICATIONTIME, "1970-01-01T00:00:00Z"),
+                    DateTimeFormatter.ISO_ZONED_DATE_TIME
+            )
+        }
+    }
+
+    fun setLastPoPChanceNotificationTime(value: ZonedDateTime) {
+        preferences.edit(true) {
+            putString(KEY_LASTCHANCENOTIFICATIONTIME, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
         }
     }
 }

@@ -126,7 +126,7 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun initChannel(context: Context) {
+        private fun initChannel(context: Context) {
             // Gets an instance of the NotificationManager service
             val mNotifyMgr = context.getSystemService(NotificationManager::class.java)
             var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)

@@ -36,7 +36,7 @@ class UpdaterUtils {
         fun startAlarm(context: Context, onBoot: Boolean = false) {
             val settingsManager = SettingsManager(context.applicationContext)
             // Enable alarm if dependent features are enabled
-            if (WidgetUpdaterHelper.widgetsExist() || settingsManager.showOngoingNotification() || settingsManager.useAlerts() || settingsManager.isDailyNotificationEnabled()) {
+            if (getAlarmFeaturesEnabled(context)) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
                             .setAction(UpdaterTimerService.ACTION_STARTALARM)
@@ -54,9 +54,8 @@ class UpdaterUtils {
 
         @JvmStatic
         fun cancelAlarm(context: Context) {
-            val settingsManager = SettingsManager(context.applicationContext)
             // Cancel alarm if dependent features are turned off
-            if (!WidgetUpdaterHelper.widgetsExist() && !settingsManager.showOngoingNotification() && !settingsManager.useAlerts() && !settingsManager.isDailyNotificationEnabled()) {
+            if (!getAlarmFeaturesEnabled(context)) {
                 if (PowerUtils.useForegroundService) {
                     ContextCompat.startForegroundService(context, Intent(context, UpdaterTimerService::class.java)
                             .setAction(UpdaterTimerService.ACTION_CANCELALARM))
@@ -138,6 +137,15 @@ class UpdaterUtils {
             } else {
                 DailyWeatherNotificationWorker.scheduleNotification(context)
             }
+        }
+
+        private fun getAlarmFeaturesEnabled(context: Context): Boolean {
+            val settingsManager = SettingsManager(context.applicationContext)
+            return WidgetUpdaterHelper.widgetsExist() ||
+                    settingsManager.showOngoingNotification() ||
+                    settingsManager.useAlerts() ||
+                    settingsManager.isDailyNotificationEnabled() ||
+                    settingsManager.isPoPChanceNotificationEnabled()
         }
     }
 }

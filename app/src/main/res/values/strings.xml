@@ -96,4 +96,10 @@
     <string name="pref_summary_off">Off</string>
     <string name="pref_summary_on">On</string>
 
+    <!-- Precipitation Notification -->
+    <string name="not_channel_name_precipnotification">Precipitation Notification</string>
+    <!-- Example: 80% chance of rain in 2 hours -->
+    <!-- (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">%1$d%% chance of rain in %2$s</string>
+
 </resources>

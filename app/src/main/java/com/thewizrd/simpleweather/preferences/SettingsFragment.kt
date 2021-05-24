@@ -85,6 +85,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private var premiumPref: Preference? = null
     private lateinit var dailyNotifPref: SwitchPreferenceCompat
     private lateinit var dailyNotifTimePref: TimePickerPreference
+    private lateinit var popChanceNotifPref: SwitchPreferenceCompat
 
     // Background ops
     private lateinit var foregroundPref: SwitchPreferenceCompat
@@ -665,6 +666,25 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             UpdaterUtils.rescheduleDailyNotificationService(preference.context)
             true
         }
+        popChanceNotifPref = findPreference(SettingsManager.KEY_POPCHANCENOTIFICATION)!!
+        popChanceNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+            if (newValue == true && !areNotificationExtrasEnabled()) {
+                navigateToPremiumFragment()
+                return@OnPreferenceChangeListener false
+            }
+
+            val context = preference.context.applicationContext
+
+            // Alert notification
+            if (newValue as Boolean) {
+                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK))
+            } else {
+                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))
+            }
+            true
+        }
 
         val aboutPref = findPreference<Preference>(KEY_ABOUTAPP)!!
         aboutCategory = aboutPref.parent as PreferenceCategory
@@ -676,10 +696,12 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
             dailyNotifPref.isVisible = false
             dailyNotifTimePref.isVisible = false
+            popChanceNotifPref.isVisible = false
         } else if (premiumPref != null && aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
             aboutCategory.addPreference(premiumPref)
             dailyNotifPref.isVisible = true
             dailyNotifTimePref.isVisible = true
+            popChanceNotifPref.isVisible = true
         }
 
         tintIcons(preferenceScreen, ContextUtils.getColor(appCompatActivity, R.attr.colorPrimary))
