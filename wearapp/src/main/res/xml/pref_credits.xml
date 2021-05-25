@@ -34,6 +34,10 @@
         <Preference android:layout="@layout/credit_wunlocked">
             <intent android:data="https://developer.weatherunlocked.com/" />
         </Preference>
+        <Preference android:title="@string/api_weatherapi" />
+        <Preference android:layout="@layout/credit_weatherapi">
+            <intent android:data="https://www.weatherapi.com/" />
+        </Preference>
 
     </PreferenceCategory>
 
