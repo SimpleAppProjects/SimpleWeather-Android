@@ -66,7 +66,7 @@ class SettingsManager(context: Context) {
         private const val CACHE_LIMIT = 25
         private const val MAX_LOCATIONS = 10
 
-        const val DEFAULTINTERVAL = 120
+        const val DEFAULTINTERVAL = 180
 
         const val CONNECTION_TIMEOUT = 10000 // 10s
         const val READ_TIMEOUT = 10000 // 10s

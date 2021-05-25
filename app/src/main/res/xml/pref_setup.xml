@@ -14,7 +14,7 @@
         app:iconSpaceReserved="false" />
 
     <ListPreference
-        android:defaultValue="120"
+        android:defaultValue="180"
         android:entries="@array/refreshinterval_entries"
         android:entryValues="@array/refreshinterval_values"
         android:key="key_refreshinterval"
