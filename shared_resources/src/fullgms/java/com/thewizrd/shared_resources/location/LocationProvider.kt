@@ -86,7 +86,7 @@ class LocationProvider {
                 }
 
                 override fun onLocationAvailability(p0: LocationAvailability?) {
-                    if (p0?.isLocationAvailable == false) {
+                    if (p0 == null || !p0.isLocationAvailable) {
                         callback.onLocationChanged(null)
                     }
                 }
