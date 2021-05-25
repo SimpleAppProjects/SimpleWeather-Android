@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -170,7 +171,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
                     response?.closeQuietly()
                 }
 
-                if (wEx == null && weather?.isValid == false) {
+                if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale

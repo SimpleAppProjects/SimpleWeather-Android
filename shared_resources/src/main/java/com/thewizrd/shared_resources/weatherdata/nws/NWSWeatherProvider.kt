@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.shared_resources.weatherdata.nws.hourly.HourlyForecastResponse
 import com.thewizrd.shared_resources.weatherdata.nws.hourly.Location
 import com.thewizrd.shared_resources.weatherdata.nws.hourly.PeriodsItem
@@ -146,7 +147,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     observationResponse?.close()
                 }
 
-                if (wEx == null && weather?.isValid == false) {
+                if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     weather.query = location_query

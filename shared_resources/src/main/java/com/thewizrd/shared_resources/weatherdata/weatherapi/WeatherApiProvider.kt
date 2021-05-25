@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
+import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -162,7 +163,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                     response?.closeQuietly()
                 }
 
-                if (wEx == null && weather?.isValid == false) {
+                if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale

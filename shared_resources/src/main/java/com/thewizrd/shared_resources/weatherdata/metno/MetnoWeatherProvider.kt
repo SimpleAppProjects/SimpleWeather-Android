@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
@@ -121,7 +122,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     forecastResponse?.closeQuietly()
                     sunriseResponse?.closeQuietly()
                 }
-                if (wEx == null && weather?.isValid == false) {
+                if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     weather.query = location_query

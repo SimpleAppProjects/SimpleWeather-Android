@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -174,7 +175,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 alertsResponse?.closeQuietly()
             }
 
-            if (wEx == null && weather?.isValid == false) {
+            if (wEx == null && weather.isNullOrInvalid()) {
                 wEx = WeatherException(ErrorStatus.NOWEATHER)
             } else if (weather != null) {
                 if (supportsWeatherLocale()) weather.locale = locale
