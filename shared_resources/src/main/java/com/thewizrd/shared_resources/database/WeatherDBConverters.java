@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Condition;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Location;
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation;
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert;
@@ -228,6 +229,75 @@ public class WeatherDBConverters {
                 writer.beginArray();
 
                 for (TextForecast forecast : value) {
+                    forecast.toJson(writer);
+                }
+
+                writer.endArray();
+                writer.close();
+            } catch (IOException ex) {
+                Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
+            }
+
+            return sw.toString();
+        }
+    }
+
+    @TypeConverter
+    public static MinutelyForecast minforecastFromJson(String value) {
+        if (value == null)
+            return null;
+        else {
+            MinutelyForecast obj = new MinutelyForecast();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
+    }
+
+    @TypeConverter
+    public static String minforecastToJson(MinutelyForecast value) {
+        return JSONParser.serializer(value, MinutelyForecast.class);
+    }
+
+    @TypeConverter
+    public static List<MinutelyForecast> minforecastArrfromJson(String value) {
+        if (value == null)
+            return null;
+        else {
+            StringReader sr = new StringReader(value);
+            JsonReader reader = new JsonReader(sr);
+            List<MinutelyForecast> result = new ArrayList<>(90);
+
+            try {
+                reader.beginArray();
+
+                while (reader.hasNext()) {
+                    MinutelyForecast obj = new MinutelyForecast();
+                    obj.fromJson(reader);
+                    result.add(obj);
+                }
+
+                reader.endArray();
+            } catch (IOException ex) {
+                Logger.writeLine(Log.ERROR, ex, "Error parsing JSON");
+            }
+
+            return result;
+        }
+    }
+
+    @TypeConverter
+    public static String minforecastArrtoJson(List<MinutelyForecast> value) {
+        if (value == null)
+            return null;
+        else {
+            StringWriter sw = new StringWriter();
+            JsonWriter writer = new JsonWriter(sw);
+            writer.setSerializeNulls(true);
+
+            try {
+                writer.beginArray();
+
+                for (MinutelyForecast forecast : value) {
                     forecast.toJson(writer);
                 }
 

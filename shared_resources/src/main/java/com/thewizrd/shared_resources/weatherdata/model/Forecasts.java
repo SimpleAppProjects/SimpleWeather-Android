@@ -17,15 +17,18 @@ public class Forecasts {
     private List<Forecast> forecast;
     @ColumnInfo(name = "txtforecastblob")
     private List<TextForecast> txtForecast;
+    @ColumnInfo(name = "minforecastblob")
+    private List<MinutelyForecast> minForecast;
 
     public Forecasts() {
     }
 
     @Ignore
-    public Forecasts(@NonNull String query, List<Forecast> forecast, List<TextForecast> txtForecast) {
-        this.query = query;
-        this.forecast = forecast;
-        this.txtForecast = txtForecast;
+    public Forecasts(@NonNull Weather weatherData) {
+        this.query = weatherData.getQuery();
+        this.forecast = weatherData.getForecast();
+        this.txtForecast = weatherData.getTxtForecast();
+        this.minForecast = weatherData.getMinForecast();
     }
 
     @NonNull
@@ -51,5 +54,13 @@ public class Forecasts {
 
     public void setTxtForecast(List<TextForecast> txtForecast) {
         this.txtForecast = txtForecast;
+    }
+
+    public List<MinutelyForecast> getMinForecast() {
+        return minForecast;
+    }
+
+    public void setMinForecast(List<MinutelyForecast> minForecast) {
+        this.minForecast = minForecast;
     }
 }

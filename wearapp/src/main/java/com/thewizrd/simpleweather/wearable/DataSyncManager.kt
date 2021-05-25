@@ -147,7 +147,7 @@ object DataSyncManager {
                                 if (weatherData?.isValid == true) {
                                     settingsMgr.saveWeatherAlerts(homeData, weatherData.weatherAlerts)
                                     settingsMgr.saveWeatherData(weatherData)
-                                    settingsMgr.saveWeatherForecasts(Forecasts(weatherData.query, weatherData.forecast, weatherData.txtForecast))
+                                    settingsMgr.saveWeatherForecasts(Forecasts(weatherData))
                                     settingsMgr.saveWeatherForecasts(weatherData.query, weatherData.hrForecast?.map { input -> HourlyForecasts(weatherData.query, input) })
                                     settingsMgr.setUpdateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(updateTimeMillis), ZoneOffset.UTC))
                                     setWeatherUpdateTime(appContext, updateTimeMillis)

@@ -179,6 +179,11 @@ internal object DBMigrations {
             }
         }
     }
+    val W_MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("ALTER TABLE forecasts ADD COLUMN `minforecastblob` TEXT");
+        }
+    }
 
     val LOC_MIGRATION_4_5 = object : Migration(4, 5) {
         override fun migrate(database: SupportSQLiteDatabase) {
@@ -195,15 +200,20 @@ internal object DBMigrations {
             // Since we didn't alter the table, there's nothing else to do here.
         }
     }
+    val LOC_MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Since we didn't alter the table, there's nothing else to do here.
+        }
+    }
 
     @JvmField
     val LOC_MIGRATION_SET = arrayOf(
-            MIGRATION_0_3, LOC_MIGRATION_3_4, LOC_MIGRATION_4_5, LOC_MIGRATION_5_6, LOC_MIGRATION_6_7
+            MIGRATION_0_3, LOC_MIGRATION_3_4, LOC_MIGRATION_4_5, LOC_MIGRATION_5_6, LOC_MIGRATION_6_7, LOC_MIGRATION_7_8
     )
 
     @JvmField
     val W_MIGRATION_SET = arrayOf(
-            MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5, W_MIGRATION_5_6, W_MIGRATION_6_7
+            MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5, W_MIGRATION_5_6, W_MIGRATION_6_7, W_MIGRATION_7_8
     )
 
     @JvmStatic

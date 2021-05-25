@@ -340,7 +340,7 @@ class SetupLocationFragment : CustomFragment() {
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
                             getSettingsManager().saveWeatherAlerts(location, weather.weatherAlerts)
                         getSettingsManager().saveWeatherData(weather)
-                        getSettingsManager().saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                        getSettingsManager().saveWeatherForecasts(Forecasts(weather))
                         getSettingsManager().saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
 
                         getSettingsManager().setFollowGPS(true)

@@ -592,13 +592,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             precipPanelBinding!!.forecastsView = forecastsView
             precipPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener { view, position ->
+            val onClickListener = RecyclerOnClickListenerInterface { view, position ->
                 AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
                 view.isEnabled = false
                 val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
                         .setData(JSONParser.serializer(locationData, LocationData::class.java))
                 Navigation.findNavController(view).navigate(args)
             }
+
+            precipPanelBinding!!.minutelyPrecipGraphPanel.setOnClickPositionListener(onClickListener)
+            precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener(onClickListener)
 
             binding.listLayout.addView(precipPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 3))
         }

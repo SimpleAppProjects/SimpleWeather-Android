@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Condition;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Location;
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation;
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Weather;
@@ -50,6 +51,7 @@ public class JSONParser {
                 .registerTypeAdapter(Forecast.class, new CustomJsonConverter<>(Forecast.class))
                 .registerTypeAdapter(HourlyForecast.class, new CustomJsonConverter<>(HourlyForecast.class))
                 .registerTypeAdapter(TextForecast.class, new CustomJsonConverter<>(TextForecast.class))
+                .registerTypeAdapter(MinutelyForecast.class, new CustomJsonConverter<>(MinutelyForecast.class))
                 .registerTypeAdapter(Condition.class, new CustomJsonConverter<>(Condition.class))
                 .registerTypeAdapter(Atmosphere.class, new CustomJsonConverter<>(Atmosphere.class))
                 .registerTypeAdapter(Astronomy.class, new CustomJsonConverter<>(Astronomy.class))

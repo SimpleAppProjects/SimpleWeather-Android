@@ -40,6 +40,8 @@ public class Weather extends CustomJsonObject {
     private List<HourlyForecast> hrForecast;
     @Ignore
     private List<TextForecast> txtForecast;
+    @Ignore
+    private List<MinutelyForecast> minForecast;
     @ColumnInfo(name = "conditionblob")
     private Condition condition;
     @ColumnInfo(name = "atmosphereblob")
@@ -102,6 +104,14 @@ public class Weather extends CustomJsonObject {
 
     public void setTxtForecast(List<TextForecast> txt_forecast) {
         this.txtForecast = txt_forecast;
+    }
+
+    public List<MinutelyForecast> getMinForecast() {
+        return minForecast;
+    }
+
+    public void setMinForecast(List<MinutelyForecast> minForecast) {
+        this.minForecast = minForecast;
     }
 
     public Condition getCondition() {
@@ -273,6 +283,27 @@ public class Weather extends CustomJsonObject {
                             reader.endArray(); // EndArray
 
                         break;
+                    case "minForecast":
+                        // Set initial cap to 60
+                        // Minutely forecasts are usually only for an hour
+                        List<MinutelyForecast> minForecasts = new ArrayList<>(60);
+
+                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                            reader.beginArray(); // StartArray
+
+                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                MinutelyForecast fcast = new MinutelyForecast();
+                                fcast.fromJson(reader);
+                                minForecasts.add(fcast);
+                            }
+                        }
+                        this.minForecast = minForecasts;
+
+                        if (reader.peek() == JsonToken.END_ARRAY)
+                            reader.endArray(); // EndArray
+
+                        break;
                     case "condition":
                         this.condition = new Condition();
                         this.condition.fromJson(reader);
@@ -388,6 +419,19 @@ public class Weather extends CustomJsonObject {
                 writer.endArray();
             }
 
+            // "minForecast" : ""
+            if (minForecast != null) {
+                writer.name("minForecast");
+                writer.beginArray();
+                for (MinutelyForecast min_cast : minForecast) {
+                    if (min_cast == null)
+                        writer.nullValue();
+                    else
+                        min_cast.toJson(writer);
+                }
+                writer.endArray();
+            }
+
             // "condition" : ""
             writer.name("condition");
             if (condition == null)
@@ -478,6 +522,8 @@ public class Weather extends CustomJsonObject {
             return false;
         if (txtForecast != null ? !txtForecast.equals(weather.txtForecast) : weather.txtForecast != null)
             return false;
+        if (minForecast != null ? !minForecast.equals(weather.minForecast) : weather.minForecast != null)
+            return false;
         if (condition != null ? !condition.equals(weather.condition) : weather.condition != null)
             return false;
         if (atmosphere != null ? !atmosphere.equals(weather.atmosphere) : weather.atmosphere != null)
@@ -501,6 +547,7 @@ public class Weather extends CustomJsonObject {
         result = 31 * result + (forecast != null ? forecast.hashCode() : 0);
         result = 31 * result + (hrForecast != null ? hrForecast.hashCode() : 0);
         result = 31 * result + (txtForecast != null ? txtForecast.hashCode() : 0);
+        result = 31 * result + (minForecast != null ? minForecast.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (atmosphere != null ? atmosphere.hashCode() : 0);
         result = 31 * result + (astronomy != null ? astronomy.hashCode() : 0);

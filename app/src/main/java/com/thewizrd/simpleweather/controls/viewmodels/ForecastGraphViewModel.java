@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.Units;
 import com.thewizrd.shared_resources.weatherdata.model.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.graphs.LineDataSeries;
@@ -87,6 +88,19 @@ public class ForecastGraphViewModel extends ViewModel {
         labelData = xData;
         seriesData = createSeriesData(yData, graphType);
         this.graphType = graphType;
+    }
+
+    public void setMinutelyForecastData(List<MinutelyForecast> forecasts) {
+        List<XLabelData> xData = new ArrayList<>(forecasts.size());
+        List<YEntryData> yData = new ArrayList<>(forecasts.size());
+
+        for (MinutelyForecast forecast : forecasts) {
+            addMinutelyEntryData(forecast, xData, yData);
+        }
+
+        labelData = xData;
+        seriesData = createSeriesData(yData, ForecastGraphType.PRECIPITATION);
+        this.graphType = ForecastGraphType.PRECIPITATION;
     }
 
     private void addEntryData(BaseForecast forecast, List<XLabelData> xData, List<YEntryData> yData, ForecastGraphType graphType) {
@@ -226,6 +240,41 @@ public class ForecastGraphViewModel extends ViewModel {
                     xData.add(new XLabelData(date));
                 }
                 break;
+        }
+    }
+
+    private void addMinutelyEntryData(MinutelyForecast forecast, List<XLabelData> xData, List<YEntryData> yData) {
+        Context context = App.getInstance().getAppContext();
+
+        final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
+        df.applyPattern("0.##");
+
+        String date;
+        if (DateFormat.is24HourFormat(context)) {
+            date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
+        } else {
+            date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+        }
+
+        if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
+            final String unit = settingsMgr.getPrecipitationUnit();
+            float precipValue;
+            String precipUnit;
+
+            switch (unit) {
+                case Units.INCHES:
+                default:
+                    precipValue = ConversionMethods.mmToIn(forecast.getRainMm());
+                    precipUnit = context.getString(R.string.unit_in);
+                    break;
+                case Units.MILLIMETERS:
+                    precipValue = forecast.getRainMm();
+                    precipUnit = context.getString(R.string.unit_mm);
+                    break;
+            }
+
+            yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
+            xData.add(new XLabelData(date));
         }
     }
 

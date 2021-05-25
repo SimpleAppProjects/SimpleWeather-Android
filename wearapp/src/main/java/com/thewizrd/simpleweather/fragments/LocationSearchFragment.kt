@@ -166,7 +166,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     if (wm.supportsAlerts() && weather.weatherAlerts != null)
                         settingsManager.saveWeatherAlerts(location, weather.weatherAlerts)
                     settingsManager.saveWeatherData(weather)
-                    settingsManager.saveWeatherForecasts(Forecasts(weather.query, weather.forecast, weather.txtForecast))
+                    settingsManager.saveWeatherForecasts(Forecasts(weather))
                     settingsManager.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
 
                     // If we're changing locations, trigger an update

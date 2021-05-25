@@ -20,24 +20,27 @@ public class Rootobject {
     @SerializedName("timezone_offset")
     private int timezoneOffset;
 
-    @SerializedName("daily")
-    private List<DailyItem> daily;
+	@SerializedName("daily")
+	private List<DailyItem> daily;
 
-    @SerializedName("lon")
-    private float lon;
+	@SerializedName("lon")
+	private float lon;
 
-    @SerializedName("hourly")
-    private List<HourlyItem> hourly;
+	@SerializedName("hourly")
+	private List<HourlyItem> hourly;
 
-    @SerializedName("lat")
-    private float lat;
+	@SerializedName("minutely")
+	private List<MinutelyItem> minutely;
 
-    public List<AlertsItem> getAlerts() {
-        return alerts;
-    }
+	@SerializedName("lat")
+	private float lat;
 
-    public void setAlerts(List<AlertsItem> alerts) {
-        this.alerts = alerts;
+	public List<AlertsItem> getAlerts() {
+		return alerts;
+	}
+
+	public void setAlerts(List<AlertsItem> alerts) {
+		this.alerts = alerts;
     }
 
     public Current getCurrent() {
@@ -78,21 +81,29 @@ public class Rootobject {
 
     public void setLon(float lon) {
         this.lon = lon;
-    }
+	}
 
-    public List<HourlyItem> getHourly() {
-        return hourly;
-    }
+	public List<HourlyItem> getHourly() {
+		return hourly;
+	}
 
-    public void setHourly(List<HourlyItem> hourly) {
-        this.hourly = hourly;
-    }
+	public void setHourly(List<HourlyItem> hourly) {
+		this.hourly = hourly;
+	}
 
-    public float getLat() {
-        return lat;
-    }
+	public List<MinutelyItem> getMinutely() {
+		return minutely;
+	}
 
-    public void setLat(float lat) {
-        this.lat = lat;
-    }
+	public void setMinutely(List<MinutelyItem> minutely) {
+		this.minutely = minutely;
+	}
+
+	public float getLat() {
+		return lat;
+	}
+
+	public void setLat(float lat) {
+		this.lat = lat;
+	}
 }

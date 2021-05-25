@@ -60,7 +60,7 @@ class SettingsManager(context: Context) {
         private var weatherDB: WeatherDatabase? = null
 
         // NOTE: Remember to add migrations for ALL databases when updating version
-        const val CURRENT_DBVERSION = 7
+        const val CURRENT_DBVERSION = 8
 
         // Data
         private const val CACHE_LIMIT = 25

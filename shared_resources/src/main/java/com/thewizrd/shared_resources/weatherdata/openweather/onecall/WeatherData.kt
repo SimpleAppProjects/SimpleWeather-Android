@@ -25,6 +25,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
 fun createWeatherData(root: Rootobject): Weather {
@@ -41,6 +42,12 @@ fun createWeatherData(root: Rootobject): Weather {
         hrForecast = ArrayList(root.hourly.size)
         for (hourly in root.hourly) {
             hrForecast.add(createHourlyForecast(hourly))
+        }
+        if (!root.minutely.isNullOrEmpty()) {
+            minForecast = ArrayList(root.minutely.size)
+            for (min in root.minutely) {
+                minForecast.add(createMinutelyForecast(min))
+            }
         }
 
         condition = createCondition(root.current)
@@ -261,6 +268,13 @@ fun createTextForecast(forecast: DailyItem): TextForecast {
                 ConversionMethods.KtoC(forecast.feelsLike.night).roundToInt()))
 
         fcttextMetric = sb_metric.toString()
+    }
+}
+
+fun createMinutelyForecast(minutelyItem: MinutelyItem): MinutelyForecast {
+    return MinutelyForecast().apply {
+        date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(minutelyItem.dt), ZoneOffset.UTC)
+        rainMm = minutelyItem.precipitation
     }
 }
 

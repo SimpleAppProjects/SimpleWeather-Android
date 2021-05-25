@@ -14,6 +14,7 @@ import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -27,7 +28,8 @@ class ForecastsNowViewModel : ViewModel() {
 
     private var forecastGraphData = MutableLiveData<RangeBarGraphViewModel>()
     private var hourlyForecastsData = MutableLiveData<List<HourlyForecastNowViewModel>>()
-    private var precipitationGraphData = MutableLiveData<ForecastGraphViewModel>()
+    private var minutelyPrecipitationGraphData = MutableLiveData<ForecastGraphViewModel>()
+    private var hourlyPrecipitationGraphData = MutableLiveData<ForecastGraphViewModel>()
 
     private var currentForecastsData: LiveData<Forecasts>? = null
     private var currentHrForecastsData: LiveData<List<HourlyForecast>>? = null
@@ -40,8 +42,12 @@ class ForecastsNowViewModel : ViewModel() {
         return hourlyForecastsData
     }
 
-    fun getPrecipitationGraphData(): LiveData<ForecastGraphViewModel> {
-        return precipitationGraphData
+    fun getMinutelyPrecipitationGraphData(): LiveData<ForecastGraphViewModel> {
+        return minutelyPrecipitationGraphData
+    }
+
+    fun getHourlyPrecipitationGraphData(): LiveData<ForecastGraphViewModel> {
+        return hourlyPrecipitationGraphData
     }
 
     @MainThread
@@ -59,8 +65,8 @@ class ForecastsNowViewModel : ViewModel() {
                 currentForecastsData = withContext(Dispatchers.IO) {
                     settingsManager.getWeatherDAO().getLiveForecastData(location.query)
                 }
-
                 currentForecastsData!!.observeForever(forecastObserver)
+
                 forecastGraphData.postValue(forecastMapper.apply(currentForecastsData!!.value))
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
@@ -70,7 +76,9 @@ class ForecastsNowViewModel : ViewModel() {
                 }
                 currentHrForecastsData!!.observeForever(hrforecastObserver)
                 hourlyForecastsData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
-                precipitationGraphData.postValue(precipGraphMapper.apply(currentHrForecastsData!!.value))
+
+                minutelyPrecipitationGraphData.postValue(precipMinGraphMapper.apply(currentForecastsData!!.value))
+                hourlyPrecipitationGraphData.postValue(precipGraphMapper.apply(currentHrForecastsData!!.value))
             }
         } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
                 !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
@@ -81,10 +89,11 @@ class ForecastsNowViewModel : ViewModel() {
 
             if (currentForecastsData?.value != null) {
                 forecastGraphData.postValue(forecastMapper.apply(currentForecastsData!!.value))
+                minutelyPrecipitationGraphData.postValue(precipMinGraphMapper.apply(currentForecastsData?.value))
             }
             if (currentHrForecastsData?.value != null) {
                 hourlyForecastsData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
-                precipitationGraphData.postValue(precipGraphMapper.apply(currentHrForecastsData!!.value))
+                hourlyPrecipitationGraphData.postValue(precipGraphMapper.apply(currentHrForecastsData!!.value))
             }
         }
     }
@@ -105,13 +114,25 @@ class ForecastsNowViewModel : ViewModel() {
         }
     }
 
+    private val precipMinGraphMapper = Function<Forecasts?, ForecastGraphViewModel?> { input ->
+        val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+        val now = ZonedDateTime.now(locationData?.tzOffset
+                ?: ZoneOffset.UTC).minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
+        input?.minForecast?.filter { it.date >= now }?.takeUnless { it.isEmpty() }?.let {
+            ForecastGraphViewModel().apply {
+                setMinutelyForecastData(it)
+            }
+        }
+    }
+
     private val forecastObserver: Observer<Forecasts> = Observer<Forecasts> { forecastData ->
         forecastGraphData.postValue(forecastMapper.apply(forecastData))
+        minutelyPrecipitationGraphData.postValue(precipMinGraphMapper.apply(forecastData))
     }
 
     private val hrforecastObserver: Observer<List<HourlyForecast>> = Observer<List<HourlyForecast>> { forecastData ->
         hourlyForecastsData.postValue(hrForecastMapper.apply(forecastData))
-        precipitationGraphData.postValue(precipGraphMapper.apply(forecastData))
+        hourlyPrecipitationGraphData.postValue(precipGraphMapper.apply(forecastData))
     }
 
     override fun onCleared() {

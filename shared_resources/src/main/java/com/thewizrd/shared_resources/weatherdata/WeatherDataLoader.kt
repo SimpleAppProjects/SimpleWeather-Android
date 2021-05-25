@@ -470,7 +470,7 @@ class WeatherDataLoader(private val location: LocationData) {
     }
 
     private suspend fun saveWeatherForecasts() = withContext(Dispatchers.IO) {
-        val forecasts = Forecasts(weather!!.query, weather!!.forecast, weather!!.txtForecast)
+        val forecasts = Forecasts(weather!!)
         settingsMgr.saveWeatherForecasts(forecasts)
         val hrForecasts = ArrayList<HourlyForecasts>()
         if (weather?.hrForecast != null) {

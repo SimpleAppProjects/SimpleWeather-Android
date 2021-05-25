@@ -19,21 +19,24 @@ object TZDBCache {
             // Since we didn't alter the table, there's nothing else to do here.
         }
     }
-
     private val TZDB_MIGRATION_5_6: Migration = object : Migration(5, 6) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Since we didn't alter the table, there's nothing else to do here.
         }
     }
-
     private val TZDB_MIGRATION_6_7: Migration = object : Migration(6, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Since we didn't alter the table, there's nothing else to do here.
+        }
+    }
+    private val TZDB_MIGRATION_7_8: Migration = object : Migration(7, 8) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Since we didn't alter the table, there's nothing else to do here.
         }
     }
 
     private val TZDB_MIGRATION_SET = arrayOf(
-            TZDB_MIGRATION_0_5, TZDB_MIGRATION_5_6, TZDB_MIGRATION_6_7
+            TZDB_MIGRATION_0_5, TZDB_MIGRATION_5_6, TZDB_MIGRATION_6_7, TZDB_MIGRATION_7_8
     )
 
     suspend fun getTimeZone(latitude: Double, longitude: Double): String? {

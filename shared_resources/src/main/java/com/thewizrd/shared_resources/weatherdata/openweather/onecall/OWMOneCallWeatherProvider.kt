@@ -37,7 +37,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
     companion object {
         private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast?appid=%s"
-        private const val WEATHER_QUERY_URL = BASE_URL + "onecall?%s&exclude=minutely&appid=%s&lang=%s"
+        private const val WEATHER_QUERY_URL = BASE_URL + "onecall?%s&appid=%s&lang=%s"
         private const val AQI_QUERY_URL = BASE_URL + "air_pollution?lat=%s&lon=%s&appid=%s"
     }
 
@@ -195,6 +195,11 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
         }
         for (forecast in weather.forecast) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
+        }
+        if (!weather.minForecast.isNullOrEmpty()) {
+            for (min_forecast in weather.minForecast) {
+                min_forecast.date = min_forecast.date.withZoneSameInstant(offset)
+            }
         }
 
         weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
