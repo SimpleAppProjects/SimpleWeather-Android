@@ -2,7 +2,9 @@ package com.thewizrd.shared_resources.weatherdata
 
 import androidx.annotation.StringDef
 import com.thewizrd.shared_resources.BuildConfig
+import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 
 object WeatherAPI {
     // APIs
@@ -14,6 +16,7 @@ object WeatherAPI {
     const val NWS = "NWS"
     const val WEATHERUNLOCKED = "wunlocked"
     const val METEOFRANCE = "meteofrance"
+    const val TOMORROWIO = "tomorrowio"
 
     // Location APIs
     const val ANDROID = "android"
@@ -33,7 +36,7 @@ object WeatherAPI {
      * 5) Add API to WeatherManager
      * 6) Add to remote_config_defaults.xml
      */
-    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE)
+    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE, TOMORROWIO)
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
@@ -46,7 +49,11 @@ object WeatherAPI {
             return if (BuildConfig.IS_NONGMS) {
                 NonGMSAPIs
             } else {
-                GMSFullAPIs
+                if (DevSettingsEnabler.isDevSettingsEnabled(SimpleLibrary.instance.appContext)) {
+                    GMSFullAPIs.plus(TestingAPIs)
+                } else {
+                    GMSFullAPIs
+                }
             }
         }
 
@@ -101,7 +108,18 @@ object WeatherAPI {
                     "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
             ProviderEntry(
                     "WeatherAPI.com", WEATHERAPI,
-                    "https://weatherapi.com", "https://weatherapi.com/api")
+                    "https://weatherapi.com", "https://weatherapi.com/api"),
+            ProviderEntry(
+                    "Tomorrow.io", TOMORROWIO,
+                    "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+            )
+    )
+
+    private val TestingAPIs = listOf(
+            ProviderEntry(
+                    "Tomorrow.io", TOMORROWIO,
+                    "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+            )
     )
 
     private val GMSFullLocationAPIs = listOf(

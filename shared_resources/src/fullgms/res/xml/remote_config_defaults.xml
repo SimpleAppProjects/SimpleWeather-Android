@@ -81,6 +81,16 @@
         </value>
     </entry>
     <entry>
+        <key>tomorrowio</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "LocIQ",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>weatherapi</value>
     </entry>
