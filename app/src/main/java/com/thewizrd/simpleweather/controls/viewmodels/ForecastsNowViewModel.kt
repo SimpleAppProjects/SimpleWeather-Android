@@ -118,7 +118,7 @@ class ForecastsNowViewModel : ViewModel() {
         val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
         val now = ZonedDateTime.now(locationData?.tzOffset
                 ?: ZoneOffset.UTC).minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
-        input?.minForecast?.filter { it.date >= now }?.takeUnless { it.isEmpty() }?.let {
+        input?.minForecast?.filter { it.date >= now }?.takeUnless { it.isEmpty() }?.take(60)?.let {
             ForecastGraphViewModel().apply {
                 setMinutelyForecastData(it)
             }

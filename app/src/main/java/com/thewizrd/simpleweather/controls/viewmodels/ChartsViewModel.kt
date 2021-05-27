@@ -75,7 +75,7 @@ class ChartsViewModel : ViewModel() {
         return@Function if (!input.first?.minForecast.isNullOrEmpty() || !input.second.isNullOrEmpty()) {
             val now = ZonedDateTime.now(locationData?.tzOffset
                     ?: ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
-            createGraphModelData(input.first?.minForecast?.filter { it.date >= now }, input.second)
+            createGraphModelData(input.first?.minForecast?.filter { it.date >= now }?.take(60), input.second)
         } else {
             null
         }
