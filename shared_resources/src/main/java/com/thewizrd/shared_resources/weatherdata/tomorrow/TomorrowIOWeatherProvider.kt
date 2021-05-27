@@ -5,6 +5,7 @@ import android.util.Log
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
@@ -114,7 +115,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
     }
 
     override fun getAPIKey(): String? {
-        return null
+        return Keys.getTomorrowIoKey()
     }
 
     @Throws(WeatherException::class)

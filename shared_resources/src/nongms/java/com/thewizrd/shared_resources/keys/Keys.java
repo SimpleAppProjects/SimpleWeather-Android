@@ -44,4 +44,12 @@ public class Keys {
     public static String getMeteoFranceKey() {
         return null;
     }
+
+    public static String getAmbeeKey() {
+        return null;
+    }
+
+    public static String getTomorrowIoKey() {
+        return null;
+    }
 }

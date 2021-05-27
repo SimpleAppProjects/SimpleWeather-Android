@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.weatherdata.ambee
 
 import android.util.Log
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -31,6 +32,7 @@ class AmbeePollenProvider : PollenProviderInterface {
                 var pollenData: Pollen? = null
 
                 val key = DevSettingsEnabler.getAPIKey(SimpleLibrary.instance.appContext, WeatherAPI.AMBEE)
+                        ?: Keys.getAmbeeKey()
 
                 if (key.isNullOrBlank()) return@withContext null
 
