@@ -131,6 +131,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private var uvControlBinding: WeathernowUvcontrolBinding? = null
     private var beaufortControlBinding: WeathernowBeaufortcontrolBinding? = null
     private var aqiControlBinding: WeathernowAqicontrolBinding? = null
+    private var pollenCountControlBinding: WeathernowPollencountcontrolBinding? = null
     private var moonphaseControlBinding: WeathernowMoonphasecontrolBinding? = null
     private var sunphaseControlBinding: WeathernowSunphasecontrolBinding? = null
     private var radarControlBinding: WeathernowRadarcontrolBinding? = null
@@ -652,13 +653,22 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             binding.listLayout.addView(aqiControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 7))
         }
 
+        run {
+            // Pollen
+            pollenCountControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_pollencountcontrol, binding.listLayout, false, dataBindingComponent)
+            pollenCountControlBinding!!.weatherView = weatherView
+            pollenCountControlBinding!!.lifecycleOwner = viewLifecycleOwner
+
+            binding.listLayout.addView(pollenCountControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 8))
+        }
+
         if (FeatureSettings.isMoonPhaseEnabled()) {
             // Moon Phase
             moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.listLayout, false, dataBindingComponent)
             moonphaseControlBinding!!.weatherView = weatherView
             moonphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(moonphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 8))
+            binding.listLayout.addView(moonphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 9))
         }
 
         if (FeatureSettings.isSunPhaseEnabled()) {
@@ -667,7 +677,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             sunphaseControlBinding!!.weatherView = weatherView
             sunphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(sunphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 9))
+            binding.listLayout.addView(sunphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 10))
         }
 
         // Radar
@@ -698,7 +708,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             radarControlBinding!!.weatherView = weatherView
             radarControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(radarControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 10))
+            binding.listLayout.addView(radarControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 11))
 
             radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), radarControlBinding!!.radarWebviewContainer).apply {
                 enableInteractions(false)

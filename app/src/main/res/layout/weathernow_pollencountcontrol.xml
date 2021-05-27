@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.shared_resources.utils.StringUtils" />
+
+        <variable
+            name="weatherView"
+            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{weatherView.pollen == null ? View.GONE : View.VISIBLE}">
+
+        <TextView
+            android:id="@+id/pollen_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Pollen Count"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/treepollen_label" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/treepollen_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Tree"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/pollen_label"
+            app:layout_constraintBottom_toTopOf="@id/treepollen_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/grasspollen_label"
+            app:layout_constraintHorizontal_chainStyle="packed" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/treepollen_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:singleLine="true"
+            android:text="@{weatherView.pollen != null ? weatherView.pollen.treePollenDesc : null}"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textSize="22sp"
+            android:textColor="@color/colorTextPrimary"
+            style="@style/ShadowText"
+            app:layout_constraintTop_toBottomOf="@id/treepollen_label"
+            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintStart_toStartOf="@id/treepollen_label"
+            app:layout_constraintEnd_toEndOf="@id/treepollen_label"
+            app:autoSizeMaxTextSize="22sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
+            tools:text="Moderate" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/grasspollen_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Grass"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/pollen_label"
+            app:layout_constraintBottom_toTopOf="@id/grasspollen_description"
+            app:layout_constraintStart_toEndOf="@id/treepollen_label"
+            app:layout_constraintEnd_toStartOf="@id/ragweedpollenn_label" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/grasspollen_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:singleLine="true"
+            android:text="@{weatherView.pollen != null ? weatherView.pollen.grassPollenDesc : null}"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textSize="22sp"
+            android:textColor="@color/colorTextPrimary"
+            style="@style/ShadowText"
+            app:layout_constraintTop_toBottomOf="@id/grasspollen_label"
+            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintStart_toStartOf="@id/grasspollen_label"
+            app:layout_constraintEnd_toEndOf="@id/grasspollen_label"
+            app:autoSizeMaxTextSize="22sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
+            tools:text="Moderate" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ragweedpollenn_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Ragweed"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/pollen_label"
+            app:layout_constraintBottom_toTopOf="@id/ragweedpollen_description"
+            app:layout_constraintStart_toEndOf="@id/grasspollen_label"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ragweedpollen_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:singleLine="true"
+            android:text="@{weatherView.pollen != null ? weatherView.pollen.ragweedPollenDesc : null}"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textSize="22sp"
+            android:textColor="@color/colorTextPrimary"
+            style="@style/ShadowText"
+            app:layout_constraintTop_toBottomOf="@id/ragweedpollenn_label"
+            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintStart_toStartOf="@id/ragweedpollenn_label"
+            app:layout_constraintEnd_toEndOf="@id/ragweedpollenn_label"
+            app:autoSizeMaxTextSize="22sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
+            tools:text="Low" />
+
+        <View
+            android:id="@+id/border"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/colorOnSurface"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/treepollen_description"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

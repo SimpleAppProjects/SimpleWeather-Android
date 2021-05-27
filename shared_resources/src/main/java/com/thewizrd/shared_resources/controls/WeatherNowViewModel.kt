@@ -75,6 +75,10 @@ class WeatherNowViewModel() : ObservableViewModel() {
     var airQuality: AirQualityViewModel? = null
         private set
 
+    @get:Bindable
+    var pollen: PollenViewModel? = null
+        private set
+
     // Radar
     @get:Bindable
     val locationCoord: Coordinate
@@ -520,6 +524,11 @@ class WeatherNowViewModel() : ObservableViewModel() {
         notifyPropertyChanged(BR.sunPhase)
         notifyPropertyChanged(BR.moonPhase)
         notifyPropertyChanged(BR.weatherDetails)
+
+        pollen = weatherData?.condition?.pollen?.let {
+            PollenViewModel(it)
+        }
+        notifyPropertyChanged(BR.pollen)
 
         val entry = WeatherAPI.APIs.find { wapi -> weatherSource == wapi?.value }
         weatherCredit = String.format("%s %s",

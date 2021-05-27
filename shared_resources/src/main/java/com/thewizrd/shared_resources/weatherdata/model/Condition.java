@@ -73,6 +73,9 @@ public class Condition extends CustomJsonObject {
     @SerializedName("airQuality")
     private AirQuality airQuality;
 
+    @SerializedName("pollen")
+    private Pollen pollen;
+
     @SerializedName("observation_time")
     private ZonedDateTime observationTime;
 
@@ -225,6 +228,14 @@ public class Condition extends CustomJsonObject {
         this.airQuality = airQuality;
     }
 
+    public Pollen getPollen() {
+        return pollen;
+    }
+
+    public void setPollen(Pollen pollen) {
+        this.pollen = pollen;
+    }
+
     public ZonedDateTime getObservationTime() {
         return observationTime;
     }
@@ -320,6 +331,10 @@ public class Condition extends CustomJsonObject {
                     case "airQuality":
                         this.airQuality = new AirQuality();
                         this.airQuality.fromJson(reader);
+                        break;
+                    case "pollen":
+                        this.pollen = new Pollen();
+                        this.pollen.fromJson(reader);
                         break;
                     case "observation_time":
                         observationTime = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
@@ -428,6 +443,15 @@ public class Condition extends CustomJsonObject {
                     writer.nullValue();
                 else
                     airQuality.toJson(writer);
+            }
+
+            // "pollen" : ""
+            if (pollen != null) {
+                writer.name("pollen");
+                if (pollen == null)
+                    writer.nullValue();
+                else
+                    pollen.toJson(writer);
             }
 
             // "observation_time" : ""
