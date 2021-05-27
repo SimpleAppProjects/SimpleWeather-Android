@@ -1038,8 +1038,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             private const val KEY_ABOUTVERSION = "key_aboutversion"
         }
 
+        private lateinit var devSettingsController: DevSettingsController
+
         override fun getTitle(): Int {
             return R.string.pref_title_about
+        }
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            devSettingsController = DevSettingsController(this, KEY_ABOUTVERSION)
+            super.onCreate(savedInstanceState)
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -1066,7 +1073,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 true
             }
 
-            setupReviewPreference(findPreference<Preference>(KEY_RATEREVIEW)!!)
+            setupReviewPreference(findPreference(KEY_RATEREVIEW)!!)
 
             findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 if (preference.intent != null) {
@@ -1089,6 +1096,16 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             } catch (e: PackageManager.NameNotFoundException) {
                 // should never happen
             }
+
+            devSettingsController.onCreatePreferences(preferenceScreen)
+        }
+
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            if (devSettingsController.onPreferenceTreeClick(preference)) {
+                return true
+            }
+
+            return super.onPreferenceTreeClick(preference)
         }
     }
 

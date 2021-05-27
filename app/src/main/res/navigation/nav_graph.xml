@@ -113,6 +113,9 @@
         <action
             android:id="@+id/action_aboutAppFragment_to_creditsFragment"
             app:destination="@id/creditsFragment" />
+        <action
+            android:id="@+id/action_aboutAppFragment_to_devSettingsFragment"
+            app:destination="@id/devSettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/creditsFragment"
@@ -160,4 +163,8 @@
         android:id="@+id/premiumFragment"
         android:name="com.thewizrd.extras.premium.PremiumFragment"
         android:label="PremiumFragment" />
+    <fragment
+        android:id="@+id/devSettingsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.DevSettingsFragment"
+        android:label="DevSettingsFragment" />
 </navigation>

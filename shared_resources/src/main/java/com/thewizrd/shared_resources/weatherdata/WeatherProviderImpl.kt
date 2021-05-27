@@ -9,8 +9,10 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.weatherdata.ambee.AmbeePollenProvider
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
 import com.thewizrd.shared_resources.weatherdata.model.UV
@@ -150,6 +152,12 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
                 updateAQIData(location, weather)
             } else if (this is AirQualityProviderInterface) {
                 weather.condition.airQuality = this.getAirQualityData(location)
+            }
+        }
+
+        if (weather.condition.pollen == null) {
+            if (DevSettingsEnabler.isDevSettingsEnabled(SimpleLibrary.instance.appContext)) {
+                weather.condition.pollen = AmbeePollenProvider().getPollenData(location)
             }
         }
 

@@ -21,6 +21,9 @@ object WeatherAPI {
     const val GOOGLE = "google"
     const val WEATHERAPI = "weatherapi"
 
+    // External data providers
+    const val AMBEE = "ambee"
+
     /**
      * Note to self: Common steps to adding a new weather provider
      * 1) Implement WeatherProviderImpl class
