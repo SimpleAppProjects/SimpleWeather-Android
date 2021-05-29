@@ -70,10 +70,14 @@ object PoPChanceNotificationHelper {
 
         // Should be within 0-3 hours
         val duration = Duration.between(now, forecast.date).toMinutes()
-        val duraStr = if (duration < 120) {
-            context.getString(R.string.refresh_30min).replace("30", duration.toString())
+        val duraStr = if (duration <= 60) {
+            context.getString(R.string.precipitation_nexthour_text_format, forecast.extras.pop)
+        } else if (duration < 120) {
+            context.getString(R.string.precipitation_text_format, forecast.extras.pop,
+                    context.getString(R.string.refresh_30min).replace("30", duration.toString()))
         } else {
-            context.getString(R.string.refresh_12hrs).replace("12", (duration / 60).toString())
+            context.getString(R.string.precipitation_text_format, forecast.extras.pop,
+                    context.getString(R.string.refresh_12hrs).replace("12", (duration / 60).toString()))
         }
 
         val notifBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
@@ -81,7 +85,7 @@ object PoPChanceNotificationHelper {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(getOnClickIntent(context, location))
-                .setContentTitle(context.getString(R.string.precipitation_text_format, forecast.extras.pop, duraStr))
+                .setContentTitle(duraStr)
                 .setContentText(location.name)
 
         if (wim.isFontIcon) {
