@@ -1,6 +1,5 @@
 package com.thewizrd.shared_resources.weatherdata.model;
 
-import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -10,7 +9,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 
@@ -44,7 +42,7 @@ public class Beaufort extends CustomJsonObject {
             this.value = value;
         }
 
-        private static SparseArray<BeaufortScale> map = new SparseArray<>();
+        private static final SparseArray<BeaufortScale> map = new SparseArray<>();
 
         static {
             for (BeaufortScale scale : values()) {
@@ -65,9 +63,11 @@ public class Beaufort extends CustomJsonObject {
         // Needed for deserialization
     }
 
-    public Beaufort(int beaufortScale) {
-        Context context = SimpleLibrary.getInstance().getAppContext();
+    public Beaufort(BeaufortScale scale) {
+        this.scale = scale;
+    }
 
+    public Beaufort(int beaufortScale) {
         switch (beaufortScale) {
             case 0:
                 scale = BeaufortScale.B0;

@@ -307,7 +307,7 @@ fun createCondition(current: Current): Condition {
                 .getWeatherIcon(current.weather[0].id.toString() + dn)
 
         uv = UV(current.uvi)
-        beaufort = Beaufort(getBeaufortScale(current.windSpeed).value)
+        beaufort = Beaufort(getBeaufortScale(current.windSpeed))
 
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.dt), ZoneOffset.UTC)
     }

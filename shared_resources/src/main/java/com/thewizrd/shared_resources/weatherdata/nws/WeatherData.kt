@@ -327,7 +327,7 @@ fun createCondition(forecastResponse: ForecastResponse): Condition {
         }
 
         if (windMph != null) {
-            beaufort = Beaufort(getBeaufortScale(Math.round(windMph)).value)
+            beaufort = Beaufort(getBeaufortScale(Math.round(windMph)))
         }
 
         observationTime = ZonedDateTime.parse(forecastResponse.creationDate, DateTimeFormatter.ISO_ZONED_DATE_TIME)

@@ -157,7 +157,7 @@ fun createCondition(time: TimeseriesItem): Condition {
             icon = time.data.next1Hours.summary.symbolCode
         }
 
-        beaufort = Beaufort(getBeaufortScale(time.data.instant.details.windSpeed).value)
+        beaufort = Beaufort(getBeaufortScale(time.data.instant.details.windSpeed))
         if (time.data.instant.details.ultravioletIndexClearSky != null) {
             uv = UV(time.data.instant.details.ultravioletIndexClearSky)
         }

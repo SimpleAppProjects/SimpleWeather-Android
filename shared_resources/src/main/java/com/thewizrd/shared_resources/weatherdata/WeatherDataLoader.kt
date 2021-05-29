@@ -331,22 +331,22 @@ class WeatherDataLoader(private val location: LocationData) {
                 }
 
                 if (hrf != null) {
-                    weather!!.condition.weather = hrf.getCondition()
-                    weather!!.condition.icon = hrf.getIcon()
+                    weather!!.condition.weather = hrf.condition
+                    weather!!.condition.icon = hrf.icon
 
-                    weather!!.condition.tempF = hrf.getHighF()
-                    weather!!.condition.tempC = hrf.getHighC()
+                    weather!!.condition.tempF = hrf.highF
+                    weather!!.condition.tempC = hrf.highC
 
                     weather!!.condition.windMph = hrf.windMph
                     weather!!.condition.windKph = hrf.windKph
                     weather!!.condition.windDegrees = hrf.windDegrees
 
                     if (hrf.windMph != null) {
-                        weather!!.condition.beaufort = Beaufort(getBeaufortScale(Math.round(hrf.windMph)).value)
+                        weather!!.condition.beaufort = Beaufort(getBeaufortScale(Math.round(hrf.windMph)))
                     }
-                    weather!!.condition.feelslikeF = hrf.getExtras()?.feelslikeF
-                    weather!!.condition.feelslikeC = hrf.getExtras()?.feelslikeC
-                    weather!!.condition.uv = if (hrf.getExtras()?.uvIndex ?: -1f >= 0) UV(hrf.getExtras().uvIndex) else null
+                    weather!!.condition.feelslikeF = hrf.extras?.feelslikeF
+                    weather!!.condition.feelslikeC = hrf.extras?.feelslikeC
+                    weather!!.condition.uv = if (hrf.extras?.uvIndex ?: -1f >= 0) UV(hrf.extras.uvIndex) else null
 
                     weather!!.condition.observationTime = hrf.date
 
@@ -355,8 +355,8 @@ class WeatherDataLoader(private val location: LocationData) {
                         val fcast = fcasts?.forecast?.find { input -> input != null && input.date.toLocalDate().isEqual(now.toLocalDate()) }
 
                         if (fcast != null) {
-                            weather!!.condition.highF = fcast.getHighF()
-                            weather!!.condition.highC = fcast.getHighC()
+                            weather!!.condition.highF = fcast.highF
+                            weather!!.condition.highC = fcast.highC
                             weather!!.condition.lowF = fcast.lowF
                             weather!!.condition.lowC = fcast.lowC
                         } else {
@@ -367,22 +367,22 @@ class WeatherDataLoader(private val location: LocationData) {
                         }
                     }
 
-                    weather!!.atmosphere.dewpointF = hrf.getExtras()?.dewpointF
-                    weather!!.atmosphere.dewpointC = hrf.getExtras()?.dewpointC
-                    weather!!.atmosphere.humidity = hrf.getExtras()?.humidity
+                    weather!!.atmosphere.dewpointF = hrf.extras?.dewpointF
+                    weather!!.atmosphere.dewpointC = hrf.extras?.dewpointC
+                    weather!!.atmosphere.humidity = hrf.extras?.humidity
                     weather!!.atmosphere.pressureTrend = null
-                    weather!!.atmosphere.pressureIn = hrf.getExtras()?.pressureIn
-                    weather!!.atmosphere.pressureMb = hrf.getExtras()?.pressureMb
-                    weather!!.atmosphere.visibilityMi = hrf.getExtras()?.visibilityMi
-                    weather!!.atmosphere.visibilityKm = hrf.getExtras()?.visibilityKm
+                    weather!!.atmosphere.pressureIn = hrf.extras?.pressureIn
+                    weather!!.atmosphere.pressureMb = hrf.extras?.pressureMb
+                    weather!!.atmosphere.visibilityMi = hrf.extras?.visibilityMi
+                    weather!!.atmosphere.visibilityKm = hrf.extras?.visibilityKm
 
                     if (weather!!.precipitation != null) {
-                        weather!!.precipitation.pop = hrf.getExtras()?.pop
-                        weather!!.precipitation.cloudiness = hrf.getExtras()?.cloudiness
-                        weather!!.precipitation.qpfRainIn = if (hrf.getExtras()?.qpfRainIn ?: -1f >= 0) hrf.getExtras().qpfRainIn else 0.0f
-                        weather!!.precipitation.qpfRainMm = if (hrf.getExtras()?.qpfRainMm ?: -1f >= 0) hrf.getExtras().qpfRainMm else 0.0f
-                        weather!!.precipitation.qpfSnowIn = if (hrf.getExtras()?.qpfSnowIn ?: -1f >= 0) hrf.getExtras().qpfSnowIn else 0.0f
-                        weather!!.precipitation.qpfSnowCm = if (hrf.getExtras()?.qpfSnowCm ?: -1f >= 0) hrf.getExtras().qpfSnowCm else 0.0f
+                        weather!!.precipitation.pop = hrf.extras?.pop
+                        weather!!.precipitation.cloudiness = hrf.extras?.cloudiness
+                        weather!!.precipitation.qpfRainIn = if (hrf.extras?.qpfRainIn ?: -1f >= 0) hrf.extras.qpfRainIn else 0.0f
+                        weather!!.precipitation.qpfRainMm = if (hrf.extras?.qpfRainMm ?: -1f >= 0) hrf.extras.qpfRainMm else 0.0f
+                        weather!!.precipitation.qpfSnowIn = if (hrf.extras?.qpfSnowIn ?: -1f >= 0) hrf.extras.qpfSnowIn else 0.0f
+                        weather!!.precipitation.qpfSnowCm = if (hrf.extras?.qpfSnowCm ?: -1f >= 0) hrf.extras.qpfSnowCm else 0.0f
                     }
 
                     if (request.isShouldSaveData) {

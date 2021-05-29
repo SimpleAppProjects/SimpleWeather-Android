@@ -175,7 +175,7 @@ fun createCondition(currRoot: CurrentResponse): Condition {
         feelslikeF = currRoot.feelslikeF
         feelslikeC = currRoot.feelslikeC
 
-        beaufort = Beaufort(getBeaufortScale(currRoot.windspdMs).value)
+        beaufort = Beaufort(getBeaufortScale(currRoot.windspdMs))
     }
 }
 

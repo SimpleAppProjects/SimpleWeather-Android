@@ -174,7 +174,7 @@ fun createCondition(item: IntervalsItem): Condition {
 
         icon = item.values.weatherCode.toString()
 
-        beaufort = Beaufort(getBeaufortScale(item.values.windSpeed).value)
+        beaufort = Beaufort(getBeaufortScale(item.values.windSpeed))
 
         /*
         highF = ConversionMethods.CtoF(item.values.temperatureMax)

@@ -255,7 +255,7 @@ fun createCondition(current: CurrentRootobject): Condition {
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
                 .getWeatherIcon(current.weather[0].id.toString() + dn)
 
-        beaufort = Beaufort(getBeaufortScale(current.wind.speed).value)
+        beaufort = Beaufort(getBeaufortScale(current.wind.speed))
 
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.dt), ZoneOffset.UTC)
     }

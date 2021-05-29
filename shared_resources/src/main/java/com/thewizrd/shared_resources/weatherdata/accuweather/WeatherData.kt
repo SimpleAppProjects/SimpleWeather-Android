@@ -255,7 +255,7 @@ fun createCondition(current: CurrentsResponseItem, daily: DailyForecastsItem? = 
         feelslikeC = current.realFeelTemperature?.metric?.value
 
         current.wind?.speed?.imperial?.value?.let {
-            beaufort = Beaufort(getBeaufortScale(it.roundToInt()).value)
+            beaufort = Beaufort(getBeaufortScale(it.roundToInt()))
         }
 
         current.uVIndex?.let {

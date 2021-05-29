@@ -162,7 +162,7 @@ fun createCondition(current: Current, tzId: String): Condition {
         icon = WeatherManager.getProvider(WeatherAPI.WEATHERAPI)
                 .getWeatherIcon(current.isDay == 0, current.condition!!.code!!.toString())
 
-        beaufort = Beaufort(getBeaufortScale(windMph.toInt()).value)
+        beaufort = Beaufort(getBeaufortScale(windMph.toInt()))
         uv = UV(current.uv!!)
 
         airQuality = createAirQuality(current.airQuality)
