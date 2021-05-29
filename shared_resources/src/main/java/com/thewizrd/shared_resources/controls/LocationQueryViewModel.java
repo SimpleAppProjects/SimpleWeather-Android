@@ -41,13 +41,28 @@ public class LocationQueryViewModel {
         locationCountry = data.getCountryCode();
     }
 
+    public static LocationQueryViewModel clone(LocationQueryViewModel model) {
+        LocationQueryViewModel newModel = new LocationQueryViewModel();
+
+        newModel.locationQuery = model.getLocationQuery();
+        newModel.locationName = model.getLocationName();
+        newModel.locationLat = model.getLocationLat();
+        newModel.locationLong = model.getLocationLong();
+        newModel.locationTZLong = model.getLocationTZLong();
+        newModel.weatherSource = model.getWeatherSource();
+        newModel.locationSource = model.getLocationSource();
+        newModel.locationCountry = model.getLocationCountry();
+
+        return newModel;
+    }
+
     private void updateLocationQuery() {
         DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(Locale.ROOT);
         df.applyPattern("0.####");
 
         if (WeatherAPI.HERE.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(locationLat), df.format(locationLong));
-        } else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherSource) || WeatherAPI.WEATHERAPI.equals(weatherSource) || WeatherAPI.TOMORROWIO.equals(weatherSource)) {
+        } else if (WeatherAPI.WEATHERUNLOCKED.equals(weatherSource) || WeatherAPI.WEATHERAPI.equals(weatherSource) || WeatherAPI.TOMORROWIO.equals(weatherSource) || WeatherAPI.ACCUWEATHER.equals(weatherSource)) {
             locationQuery = String.format(Locale.ROOT, "%s,%s", df.format(locationLat), df.format(locationLong));
         } else {
             locationQuery = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(locationLat), df.format(locationLong));

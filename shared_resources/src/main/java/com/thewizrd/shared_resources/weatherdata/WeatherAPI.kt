@@ -17,6 +17,7 @@ object WeatherAPI {
     const val WEATHERUNLOCKED = "wunlocked"
     const val METEOFRANCE = "meteofrance"
     const val TOMORROWIO = "tomorrowio"
+    const val ACCUWEATHER = "accuweather"
 
     // Location APIs
     const val ANDROID = "android"
@@ -36,7 +37,7 @@ object WeatherAPI {
      * 5) Add API to WeatherManager
      * 6) Add to remote_config_defaults.xml
      */
-    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE, TOMORROWIO)
+    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE, TOMORROWIO, ACCUWEATHER)
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
@@ -67,16 +68,15 @@ object WeatherAPI {
         }
 
     private val GMSFullAPIs = listOf(
-        ProviderEntry(
-            "HERE Weather",
-            HERE,
-            "https://www.here.com/en",
-            "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
-        ),
-        ProviderEntry(
-            "MET Norway", METNO,
-                "https://www.met.no/en", "https://www.met.no/en"
-        ),
+            ProviderEntry(
+                    "HERE Weather", HERE,
+                    "https://www.here.com/en",
+                    "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
+            ),
+            ProviderEntry(
+                    "MET Norway", METNO,
+                    "https://www.met.no/en", "https://www.met.no/en"
+            ),
             ProviderEntry(
                     "National Weather Service (United States)", NWS,
                     "https://www.weather.gov", "https://www.weather.gov"
@@ -119,6 +119,10 @@ object WeatherAPI {
             ProviderEntry(
                     "Tomorrow.io", TOMORROWIO,
                     "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+            ),
+            ProviderEntry(
+                    "AccuWeather", ACCUWEATHER,
+                    "https://www.accuweather.com/", "https://developer.accuweather.com/"
             )
     )
 
@@ -130,11 +134,17 @@ object WeatherAPI {
             ProviderEntry("Google", GOOGLE,
                     "https://google.com/maps", "https://google.com/maps"),
             ProviderEntry("WeatherAPI.com", WEATHERAPI,
-                    "https://weatherapi.com", "https://weatherapi.com/api")
+                    "https://weatherapi.com", "https://weatherapi.com/api"),
+            ProviderEntry("Google", ACCUWEATHER,
+                    /* Uses AndroidLocationProvider | accuweather is used for locationid only */
+                    "https://google.com/maps", "https://google.com/maps")
     )
 
     private val NonGMSLocationAPIs = listOf(
             ProviderEntry("Google", ANDROID,
+                    "https://google.com/maps", "https://google.com/maps"),
+            ProviderEntry("Google", ACCUWEATHER,
+                    /* Uses AndroidLocationProvider | accuweather is used for locationid only */
                     "https://google.com/maps", "https://google.com/maps")
     )
 }

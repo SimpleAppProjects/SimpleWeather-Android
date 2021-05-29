@@ -50,7 +50,7 @@
     <string name="label_airquality">"Index kvality ovzdušia"</string>
     <string name="label_airquality_short">"Kvalita ovzdušia"</string>
     <string name="label_radar">"Radar"</string>
-    <string name="label_day">"Popoludní"</string>
+    <string name="label_afternoon">"Popoludní"</string>
     <string name="label_eve">"Večer"</string>
     <string name="label_morning">"Ráno"</string>
     <string name="label_night">"Noc"</string>

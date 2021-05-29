@@ -70,7 +70,7 @@
     <string name="label_airquality">"Luftqualitätsindex"</string>
     <string name="label_airquality_short">"Luftqualität"</string>
     <string name="label_radar">"Radar"</string>
-    <string name="label_day">"Nachmittag"</string>
+    <string name="label_afternoon">"Nachmittag"</string>
     <string name="label_eve">"Abend"</string>
     <string name="label_morning">"Morgen"</string>
     <string name="label_night">"Nacht"</string>

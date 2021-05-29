@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
+import com.thewizrd.shared_resources.weatherdata.accuweather.AccuWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.here.HEREWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.meteofrance.MeteoFranceProvider
 import com.thewizrd.shared_resources.weatherdata.metno.MetnoWeatherProvider
@@ -59,6 +60,7 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
                 WeatherAPI.WEATHERUNLOCKED -> providerImpl = WeatherUnlockedProvider()
                 WeatherAPI.METEOFRANCE -> providerImpl = MeteoFranceProvider()
                 WeatherAPI.TOMORROWIO -> providerImpl = TomorrowIOWeatherProvider()
+                WeatherAPI.ACCUWEATHER -> providerImpl = AccuWeatherProvider()
                 else -> {
                     if (!BuildConfig.DEBUG) {
                         providerImpl = if (!BuildConfig.IS_NONGMS)

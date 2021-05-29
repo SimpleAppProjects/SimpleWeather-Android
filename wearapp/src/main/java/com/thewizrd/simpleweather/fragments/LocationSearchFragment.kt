@@ -94,8 +94,8 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                     // Need to get FULL location data for HERE API
                     // Data provided is incomplete
-                    if (queryResult?.locationLat == -1.0 && queryResult.locationLong == -1.0 && queryResult.locationTZLong == null && wm.getLocationProvider().needsLocationFromID()) {
-                        val loc = queryResult
+                    if (wm.getLocationProvider().needsLocationFromID()) {
+                        val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
                             wm.getLocationProvider().getLocationFromID(loc)
                         }

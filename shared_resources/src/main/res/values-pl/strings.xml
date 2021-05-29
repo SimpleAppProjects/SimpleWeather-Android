@@ -50,7 +50,7 @@
     <string name="label_airquality">"Wskaźnik jakości powietrza"</string>
     <string name="label_airquality_short">"Jakość powietrza"</string>
     <string name="label_radar">"Radar"</string>
-    <string name="label_day">"Popołudnie"</string>
+    <string name="label_afternoon">"Popołudnie"</string>
     <string name="label_eve">"Wieczór"</string>
     <string name="label_morning">"Poranek"</string>
     <string name="label_night">"Noc"</string>

@@ -216,7 +216,7 @@ fun createTextForecast(forecast: DailyItem): TextForecast {
                 ConversionMethods.KtoF(forecast.feelsLike.morn).roundToInt()))
         sb.append(StringUtils.lineSeparator())
         sb.append(String.format(Locale.ROOT,
-                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_day),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_afternoon),
                 context.getString(R.string.label_temp),
                 ConversionMethods.KtoF(forecast.temp.day).roundToInt(),
                 context.getString(R.string.label_feelslike),
@@ -247,7 +247,7 @@ fun createTextForecast(forecast: DailyItem): TextForecast {
                 ConversionMethods.KtoC(forecast.feelsLike.morn).roundToInt()))
         sb_metric.append(StringUtils.lineSeparator())
         sb_metric.append(String.format(Locale.ROOT,
-                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_day),
+                "%s - %s: %s°; %s: %s°", context.getString(R.string.label_afternoon),
                 context.getString(R.string.label_temp),
                 ConversionMethods.KtoC(forecast.temp.day).roundToInt(),
                 context.getString(R.string.label_feelslike),

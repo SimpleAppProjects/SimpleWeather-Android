@@ -42,5 +42,20 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
                 true
             }
         })
+
+        apiKeyCategory.addPreference(EditTextPreference(context).apply {
+            title = "AccuWeather Key"
+            dialogTitle = "API Key"
+
+            key = WeatherAPI.ACCUWEATHER
+            summaryProvider = Preference.SummaryProvider<EditTextPreference> {
+                DevSettingsEnabler.getAPIKey(it.context, WeatherAPI.ACCUWEATHER) ?: "null"
+            }
+            isPersistent = false
+            onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+                DevSettingsEnabler.setAPIKey(preference.context, preference.key, newValue?.toString())
+                true
+            }
+        })
     }
 }

@@ -15,7 +15,7 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.HashSet
 
-class AndroidLocationProvider : LocationProviderImpl() {
+open class AndroidLocationProvider : LocationProviderImpl() {
     @LocationProviders
     override fun getLocationAPI(): String {
         return WeatherAPI.ANDROID

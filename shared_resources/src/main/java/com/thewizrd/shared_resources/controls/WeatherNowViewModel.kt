@@ -492,19 +492,25 @@ class WeatherNowViewModel() : ObservableViewModel() {
             weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise))
             weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase!!.sunset))
 
-            if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null
-                && weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())
-                && weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+            if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.instance.app.appContext)) {
-                    weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
-                    weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
+                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                                weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
+                    }
+                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
+                                weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
+                    }
                 } else {
-                    weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                            weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
-                    weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
-                            weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
+                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
+                                weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
+                    }
+                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
+                                weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
+                    }
                 }
             }
 

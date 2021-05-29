@@ -50,7 +50,7 @@
     <string name="label_airquality">"Índice de calidad del aire"</string>
     <string name="label_airquality_short">"Calidad del aire"</string>
     <string name="label_radar">"Radar"</string>
-    <string name="label_day">"Tarde"</string>
+    <string name="label_afternoon">"Tarde"</string>
     <string name="label_eve">"Noche"</string>
     <string name="label_morning">"Mañana"</string>
     <string name="label_night">"Noche"</string>
