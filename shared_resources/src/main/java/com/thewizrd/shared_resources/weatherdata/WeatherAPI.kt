@@ -45,25 +45,33 @@ object WeatherAPI {
     @Retention(AnnotationRetention.SOURCE)
     annotation class LocationProviders
 
-    val APIs: List<ProviderEntry>
+    val APIs: Set<ProviderEntry>
         get() {
             return if (BuildConfig.IS_NONGMS) {
-                NonGMSAPIs
+                if (DevSettingsEnabler.isDevSettingsEnabled(SimpleLibrary.instance.appContext)) {
+                    NonGMSAPIs.toMutableSet().apply {
+                        plusAssign(TestingAPIs)
+                    }
+                } else {
+                    NonGMSAPIs.toSet()
+                }
             } else {
                 if (DevSettingsEnabler.isDevSettingsEnabled(SimpleLibrary.instance.appContext)) {
-                    GMSFullAPIs.plus(TestingAPIs)
+                    GMSFullAPIs.toMutableSet().apply {
+                        plusAssign(TestingAPIs)
+                    }
                 } else {
-                    GMSFullAPIs
+                    GMSFullAPIs.toSet()
                 }
             }
         }
 
-    val LocationAPIs: List<ProviderEntry>
+    val LocationAPIs: Set<ProviderEntry>
         get() {
             return if (BuildConfig.IS_NONGMS) {
-                NonGMSLocationAPIs
+                NonGMSLocationAPIs.toSet()
             } else {
-                GMSFullLocationAPIs
+                GMSFullLocationAPIs.toSet()
             }
         }
 

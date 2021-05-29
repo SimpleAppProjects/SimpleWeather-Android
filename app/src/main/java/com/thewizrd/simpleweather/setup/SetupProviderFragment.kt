@@ -88,18 +88,18 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         val entries = arrayOfNulls<String>(providers.size)
         val entryValues = arrayOfNulls<String>(providers.size)
 
-        for (i in providers.indices) {
-            entries[i] = providers[i].display
-            entryValues[i] = providers[i].value
+        providers.forEachIndexed { i, it ->
+            entries[i] = it.display
+            entryValues[i] = it.value
         }
 
         providerPref.entries = entries
         providerPref.entryValues = entryValues
         providerPref.isPersistent = false
         providerPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
-                val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(newValue.toString())
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val pref = preference as ListPreference
+                    val selectedWProv = WeatherManager.getProvider(newValue.toString())
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
