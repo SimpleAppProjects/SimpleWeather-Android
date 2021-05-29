@@ -6,10 +6,8 @@ import android.content.Intent
 import android.util.Log
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.CommonActions
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.services.*
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
 import com.thewizrd.simpleweather.wearable.WearableWorker
@@ -19,6 +17,8 @@ import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class CommonActionsBroadcastReceiver : BroadcastReceiver() {
     companion object {
@@ -31,6 +31,8 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
         } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS == intent.action) {
             WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDUPDATE)
+            // Reset notification time for new location
+            App.instance.settingsManager.setLastPoPChanceNotificationTime(ZonedDateTime.of(DateTimeUtils.getLocalDateTimeMIN(), ZoneOffset.UTC))
         } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT == intent.action) {
             WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
             WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
@@ -42,6 +44,8 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             if (intent.getBooleanExtra(CommonActions.EXTRA_FORCEUPDATE, true)) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             }
+            // Reset notification time for new location
+            App.instance.settingsManager.setLastPoPChanceNotificationTime(ZonedDateTime.of(DateTimeUtils.getLocalDateTimeMIN(), ZoneOffset.UTC))
         } else if (CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION == intent.action) {
             val oldKey = intent.getStringExtra(Constants.WIDGETKEY_OLDKEY)
             val locationJson = intent.getStringExtra(Constants.WIDGETKEY_LOCATION)
