@@ -176,6 +176,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         suspend fun executeWork(context: Context): Boolean {
             val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
+            var locationChanged = false
 
             runCatching {
                 // Update configuration
@@ -185,7 +186,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             if (settingsManager.isWeatherLoaded()) {
                 if (settingsManager.useFollowGPS()) {
                     try {
-                        updateLocation()
+                        locationChanged = updateLocation()
                     } catch (e: Exception) {
                         Logger.writeLine(Log.ERROR, e)
                     }
@@ -218,9 +219,11 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     }
 
                     // Update data for Wearables
-                    LocalBroadcastManager.getInstance(context)
-                            .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-                                    .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
+                    if (locationChanged) {
+                        LocalBroadcastManager.getInstance(context)
+                                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
+                    }
                     LocalBroadcastManager.getInstance(context)
                             .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                 } else {
