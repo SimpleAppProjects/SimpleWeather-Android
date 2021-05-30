@@ -12,12 +12,14 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.extras.checkPremiumStatus
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class LaunchActivity : UserLocaleActivity() {
     companion object {
@@ -27,6 +29,7 @@ class LaunchActivity : UserLocaleActivity() {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private var appUpdateManager: InAppUpdateManager? = null
+    private val settingsMgr = App.instance.settingsManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +50,14 @@ class LaunchActivity : UserLocaleActivity() {
             return
         }
 
-        // Update configuration
-        RemoteConfig.checkConfig()
+        if (!settingsMgr.isWeatherLoaded() && !settingsMgr.isOnBoardingComplete()) {
+            runBlocking(Dispatchers.Default) {
+                RemoteConfig.checkConfigAsync()
+            }
+        } else {
+            // Update configuration
+            RemoteConfig.checkConfig()
+        }
 
         // Check premium status
         checkPremiumStatus()
@@ -77,7 +86,6 @@ class LaunchActivity : UserLocaleActivity() {
     }
 
     private fun startMainActivity() {
-        val settingsMgr = App.instance.settingsManager
         var intent: Intent? = null
 
         try {

@@ -91,6 +91,16 @@
         </value>
     </entry>
     <entry>
+        <key>accuweather</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "accuweather",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>weatherapi</value>
     </entry>
