@@ -118,4 +118,5 @@
     <!-- Example: 80% chance of rain in 2 hours
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
     <string name="precipitation_text_format">"%1$d%% Chance auf Regen in %2$s"</string>
+    <string name="precipitation_nexthour_text_format">"%1$d%% Chance auf Regen in der nächsten Stunde"</string>
 </resources>

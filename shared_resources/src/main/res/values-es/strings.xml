@@ -187,4 +187,5 @@
     <!-- Icons -->
     <string name="pref_title_icons">"Iconos"</string>
     <string name="refresh_30min">"30 minutos"</string>
+    <string name="label_day">"Día"</string>
 </resources>

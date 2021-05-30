@@ -166,4 +166,7 @@
     <!-- Icons -->
     <string name="pref_title_icons">"Ikony"</string>
     <string name="refresh_30min">"30 minút"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_day">"Deň"</string>
 </resources>
