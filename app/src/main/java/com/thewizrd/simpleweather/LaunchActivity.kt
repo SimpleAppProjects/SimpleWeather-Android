@@ -17,9 +17,7 @@ import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class LaunchActivity : UserLocaleActivity() {
     companion object {
@@ -50,14 +48,8 @@ class LaunchActivity : UserLocaleActivity() {
             return
         }
 
-        if (!settingsMgr.isWeatherLoaded() && !settingsMgr.isOnBoardingComplete()) {
-            runBlocking(Dispatchers.Default) {
-                RemoteConfig.checkConfigAsync()
-            }
-        } else {
-            // Update configuration
-            RemoteConfig.checkConfig()
-        }
+        // Update configuration
+        RemoteConfig.checkConfig()
 
         // Check premium status
         checkPremiumStatus()
