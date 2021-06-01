@@ -17,7 +17,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import androidx.core.os.postDelayed
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.thewizrd.shared_resources.AppState
@@ -45,6 +44,7 @@ import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.*
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
 
@@ -187,6 +187,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 if (settingsManager.useFollowGPS()) {
                     try {
                         locationChanged = updateLocation()
+                        Timber.tag(TAG).i("locationChanged = $locationChanged...")
+                    } catch (e: CancellationException) {
+                        // ignore
                     } catch (e: Exception) {
                         Logger.writeLine(Log.ERROR, e)
                     }
@@ -239,15 +242,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         // Re-schedule alarm at selected interval from now
         private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
             val settingsManager = App.instance.settingsManager
+
+            Timber.tag(TAG).d("Getting weather data for home...")
+
             val weather = try {
                 val locData = settingsManager.getHomeData() ?: return@withContext null
                 WeatherDataLoader(locData)
-                        .loadWeatherData(WeatherRequest.Builder()
-                                .forceRefresh(false)
-                                .loadAlerts()
-                                .loadForecasts()
-                                .build()
-                        )
+                    .loadWeatherData(
+                        WeatherRequest.Builder()
+                            .forceRefresh(false)
+                            .loadAlerts()
+                            .loadForecasts()
+                            .build()
+                    )
             } catch (ex: Exception) {
                 Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
                 null
@@ -259,15 +266,18 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val settingsManager = App.instance.settingsManager
             val locations = settingsManager.getFavorites() ?: emptyList()
 
+            Timber.tag(TAG).d("Preloading weather data for favorites...")
+
             for (location in locations) {
                 if (WidgetUtils.exists(location.query)) {
                     try {
                         WeatherDataLoader(location)
-                                .loadWeatherData(WeatherRequest.Builder()
-                                        .forceRefresh(false)
-                                        .loadAlerts()
-                                        .build()
-                                )
+                            .loadWeatherData(
+                                WeatherRequest.Builder()
+                                    .forceRefresh(false)
+                                    .loadAlerts()
+                                    .build()
+                            )
                     } catch (ex: Exception) {
                         Logger.writeLine(Log.ERROR, ex, "%s: preloadWeather error", TAG)
                     }

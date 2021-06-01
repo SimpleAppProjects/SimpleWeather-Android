@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.*
 
 class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -90,6 +91,9 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
         private const val PERSISTENT_NOT_ID = JOB_ID
 
         suspend fun refreshNotification(context: Context, forceRefresh: Boolean) {
+            Timber.tag("WeatherNotifWorker")
+                .d("Refreshing notification (forceRefresh = $forceRefresh)...")
+
             val settingsManager = SettingsManager(context.applicationContext)
 
             if (settingsManager.isWeatherLoaded()) {

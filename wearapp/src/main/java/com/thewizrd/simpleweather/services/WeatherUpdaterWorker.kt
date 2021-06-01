@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import androidx.core.os.postDelayed
 import androidx.work.*
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.location.LocationProvider
@@ -38,6 +37,7 @@ import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.*
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
 
@@ -169,6 +169,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 if (settingsManager.getDataSync() == WearableDataSync.OFF && settingsManager.useFollowGPS()) {
                     try {
                         updateLocation()
+                    } catch (e: CancellationException) {
+                        // ignore
                     } catch (e: Exception) {
                         Logger.writeLine(Log.ERROR, e)
                     }
