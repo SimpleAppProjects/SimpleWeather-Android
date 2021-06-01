@@ -18,8 +18,9 @@ import kotlinx.coroutines.*
 class WeatherWidgetService : Service() {
     private lateinit var mAppWidgetManager: AppWidgetManager
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var stopServiceJob: Job? = null
+    private val runningJobs = mutableListOf<Job>()
 
     companion object {
         private const val TAG = "WeatherWidgetService"
@@ -92,10 +93,15 @@ class WeatherWidgetService : Service() {
                 scope.launch {
                     withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
-                                ?: return@withContext
-                        WidgetUpdaterHelper.refreshWidget(applicationContext, info, mAppWidgetManager, appWidgetIds)
+                            ?: return@withContext
+                        WidgetUpdaterHelper.refreshWidget(
+                            applicationContext,
+                            info,
+                            mAppWidgetManager,
+                            appWidgetIds
+                        )
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             ACTION_RESETGPSWIDGETS -> {
                 scope.launch {
@@ -103,14 +109,14 @@ class WeatherWidgetService : Service() {
                         // GPS feature disabled; reset widget
                         WidgetUpdaterHelper.resetGPSWidgets(applicationContext);
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             ACTION_REFRESHGPSWIDGETS -> {
                 scope.launch {
                     withContext(Dispatchers.Default) {
                         WidgetUpdaterHelper.refreshWidgets(applicationContext, Constants.KEY_GPS);
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             ACTION_REFRESHWIDGETS -> {
                 val locationQuery = intent.getStringExtra(EXTRA_LOCATIONQUERY)
@@ -120,7 +126,7 @@ class WeatherWidgetService : Service() {
                             WidgetUpdaterHelper.refreshWidgets(applicationContext, it);
                         }
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             ACTION_UPDATECLOCK -> {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
@@ -129,10 +135,10 @@ class WeatherWidgetService : Service() {
                 scope.launch {
                     withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
-                                ?: return@withContext
+                            ?: return@withContext
                         WidgetUpdaterHelper.refreshClock(applicationContext, info, appWidgetIds)
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             ACTION_UPDATEDATE -> {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
@@ -141,10 +147,10 @@ class WeatherWidgetService : Service() {
                 scope.launch {
                     withContext(Dispatchers.Default) {
                         val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
-                                ?: return@withContext
+                            ?: return@withContext
                         WidgetUpdaterHelper.refreshDate(applicationContext, info, appWidgetIds)
                     }
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             else -> {
                 postStopService()
@@ -154,8 +160,12 @@ class WeatherWidgetService : Service() {
         return START_STICKY
     }
 
-    private val checkStopSelfCompletionHandler = { _: Throwable? ->
-        postStopService()
+    private fun registerJob(job: Job) {
+        runningJobs += job
+        job.invokeOnCompletion {
+            runningJobs -= job
+            postStopService()
+        }
     }
 
     private fun postStopService() {
@@ -165,8 +175,10 @@ class WeatherWidgetService : Service() {
 
             ensureActive()
 
-            Logger.writeLine(Log.INFO, "${TAG}: stopping service...")
-            stopSelf()
+            if (runningJobs.isEmpty()) {
+                Logger.writeLine(Log.INFO, "${TAG}: stopping service...")
+                stopSelf()
+            }
         }
     }
 }

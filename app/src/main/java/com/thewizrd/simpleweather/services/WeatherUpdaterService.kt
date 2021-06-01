@@ -16,8 +16,9 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import kotlinx.coroutines.*
 
 class WeatherUpdaterService : Service() {
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var stopServiceJob: Job? = null
+    private val runningJobs = mutableListOf<Job>()
 
     companion object {
         private const val TAG = "WeatherUpdaterService"
@@ -70,17 +71,17 @@ class WeatherUpdaterService : Service() {
             WidgetUpdaterWorker.ACTION_UPDATEWIDGETS -> {
                 scope.launch {
                     WidgetUpdaterWorker.executeWork(applicationContext)
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             WeatherUpdaterWorker.ACTION_UPDATEWEATHER -> {
                 scope.launch {
                     WeatherUpdaterWorker.executeWork(applicationContext)
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             DailyWeatherNotificationWorkerActions.ACTION_SENDNOTIFICATION -> {
                 scope.launch {
                     DailyWeatherNotificationWorker.executeWork(applicationContext)
-                }.invokeOnCompletion(checkStopSelfCompletionHandler)
+                }.also { registerJob(it) }
             }
             else -> {
                 postStopService()
@@ -90,8 +91,12 @@ class WeatherUpdaterService : Service() {
         return START_STICKY
     }
 
-    private val checkStopSelfCompletionHandler = { _: Throwable? ->
-        postStopService()
+    private fun registerJob(job: Job) {
+        runningJobs += job
+        job.invokeOnCompletion {
+            runningJobs -= job
+            postStopService()
+        }
     }
 
     private fun postStopService() {
@@ -101,8 +106,10 @@ class WeatherUpdaterService : Service() {
 
             ensureActive()
 
-            Logger.writeLine(Log.INFO, "${TAG}: stopping service...")
-            stopSelf()
+            if (runningJobs.isEmpty()) {
+                Logger.writeLine(Log.INFO, "${TAG}: stopping service...")
+                stopSelf()
+            }
         }
     }
 }
