@@ -73,7 +73,6 @@ class SetupFragment : CustomFragment() {
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
                 mLocation = location
 
                 Timber.tag(TAG).i("Location update received...")
@@ -86,6 +85,12 @@ class SetupFragment : CustomFragment() {
                         fetchGeoLocation()
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
+                enableControls(true)
+                showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
             }
         }
         mRequestingLocationUpdates = false
@@ -397,8 +402,7 @@ class SetupFragment : CustomFragment() {
             Timber.tag(TAG).i("Requesting location updates...")
 
             mRequestingLocationUpdates = true
-            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-            mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper(), 30000)
         }
 
         coroutineContext.ensureActive()
@@ -407,12 +411,6 @@ class SetupFragment : CustomFragment() {
             mLocation = location
             fetchGeoLocation()
         }
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
-        enableControls(true)
-        showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

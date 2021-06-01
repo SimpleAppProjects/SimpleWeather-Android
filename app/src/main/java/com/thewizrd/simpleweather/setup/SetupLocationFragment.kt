@@ -92,7 +92,6 @@ class SetupLocationFragment : CustomFragment() {
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
                 mLocation = location
 
                 Timber.tag(TAG).i("Location update received...")
@@ -100,11 +99,27 @@ class SetupLocationFragment : CustomFragment() {
                 runWithView {
                     if (mLocation == null) {
                         enableControls(true)
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                R.string.error_retrieve_location,
+                                Snackbar.Duration.SHORT
+                            ), null
+                        )
                     } else {
                         fetchGeoLocation()
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
+                enableControls(true)
+                showSnackbar(
+                    Snackbar.make(
+                        R.string.error_retrieve_location,
+                        Snackbar.Duration.SHORT
+                    ), null
+                )
             }
         }
         mRequestingLocationUpdates = false
@@ -450,8 +465,7 @@ class SetupLocationFragment : CustomFragment() {
             Timber.tag(TAG).i("Requesting location updates...")
 
             mRequestingLocationUpdates = true
-            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-            mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper(), 30000)
         }
 
         coroutineContext.ensureActive()
@@ -460,12 +474,6 @@ class SetupLocationFragment : CustomFragment() {
             mLocation = location
             fetchGeoLocation()
         }
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
-        enableControls(true)
-        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

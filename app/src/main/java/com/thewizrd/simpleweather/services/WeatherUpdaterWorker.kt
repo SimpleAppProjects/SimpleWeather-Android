@@ -312,7 +312,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                     Timber.tag(TAG).i("Requesting location updates...")
 
-                    location = suspendCancellableCoroutine<Location?> { continuation ->
+                    location = suspendCancellableCoroutine { continuation ->
                         val locationCallback = object : LocationProvider.Callback {
                             override fun onLocationChanged(location: Location?) {
                                 handler.removeCallbacksAndMessages(null)
@@ -324,6 +324,11 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                                 }
                                 handlerThread.quitSafely()
                             }
+
+                            override fun onRequestTimedOut() {
+                                Timber.tag(TAG).i("Location update timed out...")
+                                continuation.cancel()
+                            }
                         }
 
                         continuation.invokeOnCancellation {
@@ -332,17 +337,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                             handlerThread.quitSafely()
                         }
 
-                        locationProvider.requestSingleUpdate(locationCallback, handlerThread.looper)
-
                         // Timeout after 60s
-                        handler.postDelayed(60000) {
-                            locationProvider.stopLocationUpdates()
-                            Timber.tag(TAG).i("Location update timed out...")
-                            if (continuation.isActive) {
-                                continuation.resume(null)
-                            }
-                            handlerThread.quitSafely()
-                        }
+                        locationProvider.requestSingleUpdate(
+                            locationCallback,
+                            handlerThread.looper,
+                            60000
+                        )
                     }
                 }
 

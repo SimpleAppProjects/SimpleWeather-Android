@@ -9,9 +9,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import androidx.core.os.postDelayed
 
 @SuppressLint("MissingPermission")
 class LocationProvider(private val context: Context) {
@@ -19,10 +21,20 @@ class LocationProvider(private val context: Context) {
 
     private var locationListener: LocationListener? = null
 
+    private val mMainHandler = Handler(Looper.getMainLooper())
+    private val handlerToken = Object()
+
     private fun checkPermissions(): Boolean {
         if (!LocationManagerCompat.isLocationEnabled(mLocationMgr) ||
-            !(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-              ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            !(ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED)
+        ) {
             return false
         }
 
@@ -42,7 +54,7 @@ class LocationProvider(private val context: Context) {
         return mLocationMgr.getLastKnownLocation(provider)
     }
 
-    fun requestSingleUpdate(callback: Callback, looper: Looper?) {
+    fun requestSingleUpdate(callback: Callback, looper: Looper?, timeoutInMs: Long? = null) {
         if (!checkPermissions()) {
             callback.onLocationChanged(null)
             return
@@ -56,6 +68,7 @@ class LocationProvider(private val context: Context) {
 
         locationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
+                mMainHandler.removeCallbacksAndMessages(handlerToken)
                 callback.onLocationChanged(location)
             }
 
@@ -74,7 +87,15 @@ class LocationProvider(private val context: Context) {
         }
 
         val provider = mLocationMgr.getBestProvider(locCriteria, true)
-                       ?: return callback.onLocationChanged(null)
+            ?: return callback.onLocationChanged(null)
+
+        timeoutInMs?.let {
+            mMainHandler.postDelayed(it, handlerToken) {
+                stopLocationUpdates()
+                callback.onRequestTimedOut()
+            }
+        }
+
         mLocationMgr.requestSingleUpdate(provider, locationListener!!, looper)
     }
 
@@ -86,5 +107,6 @@ class LocationProvider(private val context: Context) {
 
     interface Callback {
         fun onLocationChanged(location: Location?)
+        fun onRequestTimedOut()
     }
 }

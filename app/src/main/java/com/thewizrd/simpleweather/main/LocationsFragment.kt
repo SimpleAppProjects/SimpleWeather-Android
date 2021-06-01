@@ -283,15 +283,30 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                 runWithView {
                     if (location != null) {
                         addGPSPanel()
                     } else {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                R.string.error_retrieve_location,
+                                Snackbar.Duration.SHORT
+                            ), null
+                        )
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
+                showSnackbar(
+                    Snackbar.make(
+                        R.string.error_retrieve_location,
+                        Snackbar.Duration.SHORT
+                    ), null
+                )
+                removeGPSPanel()
             }
         }
         mRequestingLocationUpdates = false
@@ -803,8 +818,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
              */
             if (location == null && !mRequestingLocationUpdates) {
                 mRequestingLocationUpdates = true
-                locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+                locationProvider.requestSingleUpdate(
+                    locationCallback,
+                    Looper.getMainLooper(),
+                    30000
+                )
             }
 
             if (location != null && !mRequestingLocationUpdates) {
@@ -839,12 +857,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
 
         return locationData
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
-        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
-        removeGPSPanel()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

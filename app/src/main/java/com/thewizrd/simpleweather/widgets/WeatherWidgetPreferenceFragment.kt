@@ -62,7 +62,6 @@ import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackgroundStyle
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.lang.Runnable
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
@@ -230,7 +229,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                 if (location != null) {
                     Timber.tag("WidgetPrefFrag").i("Location update received...")
@@ -239,9 +237,24 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     Timber.tag("WidgetPrefFrag").i("Location update unavailable...")
 
                     runWithView {
-                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                R.string.error_retrieve_location,
+                                Snackbar.Duration.SHORT
+                            ), null
+                        )
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
+                showSnackbar(
+                    Snackbar.make(
+                        R.string.error_retrieve_location,
+                        Snackbar.Duration.SHORT
+                    ), null
+                )
             }
         }
         mRequestingLocationUpdates = false
@@ -1010,8 +1023,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
          */
         if (location == null && !mRequestingLocationUpdates) {
             mRequestingLocationUpdates = true
-            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-            mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper(), 30000)
         }
 
         if (location != null && coroutineContext.isActive) {
@@ -1047,11 +1059,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         return locationChanged
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
-        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

@@ -51,7 +51,6 @@ import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.lang.Runnable
 import java.time.Duration
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -186,7 +185,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                 runWithView {
                     if (settingsManager.useFollowGPS() && updateLocation()) {
@@ -196,6 +194,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         refreshWeather(false)
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
             }
         }
 
@@ -584,8 +586,11 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
              */
             if (location == null && !mRequestingLocationUpdates) {
                 mRequestingLocationUpdates = true
-                locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+                locationProvider.requestSingleUpdate(
+                    locationCallback,
+                    Looper.getMainLooper(),
+                    30000
+                )
             }
 
             if (location != null && !mRequestingLocationUpdates) {
@@ -638,10 +643,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
 
         return locationChanged
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

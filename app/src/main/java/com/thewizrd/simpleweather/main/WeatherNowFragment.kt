@@ -279,7 +279,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
-                mMainHandler.removeCallbacks(cancelLocRequestRunner)
 
                 runWithView {
                     if (getSettingsManager().useFollowGPS() && updateLocation()) {
@@ -289,6 +288,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         refreshWeather(false)
                     }
                 }
+            }
+
+            override fun onRequestTimedOut() {
+                stopLocationUpdates()
             }
         }
         mRequestingLocationUpdates = false
@@ -1195,8 +1198,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
              */
             if (location == null && !mRequestingLocationUpdates) {
                 mRequestingLocationUpdates = true
-                locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper())
-                mMainHandler.postDelayed(cancelLocRequestRunner, 30000)
+                locationProvider.requestSingleUpdate(
+                    locationCallback,
+                    Looper.getMainLooper(),
+                    30000
+                )
             }
 
             if (location != null && !mRequestingLocationUpdates) {
@@ -1248,10 +1254,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         }
 
         return locationChanged
-    }
-
-    private val cancelLocRequestRunner = Runnable {
-        stopLocationUpdates()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

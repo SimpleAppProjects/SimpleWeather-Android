@@ -10,9 +10,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import androidx.core.os.postDelayed
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import kotlinx.coroutines.tasks.await
@@ -26,6 +28,9 @@ class LocationProvider {
 
     private var locationCallback: LocationCallback? = null
     private var locationListener: LocationListener? = null
+
+    private val mMainHandler = Handler(Looper.getMainLooper())
+    private val handlerToken = Object()
 
     constructor(context: Context) {
         mContext = context
@@ -66,7 +71,7 @@ class LocationProvider {
         }
     }
 
-    fun requestSingleUpdate(callback: Callback, looper: Looper?) {
+    fun requestSingleUpdate(callback: Callback, looper: Looper?, timeoutInMs: Long? = null) {
         if (!checkPermissions()) {
             callback.onLocationChanged(null)
             return
@@ -92,7 +97,15 @@ class LocationProvider {
                 }
             }
 
-            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, locationCallback, looper)
+            timeoutInMs?.let {
+                mLocationRequest.setExpirationDuration(it)
+            }
+
+            mFusedLocationProviderClient.requestLocationUpdates(
+                mLocationRequest,
+                locationCallback,
+                looper
+            )
         } else {
             val locCriteria = Criteria().apply {
                 accuracy = Criteria.ACCURACY_COARSE
@@ -102,6 +115,7 @@ class LocationProvider {
 
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
+                    mMainHandler.removeCallbacksAndMessages(handlerToken)
                     callback.onLocationChanged(location)
                 }
 
@@ -120,7 +134,15 @@ class LocationProvider {
             }
 
             val provider = mLocationMgr.getBestProvider(locCriteria, true)
-                           ?: return callback.onLocationChanged(null)
+                ?: return callback.onLocationChanged(null)
+
+            timeoutInMs?.let {
+                mMainHandler.postDelayed(it, handlerToken) {
+                    stopLocationUpdates()
+                    callback.onRequestTimedOut()
+                }
+            }
+
             mLocationMgr.requestSingleUpdate(provider, locationListener!!, looper)
         }
     }
@@ -136,5 +158,6 @@ class LocationProvider {
 
     interface Callback {
         fun onLocationChanged(location: Location?)
+        fun onRequestTimedOut()
     }
 }
