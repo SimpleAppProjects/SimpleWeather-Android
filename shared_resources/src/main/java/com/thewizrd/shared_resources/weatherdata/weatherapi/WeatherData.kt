@@ -17,8 +17,11 @@ fun createWeatherData(root: ForecastResponse): Weather {
     return Weather().apply {
         location = createLocation(root.location!!)
         updateTime = ZonedDateTime.of(
-                LocalDateTime.parse(root.location!!.localtime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                ZoneId.of(root.location!!.tzId)
+            LocalDateTime.parse(
+                root.location!!.localtime,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm")
+            ),
+            ZoneId.of(root.location!!.tzId)
         )
 
         forecast = ArrayList(root.forecast!!.forecastday!!.size)
@@ -168,8 +171,11 @@ fun createCondition(current: Current, tzId: String): Condition {
         airQuality = createAirQuality(current.airQuality)
 
         observationTime = ZonedDateTime.of(
-                LocalDateTime.parse(current.lastUpdated, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                ZoneId.of(tzId)
+            LocalDateTime.parse(
+                current.lastUpdated,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm")
+            ),
+            ZoneId.of(tzId)
         )
     }
 }
