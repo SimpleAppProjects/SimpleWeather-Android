@@ -9,10 +9,11 @@ import com.google.firebase.storage.FirebaseStorage
 import com.thewizrd.shared_resources.utils.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
-import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 object FirebaseHelper {
     private var sHasSignInFailed = false
+    private var sSetupFirebaseDB = false
 
     @JvmStatic
     fun getFirestoreDB(): FirebaseFirestore {
@@ -34,7 +35,7 @@ object FirebaseHelper {
             checkSignIn()
         }
         val stor = FirebaseStorage.getInstance()
-        stor.maxDownloadRetryTimeMillis = Duration.ofHours(1).toMillis()
+        stor.maxDownloadRetryTimeMillis = TimeUnit.HOURS.toMillis(1)
         return stor
     }
 
@@ -44,9 +45,12 @@ object FirebaseHelper {
             checkSignIn()
         }
         val db = FirebaseDatabase.getInstance()
-        db.setPersistenceEnabled(true)
-        db.setPersistenceCacheSizeBytes((2 * 1024 * 1024).toLong()) // 2 MB
-        return FirebaseDatabase.getInstance()
+        if (!sSetupFirebaseDB) {
+            db.setPersistenceEnabled(true)
+            db.setPersistenceCacheSizeBytes((2 * 1024 * 1024).toLong()) // 2 MB
+            sSetupFirebaseDB = true
+        }
+        return db
     }
 
     suspend fun getAccessToken(): String? = withContext(Dispatchers.IO) {
