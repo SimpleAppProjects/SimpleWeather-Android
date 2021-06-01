@@ -8,7 +8,6 @@ android {
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.thewizrd.simpleweather"
-        testApplicationId "com.thewizrd.simpleweather.test"
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 21

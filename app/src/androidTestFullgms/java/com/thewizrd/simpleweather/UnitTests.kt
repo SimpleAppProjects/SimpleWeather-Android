@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
@@ -15,6 +16,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
+import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
@@ -30,11 +32,13 @@ import com.thewizrd.simpleweather.images.ImageDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -44,13 +48,15 @@ import java.util.concurrent.ExecutionException
 @RunWith(AndroidJUnit4::class)
 class UnitTests {
     private lateinit var context: Context
+    private lateinit var app: ApplicationLib
+    private var wasUsingPersonalKey = false
 
     @Before
     fun init() {
         // Context of the app under test.
         context = ApplicationProvider.getApplicationContext()
 
-        val app = object : ApplicationLib {
+        app = object : ApplicationLib {
             override fun getAppContext(): Context {
                 return context.applicationContext
             }
@@ -89,17 +95,35 @@ class UnitTests {
         // Start logger
         Logger.init(app.appContext)
         app.settingsManager.loadIfNeededSync()
+
+        if (app.settingsManager.usePersonalKey()) {
+            app.settingsManager.setPersonalKey(false)
+            wasUsingPersonalKey = true
+        }
+    }
+
+    @After
+    fun destroy() {
+        if (wasUsingPersonalKey) {
+            app.settingsManager.setPersonalKey(true)
+            wasUsingPersonalKey = false
+        }
     }
 
     @Throws(WeatherException::class)
     private suspend fun getWeather(
-            providerImpl: WeatherProviderImpl,
-            coordinate: Coordinate = Coordinate(
-                    47.6721646,
-                    -122.1706614
-            ) /* Redmond, WA */
+        providerImpl: WeatherProviderImpl,
+        coordinate: Coordinate = Coordinate(
+            47.6721646,
+            -122.1706614
+        ) /* Redmond, WA */
     ) = withContext(Dispatchers.IO) {
         val location = providerImpl.getLocation(coordinate)
+        if (location?.locationTZLong?.isBlank() == true && location.locationLat != 0.0 && location.locationLong != 0.0) {
+            val tzId = TZDBCache.getTimeZone(location.locationLat, location.locationLong)
+            if ("unknown" != tzId)
+                location.locationTZLong = tzId
+        }
         val locData = LocationData(location!!)
         return@withContext providerImpl.getWeather(locData)
     }
@@ -333,7 +357,7 @@ class UnitTests {
             }
             Assert.assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = Iterables.getFirst(locations, null)
+            val queryVM = locations.firstOrNull()
             Assert.assertNotNull(queryVM)
 
             val idModel = locationProvider.getLocationFromID(queryVM!!)
