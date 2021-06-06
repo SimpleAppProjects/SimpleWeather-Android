@@ -55,6 +55,8 @@ public class AirQualityViewModel {
             this.level = context.getString(R.string.aqi_level_300);
             this.description = context.getString(R.string.aqi_desc_300);
         }
+
+        this.attribution = aqi.getAttribution();
     }
 
     @NonNull
