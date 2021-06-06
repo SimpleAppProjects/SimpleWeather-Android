@@ -32,9 +32,16 @@ fun createWeatherData(root: ForecastResponse): Weather {
             val fcast = createForecast(day)
 
             for (hour in day.hour!!) {
-                val hrfcast = createHourlyForecast(hour, root.location!!.tzId!!)
+                val date = ZonedDateTime.ofInstant(
+                    Instant.ofEpochSecond(hour.timeEpoch!!.toLong()),
+                    ZoneOffset.UTC
+                )
 
-                hrForecast.add(hrfcast)
+                if (date.isBefore(updateTime)) {
+                    continue
+                }
+
+                hrForecast.add(createHourlyForecast(hour, root.location!!.tzId!!))
             }
 
             forecast.add(fcast)
