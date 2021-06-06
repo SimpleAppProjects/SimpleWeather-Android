@@ -355,8 +355,9 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
              * 1222: Patchy heavy snow
              * 1225: Heavy snow
              */
-            1114, 1117 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
+            1114, 1117, 1222, 1225 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
             }
 
             /*

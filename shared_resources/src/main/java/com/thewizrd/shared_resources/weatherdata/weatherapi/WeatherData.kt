@@ -134,7 +134,6 @@ fun createHourlyForecast(hour: HourItem, tzId: String): HourlyForecast {
         extras.humidity = hour.humidity
         extras.dewpointF = hour.dewpointF
         extras.dewpointC = hour.dewpointC
-        extras.humidity = hour.humidity
         extras.uvIndex = hour.uv
         extras.pop = hour.chanceOfRain?.toIntOrNull() ?: hour.chanceOfSnow?.toIntOrNull()
         extras.cloudiness = hour.cloud
