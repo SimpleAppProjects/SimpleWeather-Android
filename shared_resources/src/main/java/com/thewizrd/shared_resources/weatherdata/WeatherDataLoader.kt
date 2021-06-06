@@ -100,6 +100,7 @@ class WeatherDataLoader(private val location: LocationData) {
         // Try to get weather from provider API
         try {
             coroutineContext.ensureActive()
+            weather = null
 
             if (!wm.isRegionSupported(location.countryCode)) {
                 // If location data hasn't been updated, try loading weather from the previous provider
@@ -112,7 +113,9 @@ class WeatherDataLoader(private val location: LocationData) {
                 }
 
                 // Nothing to fallback on; error out
-                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                if (weather == null) {
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                }
             } else {
                 // Load weather from provider
                 weather = wm.getWeather(location)
