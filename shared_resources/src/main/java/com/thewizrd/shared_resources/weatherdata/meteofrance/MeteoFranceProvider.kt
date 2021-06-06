@@ -299,8 +299,11 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             )
         ) {
             // Sleet / Rain mix
+            weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
         } else if (icon.startsWith("p21") || icon.startsWith("p22") || icon.startsWith("p23")) {
             // Snow
+            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
         } else if (icon.startsWith("p26") || icon.startsWith("p27") || icon.startsWith("p28") || icon.startsWith(
                 "p29"
             )

@@ -116,20 +116,20 @@ fun createWeatherAlert(phenom: PhenomenonsItemsItem, alertRoot: AlertsResponse):
             }
             /* 8 - Avalanches */
             8 -> {
+                type = WeatherAlertType.SPECIALWEATHERALERT
                 title_fr = "Avalanches"
                 title_en = "Avalanches"
-                type = WeatherAlertType.SPECIALWEATHERALERT
             }
             /* 9 - Coastal event */
             9 -> {
+                type = WeatherAlertType.SPECIALWEATHERALERT
                 title_fr = "Vagues-submersion"
                 title_en = "Coastal Event"
-                type = WeatherAlertType.SPECIALWEATHERALERT
             }
             else -> {
+                type = WeatherAlertType.SPECIALWEATHERALERT
                 title_fr = "Alerte météo"
                 title_en = "Weather Alert"
-                type = WeatherAlertType.SPECIALWEATHERALERT
             }
         }
 
