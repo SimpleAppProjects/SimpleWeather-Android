@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.database
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -17,10 +18,13 @@ abstract class TZDatabase : RoomDatabase() {
         @Volatile
         private var instance: TZDatabase? = null
 
-        fun getInstance(context: Context): TZDatabase =
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal fun getInstance(context: Context): TZDatabase =
             instance ?: synchronized(this) {
                 instance ?: buildDatabase(context.applicationContext).also { instance = it }
             }
+
+        fun getTzdbDAO(context: Context) = getInstance(context).tzdbDAO()
 
         private fun buildDatabase(context: Context): TZDatabase {
             return Room.databaseBuilder(

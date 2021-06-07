@@ -163,10 +163,10 @@ class SettingsManager(context: Context) {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getWeatherDAO(): WeatherDAO = getWeatherDB().weatherDAO()
+    private fun getWeatherDAO(): WeatherDAO = getWeatherDB().weatherDAO()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getLocationsDAO(): LocationsDAO = getLocationDB().locationsDAO()
+    private fun getLocationsDAO(): LocationsDAO = getLocationDB().locationsDAO()
 
     // Shared Preferences listener
     class SettingsListener(@NonNull private val app: ApplicationLib) : OnSharedPreferenceChangeListener {

@@ -11,6 +11,7 @@ import androidx.paging.PagedList
 import androidx.paging.PositionalDataSource
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.database.WeatherDAO
+import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -30,6 +31,8 @@ class ForecastsListViewModel : ViewModel() {
     private var locationData: LocationData? = null
     private var unitCode: String? = null
     private var localeCode: String? = null
+
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(SimpleLibrary.instance.appContext)
 
     private var forecasts: MutableLiveData<PagedList<ForecastItemViewModel>>?
     private var hourlyForecasts: MutableLiveData<PagedList<HourlyForecastItemViewModel>>?
@@ -66,7 +69,7 @@ class ForecastsListViewModel : ViewModel() {
                     ForecastDataSourceFactory(
                         viewModelScope,
                         locationData!!,
-                        settingsMgr.getWeatherDAO()
+                        weatherDAO
                     ),
                     PagedList.Config.Builder()
                         .setEnablePlaceholders(true)
@@ -79,7 +82,7 @@ class ForecastsListViewModel : ViewModel() {
 
                 val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
                 val hrFactory =
-                    settingsMgr.getWeatherDAO().loadHourlyForecastsByQueryOrderByDateFilterByDate(
+                    weatherDAO.loadHourlyForecastsByQueryOrderByDateFilterByDate(
                         location.query,
                         ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong())
                             .truncatedTo(ChronoUnit.HOURS)

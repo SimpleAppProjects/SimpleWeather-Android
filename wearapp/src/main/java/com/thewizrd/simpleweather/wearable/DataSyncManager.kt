@@ -7,6 +7,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.Wearable
+import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
@@ -125,6 +126,7 @@ object DataSyncManager {
     suspend fun updateWeather(context: Context, dataMap: DataMap?) = withContext(Dispatchers.Default) {
         val appContext = context.applicationContext
         val settingsMgr = SettingsManager(appContext)
+        val weatherDAO = WeatherDatabase.getWeatherDAO(appContext)
 
         if (dataMap != null && !dataMap.isEmpty) {
             val updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME)
@@ -133,7 +135,7 @@ object DataSyncManager {
             val homeData = settingsMgr.getHomeData()
             if (homeData != null) {
                 dataExists = withContext(Dispatchers.IO) {
-                    settingsMgr.getWeatherDAO().getWeatherDataCountByKey(homeData.query) > 0
+                    weatherDAO.getWeatherDataCountByKey(homeData.query) > 0
                 }
             }
             if (updateTimeMillis != getWeatherUpdateTime(appContext) || !dataExists) {

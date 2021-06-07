@@ -5,6 +5,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts
 import kotlinx.coroutines.launch
@@ -15,6 +16,8 @@ class WeatherAlertsViewModel : ObservableViewModel() {
     private val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
     private var locationData: LocationData? = null
+
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(SimpleLibrary.instance.appContext)
 
     private var alerts: MutableLiveData<List<WeatherAlertViewModel>>?
 
@@ -37,8 +40,7 @@ class WeatherAlertsViewModel : ObservableViewModel() {
 
                 currentAlertsData?.removeObserver(alertObserver)
 
-                val weatherAlertsLiveData =
-                    settingsMgr.getWeatherDAO().getLiveWeatherAlertData(location.query)
+                val weatherAlertsLiveData = weatherDAO.getLiveWeatherAlertData(location.query)
 
                 currentAlertsData =
                     Transformations.map(weatherAlertsLiveData) { weatherAlerts: WeatherAlerts? ->

@@ -5,6 +5,7 @@ import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
@@ -25,6 +26,8 @@ class ChartsViewModel : ViewModel() {
     var unitCode: String? = null
     var localeCode: String? = null
     var iconProvider: String? = null
+
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
 
     private var graphModelData = MutableLiveData<List<ForecastGraphViewModel>>()
 
@@ -48,13 +51,17 @@ class ChartsViewModel : ViewModel() {
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 currentHrForecastsData = withContext(Dispatchers.IO) {
-                    settingsManager.getWeatherDAO().getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS))
+                    weatherDAO.getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                        location.query,
+                        12,
+                        ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS)
+                    )
                 }
                 currentHrForecastsData!!.observeForever(hrforecastObserver)
 
                 currentForecastsData?.removeObserver(forecastObserver)
                 currentForecastsData = withContext(Dispatchers.IO) {
-                    settingsManager.getWeatherDAO().getLiveForecastData(location.query)
+                    weatherDAO.getLiveForecastData(location.query)
                 }
                 currentForecastsData!!.observeForever(forecastObserver)
 

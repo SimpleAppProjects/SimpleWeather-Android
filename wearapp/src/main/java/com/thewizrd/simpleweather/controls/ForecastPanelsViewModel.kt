@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -26,6 +27,8 @@ class ForecastPanelsViewModel : ViewModel() {
     private var unitCode: String? = null
     private var localeCode: String? = null
     private var iconProvider: String? = null
+
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
 
     private var forecasts: MutableLiveData<List<ForecastItemViewModel>>?
     private var hourlyForecasts: MutableLiveData<List<HourlyForecastItemViewModel>>?
@@ -58,16 +61,15 @@ class ForecastPanelsViewModel : ViewModel() {
                 iconProvider = settingsMgr.getIconsProvider()
 
                 currentForecastsData?.removeObserver(forecastObserver)
-                currentForecastsData =
-                    settingsMgr.getWeatherDAO().getLiveForecastData(location.query)
+                currentForecastsData = weatherDAO.getLiveForecastData(location.query)
 
                 currentForecastsData!!.observeForever(forecastObserver)
                 forecasts?.postValue(forecastMapper.apply(currentForecastsData!!.getValue()))
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
-                currentHrForecastsData = settingsMgr.getWeatherDAO()
-                    .getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                currentHrForecastsData =
+                    weatherDAO.getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                         location.query, 6,
                         ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong())
                             .truncatedTo(ChronoUnit.HOURS)

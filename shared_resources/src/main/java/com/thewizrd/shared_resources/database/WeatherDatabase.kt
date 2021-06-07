@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.database
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -31,10 +32,13 @@ abstract class WeatherDatabase : RoomDatabase() {
         @Volatile
         private var instance: WeatherDatabase? = null
 
-        fun getInstance(context: Context): WeatherDatabase =
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal fun getInstance(context: Context): WeatherDatabase =
             instance ?: synchronized(this) {
                 instance ?: buildDatabase(context.applicationContext).also { instance = it }
             }
+
+        fun getWeatherDAO(context: Context) = getInstance(context).weatherDAO()
 
         private fun buildDatabase(context: Context): WeatherDatabase {
             return Room.databaseBuilder(
