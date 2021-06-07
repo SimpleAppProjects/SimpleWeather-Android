@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.WorkerThread
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
@@ -71,7 +72,7 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
                 if (!imageDataFolder.exists())
                     imageDataFolder.mkdir()
 
-                val storage = com.thewizrd.shared_resources.firebase.FirebaseHelper.getFirebaseStorage()
+                val storage = FirebaseHelper.getFirebaseStorage()
                 val storageRef = storage.getReferenceFromUrl(imageUri.toString())
                 val imageFile = File(imageDataFolder, String.format("%s-%s", imageData.condition, UUID.randomUUID().toString()))
 

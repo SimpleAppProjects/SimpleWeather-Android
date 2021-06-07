@@ -15,35 +15,29 @@ object FirebaseHelper {
     private var sHasSignInFailed = false
     private var sSetupFirebaseDB = false
 
-    @JvmStatic
-    fun getFirestoreDB(): FirebaseFirestore {
-        runBlocking {
-            checkSignIn()
-        }
+    suspend fun getFirestoreDB(): FirebaseFirestore {
+        checkSignIn()
+
         val db = FirebaseFirestore.getInstance()
         db.firestoreSettings = FirebaseFirestoreSettings.Builder()
-                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
-                .setPersistenceEnabled(true)
-                .setSslEnabled(true)
-                .build()
+            .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+            .setPersistenceEnabled(true)
+            .setSslEnabled(true)
+            .build()
         return db
     }
 
-    @JvmStatic
-    fun getFirebaseStorage(): FirebaseStorage {
-        runBlocking {
-            checkSignIn()
-        }
+    suspend fun getFirebaseStorage(): FirebaseStorage {
+        checkSignIn()
+
         val stor = FirebaseStorage.getInstance()
         stor.maxDownloadRetryTimeMillis = TimeUnit.HOURS.toMillis(1)
         return stor
     }
 
-    @JvmStatic
-    fun getFirebaseDB(): FirebaseDatabase {
-        runBlocking {
-            checkSignIn()
-        }
+    suspend fun getFirebaseDB(): FirebaseDatabase {
+        checkSignIn()
+
         val db = FirebaseDatabase.getInstance()
         if (!sSetupFirebaseDB) {
             db.setPersistenceEnabled(true)

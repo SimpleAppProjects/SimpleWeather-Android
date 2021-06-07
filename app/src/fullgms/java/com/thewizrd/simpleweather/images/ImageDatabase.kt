@@ -144,10 +144,11 @@ object ImageDatabase {
 
     @WorkerThread
     suspend fun getLastUpdateTime(): Long = withContext(Dispatchers.IO) {
+        val db = FirebaseHelper.getFirebaseDB()
+
         return@withContext suspendCancellableCoroutine { continuation ->
-            val db = FirebaseHelper.getFirebaseDB()
             val ref = db.reference.child("background_images_info")
-                    .child("collection_info").child("last_updated")
+                .child("collection_info").child("last_updated")
 
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
