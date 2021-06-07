@@ -1054,7 +1054,7 @@ object WidgetUpdaterHelper {
             settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
         }
 
-        if (hrfcasts?.isNotEmpty() == true) {
+        if (!hrfcasts.isNullOrEmpty()) {
             return ArrayList<HourlyForecastItemViewModel>(forecastLength).apply {
                 var count = 0
                 for (fcast in hrfcasts) {

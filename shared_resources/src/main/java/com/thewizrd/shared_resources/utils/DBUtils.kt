@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 internal object DBUtils {
     suspend fun weatherDataExists(weatherDB: WeatherDatabase): Boolean = withContext(Dispatchers.IO) {
         try {
-            val count = weatherDB.weatherDAO().weatherDataCount
+            val count = weatherDB.weatherDAO().getWeatherDataCount()
             return@withContext count > 0
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e)

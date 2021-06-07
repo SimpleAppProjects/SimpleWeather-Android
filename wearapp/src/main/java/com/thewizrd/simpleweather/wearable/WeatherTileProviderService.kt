@@ -232,7 +232,7 @@ class WeatherTileProviderService : TileProviderService() {
             val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
             val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
 
-            if (forecasts?.isNotEmpty() == true) {
+            if (!forecasts.isNullOrEmpty()) {
                 return ArrayList<HourlyForecastItemViewModel>(FORECAST_LENGTH).apply {
                     var count = 0
                     for (fcast in forecasts) {

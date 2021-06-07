@@ -14,7 +14,6 @@ import androidx.annotation.RestrictTo
 import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import androidx.room.Room
 import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.R
@@ -54,9 +53,6 @@ class SettingsManager(context: Context) {
 
     companion object {
         const val TAG = "SettingsManager"
-
-        // Database
-        private var weatherDB: WeatherDatabase? = null
 
         // NOTE: Remember to add migrations for ALL databases when updating version
         const val CURRENT_DBVERSION = 8
@@ -124,15 +120,7 @@ class SettingsManager(context: Context) {
     }
 
     private fun getWeatherDB(): WeatherDatabase {
-        if (weatherDB == null) {
-            weatherDB = Room.databaseBuilder(appContext,
-                    WeatherDatabase::class.java, "weatherdata.db")
-                    .addMigrations(*DBMigrations.W_MIGRATION_SET)
-                    .fallbackToDestructiveMigration()
-                    .build()
-        }
-
-        return weatherDB!!
+        return WeatherDatabase.getInstance(appContext)
     }
 
     @Synchronized
@@ -297,28 +285,36 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun getHourlyWeatherForecastDataByLimit(key: String?, loadSize: Int): List<HourlyForecast>? {
+    fun getHourlyWeatherForecastDataByLimit(key: String?, loadSize: Int): List<HourlyForecast> {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
             getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimit(key, loadSize)
         }
     }
 
-    fun getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(key: String?, loadSize: Int, date: ZonedDateTime?): List<HourlyForecast>? {
+    fun getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+        key: String?,
+        loadSize: Int,
+        date: ZonedDateTime
+    ): List<HourlyForecast> {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
-            getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(key, loadSize, date)
+            getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                key,
+                loadSize,
+                date
+            )
         }
     }
 
-    fun getHourlyWeatherForecastData(key: String?): List<HourlyForecast>? {
+    fun getHourlyWeatherForecastData(key: String?): List<HourlyForecast> {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
             getWeatherDAO().getHourlyForecastsByQueryOrderByDate(key)
         }
     }
 
-    fun getFirstHourlyForecastDataByDate(key: String?, date: ZonedDateTime?): HourlyForecast? {
+    fun getFirstHourlyForecastDataByDate(key: String?, date: ZonedDateTime): HourlyForecast? {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
             getWeatherDAO().getFirstHourlyForecastDataByDate(key, date)
@@ -343,7 +339,7 @@ class SettingsManager(context: Context) {
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            if (getWeatherDAO().weatherDataCount > CACHE_LIMIT) cleanupWeatherData()
+            if (getWeatherDAO().getWeatherDataCount() > CACHE_LIMIT) cleanupWeatherData()
         }
     }
 
@@ -356,7 +352,7 @@ class SettingsManager(context: Context) {
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            if (getWeatherDAO().weatherAlertDataCount > CACHE_LIMIT) cleanupWeatherAlertData()
+            if (getWeatherDAO().getWeatherAlertDataCount() > CACHE_LIMIT) cleanupWeatherAlertData()
         }
     }
 
@@ -368,7 +364,7 @@ class SettingsManager(context: Context) {
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            if (getWeatherDAO().forecastDataCountGroupedByQuery > CACHE_LIMIT / 2) cleanupWeatherForecastData()
+            if (getWeatherDAO().getForecastDataCountGroupedByQuery() > CACHE_LIMIT / 2) cleanupWeatherForecastData()
         }
     }
 
@@ -381,7 +377,7 @@ class SettingsManager(context: Context) {
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            if (getWeatherDAO().hourlyForecastCountGroupedByQuery > CACHE_LIMIT / 2) cleanupWeatherForecastData()
+            if (getWeatherDAO().getHourlyForecastCountGroupedByQuery() > CACHE_LIMIT / 2) cleanupWeatherForecastData()
         }
     }
 
