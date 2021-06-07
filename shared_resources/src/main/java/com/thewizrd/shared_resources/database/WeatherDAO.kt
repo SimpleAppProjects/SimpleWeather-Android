@@ -81,10 +81,10 @@ interface WeatherDAO {
     suspend fun loadAllForecasts(): List<Forecasts>
 
     @Query("SELECT * FROM forecasts WHERE `query` = :query")
-    fun getForecastData(query: String?): Forecasts? // TODO: Migrate java usage to kotlin
+    suspend fun getForecastData(query: String?): Forecasts?
 
     @Query("SELECT * FROM forecasts WHERE `query` = :query")
-    fun getLiveForecastData(query: String?): LiveData<Forecasts> // TODO: Migrate java usage to kotlin
+    fun getLiveForecastData(query: String?): LiveData<Forecasts>
 
     @Query("SELECT COUNT(*) FROM forecasts GROUP BY `query`")
     suspend fun getForecastDataCountGroupedByQuery(): Int
@@ -143,7 +143,7 @@ interface WeatherDAO {
         key: String?,
         loadSize: Int,
         @TypeConverters(SortableDateTimeConverters::class) date: ZonedDateTime
-    ): LiveData<List<HourlyForecast>> // TODO: Migrate java usage to kotlin
+    ): LiveData<List<HourlyForecast>>
 
     @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob`")
@@ -153,7 +153,7 @@ interface WeatherDAO {
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob`")
     fun loadHourlyForecastsByQueryOrderByDateFilterByDate(
         key: String?, @TypeConverters(SortableDateTimeConverters::class) date: ZonedDateTime
-    ): DataSource.Factory<Int, HourlyForecast> // TODO: Migrate java usage to kotlin
+    ): DataSource.Factory<Int, HourlyForecast>
 
     @Query("SELECT COUNT(*) FROM hr_forecasts WHERE `query` = :key")
     suspend fun getHourlyForecastCountByQuery(key: String?): Int

@@ -89,7 +89,11 @@ class ForecastsNowViewModel : ViewModel() {
 
             if (currentForecastsData?.value != null) {
                 forecastGraphData.postValue(forecastMapper.apply(currentForecastsData!!.value))
-                minutelyPrecipitationGraphData.postValue(precipMinGraphMapper.apply(currentForecastsData?.value))
+                minutelyPrecipitationGraphData.postValue(
+                    precipMinGraphMapper.apply(
+                        currentForecastsData!!.value
+                    )
+                )
             }
             if (currentHrForecastsData?.value != null) {
                 hourlyForecastsData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
