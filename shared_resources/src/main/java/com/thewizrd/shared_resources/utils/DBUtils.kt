@@ -23,8 +23,8 @@ internal object DBUtils {
 
     suspend fun locationDataExists(locationDB: LocationsDatabase): Boolean = withContext(Dispatchers.IO) {
         try {
-            locationDB.locationsDAO().favoritesCount
-            val count = locationDB.locationsDAO().locationDataCount
+            locationDB.locationsDAO().getFavoritesCount()
+            val count = locationDB.locationsDAO().getLocationDataCount()
             return@withContext count > 0
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e)

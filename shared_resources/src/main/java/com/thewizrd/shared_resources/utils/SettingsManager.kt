@@ -56,7 +56,6 @@ class SettingsManager(context: Context) {
         const val TAG = "SettingsManager"
 
         // Database
-        private var locationDB: LocationsDatabase? = null
         private var weatherDB: WeatherDatabase? = null
 
         // NOTE: Remember to add migrations for ALL databases when updating version
@@ -121,15 +120,7 @@ class SettingsManager(context: Context) {
     }
 
     private fun getLocationDB(): LocationsDatabase {
-        if (locationDB == null) {
-            locationDB = Room.databaseBuilder(appContext,
-                    LocationsDatabase::class.java, "locations.db")
-                    .addMigrations(*DBMigrations.LOC_MIGRATION_SET)
-                    .fallbackToDestructiveMigration()
-                    .build()
-        }
-
-        return locationDB!!
+        return LocationsDatabase.getInstance(appContext)
     }
 
     private fun getWeatherDB(): WeatherDatabase {
@@ -246,14 +237,14 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun getFavorites(): Collection<LocationData>? {
+    fun getFavorites(): Collection<LocationData> {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
-            getLocationsDAO().favorites
+            getLocationsDAO().getFavorites()
         }
     }
 
-    fun getLocationData(): List<LocationData>? {
+    fun getLocationData(): List<LocationData> {
         return runBlocking(Dispatchers.IO) {
             loadIfNeeded()
             getLocationsDAO().loadAllLocationData()
@@ -398,7 +389,7 @@ class SettingsManager(context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             val locs: List<LocationData?>
             if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData()
+                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
                 if (useFollowGPS()) locs.add(lastGPSLocData)
             } else {
                 locs = listOf(getHomeData())
@@ -413,7 +404,7 @@ class SettingsManager(context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             val locs: List<LocationData?>
             if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData()
+                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
                 if (useFollowGPS()) locs.add(lastGPSLocData)
             } else {
                 locs = listOf(getHomeData())
@@ -429,7 +420,7 @@ class SettingsManager(context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             val locs: List<LocationData?>
             if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData()
+                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
                 if (useFollowGPS()) locs.add(lastGPSLocData)
             } else {
                 locs = listOf(getHomeData())
@@ -444,7 +435,7 @@ class SettingsManager(context: Context) {
         if (location != null && location.isValid) {
             runBlocking(Dispatchers.IO) {
                 getLocationsDAO().insertLocationData(location)
-                val pos = getLocationsDAO().locationDataCount
+                val pos = getLocationsDAO().getLocationDataCount()
                 val fav = Favorites().apply {
                     query = location.query
                     position = pos
@@ -536,7 +527,7 @@ class SettingsManager(context: Context) {
             } else {
                 runBlocking(Dispatchers.IO) {
                     loadIfNeeded()
-                    getLocationsDAO().firstFavorite
+                    getLocationsDAO().getFirstFavorite()
                 }
             }
         } else {

@@ -14,7 +14,7 @@ import org.json.JSONArray
 import org.json.JSONException
 
 internal object DBMigrations {
-    val MIGRATION_0_3 = object : Migration(0, 3) {
+    internal val MIGRATION_0_3 = object : Migration(0, 3) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Since we didn't alter the table, there's nothing else to do here.
         }
@@ -47,36 +47,6 @@ internal object DBMigrations {
             database.execSQL("DROP TABLE weatheralerts")
             // Change the table name to the correct one
             database.execSQL("ALTER TABLE weatheralerts_new RENAME TO weatheralerts")
-        }
-    }
-
-    val LOC_MIGRATION_3_4 = object : Migration(3, 4) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            // Create the new table
-            database.execSQL(
-                    "DROP TABLE IF EXISTS `locations_new`")
-            database.execSQL(
-                    "CREATE TABLE locations_new (`query` TEXT NOT NULL, `name` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `tz_long` TEXT, `locationType` INTEGER, `source` TEXT, `locsource` TEXT, PRIMARY KEY(`query`))")
-            // Copy the data
-            database.execSQL(
-                    "INSERT INTO locations_new (`query`, `name`, `latitude`, `longitude`, `tz_long`, `locationType`, `source`) SELECT `query`, `name`, `latitude`, `longitude`, `tz_long`, `locationType`, `source` FROM locations")
-            // Remove the old table
-            database.execSQL("DROP TABLE locations")
-            // Change the table name to the correct one
-            database.execSQL("ALTER TABLE locations_new RENAME TO locations")
-
-            // Create the new table
-            database.execSQL(
-                    "DROP TABLE IF EXISTS `favorites_new`")
-            database.execSQL(
-                    "CREATE TABLE favorites_new (`query` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`query`))")
-            // Copy the data
-            database.execSQL(
-                    "INSERT INTO favorites_new (`query`, `position`) SELECT `query`, `position` FROM favorites")
-            // Remove the old table
-            database.execSQL("DROP TABLE favorites")
-            // Change the table name to the correct one
-            database.execSQL("ALTER TABLE favorites_new RENAME TO favorites")
         }
     }
 
@@ -185,39 +155,16 @@ internal object DBMigrations {
         }
     }
 
-    val LOC_MIGRATION_4_5 = object : Migration(4, 5) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    }
-    val LOC_MIGRATION_5_6 = object : Migration(5, 6) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    }
-    val LOC_MIGRATION_6_7 = object : Migration(6, 7) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    }
-    val LOC_MIGRATION_7_8 = object : Migration(7, 8) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            // Since we didn't alter the table, there's nothing else to do here.
-        }
-    }
-
-    @JvmField
-    val LOC_MIGRATION_SET = arrayOf(
-            MIGRATION_0_3, LOC_MIGRATION_3_4, LOC_MIGRATION_4_5, LOC_MIGRATION_5_6, LOC_MIGRATION_6_7, LOC_MIGRATION_7_8
-    )
-
     @JvmField
     val W_MIGRATION_SET = arrayOf(
             MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5, W_MIGRATION_5_6, W_MIGRATION_6_7, W_MIGRATION_7_8
     )
 
-    @JvmStatic
-    fun performMigrations(context: Context, weatherDB: WeatherDatabase, locationDB: LocationsDatabase) {
+    suspend fun performMigrations(
+        context: Context,
+        weatherDB: WeatherDatabase,
+        locationDB: LocationsDatabase
+    ) {
         // Migrate old data if available
         val settingsMgr = SettingsManager(context)
 
@@ -232,7 +179,9 @@ internal object DBMigrations {
             when (vDB) {
                 0, 1, 2, 3 ->
                     // LocationData updates: added new fields
-                    if (settingsMgr.isPhone && locationDB.locationsDAO().locationDataCount > 0) {
+                    if (settingsMgr.isPhone && locationDB.locationsDAO()
+                            .getLocationDataCount() > 0
+                    ) {
                         DBUtils.setLocationData(locationDB, settingsMgr.getAPI())
                     }
                 4 -> {
