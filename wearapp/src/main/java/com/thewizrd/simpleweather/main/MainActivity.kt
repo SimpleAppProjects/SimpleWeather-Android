@@ -144,17 +144,17 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
         mNavDrawerAdapter = NavDrawerAdapter(this)
         binding.topNavDrawer.setAdapter(mNavDrawerAdapter)
 
-        forecastsView.forecasts.observe(this, {
+        forecastsView.getForecasts()?.observe(this, {
             lifecycleScope.launch {
                 mNavDrawerAdapter.updateNavDrawerItems()
             }
         })
-        forecastsView.hourlyForecasts.observe(this, {
+        forecastsView.getHourlyForecasts()?.observe(this, {
             lifecycleScope.launch {
                 mNavDrawerAdapter.updateNavDrawerItems()
             }
         })
-        alertsView.alerts.observe(this, {
+        alertsView.getAlerts()?.observe(this, {
             lifecycleScope.launch {
                 mNavDrawerAdapter.updateNavDrawerItems()
             }
@@ -304,15 +304,18 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
                 val items: MutableList<NavDrawerItem> = ArrayList(navDrawerItems)
                 for (item in navDrawerItems) {
                     if (item.titleString == R.string.title_fragment_alerts &&
-                            (alertsView.alerts.value == null || alertsView.alerts.value!!.size == 0)) {
+                        (alertsView.getAlerts()?.value.isNullOrEmpty())
+                    ) {
                         items.remove(item)
                     }
                     if (item.titleString == R.string.label_forecast &&
-                            (forecastsView.forecasts.value == null || forecastsView.forecasts.value!!.size == 0)) {
+                        (forecastsView.getForecasts()?.value.isNullOrEmpty())
+                    ) {
                         items.remove(item)
                     }
                     if (item.titleString == R.string.label_hourlyforecast &&
-                            (forecastsView.hourlyForecasts.value == null || forecastsView.hourlyForecasts.value!!.size == 0)) {
+                        (forecastsView.getHourlyForecasts()?.value.isNullOrEmpty())
+                    ) {
                         items.remove(item)
                     }
                 }

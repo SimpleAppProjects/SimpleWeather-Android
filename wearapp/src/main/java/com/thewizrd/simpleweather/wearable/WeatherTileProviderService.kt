@@ -112,7 +112,7 @@ class WeatherTileProviderService : TileProviderService() {
         }
     }
 
-    private fun buildUpdate(weather: Weather?): RemoteViews? {
+    private suspend fun buildUpdate(weather: Weather?): RemoteViews? {
         if (weather == null || !weather.isValid) {
             return null
         }
@@ -202,7 +202,7 @@ class WeatherTileProviderService : TileProviderService() {
         return updateViews
     }
 
-    private fun getForecasts(): List<ForecastItemViewModel> {
+    private suspend fun getForecasts(): List<ForecastItemViewModel> {
         val locationData = settingsMgr.getHomeData()
 
         if (locationData?.isValid == true) {
@@ -223,14 +223,18 @@ class WeatherTileProviderService : TileProviderService() {
         return emptyList()
     }
 
-    private fun getHourlyForecasts(): List<HourlyForecastItemViewModel> {
+    private suspend fun getHourlyForecasts(): List<HourlyForecastItemViewModel> {
         val locationData = settingsMgr.getHomeData()
 
         if (locationData?.isValid == true) {
             val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
 
             val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
-            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locationData.query, FORECAST_LENGTH, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
+            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                locationData.query,
+                FORECAST_LENGTH,
+                now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
+            )
 
             if (!forecasts.isNullOrEmpty()) {
                 return ArrayList<HourlyForecastItemViewModel>(FORECAST_LENGTH).apply {

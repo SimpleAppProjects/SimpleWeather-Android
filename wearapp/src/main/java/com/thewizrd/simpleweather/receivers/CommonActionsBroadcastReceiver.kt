@@ -1,0 +1,36 @@
+package com.thewizrd.simpleweather.receivers
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
+class CommonActionsBroadcastReceiver : BroadcastReceiver() {
+    companion object {
+        private const val TAG = "CommonActionsBroadcastReceiver"
+    }
+
+    override fun onReceive(context: Context, intent: Intent?) {
+        if (CommonActions.ACTION_SETTINGS_UPDATEAPI == intent?.action || CommonActions.ACTION_SETTINGS_UPDATEGPS == intent?.action) {
+            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+        } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT == intent?.action || CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE == intent?.action) {
+            GlobalScope.launch(Dispatchers.Default) {
+                WidgetUpdaterWorker.requestWidgetUpdate(context)
+            }
+        } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC == intent?.action) {
+            val settingsMgr = SettingsManager(context.applicationContext)
+            // Reset UpdateTime value to force a refresh
+            settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+        }
+        Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
+    }
+}

@@ -424,12 +424,16 @@ object WidgetUpdaterHelper {
         }
     }
 
-    internal fun buildExtras(context: Context, info: WidgetProviderInfo,
-                             locData: LocationData, weather: Weather,
-                             views: RemoteViews, appWidgetId: Int, newOptions: Bundle) {
+    internal suspend fun buildExtras(
+        context: Context, info: WidgetProviderInfo,
+        locData: LocationData, weather: Weather,
+        views: RemoteViews, appWidgetId: Int, newOptions: Bundle
+    ) {
         if (WidgetUtils.isForecastWidget(info.widgetType)) {
-            buildForecast(context, info, views, appWidgetId,
-                    locData, weather, newOptions)
+            buildForecast(
+                context, info, views, appWidgetId,
+                locData, weather, newOptions
+            )
         }
 
         if (WidgetUtils.isDateWidget(info.widgetType)) {
@@ -456,10 +460,12 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun buildForecast(context: Context, info: WidgetProviderInfo,
-                              updateViews: RemoteViews, appWidgetId: Int,
-                              locData: LocationData, weather: Weather?,
-                              newOptions: Bundle) {
+    private suspend fun buildForecast(
+        context: Context, info: WidgetProviderInfo,
+        updateViews: RemoteViews, appWidgetId: Int,
+        locData: LocationData, weather: Weather?,
+        newOptions: Bundle
+    ) {
         updateViews.removeAllViews(R.id.forecast_layout)
 
         // Widget dimensions
@@ -472,16 +478,19 @@ object WidgetUpdaterHelper {
                 locData, weather, newOptions)
     }
 
-    private fun buildForecastPanel(context: Context, info: WidgetProviderInfo,
-                                   updateViews: RemoteViews, appWidgetId: Int,
-                                   forecastLength: Int,
-                                   locData: LocationData, weather: Weather?,
-                                   newOptions: Bundle) {
+    private suspend fun buildForecastPanel(
+        context: Context, info: WidgetProviderInfo,
+        updateViews: RemoteViews, appWidgetId: Int,
+        forecastLength: Int,
+        locData: LocationData, weather: Weather?,
+        newOptions: Bundle
+    ) {
         if (WidgetUtils.isForecastWidget(info.widgetType)) {
             // Background & Text Color
             val background = WidgetUtils.getWidgetBackground(appWidgetId)
             val style = WidgetUtils.getBackgroundStyle(appWidgetId)
-            val textColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style, context.isNightMode())
+            val textColor =
+                WidgetUtils.getPanelTextColor(appWidgetId, background, style, context.isNightMode())
 
             var forecastPanel: RemoteViews? = null
             var hrForecastPanel: RemoteViews? = null
@@ -1022,7 +1031,11 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun getForecasts(locData: LocationData, forecasts: List<Forecast>?, forecastLength: Int): List<ForecastItemViewModel> {
+    private suspend fun getForecasts(
+        locData: LocationData,
+        forecasts: List<Forecast>?,
+        forecastLength: Int
+    ): List<ForecastItemViewModel> {
         val fcasts: List<Forecast>?
 
         if (forecasts?.isNotEmpty() == true) {
@@ -1043,7 +1056,11 @@ object WidgetUpdaterHelper {
         return emptyList()
     }
 
-    private fun getHourlyForecasts(locData: LocationData, forecasts: List<HourlyForecast>?, forecastLength: Int): List<HourlyForecastItemViewModel> {
+    private suspend fun getHourlyForecasts(
+        locData: LocationData,
+        forecasts: List<HourlyForecast>?,
+        forecastLength: Int
+    ): List<HourlyForecastItemViewModel> {
         val hrfcasts: List<HourlyForecast>?
 
         val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
@@ -1051,7 +1068,11 @@ object WidgetUpdaterHelper {
             forecasts
         } else {
             val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
-            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(locData.query, forecastLength, now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS))
+            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                locData.query,
+                forecastLength,
+                now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
+            )
         }
 
         if (!hrfcasts.isNullOrEmpty()) {
@@ -1258,21 +1279,33 @@ object WidgetUpdaterHelper {
         return PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    private fun setOnClickIntent(context: Context, location: LocationData?, updateViews: RemoteViews?) {
+    private suspend fun setOnClickIntent(
+        context: Context,
+        location: LocationData?,
+        updateViews: RemoteViews?
+    ) {
         updateViews?.setOnClickPendingIntent(R.id.widget, getOnClickIntent(context, location))
     }
 
-    private fun getOnClickIntent(context: Context, location: LocationData?): PendingIntent {
+    private suspend fun getOnClickIntent(context: Context, location: LocationData?): PendingIntent {
         // When user clicks on widget, launch to WeatherNow page
         val onClickIntent = Intent(context.applicationContext, MainActivity::class.java)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         if (settingsManager.getHomeData() != location) {
-            onClickIntent.putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
+            onClickIntent.putExtra(
+                Constants.KEY_DATA,
+                JSONParser.serializer(location, LocationData::class.java)
+            )
             onClickIntent.putExtra(Constants.FRAGTAG_HOME, false)
         }
 
-        return PendingIntent.getActivity(context, location?.hashCode()
-                ?: SystemClock.uptimeMillis().toInt(), onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(
+            context,
+            location?.hashCode()
+                ?: SystemClock.uptimeMillis().toInt(),
+            onClickIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     private fun setOnSettingsClickIntent(context: Context, updateViews: RemoteViews?, location: LocationData?, appWidgetId: Int) {

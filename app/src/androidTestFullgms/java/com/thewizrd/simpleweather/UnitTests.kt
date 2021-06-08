@@ -94,7 +94,9 @@ class UnitTests {
 
         // Start logger
         Logger.init(app.appContext)
-        app.settingsManager.loadIfNeededSync()
+        runBlocking {
+            app.settingsManager.loadIfNeeded()
+        }
 
         if (app.settingsManager.usePersonalKey()) {
             app.settingsManager.setPersonalKey(false)

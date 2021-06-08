@@ -187,14 +187,33 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         mAppWidgetId = args.appWidgetId
         mWidgetType = WidgetUtils.getWidgetTypeFromID(mAppWidgetId)
         mWidgetInfo = WidgetUtils.getWidgetProviderInfoFromType(mWidgetType)!!
-        mWidgetOptions = AppWidgetManager.getInstance(requireContext()).getAppWidgetOptions(mAppWidgetId)
+        mWidgetOptions =
+            AppWidgetManager.getInstance(requireContext()).getAppWidgetOptions(mAppWidgetId)
 
         // Set the result value for WidgetConfigActivity
         resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
 
         super.onCreate(savedInstanceState)
 
-        mWidgetViewCtx = ContextUtils.getThemeContextOverride(requireContext().applicationContext, !requireContext().isNightMode())
+        mWidgetViewCtx = ContextUtils.getThemeContextOverride(
+            requireContext().applicationContext,
+            !requireContext().isNightMode()
+        )
+
+        lifecycleScope.launch {
+            if (!settingsManager.isWeatherLoaded()) {
+                Toast.makeText(
+                    appCompatActivity,
+                    R.string.prompt_setup_app_first,
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                val intent = Intent(appCompatActivity, SetupActivity::class.java)
+                    .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                startActivityForResult(intent, SETUP_REQUEST_CODE)
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -259,15 +278,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
         mRequestingLocationUpdates = false
 
-        if (!settingsManager.isWeatherLoaded()) {
-            Toast.makeText(appCompatActivity, R.string.prompt_setup_app_first, Toast.LENGTH_SHORT).show()
-
-            val intent = Intent(appCompatActivity, SetupActivity::class.java)
-                    .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-            startActivityForResult(intent, SETUP_REQUEST_CODE)
-        }
-
         return root
     }
 
@@ -291,28 +301,49 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_widgetconfig, null)
 
+        favorites = ArrayList()
         locationPref = findPreference(KEY_LOCATION)!!
-        locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS)
-        locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH)
 
-        val favs = settingsManager.getFavorites()
-        favorites = ArrayList(favs ?: emptyList())
-        for (location in favorites) {
-            locationPref.insertEntry(locationPref.entryCount - 1,
-                    location.name, location.query)
+        lifecycleScope.launch {
+            locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS)
+            locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH)
+
+            val favs = settingsManager.getFavorites()
+            favorites.addAll(favs)
+            for (location in favorites) {
+                locationPref.insertEntry(
+                    locationPref.entryCount - 1,
+                    location.name, location.query
+                )
+            }
+            if (locationPref.entryCount > MAX_LOCATIONS)
+                locationPref.removeEntry(locationPref.entryCount - 1)
+
+            if (!args.simpleWeatherDroidExtraLOCATIONQUERY.isNullOrBlank()) {
+                val locName = args.simpleWeatherDroidExtraLOCATIONNAME
+                val locQuery = args.simpleWeatherDroidExtraLOCATIONQUERY
+
+                if (locName != null) {
+                    mLastSelectedValue = locQuery
+                    locationPref.value = mLastSelectedValue.toString()
+                } else {
+                    locationPref.setValueIndex(0)
+                }
+            } else {
+                locationPref.setValueIndex(0)
+            }
         }
-        if (locationPref.entryCount > MAX_LOCATIONS)
-            locationPref.removeEntry(locationPref.entryCount - 1)
 
-        locationPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            job?.cancel()
+        locationPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                job?.cancel()
 
-            val selectedValue = newValue as CharSequence
-            if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
-                // Setup search UI
-                view?.findNavController()
+                val selectedValue = newValue as CharSequence
+                if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
+                    // Setup search UI
+                    view?.findNavController()
                         ?.navigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2())
-                query_vm = null
+                    query_vm = null
                 return@OnPreferenceChangeListener false
             } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
                 mLastSelectedValue = null
@@ -323,20 +354,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
             updateLocationView()
             true
-        }
-
-        if (args.simpleWeatherDroidExtraLOCATIONQUERY?.isNotBlank() == true) {
-            val locName = args.simpleWeatherDroidExtraLOCATIONNAME
-            val locQuery = args.simpleWeatherDroidExtraLOCATIONQUERY
-
-            if (locName != null) {
-                mLastSelectedValue = locQuery
-                locationPref.value = mLastSelectedValue.toString()
-            } else {
-                locationPref.setValueIndex(0)
-            }
-        } else {
-            locationPref.setValueIndex(0)
         }
 
         hideLocNamePref = findPreference(KEY_HIDELOCNAME)!!

@@ -457,11 +457,11 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     }
 
     private fun removeLocation(panel: LocationPanelViewModel) {
-        // Remove location from list
-        settingsManager.deleteLocation(panel.locationData!!.query)
-
         // Remove panel
         scope.launch {
+            // Remove location from list
+            settingsManager.deleteLocation(panel.locationData!!.query)
+
             remove(panel)
         }
     }

@@ -18,8 +18,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         const val ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM"
         const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
-        @JvmStatic
-        fun requestWidgetUpdate(context: Context) {
+        suspend fun requestWidgetUpdate(context: Context) {
             if (App.instance.settingsManager.isWeatherLoaded()) {
                 Timber.tag(TAG).i("Requesting widget update...")
 

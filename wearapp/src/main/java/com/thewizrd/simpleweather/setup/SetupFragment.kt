@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import com.google.android.gms.location.*
@@ -159,12 +160,14 @@ class SetupFragment : CustomFragment() {
         when (requestCode) {
             REQUEST_CODE_SYNC_ACTIVITY -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    if (settingsManager.getHomeData() != null) {
-                        settingsManager.setDataSync(WearableDataSync.DEVICEONLY)
-                        settingsManager.setWeatherLoaded(true)
-                        // Start WeatherNow Activity
-                        startActivity(Intent(requireActivity(), MainActivity::class.java))
-                        requireActivity().finishAffinity()
+                    lifecycleScope.launch {
+                        if (settingsManager.getHomeData() != null) {
+                            settingsManager.setDataSync(WearableDataSync.DEVICEONLY)
+                            settingsManager.setWeatherLoaded(true)
+                            // Start WeatherNow Activity
+                            startActivity(Intent(requireActivity(), MainActivity::class.java))
+                            requireActivity().finishAffinity()
+                        }
                     }
                 }
             }

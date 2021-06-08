@@ -32,6 +32,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         // Actions
         private const val KEY_ACTION = "action"
         private const val KEY_URGENTREQUEST = "urgent"
+        private const val KEY_NODEID = "nodeID"
 
         @JvmStatic
         @JvmOverloads
@@ -40,26 +41,37 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 WearableWorkerActions.ACTION_SENDUPDATE,
                 WearableWorkerActions.ACTION_SENDSETTINGSUPDATE,
                 WearableWorkerActions.ACTION_SENDLOCATIONUPDATE,
-                WearableWorkerActions.ACTION_SENDWEATHERUPDATE -> {
+                WearableWorkerActions.ACTION_SENDWEATHERUPDATE,
+                WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
                     startWork(context.applicationContext, intentAction, urgent)
                 }
             }
         }
 
-        private fun startWork(context: Context, intentAction: String, urgent: Boolean) {
+        private fun startWork(
+            context: Context,
+            intentAction: String,
+            urgent: Boolean,
+            nodeID: String? = null
+        ) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
+            val data = Data.Builder()
+                .putString(KEY_ACTION, intentAction)
+                .putBoolean(KEY_URGENTREQUEST, urgent)
+
+            nodeID?.let { data.putString(KEY_NODEID, nodeID) }
+
             val updateRequest = OneTimeWorkRequest.Builder(WearableWorker::class.java)
-                    .setInputData(
-                            Data.Builder()
-                                    .putString(KEY_ACTION, intentAction)
-                                    .putBoolean(KEY_URGENTREQUEST, urgent)
-                                    .build()
-                    )
-                    .build()
+                .setInputData(data.build())
+                .build()
 
             WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction), ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                .enqueueUniqueWork(
+                    String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction),
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    updateRequest
+                )
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }
@@ -79,16 +91,24 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
 
         val mWearNodesWithApp = findWearDevicesWithApp()
         if (!mWearNodesWithApp.isEmpty()) {
-            if (WearableWorkerActions.ACTION_SENDUPDATE == intentAction) {
-                createSettingsDataRequest(urgent)
-                createLocationDataRequest(urgent)
-                createWeatherDataRequest(urgent)
-            } else if (WearableWorkerActions.ACTION_SENDSETTINGSUPDATE == intentAction) {
-                createSettingsDataRequest(urgent)
-            } else if (WearableWorkerActions.ACTION_SENDLOCATIONUPDATE == intentAction) {
-                createLocationDataRequest(urgent)
-            } else if (WearableWorkerActions.ACTION_SENDWEATHERUPDATE == intentAction) {
-                createWeatherDataRequest(urgent)
+            when (intentAction) {
+                WearableWorkerActions.ACTION_SENDUPDATE -> {
+                    createSettingsDataRequest(urgent)
+                    createLocationDataRequest(urgent)
+                    createWeatherDataRequest(urgent)
+                }
+                WearableWorkerActions.ACTION_SENDSETTINGSUPDATE -> {
+                    createSettingsDataRequest(urgent)
+                }
+                WearableWorkerActions.ACTION_SENDLOCATIONUPDATE -> {
+                    createLocationDataRequest(urgent)
+                }
+                WearableWorkerActions.ACTION_SENDWEATHERUPDATE -> {
+                    createWeatherDataRequest(urgent)
+                }
+                WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
+                    sendSetupStatus(inputData.getString(KEY_NODEID)!!)
+                }
             }
         }
 
@@ -220,7 +240,25 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 Logger.writeLine(Log.ERROR, e)
             }
 
-            Logger.writeLine(Log.INFO, "%s: createWeatherDataRequest(): urgent: %s", TAG, java.lang.Boolean.toString(urgent))
+            Logger.writeLine(
+                Log.INFO,
+                "%s: createWeatherDataRequest(): urgent: %s",
+                TAG,
+                java.lang.Boolean.toString(urgent)
+            )
         }
     }
+
+    private suspend fun sendSetupStatus(nodeID: String) =
+        withContext(Dispatchers.IO) {
+            try {
+                val client = Wearable.getMessageClient(applicationContext)
+                client.sendMessage(
+                    nodeID, WearableHelper.IsSetupPath,
+                    byteArrayOf((if (settingsManager.isWeatherLoaded()) 1 else 0).toByte())
+                ).await()
+            } catch (e: Exception) {
+                Logger.writeLine(Log.ERROR, e)
+            }
+        }
 }

@@ -318,13 +318,18 @@ class WeatherDataLoader(private val location: LocationData) {
         return isDataValid(_override)
     }
 
-    private fun checkForOutdatedObservation(request: WeatherRequest) {
+    private suspend fun checkForOutdatedObservation(request: WeatherRequest) {
         if (weather != null) {
             // Check for outdated observation
             val now = ZonedDateTime.now().withZoneSameInstant(location.tzOffset)
-            val duraMins = if (weather?.condition?.observationTime == null) 61 else Duration.between(weather!!.condition.observationTime, now).toMinutes()
+            val duraMins =
+                if (weather?.condition?.observationTime == null) 61 else Duration.between(
+                    weather!!.condition.observationTime,
+                    now
+                ).toMinutes()
             if (duraMins > 60) {
-                val interval = WeatherManager.getProvider(weather!!.source).getHourlyForecastInterval()
+                val interval =
+                    WeatherManager.getProvider(weather!!.source).getHourlyForecastInterval()
 
                 val nowHour = now.truncatedTo(ChronoUnit.HOURS)
                 var hrf = settingsMgr.getFirstHourlyForecastDataByDate(location.query, nowHour)
@@ -389,7 +394,7 @@ class WeatherDataLoader(private val location: LocationData) {
                     }
 
                     if (request.isShouldSaveData) {
-                        settingsMgr.saveWeatherData(weather)
+                        settingsMgr.saveWeatherData(weather!!)
                     }
                 }
             }
@@ -442,7 +447,7 @@ class WeatherDataLoader(private val location: LocationData) {
         // Save location query
         weather!!.query = location.query
 
-        settingsMgr.saveWeatherData(weather)
+        settingsMgr.saveWeatherData(weather!!)
 
         if (!SimpleLibrary.instance.app.isPhone) {
             settingsMgr.setUpdateTime(weather!!.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())

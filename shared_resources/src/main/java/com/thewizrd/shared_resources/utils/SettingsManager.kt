@@ -131,13 +131,6 @@ class SettingsManager(context: Context) {
         }
     }
 
-    @Synchronized
-    fun loadIfNeededSync() {
-        runBlocking {
-            loadIfNeeded()
-        }
-    }
-
     private suspend fun load() {
         /* DB Migration */
         DBMigrations.performMigrations(appContext, getWeatherDB(), getLocationDB())
@@ -225,117 +218,100 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun getFavorites(): Collection<LocationData> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getLocationsDAO().getFavorites()
-        }
+    suspend fun getFavorites(): Collection<LocationData> {
+        loadIfNeeded()
+        return getLocationsDAO().getFavorites()
     }
 
-    fun getLocationData(): List<LocationData> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getLocationsDAO().loadAllLocationData()
-        }
+    suspend fun getLocationData(): List<LocationData> {
+        loadIfNeeded()
+        return getLocationsDAO().loadAllLocationData()
     }
 
-    fun getLocation(key: String?): LocationData? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getLocationsDAO().getLocation(key)
-        }
+    suspend fun getLocation(key: String?): LocationData? {
+        loadIfNeeded()
+        return getLocationsDAO().getLocation(key)
     }
 
-    fun getWeatherData(key: String?): Weather? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getWeatherData(key)
-        }
+    suspend fun getWeatherData(key: String?): Weather? {
+        loadIfNeeded()
+        return getWeatherDAO().getWeatherData(key)
     }
 
-    fun getWeatherDataByCoordinate(location: LocationData): Weather? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            val query = String.format(Locale.ROOT, "\"latitude\":\"%s\",\"longitude\":\"%s\"",
-                    location.latitude.toString(), location.longitude.toString())
-            getWeatherDAO().getWeatherDataByCoord("%$query%")
-        }
+    suspend fun getWeatherDataByCoordinate(location: LocationData): Weather? {
+        loadIfNeeded()
+        val query = String.format(
+            Locale.ROOT, "\"latitude\":\"%s\",\"longitude\":\"%s\"",
+            location.latitude.toString(), location.longitude.toString()
+        )
+        return getWeatherDAO().getWeatherDataByCoord("%$query%")
     }
 
-    fun getWeatherAlertData(key: String?): Collection<WeatherAlert> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            var alerts: Collection<WeatherAlert>? = null
-            try {
-                val weatherAlertData = getWeatherDAO().getWeatherAlertData(key)
-                if (weatherAlertData?.alerts != null) alerts = weatherAlertData.alerts
-            } catch (ex: Exception) {
-                Logger.writeLine(Log.ERROR, ex, "SimpleWeather: Settings.GetWeatherAlertData()")
-            } finally {
-                if (alerts == null) alerts = ArrayList()
-            }
-            alerts
+    suspend fun getWeatherAlertData(key: String?): Collection<WeatherAlert> {
+        loadIfNeeded()
+
+        var alerts: Collection<WeatherAlert>? = null
+
+        try {
+            val weatherAlertData = getWeatherDAO().getWeatherAlertData(key)
+            alerts = weatherAlertData?.alerts
+        } catch (ex: Exception) {
+            Logger.writeLine(Log.ERROR, ex, "SimpleWeather: Settings.GetWeatherAlertData()")
         }
+
+        return alerts ?: emptyList()
     }
 
-    fun getWeatherForecastData(key: String?): Forecasts? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getForecastData(key)
-        }
+    suspend fun getWeatherForecastData(key: String?): Forecasts? {
+        loadIfNeeded()
+        return getWeatherDAO().getForecastData(key)
     }
 
-    fun getHourlyWeatherForecastDataByLimit(key: String?, loadSize: Int): List<HourlyForecast> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimit(key, loadSize)
-        }
+    suspend fun getHourlyWeatherForecastDataByLimit(
+        key: String?,
+        loadSize: Int
+    ): List<HourlyForecast> {
+        loadIfNeeded()
+        return getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimit(key, loadSize)
     }
 
-    fun getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+    suspend fun getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
         key: String?,
         loadSize: Int,
         date: ZonedDateTime
     ): List<HourlyForecast> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
-                key,
-                loadSize,
-                date
-            )
-        }
+        loadIfNeeded()
+        return getWeatherDAO().getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+            key,
+            loadSize,
+            date
+        )
     }
 
-    fun getHourlyWeatherForecastData(key: String?): List<HourlyForecast> {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getHourlyForecastsByQueryOrderByDate(key)
-        }
+    suspend fun getHourlyWeatherForecastData(key: String?): List<HourlyForecast> {
+        loadIfNeeded()
+        return getWeatherDAO().getHourlyForecastsByQueryOrderByDate(key)
     }
 
-    fun getFirstHourlyForecastDataByDate(key: String?, date: ZonedDateTime): HourlyForecast? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            getWeatherDAO().getFirstHourlyForecastDataByDate(key, date)
-        }
+    suspend fun getFirstHourlyForecastDataByDate(
+        key: String?,
+        date: ZonedDateTime
+    ): HourlyForecast? {
+        loadIfNeeded()
+        return getWeatherDAO().getFirstHourlyForecastDataByDate(key, date)
     }
 
-    fun getLastGPSLocData(): LocationData? {
-        return runBlocking(Dispatchers.IO) {
-            loadIfNeeded()
-            if (lastGPSLocData?.locationType != LocationType.GPS) {
-                lastGPSLocData?.locationType = LocationType.GPS
-            }
-            lastGPSLocData
+    suspend fun getLastGPSLocData(): LocationData? {
+        loadIfNeeded()
+        if (lastGPSLocData?.locationType != LocationType.GPS) {
+            lastGPSLocData?.locationType = LocationType.GPS
         }
+        return lastGPSLocData
     }
 
-    fun saveWeatherData(weather: Weather?) {
-        if (weather != null && weather.isValid) {
-            runBlocking(Dispatchers.IO) {
-                getWeatherDAO().insertWeatherData(weather)
-            }
+    suspend fun saveWeatherData(weather: Weather) {
+        if (!weather.isNullOrInvalid()) {
+            getWeatherDAO().insertWeatherData(weather)
         }
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -343,12 +319,10 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun saveWeatherAlerts(location: LocationData?, alerts: Collection<WeatherAlert>?) {
-        if (location != null && location.isValid) {
-            runBlocking(Dispatchers.IO) {
-                val alertData = WeatherAlerts(location.query, alerts)
-                getWeatherDAO().insertWeatherAlertData(alertData)
-            }
+    suspend fun saveWeatherAlerts(location: LocationData?, alerts: Collection<WeatherAlert>?) {
+        if (location?.isValid == true) {
+            val alertData = WeatherAlerts(location.query, alerts)
+            getWeatherDAO().insertWeatherAlertData(alertData)
         }
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -356,11 +330,9 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun saveWeatherForecasts(forecasts: Forecasts?) {
+    suspend fun saveWeatherForecasts(forecasts: Forecasts?) {
         if (forecasts != null) {
-            runBlocking(Dispatchers.IO) {
-                getWeatherDAO().insertForecast(forecasts)
-            }
+            getWeatherDAO().insertForecast(forecasts)
         }
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -368,12 +340,10 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun saveWeatherForecasts(key: String, forecasts: Collection<HourlyForecasts>?) {
-        runBlocking(Dispatchers.IO) {
-            getWeatherDAO().deleteHourlyForecastByKey(key)
-            if (forecasts != null) {
-                getWeatherDAO().insertAllHourlyForecasts(forecasts)
-            }
+    suspend fun saveWeatherForecasts(key: String, forecasts: Collection<HourlyForecasts>?) {
+        getWeatherDAO().deleteHourlyForecastByKey(key)
+        if (forecasts != null) {
+            getWeatherDAO().insertAllHourlyForecasts(forecasts)
         }
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -381,150 +351,128 @@ class SettingsManager(context: Context) {
         }
     }
 
-    private fun cleanupWeatherData() {
-        GlobalScope.launch(Dispatchers.IO) {
-            val locs: List<LocationData?>
-            if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
-                if (useFollowGPS()) locs.add(lastGPSLocData)
-            } else {
-                locs = listOf(getHomeData())
-            }
+    private suspend fun cleanupWeatherData() {
+        val locs: List<LocationData?>
+        if (isPhone) {
+            locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
+            if (useFollowGPS()) locs.add(lastGPSLocData)
+        } else {
+            locs = listOf(getHomeData())
+        }
 
-            val locQueries = locs.map { it?.query }
-            getWeatherDAO().deleteWeatherDataByKeyNotIn(locQueries)
+        val locQueries = locs.map { it?.query }
+        getWeatherDAO().deleteWeatherDataByKeyNotIn(locQueries)
+    }
+
+    private suspend fun cleanupWeatherForecastData() {
+        val locs: List<LocationData?>
+        if (isPhone) {
+            locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
+            if (useFollowGPS()) locs.add(lastGPSLocData)
+        } else {
+            locs = listOf(getHomeData())
+        }
+
+        val locQueries = locs.map { it?.query }
+        getWeatherDAO().deleteForecastByKeyNotIn(locQueries)
+        getWeatherDAO().deleteHourlyForecastByKeyNotIn(locQueries)
+    }
+
+    private suspend fun cleanupWeatherAlertData() {
+        val locs: List<LocationData?>
+        if (isPhone) {
+            locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
+            if (useFollowGPS()) locs.add(lastGPSLocData)
+        } else {
+            locs = listOf(getHomeData())
+        }
+
+        val locQueries = locs.map { it?.query }
+        getWeatherDAO().deleteWeatherAlertDataByKeyNotIn(locQueries)
+    }
+
+    suspend fun addLocation(location: LocationData?) {
+        if (location?.isValid == true) {
+            getLocationsDAO().insertLocationData(location)
+            val pos = getLocationsDAO().getLocationDataCount()
+            val fav = Favorites().apply {
+                query = location.query
+                position = pos
+            }
+            getLocationsDAO().insertFavorite(fav)
         }
     }
 
-    private fun cleanupWeatherForecastData() {
-        GlobalScope.launch(Dispatchers.IO) {
-            val locs: List<LocationData?>
-            if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
-                if (useFollowGPS()) locs.add(lastGPSLocData)
-            } else {
-                locs = listOf(getHomeData())
-            }
-
-            val locQueries = locs.map { it?.query }
-            getWeatherDAO().deleteForecastByKeyNotIn(locQueries)
-            getWeatherDAO().deleteHourlyForecastByKeyNotIn(locQueries)
-        }
-    }
-
-    private fun cleanupWeatherAlertData() {
-        GlobalScope.launch(Dispatchers.IO) {
-            val locs: List<LocationData?>
-            if (isPhone) {
-                locs = getLocationsDAO().loadAllLocationData().toMutableList<LocationData?>()
-                if (useFollowGPS()) locs.add(lastGPSLocData)
-            } else {
-                locs = listOf(getHomeData())
-            }
-
-            val locQueries = locs.map { it?.query }
-            getWeatherDAO().deleteWeatherAlertDataByKeyNotIn(locQueries)
-        }
-    }
-
-    fun addLocation(location: LocationData?) {
-        if (location != null && location.isValid) {
-            runBlocking(Dispatchers.IO) {
-                getLocationsDAO().insertLocationData(location)
-                val pos = getLocationsDAO().getLocationDataCount()
-                val fav = Favorites().apply {
-                    query = location.query
-                    position = pos
-                }
-                getLocationsDAO().insertFavorite(fav)
-            }
-        }
-    }
-
-    fun updateLocation(location: LocationData?) {
+    suspend fun updateLocation(location: LocationData?) {
         if (location?.locationType == LocationType.GPS && location.isValid) {
             saveLastGPSLocData(location)
         } else if (location?.locationType == LocationType.SEARCH && location.isValid) {
-            runBlocking(Dispatchers.IO) {
-                getLocationsDAO().updateLocationData(location)
-            }
+            getLocationsDAO().updateLocationData(location)
         }
     }
 
-    fun updateLocationWithKey(location: LocationData?, oldKey: String?) {
+    suspend fun updateLocationWithKey(location: LocationData?, oldKey: String?) {
         if (location?.isValid == true && !oldKey.isNullOrBlank()) {
-            runBlocking(Dispatchers.IO) {
-                // Get position from favorites table
-                var fav = getLocationsDAO().getFavorite(oldKey) ?: return@runBlocking
-                val pos = fav.position
+            // Get position from favorites table
+            var fav = getLocationsDAO().getFavorite(oldKey) ?: return
+            val pos = fav.position
 
-                // Remove location from table
-                getLocationsDAO().deleteLocationDataByKey(oldKey)
-                getLocationsDAO().deleteFavoritesByKey(oldKey)
+            // Remove location from table
+            getLocationsDAO().deleteLocationDataByKey(oldKey)
+            getLocationsDAO().deleteFavoritesByKey(oldKey)
 
-                // Add updated location with new query (pkey)
-                getLocationsDAO().insertLocationData(location)
-                fav = Favorites().apply {
-                    query = location.query
-                    position = pos
-                }
-                getLocationsDAO().insertFavorite(fav)
+            // Add updated location with new query (pkey)
+            getLocationsDAO().insertLocationData(location)
+            fav = Favorites().apply {
+                query = location.query
+                position = pos
             }
+            getLocationsDAO().insertFavorite(fav)
         }
     }
 
-    fun deleteLocations() {
-        runBlocking(Dispatchers.IO) {
-            getLocationsDAO().deleteAllLocationData()
-            getLocationsDAO().deleteAllFavoriteData()
-        }
+    suspend fun deleteLocations() {
+        getLocationsDAO().deleteAllLocationData()
+        getLocationsDAO().deleteAllFavoriteData()
     }
 
-    fun deleteLocation(key: String?) {
+    suspend fun deleteLocation(key: String?) {
         if (!key.isNullOrBlank()) {
-            runBlocking(Dispatchers.IO) {
-                getLocationsDAO().deleteLocationDataByKey(key)
-                getLocationsDAO().deleteFavoritesByKey(key)
-                resetPostition()
-            }
+            getLocationsDAO().deleteLocationDataByKey(key)
+            getLocationsDAO().deleteFavoritesByKey(key)
+            resetPostition()
         }
     }
 
-    fun moveLocation(key: String?, toPos: Int) {
+    suspend fun moveLocation(key: String?, toPos: Int) {
         if (!key.isNullOrBlank()) {
-            runBlocking(Dispatchers.IO) {
-                getLocationsDAO().updateFavPosition(key, toPos)
-            }
+            getLocationsDAO().updateFavPosition(key, toPos)
         }
     }
 
-    private fun resetPostition() {
-        runBlocking(Dispatchers.IO) {
-            val favs = getLocationsDAO().loadAllFavoritesByPosition()
-            for (fav in favs) {
-                fav.position = favs.indexOf(fav)
-                getLocationsDAO().updateFavorite(fav)
-            }
+    private suspend fun resetPostition() {
+        val favs = getLocationsDAO().loadAllFavoritesByPosition()
+        for (fav in favs) {
+            fav.position = favs.indexOf(fav)
+            getLocationsDAO().updateFavorite(fav)
         }
     }
 
-    fun saveLastGPSLocData(data: LocationData?) {
+    suspend fun saveLastGPSLocData(data: LocationData?) {
         lastGPSLocData = data
-        runBlocking(Dispatchers.Default) {
+        withContext(Dispatchers.Default) {
             setLastGPSLocation(JSONParser.serializer(lastGPSLocData, LocationData::class.java))
         }
     }
 
-    fun getHomeData(): LocationData? {
+    suspend fun getHomeData(): LocationData? {
         val homeData: LocationData?
         if (isPhone) {
             homeData = if (useFollowGPS()) {
                 getLastGPSLocData()
             } else {
-                runBlocking(Dispatchers.IO) {
-                    loadIfNeeded()
-                    getLocationsDAO().getFirstFavorite()
-                }
+                loadIfNeeded()
+                getLocationsDAO().getFirstFavorite()
             }
         } else {
             homeData = getLastGPSLocData()
@@ -535,7 +483,7 @@ class SettingsManager(context: Context) {
 
     // Android Wear specific members
     @RequiresApi(Build.VERSION_CODES.M)
-    fun saveHomeData(data: LocationData?) {
+    suspend fun saveHomeData(data: LocationData?) {
         saveLastGPSLocData(data)
     }
 
@@ -621,26 +569,28 @@ class SettingsManager(context: Context) {
         editor.apply()
     }
 
-    fun isWeatherLoaded(): Boolean {
-        return runBlocking(Dispatchers.IO) {
-            if (isPhone) {
-                if (!DBUtils.locationDataExists(getLocationDB())) {
-                    setWeatherLoaded(false)
-                    return@runBlocking false
-                }
-            } else {
-                if (!DBUtils.weatherDataExists(getWeatherDB())) {
-                    setWeatherLoaded(false)
-                    return@runBlocking false
-                }
+    suspend fun isWeatherLoaded(): Boolean {
+        if (isPhone) {
+            if (!DBUtils.locationDataExists(getLocationDB())) {
+                setWeatherLoaded(false)
+                return false
             }
+        } else {
+            if (!DBUtils.weatherDataExists(getWeatherDB())) {
+                setWeatherLoaded(false)
+                return false
+            }
+        }
 
-            if (preferences.contains(KEY_WEATHERLOADED) && preferences.getBoolean(KEY_WEATHERLOADED, false)) {
-                setWeatherLoaded(true)
-                return@runBlocking true
-            } else {
-                return@runBlocking false
-            }
+        return if (preferences.contains(KEY_WEATHERLOADED) && preferences.getBoolean(
+                KEY_WEATHERLOADED,
+                false
+            )
+        ) {
+            setWeatherLoaded(true)
+            true
+        } else {
+            false
         }
     }
 

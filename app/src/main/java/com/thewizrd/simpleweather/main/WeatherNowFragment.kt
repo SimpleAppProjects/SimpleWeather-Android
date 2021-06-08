@@ -189,21 +189,38 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             if (locationData != null) {
                 forecastsView.updateForecasts(locationData!!)
 
-                val context = App.instance.appContext
+                GlobalScope.launch(Dispatchers.Default) {
+                    val context = App.instance.appContext
 
-                if (getSettingsManager().getHomeData() == locationData) {
-                    // Update widgets if they haven't been already
-                    if (Duration.between(LocalDateTime.now(ZoneOffset.UTC), getSettingsManager().getUpdateTime()).toMinutes() > getSettingsManager().getRefreshInterval()) {
-                        WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+                    if (getSettingsManager().getHomeData() == locationData) {
+                        // Update widgets if they haven't been already
+                        if (Duration.between(
+                                LocalDateTime.now(ZoneOffset.UTC),
+                                getSettingsManager().getUpdateTime()
+                            ).toMinutes() > getSettingsManager().getRefreshInterval()
+                        ) {
+                            WeatherUpdaterWorker.enqueueAction(
+                                context,
+                                WeatherUpdaterWorker.ACTION_UPDATEWEATHER
+                            )
+                        } else {
+                            // Update widgets
+                            WidgetUpdaterWorker.enqueueAction(
+                                context,
+                                WidgetUpdaterWorker.ACTION_UPDATEWIDGETS
+                            )
+                        }
                     } else {
-                        // Update widgets
-                        WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
+                        // Update widgets anyway
+                        WeatherWidgetService.enqueueWork(
+                            context, Intent(context, WeatherWidgetService::class.java)
+                                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
+                                .putExtra(
+                                    WeatherWidgetService.EXTRA_LOCATIONQUERY,
+                                    locationData?.query
+                                )
+                        )
                     }
-                } else {
-                    // Update widgets anyway
-                    WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                            .setAction(WeatherWidgetService.ACTION_REFRESHWIDGETS)
-                            .putExtra(WeatherWidgetService.EXTRA_LOCATIONQUERY, locationData?.query))
                 }
             }
         }
@@ -300,7 +317,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         weatherLiveData = MutableLiveData()
         weatherLiveData.observe(this, weatherObserver)
 
-        alertsView.alerts.observe(this, alertsObserver)
+        alertsView.getAlerts()?.observe(this, alertsObserver)
 
         lifecycle.addObserver(object : LifecycleObserver {
             private var wasStarted = false

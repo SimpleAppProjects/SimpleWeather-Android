@@ -34,8 +34,8 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
 import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.services.UpdaterUtils
@@ -92,8 +92,9 @@ class MainActivity : UserLocaleActivity(),
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRect(view.paddingLeft,
                         0,
-                        view.width - view.paddingRight,
-                        view.height)
+                    view.width - view.paddingRight,
+                    view.height
+                )
             }
         }
 
@@ -102,36 +103,43 @@ class MainActivity : UserLocaleActivity(),
 
         updateWindowColors(settingsManager.getUserThemeMode())
 
-        val args = Bundle()
-        if (intent?.extras != null) {
-            args.putAll(intent.extras)
-        }
-
-        // Shortcut intent: from app shortcuts
-        if (args.containsKey(Constants.KEY_SHORTCUTDATA)) {
-            val data = args.getString(Constants.KEY_SHORTCUTDATA)
-            args.remove(Constants.KEY_SHORTCUTDATA)
-            args.putString(Constants.KEY_DATA, data)
-        }
-
-        if (args.containsKey(Constants.KEY_DATA)) {
-            if (!args.containsKey(Constants.FRAGTAG_HOME)) {
-                val locData = JSONParser.deserializer(
-                        args.getString(Constants.KEY_DATA), LocationData::class.java)
-                args.putBoolean(Constants.FRAGTAG_HOME, ObjectsCompat.equals(locData, settingsManager.getHomeData()))
+        lifecycleScope.launch {
+            val args = Bundle()
+            if (intent?.extras != null) {
+                args.putAll(intent.extras)
             }
-        }
 
-        // Start services
-        UpdaterUtils.startAlarm(this)
+            // Shortcut intent: from app shortcuts
+            if (args.containsKey(Constants.KEY_SHORTCUTDATA)) {
+                val data = args.getString(Constants.KEY_SHORTCUTDATA)
+                args.remove(Constants.KEY_SHORTCUTDATA)
+                args.putString(Constants.KEY_DATA, data)
+            }
 
-        if (FeatureSettings.isUpdateAvailable()) {
-            // Update is available; double check if mandatory
-            appUpdateManager = InAppUpdateManager.create(applicationContext)
-            lifecycleScope.launch {
+            if (args.containsKey(Constants.KEY_DATA)) {
+                if (!args.containsKey(Constants.FRAGTAG_HOME)) {
+                    val locData = JSONParser.deserializer(
+                        args.getString(Constants.KEY_DATA), LocationData::class.java
+                    )
+                    args.putBoolean(
+                        Constants.FRAGTAG_HOME,
+                        ObjectsCompat.equals(locData, settingsManager.getHomeData())
+                    )
+                }
+            }
+
+            // Start services
+            UpdaterUtils.startAlarm(this@MainActivity)
+
+            if (FeatureSettings.isUpdateAvailable()) {
+                // Update is available; double check if mandatory
+                appUpdateManager = InAppUpdateManager.create(applicationContext)
                 val isUpdateAvailable = appUpdateManager!!.shouldStartImmediateUpdateFlow()
                 if (isUpdateAvailable) {
-                    appUpdateManager!!.startImmediateUpdateFlow(this@MainActivity, INSTALL_REQUESTCODE)
+                    appUpdateManager!!.startImmediateUpdateFlow(
+                        this@MainActivity,
+                        INSTALL_REQUESTCODE
+                    )
                 } else {
                     lifecycleScope.launch(Dispatchers.Main.immediate) {
                         // Commit transaction now, if needed, since we'll try to access
@@ -140,10 +148,10 @@ class MainActivity : UserLocaleActivity(),
                         initializeNavController()
                     }
                 }
+                return@launch
             }
-            return
+            initializeNavFragment(args)
         }
-        initializeNavFragment(args)
     }
 
     private fun initializeNavFragment(args: Bundle, commitNow: Boolean = false) {

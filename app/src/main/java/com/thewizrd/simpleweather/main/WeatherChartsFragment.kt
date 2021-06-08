@@ -4,7 +4,6 @@ import android.graphics.Outline
 import android.os.Bundle
 import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
-import androidx.annotation.CallSuper
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.activityViewModels
@@ -38,7 +37,7 @@ import java.util.*
 class WeatherChartsFragment : ToolbarFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()
     private val chartsView: ChartsViewModel by viewModels()
-    private var location: LocationData? = null
+    private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
     private lateinit var adapter: ChartsItemAdapter
@@ -54,7 +53,7 @@ class WeatherChartsFragment : ToolbarFragment() {
     companion object {
         fun newInstance(locData: LocationData): WeatherChartsFragment {
             val fragment = WeatherChartsFragment()
-            fragment.location = locData
+            fragment.locationData = locData
             return fragment
         }
     }
@@ -67,16 +66,16 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
-                location = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData::class.java)
+                locationData = JSONParser.deserializer(
+                    savedInstanceState.getString(Constants.KEY_DATA),
+                    LocationData::class.java
+                )
             }
         } else {
             if (args.data != null) {
-                location = JSONParser.deserializer(args.data, LocationData::class.java)
+                locationData = JSONParser.deserializer(args.data, LocationData::class.java)
             }
         }
-
-        if (location == null)
-            location = getSettingsManager().getHomeData()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -177,64 +176,81 @@ class WeatherChartsFragment : ToolbarFragment() {
         return R.string.label_forecast
     }
 
-    // Initialize views here
-    @CallSuper
-    protected fun initialize() {
-        if (!weatherView.isValid || location != null && location!!.query != weatherView.query) {
-            runWithView(Dispatchers.Default) {
-                supervisorScope {
-                    val weather = WeatherDataLoader(location!!)
-                            .loadWeatherData(WeatherRequest.Builder()
-                                    .forceLoadSavedData()
-                                    .setErrorListener { wEx ->
-                                        when (wEx.errorStatus) {
-                                            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER ->
-                                                // Show error message and prompt to refresh
-                                                showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
-                                            ErrorStatus.QUERYNOTFOUND -> {
-                                                if (!wm.isRegionSupported(location!!.countryCode)) {
-                                                    showSnackbar(
-                                                        Snackbar.make(
-                                                            R.string.error_message_weather_region_unsupported,
-                                                            Snackbar.Duration.LONG
-                                                        ), null
-                                                    )
-                                                    return@setErrorListener
-                                                }
-                                                // Show error message
+    private fun initialize() {
+        runWithView {
+            if (locationData == null) locationData = getSettingsManager().getHomeData()
+
+            if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
+                runWithView(Dispatchers.Default) {
+                    supervisorScope {
+                        val weather = WeatherDataLoader(locationData!!).loadWeatherData(
+                            WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .setErrorListener { wEx ->
+                                    when (wEx.errorStatus) {
+                                        ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
+                                            // Show error message and prompt to refresh
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    wEx.message,
+                                                    Snackbar.Duration.LONG
+                                                ), null
+                                            )
+                                        }
+                                        ErrorStatus.QUERYNOTFOUND -> {
+                                            if (!wm.isRegionSupported(locationData!!.countryCode)) {
                                                 showSnackbar(
                                                     Snackbar.make(
-                                                        wEx.message,
+                                                        R.string.error_message_weather_region_unsupported,
                                                         Snackbar.Duration.LONG
                                                     ), null
                                                 )
+                                                return@setErrorListener
                                             }
-                                            else -> showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                                            // Show error message
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    wEx.message,
+                                                    Snackbar.Duration.LONG
+                                                ), null
+                                            )
                                         }
+                                        else -> {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    wEx.message,
+                                                    Snackbar.Duration.LONG
+                                                ), null
+                                            )
+                                        }
+                                    }
+                                }.build()
+                        )
 
-                                    }.build())
+                        ensureActive()
 
-                    ensureActive()
-
-                    launch(Dispatchers.Main) {
-                        weatherView.updateView(weather)
-                        chartsView.updateForecasts(location!!)
-                        binding.locationName.text = weatherView.location
+                        launch(Dispatchers.Main) {
+                            weatherView.updateView(weather)
+                            chartsView.updateForecasts(locationData!!)
+                            binding.locationName.text = weatherView.location
+                        }
                     }
                 }
+            } else {
+                chartsView.updateForecasts(locationData!!)
+                binding.locationName.text = weatherView.location
             }
-        } else {
-            chartsView.updateForecasts(location!!)
-            binding.locationName.text = weatherView.location
-        }
 
-        binding.progressBar.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Save data
-        outState.putString(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
-
+        outState.putString(
+            Constants.KEY_DATA,
+            JSONParser.serializer(locationData, LocationData::class.java)
+        )
         super.onSaveInstanceState(outState)
     }
 

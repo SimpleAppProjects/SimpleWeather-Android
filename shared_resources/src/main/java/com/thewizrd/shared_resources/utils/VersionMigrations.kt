@@ -13,11 +13,16 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 
 internal object VersionMigrations {
-    fun performMigrations(context: Context, weatherDB: WeatherDatabase, locationDB: LocationsDatabase) {
+    suspend fun performMigrations(
+        context: Context,
+        weatherDB: WeatherDatabase,
+        locationDB: LocationsDatabase
+    ) {
         val settingsMgr = SettingsManager(context.applicationContext)
 
         val versionCode = try {
-            val packageInfo = context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo =
+                context.applicationContext.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionCode.toLong()
         } catch (e: Exception) {
             Logger.writeLine(Log.DEBUG, e)

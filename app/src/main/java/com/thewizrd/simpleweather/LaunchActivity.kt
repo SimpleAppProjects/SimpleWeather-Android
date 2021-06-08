@@ -17,7 +17,9 @@ import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LaunchActivity : UserLocaleActivity() {
     companion object {
@@ -48,12 +50,14 @@ class LaunchActivity : UserLocaleActivity() {
             return
         }
 
-        // Update configuration
-        RemoteConfig.checkConfig()
+        lifecycleScope.launch {
+            // Update configuration
+            RemoteConfig.checkConfig()
 
-        // Check premium status
-        checkPremiumStatus()
-        startMainActivity()
+            // Check premium status
+            checkPremiumStatus()
+            startMainActivity()
+        }
     }
 
     override fun onResume() {
@@ -77,20 +81,22 @@ class LaunchActivity : UserLocaleActivity() {
         }
     }
 
-    private fun startMainActivity() {
+    private suspend fun startMainActivity() {
         var intent: Intent? = null
 
         try {
             intent = if (settingsMgr.isWeatherLoaded() && settingsMgr.isOnBoardingComplete()) {
                 Intent(this, MainActivity::class.java)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .putExtra(Constants.KEY_DATA, JSONParser.serializer(settingsMgr.getHomeData(), LocationData::class.java))
-                        .putExtra(Constants.FRAGTAG_HOME, true)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
+                        JSONParser.serializer(settingsMgr.getHomeData(), LocationData::class.java)
+                    })
+                    .putExtra(Constants.FRAGTAG_HOME, true)
             } else {
                 Intent(this, SetupActivity::class.java)
             }
         } catch (e: Exception) {
-            Logger.writeLine(Log.ERROR, e)
+            Logger.writeLine(Log.ERROR, e, "%s: error loading", TAG)
         } finally {
             if (intent == null) {
                 intent = Intent(this, SetupActivity::class.java)

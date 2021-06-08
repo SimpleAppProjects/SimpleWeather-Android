@@ -121,7 +121,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             if (settingsManager.getDataSync() != WearableDataSync.OFF && span.toMinutes() > SettingsManager.DEFAULTINTERVAL) {
                 WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
             } else {
-                WidgetUpdaterWorker.requestWidgetUpdate(context)
+                lifecycleScope.launch(Dispatchers.Default) {
+                    WidgetUpdaterWorker.requestWidgetUpdate(context)
+                }
             }
         } else {
             showToast(R.string.werror_noweather, Toast.LENGTH_LONG)
@@ -262,7 +264,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         // Live Data
         weatherLiveData = MutableLiveData()
         weatherLiveData.observe(this, weatherObserver)
-        alertsView.alerts.observe(this, alertsObserver)
+        alertsView.getAlerts()?.observe(this, alertsObserver)
 
         lifecycle.addObserver(object : LifecycleObserver {
             private var wasStarted = false
@@ -444,7 +446,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     private fun resume() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+        runWithView(Dispatchers.Default) {
             val locationChanged = verifyLocationData()
 
             if (locationChanged || wLoader == null) {
@@ -452,7 +454,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             } else {
                 // Refresh current fragment instance
                 val currentLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = wm.localeToLangCode(currentLocale.language, currentLocale.toLanguageTag())
+                val locale =
+                    wm.localeToLangCode(currentLocale.language, currentLocale.toLanguageTag())
 
                 // Reset if source || locale is different
                 if (settingsManager.getAPI() != weatherView.weatherSource ||
@@ -710,54 +713,58 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     private fun dataSyncResume(forceRefresh: Boolean = false) {
-        if (!isViewAlive) {
-            cancelDataSync()
-            return
-        }
-
-        if (!syncReceiverRegistered) {
-            val filter = IntentFilter().apply {
-                addAction(WearableHelper.LocationPath)
-                addAction(WearableHelper.WeatherPath)
-                addAction(WearableHelper.IsSetupPath)
+        runWithView {
+            if (!isViewAlive) {
+                cancelDataSync()
+                return@runWithView
             }
 
-            LocalBroadcastManager.getInstance(fragmentActivity)
+            if (!syncReceiverRegistered) {
+                val filter = IntentFilter().apply {
+                    addAction(WearableHelper.LocationPath)
+                    addAction(WearableHelper.WeatherPath)
+                    addAction(WearableHelper.IsSetupPath)
+                }
+
+                LocalBroadcastManager.getInstance(fragmentActivity)
                     .registerReceiver(syncDataReceiver, filter)
 
-            syncReceiverRegistered = true
-        }
+                syncReceiverRegistered = true
+            }
 
-        if (wLoader == null || forceRefresh) {
-            dataSyncRestore(forceRefresh)
-        } else {
-            // Update weather if needed on resume
-            if (locationData == null || locationData != settingsManager.getHomeData())
-                locationData = settingsManager.getHomeData()
+            if (wLoader == null || forceRefresh) {
+                dataSyncRestore(forceRefresh)
+            } else {
+                // Update weather if needed on resume
+                if (locationData == null || locationData != settingsManager.getHomeData())
+                    locationData = settingsManager.getHomeData()
 
-            binding.swipeRefreshLayout.isRefreshing = true
+                binding.swipeRefreshLayout.isRefreshing = true
 
-            runWithView(Dispatchers.IO) {
-                supervisorScope {
-                    wLoader = WeatherDataLoader(locationData!!)
-                    val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
-                            .forceLoadSavedData()
-                            .loadAlerts()
-                            .setErrorListener(this@WeatherNowFragment)
-                            .build())
+                runWithView(Dispatchers.IO) {
+                    supervisorScope {
+                        wLoader = WeatherDataLoader(locationData!!)
+                        val weather = wLoader!!.loadWeatherData(
+                            WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .loadAlerts()
+                                .setErrorListener(this@WeatherNowFragment)
+                                .build()
+                        )
 
-                    if (weather != null) {
-                        weatherLiveData.postValue(weather)
-                    } else {
-                        // Data is null; restore
-                        dataSyncRestore()
+                        if (weather != null) {
+                            weatherLiveData.postValue(weather)
+                        } else {
+                            // Data is null; restore
+                            dataSyncRestore()
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun cancelDataSync() {
+    private suspend fun cancelDataSync() {
         if (syncTimerEnabled)
             cancelTimer()
 
@@ -800,7 +807,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 // Data syncing is taking a long time to setup
                 // Stop and load saved data
                 Timber.d("WeatherNow: resetTimer: timeout")
-                cancelDataSync()
+                runWithView { cancelDataSync() }
             }
         }, 35000) // 35sec
 

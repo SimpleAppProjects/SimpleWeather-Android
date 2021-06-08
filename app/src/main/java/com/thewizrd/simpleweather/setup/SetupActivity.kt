@@ -9,13 +9,10 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.TransitionManager
@@ -32,6 +29,9 @@ import com.thewizrd.simpleweather.SetupGraphDirections
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.stepper.StepperFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SetupActivity : UserLocaleActivity() {
     private lateinit var settingsManager: SettingsManager
@@ -46,28 +46,42 @@ class SetupActivity : UserLocaleActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AnalyticsLogger.logEvent("SetupActivity: onCreate")
         settingsManager = App.instance.settingsManager
 
-        isWeatherLoaded = settingsManager.isWeatherLoaded()
+        lifecycleScope.launchWhenCreated {
+            isWeatherLoaded = settingsManager.isWeatherLoaded()
 
-        AnalyticsLogger.logEvent("SetupActivity: onCreate")
+            // Check if this activity was started from adding a new widget
+            if (AppWidgetManager.ACTION_APPWIDGET_CONFIGURE == intent?.action) {
+                mAppWidgetId = intent.getIntExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID
+                )
 
-        // Check if this activity was started from adding a new widget
-        if (AppWidgetManager.ACTION_APPWIDGET_CONFIGURE == intent?.action) {
-            mAppWidgetId = intent.getIntExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
-            )
+                if (settingsManager.isWeatherLoaded() || mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    // This shouldn't happen, but just in case
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                    // Return if we're finished
+                    return@launchWhenCreated
+                }
 
-            if (settingsManager.isWeatherLoaded() || mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-                // This shouldn't happen, but just in case
-                setResult(Activity.RESULT_OK)
-                finish()
-                // Return if we're finished
-                return
+                if (mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    // Set the result to CANCELED.  This will cause the widget host to cancel
+                    // out of the widget placement if they press the back button.
+                    setResult(
+                        Activity.RESULT_CANCELED,
+                        Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                    )
+                }
             }
 
-            if (mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            if (savedInstanceState?.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID) == true
+                && mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID
+            ) {
+                mAppWidgetId =
+                    savedInstanceState.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
                 // Set the result to CANCELED.  This will cause the widget host to cancel
                 // out of the widget placement if they press the back button.
                 setResult(
@@ -75,53 +89,39 @@ class SetupActivity : UserLocaleActivity() {
                     Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
                 )
             }
-        }
 
-        if (savedInstanceState?.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID) == true
-            && mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID
-        ) {
-            mAppWidgetId =
-                savedInstanceState.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-            // Set the result to CANCELED.  This will cause the widget host to cancel
-            // out of the widget placement if they press the back button.
-            setResult(
-                Activity.RESULT_CANCELED,
-                Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-            )
-        }
+            binding = ActivitySetupBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        binding = ActivitySetupBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+            ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar) { v, insets ->
+                val layoutParams = v.layoutParams as ViewGroup.MarginLayoutParams
+                layoutParams.setMargins(
+                    insets.systemWindowInsetLeft,
+                    0,
+                    insets.systemWindowInsetRight,
+                    insets.systemWindowInsetBottom
+                )
+                insets
+            }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar) { v, insets ->
-            val layoutParams: ViewGroup.MarginLayoutParams =
-                v.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.setMargins(
-                insets.systemWindowInsetLeft,
-                0,
-                insets.systemWindowInsetRight,
-                insets.systemWindowInsetBottom
-            )
-            insets
-        }
+            val color = ContextCompat.getColor(this@SetupActivity, R.color.colorPrimaryBackground)
+            ActivityUtils.setTransparentWindow(window, color)
 
-        val color = ContextCompat.getColor(this, R.color.colorPrimaryBackground)
-        ActivityUtils.setTransparentWindow(window, color)
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragment == null) {
+                val hostFragment = NavHostFragment.create(R.navigation.setup_graph)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
+                    .commit()
+            }
 
-        if (fragment == null) {
-            val hostFragment = NavHostFragment.create(R.navigation.setup_graph)
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
-                .commit()
-        }
+            setupBottomNavBar()
 
-        setupBottomNavBar()
-
-        if (isWeatherLoaded && viewModel.locationData == null) {
-            viewModel.locationData = settingsManager.getHomeData()
+            if (isWeatherLoaded && viewModel.locationData == null) {
+                viewModel.locationData = settingsManager.getHomeData()
+            }
         }
     }
 
@@ -281,42 +281,40 @@ class SetupActivity : UserLocaleActivity() {
     }
 
     private fun onCompleted() {
-        // Completion
-        settingsManager.setWeatherLoaded(true)
-        settingsManager.setOnBoardingComplete(true)
+        lifecycleScope.launch {
+            // Completion
+            settingsManager.setWeatherLoaded(true)
+            settingsManager.setOnBoardingComplete(true)
 
-        if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-            // Start WeatherNow Activity with weather data
-            val opts = NavOptions.Builder()
-            val currentDestination = mNavController?.currentDestination
-            if (currentDestination != null) {
-                opts.setPopUpTo(currentDestination.id, true)
-            }
-            mNavController!!.navigate(
-                SetupGraphDirections.actionGlobalMainActivity()
-                    .setData(
-                        JSONParser.serializer(
-                            viewModel.locationData,
-                            LocationData::class.java
-                        )
-                    ),
-                opts.build()
-            )
-
-            // We have an invalid widget id but just in case
-            setResult(Activity.RESULT_CANCELED)
-            finishAffinity()
-        } else {
-            // Create return intent
-            val resultValue = Intent()
-            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-            if (viewModel.locationData != null)
-                resultValue.putExtra(
-                    Constants.KEY_DATA,
-                    JSONParser.serializer(viewModel.locationData, LocationData::class.java)
+            if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                // Start WeatherNow Activity with weather data
+                val opts = NavOptions.Builder()
+                val currentDestination = mNavController?.currentDestination
+                if (currentDestination != null) {
+                    opts.setPopUpTo(currentDestination.id, true)
+                }
+                mNavController!!.navigate(
+                    SetupGraphDirections.actionGlobalMainActivity()
+                        .setData(withContext(Dispatchers.Default) {
+                            JSONParser.serializer(viewModel.locationData, LocationData::class.java)
+                        }),
+                    opts.build()
                 )
-            setResult(Activity.RESULT_OK, resultValue)
-            finish()
+
+                // We have an invalid widget id but just in case
+                setResult(Activity.RESULT_CANCELED)
+                finishAffinity()
+            } else {
+                // Create return intent
+                val resultValue = Intent()
+                resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                if (viewModel.locationData != null)
+                    resultValue.putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
+                        JSONParser.serializer(viewModel.locationData, LocationData::class.java)
+                    })
+                setResult(Activity.RESULT_OK, resultValue)
+                finish()
+            }
         }
     }
 }

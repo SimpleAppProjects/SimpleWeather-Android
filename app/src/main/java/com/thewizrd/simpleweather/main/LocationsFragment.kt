@@ -26,7 +26,6 @@ import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
@@ -200,29 +199,34 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         AnalyticsLogger.logEvent("LocationsFragment: recycler click")
 
         if (view?.isEnabled == true && view.tag is LocationData) {
-            val locData = view.tag as LocationData
-            val vm = mAdapter.getPanelViewModel(position)
+            runWithView {
+                val locData = view.tag as LocationData
+                val vm = mAdapter.getPanelViewModel(position)
 
-            val isHome = ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
+                val isHome = ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
 
-            val args = LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
-                    .setData(JSONParser.serializer(locData, LocationData::class.java))
+                val args = LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
+                    .setData(withContext(Dispatchers.Default) {
+                        JSONParser.serializer(locData, LocationData::class.java)
+                    })
                     .setBackground(vm?.imageData?.imageURI)
                     .setHome(isHome)
 
-            try {
-                Navigation.findNavController(binding.root).navigate(args)
-            } catch (ex: IllegalArgumentException) {
-                val props = Bundle()
-                props.putString("method", "onRecyclerClickListener.onClick")
-                props.putBoolean("isAlive", isAlive)
-                props.putBoolean("isViewAlive", isViewAlive)
-                props.putBoolean("isDetached", isDetached)
-                props.putBoolean("isResumed", isResumed)
-                props.putBoolean("isRemoving", isRemoving)
-                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
+                try {
+                    binding.root.findNavController().navigate(args)
+                } catch (ex: IllegalArgumentException) {
+                    val props = Bundle().apply {
+                        putString("method", "onRecyclerClickListener.onClick")
+                        putBoolean("isAlive", isAlive)
+                        putBoolean("isViewAlive", isViewAlive)
+                        putBoolean("isDetached", isDetached)
+                        putBoolean("isResumed", isResumed)
+                        putBoolean("isRemoving", isRemoving)
+                    }
+                    AnalyticsLogger.logEvent("$TAG: navigation failed", props)
 
-                Logger.writeLine(Log.ERROR, ex)
+                    Logger.writeLine(Log.ERROR, ex)
+                }
             }
         }
     }
