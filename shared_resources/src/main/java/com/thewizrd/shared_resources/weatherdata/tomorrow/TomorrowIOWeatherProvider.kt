@@ -273,7 +273,16 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
             val hrf_localTime = hrf_date.toLocalTime()
             hr_forecast.condition = getWeatherCondition(hr_forecast.icon)
-            hr_forecast.icon = getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.icon)
+            hr_forecast.icon = getWeatherIcon(
+                hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset),
+                hr_forecast.icon
+            )
+        }
+
+        if (!weather.minForecast.isNullOrEmpty()) {
+            for (min_forecast in weather.minForecast) {
+                min_forecast.date = min_forecast.date.withZoneSameInstant(offset)
+            }
         }
 
         if (!weather.weatherAlerts.isNullOrEmpty()) {
