@@ -58,9 +58,16 @@ abstract class TZDatabase : RoomDatabase() {
                 // Since we didn't alter the table, there's nothing else to do here.
             }
         }
+        private val TZDB_MIGRATION_0_8: Migration = object : Migration(0, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
 
-        private val TZDB_MIGRATION_SET = arrayOf(
-            TZDB_MIGRATION_0_5, TZDB_MIGRATION_5_6, TZDB_MIGRATION_6_7, TZDB_MIGRATION_7_8
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        internal val TZDB_MIGRATION_SET = arrayOf(
+            TZDB_MIGRATION_0_5, TZDB_MIGRATION_5_6, TZDB_MIGRATION_6_7, TZDB_MIGRATION_7_8,
+            TZDB_MIGRATION_0_8
         )
     }
 }

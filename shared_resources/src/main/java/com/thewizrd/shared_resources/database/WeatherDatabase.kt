@@ -50,6 +50,12 @@ abstract class WeatherDatabase : RoomDatabase() {
                 .build()
         }
 
+        private val W_MIGRATION_0_3 = object : Migration(0, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
+
         private val W_MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Create the new table
@@ -217,8 +223,9 @@ abstract class WeatherDatabase : RoomDatabase() {
             }
         }
 
-        private val W_MIGRATION_SET = arrayOf(
-            DBMigrations.MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5,
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        internal val W_MIGRATION_SET = arrayOf(
+            W_MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5,
             W_MIGRATION_5_6, W_MIGRATION_6_7, W_MIGRATION_7_8
         )
     }

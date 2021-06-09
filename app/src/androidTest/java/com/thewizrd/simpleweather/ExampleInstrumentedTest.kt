@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
+import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking

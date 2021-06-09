@@ -43,6 +43,12 @@ abstract class LocationsDatabase : RoomDatabase() {
                 .build()
         }
 
+        private val LOC_MIGRATION_0_3 = object : Migration(0, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
+
         private val LOC_MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Create the new table
@@ -79,14 +85,37 @@ abstract class LocationsDatabase : RoomDatabase() {
             }
         }
 
+        private val LOC_MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
+        private val LOC_MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
+        private val LOC_MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
+        private val LOC_MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Since we didn't alter the table, there's nothing else to do here.
+            }
+        }
         private val LOC_MIGRATION_4_8 = object : Migration(4, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Since we didn't alter the table, there's nothing else to do here.
             }
         }
 
-        private val LOC_MIGRATION_SET = arrayOf(
-            DBMigrations.MIGRATION_0_3, LOC_MIGRATION_3_4, LOC_MIGRATION_4_8
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        internal val LOC_MIGRATION_SET = arrayOf(
+            LOC_MIGRATION_0_3, LOC_MIGRATION_3_4,
+            LOC_MIGRATION_4_5, LOC_MIGRATION_5_6, LOC_MIGRATION_6_7, LOC_MIGRATION_7_8,
+            LOC_MIGRATION_4_8
         )
     }
 }
