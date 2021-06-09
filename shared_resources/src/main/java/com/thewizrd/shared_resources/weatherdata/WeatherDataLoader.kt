@@ -222,12 +222,21 @@ class WeatherDataLoader(private val location: LocationData) {
                     // If not don't update so we can use fallback (previously used API)
                     if (wm.isRegionSupported(location.countryCode)) {
                         // Update location query and source for new API
-                        val oldKey = location.query
+                        val oldKey = location.query ?: null
 
-                        if (weather != null)
+                        if (weather != null) {
+                            if (weather!!.location?.latitude == null || weather!!.location?.longitude == null) {
+                                throw WeatherException(ErrorStatus.UNKNOWN)
+                            }
+
                             location.query = wm.updateLocationQuery(weather!!)
-                        else
+                        } else {
+                            if (location.latitude == 0.0 || location.longitude == 0.0) {
+                                throw WeatherException(ErrorStatus.UNKNOWN)
+                            }
+
                             location.query = wm.updateLocationQuery(location)
+                        }
 
                         location.weatherSource = settingsMgr.getAPI()
 
