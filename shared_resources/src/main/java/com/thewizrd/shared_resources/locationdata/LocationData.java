@@ -47,7 +47,7 @@ public class LocationData extends CustomJsonObject {
     @ColumnInfo(name = "locsource")
     private String locationSource;
 
-    @NonNull
+    //@NonNull
     public String getQuery() {
         return query;
     }
