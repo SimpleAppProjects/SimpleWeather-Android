@@ -49,7 +49,7 @@ class SetupActivity : UserLocaleActivity() {
         AnalyticsLogger.logEvent("SetupActivity: onCreate")
         settingsManager = App.instance.settingsManager
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             isWeatherLoaded = settingsManager.isWeatherLoaded()
 
             // Check if this activity was started from adding a new widget
@@ -64,7 +64,7 @@ class SetupActivity : UserLocaleActivity() {
                     setResult(Activity.RESULT_OK)
                     finish()
                     // Return if we're finished
-                    return@launchWhenCreated
+                    return@launch
                 }
 
                 if (mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -114,15 +114,60 @@ class SetupActivity : UserLocaleActivity() {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, hostFragment)
                     .setPrimaryNavigationFragment(hostFragment)
-                    .commit()
+                    .commitNow() // Commit now; we need the NavController immediately after
             }
-
-            setupBottomNavBar()
 
             if (isWeatherLoaded && viewModel.locationData == null) {
                 viewModel.locationData = settingsManager.getHomeData()
             }
+
+            setupBottomNavBar()
+            initializeNavController()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (mNavController == null) {
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragment != null) {
+                initializeNavController()
+            }
+        }
+    }
+
+    private fun initializeNavController() {
+        // Don't initialize the controller to early
+        // The fragment may not have called onCreate yet; which is where the NavController gets assigned
+        // It should be ready once we reach onStart
+        lifecycleScope.launchWhenStarted {
+            mNavController = getNavController()
+            mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
+                updateBottomNavigationBarForDestination(destination.id)
+            }
+        }
+    }
+
+    private fun getNavController(): NavController {
+        var mNavController: NavController? = null
+        try {
+            mNavController = findNavController(R.id.fragment_container)
+        } catch (e: IllegalStateException) {
+            // View not yet created
+            // Retrieve by fragment
+        }
+
+        if (mNavController == null) {
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragment !is NavHostFragment) {
+                throw IllegalStateException("NavHostFragment not yet initialized!")
+            } else {
+                mNavController = fragment.navController
+            }
+        }
+
+        return mNavController
     }
 
     private fun setupBottomNavBar() {
@@ -250,14 +295,6 @@ class SetupActivity : UserLocaleActivity() {
             binding.bottomNavBar.visibility =
                 if (destinationId == R.id.locationSearchFragment3) View.GONE else View.VISIBLE
         }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mNavController = this.findNavController(R.id.fragment_container)
-        mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
-            updateBottomNavigationBarForDestination(destination.id)
-        }
     }
 
     override fun onResume() {
