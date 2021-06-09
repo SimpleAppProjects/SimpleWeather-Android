@@ -680,8 +680,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
             if (locData?.query == null) {
                 locData = updateLocation()
-                LocalBroadcastManager.getInstance(appCompatActivity!!)
+                if (locData != null) {
+                    getSettingsManager().saveLastGPSLocData(locData)
+                    LocalBroadcastManager.getInstance(appCompatActivity!!)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                }
             }
 
             if (locData?.query != null) {
@@ -835,8 +838,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     }
                 } catch (e: WeatherException) {
                     Logger.writeLine(Log.ERROR, e)
-                    // Stop since there is no valid query
-                    withContext(Dispatchers.Main) { removeGPSPanel() }
                     null
                 }
 

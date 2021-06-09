@@ -135,14 +135,19 @@ class LocationSearchFragment : WindowColorFragment() {
                     } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
                         val loc = queryResult!!
                         queryResult = withContext(Dispatchers.IO) {
-                            wm.getLocationProvider().getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
+                            wm.getLocationProvider().getLocation(
+                                Coordinate(loc.locationLat, loc.locationLong),
+                                loc.weatherSource
+                            )
                         }
                     }
 
-                    if (queryResult == null) {
-                        throw InterruptedException()
+                    if (queryResult == null || queryResult.locationQuery.isNullOrBlank()) {
+                        // Stop since there is no valid query
+                        throw CustomException(R.string.error_retrieve_location)
                     } else if (queryResult.locationTZLong.isNullOrBlank() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                        val tzId = TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
+                        val tzId =
+                            TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
                         if ("unknown" != tzId)
                             queryResult.locationTZLong = tzId
                     }
