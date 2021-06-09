@@ -21,14 +21,14 @@ import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
+import com.thewizrd.simpleweather.locale.UserLocaleActivity
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.concurrent.ExecutionException
 
 abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceivedListener, OnCapabilityChangedListener {
     protected var mPhoneNodeWithApp: Node? = null
@@ -155,13 +155,15 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
             try {
                 result = withContext(Dispatchers.IO) {
                     Wearable.getMessageClient(this@WearableListenerActivity)
-                            .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.StartActivityPath, ByteArray(0))
-                            .await()
+                        .sendMessage(
+                            mPhoneNodeWithApp!!.id,
+                            WearableHelper.StartActivityPath,
+                            ByteArray(0)
+                        )
+                        .await()
                 }
-            } catch (e: ExecutionException) {
-                Timber.e(e)
-            } catch (e: InterruptedException) {
-                Timber.d(e)
+            } catch (e: Exception) {
+                logError(e)
             }
 
             val success = result != -1
@@ -227,12 +229,10 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
 
         try {
             Wearable.getMessageClient(this@WearableListenerActivity)
-                    .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.IsSetupPath, ByteArray(0))
-                    .await()
-        } catch (e: ExecutionException) {
-            Timber.e(e)
-        } catch (e: InterruptedException) {
-            Timber.d(e)
+                .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.IsSetupPath, ByteArray(0))
+                .await()
+        } catch (e: Exception) {
+            logError(e)
         }
     }
 
@@ -268,14 +268,14 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
         var node: Node? = null
         try {
             val capabilityInfo = Wearable.getCapabilityClient(this@WearableListenerActivity)
-                    .getCapability(WearableHelper.CAPABILITY_PHONE_APP,
-                            CapabilityClient.FILTER_ALL)
-                    .await()
+                .getCapability(
+                    WearableHelper.CAPABILITY_PHONE_APP,
+                    CapabilityClient.FILTER_ALL
+                )
+                .await()
             node = pickBestNodeId(capabilityInfo.nodes)
-        } catch (e: ExecutionException) {
-            Timber.e(e)
-        } catch (e: InterruptedException) {
-            Timber.d(e)
+        } catch (e: Exception) {
+            logError(e)
         }
         return@withContext node
     }
@@ -291,15 +291,33 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     private suspend fun sendPing(nodeID: String) = withContext(Dispatchers.IO) {
         try {
             Wearable.getMessageClient(this@WearableListenerActivity)
-                    .sendMessage(nodeID, WearableHelper.PingPath, null)
-                    .await()
-        } catch (ex: ExecutionException) {
-            if (ex.cause is ApiException) {
-                throw ex.cause as ApiException
-            }
-            Timber.e(ex)
+                .sendMessage(nodeID, WearableHelper.PingPath, null)
+                .await()
         } catch (e: Exception) {
-            Timber.e(e)
+            if (e is ApiException) {
+                throw e
+            }
+            if (e.cause is ApiException) {
+                throw e.cause as ApiException
+            }
+            logError(e)
         }
+    }
+
+    private fun logError(e: Exception) {
+        if (e is ApiException || e.cause is ApiException) {
+            val apiException = e.cause as? ApiException ?: e as? ApiException
+            if (apiException?.statusCode == WearableStatusCodes.API_NOT_CONNECTED ||
+                apiException?.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED
+            ) {
+                // Ignore this error
+                return
+            }
+        } else if (e is CancellationException || e is InterruptedException) {
+            // Ignore this error
+            return
+        }
+
+        Timber.e(e)
     }
 }

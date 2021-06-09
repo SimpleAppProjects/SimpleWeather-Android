@@ -2,11 +2,12 @@ package com.thewizrd.simpleweather.wearable
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.util.ObjectsCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.Wearable
+import com.google.android.gms.wearable.WearableStatusCodes
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -26,7 +27,6 @@ import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.concurrent.ExecutionException
 
 object DataSyncManager {
     private const val TAG = "DataSyncManager"
@@ -162,12 +162,17 @@ object DataSyncManager {
                                 }
                             }
                         }
-                    } catch (e: ExecutionException) {
-                        Logger.writeLine(Log.ERROR, e)
-                    } catch (e: InterruptedException) {
-                        Logger.writeLine(Log.ERROR, e)
                     } catch (e: IOException) {
-                        Logger.writeLine(Log.ERROR, e)
+                        Timber.e(e)
+                    } catch (e: Exception) {
+                        if (e is ApiException || e.cause is ApiException) {
+                            val apiException = e.cause as? ApiException ?: e as? ApiException
+                            if (apiException?.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
+                                apiException?.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED
+                            ) {
+                                Timber.e(e)
+                            }
+                        }
                     }
                 } else {
                     Timber.tag(TAG).d("updateWeather: weather data missing")

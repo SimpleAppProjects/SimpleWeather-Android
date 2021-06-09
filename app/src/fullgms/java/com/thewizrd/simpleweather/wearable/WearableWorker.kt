@@ -20,7 +20,6 @@ import java.nio.charset.Charset
 import java.time.Clock
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.ExecutionException
 
 class WearableWorker(context: Context, workerParams: WorkerParameters) :
         CoroutineWorker(context, workerParams) {
@@ -119,28 +118,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
     private suspend fun findWearDevicesWithApp(): Collection<Node> = withContext(Dispatchers.IO) {
         val capabilityInfo = try {
             Wearable.getCapabilityClient(applicationContext)
-                    .getCapability(WearableHelper.CAPABILITY_WEAR_APP, CapabilityClient.FILTER_ALL)
-                    .await()
-        } catch (e: ExecutionException) {
-            if (e.cause is ApiException) {
-                val apiException = e.cause as ApiException
-                // Ignore this error
-                if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED) {
-                    Logger.writeLine(Log.ERROR, e)
-                }
-            } else {
-                Logger.writeLine(Log.ERROR, e)
-            }
-            null
-        } catch (e: InterruptedException) {
-            if (e.cause is ApiException) {
-                val apiException = e.cause as ApiException
-                if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED) {
-                    Logger.writeLine(Log.ERROR, e)
-                }
-            } else {
-                Logger.writeLine(Log.ERROR, e)
-            }
+                .getCapability(WearableHelper.CAPABILITY_WEAR_APP, CapabilityClient.FILTER_ALL)
+                .await()
+        } catch (e: Exception) {
+            logError(e)
             null
         }
 
@@ -177,10 +158,8 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
-            } catch (e: ExecutionException) {
-                Logger.writeLine(Log.ERROR, e)
-            } catch (e: InterruptedException) {
-                Logger.writeLine(Log.ERROR, e)
+            } catch (e: Exception) {
+                logError(e)
             }
 
             Logger.writeLine(Log.INFO, "%s: createSettingsDataRequest(): urgent: %s", TAG, java.lang.Boolean.toString(urgent))
@@ -199,10 +178,8 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
-            } catch (e: ExecutionException) {
-                Logger.writeLine(Log.ERROR, e)
-            } catch (e: InterruptedException) {
-                Logger.writeLine(Log.ERROR, e)
+            } catch (e: Exception) {
+                logError(e)
             }
 
             Logger.writeLine(Log.INFO, "%s: createLocationDataRequest(): urgent: %s", TAG, java.lang.Boolean.toString(urgent))
@@ -234,10 +211,8 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 val client = Wearable.getDataClient(applicationContext)
                 client.deleteDataItems(mapRequest.uri).await()
                 client.putDataItem(request).await()
-            } catch (e: ExecutionException) {
-                Logger.writeLine(Log.ERROR, e)
-            } catch (e: InterruptedException) {
-                Logger.writeLine(Log.ERROR, e)
+            } catch (e: Exception) {
+                logError(e)
             }
 
             Logger.writeLine(
@@ -258,7 +233,21 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                     byteArrayOf((if (settingsManager.isWeatherLoaded()) 1 else 0).toByte())
                 ).await()
             } catch (e: Exception) {
-                Logger.writeLine(Log.ERROR, e)
+                logError(e)
             }
         }
+
+    private fun logError(e: Exception) {
+        if (e is ApiException || e.cause is ApiException) {
+            val apiException = e.cause as? ApiException ?: e as? ApiException
+            if (apiException?.statusCode == WearableStatusCodes.API_NOT_CONNECTED ||
+                apiException?.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED
+            ) {
+                // Ignore this error
+                return
+            }
+        }
+
+        Logger.writeLine(Log.ERROR, e)
+    }
 }

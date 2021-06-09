@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.*
-import java.util.concurrent.ExecutionException
 
 class WearableWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val mContext = context.applicationContext
@@ -128,12 +127,15 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
             if (!forceRefresh) {
                 try {
                     dataItem = Wearable.getDataClient(mContext)
-                            .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp!!.id, WearableHelper.SettingsPath))
-                            .await()
-                } catch (e: ExecutionException) {
-                    Logger.writeLine(Log.ERROR, e)
-                } catch (e: InterruptedException) {
-                    Logger.writeLine(Log.ERROR, e)
+                        .getDataItem(
+                            WearableHelper.getWearDataUri(
+                                mPhoneNodeWithApp!!.id,
+                                WearableHelper.SettingsPath
+                            )
+                        )
+                        .await()
+                } catch (e: Exception) {
+                    logError(e)
                 }
             }
 
@@ -151,30 +153,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         withContext(Dispatchers.IO) {
             try {
                 Wearable.getMessageClient(mContext)
-                        .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.SettingsPath, null)
-                        .await()
-            } catch (e: ExecutionException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    // Ignore this error
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                    return@withContext
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
-            } catch (e: InterruptedException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
+                    .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.SettingsPath, null)
+                    .await()
+            } catch (e: Exception) {
+                logError(e)
             }
         }
     }
@@ -186,12 +168,15 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
             if (!forceRefresh) {
                 try {
                     dataItem = Wearable.getDataClient(mContext)
-                            .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp!!.id, WearableHelper.LocationPath))
-                            .await()
-                } catch (e: ExecutionException) {
-                    Logger.writeLine(Log.ERROR, e)
-                } catch (e: InterruptedException) {
-                    Logger.writeLine(Log.ERROR, e)
+                        .getDataItem(
+                            WearableHelper.getWearDataUri(
+                                mPhoneNodeWithApp!!.id,
+                                WearableHelper.LocationPath
+                            )
+                        )
+                        .await()
+                } catch (e: Exception) {
+                    logError(e)
                 }
             }
 
@@ -209,30 +194,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         withContext(Dispatchers.IO) {
             try {
                 Wearable.getMessageClient(mContext)
-                        .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.LocationPath, null)
-                        .await()
-            } catch (e: ExecutionException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    // Ignore this error
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                    return@withContext
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
-            } catch (e: InterruptedException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
+                    .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.LocationPath, null)
+                    .await()
+            } catch (e: Exception) {
+                logError(e)
             }
         }
     }
@@ -244,12 +209,15 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
             if (!forceRefresh) {
                 try {
                     dataItem = Wearable.getDataClient(mContext)
-                            .getDataItem(WearableHelper.getWearDataUri(mPhoneNodeWithApp!!.id, WearableHelper.WeatherPath))
-                            .await()
-                } catch (e: ExecutionException) {
-                    Logger.writeLine(Log.ERROR, e)
-                } catch (e: InterruptedException) {
-                    Logger.writeLine(Log.ERROR, e)
+                        .getDataItem(
+                            WearableHelper.getWearDataUri(
+                                mPhoneNodeWithApp!!.id,
+                                WearableHelper.WeatherPath
+                            )
+                        )
+                        .await()
+                } catch (e: Exception) {
+                    logError(e)
                 }
             }
 
@@ -268,30 +236,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
             // Send message to device to get settings
             try {
                 Wearable.getMessageClient(mContext)
-                        .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.WeatherPath, null)
-                        .await()
-            } catch (e: ExecutionException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    // Ignore this error
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                    return@withContext
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
-            } catch (e: InterruptedException) {
-                if (e.cause is ApiException) {
-                    val apiException = e.cause as ApiException
-                    if (apiException.statusCode != WearableStatusCodes.API_NOT_CONNECTED &&
-                            apiException.statusCode != WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
-                        Logger.writeLine(Log.ERROR, e)
-                    }
-                } else {
-                    Logger.writeLine(Log.ERROR, e)
-                }
+                    .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.WeatherPath, null)
+                    .await()
+            } catch (e: Exception) {
+                logError(e)
             }
         }
     }
@@ -301,16 +249,30 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
 
         try {
             val capabilityInfo = Wearable.getCapabilityClient(mContext)
-                    .getCapability(WearableHelper.CAPABILITY_PHONE_APP,
-                            CapabilityClient.FILTER_ALL)
-                    .await()
+                .getCapability(
+                    WearableHelper.CAPABILITY_PHONE_APP,
+                    CapabilityClient.FILTER_ALL
+                )
+                .await()
             node = pickBestNodeId(capabilityInfo.nodes)
-        } catch (e: ExecutionException) {
-            Logger.writeLine(Log.ERROR, e)
-        } catch (e: InterruptedException) {
-            Logger.writeLine(Log.ERROR, e)
+        } catch (e: Exception) {
+            logError(e)
         }
 
         return node
+    }
+
+    private fun logError(e: Exception) {
+        if (e is ApiException || e.cause is ApiException) {
+            val apiException = e.cause as? ApiException ?: e as? ApiException
+            if (apiException?.statusCode == WearableStatusCodes.API_NOT_CONNECTED ||
+                apiException?.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED
+            ) {
+                // Ignore this error
+                return
+            }
+        }
+
+        Logger.writeLine(Log.ERROR, e)
     }
 }
