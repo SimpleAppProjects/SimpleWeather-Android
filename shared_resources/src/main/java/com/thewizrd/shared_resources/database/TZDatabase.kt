@@ -8,9 +8,11 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.thewizrd.shared_resources.tzdb.TZDB
-import com.thewizrd.shared_resources.utils.SettingsManager
 
-@Database(entities = [TZDB::class], version = SettingsManager.CURRENT_DBVERSION)
+@Database(
+    entities = [TZDB::class],
+    version = 8 /* NOTE: Add migration paths if needed */
+)
 abstract class TZDatabase : RoomDatabase() {
     abstract fun tzdbDAO(): TzdbDAO
 

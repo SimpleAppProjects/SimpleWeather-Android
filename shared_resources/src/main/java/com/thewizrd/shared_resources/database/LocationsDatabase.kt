@@ -9,13 +9,11 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.DBMigrations
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.Favorites
 
 @Database(
     entities = [LocationData::class, Favorites::class],
-    version = SettingsManager.CURRENT_DBVERSION
+    version = 8 /* NOTE: Add migration paths if needed */
 )
 @TypeConverters(LocationDBConverters::class)
 abstract class LocationsDatabase : RoomDatabase() {

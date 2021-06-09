@@ -54,9 +54,6 @@ class SettingsManager(context: Context) {
     companion object {
         const val TAG = "SettingsManager"
 
-        // NOTE: Remember to add migrations for ALL databases when updating version
-        const val CURRENT_DBVERSION = 8
-
         // Data
         private const val CACHE_LIMIT = 25
         private const val MAX_LOCATIONS = 10
@@ -76,7 +73,6 @@ class SettingsManager(context: Context) {
         private const val KEY_LASTGPSLOCATION = "key_lastgpslocation"
         const val KEY_REFRESHINTERVAL = "key_refreshinterval"
         private const val KEY_UPDATETIME = "key_updatetime"
-        private const val KEY_DBVERSION = "key_dbversion"
         const val KEY_USEALERTS = "key_usealerts"
         const val KEY_USEPERSONALKEY = "key_usepersonalkey"
         private const val KEY_CURRENTVERSION = "key_currentversion"
@@ -132,9 +128,6 @@ class SettingsManager(context: Context) {
     }
 
     private suspend fun load() {
-        /* DB Migration */
-        DBMigrations.performMigrations(appContext, getWeatherDB(), getLocationDB())
-
         val lastGPSLoc = getLastGPSLocation()
         if (!lastGPSLoc.isNullOrBlank()) {
             try {
@@ -151,7 +144,7 @@ class SettingsManager(context: Context) {
             }
         }
 
-        /* Version-specific Migration */
+        /* Version-specific Migrations */
         VersionMigrations.performMigrations(appContext, getWeatherDB(), getLocationDB())
     }
 
@@ -719,15 +712,6 @@ class SettingsManager(context: Context) {
         editor.commit()
     }
     // END - !ANDROID_WEAR
-
-    fun getDBVersion(): Int {
-        return preferences.getString(KEY_DBVERSION, "0")!!.toInt()
-    }
-
-    fun setDBVersion(value: Int) {
-        editor.putString(KEY_DBVERSION, value.toString())
-        editor.commit()
-    }
 
     fun isKeyVerified(): Boolean {
         return if (!wuSharedPrefs.contains(KEY_APIKEY_VERIFIED)) {

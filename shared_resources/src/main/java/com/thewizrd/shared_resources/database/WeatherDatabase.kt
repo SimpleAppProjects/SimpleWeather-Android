@@ -10,9 +10,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.JsonParser
-import com.thewizrd.shared_resources.utils.DBMigrations
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -22,7 +20,7 @@ import org.json.JSONException
 
 @Database(
     entities = [Weather::class, WeatherAlerts::class, Forecasts::class, HourlyForecasts::class],
-    version = SettingsManager.CURRENT_DBVERSION
+    version = 8 /* NOTE: Add migration paths if needed */
 )
 @TypeConverters(WeatherDBConverters::class)
 abstract class WeatherDatabase : RoomDatabase() {
