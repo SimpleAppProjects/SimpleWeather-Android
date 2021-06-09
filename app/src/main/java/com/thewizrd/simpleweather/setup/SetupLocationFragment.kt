@@ -296,9 +296,9 @@ class SetupLocationFragment : CustomFragment() {
                             wm.getLocation(mLocation!!)
                         }
 
-                        if (view == null || view.locationQuery?.isBlank() == true) {
+                        if (view == null || view.locationQuery.isNullOrBlank()) {
                             throw CustomException(R.string.error_retrieve_location)
-                        } else if (view.locationTZLong?.isBlank() == true && view.locationLat != 0.0 && view.locationLong != 0.0) {
+                        } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
                             val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
                             if ("unknown" != tzId)
                                 view.locationTZLong = tzId

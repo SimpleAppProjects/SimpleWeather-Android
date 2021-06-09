@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -830,7 +829,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                var view = try {
+                val view = try {
                     withContext(Dispatchers.IO) {
                         wm.getLocation(location)
                     }
@@ -841,22 +840,20 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     null
                 }
 
-                if (view?.locationQuery.isNullOrBlank()) {
-                    view = LocationQueryViewModel()
-                } else if (view?.locationTZLong?.isBlank() == true && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
-                    if ("unknown" != tzId)
-                        view.locationTZLong = tzId
-                }
-
-                if (view?.locationQuery.isNullOrBlank()) {
+                if (view == null || view.locationQuery.isNullOrBlank()) {
                     // Stop since there is no valid query
                     withContext(Dispatchers.Main) { removeGPSPanel() }
                     return null
                 }
 
+                if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
+                    val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                    if ("unknown" != tzId)
+                        view.locationTZLong = tzId
+                }
+
                 // Save location as last known
-                locationData = LocationData(view!!, location)
+                locationData = LocationData(view, location)
             }
         }
 

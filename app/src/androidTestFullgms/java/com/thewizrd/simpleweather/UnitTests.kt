@@ -121,12 +121,13 @@ class UnitTests {
         ) /* Redmond, WA */
     ) = withContext(Dispatchers.IO) {
         val location = providerImpl.getLocation(coordinate)
-        if (location?.locationTZLong?.isBlank() == true && location.locationLat != 0.0 && location.locationLong != 0.0) {
+        Assert.assertNotNull(location)
+        if (location!!.locationTZLong.isNullOrBlank() && location.locationLat != 0.0 && location.locationLong != 0.0) {
             val tzId = TZDBCache.getTimeZone(location.locationLat, location.locationLong)
             if ("unknown" != tzId)
                 location.locationTZLong = tzId
         }
-        val locData = LocationData(location!!)
+        val locData = LocationData(location)
         return@withContext providerImpl.getWeather(locData)
     }
 
