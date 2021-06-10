@@ -10,7 +10,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.math.roundToInt
@@ -51,6 +53,22 @@ fun createWeatherData(dailyRoot: DailyResponse, hourlyRoot: HourlyResponse, curr
         }
         atmosphere = createAtmosphere(currentItem)
         precipitation = createPrecipitation(currentItem)
+
+        // Weather summary
+        if (dailyRoot.headline != null && dailyRoot.headline!!.effectiveEpochDate != null && dailyRoot.headline!!.endEpochDate != null) {
+            val effectiveDate = ZonedDateTime.ofInstant(
+                Instant.ofEpochSecond(dailyRoot.headline!!.effectiveEpochDate!!), ZoneOffset.UTC
+            )
+                .withZoneSameInstant(observationTime.offset)
+            val endDate = ZonedDateTime.ofInstant(
+                Instant.ofEpochSecond(dailyRoot.headline!!.endEpochDate!!), ZoneOffset.UTC
+            )
+                .withZoneSameInstant(observationTime.offset)
+
+            if (!observationTime.isBefore(effectiveDate) && !observationTime.isAfter(endDate)) {
+                condition.summary = dailyRoot.headline?.text
+            }
+        }
 
         ttl = 180
         source = WeatherAPI.ACCUWEATHER
@@ -343,6 +361,23 @@ fun createCondition(current: CurrentsResponseItem, daily: DailyForecastsItem? = 
         }
 
         observationTime = ZonedDateTime.parse(current.localObservationDateTime)
+
+        summary = daily?.let {
+            val ctx = SimpleLibrary.instance.appContext
+            val labelDay = ctx.getString(R.string.label_day)
+            val labelNite = ctx.getString(R.string.label_night)
+
+            val strBuilder = StringBuilder()
+            if (!it.day?.longPhrase.isNullOrBlank()) {
+                strBuilder.append("$labelDay - ${it.day!!.longPhrase}")
+            }
+            if (!it.night?.longPhrase.isNullOrBlank()) {
+                if (strBuilder.isNotEmpty()) strBuilder.appendLine()
+                strBuilder.append("$labelNite - ${it.night!!.longPhrase}")
+            }
+
+            return@let strBuilder.toString()
+        }
     }
 }
 

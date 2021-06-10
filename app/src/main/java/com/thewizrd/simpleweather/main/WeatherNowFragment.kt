@@ -760,6 +760,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     if (FeatureSettings.isRadarEnabled()) {
                         radarViewProvider?.updateCoordinates(weatherView.locationCoord, true)
                     }
+                } else if (propertyId == BR.weatherSummary) {
+                    runWithView {
+                        adjustConditionPanelLayout()
+                    }
                 }
             }
         })

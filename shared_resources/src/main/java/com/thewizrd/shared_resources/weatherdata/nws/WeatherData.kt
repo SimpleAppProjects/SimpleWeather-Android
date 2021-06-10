@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.weatherdata.nws
 
+import android.annotation.SuppressLint
 import androidx.core.util.ObjectsCompat
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -16,12 +17,15 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
+@SuppressLint("VisibleForTests")
 fun createWeatherData(forecastResponse: ForecastResponse,
                       hourlyForecastResponse: HourlyForecastResponse): Weather {
     return Weather().apply {
         location = createLocation(forecastResponse)
         val now = ZonedDateTime.now(ZoneOffset.UTC)
         updateTime = now
+
+        condition = createCondition(forecastResponse)
 
         // ~8-day forecast
         forecast = ArrayList(8)
@@ -32,33 +36,49 @@ fun createWeatherData(forecastResponse: ForecastResponse,
             var i = 0
             while (i < periodsSize) {
                 val forecastItem = PeriodsItem(
-                        forecastResponse.time.startPeriodName[i],
-                        forecastResponse.time.startValidTime[i],
-                        forecastResponse.time.tempLabel[i],
-                        forecastResponse.data.temperature[i],
-                        forecastResponse.data.pop[i],
-                        forecastResponse.data.weather[i],
-                        forecastResponse.data.iconLink[i],
-                        forecastResponse.data.text[i]
+                    forecastResponse.time.startPeriodName[i],
+                    forecastResponse.time.startValidTime[i],
+                    forecastResponse.time.tempLabel[i],
+                    forecastResponse.data.temperature[i],
+                    forecastResponse.data.pop[i],
+                    forecastResponse.data.weather[i],
+                    forecastResponse.data.iconLink[i],
+                    forecastResponse.data.text[i]
                 )
 
                 if (forecast.isEmpty() && !forecastItem.isDaytime || forecast.size == periodsSize - 1 && forecastItem.isDaytime) {
                     forecast.add(createForecast(forecastItem))
-                    txtForecast.add(createTextForecast(forecastItem))
+                    txtForecast.add(createTextForecast(forecastItem).also {
+                        if (condition.summary == null && !condition.observationTime.isBefore(it.date)) {
+                            condition.summary = String.format(
+                                Locale.ROOT,
+                                "%s - %s", forecastItem.name, forecastItem.detailedForecast
+                            )
+                        }
+                    })
                 } else if (forecastItem.isDaytime && i + 1 < periodsSize) {
                     val nightForecastItem = PeriodsItem(
-                            forecastResponse.time.startPeriodName[i + 1],
-                            forecastResponse.time.startValidTime[i + 1],
-                            forecastResponse.time.tempLabel[i + 1],
-                            forecastResponse.data.temperature[i + 1],
-                            forecastResponse.data.pop[i + 1],
-                            forecastResponse.data.weather[i + 1],
-                            forecastResponse.data.iconLink[i + 1],
-                            forecastResponse.data.text[i + 1]
+                        forecastResponse.time.startPeriodName[i + 1],
+                        forecastResponse.time.startValidTime[i + 1],
+                        forecastResponse.time.tempLabel[i + 1],
+                        forecastResponse.data.temperature[i + 1],
+                        forecastResponse.data.pop[i + 1],
+                        forecastResponse.data.weather[i + 1],
+                        forecastResponse.data.iconLink[i + 1],
+                        forecastResponse.data.text[i + 1]
                     )
 
                     forecast.add(createForecast(forecastItem, nightForecastItem))
-                    txtForecast.add(createTextForecast(forecastItem, nightForecastItem))
+                    txtForecast.add(createTextForecast(forecastItem, nightForecastItem).also {
+                        if (condition.summary == null && !condition.observationTime.isBefore(it.date)) {
+                            condition.summary = String.format(
+                                Locale.ROOT,
+                                "%s - %s\n%s - %s",
+                                forecastItem.name, forecastItem.detailedForecast,
+                                nightForecastItem.name, nightForecastItem.detailedForecast
+                            )
+                        }
+                    })
 
                     i++
                 }
@@ -94,17 +114,17 @@ fun createWeatherData(forecastResponse: ForecastResponse,
                         continue
 
                     val forecastItem = PeriodItem(
-                            period.unixtime[i],
-                            period.windChill[i],
-                            period.windSpeed[i],
-                            period.cloudAmount[i],
-                            period.pop[i],
-                            period.relativeHumidity[i],
-                            period.windGust[i],
-                            period.temperature[i],
-                            period.windDirection[i],
-                            period.iconLink[i],
-                            period.weather[i]
+                        period.unixtime[i],
+                        period.windChill[i],
+                        period.windSpeed[i],
+                        period.cloudAmount[i],
+                        period.pop[i],
+                        period.relativeHumidity[i],
+                        period.windGust[i],
+                        period.temperature[i],
+                        period.windDirection[i],
+                        period.iconLink[i],
+                        period.weather[i]
                     )
 
                     hrForecast.add(createHourlyForecast(forecastItem, adjustDate))
@@ -112,7 +132,6 @@ fun createWeatherData(forecastResponse: ForecastResponse,
             }
         }
 
-        condition = createCondition(forecastResponse)
         atmosphere = createAtmosphere(forecastResponse)
         //astronomy = new Astronomy(obsCurrentResponse);
         precipitation = createPrecipitation(forecastResponse)

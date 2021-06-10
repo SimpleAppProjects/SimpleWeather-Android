@@ -79,6 +79,9 @@ public class Condition extends CustomJsonObject {
     @SerializedName("observation_time")
     private ZonedDateTime observationTime;
 
+    @SerializedName("summary")
+    private String summary;
+
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public Condition() {
         // Needed for deserialization
@@ -244,6 +247,14 @@ public class Condition extends CustomJsonObject {
         this.observationTime = observationTime;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
     @Override
     public void fromJson(JsonReader extReader) {
         try {
@@ -338,6 +349,9 @@ public class Condition extends CustomJsonObject {
                         break;
                     case "observation_time":
                         observationTime = ZonedDateTime.parse(reader.nextString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        break;
+                    case "summary":
+                        this.summary = reader.nextString();
                         break;
                     default:
                         reader.skipValue();
@@ -457,6 +471,10 @@ public class Condition extends CustomJsonObject {
             // "observation_time" : ""
             writer.name("observation_time");
             writer.value(observationTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+            // "summary" : ""
+            writer.name("summary");
+            writer.value(summary);
 
             // }
             writer.endObject();

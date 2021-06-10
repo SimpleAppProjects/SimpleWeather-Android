@@ -53,6 +53,10 @@ class WeatherNowViewModel() : ObservableViewModel() {
     var isShowHiLo = false
         private set
 
+    @get:Bindable
+    var weatherSummary: String? = null
+        private set
+
     // Weather Details
     @get:Bindable
     var sunPhase: SunPhaseViewModel? = null
@@ -140,9 +144,18 @@ class WeatherNowViewModel() : ObservableViewModel() {
                     notifyPropertyChanged(BR.location)
                 }
 
+                // Summary
+                if (weatherSummary != weather.condition.summary) {
+                    weatherSummary = weather.condition.summary
+                    notifyPropertyChanged(BR.weatherSummary)
+                }
+
                 // Additional Details
                 if (weather.location.latitude != null && weather.location.longitude != null) {
-                    locationCoord.setCoordinate(weather.location.latitude.toDouble(), weather.location.longitude.toDouble())
+                    locationCoord.setCoordinate(
+                        weather.location.latitude.toDouble(),
+                        weather.location.longitude.toDouble()
+                    )
                 } else {
                     locationCoord.setCoordinate(0.0, 0.0)
                 }
