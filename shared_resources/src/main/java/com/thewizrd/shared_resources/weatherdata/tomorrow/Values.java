@@ -7,7 +7,7 @@ import com.vimeo.stag.UseStag;
 public class Values {
 
     @SerializedName("precipitationProbability")
-    private Integer precipitationProbability;
+    private Float precipitationProbability;
 
     @SerializedName("snowAccumulation")
     private Float snowAccumulation;
@@ -75,11 +75,11 @@ public class Values {
     @SerializedName("weedIndex")
     private Integer weedIndex;
 
-    public void setPrecipitationProbability(Integer precipitationProbability) {
+    public void setPrecipitationProbability(Float precipitationProbability) {
         this.precipitationProbability = precipitationProbability;
     }
 
-    public Integer getPrecipitationProbability() {
+    public Float getPrecipitationProbability() {
         return precipitationProbability;
     }
 

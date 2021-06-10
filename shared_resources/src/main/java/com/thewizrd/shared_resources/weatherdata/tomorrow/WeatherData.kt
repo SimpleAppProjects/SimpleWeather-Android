@@ -80,7 +80,8 @@ fun createLocation(root: Rootobject): com.thewizrd.shared_resources.weatherdata.
 
 fun createForecast(item: IntervalsItem): Forecast {
     return Forecast().apply {
-        date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
+        date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
+            .toLocalDateTime()
         highF = ConversionMethods.CtoF(item.values.temperatureMax)
         highC = item.values.temperatureMax
         lowF = ConversionMethods.CtoF(item.values.temperatureMin)
@@ -90,61 +91,118 @@ fun createForecast(item: IntervalsItem): Forecast {
 
         // Extras
         extras = ForecastExtras()
-        extras.feelslikeF = ConversionMethods.CtoF(item.values.temperatureApparent)
-        extras.feelslikeC = item.values.temperatureApparent
-        extras.humidity = item.values.humidity.roundToInt()
-        extras.dewpointF = ConversionMethods.CtoF(item.values.dewPoint).roundToInt().toFloat()
-        extras.dewpointC = item.values.dewPoint
-        extras.pop = item.values.precipitationProbability
-        extras.cloudiness = item.values.cloudCover.roundToInt()
-        extras.qpfRainMm = item.values.precipitationIntensity
-        extras.qpfRainIn = ConversionMethods.mmToIn(item.values.precipitationIntensity)
-        extras.qpfSnowCm = item.values.snowAccumulation / 10f
-        extras.qpfSnowIn = ConversionMethods.mmToIn(item.values.snowAccumulation)
+
+        item.values.temperatureApparent?.let {
+            extras.feelslikeC = it
+            extras.feelslikeF = ConversionMethods.CtoF(it)
+        }
+
+        extras.humidity = item.values.humidity?.roundToInt()
+
+        item.values.dewPoint?.let {
+            extras.dewpointC = it
+            extras.dewpointF = ConversionMethods.CtoF(it).roundToInt().toFloat()
+        }
+
+        extras.pop = item.values.precipitationProbability?.roundToInt()
+        extras.cloudiness = item.values.cloudCover?.roundToInt()
+
+        item.values.precipitationIntensity?.let {
+            extras.qpfRainMm = it
+            extras.qpfRainIn = ConversionMethods.mmToIn(it)
+        }
+
+        item.values.snowAccumulation?.let {
+            extras.qpfSnowCm = it / 10f
+            extras.qpfSnowIn = ConversionMethods.mmToIn(it)
+        }
+
         // 1hPA = 1mbar
-        extras.pressureMb = item.values.pressureSeaLevel
-        extras.pressureIn = ConversionMethods.mbToInHg(item.values.pressureSeaLevel).roundToInt().toFloat()
+        item.values.pressureSeaLevel?.let {
+            extras.pressureMb = it
+            extras.pressureIn = ConversionMethods.mbToInHg(it).roundToInt().toFloat()
+        }
+
         extras.windDegrees = item.values.windDirection?.roundToInt()
-        extras.windMph = ConversionMethods.msecToMph(item.values.windSpeed)
-        extras.windKph = ConversionMethods.msecToKph(item.values.windSpeed)
-        extras.visibilityMi = ConversionMethods.kmToMi(item.values.visibility)
-        extras.visibilityKm = item.values.visibility
-        extras.windGustMph = ConversionMethods.msecToMph(item.values.windGust)
-        extras.windGustKph = ConversionMethods.msecToKph(item.values.windGust)
+
+        item.values.windSpeed?.let {
+            extras.windMph = ConversionMethods.msecToMph(it)
+            extras.windKph = ConversionMethods.msecToKph(it)
+        }
+
+        item.values.windGust?.let {
+            extras.windGustMph = ConversionMethods.msecToMph(it)
+            extras.windGustKph = ConversionMethods.msecToKph(it)
+        }
+
+        item.values.visibility?.let {
+            extras.visibilityKm = it
+            extras.visibilityMi = ConversionMethods.kmToMi(it)
+        }
     }
 }
 
 fun createHourlyForecast(item: IntervalsItem): HourlyForecast {
     return HourlyForecast().apply {
         date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
-        highF = ConversionMethods.CtoF(item.values.temperature)
-        highC = item.values.temperature
+
+        item.values.temperature?.let {
+            highC = it
+            highF = ConversionMethods.CtoF(it)
+        }
 
         icon = item.values.weatherCode?.toString()
 
         // Extras
         extras = ForecastExtras()
-        extras.feelslikeF = ConversionMethods.CtoF(item.values.temperatureApparent)
-        extras.feelslikeC = item.values.temperatureApparent
-        extras.humidity = item.values.humidity.roundToInt()
-        extras.dewpointF = ConversionMethods.CtoF(item.values.dewPoint).roundToInt().toFloat()
-        extras.dewpointC = item.values.dewPoint
-        extras.pop = item.values.precipitationProbability
-        extras.cloudiness = item.values.cloudCover.roundToInt()
-        extras.qpfRainMm = item.values.precipitationIntensity
-        extras.qpfRainIn = ConversionMethods.mmToIn(item.values.precipitationIntensity)
-        extras.qpfSnowCm = item.values.snowAccumulation / 10f
-        extras.qpfSnowIn = ConversionMethods.mmToIn(item.values.snowAccumulation)
+
+        item.values.temperatureApparent?.let {
+            extras.feelslikeC = it
+            extras.feelslikeF = ConversionMethods.CtoF(it)
+        }
+
+        extras.humidity = item.values.humidity?.roundToInt()
+
+        item.values.dewPoint?.let {
+            extras.dewpointC = it
+            extras.dewpointF = ConversionMethods.CtoF(it).roundToInt().toFloat()
+        }
+
+        extras.pop = item.values.precipitationProbability?.roundToInt()
+        extras.cloudiness = item.values.cloudCover?.roundToInt()
+
+        item.values.precipitationIntensity?.let {
+            extras.qpfRainMm = it
+            extras.qpfRainIn = ConversionMethods.mmToIn(it)
+        }
+
+        item.values.snowAccumulation?.let {
+            extras.qpfSnowCm = it / 10f
+            extras.qpfSnowIn = ConversionMethods.mmToIn(it)
+        }
+
         // 1hPA = 1mbar
-        extras.pressureMb = item.values.pressureSeaLevel
-        extras.pressureIn = ConversionMethods.mbToInHg(item.values.pressureSeaLevel).roundToInt().toFloat()
+        item.values.pressureSeaLevel?.let {
+            extras.pressureMb = it
+            extras.pressureIn = ConversionMethods.mbToInHg(it).roundToInt().toFloat()
+        }
+
         extras.windDegrees = item.values.windDirection?.roundToInt()?.also { windDegrees = it }
-        extras.windMph = ConversionMethods.msecToMph(item.values.windSpeed).also { windMph = it }
-        extras.windKph = ConversionMethods.msecToKph(item.values.windSpeed).also { windKph = it }
-        extras.visibilityMi = ConversionMethods.kmToMi(item.values.visibility)
-        extras.visibilityKm = item.values.visibility
-        extras.windGustMph = ConversionMethods.msecToMph(item.values.windGust)
-        extras.windGustKph = ConversionMethods.msecToKph(item.values.windGust)
+
+        item.values.windSpeed?.let { speed ->
+            extras.windMph = ConversionMethods.msecToMph(speed).also { windMph = it }
+            extras.windKph = ConversionMethods.msecToKph(speed).also { windKph = it }
+        }
+
+        item.values.windGust?.let {
+            extras.windGustMph = ConversionMethods.msecToMph(it)
+            extras.windGustKph = ConversionMethods.msecToKph(it)
+        }
+
+        item.values.visibility?.let {
+            extras.visibilityKm = it
+            extras.visibilityMi = ConversionMethods.kmToMi(it)
+        }
     }
 }
 
@@ -159,29 +217,40 @@ fun createCondition(item: IntervalsItem): Condition {
     return Condition().apply {
         weather = null
 
-        tempF = ConversionMethods.CtoF(item.values.temperature)
-        tempC = item.values.temperature
+        item.values.temperature?.let {
+            tempC = it
+            tempF = ConversionMethods.CtoF(it)
+        }
 
         windDegrees = item.values.windDirection?.roundToInt()
-        windMph = ConversionMethods.msecToMph(item.values.windSpeed)
-        windKph = ConversionMethods.msecToKph(item.values.windSpeed)
 
-        windGustMph = ConversionMethods.msecToMph(item.values.windGust)
-        windGustKph = ConversionMethods.msecToKph(item.values.windGust)
+        item.values.windSpeed?.let {
+            windMph = ConversionMethods.msecToMph(it)
+            windKph = ConversionMethods.msecToKph(it)
+            beaufort = Beaufort(getBeaufortScale(it))
+        }
 
-        feelslikeF = ConversionMethods.CtoF(item.values.temperatureApparent)
-        feelslikeC = item.values.temperatureApparent
+        item.values.windGust?.let {
+            windGustMph = ConversionMethods.msecToMph(it)
+            windGustKph = ConversionMethods.msecToKph(it)
+        }
 
-        icon = item.values.weatherCode.toString()
+        item.values.temperatureApparent?.let {
+            feelslikeC = it
+            feelslikeF = ConversionMethods.CtoF(it)
+        }
 
-        beaufort = Beaufort(getBeaufortScale(item.values.windSpeed))
+        icon = item.values.weatherCode?.toString()
 
-        /*
-        highF = ConversionMethods.CtoF(item.values.temperatureMax)
-        highC = item.values.temperatureMax
-        lowF = ConversionMethods.CtoF(item.values.temperatureMin)
-        lowC = item.values.temperatureMin
-         */
+        item.values.temperatureMax?.let {
+            highC = it
+            highF = ConversionMethods.CtoF(it)
+        }
+
+        item.values.temperatureMin?.let {
+            lowC = it
+            lowF = ConversionMethods.CtoF(it)
+        }
 
         airQuality = AirQuality().apply {
             index = item.values.epaIndex
@@ -219,14 +288,23 @@ fun createCondition(item: IntervalsItem): Condition {
 
 fun createAtmosphere(item: IntervalsItem): Atmosphere {
     return Atmosphere().apply {
-        humidity = item.values.humidity.roundToInt()
-        pressureMb = item.values.pressureSeaLevel
-        pressureIn = ConversionMethods.mbToInHg(item.values.pressureSeaLevel)
+        humidity = item.values.humidity?.roundToInt()
+
+        item.values.pressureSeaLevel?.let {
+            pressureMb = it
+            pressureIn = ConversionMethods.mbToInHg(it)
+        }
         pressureTrend = ""
-        visibilityMi = ConversionMethods.kmToMi(item.values.visibility)
-        visibilityKm = item.values.visibility
-        dewpointF = ConversionMethods.CtoF(item.values.dewPoint)
-        dewpointC = item.values.dewPoint
+
+        item.values.visibility?.let {
+            visibilityKm = it
+            visibilityMi = ConversionMethods.kmToMi(it)
+        }
+
+        item.values.dewPoint?.let {
+            dewpointC = it
+            dewpointF = ConversionMethods.CtoF(it).roundToInt().toFloat()
+        }
     }
 }
 
@@ -269,9 +347,12 @@ fun createAstronomy(item: IntervalsItem): Astronomy {
 
 fun createPrecipitation(item: IntervalsItem): Precipitation {
     return Precipitation().apply {
-        pop = item.values.precipitationProbability
-        cloudiness = item.values.cloudCover.roundToInt()
-        qpfRainIn = ConversionMethods.mmToIn(item.values.precipitationIntensity)
-        qpfRainMm = item.values.precipitationIntensity
+        pop = item.values.precipitationProbability?.roundToInt()
+        cloudiness = item.values.cloudCover?.roundToInt()
+
+        item.values.precipitationIntensity?.let {
+            qpfRainMm = it
+            qpfRainIn = ConversionMethods.mmToIn(it)
+        }
     }
 }
