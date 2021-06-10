@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.CacheControl
 import okhttp3.Request
@@ -24,7 +25,6 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -225,15 +225,27 @@ class AccuWeatherProvider : WeatherProviderImpl() {
     }
 
     override fun updateLocationQuery(weather: Weather): String {
-        val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
-        df.applyPattern("0.####")
-        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(weather.location.latitude), df.format(weather.location.longitude))
+        // TODO: suspend?
+        val locationModel = runBlocking {
+            mLocationProvider.getLocation(
+                Coordinate(
+                    weather.location.latitude.toDouble(),
+                    weather.location.longitude.toDouble()
+                ), getWeatherAPI()
+            )
+        }
+        return locationModel!!.locationQuery
     }
 
     override fun updateLocationQuery(location: LocationData): String {
-        val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
-        df.applyPattern("0.####")
-        return String.format(Locale.ROOT, "latitude=%s&longitude=%s", df.format(location.latitude), df.format(location.longitude))
+        // TODO: suspend?
+        val locationModel = runBlocking {
+            mLocationProvider.getLocation(
+                Coordinate(location.latitude, location.longitude),
+                getWeatherAPI()
+            )
+        }
+        return locationModel!!.locationQuery
     }
 
     override fun localeToLangCode(iso: String, name: String): String {
