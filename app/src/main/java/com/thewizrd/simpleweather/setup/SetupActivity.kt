@@ -49,6 +49,23 @@ class SetupActivity : UserLocaleActivity() {
         AnalyticsLogger.logEvent("SetupActivity: onCreate")
         settingsManager = App.instance.settingsManager
 
+        binding = ActivitySetupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar) { v, insets ->
+            val layoutParams = v.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.setMargins(
+                insets.systemWindowInsetLeft,
+                0,
+                insets.systemWindowInsetRight,
+                insets.systemWindowInsetBottom
+            )
+            insets
+        }
+
+        val color = ContextCompat.getColor(this@SetupActivity, R.color.colorPrimaryBackground)
+        ActivityUtils.setTransparentWindow(window, color)
+
         lifecycleScope.launch {
             isWeatherLoaded = settingsManager.isWeatherLoaded()
 
@@ -89,23 +106,6 @@ class SetupActivity : UserLocaleActivity() {
                     Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
                 )
             }
-
-            binding = ActivitySetupBinding.inflate(layoutInflater)
-            setContentView(binding.root)
-
-            ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar) { v, insets ->
-                val layoutParams = v.layoutParams as ViewGroup.MarginLayoutParams
-                layoutParams.setMargins(
-                    insets.systemWindowInsetLeft,
-                    0,
-                    insets.systemWindowInsetRight,
-                    insets.systemWindowInsetBottom
-                )
-                insets
-            }
-
-            val color = ContextCompat.getColor(this@SetupActivity, R.color.colorPrimaryBackground)
-            ActivityUtils.setTransparentWindow(window, color)
 
             val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -154,6 +154,9 @@ class SetupActivity : UserLocaleActivity() {
         try {
             mNavController = findNavController(R.id.fragment_container)
         } catch (e: IllegalStateException) {
+            // View not yet created
+            // Retrieve by fragment
+        } catch (e: IllegalArgumentException) {
             // View not yet created
             // Retrieve by fragment
         }
