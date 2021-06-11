@@ -49,7 +49,9 @@ fun createWeatherData(forecastResponse: ForecastResponse,
                 if (forecast.isEmpty() && !forecastItem.isDaytime || forecast.size == periodsSize - 1 && forecastItem.isDaytime) {
                     forecast.add(createForecast(forecastItem))
                     txtForecast.add(createTextForecast(forecastItem).also {
-                        if (condition.summary == null && !condition.observationTime.isBefore(it.date)) {
+                        if (condition.summary == null && !condition.observationTime.toLocalDate()
+                                .isBefore(it.date.toLocalDate())
+                        ) {
                             condition.summary = String.format(
                                 Locale.ROOT,
                                 "%s - %s", forecastItem.name, forecastItem.detailedForecast
@@ -70,7 +72,9 @@ fun createWeatherData(forecastResponse: ForecastResponse,
 
                     forecast.add(createForecast(forecastItem, nightForecastItem))
                     txtForecast.add(createTextForecast(forecastItem, nightForecastItem).also {
-                        if (condition.summary == null && !condition.observationTime.isBefore(it.date)) {
+                        if (condition.summary == null && !condition.observationTime.toLocalDate()
+                                .isBefore(it.date.toLocalDate())
+                        ) {
                             condition.summary = String.format(
                                 Locale.ROOT,
                                 "%s - %s\n%s - %s",
