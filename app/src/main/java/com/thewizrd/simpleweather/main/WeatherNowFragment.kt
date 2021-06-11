@@ -1061,12 +1061,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
             launch(Dispatchers.Default) {
                 supervisorScope {
-                    val result = wLoader?.loadWeatherResult(WeatherRequest.Builder()
+                    val result = wLoader?.loadWeatherResult(
+                        WeatherRequest.Builder()
                             .forceRefresh(forceRefresh)
                             .setErrorListener(this@WeatherNowFragment)
-                            .build())
+                            .build()
+                    ) ?: return@supervisorScope
 
-                    weatherLiveData.postValue(result!!.weather)
+                    weatherLiveData.postValue(result.weather)
 
                     runWithView {
                         if (conditionPanelBinding.alertButton.visibility != View.GONE) {
