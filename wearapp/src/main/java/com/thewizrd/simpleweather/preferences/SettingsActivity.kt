@@ -29,6 +29,7 @@ import com.google.android.wearable.intent.RemoteIntent
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
+import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.*
@@ -562,20 +563,23 @@ class SettingsActivity : WearableListenerActivity() {
             true
         }
 
-        private fun updateKeySummary(providerAPI: CharSequence = providerPref.entry) {
+        private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
             if (!settingsManager.getAPIKEY().isNullOrBlank()) {
                 val keyVerified = settingsManager.isKeyVerified()
 
                 val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
-                val summary: Spannable = SpannableString(if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid))
+                val summary: Spannable = SpannableString(
+                    if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)
+                )
                 summary.setSpan(colorSpan, 0, summary.length, 0)
                 keyEntry.summary = summary
             } else {
-                keyEntry.summary = getString(R.string.pref_summary_apikey, providerAPI)
+                keyEntry.summary =
+                    getString(R.string.pref_summary_apikey, providerAPI ?: WeatherIcons.EM_DASH)
             }
         }
 
-        private fun updateRegisterLink(providerAPI: CharSequence = providerPref.value) {
+        private fun updateRegisterLink(providerAPI: CharSequence? = providerPref.value) {
             var prov: ProviderEntry? = null
             for (provider in WeatherAPI.APIs) {
                 if (provider.value == providerAPI.toString()) {

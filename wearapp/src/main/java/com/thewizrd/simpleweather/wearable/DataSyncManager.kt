@@ -11,6 +11,7 @@ import com.google.android.gms.wearable.WearableStatusCodes
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.wearable.WearableSettings
@@ -77,11 +78,35 @@ object DataSyncManager {
                 LocaleUtils.setLocaleCode(dataMap.getString(WearableSettings.KEY_LANGUAGE, ""))
 
                 val oldIcons = settingsMgr.getIconsProvider()
-                settingsMgr.setIconsProvider(dataMap.getString(WearableSettings.KEY_ICONPROVIDER, WeatherIconsProvider.KEY))
+                settingsMgr.setIconsProvider(
+                    dataMap.getString(
+                        WearableSettings.KEY_ICONPROVIDER,
+                        WeatherIconsProvider.KEY
+                    )
+                )
                 val newIcons = settingsMgr.getIconsProvider()
                 if (!ObjectsCompat.equals(oldIcons, newIcons)) {
                     // Update tiles and complications
                     requestWidgetUpdate(appContext)
+                }
+
+                val devSettingsMap = dataMap.getDataMap(WearableSettings.KEY_DEVSETTINGS)
+                if (devSettingsMap != null) {
+                    DevSettingsEnabler.clearPreferences(
+                        appContext,
+                        devSettingsMap.getBoolean(WearableSettings.KEY_DEVSETTINGS, false)
+                    )
+                    for (key in devSettingsMap.keySet()) {
+                        if (key != WearableSettings.KEY_DEVSETTINGS) {
+                            DevSettingsEnabler.setAPIKey(
+                                appContext,
+                                key,
+                                devSettingsMap.getString(key)
+                            )
+                        }
+                    }
+                } else {
+                    DevSettingsEnabler.clearPreferences(appContext, false)
                 }
 
                 setSettingsUpdateTime(appContext, updateTimeMillis)

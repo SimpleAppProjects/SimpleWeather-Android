@@ -6,6 +6,7 @@ import androidx.work.*
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
@@ -139,19 +140,42 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKEY())
             mapRequest.dataMap.putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, settingsManager.isKeyVerified())
             mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, settingsManager.useFollowGPS())
-            mapRequest.dataMap.putString(WearableSettings.KEY_TEMPUNIT, settingsManager.getTemperatureUnit())
+            mapRequest.dataMap.putString(
+                WearableSettings.KEY_TEMPUNIT,
+                settingsManager.getTemperatureUnit()
+            )
 
             val unitMap = DataMap()
             unitMap.putString(WearableSettings.KEY_TEMPUNIT, settingsManager.getTemperatureUnit())
             unitMap.putString(WearableSettings.KEY_SPEEDUNIT, settingsManager.getSpeedUnit())
             unitMap.putString(WearableSettings.KEY_DISTANCEUNIT, settingsManager.getDistanceUnit())
             unitMap.putString(WearableSettings.KEY_PRESSUREUNIT, settingsManager.getPressureUnit())
-            unitMap.putString(WearableSettings.KEY_PRECIPITATIONUNIT, settingsManager.getPrecipitationUnit())
+            unitMap.putString(
+                WearableSettings.KEY_PRECIPITATIONUNIT,
+                settingsManager.getPrecipitationUnit()
+            )
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_UNITS, unitMap)
 
+            if (DevSettingsEnabler.isDevSettingsEnabled(applicationContext)) {
+                val devSettingsMap = DataMap()
+                devSettingsMap.putBoolean(WearableSettings.KEY_DEVSETTINGS, true)
+                for (entry in DevSettingsEnabler.getPreferenceMap(applicationContext)) {
+                    if (entry.value is String) {
+                        devSettingsMap.putString(entry.key, entry.value as String)
+                    }
+                }
+                mapRequest.dataMap.putDataMap(WearableSettings.KEY_DEVSETTINGS, devSettingsMap)
+            }
+
             mapRequest.dataMap.putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode())
-            mapRequest.dataMap.putString(WearableSettings.KEY_ICONPROVIDER, settingsManager.getIconsProvider())
-            mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
+            mapRequest.dataMap.putString(
+                WearableSettings.KEY_ICONPROVIDER,
+                settingsManager.getIconsProvider()
+            )
+            mapRequest.dataMap.putLong(
+                WearableSettings.KEY_UPDATETIME,
+                Instant.now(Clock.systemUTC()).toEpochMilli()
+            )
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()
             try {

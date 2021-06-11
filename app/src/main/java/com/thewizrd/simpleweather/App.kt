@@ -195,6 +195,7 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEREFRESH)
         filter.addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
         filter.addAction(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE)
+        filter.addAction(CommonActions.ACTION_SETTINGS_SENDUPDATE)
         filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
         filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS)
         filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS)

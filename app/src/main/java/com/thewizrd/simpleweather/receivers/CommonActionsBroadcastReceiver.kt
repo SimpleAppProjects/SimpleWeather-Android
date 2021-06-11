@@ -59,16 +59,28 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             }
         } else if (CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE == intent.action) {
             WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDWEATHERUPDATE)
+        } else if (CommonActions.ACTION_SETTINGS_SENDUPDATE == intent.action) {
+            WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
         } else if (CommonActions.ACTION_WIDGET_RESETWIDGETS == intent.action) {
-            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS))
+            WeatherWidgetService.enqueueWork(
+                context, Intent(context, WeatherWidgetService::class.java)
+                    .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS)
+            )
         } else if (CommonActions.ACTION_WIDGET_REFRESHWIDGETS == intent.action) {
-            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS))
+            WeatherWidgetService.enqueueWork(
+                context, Intent(context, WeatherWidgetService::class.java)
+                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS)
+            )
         } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER == intent.action) {
-            ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorkerActions.ACTION_UPDATEALARM)
+            ImageDatabaseWorker.enqueueAction(
+                context,
+                ImageDatabaseWorkerActions.ACTION_UPDATEALARM
+            )
         } else if (CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION == intent.action) {
-            UpdaterUtils.enableDailyNotificationService(context, SettingsManager(context.applicationContext).isDailyNotificationEnabled())
+            UpdaterUtils.enableDailyNotificationService(
+                context,
+                SettingsManager(context.applicationContext).isDailyNotificationEnabled()
+            )
         }
 
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent.action)

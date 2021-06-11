@@ -20,4 +20,6 @@ public class WearableSettings {
     public static final String KEY_DISTANCEUNIT = "distance_unit";
     public static final String KEY_PRESSUREUNIT = "pressure_unit";
     public static final String KEY_PRECIPITATIONUNIT = "precipitation_unit";
+
+    public static final String KEY_DEVSETTINGS = "devsettings";
 }
