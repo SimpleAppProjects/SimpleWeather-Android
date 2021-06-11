@@ -109,13 +109,26 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/weather_hi"
-                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintEnd_toStartOf="@id/temp_barrier_left"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/weather_temp"
                 tools:text="Mostly Cloudy. Breezy. Chance of rain"
                 tools:textColor="@color/colorOnSurface" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/temp_barrier_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="start"
+                app:constraint_referenced_ids="weather_hi,weather_lo" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/temp_barrier_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="weather_hi,weather_lo" />
 
             <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                 android:id="@+id/weather_hi"
@@ -147,7 +160,8 @@
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:drawableTint="@color/colorOnSurface"
                 tools:text="&#8226;"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="@color/colorOnSurface"
+                tools:visibility="visible" />
 
             <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                 android:id="@+id/weather_lo"
@@ -177,14 +191,31 @@
                 app:layout_constraintStart_toEndOf="@id/weather_condition"
                 app:layout_constraintTop_toBottomOf="@id/weather_hi"
                 tools:text="60°"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="@color/colorOnSurface"
+                tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/extra_barrier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="start"
-                app:constraint_referenced_ids="weather_pop,weather_popicon,weather_windicon,weather_windspeed" />
+                app:constraint_referenced_ids="weather_popgroup,weather_windgroup" />
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/weather_popgroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:hideIfNull="@{viewModel.pop}"
+                app:flow_horizontalStyle="packed"
+                app:flow_maxElementsWrap="2"
+                app:flow_wrapMode="chain"
+                app:constraint_referenced_ids="weather_popicon,weather_pop"
+                app:layout_constraintStart_toEndOf="@id/temp_barrier_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/location_name"
+                app:layout_constraintBottom_toTopOf="@id/weather_windgroup"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/weather_popicon"
@@ -198,21 +229,13 @@
                 android:scrollbars="none"
                 app:srcCompat="@{viewModel.popIcon}"
                 app:tint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
-                app:hideIfNull="@{viewModel.pop}"
-                app:layout_constraintBottom_toBottomOf="@id/weather_pop"
-                app:layout_constraintEnd_toStartOf="@id/weather_pop"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@id/weather_hi"
-                app:layout_constraintTop_toTopOf="@id/weather_pop"
-                app:layout_constraintVertical_chainStyle="packed"
                 tools:srcCompat="@drawable/wi_umbrella"
-                tools:tint="@color/colorOnSurface"
-                tools:visibility="visible" />
+                tools:tint="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_pop"
                 style="@style/ShadowText"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical"
                 android:paddingTop="8dp"
@@ -226,16 +249,24 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:hideIfNull="@{viewModel.pop}"
-                app:layout_constraintBottom_toTopOf="@id/weather_windspeed"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@id/weather_windspeed"
-                app:layout_constraintTop_toBottomOf="@id/location_name"
-                app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintWidth_min="60dp"
                 tools:text="5%"
-                tools:textColor="@color/colorOnSurface"
-                tools:visibility="visible" />
+                tools:textColor="@color/colorOnSurface" />
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/weather_windgroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:hideIfNull="@{viewModel.windSpeed}"
+                app:flow_horizontalStyle="packed"
+                app:flow_maxElementsWrap="2"
+                app:flow_wrapMode="chain"
+                app:constraint_referenced_ids="weather_windicon,weather_windspeed"
+                app:layout_constraintStart_toEndOf="@id/temp_barrier_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/weather_popgroup"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:visibility="gone" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/weather_windicon"
@@ -250,15 +281,8 @@
                 android:rotation="@{viewModel.windDir}"
                 app:srcCompat="@drawable/wi_direction_up"
                 app:tint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
-                app:hideIfNull="@{viewModel.windSpeed}"
-                app:layout_constraintBottom_toBottomOf="@id/weather_windspeed"
-                app:layout_constraintEnd_toStartOf="@id/weather_windspeed"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@id/weather_lo"
-                app:layout_constraintTop_toTopOf="@id/weather_windspeed"
                 tools:rotation="0"
-                tools:tint="@color/colorOnSurface"
-                tools:visibility="visible" />
+                tools:tint="@color/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windspeed"
@@ -276,16 +300,9 @@
                 android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:hideIfNull="@{viewModel.windSpeed}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@id/weather_windicon"
-                app:layout_constraintTop_toBottomOf="@id/weather_pop"
                 app:layout_constraintWidth_min="60dp"
                 tools:text="16 mph"
-                tools:textColor="@color/colorOnSurface"
-                tools:visibility="visible" />
+                tools:textColor="@color/colorOnSurface" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
