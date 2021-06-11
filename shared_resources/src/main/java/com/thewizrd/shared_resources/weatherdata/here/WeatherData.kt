@@ -1,31 +1,44 @@
 package com.thewizrd.shared_resources.weatherdata.here
 
 import android.annotation.SuppressLint
-import com.thewizrd.shared_resources.utils.ConversionMethods
-import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.NumberUtils
-import com.thewizrd.shared_resources.utils.StringUtils
+import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy
+import java.text.DecimalFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.math.roundToInt
 
 @SuppressLint("VisibleForTests")
 fun createWeatherData(root: Rootobject): Weather {
     return Weather().apply {
         val now = ZonedDateTime.parse(root.feedCreation)
+        var todaysForecast: Forecast? = null
+        var todaysTxtForecast: TextForecast? = null
 
         location = createLocationData(root.observations.location[0])
         updateTime = now
         forecast = ArrayList(root.dailyForecasts.forecastLocation.forecast.size)
         txtForecast = ArrayList(root.dailyForecasts.forecastLocation.forecast.size)
         for (fcast in root.dailyForecasts.forecastLocation.forecast) {
-            forecast.add(createForecast(fcast))
-            txtForecast.add(createTextForecast(fcast))
+            val dailyFcast = createForecast(fcast)
+            val txtFcast = createTextForecast(fcast)
+
+            forecast.add(dailyFcast)
+            txtForecast.add(txtFcast)
+
+            if (todaysForecast == null && dailyFcast.date.toLocalDate()
+                    .isEqual(now.toLocalDate())
+            ) {
+                todaysForecast = dailyFcast
+                todaysTxtForecast = txtFcast
+            }
         }
         hrForecast = ArrayList(root.hourlyForecasts.forecastLocation.forecast.size)
         for (forecast1 in root.hourlyForecasts.forecastLocation.forecast) {
@@ -36,12 +49,11 @@ fun createWeatherData(root: Rootobject): Weather {
         }
 
         val observation = root.observations.location[0].observation[0]
-        val todaysForecast = root.dailyForecasts.forecastLocation.forecast[0]
 
-        condition = createCondition(observation, todaysForecast)
+        condition = createCondition(observation, todaysForecast, todaysTxtForecast)
         atmosphere = createAtmosphere(observation)
         astronomy = createAstronomy(root.astronomy.astronomy)
-        precipitation = createPrecipitation(todaysForecast)
+        precipitation = createPrecipitation(observation, todaysForecast)
         ttl = 180
 
         source = WeatherAPI.HERE
@@ -205,7 +217,11 @@ fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
     }
 }
 
-fun createCondition(observation: ObservationItem, forecastItem: ForecastItem): Condition {
+fun createCondition(
+    observation: ObservationItem,
+    todaysForecast: Forecast? = null,
+    todaysTxtForecast: TextForecast? = null
+): Condition {
     return Condition().apply {
         weather = StringUtils.toPascalCase(observation.description)
         val temp_F = NumberUtils.tryParseFloat(observation.temperature)
@@ -214,28 +230,18 @@ fun createCondition(observation: ObservationItem, forecastItem: ForecastItem): C
             tempC = ConversionMethods.FtoC(temp_F)
         }
 
-        var highTempF = NumberUtils.tryParseFloat(observation.highTemperature)
-        var lowTempF = NumberUtils.tryParseFloat(observation.lowTemperature)
+        val highTempF = NumberUtils.tryParseFloat(observation.highTemperature)
+        val lowTempF = NumberUtils.tryParseFloat(observation.lowTemperature)
         if (highTempF != null && lowTempF != null) {
             highF = highTempF
             highC = ConversionMethods.FtoC(highTempF)
             lowF = lowTempF
             lowC = ConversionMethods.FtoC(lowTempF)
         } else {
-            highTempF = NumberUtils.tryParseFloat(forecastItem.highTemperature)
-            lowTempF = NumberUtils.tryParseFloat(forecastItem.lowTemperature)
-
-            if (highTempF != null && lowTempF != null) {
-                highF = highTempF
-                highC = ConversionMethods.FtoC(highTempF)
-                lowF = lowTempF
-                lowC = ConversionMethods.FtoC(lowTempF)
-            } else {
-                highF = 0.00f
-                highC = 0.00f
-                lowF = 0.00f
-                lowC = 0.00f
-            }
+            highF = todaysForecast?.highF
+            highC = todaysForecast?.highC
+            lowF = todaysForecast?.lowF
+            lowC = todaysForecast?.lowC
         }
 
         val windDeg = NumberUtils.tryParseInt(observation.windDirection)
@@ -247,6 +253,7 @@ fun createCondition(observation: ObservationItem, forecastItem: ForecastItem): C
         if (windSpeed != null) {
             windMph = windSpeed
             windKph = ConversionMethods.mphTokph(windSpeed)
+            beaufort = Beaufort(getBeaufortScale(windSpeed.roundToInt()))
         }
 
         val comfortTempF = NumberUtils.tryParseFloat(observation.comfort)
@@ -256,19 +263,46 @@ fun createCondition(observation: ObservationItem, forecastItem: ForecastItem): C
         }
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
-                .getWeatherIcon(String.format("%s_%s", observation.daylight, observation.iconName))
+            .getWeatherIcon(String.format("%s_%s", observation.daylight, observation.iconName))
 
-        val scale = NumberUtils.tryParseInt(forecastItem.beaufortScale)
-        if (scale != null) {
-            beaufort = Beaufort(scale)
-        }
-
-        val index = NumberUtils.tryParseFloat(forecastItem.uvIndex)
-        if (index != null) {
-            uv = UV(index)
+        if (todaysForecast?.extras?.uvIndex != null) {
+            uv = UV(todaysForecast.extras.uvIndex)
         }
 
         observationTime = ZonedDateTime.parse(observation.utcTime)
+
+        if (todaysForecast != null && todaysTxtForecast != null) {
+            val locale = LocaleUtils.getLocale()
+            val ctx = SimpleLibrary.instance.appContext
+            val df = DecimalFormat.getInstance(locale) as DecimalFormat
+            df.applyPattern("#.##")
+
+            val summaryStr = StringBuilder()
+            summaryStr.append(todaysTxtForecast.fcttext) // fcttext & fcttextMetric are the same
+            if (todaysForecast.highF != null && todaysForecast.highC != null) {
+                summaryStr.append(
+                    "; ${ctx.getString(R.string.label_high)}: ${todaysForecast.highF.roundToInt()}°F (${
+                        df.format(
+                            todaysForecast.highC
+                        )
+                    }°C)"
+                )
+            }
+            if (todaysForecast.lowF != null && todaysForecast.lowC != null) {
+                summaryStr.append(
+                    "; ${ctx.getString(R.string.label_low)}: ${todaysForecast.lowF.roundToInt()}°F (${
+                        df.format(
+                            todaysForecast.lowC
+                        )
+                    }°C)"
+                )
+            }
+            if (todaysForecast.extras?.pop != null) {
+                summaryStr.append("; ${ctx.getString(R.string.label_chance)}: ${todaysForecast.extras.pop}%")
+            }
+
+            summary = summaryStr.toString()
+        }
     }
 }
 
@@ -347,23 +381,39 @@ fun createAstronomy(astronomy: List<AstronomyItem>): Astronomy {
     }
 }
 
-fun createPrecipitation(forecast: ForecastItem): Precipitation {
+fun createPrecipitation(
+    observation: ObservationItem,
+    todaysForecast: Forecast? = null
+): Precipitation {
     return Precipitation().apply {
-        val POP = NumberUtils.tryParseInt(forecast.precipitationProbability)
-        if (POP != null) {
-            pop = POP
+        pop = todaysForecast?.extras?.pop
+
+        observation.precipitation1H?.toFloatOrNull()?.let {
+            qpfRainIn = it
+            qpfRainMm = ConversionMethods.inToMM(it)
+        } ?: observation.precipitation3H?.toFloatOrNull()?.let {
+            qpfRainIn = it
+            qpfRainMm = ConversionMethods.inToMM(it)
+        } ?: observation.precipitation6H?.toFloatOrNull()?.let {
+            qpfRainIn = it
+            qpfRainMm = ConversionMethods.inToMM(it)
+        } ?: observation.precipitation12H?.toFloatOrNull()?.let {
+            qpfRainIn = it
+            qpfRainMm = ConversionMethods.inToMM(it)
+        } ?: observation.precipitation24H?.toFloatOrNull()?.let {
+            qpfRainIn = it
+            qpfRainMm = ConversionMethods.inToMM(it)
+        } ?: todaysForecast?.extras?.let {
+            qpfRainIn = it.qpfRainIn
+            qpfRainMm = it.qpfRainMm
         }
 
-        val rain_in = NumberUtils.tryParseFloat(forecast.rainFall)
-        if (rain_in != null) {
-            qpfRainIn = rain_in
-            qpfRainMm = ConversionMethods.inToMM(rain_in)
-        }
-
-        val snow_in = NumberUtils.tryParseFloat(forecast.rainFall)
-        if (snow_in != null) {
-            qpfSnowIn = snow_in
-            qpfSnowCm = ConversionMethods.inToMM(snow_in) / 10
+        observation.snowCover?.toFloatOrNull()?.let {
+            qpfSnowIn = it
+            qpfSnowCm = ConversionMethods.inToMM(it) / 10
+        } ?: todaysForecast?.extras?.let {
+            qpfSnowIn = it.qpfSnowIn
+            qpfSnowCm = it.qpfSnowCm
         }
     }
 }
