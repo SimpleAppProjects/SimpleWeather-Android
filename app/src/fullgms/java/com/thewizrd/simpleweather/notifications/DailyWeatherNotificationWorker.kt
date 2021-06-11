@@ -114,9 +114,9 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
 
             if (forecasts != null) {
                 // Get the forecast for today
-                val todaysForecast = forecasts.forecast.first {
+                val todaysForecast = forecasts.forecast.firstOrNull {
                     it.date.toLocalDate().isEqual(now.toLocalDate())
-                } ?: forecasts.forecast.first()
+                } ?: forecasts.forecast.firstOrNull() ?: return
 
                 val notifMgr = context.getSystemService<NotificationManager>()!!
                 val notif = DailyWeatherNotificationBuilder.createNotification(
