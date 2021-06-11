@@ -279,26 +279,8 @@ fun createCondition(
 
             val summaryStr = StringBuilder()
             summaryStr.append(todaysTxtForecast.fcttext) // fcttext & fcttextMetric are the same
-            if (todaysForecast.highF != null && todaysForecast.highC != null) {
-                summaryStr.append(
-                    "; ${ctx.getString(R.string.label_high)}: ${todaysForecast.highF.roundToInt()}°F (${
-                        df.format(
-                            todaysForecast.highC
-                        )
-                    }°C)"
-                )
-            }
-            if (todaysForecast.lowF != null && todaysForecast.lowC != null) {
-                summaryStr.append(
-                    "; ${ctx.getString(R.string.label_low)}: ${todaysForecast.lowF.roundToInt()}°F (${
-                        df.format(
-                            todaysForecast.lowC
-                        )
-                    }°C)"
-                )
-            }
             if (todaysForecast.extras?.pop != null) {
-                summaryStr.append("; ${ctx.getString(R.string.label_chance)}: ${todaysForecast.extras.pop}%")
+                summaryStr.append(" ${ctx.getString(R.string.label_chance)}: ${todaysForecast.extras.pop}%")
             }
 
             summary = summaryStr.toString()
