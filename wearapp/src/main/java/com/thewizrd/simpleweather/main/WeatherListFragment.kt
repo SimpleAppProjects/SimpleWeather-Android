@@ -154,7 +154,7 @@ class WeatherListFragment : SwipeDismissFragment() {
 
                     alertsView.getAlerts()?.removeObservers(this@WeatherListFragment)
                     alertsView.getAlerts()?.observe(this@WeatherListFragment, Observer { alerts ->
-                        alertAdapter.updateItems(alerts)
+                        alertAdapter.submitList(alerts)
                     })
                 }
                 WeatherListType.PRECIPITATION -> {

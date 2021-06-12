@@ -322,7 +322,7 @@ class WeatherListFragment : ToolbarFragment() {
 
                     alertsView.getAlerts()?.removeObservers(this@WeatherListFragment)
                     alertsView.getAlerts()?.observe(this@WeatherListFragment, { alerts ->
-                        alertAdapter.updateItems(alerts)
+                        alertAdapter.submitList(alerts)
                     })
                 }
                 else -> {
