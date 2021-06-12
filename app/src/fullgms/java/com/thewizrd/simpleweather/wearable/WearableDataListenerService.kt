@@ -42,7 +42,7 @@ class WearableDataListenerService : WearableListenerService() {
                 WearableWorker.enqueueAction(this, WearableWorkerActions.ACTION_SENDWEATHERUPDATE)
             }
             WearableHelper.IsSetupPath -> {
-                WearableWorker.enqueueAction(this, WearableWorkerActions.ACTION_SENDSETUPSTATUS)
+                WearableWorker.sendSetupStatus(this, messageEvent.sourceNodeId)
             }
         }
     }

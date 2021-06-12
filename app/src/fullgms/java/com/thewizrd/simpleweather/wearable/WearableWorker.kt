@@ -48,6 +48,15 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             }
         }
 
+        fun sendSetupStatus(context: Context, nodeID: String) {
+            startWork(
+                context.applicationContext,
+                WearableWorkerActions.ACTION_SENDSETUPSTATUS,
+                true,
+                nodeID
+            )
+        }
+
         private fun startWork(
             context: Context,
             intentAction: String,
@@ -107,7 +116,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                     createWeatherDataRequest(urgent)
                 }
                 WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
-                    sendSetupStatus(inputData.getString(KEY_NODEID)!!)
+                    sendSetupStatus(inputData.getString(KEY_NODEID))
                 }
             }
         }
@@ -248,7 +257,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         }
     }
 
-    private suspend fun sendSetupStatus(nodeID: String) =
+    private suspend fun sendSetupStatus(nodeID: String?) =
         withContext(Dispatchers.IO) {
             try {
                 val client = Wearable.getMessageClient(applicationContext)
