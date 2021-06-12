@@ -437,7 +437,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     return
 
                 runWithView {
-                    val condPnlHeight = binding.refreshLayout.height
+                    val condPnlHeight =
+                        binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
                     val THRESHOLD = condPnlHeight / 2
                     val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
                     val dY = scrollY - oldScrollY
@@ -482,7 +483,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     return
 
                 runWithView {
-                    val condPnlHeight = binding.refreshLayout.height
+                    val condPnlHeight =
+                        binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
                     val THRESHOLD = condPnlHeight / 2
                     val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
                     val dY = scrollY - oldScrollY
