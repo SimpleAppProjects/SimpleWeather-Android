@@ -21,7 +21,10 @@ public enum WeatherDetailsType {
     MOONPHASE(15),
     BEAUFORT(16),
     UV(17),
-    AIRQUALITY(18);
+    AIRQUALITY(18),
+    TREEPOLLEN(19),
+    GRASSPOLLEN(20),
+    RAGWEEDPOLLEN(21);
 
     private final int value;
 
@@ -33,7 +36,7 @@ public enum WeatherDetailsType {
         this.value = value;
     }
 
-    private static SparseArray<WeatherDetailsType> map = new SparseArray<>();
+    private static final SparseArray<WeatherDetailsType> map = new SparseArray<>();
 
     static {
         for (WeatherDetailsType mode : values()) {

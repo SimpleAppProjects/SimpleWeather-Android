@@ -111,6 +111,18 @@ public class DetailItemViewModel {
                 this.label = context.getString(R.string.label_airquality);
                 this.icon = wim.getWeatherIconResource(WeatherIcons.CLOUDY_GUSTS);
                 break;
+            case TREEPOLLEN:
+                this.label = context.getString(R.string.label_tree_pollen);
+                this.icon = R.drawable.ic_outline_tree;
+                break;
+            case GRASSPOLLEN:
+                this.label = context.getString(R.string.label_grass_pollen);
+                this.icon = R.drawable.ic_baseline_grass;
+                break;
+            case RAGWEEDPOLLEN:
+                this.label = context.getString(R.string.label_ragweed_pollen);
+                this.icon = R.drawable.ic_ragweed_pollen;
+                break;
         }
 
         this.value = value;

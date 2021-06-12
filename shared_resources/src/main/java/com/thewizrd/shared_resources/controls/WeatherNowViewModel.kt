@@ -498,6 +498,38 @@ class WeatherNowViewModel() : ObservableViewModel() {
         }
         notifyPropertyChanged(BR.beaufort)
 
+        if (weatherData!!.condition?.pollen != null) {
+            val pollenVM = PollenViewModel(weatherData!!.condition.pollen)
+            if (isPhone) {
+                pollen = pollenVM
+            } else {
+                weatherDetails.add(
+                    DetailItemViewModel(
+                        WeatherDetailsType.TREEPOLLEN,
+                        pollenVM.treePollenDesc.toString(),
+                        0
+                    )
+                )
+                weatherDetails.add(
+                    DetailItemViewModel(
+                        WeatherDetailsType.GRASSPOLLEN,
+                        pollenVM.grassPollenDesc.toString(),
+                        0
+                    )
+                )
+                weatherDetails.add(
+                    DetailItemViewModel(
+                        WeatherDetailsType.RAGWEEDPOLLEN,
+                        pollenVM.ragweedPollenDesc.toString(),
+                        0
+                    )
+                )
+            }
+        } else {
+            pollen = null
+        }
+        notifyPropertyChanged(BR.pollen)
+
         // Astronomy
         if (weatherData?.astronomy != null) {
             sunPhase = SunPhaseViewModel(weatherData!!.astronomy)
@@ -543,11 +575,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
         notifyPropertyChanged(BR.sunPhase)
         notifyPropertyChanged(BR.moonPhase)
         notifyPropertyChanged(BR.weatherDetails)
-
-        pollen = weatherData?.condition?.pollen?.let {
-            PollenViewModel(it)
-        }
-        notifyPropertyChanged(BR.pollen)
 
         val entry = WeatherAPI.APIs.find { wapi -> weatherSource == wapi?.value }
         weatherCredit = String.format("%s %s",

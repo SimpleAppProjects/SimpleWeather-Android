@@ -194,4 +194,17 @@
     <!-- Icons -->
     <string name="pref_title_icons">Icons</string>
 
+    <!-- Pollen -->
+    <string name="label_pollen_count">Pollen Count</string>
+    <string name="label_pollen_tree">Tree</string>
+    <string name="label_tree_pollen">Tree Pollen</string>
+    <string name="label_pollen_grass">Grass</string>
+    <string name="label_grass_pollen">Grass Pollen</string>
+    <string name="label_pollen_ragweed">Ragweed</string>
+    <string name="label_ragweed_pollen">Ragweed Pollen</string>
+    <string name="label_count_low">Low</string>
+    <string name="label_count_moderate">Moderate</string>
+    <string name="label_count_high">High</string>
+    <string name="label_count_veryhigh">Very High</string>
+
 </resources>
