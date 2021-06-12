@@ -17,11 +17,14 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter
+import com.thewizrd.simpleweather.adapters.MinutelyItemAdapter
+import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
 
 class WeatherListFragment : SwipeDismissFragment() {
     private val forecastsView: ForecastsListViewModel by activityViewModels()
+    private val forecastsPanelView: ForecastPanelsViewModel by activityViewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
     private var locationData: LocationData? = null
 
@@ -105,6 +108,7 @@ class WeatherListFragment : SwipeDismissFragment() {
             if (locationData == null) locationData = settingsManager.getHomeData()
             forecastsView.updateForecasts(locationData!!)
             alertsView.updateAlerts(locationData!!)
+            forecastsPanelView.updateForecasts(locationData!!)
 
             // specify an adapter (see also next example)
             when (weatherListType) {
@@ -152,6 +156,32 @@ class WeatherListFragment : SwipeDismissFragment() {
                     alertsView.getAlerts()?.observe(this@WeatherListFragment, Observer { alerts ->
                         alertAdapter.updateItems(alerts)
                     })
+                }
+                WeatherListType.PRECIPITATION -> {
+                    if (binding.recyclerView.itemDecorationCount == 0) {
+                        binding.recyclerView.addItemDecoration(itemDecoration)
+                    }
+
+                    val minForecastAdapter = binding.recyclerView.adapter as? MinutelyItemAdapter?
+                        ?: MinutelyItemAdapter()
+                    if (binding.recyclerView.adapter !== minForecastAdapter) {
+                        binding.recyclerView.adapter = minForecastAdapter
+                    }
+
+                    minForecastAdapter.registerAdapterDataObserver(object :
+                        SimpleRecyclerViewAdapterObserver() {
+                        override fun onChanged() {
+                            minForecastAdapter.unregisterAdapterDataObserver(this)
+                            binding.progressBar.visibility = View.GONE
+                        }
+                    })
+
+                    forecastsPanelView.getMinutelyForecasts()
+                        ?.removeObservers(this@WeatherListFragment)
+                    forecastsPanelView.getMinutelyForecasts()
+                        ?.observe(this@WeatherListFragment, Observer {
+                            minForecastAdapter.submitList(it)
+                        })
                 }
                 else -> {
                     binding.recyclerView.adapter = null

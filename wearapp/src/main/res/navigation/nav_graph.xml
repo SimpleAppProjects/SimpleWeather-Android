@@ -68,6 +68,23 @@
 
     </fragment>
     <fragment
+        android:id="@+id/weatherPrecipForecastFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherListFragment"
+        android:label="WeatherListFragment"
+        tools:layout="@layout/fragment_weather_list">
+
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="WeatherListType"
+            app:argType="com.thewizrd.simpleweather.main.WeatherListType"
+            android:defaultValue="PRECIPITATION" />
+
+    </fragment>
+    <fragment
         android:id="@+id/weatherDetailsFragment"
         android:name="com.thewizrd.simpleweather.main.WeatherDetailsFragment"
         android:label="WeatherDetailsFragment"
@@ -95,6 +112,10 @@
     <action
         android:id="@+id/action_global_weatherHrForecastFragment"
         app:destination="@id/weatherHrForecastFragment"
+        app:popUpTo="@id/weatherNowFragment" />
+    <action
+        android:id="@+id/action_global_weatherPrecipForecastFragment"
+        app:destination="@id/weatherPrecipForecastFragment"
         app:popUpTo="@id/weatherNowFragment" />
     <action
         android:id="@+id/action_global_setupActivity"

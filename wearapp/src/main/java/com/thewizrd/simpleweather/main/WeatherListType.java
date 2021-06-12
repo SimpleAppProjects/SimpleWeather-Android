@@ -5,7 +5,8 @@ import android.util.SparseArray;
 public enum WeatherListType {
     FORECAST(0),
     HOURLYFORECAST(1),
-    ALERTS(2);
+    ALERTS(2),
+    PRECIPITATION(3);
 
     private final int value;
 
@@ -17,7 +18,7 @@ public enum WeatherListType {
         this.value = value;
     }
 
-    private static SparseArray<WeatherListType> map = new SparseArray<>();
+    private static final SparseArray<WeatherListType> map = new SparseArray<>();
 
     static {
         for (WeatherListType weatherListType : values()) {

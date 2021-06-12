@@ -195,7 +195,12 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 logError(e)
             }
 
-            Logger.writeLine(Log.INFO, "%s: createSettingsDataRequest(): urgent: %s", TAG, java.lang.Boolean.toString(urgent))
+            Logger.writeLine(
+                Log.INFO,
+                "%s: createSettingsDataRequest(): urgent: %s",
+                TAG,
+                urgent.toString()
+            )
         }
     }
 
@@ -215,7 +220,12 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 logError(e)
             }
 
-            Logger.writeLine(Log.INFO, "%s: createLocationDataRequest(): urgent: %s", TAG, java.lang.Boolean.toString(urgent))
+            Logger.writeLine(
+                Log.INFO,
+                "%s: createLocationDataRequest(): urgent: %s",
+                TAG,
+                urgent.toString()
+            )
         }
     }
 
@@ -229,11 +239,18 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             val hrForecasts = settingsManager.getHourlyWeatherForecastData(homeData.query)
 
             if (weatherData != null) {
-                weatherData.forecast = forecasts!!.forecast
+                weatherData.forecast = forecasts?.forecast
                 weatherData.hrForecast = hrForecasts
-                weatherData.txtForecast = forecasts.txtForecast
+                weatherData.txtForecast = forecasts?.txtForecast
+                weatherData.minForecast = forecasts?.minForecast
                 weatherData.weatherAlerts = alertData
-                mapRequest.dataMap.putAsset(WearableSettings.KEY_WEATHERDATA, Asset.createFromBytes(JSONParser.serializer(weatherData, Weather::class.java).toByteArray(Charset.forName("UTF-8"))))
+                mapRequest.dataMap.putAsset(
+                    WearableSettings.KEY_WEATHERDATA,
+                    Asset.createFromBytes(
+                        JSONParser.serializer(weatherData, Weather::class.java)
+                            .toByteArray(Charset.forName("UTF-8"))
+                    )
+                )
             }
 
             mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
@@ -252,7 +269,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 Log.INFO,
                 "%s: createWeatherDataRequest(): urgent: %s",
                 TAG,
-                java.lang.Boolean.toString(urgent)
+                urgent.toString()
             )
         }
     }

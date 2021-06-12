@@ -33,6 +33,7 @@ import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +54,7 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
 
     private val weatherNowView: WeatherNowViewModel by viewModels()
     private val forecastsView: ForecastsListViewModel by viewModels()
+    private val forecastPanelsView: ForecastPanelsViewModel by viewModels()
     private val alertsView: WeatherAlertsViewModel by viewModels()
 
     override lateinit var broadcastReceiver: BroadcastReceiver
@@ -159,6 +161,11 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
                 mNavDrawerAdapter.updateNavDrawerItems()
             }
         })
+        forecastPanelsView.getMinutelyForecasts()?.observe(this, {
+            lifecycleScope.launch {
+                mNavDrawerAdapter.updateNavDrawerItems()
+            }
+        })
 
         initWearableSyncReceiver()
 
@@ -236,6 +243,9 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
                     R.string.label_hourlyforecast -> {
                         mNavController.navigate(NavGraphDirections.actionGlobalWeatherHrForecastFragment())
                     }
+                    R.string.label_precipitation -> {
+                        mNavController.navigate(NavGraphDirections.actionGlobalWeatherPrecipForecastFragment())
+                    }
                     R.string.label_details -> {
                         mNavController.navigate(NavGraphDirections.actionGlobalWeatherDetailsFragment())
                     }
@@ -259,11 +269,36 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
 
     private inner class NavDrawerAdapter(private val mContext: Context) : WearableNavigationDrawerView.WearableNavigationDrawerAdapter() {
         private val navDrawerItems = listOf(
-                NavDrawerItem(R.id.weatherNowFragment, R.string.label_nav_weathernow, R.drawable.wi_day_cloudy),
-                NavDrawerItem(R.id.weatherAlertsFragment, R.string.title_fragment_alerts, R.drawable.ic_error_white),
-                NavDrawerItem(R.id.weatherForecastFragment, R.string.label_forecast, R.drawable.ic_date_range_black_24dp),
-                NavDrawerItem(R.id.weatherHrForecastFragment, R.string.label_hourlyforecast, R.drawable.ic_access_time_black_24dp),
-                NavDrawerItem(R.id.weatherDetailsFragment, R.string.label_details, R.drawable.ic_list_black_24dp)
+            NavDrawerItem(
+                R.id.weatherNowFragment,
+                R.string.label_nav_weathernow,
+                R.drawable.wi_day_cloudy
+            ),
+            NavDrawerItem(
+                R.id.weatherAlertsFragment,
+                R.string.title_fragment_alerts,
+                R.drawable.ic_error_white
+            ),
+            NavDrawerItem(
+                R.id.weatherForecastFragment,
+                R.string.label_forecast,
+                R.drawable.ic_date_range_black_24dp
+            ),
+            NavDrawerItem(
+                R.id.weatherHrForecastFragment,
+                R.string.label_hourlyforecast,
+                R.drawable.ic_access_time_black_24dp
+            ),
+            NavDrawerItem(
+                R.id.weatherPrecipForecastFragment,
+                R.string.label_precipitation,
+                R.drawable.wi_raindrops
+            ),
+            NavDrawerItem(
+                R.id.weatherDetailsFragment,
+                R.string.label_details,
+                R.drawable.ic_list_black_24dp
+            )
         )
         private var navItems: List<NavDrawerItem>
 
@@ -315,6 +350,11 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
                     }
                     if (item.titleString == R.string.label_hourlyforecast &&
                         (forecastsView.getHourlyForecasts()?.value.isNullOrEmpty())
+                    ) {
+                        items.remove(item)
+                    }
+                    if (item.titleString == R.string.label_precipitation &&
+                        (forecastPanelsView.getMinutelyForecasts()?.value.isNullOrEmpty())
                     ) {
                         items.remove(item)
                     }

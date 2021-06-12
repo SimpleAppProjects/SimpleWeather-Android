@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.simpleweather.controls.MinutelyForecastViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="@dimen/list_item_padding"
+        android:paddingEnd="@dimen/list_item_padding">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/minforecast_date"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:padding="4dp"
+            android:text="@{viewModel != null ? viewModel.date : WeatherIcons.EM_DASH}"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
+            tools:text="10:00PM" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/minforecast_icon"
+            android:layout_width="32dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            app:srcCompat="@drawable/wi_raindrops" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/minforecast_rainamt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:padding="4dp"
+            android:text="@{viewModel != null ? viewModel.rainAmount : WeatherIcons.PLACEHOLDER}"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeTextType="uniform"
+            tools:text="0.01 in" />
+
+    </LinearLayout>
+</layout>
