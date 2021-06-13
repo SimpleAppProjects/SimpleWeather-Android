@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.weatherdata.meteofrance
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
@@ -16,6 +17,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
+@SuppressLint("VisibleForTests")
 fun createWeatherData(currRoot: CurrentsResponse, foreRoot: ForecastResponse,
                       alertRoot: AlertsResponse? = null): Weather {
     return Weather().apply {
@@ -91,14 +93,21 @@ fun createForecast(day: DailyForecastItem): Forecast {
         val locale = LocaleUtils.getLocale()
 
         date = LocalDateTime.ofEpochSecond(day.dt!!, 0, ZoneOffset.UTC)
-        highC = day.T!!.max
-        highF = ConversionMethods.CtoF(highC)
-        lowC = day.T!!.min
-        lowF = ConversionMethods.CtoF(lowC)
+
+        if (day.T?.max != null) {
+            highC = day.T!!.max!!
+            highF = ConversionMethods.CtoF(day.T!!.max!!)
+        }
+
+        if (day.T?.min != null) {
+            lowC = day.T!!.min!!
+            lowF = ConversionMethods.CtoF(day.T!!.min!!)
+        }
 
         condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-                locale == Locale.ROOT) {
+            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+            locale == Locale.ROOT
+        ) {
             day.weather12H!!.desc
         } else {
             provider.getWeatherCondition(day.weather12H!!.icon)
@@ -118,9 +127,7 @@ fun createForecast(day: DailyForecastItem): Forecast {
             extras.qpfRainMm = day.precipitation!!.jsonMember24h!!.toFloat()
             extras.qpfRainIn = ConversionMethods.mmToIn(day.precipitation!!.jsonMember24h!!.toFloat())
         }
-        if (day.uv != null) {
-            extras.uvIndex = day.uv!!.toFloat()
-        }
+        extras.uvIndex = day.uv
     }
 }
 
@@ -133,12 +140,15 @@ fun createHourlyForecast(forecast: ForecastItem,
         val date = Instant.ofEpochSecond(forecast.dt!!).atZone(ZoneOffset.UTC)
         setDate(date)
 
-        highC = forecast.T!!.value
-        highF = ConversionMethods.CtoF(forecast.T!!.value!!)
+        if (forecast.T?.value != null) {
+            highC = forecast.T!!.value!!
+            highF = ConversionMethods.CtoF(forecast.T!!.value!!)
+        }
 
         condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-                locale == Locale.ROOT) {
+            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+            locale == Locale.ROOT
+        ) {
             forecast.weather!!.desc
         } else {
             provider.getWeatherCondition(forecast.weather!!.icon)
@@ -153,9 +163,7 @@ fun createHourlyForecast(forecast: ForecastItem,
             extras.feelslikeF = ConversionMethods.CtoF(forecast.T!!.windchill!!)
         }
 
-        if (forecast.humidity != null) {
-            extras.humidity = forecast.humidity
-        }
+        extras.humidity = forecast.humidity
 
         if (forecast.seaLevel != null) {
             extras.pressureMb = forecast.seaLevel
@@ -203,9 +211,7 @@ fun createHourlyForecast(forecast: ForecastItem,
             }
         }
 
-        if (forecast.clouds != null) {
-            extras.cloudiness = forecast.clouds
-        }
+        extras.cloudiness = forecast.clouds
 
         if (!probabilityForecasts.isNullOrEmpty()) {
             // Note: probability forecasts are given either every 3 or 6 hours
@@ -267,12 +273,15 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
         val provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE)
         val locale = LocaleUtils.getLocale()
 
-        tempC = currRoot.observation!!.T!!.toFloat()
-        tempF = ConversionMethods.CtoF(tempC)
+        if (currRoot.observation?.T != null) {
+            tempC = currRoot.observation!!.T!!.toFloat()
+            tempF = ConversionMethods.CtoF(tempC)
+        }
 
         weather = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-                locale == Locale.ROOT) {
+            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+            locale == Locale.ROOT
+        ) {
             currRoot.observation!!.weather!!.desc
         } else {
             provider.getWeatherCondition(currRoot.observation!!.weather!!.icon)
@@ -281,8 +290,12 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
 
         if (currRoot.observation!!.wind != null) {
             windDegrees = currRoot.observation!!.wind!!.direction
-            windKph = ConversionMethods.msecToKph(currRoot.observation!!.wind!!.speed!!.toFloat())
-            windMph = ConversionMethods.msecToMph(currRoot.observation!!.wind!!.speed!!.toFloat())
+            if (currRoot.observation!!.wind!!.speed != null) {
+                windKph =
+                    ConversionMethods.msecToKph(currRoot.observation!!.wind!!.speed!!.toFloat())
+                windMph =
+                    ConversionMethods.msecToMph(currRoot.observation!!.wind!!.speed!!.toFloat())
+            }
         }
 
         observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currRoot.updatedOn!!), ZoneOffset.UTC)
