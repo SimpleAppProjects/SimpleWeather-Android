@@ -114,7 +114,7 @@ class SetupActivity : UserLocaleActivity() {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, hostFragment)
                     .setPrimaryNavigationFragment(hostFragment)
-                    .commitNow() // Commit now; we need the NavController immediately after
+                    .commitNowAllowingStateLoss() // Commit now; we need the NavController immediately after
             }
 
             if (isWeatherLoaded && viewModel.locationData == null) {
