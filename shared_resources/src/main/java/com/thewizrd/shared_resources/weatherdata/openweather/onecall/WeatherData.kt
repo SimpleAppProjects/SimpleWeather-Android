@@ -417,12 +417,12 @@ fun createAirQuality(response: AirPollutionResponse): AirQuality? {
 
     // Convert
     val idx = maxOf(
-            data.components.co?.let { AQICO(CO_ugm3_TO_ppm(it)) } ?: -1,
-            data.components.no2?.let { AQINO2(NO2_ugm3_to_ppb(it)) } ?: -1,
-            data.components.o3?.let { AQIO3(O3_ugm3_to_ppb(it)) } ?: -1,
-            data.components.so2?.let { AQISO2(SO2_ugm3_to_ppb(it)) } ?: -1,
-            data.components.pm25?.let { AQIPM2_5(it) } ?: -1,
-            data.components.pm10?.let { AQIPM10(it) } ?: -1,
+        data.components.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() } ?: -1,
+        data.components.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        data.components.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        data.components.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        data.components.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() } ?: -1,
+        data.components.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() } ?: -1,
     )
 
     if (idx >= 0)

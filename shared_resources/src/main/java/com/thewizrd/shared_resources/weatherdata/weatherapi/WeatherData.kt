@@ -1,6 +1,16 @@
 package com.thewizrd.shared_resources.weatherdata.weatherapi
 
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIO3
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM10
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM2_5
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQISO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.CO_ugm3_TO_ppm
+import com.thewizrd.shared_resources.utils.AirQualityUtils.NO2_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.O3_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.SO2_ugm3_to_ppb
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -260,14 +270,12 @@ fun createAirQuality(airQuality: com.thewizrd.shared_resources.weatherdata.weath
 
     // Convert
     val idx = maxOf(
-            airQuality.co?.let { AirQualityUtils.AQICO(AirQualityUtils.CO_ugm3_TO_ppm(it)) } ?: -1,
-            airQuality.no2?.let { AirQualityUtils.AQINO2(AirQualityUtils.NO2_ugm3_to_ppb(it)) }
-                    ?: -1,
-            airQuality.o3?.let { AirQualityUtils.AQIO3(AirQualityUtils.O3_ugm3_to_ppb(it)) } ?: -1,
-            airQuality.so2?.let { AirQualityUtils.AQISO2(AirQualityUtils.SO2_ugm3_to_ppb(it)) }
-                    ?: -1,
-            airQuality.pm25?.let { AirQualityUtils.AQIPM2_5(it) } ?: -1,
-            airQuality.pm10?.let { AirQualityUtils.AQIPM10(it) } ?: -1,
+        airQuality.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() } ?: -1,
+        airQuality.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        airQuality.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        airQuality.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
+        airQuality.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() } ?: -1,
+        airQuality.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() } ?: -1,
     )
 
     if (idx >= 0)
