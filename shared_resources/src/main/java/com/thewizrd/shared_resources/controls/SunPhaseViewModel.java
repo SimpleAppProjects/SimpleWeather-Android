@@ -2,26 +2,43 @@ package com.thewizrd.shared_resources.controls;
 
 import android.text.format.DateFormat;
 
+import androidx.annotation.NonNull;
+
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class SunPhaseViewModel {
+    private final LocalTime sunriseTime;
+    private final LocalTime sunsetTime;
+
     private final String sunrise;
     private final String sunset;
     private final DateTimeFormatter formatter;
 
-    public SunPhaseViewModel(Astronomy astronomy) {
+    public SunPhaseViewModel(@NonNull Astronomy astronomy) {
+        sunriseTime = astronomy.getSunrise().toLocalTime();
+        sunsetTime = astronomy.getSunset().toLocalTime();
+
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
             formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
         } else {
             formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
         }
-        sunrise = astronomy.getSunrise().format(formatter);
-        sunset = astronomy.getSunset().format(formatter);
+        sunrise = sunriseTime.format(formatter);
+        sunset = sunsetTime.format(formatter);
+    }
+
+    public LocalTime getSunriseTime() {
+        return sunriseTime;
+    }
+
+    public LocalTime getSunsetTime() {
+        return sunsetTime;
     }
 
     public String getSunrise() {

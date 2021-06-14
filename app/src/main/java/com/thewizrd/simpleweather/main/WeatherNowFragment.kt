@@ -102,7 +102,6 @@ import timber.log.Timber
 import java.lang.Runnable
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneOffset
 import kotlin.coroutines.coroutineContext
 
@@ -1347,12 +1346,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
         @BindingAdapter("sunPhase")
         fun updateSunPhasePanel(view: SunPhaseView, sunPhase: SunPhaseViewModel?) {
-            if (sunPhase?.sunrise?.isNotBlank() == true && sunPhase.sunset?.isNotBlank() == true && fragment?.locationData != null) {
-                val fmt = sunPhase.formatter
-
-                view.setSunriseSetTimes(LocalTime.parse(sunPhase.sunrise, fmt),
-                        LocalTime.parse(sunPhase.sunset, fmt),
-                        fragment.locationData!!.tzOffset)
+            if (sunPhase?.sunriseTime != null && sunPhase.sunsetTime != null && fragment?.locationData != null) {
+                view.setSunriseSetTimes(
+                    sunPhase.sunriseTime, sunPhase.sunsetTime,
+                    fragment.locationData?.tzOffset ?: ZoneOffset.UTC
+                )
             }
         }
 
