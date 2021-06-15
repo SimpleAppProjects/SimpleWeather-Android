@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.utils.ZoneIdCompat;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -65,7 +66,7 @@ public class Location extends CustomJsonObject {
 
     public ZoneOffset getTzOffset() {
         if (!StringUtils.isNullOrWhitespace(tzLong)) {
-            ZoneId tzId = ZoneId.of(tzLong);
+            ZoneId tzId = ZoneIdCompat.of(tzLong);
             if (tzId != null)
                 return tzId.getRules().getOffset(Instant.now());
         }
@@ -74,7 +75,7 @@ public class Location extends CustomJsonObject {
 
     public String getTzShort() {
         if (!StringUtils.isNullOrWhitespace(tzLong)) {
-            ZoneId zId = ZoneId.of(tzLong);
+            ZoneId zId = ZoneIdCompat.of(tzLong);
             if (zId != null) {
                 return ZonedDateTime.now(zId).format(
                         DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.TIMEZONE_NAME)

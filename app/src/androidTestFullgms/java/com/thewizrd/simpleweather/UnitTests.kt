@@ -11,6 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
@@ -408,5 +409,22 @@ class UnitTests {
             val weather = getWeather(provider)
             Assert.assertTrue(weather.isValid)
         }
+    }
+
+    @Test
+    fun tzdbTest() {
+        val tzLong = "Asia/Qostanay" // tzdb - 2018h
+
+        val zId = ZoneIdCompat.of(tzLong)
+        Assert.assertNotNull(zId)
+
+        val zDT = ZonedDateTime.now(zId)
+        val zStr = zDT.format(
+            DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.TIMEZONE_NAME)
+        )
+        Log.d("tzdbtest", "DT = ${zDT.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)}")
+        Log.d("tzdbtest", "Z = $zStr")
+
+        Assert.assertTrue(zStr == "Asia/Qostanay" || zStr == "GMT+06:00")
     }
 }

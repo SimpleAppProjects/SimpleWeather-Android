@@ -31,7 +31,7 @@ fun createWeatherData(root: ForecastResponse): Weather {
                 root.location!!.localtime,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm")
             ),
-            ZoneId.of(root.location!!.tzId)
+            ZoneIdCompat.of(root.location!!.tzId)
         )
 
         forecast = ArrayList(root.forecast!!.forecastday!!.size)
@@ -124,7 +124,7 @@ fun createHourlyForecast(hour: HourItem, tzId: String): HourlyForecast {
     return HourlyForecast().apply {
         date = ZonedDateTime.of(
                 LocalDateTime.parse(hour.time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                ZoneId.of(tzId)
+            ZoneIdCompat.of(tzId)
         )
 
         highF = hour.tempF
@@ -191,7 +191,7 @@ fun createCondition(current: Current, tzId: String): Condition {
                 current.lastUpdated,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm")
             ),
-            ZoneId.of(tzId)
+            ZoneIdCompat.of(tzId)
         )
     }
 }

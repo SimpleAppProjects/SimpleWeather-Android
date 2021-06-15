@@ -422,7 +422,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
             // Fallback to sunset/rise time just in case
             var tz: ZoneOffset? = null
             if (!weather.location.tzLong.isNullOrBlank()) {
-                val id = ZoneId.of(weather.location.tzLong)
+                val id = ZoneIdCompat.of(weather.location.tzLong)
                 tz = id.rules.getOffset(Instant.now())
             }
             if (tz == null) {
