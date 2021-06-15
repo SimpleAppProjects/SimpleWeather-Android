@@ -185,8 +185,16 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
             try {
                 val stream = response.getStream()
 
+                if (call.isCanceled()) return
+
                 // Load data
-                val root = gson.fromJson<WeatherMapsResponse>(JsonReader(InputStreamReader(stream)), WeatherMapsResponse::class.java)
+                val root = gson.fromJson<WeatherMapsResponse>(
+                    JsonReader(InputStreamReader(stream)),
+                    WeatherMapsResponse::class.java
+                )
+
+                if (call.isCanceled()) return
+
                 mProcessingFrames = true
 
                 // Remove already added tile overlays
@@ -194,6 +202,11 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                 radarLayers.clear()
                 for (overlay in overlaysToDelete) {
                     mMainHandler.post { overlay.remove() }
+                }
+
+                if (call.isCanceled()) {
+                    mProcessingFrames = false
+                    return
                 }
 
                 availableRadarFrames.clear()
