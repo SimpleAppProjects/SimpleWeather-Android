@@ -254,7 +254,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
         binding.keyboardButton.setOnClickListener {
             binding.searchView.visibility = View.VISIBLE
             binding.searchView.requestFocus()
-            showInputMethod()
+            showInputMethod(binding.searchView)
         }
         binding.voiceButton.setOnClickListener {
             binding.searchView.visibility = View.GONE
@@ -279,7 +279,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
         })
         binding.searchView.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
-                showInputMethod()
+                showInputMethod(v)
             } else {
                 hideInputMethod(v)
             }
@@ -401,10 +401,13 @@ class LocationSearchFragment : SwipeDismissFragment() {
         }
     }
 
-    private fun showInputMethod() {
-        val imm = fragmentActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+    private fun showInputMethod(view: View?) {
+        val imm =
+            fragmentActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
                 ?: return
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+        view?.let {
+            imm.showSoftInput(it, 0)
+        }
     }
 
     private fun hideInputMethod(view: View?) {
