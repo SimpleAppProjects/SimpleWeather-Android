@@ -200,8 +200,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             !requireContext().isNightMode()
         )
 
-        lifecycleScope.launch {
-            if (!settingsManager.isWeatherLoaded()) {
+        lifecycleScope.launchWhenCreated {
+            if (!settingsManager.isWeatherLoaded() && isActive) {
                 Toast.makeText(
                     appCompatActivity,
                     R.string.prompt_setup_app_first,
