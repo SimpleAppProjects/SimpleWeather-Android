@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-abstract class WeatherProviderImpl : WeatherProviderImplInterface {
+abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedRequest {
     protected lateinit var mLocationProvider: LocationProviderImpl
 
     // Variables
@@ -47,6 +47,10 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface {
 
     override fun getHourlyForecastInterval(): Int {
         return 1
+    }
+
+    override fun getRetryTime(): Long {
+        return 5000
     }
 
     /**

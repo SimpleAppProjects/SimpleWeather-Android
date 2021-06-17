@@ -12,6 +12,9 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
@@ -67,6 +70,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
         return 1
     }
 
+    override fun getRetryTime(): Long {
+        return 5000
+    }
+
     @Throws(WeatherException::class)
     override suspend fun isKeyValid(key: String?): Boolean = withContext(Dispatchers.IO) {
         if (key.isNullOrBlank()) {
@@ -80,15 +87,21 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .url(String.format(KEYCHECK_QUERY_URL, key))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .url(String.format(KEYCHECK_QUERY_URL, key))
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            throwIfRateLimited(response.code)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -100,6 +113,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
 
             isValid = false
@@ -136,14 +151,20 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val requestUri = Uri.parse(BASE_URL).buildUpon()
-                            .appendQueryParameter("apikey", key)
-                            .appendQueryParameter("location", location_query)
-                            .appendQueryParameter("fields", "temperature,temperatureApparent,temperatureMin,temperatureMax,dewPoint,humidity,windSpeed,windDirection,windGust,pressureSeaLevel,precipitationIntensity,precipitationProbability,snowAccumulation,sunriseTime,sunsetTime,visibility,cloudCover,moonPhase,weatherCode,treeIndex,grassIndex,weedIndex,epaIndex")
-                            .appendQueryParameter("timesteps", "current,1h,1d")
-                            .appendQueryParameter("units", "metric")
-                            .appendQueryParameter("timezone", "UTC")
-                            .build()
+                        .appendQueryParameter("apikey", key)
+                        .appendQueryParameter("location", location_query)
+                        .appendQueryParameter(
+                            "fields",
+                            "temperature,temperatureApparent,temperatureMin,temperatureMax,dewPoint,humidity,windSpeed,windDirection,windGust,pressureSeaLevel,precipitationIntensity,precipitationProbability,snowAccumulation,sunriseTime,sunsetTime,visibility,cloudCover,moonPhase,weatherCode,treeIndex,grassIndex,weedIndex,epaIndex"
+                        )
+                        .appendQueryParameter("timesteps", "current,1h,1d")
+                        .appendQueryParameter("units", "metric")
+                        .appendQueryParameter("timezone", "UTC")
+                        .build()
 
                     val request = Request.Builder()
                             .cacheControl(CacheControl.Builder()
@@ -187,6 +208,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
                     // Load weather
                     val root = response.getStream().use {
                         JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
@@ -197,6 +219,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     runCatching {
                         minutelyResponse = client.newCall(minutelyRequest).await()
+                        checkForErrors(minutelyResponse!!.code)
                         minutelyResponse!!.getStream().use {
                             minutelyRoot = JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                         }
@@ -204,6 +227,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     runCatching {
                         alertsResponse = client.newCall(alertsRequest).await()
+                        checkForErrors(alertsResponse!!.code)
                         alertsResponse!!.getStream().use {
                             alertsRoot = JSONParser.deserializer<AlertsRootobject>(it, AlertsRootobject::class.java)
                         }
@@ -214,6 +238,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "TomorrowIOWeatherProvider: error getting weather data")
                 } finally {

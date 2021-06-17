@@ -10,6 +10,9 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -70,6 +73,10 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
         return 1
     }
 
+    override fun getRetryTime(): Long {
+        return 43200000L // 12 hrs
+    }
+
     @Throws(WeatherException::class)
     override suspend fun isKeyValid(key: String?): Boolean = withContext(Dispatchers.IO) {
         if (key.isNullOrBlank()) {
@@ -83,15 +90,21 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .url(String.format(KEYCHECK_QUERY_URL, key))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .url(String.format(KEYCHECK_QUERY_URL, key))
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            throwIfRateLimited(response.code)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -103,6 +116,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
 
             isValid = false
@@ -143,19 +158,29 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(WEATHER_QUERY_URL, query, key, locale))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(String.format(WEATHER_QUERY_URL, query, key, locale))
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load weather
-                    val root = JSONParser.deserializer<OneCallRootobject>(stream, OneCallRootobject::class.java)
+                    val root = JSONParser.deserializer<OneCallRootobject>(
+                        stream,
+                        OneCallRootobject::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()
@@ -165,6 +190,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "OpenWeatherMapProvider: error getting weather data")
                 } finally {
@@ -240,22 +267,39 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
                 var response: Response? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
                     df.applyPattern("0.####")
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(12, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(AQI_QUERY_URL, df.format(location.latitude), df.format(location.latitude), key))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(12, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(
+                            String.format(
+                                AQI_QUERY_URL,
+                                df.format(location.latitude),
+                                df.format(location.latitude),
+                                key
+                            )
+                        )
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load weather
-                    val root = JSONParser.deserializer<AirPollutionResponse>(stream, AirPollutionResponse::class.java)
+                    val root = JSONParser.deserializer<AirPollutionResponse>(
+                        stream,
+                        AirPollutionResponse::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()

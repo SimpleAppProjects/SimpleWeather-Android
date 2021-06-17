@@ -11,6 +11,9 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface
@@ -81,15 +84,21 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .url(String.format(KEYCHECK_QUERY_URL, key))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .url(String.format(KEYCHECK_QUERY_URL, key))
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            throwIfRateLimited(response.code)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -101,6 +110,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
 
             isValid = false
@@ -135,19 +146,29 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(3, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load weather
-                    val root = JSONParser.deserializer<ForecastResponse>(stream, ForecastResponse::class.java)
+                    val root = JSONParser.deserializer<ForecastResponse>(
+                        stream,
+                        ForecastResponse::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()
@@ -157,6 +178,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "WeatherApiProvider: error getting weather data")
                 } finally {
@@ -191,19 +214,36 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 var response: Response? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(6, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(ALERTS_QUERY_URL, updateLocationQuery(location), locale, key))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(6, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(
+                            String.format(
+                                ALERTS_QUERY_URL,
+                                updateLocationQuery(location),
+                                locale,
+                                key
+                            )
+                        )
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load weather
-                    val root = JSONParser.deserializer<ForecastResponse>(stream, ForecastResponse::class.java)
+                    val root = JSONParser.deserializer<ForecastResponse>(
+                        stream,
+                        ForecastResponse::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()

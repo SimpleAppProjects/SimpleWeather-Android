@@ -10,6 +10,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -81,6 +83,9 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val authorization = HEREOAuthUtils.getBearerToken(false)
 
                     if (authorization.isNullOrBlank()) {
@@ -94,15 +99,19 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                     }
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(url)
-                            .addHeader("Authorization", authorization)
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(url)
+                        .addHeader("Authorization", authorization)
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load weather
@@ -126,6 +135,8 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather data")
                 } finally {
@@ -189,6 +200,9 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val authorization = HEREOAuthUtils.getBearerToken(false)
 
             if (authorization.isNullOrBlank()) {
@@ -203,15 +217,18 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
             }
 
             val request = Request.Builder()
-                    .url(url)
-                    .addHeader("Authorization", authorization)
-                    .cacheControl(CacheControl.Builder() // Updates 4x per day
-                            .maxAge(6, TimeUnit.HOURS)
-                            .build()
-                    ).build()
+                .url(url)
+                .addHeader("Authorization", authorization)
+                .cacheControl(
+                    CacheControl.Builder() // Updates 4x per day
+                        .maxAge(6, TimeUnit.HOURS)
+                        .build()
+                ).build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            checkForErrors(response.code)
+
             val stream = response.getStream()
 
             // Load data

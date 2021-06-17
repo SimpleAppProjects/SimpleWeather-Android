@@ -6,6 +6,8 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.oauth.OAuthRequest
@@ -40,16 +42,20 @@ object HEREOAuthUtils {
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit(WeatherAPI.HERE)
+
             val authorization = oAuthRequest.getAuthorizationHeader(HERE_OAUTH_URL, true)
 
             val request = Request.Builder()
-                    .cacheControl(CacheControl.FORCE_NETWORK)
-                    .url(HERE_OAUTH_URL)
-                    .addHeader("Authorization", authorization)
-                    .post(FormBody.Builder().addEncoded("grant_type", "client_credentials").build())
-                    .build()
+                .cacheControl(CacheControl.FORCE_NETWORK)
+                .url(HERE_OAUTH_URL)
+                .addHeader("Authorization", authorization)
+                .post(FormBody.Builder().addEncoded("grant_type", "client_credentials").build())
+                .build()
 
             response = client.newCall(request).await()
+            checkForErrors(WeatherAPI.HERE, response.code, 10000)
 
             val stream = response.getStream()
             val dateField = response.header("Date", null)

@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-abstract class LocationProviderImpl : LocationProviderImplInterface {
+abstract class LocationProviderImpl : LocationProviderImplInterface, IRateLimitedRequest {
     // Variables
     @LocationProviders
     abstract override fun getLocationAPI(): String
@@ -32,6 +32,10 @@ abstract class LocationProviderImpl : LocationProviderImplInterface {
 
     override fun needsLocationFromGeocoder(): Boolean {
         return false
+    }
+
+    override fun getRetryTime(): Long {
+        return 5000
     }
 
     /**

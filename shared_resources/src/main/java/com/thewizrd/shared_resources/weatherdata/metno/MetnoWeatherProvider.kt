@@ -10,6 +10,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -74,38 +76,56 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val context = SimpleLibrary.instance.app.appContext
                     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                     val version = String.format("v%s", packageInfo.versionName)
 
                     val forecastRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(FORECAST_QUERY_URL, location_query))
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(String.format(FORECAST_QUERY_URL, location_query))
                             .addHeader("Accept-Encoding", "gzip")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                             .build()
 
                     val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
                     val sunriseRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(SUNRISE_QUERY_URL, location_query, date))
-                            .addHeader("Accept-Encoding", "gzip")
-                            .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(3, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(String.format(SUNRISE_QUERY_URL, location_query, date))
+                        .addHeader("Accept-Encoding", "gzip")
+                        .addHeader(
+                            "User-Agent",
+                            String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
+                        )
+                        .build()
 
                     // Connect to webstream
                     forecastResponse = client.newCall(forecastRequest).await()
-                    val forecastStream = forecastResponse.getStream()
+                    checkForErrors(forecastResponse.code)
+
                     sunriseResponse = client.newCall(sunriseRequest).await()
+                    checkForErrors(sunriseResponse.code)
+
+                    val forecastStream = forecastResponse.getStream()
                     val sunrisesetStream = sunriseResponse.getStream()
 
                     // Load weather
-                    val foreRoot = JSONParser.deserializer<Response>(forecastStream, Response::class.java)
-                    val astroRoot = JSONParser.deserializer<AstroResponse>(sunrisesetStream, AstroResponse::class.java)
+                    val foreRoot =
+                        JSONParser.deserializer<Response>(forecastStream, Response::class.java)
+                    val astroRoot = JSONParser.deserializer<AstroResponse>(
+                        sunrisesetStream,
+                        AstroResponse::class.java
+                    )
 
                     // End Stream
                     forecastStream.closeQuietly()
@@ -116,12 +136,15 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "MetnoWeatherProvider: error getting weather data")
                 } finally {
                     forecastResponse?.closeQuietly()
                     sunriseResponse?.closeQuietly()
                 }
+
                 if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {

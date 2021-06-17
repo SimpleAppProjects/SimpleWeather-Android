@@ -12,6 +12,9 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -55,6 +58,10 @@ class AccuWeatherProvider : WeatherProviderImpl() {
         return true
     }
 
+    override fun getRetryTime(): Long {
+        return 43200000L // 12 hrs
+    }
+
     override suspend fun isKeyValid(key: String?): Boolean = withContext(Dispatchers.IO) {
         if (key.isNullOrBlank()) {
             throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -67,19 +74,25 @@ class AccuWeatherProvider : WeatherProviderImpl() {
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val requestUri = Uri.parse(CURRENT_CONDITIONS_URL).buildUpon()
-                    .appendQueryParameter("apikey", key)
-                    .build()
+                .appendQueryParameter("apikey", key)
+                .build()
 
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .url(requestUri.toString())
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .url(requestUri.toString())
                     .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            throwIfRateLimited(response.code)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -92,6 +105,8 @@ class AccuWeatherProvider : WeatherProviderImpl() {
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
 
             isValid = false
@@ -122,9 +137,16 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                    val key = (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                            ?: DevSettingsEnabler.getAPIKey(SimpleLibrary.instance.appContext, WeatherAPI.ACCUWEATHER)
+                    val key =
+                        (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
+                            ?: DevSettingsEnabler.getAPIKey(
+                                SimpleLibrary.instance.appContext,
+                                WeatherAPI.ACCUWEATHER
+                            )
 
                     if (key.isNullOrBlank()) {
                         throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -165,16 +187,23 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .appendQueryParameter("details", "true")
 
                     val currentRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(requestCurrentUri.toString())
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(requestCurrentUri.toString())
+                        .build()
 
                     // Connect to webstream
                     val dailyResponse = client.newCall(request).await()
+                    checkForErrors(dailyResponse.code)
+
                     val hourlyResponse = client.newCall(hourlyRequest).await()
+                    checkForErrors(hourlyResponse.code)
+
                     val currentResponse = client.newCall(currentRequest).await()
+                    checkForErrors(currentResponse.code)
 
                     val dailyRoot = dailyResponse.use { r ->
                         r.getStream().use { s ->
@@ -201,6 +230,8 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "AccuWeatherProvider: error getting weather data")
                 }

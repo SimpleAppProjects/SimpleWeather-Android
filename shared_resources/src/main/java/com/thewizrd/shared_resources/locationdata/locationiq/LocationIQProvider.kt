@@ -10,6 +10,9 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
@@ -46,8 +49,13 @@ class LocationIQProvider : LocationProviderImpl() {
         return false
     }
 
+    override fun getRetryTime(): Long {
+        return 60000 // 1 min
+    }
+
     @Throws(WeatherException::class)
-    override suspend fun getLocations(ac_query: String?, weatherAPI: String?
+    override suspend fun getLocations(
+        ac_query: String?, weatherAPI: String?
     ): Collection<LocationQueryViewModel> = withContext(Dispatchers.IO) {
         var locations: Collection<LocationQueryViewModel>? = null
 
@@ -64,16 +72,30 @@ class LocationIQProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .get()
-                    .url(String.format(AUTOCOMPLETE_QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .get()
+                .url(
+                    String.format(
+                        AUTOCOMPLETE_QUERY_URL,
+                        key,
+                        URLEncoder.encode(ac_query, "UTF-8"),
+                        locale
+                    )
+                )
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            checkForErrors(response.code)
+
             val stream = response.getStream()
 
             // Load data
@@ -100,6 +122,8 @@ class LocationIQProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting locations")
         } finally {
@@ -135,19 +159,35 @@ class LocationIQProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
             df.applyPattern("0.####")
 
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .get()
-                    .url(String.format(Locale.ROOT, GEOLOCATION_QUERY_URL, key, df.format(coordinate.latitude), df.format(coordinate.longitude), locale))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .get()
+                .url(
+                    String.format(
+                        Locale.ROOT,
+                        GEOLOCATION_QUERY_URL,
+                        key,
+                        df.format(coordinate.latitude),
+                        df.format(coordinate.longitude),
+                        locale
+                    )
+                )
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            checkForErrors(response.code)
+
             val stream = response.getStream()
 
             // Load data
@@ -159,6 +199,8 @@ class LocationIQProvider : LocationProviderImpl() {
             result = null
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location")
         } finally {
@@ -199,15 +241,21 @@ class LocationIQProvider : LocationProviderImpl() {
         var response: Response? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .url(String.format(KEY_QUERY_URL, key))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .url(String.format(KEY_QUERY_URL, key))
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            throwIfRateLimited(response.code)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -219,6 +267,8 @@ class LocationIQProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
 
             isValid = false

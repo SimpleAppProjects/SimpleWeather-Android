@@ -10,6 +10,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -62,9 +64,16 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                    val key = (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                            ?: DevSettingsEnabler.getAPIKey(SimpleLibrary.instance.appContext, WeatherAPI.ACCUWEATHER)
+                    val key =
+                        (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
+                            ?: DevSettingsEnabler.getAPIKey(
+                                SimpleLibrary.instance.appContext,
+                                WeatherAPI.ACCUWEATHER
+                            )
 
                     if (key.isNullOrBlank()) {
                         throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -82,18 +91,25 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                             .build()
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(14, TimeUnit.DAYS)
-                                    .build())
-                            .url(requestUri.toString())
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(14, TimeUnit.DAYS)
+                                .build()
+                        )
+                        .url(requestUri.toString())
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load data
-                    result = JSONParser.deserializer<GeopositionResponse>(stream, GeopositionResponse::class.java)
+                    result = JSONParser.deserializer<GeopositionResponse>(
+                        stream,
+                        GeopositionResponse::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()
@@ -101,6 +117,8 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                     result = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "AccuWeatherLocationProvider: error getting location")
                 } finally {
@@ -126,9 +144,16 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                    val key = (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                            ?: DevSettingsEnabler.getAPIKey(SimpleLibrary.instance.appContext, WeatherAPI.ACCUWEATHER)
+                    val key =
+                        (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
+                            ?: DevSettingsEnabler.getAPIKey(
+                                SimpleLibrary.instance.appContext,
+                                WeatherAPI.ACCUWEATHER
+                            )
 
                     if (key.isNullOrBlank()) {
                         throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -146,18 +171,25 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                             .build()
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(14, TimeUnit.DAYS)
-                                    .build())
-                            .url(requestUri.toString())
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(14, TimeUnit.DAYS)
+                                .build()
+                        )
+                        .url(requestUri.toString())
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
+                    checkForErrors(response.code)
+
                     val stream = response.getStream()
 
                     // Load data
-                    result = JSONParser.deserializer<GeopositionResponse>(stream, GeopositionResponse::class.java)
+                    result = JSONParser.deserializer<GeopositionResponse>(
+                        stream,
+                        GeopositionResponse::class.java
+                    )
 
                     // End Stream
                     stream.closeQuietly()
@@ -165,6 +197,8 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
                     result = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "AccuWeatherLocationProvider: error getting location")
                 } finally {

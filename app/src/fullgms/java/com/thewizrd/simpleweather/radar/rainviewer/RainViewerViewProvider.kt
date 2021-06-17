@@ -26,14 +26,17 @@ import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.IRateLimitedRequest
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
+import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.stag.generated.Stag
 import okhttp3.Call
 import okhttp3.Callback
@@ -165,9 +168,9 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         val httpClient = SimpleLibrary.instance.httpClient
 
         val request = Request.Builder()
-                .get()
-                .url("https://api.rainviewer.com/public/weather-maps.json".toHttpUrl())
-                .build()
+            .get()
+            .url("https://api.rainviewer.com/public/weather-maps.json".toHttpUrl())
+            .build()
 
         // Connect to webstream
         mFrameCall?.cancel()
@@ -175,7 +178,11 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         mFrameCall!!.enqueue(mFrameCallBack)
     }
 
-    private val mFrameCallBack = object : Callback {
+    private val mFrameCallBack = object : Callback, IRateLimitedRequest {
+        override fun getRetryTime(): Long {
+            return 5000
+        }
+
         override fun onFailure(call: Call, e: IOException) {
             Logger.writeLine(Log.ERROR, e)
         }
@@ -183,6 +190,8 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         @Synchronized
         override fun onResponse(call: Call, response: Response) {
             try {
+                checkForErrors(RadarProvider.RAINVIEWER, response.code)
+
                 val stream = response.getStream()
 
                 if (call.isCanceled()) return

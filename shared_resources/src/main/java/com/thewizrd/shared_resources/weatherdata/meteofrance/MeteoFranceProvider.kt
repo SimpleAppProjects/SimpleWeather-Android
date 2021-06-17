@@ -11,6 +11,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -78,6 +80,10 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         return Keys.getMeteoFranceKey()
     }
 
+    override fun getRetryTime(): Long {
+        return 60000
+    }
+
     @Throws(WeatherException::class)
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
         withContext(Dispatchers.IO) {
@@ -100,6 +106,9 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             var wEx: WeatherException? = null
 
             try {
+                // If were under rate limit, deny request
+                checkRateLimit()
+
                 val currentRequest = Request.Builder()
                     .cacheControl(
                         CacheControl.Builder()
@@ -119,7 +128,11 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
                 // Connect to webstream
                 currentResponse = client.newCall(currentRequest).await()
+                checkForErrors(currentResponse.code)
+
                 forecastResponse = client.newCall(forecastRequest).await()
+                checkForErrors(forecastResponse.code)
+
                 val currentStream = currentResponse.getStream()
                 val forecastStream = forecastResponse.getStream()
                 var alertStream: InputStream? = null
@@ -163,6 +176,8 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 weather = null
                 if (ex is IOException) {
                     wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                } else if (ex is WeatherException) {
+                    wEx = ex
                 }
                 Logger.writeLine(
                     Log.ERROR,

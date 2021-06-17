@@ -11,6 +11,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -29,7 +31,6 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.HttpURLConnection
 import java.text.DecimalFormat
 import java.time.*
 import java.util.*
@@ -86,23 +87,26 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val context = SimpleLibrary.instance.app.appContext
                     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                     val version = String.format("v%s", packageInfo.versionName)
 
                     val observationRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(String.format(FORECAST_QUERY_URL, location_query))
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .url(String.format(FORECAST_QUERY_URL, location_query))
                             .addHeader("Accept", "application/ld+json")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                             .build()
 
                     // Connect to webstream
                     observationResponse = client.newCall(observationRequest).await()
-
-                    // Check for errors
                     checkForErrors(observationResponse.code)
 
                     val observationStream = observationResponse.getStream()
@@ -124,8 +128,6 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     forecastResponse = client.newCall(hrForecastRequest).await()
-
-                    // Check for errors
                     checkForErrors(forecastResponse.code)
 
                     val forecastStream = forecastResponse.getStream()
@@ -141,6 +143,8 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "NWSWeatherProvider: error getting weather data")
                 } finally {
@@ -331,27 +335,6 @@ class NWSWeatherProvider : WeatherProviderImpl() {
             }
         }
         return forecastData
-    }
-
-    @Throws(WeatherException::class)
-    private fun checkForErrors(responseCode: Int) {
-        // Check for errors
-        when (responseCode) {
-            HttpURLConnection.HTTP_OK -> {
-            }
-            HttpURLConnection.HTTP_BAD_REQUEST -> {
-                throw WeatherException(ErrorStatus.NOWEATHER)
-            }
-            HttpURLConnection.HTTP_NOT_FOUND -> {
-                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
-            }
-            HttpURLConnection.HTTP_INTERNAL_ERROR -> {
-                throw WeatherException(ErrorStatus.UNKNOWN)
-            }
-            else -> {
-                throw WeatherException(ErrorStatus.NOWEATHER)
-            }
-        }
     }
 
     @Throws(WeatherException::class)

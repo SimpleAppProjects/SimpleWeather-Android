@@ -10,6 +10,8 @@ import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
@@ -64,16 +66,23 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .get()
-                    .url(String.format(QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .get()
+                .url(String.format(QUERY_URL, key, URLEncoder.encode(ac_query, "UTF-8"), locale))
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            checkForErrors(response.code)
+
             val stream = response.getStream()
 
             // Load data
@@ -96,6 +105,8 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
         } catch (ex: Exception) {
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
             Logger.writeLine(Log.ERROR, ex, "WeatherApiLocationProvider: error getting locations")
         } finally {
@@ -136,19 +147,38 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
+            // If were under rate limit, deny request
+            checkRateLimit()
+
             val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
             df.applyPattern("0.##")
 
             val request = Request.Builder()
-                    .cacheControl(CacheControl.Builder()
-                            .maxAge(1, TimeUnit.DAYS)
-                            .build())
-                    .get()
-                    .url(String.format(Locale.ROOT, QUERY_URL, key, String.format("%s,%s", df.format(coordinate.latitude), df.format(coordinate.longitude)), locale))
-                    .build()
+                .cacheControl(
+                    CacheControl.Builder()
+                        .maxAge(1, TimeUnit.DAYS)
+                        .build()
+                )
+                .get()
+                .url(
+                    String.format(
+                        Locale.ROOT,
+                        QUERY_URL,
+                        key,
+                        String.format(
+                            "%s,%s",
+                            df.format(coordinate.latitude),
+                            df.format(coordinate.longitude)
+                        ),
+                        locale
+                    )
+                )
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()
+            checkForErrors(response.code)
+
             val stream = response.getStream()
 
             // Load data
@@ -156,7 +186,15 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
             val locations = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
 
             for (item in locations) {
-                if (Math.abs(ConversionMethods.calculateHaversine(coordinate.latitude, coordinate.longitude, item.lat, item.lon)) <= 100) {
+                if (Math.abs(
+                        ConversionMethods.calculateHaversine(
+                            coordinate.latitude,
+                            coordinate.longitude,
+                            item.lat,
+                            item.lon
+                        )
+                    ) <= 100
+                ) {
                     result = item
                     break
                 }
@@ -172,6 +210,8 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
             result = null
             if (ex is IOException) {
                 wEx = WeatherException(ErrorStatus.NETWORKERROR)
+            } else if (ex is WeatherException) {
+                wEx = ex
             }
             Logger.writeLine(Log.ERROR, ex, "LocationIQProvider: error getting location")
         } finally {

@@ -11,6 +11,8 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -64,6 +66,10 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
         return null
     }
 
+    override fun getRetryTime(): Long {
+        return 60000
+    }
+
     private val appID: String
         get() = Keys.getWUnlockedAppID()
     private val appKey: String
@@ -71,8 +77,8 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
                 val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
@@ -83,30 +89,63 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 var wEx: WeatherException? = null
 
                 try {
+                    // If were under rate limit, deny request
+                    checkRateLimit()
+
                     val currentRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .addHeader("Accept", "application/json")
-                            .url(String.format(CURRENT_QUERY_URL, location_query, appID, appKey, locale))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(1, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .addHeader("Accept", "application/json")
+                        .url(
+                            String.format(
+                                CURRENT_QUERY_URL,
+                                location_query,
+                                appID,
+                                appKey,
+                                locale
+                            )
+                        )
+                        .build()
                     val forecastRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
-                            .addHeader("Accept", "application/json")
-                            .url(String.format(FORECAST_QUERY_URL, location_query, appID, appKey, locale))
-                            .build()
+                        .cacheControl(
+                            CacheControl.Builder()
+                                .maxAge(3, TimeUnit.HOURS)
+                                .build()
+                        )
+                        .addHeader("Accept", "application/json")
+                        .url(
+                            String.format(
+                                FORECAST_QUERY_URL,
+                                location_query,
+                                appID,
+                                appKey,
+                                locale
+                            )
+                        )
+                        .build()
 
                     // Connect to webstream
                     currentResponse = client.newCall(currentRequest).await()
+                    checkForErrors(currentResponse.code)
+
                     forecastResponse = client.newCall(forecastRequest).await()
+                    checkForErrors(forecastResponse.code)
+
                     val currentStream = currentResponse.getStream()
                     val forecastStream = forecastResponse.getStream()
 
                     // Load weather
-                    val currRoot = JSONParser.deserializer<CurrentResponse>(currentStream, CurrentResponse::class.java)
-                    val foreRoot = JSONParser.deserializer<ForecastResponse>(forecastStream, ForecastResponse::class.java)
+                    val currRoot = JSONParser.deserializer<CurrentResponse>(
+                        currentStream,
+                        CurrentResponse::class.java
+                    )
+                    val foreRoot = JSONParser.deserializer<ForecastResponse>(
+                        forecastStream,
+                        ForecastResponse::class.java
+                    )
 
                     // End Stream
                     currentStream.closeQuietly()
@@ -117,13 +156,16 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                     weather = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    } else if (ex is WeatherException) {
+                        wEx = ex
                     }
                     Logger.writeLine(Log.ERROR, ex, "WeatherUnlockedProvider: error getting weather data")
                 } finally {
                     currentResponse?.closeQuietly()
                     forecastResponse?.closeQuietly()
                 }
-                if (wEx == null && weather.isNullOrInvalid()) {
+
+            if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
