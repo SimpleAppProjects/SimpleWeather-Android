@@ -704,7 +704,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private fun updateLocationView() {
         val locationView = binding.widgetContainer.findViewById<TextView>(R.id.location_name)
         if (locationView != null) {
-            locationView.text = if (mLastSelectedValue != null) locationPref.findEntryFromValue(mLastSelectedValue) else this.getString(R.string.pref_location)
+            locationView.text =
+                mLastSelectedValue?.let { locationPref.findEntryFromValue(it)?.toString() }
+                    ?: this.getString(R.string.pref_location)
             locationView.visibility = if (hideLocNamePref.isChecked) View.GONE else View.VISIBLE
         }
     }
@@ -1098,18 +1100,21 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private fun buildMockData() {
         if (mockLocData == null) {
             mockLocData = LocationData().apply {
-                name = locationPref.findEntryFromValue(mLastSelectedValue)?.toString()
-                       ?: getString(R.string.pref_location)
+                name = mLastSelectedValue?.let { locationPref.findEntryFromValue(it)?.toString() }
+                    ?: getString(R.string.pref_location)
                 query = locationPref.value
                 latitude = 0.toDouble()
                 longitude = 0.toDouble()
                 tzLong = "UTC"
-                locationType = if (locationPref.value == Constants.KEY_GPS) LocationType.GPS else LocationType.SEARCH
+                locationType =
+                    if (locationPref.value == Constants.KEY_GPS) LocationType.GPS else LocationType.SEARCH
                 weatherSource = wm.getWeatherAPI()
                 locationSource = wm.getLocationProvider().getLocationAPI()
             }
         } else {
-            mockLocData?.name = if (mLastSelectedValue != null) locationPref.findEntryFromValue(mLastSelectedValue).toString() else getString(R.string.pref_location)
+            mockLocData?.name =
+                mLastSelectedValue?.let { locationPref.findEntryFromValue(it)?.toString() }
+                    ?: getString(R.string.pref_location)
             mockLocData?.query = locationPref.value
         }
 
