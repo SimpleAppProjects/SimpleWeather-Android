@@ -182,7 +182,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 Logger.writeLine(
                     Log.ERROR,
                     ex,
-                    "OpenWeatherMapProvider: error getting weather data"
+                    "MeteoFranceProvider: error getting weather data"
                 )
             } finally {
                 currentResponse?.closeQuietly()
