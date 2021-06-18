@@ -115,11 +115,18 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
             binding.swipeRefreshLayout.isRefreshing = false
             binding.scrollView.visibility = View.VISIBLE
+            binding.scrollView.requestFocus() // View is now visible; take focus
 
             val context = App.instance.appContext
-            val span = Duration.between(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), settingsManager.getUpdateTime())
+            val span = Duration.between(
+                ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(),
+                settingsManager.getUpdateTime()
+            )
             if (settingsManager.getDataSync() != WearableDataSync.OFF && span.toMinutes() > SettingsManager.DEFAULTINTERVAL) {
-                WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+                WeatherUpdaterWorker.enqueueAction(
+                    context,
+                    WeatherUpdaterWorker.ACTION_UPDATEWEATHER
+                )
             } else {
                 lifecycleScope.launch(Dispatchers.Default) {
                     WidgetUpdaterWorker.requestWidgetUpdate(context)
