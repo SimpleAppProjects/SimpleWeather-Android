@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Instellen vanaf Telefoon"</string>
+    <string name="action_changelocation">"Locatie Wijzigen"</string>
+    <string name="action_openonphone">"Openen op Telefoon"</string>
+    <string name="message_openedonphone">"Geopend op Telefoon…"</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"Apparaat niet verbonden"</string>
+    <string name="status_connecting">"Verbinden…"</string>
+    <string name="status_notinstalled">"App niet geïnstalleerd op apparaat"</string>
+    <string name="status_connected">"Verbonden"</string>
+    <string name="status_node_unavailable">"Apparaat is niet verbonden of app is niet geïnstalleerd…"</string>
+    <string name="status_node_notsupported">"Verbonden apparaat wordt niet ondersteund"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"Wil je datasynchronisatie tussen je telefoon en verbonden apparaat instellen?"</string>
+    <string name="message_gettingstatus">"Verbindingsstatus ophalen..."</string>
+    <string name="error_notinstalled">"Installeer app op apparaat en probeer opnieuw"</string>
+    <string name="message_continueondevice">"Installatie voortzetten op verbonden apparaat"</string>
+    <string name="message_retrievingdata">"Data ophalen van verbonden apparaat…"</string>
+    <string name="error_syncing">"Data synchroniseren mislukt"</string>
+    <string name="message_settingsretrieved">"Data van instellingen opgehaald…"</string>
+    <string name="message_locationretrieved">"Data van locatie opgehaald…"</string>
+    <string name="message_weatherretrieved">"Data van weer opgehaald…"</string>
+    <string name="message_synccompleted">"Data synchroniseren succesvol"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Uit"</string>
+    <string name="pref_sync_deviceonly">"Alleen van apparaat synchroniseren"</string>
+    <string name="pref_sync_whenavailable">"Van apparaat synchroniseren (wanneer beschikbaar)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Sync"</string>
+    <string name="pref_sync_title">"Datasynchronisatie"</string>
+    <string name="pref_connectionstatus_title">"Verbindinsstatus"</string>
+</resources>

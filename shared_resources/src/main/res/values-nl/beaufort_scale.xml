@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">"Stil"</string>
+    <string name="beaufort_1">"Zeer Zwak"</string>
+    <string name="beaufort_2">"Zwak"</string>
+    <string name="beaufort_3">"Vrij Matig"</string>
+    <string name="beaufort_4">"Matig"</string>
+    <string name="beaufort_5">"Vrij Krachtig"</string>
+    <string name="beaufort_6">"Krachtig"</string>
+    <string name="beaufort_7">"Hard"</string>
+    <string name="beaufort_8">"Stormachtig"</string>
+    <string name="beaufort_9">"Storm"</string>
+    <string name="beaufort_10">"Zware Storm"</string>
+    <string name="beaufort_11">"Zeer Zware Storm"</string>
+    <string name="beaufort_12">"Orkaan"</string>
+</resources>

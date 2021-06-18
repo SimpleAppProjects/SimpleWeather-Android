@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <string name="weather_tornado">"Tornado"</string>
+    <string name="weather_tropicalstorm">"Tropische Storm"</string>
+    <string name="weather_hurricane">"Orkaan"</string>
+    <string name="weather_severetstorms">"Ernstige Onweersbuien"</string>
+    <string name="weather_tstorms">"Onweersbuien"</string>
+    <string name="weather_rainandsnow">"Regen en Sneeuw"</string>
+    <string name="weather_rainandsleet">"Regen en Natte Sneeuw"</string>
+    <string name="weather_snowandsleet">"Sneeuw en Natte Sneeuw"</string>
+    <string name="weather_freezingrain">"Aanvriezende Regen"</string>
+    <string name="weather_snowflurries">"Sneeuwvlagen"</string>
+    <string name="weather_lightsnowshowers">"Lichte Sneeuw"</string>
+    <string name="weather_blowingsnow">"Sneeuw en Wind"</string>
+    <string name="weather_snow">"Sneeuw"</string>
+    <string name="weather_hail">"Hagel"</string>
+    <string name="weather_sleet">"Natte Sneeuw"</string>
+    <string name="weather_dust">"Stof"</string>
+    <string name="weather_foggy">"Mistig"</string>
+    <string name="weather_haze">"Nevel"</string>
+    <string name="weather_smoky">"Rokerig"</string>
+    <string name="weather_windy">"Winderig"</string>
+    <string name="weather_cold">"Koud"</string>
+    <string name="weather_cloudy">"Bewolkt"</string>
+    <string name="weather_mostlycloudy">"Redelijk Bewolkt"</string>
+    <string name="weather_partlycloudy">"Deels Bewolkt"</string>
+    <string name="weather_clear">"Helder"</string>
+    <string name="weather_sunny">"Zonnig"</string>
+    <string name="weather_fair">"Redelijk"</string>
+    <string name="weather_rainandhail">"Regen en Hagel"</string>
+    <string name="weather_hot">"Heet"</string>
+    <string name="weather_isotstorms">"Enkele Onweesbuien"</string>
+    <string name="weather_scatteredtstorms">"Verspreide Onweersbuien"</string>
+    <string name="weather_scatteredshowers">"Verspreide Stortbuien"</string>
+    <string name="weather_heavysnow">"Zware Sneeuwval"</string>
+    <string name="weather_fog">"Mist"</string>
+    <string name="weather_lightrain">"Lichte Regen"</string>
+    <string name="weather_rain">"Regen"</string>
+    <string name="weather_rainshowers">"Stortbuien"</string>
+    <string name="weather_blizzard">"Sneeuwstorm"</string>
+    <string name="weather_overcast">"Bewolkt"</string>
+    <string name="weather_sleet_tstorms">"Natte Sneeuw en Onweer"</string>
+    <string name="weather_snow_tstorms">"Sneeuw en Onweer"</string>
+    <string name="weather_clearsky">"Heldere Lucht"</string>
+    <string name="weather_heavyrain">"Zware Buien"</string>
+</resources>

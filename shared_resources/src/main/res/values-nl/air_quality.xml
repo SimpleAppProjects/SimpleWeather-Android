@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- https://aqicn.org/scale -->
+    <string name="aqi_level_0_50">"Goed"</string>
+    <string name="aqi_level_51_100">"Gemiddeld"</string>
+    <string name="aqi_level_101_150">"Ongezond voor gevoelige groepen"</string>
+    <string name="aqi_level_151_200">"Ongezond"</string>
+    <string name="aqi_level_201_300">"Zeer Ongezond"</string>
+    <string name="aqi_level_300">"Gevaarlijk"</string>
+    <string name="aqi_desc_0_50">"Luchtkwaliteit wordt voldoende geacht. Vervuiling biedt weinig tot geen gevaar."</string>
+    <string name="aqi_desc_51_100">"Luchtkwaliteit is acceptabel"</string>
+    <string name="aqi_desc_101_150">"Leden van gevoelige groepen kunnen gezondheidsklachten ervaren. In het algemeen waarschijnlijk geen klachten"</string>
+    <string name="aqi_desc_151_200">"Iedereen kan gezondheidsklachten gaan vertonen. Leden van gevoelige groepen kunnen ernstigere gezondheidsklachten vertonen."</string>
+    <string name="aqi_desc_201_300">"Gezondheidswaarschuwingen of noodcondities. Iedereen zal waarschijnlijk gezondheidsklachten ondervinden."</string>
+    <string name="aqi_desc_300">"Gezondheidswaarschuwingen. Iedereen kan gezondheidsproblemen gaan vertonen."</string>
+</resources>

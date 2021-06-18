@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Setup -->
+    <string name="location_search_hint">"Voer locatie in"</string>
+    <string name="api_label">"Weeraanbieder"</string>
+    <string name="key_hint">"Sleutel weeraanbieder"</string>
+    <string name="label_gpsfollow">"Huidige locatie"</string>
+    <string name="label_getstarted">"Beginnen"</string>
+    <string name="setup_welcome_prompt">"Welkom bij SimpleWeather"</string>
+    <string name="setup_welcome_tagline_prompt">"Gewoon een simpele weerapp"</string>
+    <string name="setup_location_prompt">"Voeg een locatie toe om te beginnen"</string>
+    <string name="setup_preferences_prompt">"Kies je instellingen"</string>
+    <string name="label_next">"Doorgaan"</string>
+    <string name="label_back">"Terug"</string>
+
+    <!-- MainActivity -->
+    <string name="title_activity_weather_now">"Weer"</string>
+    <string name="action_settings">"Instellingen"</string>
+    <string name="action_retry">"Opnieuw proberen"</string>
+
+    <!-- Weather Details -->
+    <string name="label_details">"Details"</string>
+    <string name="label_humidity">"Luchtvochtigheid"</string>
+    <string name="label_pressure">"Luchtdruk"</string>
+    <string name="label_visibility">"Zicht"</string>
+    <string name="label_feelslike">"Gevoelstemperatuur"</string>
+    <string name="label_wind">"Wind"</string>
+    <string name="label_forecast">"Voorspelling"</string>
+    <string name="label_condition">"Staat"</string>
+    <string name="label_sunriseset">"Zon op / Zon onder"</string>
+    <string name="label_sunrise">"Zonsopkomst"</string>
+    <string name="label_sunset">"Zonsondergang"</string>
+    <string name="label_hourlyforecast">"Per uur"</string>
+    <string name="label_precipitation">"Neerslag"</string>
+    <string name="label_chance">"Kans"</string>
+    <string name="label_cloudiness">"Bewolking"</string>
+    <string name="label_qpf_rain">"Regen"</string>
+    <string name="label_qpf_snow">"Sneeuw"</string>
+    <string name="credit_prefix">"Data van"</string>
+    <string name="attrib_prefix">"Foto door"</string>
+    <string name="label_high">"Hoog"</string>
+    <string name="label_low">"Laag"</string>
+    <string name="label_dewpoint">"Dauwppunt"</string>
+    <string name="label_moonrise">"Maan op"</string>
+    <string name="label_moonset">"Maan onder"</string>
+    <string name="label_moonphase">"Maanfase"</string>
+    <string name="label_beaufort">"Beaufort"</string>
+    <string name="label_uv">"UV Inder"</string>
+    <string name="label_airquality">"Luchtkwaliteitsindex"</string>
+    <string name="label_airquality_short">"Luchtkwaliteit"</string>
+    <string name="label_radar">"Radar"</string>
+    <string name="label_afternoon">"Middag"</string>
+    <string name="label_eve">"Avond"</string>
+    <string name="label_morning">"Ochtend"</string>
+    <string name="label_night">"Nacht"</string>
+    <string name="label_temp">"Temp"</string>
+
+    <!-- NavBar -->
+    <string name="label_nav_weathernow">"Weer"</string>
+    <string name="label_nav_alerts">"Waarschuwingen"</string>
+    <string name="label_nav_locations">"Locaties"</string>
+    <string name="title_activity_settings">"Instellingen"</string>
+    <string name="title_fragment_alerts">"Extreem weerwaarschuwingen"</string>
+
+    <!-- Settings -->
+    <string name="pref_title_general">"Algemeen"</string>
+    <string name="pref_category_version">"Versie"</string>
+    <string name="pref_title_units">"Eenheden"</string>
+    <string name="pref_summary_fahrenheit">"Eenheden in Farenheit weergeven"</string>
+    <string name="pref_summary_celsius">"Eenheden in Celcius weergeven"</string>
+    <string name="pref_title_about">"Over"</string>
+    <string name="pref_title_about_app">"Over SimpleWeather"</string>
+    <string name="pref_title_credits">"Dank aan"</string>
+    <string name="pref_title_oslibs">"Open Source Bibliotheken"</string>
+    <string name="pref_category_providers">"Data Aanbieders"</string>
+    <string name="pref_summary_currentlocation">"Toegang tot huidige locatie via GPS toestaan"</string>
+    <string name="pref_summary_apikey">"Voer providersleutel in voor %1$s"</string>
+    <string name="message_enter_apikey">"Voer alsjeblieft een providersleutel in"</string>
+    <string name="message_keyverified">"Sleutel Geverifieerd"</string>
+    <string name="message_keyinvalid">"Sleutel Onjuist"</string>
+    <string name="pref_title_onnotification">"Weer Meldingen"</string>
+    <string name="pref_summary_notification">"Continue melding met het huidige weer tonen"</string>
+    <string name="pref_title_api">"Weeraanbieder"</string>
+    <string name="pref_category_notification">"Meldingen"</string>
+    <string name="pref_title_notificationicon">"Meldinsicoon"</string>
+    <string name="pref_title_alerts">"Weerwaarschuwingen"</string>
+    <string name="pref_summary_alerts">"Toon melding voor weerwaarschuwingen"</string>
+    <string name="pref_summary_alerts_disabled">"Weerwaarschuwingen niet ondersteund door huidige weeraanbieder"</string>
+    <string name="pref_title_apiregister">"Account aanmaken"</string>
+    <string name="pref_summary_apiregister">"Account aanmaken om een providersleutel te verkrijgen"</string>
+    <string name="error_message_weather_region_unsupported">"Land niet ondersteund door huidige weeraanbieder"</string>
+
+    <!-- Locations -->
+    <string name="label_btn_add_location">"Locatie Toevoegen"</string>
+    <string name="action_editmode">"Bewerken"</string>
+    <string name="label_currentlocation">"Huidige Locatie"</string>
+    <string name="label_favoritelocations">"Favoriete Locaties"</string>
+    <string name="error_location_denied">"Geen toegang tot locatie"</string>
+    <string name="error_retrieve_location">"Locatie opvragen mislukt"</string>
+    <string name="error_enable_location_services">"Locatietoegang uitgeschakeld. Graag aanzetten in instellingen"</string>
+    <string name="error_noresults">"Geen resultaten"</string>
+    <string name="label_fab_add_location">"Locatie Toevoegen"</string>
+    <string name="message_locationremoved">"Locatie verwijderd"</string>
+    <string name="message_needfavorite">"Er dient minstens één favoriete locatie ingesteld te zijn"</string>
+    <string name="undo">"Ongedaan maken"</string>
+    <string name="delete">"Verwijderen"</string>
+    <string name="bg_location_permission_rationale">"Doorlopende toegang tot locatie voor meldingen en widgets"</string>
+
+    <!-- Weather Exceptions -->
+    <string name="werror_noweather">"Kan weerdata niet laden"</string>
+    <string name="werror_networkerror">"Netwerkfout"</string>
+    <string name="werror_invalidkey">"Sleutel weeraanbieder onjuist"</string>
+    <string name="werror_querynotfound">"Geen overeenkomende plaatsen"</string>
+    <string name="werror_unknown">"Onbekende fout opgetreden"</string>
+
+    <!-- Refresh Intervals -->
+    <string name="pref_title_refreshinterval">"Update Interval"</string>
+    <string name="refresh_60min">"1 uur"</string>
+    <string name="refresh_2hrs">"2 uur"</string>
+    <string name="refresh_3hrs">"3 uur"</string>
+    <string name="refresh_6hrs">"8 uur"</string>
+    <string name="refresh_12hrs">"12 uur"</string>
+    <string name="update_prefix">"Vernieuwd op"</string>
+    <string name="update_prefix_day">"Vernieuwd om"</string>
+
+    <!-- Notification -->
+    <string name="notificationicon_temperature">"Temperatuur"</string>
+    <string name="notificationicon_condition">"Weersomstandigheden"</string>
+    <string name="not_channel_name_weather">"Weermeldingen"</string>
+    <string name="not_channel_desc_weather">"Weermeldingen"</string>
+    <string name="not_channel_name_alerts">"Weeralarmen"</string>
+    <string name="not_channel_desc_alerts">"Meldingen voor weeralarmen"</string>
+    <string name="not_channel_name_general">"Servicemeldingen"</string>
+
+    <!-- Alerts -->
+    <string name="datetime_day_ago">"%1$dd geleden"</string>
+    <string name="datetime_hr_ago">"%1$du geleden"</string>
+    <string name="datetime_min_ago">"%1$dm geleden"</string>
+    <string name="datetime_sec_ago">"%1$ds geleden"</string>
+    <string name="datetime_validuntil">"Geldig tot"</string>
+
+    <!-- HERE API -->
+    <string name="pref_title_personalkey">"Persoonlijke Providerssleutel"</string>
+    <string name="pref_summary_personalkey">"Gebruik persoonlijk weersproviderssleutel"</string>
+
+    <!-- Dark Theme -->
+    <string name="pref_title_userthememode">"Thema"</string>
+    <string name="userthememode_default">"Systeem Standaard"</string>
+    <string name="userthememode_dark">"Donker"</string>
+    <string name="userthememode_black">"Donker (AMOLED)"</string>
+    <string name="userthememode_light">"Licht"</string>
+    <string name="summary_default">"Standaard"</string>
+    <string name="label_windgust">"Windstoten"</string>
+    <string name="pref_title_language">"Taal"</string>
+
+    <!-- Units -->
+    <string name="label_temperature">"Temperatuur"</string>
+    <string name="label_speed">"Snelheid"</string>
+    <string name="label_distance">"Afstand"</string>
+    <string name="pref_title_resetunits">"Eenheden instellen op standaardwaarde"</string>
+    <string name="not_title_weather_update">"Weer updaten..."</string>
+
+    <!-- Icons -->
+    <string name="pref_title_icons">"Iconen"</string>
+    <string name="refresh_30min">"30 minuten"</string>
+    <string name="label_day">"Dag"</string>
+</resources>

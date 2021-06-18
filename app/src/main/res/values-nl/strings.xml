@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"Kenmerken"</string>
+    <string name="pref_summary_features">"Schakel kenmerken in of uit"</string>
+    <string name="pref_title_feature_bgimage">"Achtergrondafbeelding"</string>
+    <string name="pref_title_feature_forecast">"Voorspelling"</string>
+    <string name="pref_title_feature_hrforecast">"Voorspelling per uur"</string>
+    <string name="pref_title_feature_details">"Weerdetails"</string>
+    <string name="pref_title_feature_uv">"UV"</string>
+    <string name="pref_title_feature_beaufort">"Beaufort"</string>
+    <string name="pref_title_feature_aqindex">"Luchtkwaliteitsindex"</string>
+    <string name="pref_title_feature_moonphase">"Maanfase"</string>
+    <string name="pref_title_feature_sunphase">"Zonfase"</string>
+    <string name="pref_title_feature_radar">"Weer Radar"</string>
+    <string name="pref_title_feature_locpanelimg">"Locatie Paneel Afbeelding"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"Widget Configureren"</string>
+    <string name="title_activity_widget_config">"Widgetvoorkeuren"</string>
+    <string name="pref_title_bgcolor">"Achtergrond"</string>
+    <string name="label_color_currentconditions">"Huidige Condities"</string>
+    <string name="label_color_transparent">"Transparant"</string>
+    <string name="pref_title_bgstyle">"Achtergrondstijl"</string>
+    <string name="label_style_fullbg">"Vullende Achtergrond"</string>
+    <string name="label_style_panda">"Standaard"</string>
+
+    <!-- Can be shortened to 'Color' -->
+    <string name="label_style_pendingcolor">"Weerkleur"</string>
+    <string name="label_style_light">"Licht"</string>
+    <string name="label_style_dark">"Donker"</string>
+    <string name="locname_pref_title">"Locatie Naam"</string>
+    <string name="locname_pref_summary">"Verberg locatie in widget"</string>
+    <string name="settingsbtn_pref_title">"Instellingsknop"</string>
+    <string name="settingsbtn_pref_summary">"Verberg instellingsknop in widget"</string>
+    <string name="clock_pref_title">"Klok"</string>
+    <string name="calendar_pref_title">"Kalender"</string>
+    <string name="pref_title_fcastoption">"Voorspelling"</string>
+    <string name="label_fcast_full">"Dagelijkse Voorspelling en Uurlijkse Voorspelling (indien beschikbaar)"</string>
+    <string name="label_fcast_daily">"Dagelijkse Voorspelling"</string>
+    <string name="label_fcast_hourly">"Uurlijkse Voorspelling (indien beschikbaar)"</string>
+    <string name="pref_category_timeanddate">"Tijd en Datum"</string>
+    <string name="pref_title_timezone">"Tijdzone"</string>
+    <string name="pref_timezone_summaryoff">"Tijdzone van systeem gebruiken voor datum en tijd"</string>
+    <string name="pref_timezone_summaryon">"Datum en tijd via locatie bepalen"</string>
+    <string name="pref_location">"Locatie"</string>
+    <string name="pref_item_gpslocation">"Huidige GPS Locatie"</string>
+    <string name="prompt_setup_app_first">"Gelieve applicatie eerst in te stellen"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"Reeks"</string>
+
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">"Appupdates"</string>
+    <string name="prompt_update_title">"Update SimpleWeather"</string>
+    <string name="prompt_update_available">"Update beschikbaar. Klik om te installeren"</string>
+
+    <!-- Support -->
+    <string name="pref_category_support">"Ondersteuning"</string>
+
+    <!-- Feedback -->
+    <string name="pref_title_feedback">"Terugkoppeling"</string>
+    <string name="pref_summary_feedback">"Bug(s) of suggestie(s) melden om de app te verbeteren"</string>
+
+    <!-- Rate / Review -->
+    <string name="pref_title_rateandreview">"Beoordeel en Review"</string>
+    <string name="pref_summary_rateandreview">"Bevalt de app? Ondersteun ons door een review te plaatsen"</string>
+
+    <!-- Translate -->
+    <string name="pref_title_translate">"Vertalen"</string>
+    <string name="pref_summary_translate">"Help de app te vertalen"</string>
+
+    <!-- Custom Color -->
+    <string name="label_color_custom">"Aangepast"</string>
+    <string name="pref_title_bgcolorcode">"Achtergrondkleur"</string>
+    <string name="pref_title_txtcolorcode">"Tekstkleur"</string>
+
+    <!-- SplitInstall Prompts -->
+    <string name="splitlang_start_install">"Installatie taalpakket gestart..."</string>
+    <string name="splitlang_installing">"Taalpakket installeren..."</string>
+    <string name="splitlang_downloading">"Taalpakket downloaden..."</string>
+    <string name="splitlang_failure">"Installatie taalpakket mislukt"</string>
+    <string name="pref_title_feature_charts">"Grafieken"</string>
+
+    <!-- Widget Service -->
+    <string name="message_widgetservice_running">"Widget update service is actief"</string>
+    <string name="pref_title_foreground_service">"Widget Updater Service"</string>
+    <string name="pref_summary_foreground_service">"Schakel dienst in om weerwidgets en meldingen te updaten"</string>
+    <string name="pref_title_ignore_batt_opts">"Negeer Batterijoptimalisaties"</string>
+    <string name="pref_summary_ignore_batt_opts">"Schakel achtergrondservice restricties uit indien widgets en meldingen niet updaten"</string>
+    <string name="pref_title_tap2switch">"Actie Bij Tikken"</string>
+    <string name="pref_tap2switch_summaryOn">"Tikken voor voorspelling"</string>
+    <string name="pref_tap2switch_summaryOff">"Open app"</string>
+
+    <!-- Daily Notification -->
+    <string name="not_channel_name_dailynotification">"Dagelijkse Melding"</string>
+    <string name="pref_title_time">"Tijd"</string>
+    <string name="pref_summary_off">"Uit"</string>
+    <string name="pref_summary_on">"Aan"</string>
+
+    <!-- Precipitation Notification -->
+    <string name="not_channel_name_precipnotification">"Neerslagmelding"</string>
+
+    <!-- Example: 80% chance of rain in 2 hours
+(%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">"%1$d%% kans op regen in %2$s"</string>
+    <string name="precipitation_nexthour_text_format">"%1$d%% kans op regen in het komende uur"</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Nieuwe Maan"</string>
+    <string name="moonphase_waxcrescent">"Wassende Maansikkel"</string>
+    <string name="moonphase_firstqtr">"Eerste kwartier"</string>
+    <string name="moonphase_waxgibbous">"Wassende maan"</string>
+    <string name="moonphase_full">"Volle maan"</string>
+    <string name="moonphase_wangibbous">"Afnemende maan"</string>
+    <string name="moonphase_lastqtr">"Laatste kwartier"</string>
+    <string name="moonphase_wancrescent">"Afnemende maansikkel"</string>
+</resources>
