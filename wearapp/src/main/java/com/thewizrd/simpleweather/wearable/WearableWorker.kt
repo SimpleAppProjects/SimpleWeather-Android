@@ -15,7 +15,6 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 class WearableWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
-    private val mContext = context.applicationContext
     private var mPhoneNodeWithApp: Node? = null
 
     companion object {
@@ -32,34 +31,30 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         @JvmStatic
         @JvmOverloads
         fun enqueueAction(context: Context, intentAction: String, forceRefresh: Boolean = false) {
-            val context = context.applicationContext
-
             when (intentAction) {
                 ACTION_REQUESTUPDATE,
                 ACTION_REQUESTSETTINGSUPDATE,
                 ACTION_REQUESTLOCATIONUPDATE,
                 ACTION_REQUESTWEATHERUPDATE -> {
-                    startWork(context, intentAction, forceRefresh)
+                    startWork(context.applicationContext, intentAction, forceRefresh)
                 }
             }
         }
 
-        private fun startWork(context: Context, intentAction: String, forceRefesh: Boolean) {
-            val context = context.applicationContext
-
+        private fun startWork(context: Context, intentAction: String, forceRefresh: Boolean) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false)
-                    .build()
+                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiresCharging(false)
+                .build()
 
             val updateRequest = OneTimeWorkRequest.Builder(WearableWorker::class.java)
-                    .setConstraints(constraints)
-                    .setInputData(
-                            Data.Builder()
-                                    .putString(KEY_ACTION, intentAction)
-                                    .putBoolean(KEY_FORCEREFRESH, forceRefesh)
+                .setConstraints(constraints)
+                .setInputData(
+                    Data.Builder()
+                        .putString(KEY_ACTION, intentAction)
+                        .putBoolean(KEY_FORCEREFRESH, forceRefresh)
                                     .build()
                     )
                     .build()
@@ -100,19 +95,24 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         mPhoneNodeWithApp = checkIfPhoneHasApp()
 
         if (mPhoneNodeWithApp != null) {
-            if (ACTION_REQUESTUPDATE == intentAction) {
-                verifySettingsData(forceRefresh)
-                verifyLocationData(forceRefresh)
-                verifyWeatherData(forceRefresh)
-            } else if (ACTION_REQUESTSETTINGSUPDATE == intentAction) {
-                verifySettingsData(forceRefresh)
-            } else if (ACTION_REQUESTLOCATIONUPDATE == intentAction) {
-                verifyLocationData(forceRefresh)
-            } else if (ACTION_REQUESTWEATHERUPDATE == intentAction) {
-                verifyWeatherData(forceRefresh)
+            when (intentAction) {
+                ACTION_REQUESTUPDATE -> {
+                    verifySettingsData(forceRefresh)
+                    verifyLocationData(forceRefresh)
+                    verifyWeatherData(forceRefresh)
+                }
+                ACTION_REQUESTSETTINGSUPDATE -> {
+                    verifySettingsData(forceRefresh)
+                }
+                ACTION_REQUESTLOCATIONUPDATE -> {
+                    verifyLocationData(forceRefresh)
+                }
+                ACTION_REQUESTWEATHERUPDATE -> {
+                    verifyWeatherData(forceRefresh)
+                }
             }
         } else {
-            LocalBroadcastManager.getInstance(mContext)
+            LocalBroadcastManager.getInstance(applicationContext)
                     .sendBroadcast(Intent(WearableHelper.ErrorPath))
         }
 
@@ -126,7 +126,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
 
             if (!forceRefresh) {
                 try {
-                    dataItem = Wearable.getDataClient(mContext)
+                    dataItem = Wearable.getDataClient(applicationContext)
                         .getDataItem(
                             WearableHelper.getWearDataUri(
                                 mPhoneNodeWithApp!!.id,
@@ -144,7 +144,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
                 sendSettingsRequest()
             } else {
                 // Update with data
-                DataSyncManager.updateSettings(mContext, DataMapItem.fromDataItem(dataItem).dataMap)
+                DataSyncManager.updateSettings(
+                    applicationContext,
+                    DataMapItem.fromDataItem(dataItem).dataMap
+                )
             }
         }
     }
@@ -152,7 +155,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     private suspend fun sendSettingsRequest() {
         withContext(Dispatchers.IO) {
             try {
-                Wearable.getMessageClient(mContext)
+                Wearable.getMessageClient(applicationContext)
                     .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.SettingsPath, null)
                     .await()
             } catch (e: Exception) {
@@ -167,7 +170,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
 
             if (!forceRefresh) {
                 try {
-                    dataItem = Wearable.getDataClient(mContext)
+                    dataItem = Wearable.getDataClient(applicationContext)
                         .getDataItem(
                             WearableHelper.getWearDataUri(
                                 mPhoneNodeWithApp!!.id,
@@ -185,7 +188,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
                 sendLocationRequest()
             } else {
                 // Update with data
-                DataSyncManager.updateLocation(mContext, DataMapItem.fromDataItem(dataItem).dataMap)
+                DataSyncManager.updateLocation(
+                    applicationContext,
+                    DataMapItem.fromDataItem(dataItem).dataMap
+                )
             }
         }
     }
@@ -193,7 +199,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
     private suspend fun sendLocationRequest() {
         withContext(Dispatchers.IO) {
             try {
-                Wearable.getMessageClient(mContext)
+                Wearable.getMessageClient(applicationContext)
                     .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.LocationPath, null)
                     .await()
             } catch (e: Exception) {
@@ -208,7 +214,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
 
             if (!forceRefresh) {
                 try {
-                    dataItem = Wearable.getDataClient(mContext)
+                    dataItem = Wearable.getDataClient(applicationContext)
                         .getDataItem(
                             WearableHelper.getWearDataUri(
                                 mPhoneNodeWithApp!!.id,
@@ -226,7 +232,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
                 sendWeatherRequest()
             } else {
                 // Update with data
-                DataSyncManager.updateWeather(mContext, DataMapItem.fromDataItem(dataItem).dataMap)
+                DataSyncManager.updateWeather(
+                    applicationContext,
+                    DataMapItem.fromDataItem(dataItem).dataMap
+                )
             }
         }
     }
@@ -235,7 +244,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         withContext(Dispatchers.IO) {
             // Send message to device to get settings
             try {
-                Wearable.getMessageClient(mContext)
+                Wearable.getMessageClient(applicationContext)
                     .sendMessage(mPhoneNodeWithApp!!.id, WearableHelper.WeatherPath, null)
                     .await()
             } catch (e: Exception) {
@@ -248,7 +257,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
         var node: Node? = null
 
         try {
-            val capabilityInfo = Wearable.getCapabilityClient(mContext)
+            val capabilityInfo = Wearable.getCapabilityClient(applicationContext)
                 .getCapability(
                     WearableHelper.CAPABILITY_PHONE_APP,
                     CapabilityClient.FILTER_ALL

@@ -36,20 +36,20 @@ class WearableDataListenerService : WearableListenerService() {
             for (event in dataEventBuffer) {
                 if (event.type == DataEvent.TYPE_CHANGED) {
                     val item = event.dataItem
-                    when {
-                        item.uri.path!!.compareTo(WearableHelper.SettingsPath) == 0 -> {
+                    when (item.uri.path) {
+                        WearableHelper.SettingsPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
                                 DataSyncManager.updateSettings(applicationContext, dataMap)
                             }
                         }
-                        item.uri.path!!.compareTo(WearableHelper.LocationPath) == 0 -> {
+                        WearableHelper.LocationPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
                                 DataSyncManager.updateLocation(applicationContext, dataMap)
                             }
                         }
-                        item.uri.path!!.compareTo(WearableHelper.WeatherPath) == 0 -> {
+                        WearableHelper.WeatherPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
                                 DataSyncManager.updateWeather(applicationContext, dataMap)

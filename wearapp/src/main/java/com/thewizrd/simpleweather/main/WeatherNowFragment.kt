@@ -730,7 +730,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 val filter = IntentFilter().apply {
                     addAction(WearableHelper.LocationPath)
                     addAction(WearableHelper.WeatherPath)
-                    addAction(WearableHelper.IsSetupPath)
                 }
 
                 LocalBroadcastManager.getInstance(fragmentActivity)
