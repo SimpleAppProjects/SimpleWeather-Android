@@ -107,25 +107,25 @@ dependencies {
     fullgmsImplementation project(":extras")
 
     // Unit Testing
-    androidTestImplementation 'androidx.test:core:1.3.0'
+    androidTestImplementation 'androidx.test:core:1.4.0'
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test:rules:1.3.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.ext:truth:1.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
     androidTestImplementation 'com.google.truth:truth:1.1.3'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // Kotlin
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.32'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.21'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
 
-    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation ('androidx.fragment:fragment') {
         version {
@@ -137,7 +137,7 @@ dependencies {
             strictly '1.3.3'
         }
     }
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
@@ -196,7 +196,7 @@ dependencies {
     fullgmsImplementation 'com.google.android.play:core:1.10.0'
     fullgmsImplementation 'com.google.android.play:core-ktx:1.8.1'
     fullgmsImplementation 'com.google.android.libraries.places:places:2.4.0'
-    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.0'
+    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.1'
 
     nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.10'
 }
