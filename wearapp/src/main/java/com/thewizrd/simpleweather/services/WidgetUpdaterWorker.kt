@@ -59,10 +59,16 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         private fun enqueueWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
 
-            val updateRequest = PeriodicWorkRequest.Builder(WidgetUpdaterWorker::class.java, 60, TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
-                    .setConstraints(Constraints.NONE)
-                    .addTag(TAG)
-                    .build()
+            val updateRequest = PeriodicWorkRequest.Builder(
+                WidgetUpdaterWorker::class.java,
+                60,
+                TimeUnit.MINUTES,
+                5,
+                TimeUnit.MINUTES
+            )
+                .setConstraints(Constraints.NONE)
+                .addTag(TAG)
+                .build()
 
             WorkManager.getInstance(context.applicationContext)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)

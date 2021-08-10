@@ -80,13 +80,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private fun enqueueWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
             val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false)
-                    .build()
-            val updateRequest = PeriodicWorkRequest.Builder(WeatherUpdaterWorker::class.java, SettingsManager.DEFAULTINTERVAL.toLong(), TimeUnit.MINUTES, 30, TimeUnit.MINUTES)
-                    .setConstraints(constraints)
-                    .addTag(TAG)
-                    .build()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build()
+            val updateRequest = PeriodicWorkRequest.Builder(
+                WeatherUpdaterWorker::class.java,
+                SettingsManager.DEFAULTINTERVAL.toLong(),
+                TimeUnit.MINUTES,
+                5,
+                TimeUnit.MINUTES
+            )
+                .setConstraints(constraints)
+                .addTag(TAG)
+                .build()
             WorkManager.getInstance(context.applicationContext)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
