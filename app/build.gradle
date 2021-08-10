@@ -126,7 +126,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
 
     implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation ('androidx.fragment:fragment') {
         version {
             strictly '1.3.3'
@@ -144,11 +144,11 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.annotation:annotation:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'androidx.paging:paging-runtime-ktx:3.0.0'
+    implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
@@ -198,7 +198,7 @@ dependencies {
     fullgmsImplementation 'com.google.android.libraries.places:places:2.4.0'
     fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.1'
 
-    nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.10'
+    nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.11'
 }
 
 if (getGradle().getStartParameter().getTaskRequests().toString().contains("Fullgms")) {
