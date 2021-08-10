@@ -88,8 +88,6 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
             val shortcutMan = context.getSystemService(ShortcutManager::class.java)
             val shortcuts: MutableList<ShortcutInfo> = ArrayList(MAX_SHORTCUTS)
 
-            shortcutMan.removeAllDynamicShortcuts()
-
             var i = 0
             while (i < MAX_SHORTCUTS) {
                 val location = locations[i]
@@ -135,9 +133,14 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
                 i++
             }
 
-            shortcutMan.dynamicShortcuts = shortcuts
+            val success = shortcutMan.setDynamicShortcuts(shortcuts)
 
-            Logger.writeLine(Log.INFO, "%s: Shortcuts updated", TAG)
+            Logger.writeLine(
+                Log.INFO,
+                "%s: Shortcuts updated; rate-limited = %s",
+                TAG,
+                (!success).toString()
+            )
         }
     }
 }
