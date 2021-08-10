@@ -18,6 +18,7 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.createForeg
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import java.time.Duration
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class UpdaterTimerService : Service() {
     private lateinit var mNotificationManager: NotificationManager
@@ -32,6 +33,8 @@ class UpdaterTimerService : Service() {
     private var mTodayForecastTime: String? = SettingsManager.DEFAULT_DAILYNOTIFICATION_TIME
     private var mLastTodayForecastTime: Long = -1
 
+    private var mFirstTime = true
+
     companion object {
         private const val TAG = "UpdaterTimerService"
 
@@ -41,6 +44,8 @@ class UpdaterTimerService : Service() {
         const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         const val EXTRA_INTERVAL = "SimpleWeather.Droid.extra.UPDATE_INTERVAL"
+
+        private val HOUR_IN_MILLIS = TimeUnit.HOURS.toMillis(1)
 
         @JvmStatic
         fun enqueueWork(context: Context, work: Intent) {
@@ -98,12 +103,13 @@ class UpdaterTimerService : Service() {
             }
             ACTION_UPDATEALARM -> {
                 // Refresh interval was changed
-                mUpdateInterval = intent.getIntExtra(EXTRA_INTERVAL, SettingsManager.DEFAULTINTERVAL)
+                mUpdateInterval =
+                    intent.getIntExtra(EXTRA_INTERVAL, SettingsManager.DEFAULTINTERVAL)
                 // Update alarm
                 checkReceiver()
                 val nowMillis = System.currentTimeMillis()
-                mLastWeatherUpdateTime = nowMillis
-                mLastWidgetUpdateTime = nowMillis
+                mLastWeatherUpdateTime = nowMillis - (nowMillis % HOUR_IN_MILLIS)
+                mLastWidgetUpdateTime = nowMillis - (nowMillis % HOUR_IN_MILLIS)
                 doWork()
             }
             ACTION_CANCELALARM -> {
@@ -153,12 +159,17 @@ class UpdaterTimerService : Service() {
         if (Duration.ofMillis(nowMillis - mLastWeatherUpdateTime).toMinutes() >= mUpdateInterval) {
             Log.println(Log.INFO, TAG, "updating weather...")
             updateWeather()
-            mLastWeatherUpdateTime = nowMillis
-            mLastWidgetUpdateTime = nowMillis
+            mLastWeatherUpdateTime =
+                nowMillis - (if (mFirstTime) (nowMillis % HOUR_IN_MILLIS) else 0)
+            mLastWidgetUpdateTime =
+                nowMillis - (if (mFirstTime) (nowMillis % HOUR_IN_MILLIS) else 0)
+            mFirstTime = false
         } else if (Duration.ofMillis(nowMillis - mLastWidgetUpdateTime).toMinutes() >= 60) {
             Log.println(Log.INFO, TAG, "updating widgets...")
             updateWidgets()
-            mLastWidgetUpdateTime = nowMillis
+            mLastWidgetUpdateTime =
+                nowMillis - (if (mFirstTime) (nowMillis % HOUR_IN_MILLIS) else 0)
+            mFirstTime = false
         }
 
         if (!mTodayForecastTime.isNullOrBlank() && isDailyForecastTime(mTodayForecastTime!!, mLastTodayForecastTime)) {
@@ -202,8 +213,8 @@ class UpdaterTimerService : Service() {
                         Log.println(Log.INFO, TAG, "TickReceiver: ${intent.action} received")
                     }
                     val nowMillis = System.currentTimeMillis()
-                    mLastWeatherUpdateTime = nowMillis
-                    mLastWidgetUpdateTime = nowMillis
+                    mLastWeatherUpdateTime = nowMillis - (nowMillis % HOUR_IN_MILLIS)
+                    mLastWidgetUpdateTime = nowMillis - (nowMillis % HOUR_IN_MILLIS)
                     mLastTodayForecastTime = nowMillis
                     doWork()
                 }
