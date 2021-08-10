@@ -76,7 +76,7 @@
             android:layout_margin="8dp"
             app:cardCornerRadius="@dimen/shape_corner_radius"
             app:cardUseCompatPadding="false"
-            app:showIfTrue="@{FeatureSettings.backgroundImageEnabled &amp;&amp; imageData != null}"
+            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
             tools:layout_height="560dp">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -249,6 +249,7 @@
                 android:text="@{weatherView.weatherSummary}"
                 android:textSize="12sp"
                 style="?textAppearanceSubtitle1"
+                app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
                 app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />
 

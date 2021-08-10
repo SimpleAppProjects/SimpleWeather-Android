@@ -28,6 +28,12 @@
 
     <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
         android:defaultValue="true"
+        android:key="key_feature_summary"
+        android:title="@string/pref_title_feature_summary"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
         android:key="key_feature_details"
         android:title="@string/pref_title_feature_details"
         app:iconSpaceReserved="false" />

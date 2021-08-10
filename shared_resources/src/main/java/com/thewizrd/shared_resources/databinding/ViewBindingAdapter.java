@@ -45,6 +45,11 @@ public class ViewBindingAdapter {
         view.setVisibility(show && c != null && !c.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
+    @BindingAdapter(value = {"showIfTrue", "hideIfNullOrWhitespace"}, requireAll = true)
+    public static void hideIfNullOrWhitespace(View view, boolean show, String s) {
+        view.setVisibility(show && !StringUtils.isNullOrWhitespace(s) ? View.VISIBLE : View.GONE);
+    }
+
     @BindingAdapter("drawableTint")
     public static void setDrawableTint(TextView view, int color) {
         TextViewCompat.setCompoundDrawableTintList(view, ColorStateList.valueOf(color));

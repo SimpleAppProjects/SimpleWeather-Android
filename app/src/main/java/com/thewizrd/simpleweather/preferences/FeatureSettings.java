@@ -16,6 +16,7 @@ public class FeatureSettings {
     private static final String KEY_FEATURE_FORECAST = "key_feature_forecast";
     private static final String KEY_FEATURE_HRFORECAST = "key_feature_hrforecast";
     private static final String KEY_FEATURE_CHARTS = "key_feature_charts";
+    private static final String KEY_FEATURE_SUMMARY = "key_feature_summary";
     private static final String KEY_FEATURE_DETAILS = "key_feature_details";
     private static final String KEY_FEATURE_UV = "key_feature_uv";
     private static final String KEY_FEATURE_BEAUFORT = "key_feature_beaufort";
@@ -42,6 +43,10 @@ public class FeatureSettings {
 
     public static boolean isChartsEnabled() {
         return preferences.getBoolean(KEY_FEATURE_CHARTS, true);
+    }
+
+    public static boolean isSummaryEnabled() {
+        return preferences.getBoolean(KEY_FEATURE_SUMMARY, true);
     }
 
     public static boolean isDetailsEnabled() {

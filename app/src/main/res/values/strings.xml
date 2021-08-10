@@ -8,6 +8,7 @@
     <string name="pref_title_feature_forecast">Forecast</string>
     <string name="pref_title_feature_hrforecast">Hourly Forecast</string>
     <string name="pref_title_feature_charts">Charts</string>
+    <string name="pref_title_feature_summary">Weather Summary</string>
     <string name="pref_title_feature_details">Weather Details</string>
     <string name="pref_title_feature_uv">UV</string>
     <string name="pref_title_feature_beaufort">Beaufort</string>
