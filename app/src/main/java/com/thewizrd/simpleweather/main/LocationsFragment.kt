@@ -9,6 +9,7 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -794,8 +795,24 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         if (getSettingsManager().useFollowGPS()) {
             if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                        PERMISSION_LOCATION_REQUEST_CODE)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    requestPermissions(
+                        arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ),
+                        PERMISSION_LOCATION_REQUEST_CODE
+                    )
+                } else {
+                    requestPermissions(
+                        arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ),
+                        PERMISSION_LOCATION_REQUEST_CODE
+                    )
+                }
                 return null
             }
 

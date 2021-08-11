@@ -197,7 +197,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     } catch (e: CancellationException) {
                         // ignore
                     } catch (e: Exception) {
-                        Logger.writeLine(Log.ERROR, e)
+                        Logger.writeLine(Log.ERROR, e, "Error updating location")
                     }
                 }
 

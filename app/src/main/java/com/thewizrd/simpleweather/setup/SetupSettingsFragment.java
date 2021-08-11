@@ -1,6 +1,11 @@
 package com.thewizrd.simpleweather.setup;
 
+import static com.thewizrd.simpleweather.extras.ExtrasKt.enableAdditionalRefreshIntervals;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +13,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreferenceCompat;
@@ -19,9 +25,8 @@ import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding;
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat;
+import com.thewizrd.simpleweather.snackbar.Snackbar;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-
-import static com.thewizrd.simpleweather.extras.ExtrasKt.enableAdditionalRefreshIntervals;
 
 public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
@@ -88,6 +93,19 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean value = (boolean) newValue;
                 notIconPref.setVisible(value);
+
+                if (value && getSettingsManager().useFollowGPS() && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !getSettingsManager().requestedBGAccess() &&
+                        ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    runWithView(() -> {
+                        Snackbar snackbar = Snackbar.make(R.string.bg_location_permission_rationale, Snackbar.Duration.LONG);
+                        snackbar.setAction(android.R.string.ok, view -> {
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                    0);
+                        });
+                        showSnackbar(snackbar, null);
+                        getSettingsManager().setRequestBGAccess(true);
+                    });
+                }
                 return true;
             }
         });

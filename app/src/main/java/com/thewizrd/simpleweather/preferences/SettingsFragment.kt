@@ -101,6 +101,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     companion object {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
+        private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
 
         // Preference Keys
         private const val KEY_UNITS = "key_units"
@@ -284,16 +285,57 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 if (newValue as Boolean) {
                     if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                                PERMISSION_LOCATION_REQUEST_CODE)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            requestPermissions(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ),
+                                PERMISSION_LOCATION_REQUEST_CODE
+                            )
+                        } else {
+                            requestPermissions(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ),
+                                PERMISSION_LOCATION_REQUEST_CODE
+                            )
+                        }
                         return false
                     } else {
                         val locMan = appCompatActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.SHORT), null)
+                            showSnackbar(
+                                Snackbar.make(
+                                    R.string.error_enable_location_services,
+                                    Snackbar.Duration.SHORT
+                                ), null
+                            )
 
                             settingsManager.setFollowGPS(false)
                             return false
+                        } else {
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                ContextCompat.checkSelfPermission(
+                                    appCompatActivity,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                val snackbar = Snackbar.make(
+                                    R.string.bg_location_permission_rationale,
+                                    Snackbar.Duration.LONG
+                                )
+                                snackbar.setAction(android.R.string.ok) {
+                                    requestPermissions(
+                                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                                        PERMISSION_BGLOCATION_REQUEST_CODE
+                                    )
+                                }
+                                showSnackbar(snackbar, null)
+                                settingsManager.setRequestBGAccess(true)
+                            }
                         }
                     }
                 }
@@ -539,8 +581,30 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 if (notCategory.findPreference<Preference?>(SettingsManager.KEY_NOTIFICATIONICON) == null)
                     notCategory.addPreference(notificationIcon)
 
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK))
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                    ContextCompat.checkSelfPermission(
+                        appCompatActivity,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    val snackbar = Snackbar.make(
+                        R.string.bg_location_permission_rationale,
+                        Snackbar.Duration.LONG
+                    )
+                    snackbar.setAction(android.R.string.ok) {
+                        requestPermissions(
+                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                            PERMISSION_BGLOCATION_REQUEST_CODE
+                        )
+                    }
+                    showSnackbar(snackbar, null)
+                    settingsManager.setRequestBGAccess(true)
+                }
+
+                enqueueIntent(
+                    Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                )
             } else {
                 WeatherNotificationWorker.removeNotification(context)
 
@@ -833,9 +897,17 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     // functionality that depends on this permission.
                     followGps.isChecked = false
                     settingsManager.setFollowGPS(false)
-                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                    showSnackbar(
+                        Snackbar.make(
+                            R.string.error_location_denied,
+                            Snackbar.Duration.SHORT
+                        ), null
+                    )
                 }
                 return
+            }
+            PERMISSION_BGLOCATION_REQUEST_CODE -> {
+                // no-op
             }
         }
     }

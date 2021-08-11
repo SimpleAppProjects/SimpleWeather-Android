@@ -11,6 +11,7 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -37,6 +38,7 @@ import androidx.preference.SwitchPreference
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.bumptech.glide.load.DecodeFormat
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
@@ -66,6 +68,7 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.coroutines.coroutineContext
+import com.google.android.material.snackbar.Snackbar as materialSnackbar
 
 class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     // Widget id for ConfigurationActivity
@@ -123,6 +126,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     companion object {
         private val MAX_LOCATIONS = App.instance.settingsManager.getMaxLocations()
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
+        private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
         private const val SETUP_REQUEST_CODE = 10
 
         // Preference Keys
@@ -872,14 +876,69 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         // Check location
                         val task = async(Dispatchers.Default) {
                             // Changing location to GPS
-                            if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                                    ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                                        PERMISSION_LOCATION_REQUEST_CODE)
+                            if (ContextCompat.checkSelfPermission(
+                                    appCompatActivity,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(
+                                    appCompatActivity,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    requestPermissions(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                        ),
+                                        PERMISSION_LOCATION_REQUEST_CODE
+                                    )
+                                } else {
+                                    requestPermissions(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION
+                                        ),
+                                        PERMISSION_LOCATION_REQUEST_CODE
+                                    )
+                                }
                                 return@async false
                             }
 
-                            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                            if (settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                ContextCompat.checkSelfPermission(
+                                    appCompatActivity,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                val snackbar = Snackbar.make(
+                                    R.string.bg_location_permission_rationale,
+                                    Snackbar.Duration.LONG
+                                )
+                                snackbar.setAction(android.R.string.ok) {
+                                    requestPermissions(
+                                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                                        PERMISSION_BGLOCATION_REQUEST_CODE
+                                    )
+                                }
+                                showSnackbar(snackbar, object : materialSnackbar.Callback() {
+                                    override fun onDismissed(
+                                        transientBottomBar: materialSnackbar?,
+                                        event: Int
+                                    ) {
+                                        super.onDismissed(transientBottomBar, event)
+                                        if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
+                                            prepareWidget()
+                                        }
+                                    }
+                                })
+                                settingsManager.setRequestBGAccess(true)
+                                return@async false
+                            }
+
+                            val locMan =
+                                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                                 throw CustomException(R.string.error_enable_location_services)
                             }
@@ -1091,8 +1150,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                    showSnackbar(
+                        Snackbar.make(
+                            R.string.error_location_denied,
+                            Snackbar.Duration.SHORT
+                        ), null
+                    )
                 }
+            PERMISSION_BGLOCATION_REQUEST_CODE -> {
+                // no-op
+            }
         }
     }
 

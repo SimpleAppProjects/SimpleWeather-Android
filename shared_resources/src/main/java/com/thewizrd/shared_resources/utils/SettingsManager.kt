@@ -1,5 +1,6 @@
 package com.thewizrd.shared_resources.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -709,6 +710,17 @@ class SettingsManager(context: Context) {
 
     fun setUserThemeMode(value: UserThemeMode) {
         editor.putString(KEY_USERTHEME, value.value.toString())
+        editor.commit()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun requestedBGAccess(): Boolean {
+        return preferences.getBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun setRequestBGAccess(value: Boolean) {
+        editor.putBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, value)
         editor.commit()
     }
     // END - !ANDROID_WEAR

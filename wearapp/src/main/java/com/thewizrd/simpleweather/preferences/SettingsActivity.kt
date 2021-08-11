@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.preference.*
 import android.support.wearable.view.ConfirmationOverlay
@@ -44,6 +45,7 @@ import com.thewizrd.simpleweather.extras.isWeatherAPISupported
 import com.thewizrd.simpleweather.extras.navigateToPremiumFragment
 import com.thewizrd.simpleweather.extras.navigateUnsupportedIconPack
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder
 import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
@@ -53,6 +55,7 @@ import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import kotlinx.coroutines.launch
 import java.util.*
+
 
 class SettingsActivity : WearableListenerActivity() {
     companion object {
@@ -107,6 +110,7 @@ class SettingsActivity : WearableListenerActivity() {
     class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener, OnBackPressedFragmentListener {
         companion object {
             private const val PERMISSION_LOCATION_REQUEST_CODE = 0
+            private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
 
             // Preference Keys
             private const val KEY_ABOUTAPP = "key_aboutapp"
@@ -253,8 +257,24 @@ class SettingsActivity : WearableListenerActivity() {
                 if (newValue as Boolean) {
                     if (ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                                PERMISSION_LOCATION_REQUEST_CODE)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            requestPermissions(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ),
+                                PERMISSION_LOCATION_REQUEST_CODE
+                            )
+                        } else {
+                            requestPermissions(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ),
+                                PERMISSION_LOCATION_REQUEST_CODE
+                            )
+                        }
                         return@OnPreferenceChangeListener false
                     } else {
                         val locMan = parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
@@ -262,6 +282,26 @@ class SettingsActivity : WearableListenerActivity() {
                             showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT)
                             settingsManager.setFollowGPS(false)
                             return@OnPreferenceChangeListener false
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                ContextCompat.checkSelfPermission(
+                                    parentActivity!!,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                AcceptDenyDialogBuilder(
+                                    parentActivity
+                                ) { d: DialogInterface?, which: Int ->
+                                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                                        requestPermissions(
+                                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                                            PERMISSION_BGLOCATION_REQUEST_CODE
+                                        )
+                                    }
+                                }.show()
+
+                                settingsManager.setRequestBGAccess(true)
+                            }
                         }
                     }
                 }
@@ -614,6 +654,9 @@ class SettingsActivity : WearableListenerActivity() {
                         showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
                     }
                     return
+                }
+                PERMISSION_BGLOCATION_REQUEST_CODE -> {
+                    // no-op
                 }
             }
         }
