@@ -30,7 +30,7 @@ class RangeBarGraphViewModel(forecasts: Collection<Forecast>) : ViewModel() {
             val date = forecast.date.format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)))
 
             // Temp Data
-            val xTemp = XLabelData(date, wim.getWeatherIconResource(forecast.icon), 0)
+            val xTemp = XLabelData(date, forecast.icon, 0)
             if (forecast.highF != null && forecast.highC != null) {
                 val value = if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
                 val hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value)

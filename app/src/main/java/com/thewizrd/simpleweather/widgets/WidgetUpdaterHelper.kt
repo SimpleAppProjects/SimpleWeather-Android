@@ -589,14 +589,31 @@ object WidgetUpdaterHelper {
         }
 
         // WeatherIcon
+        val wim = WeatherIconsManager.getInstance()
         if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
-            forecastPanel.setImageViewBitmap(iconId,
-                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, false), forecast.weatherIcon))
+            forecastPanel.setImageViewBitmap(
+                iconId,
+                ImageUtils.bitmapFromDrawable(
+                    ContextUtils.getThemeContextOverride(context, false),
+                    wim.getWeatherIconResource(forecast.weatherIcon)
+                )
+            )
         } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-            forecastPanel.setImageViewResource(iconId, forecast.weatherIcon)
+            forecastPanel.setImageViewResource(
+                iconId,
+                wim.getWeatherIconResource(forecast.weatherIcon)
+            )
         } else {
-            forecastPanel.setImageViewBitmap(iconId,
-                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), forecast.weatherIcon))
+            forecastPanel.setImageViewBitmap(
+                iconId,
+                ImageUtils.bitmapFromDrawable(
+                    ContextUtils.getThemeContextOverride(
+                        context,
+                        style == WidgetUtils.WidgetBackgroundStyle.LIGHT
+                    ),
+                    wim.getWeatherIconResource(forecast.weatherIcon)
+                )
+            )
         }
 
         if (forecast is HourlyForecastItemViewModel) {

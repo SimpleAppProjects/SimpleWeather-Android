@@ -9,7 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
@@ -29,7 +29,12 @@ import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.ListChangedArgs;
 import com.thewizrd.shared_resources.helpers.ObservableArrayList;
 import com.thewizrd.shared_resources.helpers.OnListChangedListener;
+import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
+import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.SettingsManager;
+import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.controls.GraphTemperature;
 
 import java.util.ArrayList;
@@ -235,7 +240,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private final Paint linePaint;
 
-        private final Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
+        private final Stack<Animatable> animatedDrawables = new Stack<>();
 
         RangeBarChartGraph(Context context) {
             this(context, null);
@@ -482,7 +487,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
             // Stop running animations
             while (!animatedDrawables.empty()) {
-                AnimatedVectorDrawable drw = animatedDrawables.pop();
+                Animatable drw = animatedDrawables.pop();
                 drw.stop();
                 drw = null;
             }
@@ -507,19 +512,20 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                             canvas.drawText(xData.getLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && xData.getIcon() != 0) {
+                    if (drawIconsLabels && xData.getIcon() != null) {
                         int rotation = xData.getIconRotation();
-                        Drawable iconDrawable = ContextCompat.getDrawable(getContext(), xData.getIcon());
+                        Drawable iconDrawable = createIconDrawable(xData.getIcon());
+                        iconDrawable.setCallback(this);
 
                         Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
                         iconDrawable.setBounds(bounds);
                         drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
-                            if (iconDrawable instanceof AnimatedVectorDrawable) {
-                                ((AnimatedVectorDrawable) iconDrawable).start();
+                            if (iconDrawable instanceof Animatable) {
+                                ((Animatable) iconDrawable).start();
 
-                                animatedDrawables.push((AnimatedVectorDrawable) iconDrawable);
+                                animatedDrawables.push((Animatable) iconDrawable);
                             }
 
                             canvas.save();
@@ -661,6 +667,19 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                 this.x = x;
                 this.hiY = hiY;
                 this.loY = loY;
+            }
+        }
+
+        private Drawable createIconDrawable(String icon) {
+            final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
+            final String iconsSource = settingsMgr.getIconsProvider();
+            final WeatherIconsProviderInterface wip = WeatherIconsManager.getProvider(iconsSource);
+
+            if (wip instanceof LottieIconsProviderInterface) {
+                final LottieIconsProviderInterface lottieProvider = (LottieIconsProviderInterface) wip;
+                return lottieProvider.getLottieIconDrawable(getContext(), icon);
+            } else {
+                return ContextCompat.getDrawable(getContext(), wip.getWeatherIconResource(icon));
             }
         }
     }

@@ -1,8 +1,6 @@
 package com.thewizrd.simpleweather.controls;
 
 import android.content.Context;
-import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -22,6 +20,7 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.WeatherDetailsType;
+import com.thewizrd.shared_resources.databinding.ImageViewBindingAdapter;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.R;
@@ -85,12 +84,6 @@ public class WeatherDetailItem extends ConstraintLayout {
         expanded = false;
         binding.bodyCard.setVisibility(GONE);
 
-        // Animate weather icon if possible
-        final Drawable drwbl = binding.forecastIcon.getDrawable();
-        if (drwbl instanceof AnimatedVectorDrawable) {
-            ((AnimatedVectorDrawable) drwbl).start();
-        }
-
         binding.executePendingBindings();
     }
 
@@ -105,7 +98,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
     private void bindModel(ForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
-        binding.forecastIcon.setImageResource(forecastView.getWeatherIcon());
+        ImageViewBindingAdapter.animateIconIfAvailable(binding.forecastIcon, forecastView.getWeatherIcon());
         binding.forecastCondition.setText(String.format(Locale.ROOT, "%s / %s - %s",
                 forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
         clearForecastExtras();
@@ -179,7 +172,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
     private void bindModel(final HourlyForecastItemViewModel forecastView) {
         binding.forecastDate.setText(forecastView.getDate());
-        binding.forecastIcon.setImageResource(forecastView.getWeatherIcon());
+        ImageViewBindingAdapter.animateIconIfAvailable(binding.forecastIcon, forecastView.getWeatherIcon());
         binding.forecastCondition.setText(String.format(Locale.ROOT, "%s - %s",
                 forecastView.getHiTemp(), forecastView.getCondition()));
         clearForecastExtras();

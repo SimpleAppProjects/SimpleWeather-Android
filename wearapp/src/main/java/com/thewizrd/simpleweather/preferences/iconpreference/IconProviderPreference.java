@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.preferences.iconpreference;
 
 import android.content.Context;
-import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
@@ -26,7 +27,7 @@ public class IconProviderPreference extends RadioButtonPreference {
     private View mIconFrame;
     private int mIconVisibility = View.GONE;
 
-    private final Stack<AnimatedVectorDrawable> animatedDrawables = new Stack<>();
+    private final Stack<Animatable> animatedDrawables = new Stack<>();
 
     public IconProviderPreference(Context context) {
         this(context, null);
@@ -69,19 +70,23 @@ public class IconProviderPreference extends RadioButtonPreference {
             iconsContainer.removeAllViews();
             // Stop running animations
             while (!animatedDrawables.empty()) {
-                AnimatedVectorDrawable drw = animatedDrawables.pop();
+                Animatable drw = animatedDrawables.pop();
                 drw.stop();
                 drw = null;
             }
 
             for (String icon : PREVIEW_ICONS) {
                 ImageView v = PreferenceIconViewBinding.inflate(LayoutInflater.from(view.getContext()), iconsContainer, true).getRoot();
-                v.setImageResource(getIconProvider().getWeatherIconResource(icon));
+                if (getIconProvider() instanceof LottieIconsProviderInterface) {
+                    v.setImageDrawable(((LottieIconsProviderInterface) getIconProvider()).getLottieIconDrawable(v.getContext(), icon));
+                } else {
+                    v.setImageResource(getIconProvider().getWeatherIconResource(icon));
+                }
 
                 final Drawable drwbl = v.getDrawable();
-                if (drwbl instanceof AnimatedVectorDrawable) {
-                    ((AnimatedVectorDrawable) drwbl).start();
-                    animatedDrawables.push((AnimatedVectorDrawable) drwbl);
+                if (drwbl instanceof Animatable) {
+                    ((Animatable) drwbl).start();
+                    animatedDrawables.push((Animatable) drwbl);
                 }
             }
         }

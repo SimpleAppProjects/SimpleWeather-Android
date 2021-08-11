@@ -2,7 +2,7 @@ package com.thewizrd.shared_resources.databinding;
 
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
@@ -13,7 +13,11 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 
+import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
+import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
+import com.thewizrd.shared_resources.utils.SettingsManager;
 
 public class ImageViewBindingAdapter {
     @BindingAdapter("srcCompat")
@@ -45,8 +49,19 @@ public class ImageViewBindingAdapter {
         view.setImageResource(resId);
 
         final Drawable drwbl = view.getDrawable();
-        if (drwbl instanceof AnimatedVectorDrawable) {
-            AnimatedVectorDrawable animVDrwbl = ((AnimatedVectorDrawable) drwbl);
+        if (drwbl instanceof Animatable) {
+            Animatable animVDrwbl = ((Animatable) drwbl);
+            if (!animVDrwbl.isRunning())
+                animVDrwbl.start();
+        }
+    }
+
+    private static void animateIconIfAvailable(@NonNull final ImageView view, Drawable drawable) {
+        view.setImageDrawable(drawable);
+
+        final Drawable drwbl = view.getDrawable();
+        if (drwbl instanceof Animatable) {
+            Animatable animVDrwbl = ((Animatable) drwbl);
             if (!animVDrwbl.isRunning())
                 animVDrwbl.start();
         }
@@ -54,6 +69,16 @@ public class ImageViewBindingAdapter {
 
     @BindingAdapter("weatherIcon")
     public static void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
-        animateIconIfAvailable(view, icon != null ? WeatherIconsManager.getInstance().getWeatherIconResource(icon) : 0);
+        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+        final String iconsSource = settingsMgr.getIconsProvider();
+        final WeatherIconsProviderInterface wip = WeatherIconsManager.getProvider(iconsSource);
+
+        if (wip instanceof LottieIconsProviderInterface) {
+            final LottieIconsProviderInterface lottieProvider = (LottieIconsProviderInterface) wip;
+            final Drawable drwbl = lottieProvider.getLottieIconDrawable(view.getContext(), icon);
+            animateIconIfAvailable(view, drwbl);
+        } else {
+            animateIconIfAvailable(view, icon != null ? wip.getWeatherIconResource(icon) : 0);
+        }
     }
 }

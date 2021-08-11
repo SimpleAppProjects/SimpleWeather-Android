@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.controls.viewmodels
 
 import android.text.format.DateFormat
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
@@ -17,8 +16,7 @@ import java.text.DecimalFormat
 
 class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
     var date: String
-    @DrawableRes
-    var icon: Int = 0
+    var icon: String
     var temperature: String
     var condition: String
     var popChance: String = ""
@@ -52,7 +50,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
             forecast.date.format(DateTimeUtils.ofPatternForUserLocale(pattern))
         }
 
-        icon = wim.getWeatherIconResource(forecast.icon)
+        icon = forecast.icon
 
         try {
             temperature = if (forecast.highF != null && forecast.highC != null) {

@@ -1,7 +1,5 @@
 package com.thewizrd.shared_resources.controls;
 
-import androidx.annotation.DrawableRes;
-
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.SettingsManager;
@@ -15,8 +13,7 @@ public abstract class BaseForecastItemViewModel {
     protected final WeatherIconsManager wim;
     protected final SettingsManager settingsMgr;
 
-    protected @DrawableRes
-    int weatherIcon;
+    protected String weatherIcon;
     protected String date;
     protected String shortDate;
     protected String condition;
@@ -36,12 +33,11 @@ public abstract class BaseForecastItemViewModel {
         detailExtras = new ArrayList<>(capacity);
     }
 
-    @DrawableRes
-    public int getWeatherIcon() {
+    public String getWeatherIcon() {
         return weatherIcon;
     }
 
-    public void setWeatherIcon(@DrawableRes int weatherIcon) {
+    public void setWeatherIcon(String weatherIcon) {
         this.weatherIcon = weatherIcon;
     }
 
@@ -116,15 +112,16 @@ public abstract class BaseForecastItemViewModel {
 
         BaseForecastItemViewModel that = (BaseForecastItemViewModel) o;
 
-        if (getWindDirection() != that.getWindDirection()) return false;
-        if (getWeatherIcon() != that.getWeatherIcon()) return false;
-        if (getDate() != null ? !getDate().equals(that.getDate()) : that.getDate() != null)
+        if (windDirection != that.windDirection) return false;
+        if (weatherIcon != null ? !weatherIcon.equals(that.weatherIcon) : that.weatherIcon != null)
             return false;
-        if (getCondition() != null ? !getCondition().equals(that.getCondition()) : that.getCondition() != null)
+        if (date != null ? !date.equals(that.date) : that.date != null) return false;
+        if (shortDate != null ? !shortDate.equals(that.shortDate) : that.shortDate != null)
             return false;
-        if (getHiTemp() != null ? !getHiTemp().equals(that.getHiTemp()) : that.getHiTemp() != null)
+        if (condition != null ? !condition.equals(that.condition) : that.condition != null)
             return false;
-        if (getWindSpeed() != null ? !getWindSpeed().equals(that.getWindSpeed()) : that.getWindSpeed() != null)
+        if (hiTemp != null ? !hiTemp.equals(that.hiTemp) : that.hiTemp != null) return false;
+        if (windSpeed != null ? !windSpeed.equals(that.windSpeed) : that.windSpeed != null)
             return false;
         if (windDir != null ? !windDir.equals(that.windDir) : that.windDir != null) return false;
         return detailExtras != null ? detailExtras.equals(that.detailExtras) : that.detailExtras == null;
@@ -132,11 +129,13 @@ public abstract class BaseForecastItemViewModel {
 
     @Override
     public int hashCode() {
-        int result = getDate() != null ? getDate().hashCode() : 0;
-        result = 31 * result + (getCondition() != null ? getCondition().hashCode() : 0);
-        result = 31 * result + (getHiTemp() != null ? getHiTemp().hashCode() : 0);
-        result = 31 * result + getWindDirection();
-        result = 31 * result + (getWindSpeed() != null ? getWindSpeed().hashCode() : 0);
+        int result = weatherIcon != null ? weatherIcon.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (shortDate != null ? shortDate.hashCode() : 0);
+        result = 31 * result + (condition != null ? condition.hashCode() : 0);
+        result = 31 * result + (hiTemp != null ? hiTemp.hashCode() : 0);
+        result = 31 * result + windDirection;
+        result = 31 * result + (windSpeed != null ? windSpeed.hashCode() : 0);
         result = 31 * result + (windDir != null ? windDir.hashCode() : 0);
         result = 31 * result + (detailExtras != null ? detailExtras.hashCode() : 0);
         return result;

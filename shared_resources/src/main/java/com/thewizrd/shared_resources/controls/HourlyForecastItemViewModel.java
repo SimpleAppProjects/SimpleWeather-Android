@@ -45,7 +45,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
         detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
-        weatherIcon = wim.getWeatherIconResource(forecast.getIcon());
+        weatherIcon = forecast.getIcon();
 
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
             date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR)));

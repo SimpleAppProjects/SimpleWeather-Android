@@ -34,7 +34,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
 
         detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
-        weatherIcon = wim.getWeatherIconResource(forecast.getIcon());
+        weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
         shortDate = date;
         condition = wm.supportsWeatherLocale() ? forecast.getCondition() : wm.getWeatherCondition(forecast.getIcon());
