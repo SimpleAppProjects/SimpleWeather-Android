@@ -37,6 +37,7 @@ class WeatherTileProviderService : TileProviderService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val settingsMgr = App.instance.settingsManager
+    private val wim = WeatherIconsManager.getInstance()
 
     override fun onDestroy() {
         Timber.tag(TAG).d("destroying service...")
@@ -265,7 +266,10 @@ class WeatherTileProviderService : TileProviderService() {
             forecastItem.setTextViewText(R.id.forecast_lo, forecast.loTemp)
         }
 
-        forecastItem.setImageViewBitmap(R.id.forecast_icon, ImageUtils.bitmapFromDrawable(context, forecast.weatherIcon))
+        forecastItem.setImageViewBitmap(
+            R.id.forecast_icon,
+            ImageUtils.bitmapFromDrawable(context, wim.getWeatherIconResource(forecast.weatherIcon))
+        )
 
         if (forecast is HourlyForecastItemViewModel) {
             forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
