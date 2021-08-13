@@ -2,19 +2,17 @@ package com.thewizrd.simpleweather.controls.viewmodels
 
 import android.text.format.DateFormat
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.simpleweather.App
 import java.text.DecimalFormat
 
-class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
+class HourlyForecastNowViewModel(forecast: HourlyForecast) {
     var date: String
     var icon: String
     var temperature: String
@@ -32,7 +30,6 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) : ViewModel() {
         df.applyPattern("0.##")
 
         val wm = WeatherManager.instance
-        val wim = WeatherIconsManager.getInstance()
 
         date = if (DateFormat.is24HourFormat(context)) {
             val skeleton = if (ContextUtils.isLargeTablet(context)) {

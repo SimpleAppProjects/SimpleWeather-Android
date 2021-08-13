@@ -11,7 +11,6 @@ import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -20,33 +19,21 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 
+import com.airbnb.lottie.LottieDrawable;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
-import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.ObservableArrayList;
-import com.thewizrd.shared_resources.helpers.OnListChangedListener;
-import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
-import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
-import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
-
-import kotlin.collections.CollectionsKt;
 
 public class LineView extends HorizontalScrollView implements IGraph {
 
@@ -221,12 +208,12 @@ public class LineView extends HorizontalScrollView implements IGraph {
         return this.graph.getItemPositionFromPoint(xCoordinate);
     }
 
-    public List<XLabelData> getDataLabels() {
-        return this.graph.dataLabels;
+    public LineViewData getData() {
+        return this.graph.mData;
     }
 
-    public List<LineDataSeries> getDataLists() {
-        return this.graph.dataLists;
+    public void setData(LineViewData data) {
+        this.graph.setData(data);
     }
 
     public void resetData(boolean invalidate) {
@@ -238,21 +225,12 @@ public class LineView extends HorizontalScrollView implements IGraph {
      *  Based on LineView from http://www.androidtrainee.com/draw-android-line-chart-with-animation/
      *  Graph background (under line) based on - https://github.com/jjoe64/GraphView (LineGraphSeries)
      */
-    private class LineViewGraph extends View implements IGraph {
-        private int mViewHeight;
-        private int mViewWidth;
-        // Containers to check if we're drawing w/in bounds
-        private final RectF drawingRect = new RectF();
+    private class LineViewGraph extends BaseGraphView<LineViewData> {
         private float drwTextWidth;
         private int dataOfAGird = 10;
         private float bottomTextHeight = 0;
-        private final ObservableArrayList<XLabelData> dataLabels; // X
-        private final ObservableArrayList<LineDataSeries> dataLists; // Y data
 
-        private final ArrayList<Float> xCoordinateList;
         private final ArrayList<Float> yCoordinateList;
-        private int horizontalGridNum;
-        private int verticalGridNum;
 
         private final List<ArrayList<Dot>> drawDotLists;
 
@@ -266,12 +244,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
         private final float DOT_INNER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 2);
         private final float DOT_OUTER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 5);
         private final int MIN_VERTICAL_GRID_NUM = 4;
-        private final int MIN_HORIZONTAL_GRID_NUM = 1;
+
         private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
 
-        private float sideLineLength = 0;
-        private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
         private float longestTextWidth;
 
         private boolean drawGridLines = false;
@@ -291,27 +267,19 @@ public class LineView extends HorizontalScrollView implements IGraph {
         private final PathEffect dashEffects;
         private final Paint seriesRectPaint;
 
-        private final Stack<Animatable> animatedDrawables = new Stack<>();
-
         LineViewGraph(Context context) {
             this(context, null);
         }
 
         LineViewGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
-            setWillNotDraw(false);
 
             bottomTextPaint = new Paint();
             bigCirPaint = new Paint();
-            dataLabels = new ObservableArrayList<>();
-            dataLists = new ObservableArrayList<>();
-            xCoordinateList = new ArrayList<>();
             yCoordinateList = new ArrayList<>();
             drawDotLists = new ArrayList<>();
 
             resetData(false);
-            dataLabels.addOnListChangedCallback(onXLabelDataChangedListener);
-            dataLists.addOnListChangedCallback(onLineDataSeriesChangedListener);
 
             bottomTextPaint.setAntiAlias(true);
             bottomTextPaint.setTextSize(ContextUtils.dpToPx(getContext(), 12));
@@ -362,140 +330,90 @@ public class LineView extends HorizontalScrollView implements IGraph {
             return bottomTextTopMargin + bottomTextHeight * 2f + bottomTextDescent * 2f;
         }
 
-        private void resetData(boolean invalidate) {
-            this.dataLists.clear();
-            this.dataLabels.clear();
-            this.xCoordinateList.clear();
+        @Override
+        protected void resetData(boolean invalidate) {
             this.yCoordinateList.clear();
             this.drawDotLists.clear();
             bottomTextDescent = 0;
             longestTextWidth = 0;
             horizontalGridNum = MIN_HORIZONTAL_GRID_NUM;
             verticalGridNum = MIN_VERTICAL_GRID_NUM;
-            if (invalidate) {
-                this.postInvalidate();
-            }
+            super.resetData(invalidate);
         }
 
-        private OnListChangedListener<XLabelData> onXLabelDataChangedListener = new OnListChangedListener<XLabelData>() {
-            @Override
-            public void onChanged(@NonNull ArrayList<XLabelData> sender, @NonNull ListChangedArgs<XLabelData> args) {
-                switch (args.action) {
-                    case ADD:
-                        Rect r = new Rect();
-                        float longestWidth = 0;
-                        String longestStr = "";
+        @Override
+        public void updateGraph() {
+            if (!isDataEmpty()) {
+                Rect r = new Rect();
+                float longestWidth = 0;
 
-                        for (XLabelData labelData : args.newItems) {
-                            String s = labelData.getLabel().toString();
+                float biggestData = 0;
+
+                for (LineDataSeries series : mData.getDataSets()) {
+                    for (LineGraphEntry entry : series.getEntryData()) {
+                        if (biggestData < entry.getYEntryData().getY()) {
+                            biggestData = entry.getYEntryData().getY();
+                        }
+
+                        String s;
+                        // Measure Y label
+                        s = entry.getYEntryData().getLabel().toString();
+                        bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                        if (longestWidth < r.width()) {
+                            longestWidth = r.width();
+                        }
+                        if (longestTextWidth < longestWidth) {
+                            longestTextWidth = longestWidth;
+                        }
+                        if (sideLineLength < longestWidth / 1.5f) {
+                            sideLineLength = longestWidth / 1.5f;
+                        }
+
+                        // Measure X label
+                        if (entry.getXLabel() != null) {
+                            s = entry.getXLabel().toString();
                             bottomTextPaint.getTextBounds(s, 0, s.length(), r);
                             if (bottomTextHeight < r.height()) {
                                 bottomTextHeight = r.height();
                             }
                             if (longestWidth < r.width()) {
-                                longestStr = s;
-                                longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
+                                longestWidth = r.width();
                             }
                             if (bottomTextDescent < (Math.abs(r.bottom))) {
                                 bottomTextDescent = Math.abs(r.bottom);
                             }
                         }
-
-                        if (longestTextWidth < longestWidth) {
-                            longestTextWidth = longestWidth;
-                        }
-                        if (sideLineLength < longestWidth / 2f) {
-                            sideLineLength = longestWidth / 2f;
-                        }
-
-                        backgroundGridWidth = longestTextWidth;
-
-                        // Add XCoordinate list
-                        updateHorizontalGridNum();
-                        refreshXCoordinateList();
-                        break;
-                    case REMOVE:
-                        updateHorizontalGridNum();
-                        break;
-                    case MOVE:
-                    case REPLACE:
-                    case RESET:
-                        bottomTextDescent = 0;
-                        longestTextWidth = 0;
-                        updateHorizontalGridNum();
-                        refreshXCoordinateList();
-                        break;
+                    }
+                    dataOfAGird = 1;
+                    while (biggestData / 10 > dataOfAGird) {
+                        dataOfAGird *= 10;
+                    }
                 }
-            }
-        };
 
-        private OnListChangedListener<LineDataSeries> onLineDataSeriesChangedListener = new OnListChangedListener<LineDataSeries>() {
-            @Override
-            public void onChanged(@NonNull ArrayList<LineDataSeries> sender, @NonNull final ListChangedArgs<LineDataSeries> args) {
-                switch (args.action) {
-                    case ADD:
-                        float biggestData = 0;
-                        final float prevLongestTextWidth = longestTextWidth;
-                        Rect r = new Rect();
-                        float longestWidth = 0;
-                        String longestStr = "";
-
-                        for (LineDataSeries series : args.newItems) {
-                            for (YEntryData i : series.getSeriesData()) {
-                                if (biggestData < i.getY()) {
-                                    biggestData = i.getY();
-                                }
-
-                                // Measure Y label
-                                String s = i.getLabel().toString();
-                                bottomTextPaint.getTextBounds(s, 0, s.length(), r);
-                                if (longestWidth < r.width()) {
-                                    longestStr = s;
-                                    longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
-                                }
-                                if (longestTextWidth < longestWidth) {
-                                    longestTextWidth = longestWidth;
-                                }
-                                if (sideLineLength < longestWidth / 2f) {
-                                    sideLineLength = longestWidth / 2f;
-                                }
-                            }
-                            dataOfAGird = 1;
-                            while (biggestData / 10 > dataOfAGird) {
-                                dataOfAGird *= 10;
-                            }
-                        }
-
-                        backgroundGridWidth = longestTextWidth;
-
-                        if (prevLongestTextWidth != longestTextWidth) {
-                            refreshXCoordinateList();
-                        }
-                        updateAfterDataChanged(args.newItems);
-                        postInvalidate();
-                        break;
-                    case MOVE:
-                    case REMOVE:
-                    case REPLACE:
-                        refreshAfterDataChanged();
-                        postInvalidate();
-                        break;
-                    case RESET:
-                        verticalGridNum = MIN_VERTICAL_GRID_NUM;
-
-                        longestTextWidth = 0;
-                        refreshXCoordinateList();
-
-                        refreshAfterDataChanged();
-                        postInvalidate();
-                        break;
+                if (longestTextWidth < longestWidth) {
+                    longestTextWidth = longestWidth;
                 }
+                if (sideLineLength < longestWidth / 1.5f) {
+                    sideLineLength = longestWidth / 1.5f;
+                }
+
+                backgroundGridWidth = Math.max(longestTextWidth * 1.5f, ContextUtils.dpToPx(getContext(), 45));
+            } else {
+                bottomTextDescent = 0;
+                longestTextWidth = 0;
+                longestTextWidth = 0;
+                verticalGridNum = MIN_VERTICAL_GRID_NUM;
             }
-        };
+
+            updateHorizontalGridNum();
+            refreshXCoordinateList();
+            refreshAfterDataChanged();
+            postInvalidate();
+        }
 
         private void refreshGridWidth() {
             // Reset the grid width
-            backgroundGridWidth = longestTextWidth;
+            backgroundGridWidth = Math.max(longestTextWidth * 1.5f, ContextUtils.dpToPx(getContext(), 45));
 
             if (getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
                 int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
@@ -506,13 +424,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         private void refreshAfterDataChanged() {
-            updateVerticalGridNum(dataLists);
-            refreshYCoordinateList();
-            refreshDrawDotList();
-        }
-
-        private void updateAfterDataChanged(List<LineDataSeries> dataSeriesList) {
-            updateVerticalGridNum(dataSeriesList);
+            updateVerticalGridNum(mData != null ? mData.getDataSets() : null);
             refreshYCoordinateList();
             refreshDrawDotList();
         }
@@ -520,18 +432,13 @@ public class LineView extends HorizontalScrollView implements IGraph {
         private void updateVerticalGridNum(List<LineDataSeries> dataSeriesList) {
             if (dataSeriesList != null && !dataSeriesList.isEmpty()) {
                 for (LineDataSeries series : dataSeriesList) {
-                    for (YEntryData entry : series.getSeriesData()) {
-                        verticalGridNum = Math.max(verticalGridNum, Math.max(MIN_VERTICAL_GRID_NUM, (int) Math.ceil(entry.getY()) + 1));
+                    for (LineGraphEntry entry : series.getEntryData()) {
+                        verticalGridNum = Math.max(verticalGridNum, Math.max(MIN_VERTICAL_GRID_NUM, (int) Math.ceil(entry.getYEntryData().getY()) + 1));
                     }
                 }
             } else {
                 verticalGridNum = MIN_VERTICAL_GRID_NUM;
             }
-        }
-
-        private void updateHorizontalGridNum() {
-            horizontalGridNum = Math.max(horizontalGridNum,
-                    Math.max(MIN_HORIZONTAL_GRID_NUM, dataLabels.size() - 1));
         }
 
         private void refreshXCoordinateList() {
@@ -557,48 +464,30 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         private void refreshDrawDotList() {
-            if (dataLists != null && !dataLists.isEmpty()) {
-                if (drawDotLists.size() == 0 || drawDotLists.size() != dataLists.size()) {
+            if (mData != null && !mData.isEmpty()) {
+                if (drawDotLists.size() == 0 || drawDotLists.size() != mData.getDataCount()) {
                     drawDotLists.clear();
-                    for (int k = 0; k < dataLists.size(); k++) {
+                    for (int k = 0; k < mData.getDataCount(); k++) {
                         drawDotLists.add(new ArrayList<>());
                     }
                 }
-                float maxValue = 0;
-                float minValue = 0;
-                for (int k = 0; k < dataLists.size(); k++) {
-                    float kMax = 0;
-                    float kMin = 0;
 
-                    if (dataLists.get(k).getSeriesMin() == null && dataLists.get(k).getSeriesMax() == null) {
-                        for (YEntryData seriesData : dataLists.get(k).getSeriesData()) {
-                            if (kMax < seriesData.getY())
-                                kMax = seriesData.getY();
-                            if (kMin > seriesData.getY())
-                                kMin = seriesData.getY();
-                        }
-                    } else {
-                        kMax = dataLists.get(k).getSeriesMax();
-                        kMin = dataLists.get(k).getSeriesMin();
-                    }
-
-                    if (maxValue < kMax)
-                        maxValue = kMax;
-                    if (minValue > kMin)
-                        minValue = kMin;
-                }
+                final float maxValue = mData.getYMax();
+                final float minValue = mData.getYMin();
 
                 final float graphHeight = getGraphHeight();
                 final float graphTop = getGraphTop();
 
-                for (int k = 0; k < dataLists.size(); k++) {
+                for (int k = 0; k < mData.getDataCount(); k++) {
                     int drawDotSize = drawDotLists.get(k).isEmpty() ? 0 : drawDotLists.get(k).size();
 
+                    LineDataSeries series = mData.getDataSetByIndex(k);
+
                     if (drawDotSize > 0) {
-                        drawDotLists.get(k).ensureCapacity(dataLists.get(k).getSeriesData().size());
+                        drawDotLists.get(k).ensureCapacity(series.getDataCount());
                     }
 
-                    for (int i = 0; i < dataLists.get(k).getSeriesData().size(); i++) {
+                    for (int i = 0; i < series.getDataCount(); i++) {
                         float x = xCoordinateList.get(i);
                         float y;
                         if (maxValue == minValue) {
@@ -616,7 +505,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                              * ((value - minValue) / (maxValue - minValue)) * (scaleMax - scaleMin) + scaleMin
                              * graphTop is scaleMax & graphHeight is scaleMin due to View coordinate system
                              */
-                            y = ((dataLists.get(k).getSeriesData().get(i).getY() - minValue) / (maxValue - minValue)) * (graphTop - graphHeight) + graphHeight;
+                            y = ((series.getEntryForIndex(i).getYEntryData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphHeight) + graphHeight;
                         }
 
                         if (i > drawDotSize - 1) {
@@ -626,7 +515,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         }
                     }
 
-                    int temp = drawDotLists.get(k).size() - dataLists.get(k).getSeriesData().size();
+                    int temp = drawDotLists.get(k).size() - series.getDataCount();
                     for (int i = 0; i < temp; i++) {
                         drawDotLists.get(k).remove(drawDotLists.get(k).size() - 1);
                     }
@@ -650,23 +539,19 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         mScrollViewer.getScrollY() + mScrollViewer.getHeight());
             }
 
-            // Stop running animations
-            while (!animatedDrawables.empty()) {
-                Animatable drw = animatedDrawables.pop();
-                drw.stop();
-                drw = null;
+            if (!isDataEmpty()) {
+                drawBackgroundLines(canvas);
+                drawTextAndIcons(canvas);
+                drawLines(canvas);
+                drawDots(canvas);
+                drawSeriesLegend(canvas);
             }
-
-            drawBackgroundLines(canvas);
-            drawLines(canvas);
-            drawDots(canvas);
-            drawSeriesLegend(canvas);
         }
 
         private void drawDots(Canvas canvas) {
             if (drawDotPoints && drawDotLists != null && !drawDotLists.isEmpty()) {
                 for (int k = 0; k < drawDotLists.size(); k++) {
-                    LineDataSeries series = dataLists.get(k);
+                    LineDataSeries series = mData.getDataSetByIndex(k);
                     int color = series.getColor(k);
 
                     bigCirPaint.setColor(color);
@@ -687,7 +572,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 float graphHeight = getGraphHeight();
 
                 for (int k = 0; k < drawDotLists.size(); k++) {
-                    LineDataSeries series = dataLists.get(k);
+                    LineDataSeries series = mData.getDataSetByIndex(k);
                     List<TextEntry> textEntries = new LinkedList<>();
 
                     float firstX = -1;
@@ -705,8 +590,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
                     for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
                         Dot dot = drawDotLists.get(k).get(i);
                         Dot nextDot = drawDotLists.get(k).get(i + 1);
-                        YEntryData entry = dataLists.get(k).getSeriesData().get(i);
-                        YEntryData nextEntry = dataLists.get(k).getSeriesData().get(i + 1);
+                        YEntryData entry = series.getEntryForIndex(i).getYEntryData();
+                        YEntryData nextEntry = series.getEntryForIndex(i + 1).getYEntryData();
 
                         float startX = dot.x;
                         float startY = dot.y;
@@ -815,42 +700,48 @@ public class LineView extends HorizontalScrollView implements IGraph {
                     }
                 }
             }
+        }
 
+        private void drawTextAndIcons(Canvas canvas) {
             // draw bottom text
-            if (dataLabels != null) {
+            if (!isDataEmpty()) {
+                List<GraphEntry> dataLabels = mData.getDataLabels();
                 for (int i = 0; i < dataLabels.size(); i++) {
                     float x = xCoordinateList.get(i);
                     float y = mViewHeight - bottomTextDescent;
-                    XLabelData xData = dataLabels.get(i);
+                    GraphEntry entry = dataLabels.get(i);
 
-                    if (!TextUtils.isEmpty(xData.getLabel())) {
-                        drwTextWidth = bottomTextPaint.measureText(xData.getLabel().toString());
+                    if (entry.getXLabel() != null && !TextUtils.isEmpty(entry.getXLabel())) {
+                        drwTextWidth = bottomTextPaint.measureText(entry.getXLabel().toString());
                         drawingRect.set(x, y, x + drwTextWidth, y + bottomTextHeight);
 
                         if (RectF.intersects(drawingRect, visibleRect))
-                            canvas.drawText(xData.getLabel().toString(), x, y, bottomTextPaint);
+                            canvas.drawText(entry.getXLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && xData.getIcon() != null) {
-                        int rotation = xData.getIconRotation();
-                        Drawable iconDrawable = createIconDrawable(xData.getIcon());
-                        iconDrawable.setCallback(this);
+                    if (drawIconsLabels && entry.getXIcon() != null) {
+                        final int rotation = entry.getXIconRotation();
 
-                        Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
-                        iconDrawable.setBounds(bounds);
+                        final Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
+                        entry.getXIcon().setBounds(bounds);
                         drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
-                            if (iconDrawable instanceof Animatable) {
-                                ((Animatable) iconDrawable).start();
+                            if (entry.getXIcon() instanceof LottieDrawable) {
+                                LottieDrawable lottieDrawable = ((LottieDrawable) entry.getXIcon());
+                                Rect compBounds = lottieDrawable.getComposition().getBounds();
+                                lottieDrawable.setScale((float) bounds.width() / compBounds.width());
+                            }
 
-                                animatedDrawables.push((Animatable) iconDrawable);
+                            if (entry.getXIcon() instanceof Animatable) {
+                                entry.getXIcon().setCallback(this);
+                                ((Animatable) entry.getXIcon()).start();
                             }
 
                             canvas.save();
                             canvas.translate(x - bounds.width() / 2f, y - bounds.height() - bottomTextHeight - iconBottomMargin);
                             canvas.rotate(rotation, bounds.width() / 2f, bounds.height() / 2f);
-                            iconDrawable.draw(canvas);
+                            entry.getXIcon().draw(canvas);
                             canvas.restore();
                         }
                     }
@@ -859,8 +750,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         private void drawSeriesLegend(Canvas canvas) {
-            if (drawSeriesLabels && !dataLists.isEmpty()) {
-                int seriesSize = dataLists.size();
+            if (drawSeriesLabels && !isDataEmpty()) {
+                int seriesSize = mData.getDataCount();
 
                 Rect r = new Rect();
                 int longestWidth = 0;
@@ -870,7 +761,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 float textHeight = 0;
                 float textDescent = 0;
                 for (int i = 0; i < seriesSize; i++) {
-                    String title = dataLists.get(i).getSeriesLabel();
+                    String title = mData.getDataSetByIndex(i).getSeriesLabel();
                     if (StringUtils.isNullOrWhitespace(title)) {
                         title = "Series " + i;
                     }
@@ -900,7 +791,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 float rect2textPadding = ContextUtils.dpToPx(getContext(), 8);
 
                 for (int i = 0; i < seriesSize; i++) {
-                    LineDataSeries series = dataLists.get(i);
+                    LineDataSeries series = mData.getDataSetByIndex(i);
                     int seriesColor = series.getColor(i);
                     String title = series.getSeriesLabel();
                     if (StringUtils.isNullOrWhitespace(title)) {
@@ -923,76 +814,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         @Override
-        public int getItemPositionFromPoint(float xCoordinate) {
-            if (horizontalGridNum <= 1) {
-                return 0;
-            }
-
-            return binarySearchPointIndex(xCoordinate);
-        }
-
-        private int binarySearchPointIndex(float targetXPoint) {
-            int l = 0;
-            int r = xCoordinateList.size() - 1;
-            while (l <= r) {
-                int midPt = (int) Math.floor((l + r) / 2f);
-                if (targetXPoint > (xCoordinateList.get(midPt) - backgroundGridWidth / 2f) && targetXPoint < (xCoordinateList.get(midPt) + backgroundGridWidth / 2f)) {
-                    return midPt;
-                } else if (targetXPoint <= xCoordinateList.get(midPt) - backgroundGridWidth / 2f) {
-                    r = midPt - 1;
-                } else if (targetXPoint >= xCoordinateList.get(midPt) + backgroundGridWidth / 2f) {
-                    l = midPt + 1;
-                }
-            }
-
-            return 0;
-        }
-
-        @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            mViewWidth = measureWidth(widthMeasureSpec);
-            mViewHeight = measureHeight(heightMeasureSpec);
-            setMeasuredDimension(mViewWidth, mViewHeight);
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             refreshGridWidth();
             refreshAfterDataChanged();
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            if (mOnSizeChangedListener != null)
-                mOnSizeChangedListener.onSizeChanged(LineView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
-        }
-
-        private int getPreferredWidth() {
-            return (int) ((backgroundGridWidth * horizontalGridNum) + (sideLineLength * 2));
-        }
-
-        private int measureWidth(int measureSpec) {
-            return getMeasurement(measureSpec, getPreferredWidth());
-        }
-
-        private int measureHeight(int measureSpec) {
-            int preferred = 0;
-            return getMeasurement(measureSpec, preferred);
-        }
-
-        private int getMeasurement(int measureSpec, int preferred) {
-            int specSize = MeasureSpec.getSize(measureSpec);
-            int measurement;
-            switch (MeasureSpec.getMode(measureSpec)) {
-                case MeasureSpec.EXACTLY:
-                    measurement = specSize;
-                    break;
-                case MeasureSpec.AT_MOST:
-                    measurement = Math.min(preferred, specSize);
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                default:
-                    measurement = preferred;
-                    break;
-            }
-            return measurement;
         }
 
         private class Dot {
@@ -1014,19 +839,6 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 this.text = text;
                 this.x = x;
                 this.y = y;
-            }
-        }
-
-        private Drawable createIconDrawable(String icon) {
-            final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
-            final String iconsSource = settingsMgr.getIconsProvider();
-            final WeatherIconsProviderInterface wip = WeatherIconsManager.getProvider(iconsSource);
-
-            if (wip instanceof LottieIconsProviderInterface) {
-                final LottieIconsProviderInterface lottieProvider = (LottieIconsProviderInterface) wip;
-                return lottieProvider.getLottieIconDrawable(getContext(), icon);
-            } else {
-                return ContextCompat.getDrawable(getContext(), wip.getWeatherIconResource(icon));
             }
         }
     }

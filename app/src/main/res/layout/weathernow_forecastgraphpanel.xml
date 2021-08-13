@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastGraphData != null}">
+            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastData != null}">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/forecast_label"
@@ -53,8 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:forecast_data="@{forecastsView.forecastGraphData}"
-            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastGraphData != null}"
+            app:forecastData="@{forecastsView.forecastData}"
+            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastData != null}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <View
@@ -63,7 +63,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastGraphData != null}" />
+            app:showIfTrue="@{FeatureSettings.forecastEnabled &amp;&amp; forecastsView.forecastData != null}" />
 
     </LinearLayout>
 

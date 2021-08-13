@@ -10,15 +10,21 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.simpleweather.R
 
-class RangeBarGraphPanel : LinearLayout {
-    private lateinit var barChartView: RangeBarGraphView
+class ForecastGraphPanel : LinearLayout {
+    enum class ForecastGraphType {
+        //TEMPERATURE,
+        PRECIPITATION, WIND, HUMIDITY, UVINDEX, RAIN, SNOW
+    }
 
-    private var graphData: RangeBarGraphData? = null
+    private lateinit var lineView: LineView
+
+    private var graphData: LineViewData? = null
 
     private lateinit var currentConfig: Configuration
 
@@ -37,12 +43,21 @@ class RangeBarGraphPanel : LinearLayout {
         initialize(context)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         initialize(context)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
+    constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
         initialize(context)
     }
 
@@ -53,14 +68,14 @@ class RangeBarGraphPanel : LinearLayout {
 
         updateViewColors()
 
-        barChartView.postInvalidate()
+        lineView.postInvalidate()
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initialize(context: Context) {
         currentConfig = Configuration(context.resources.configuration)
         orientation = VERTICAL
-        barChartView = RangeBarGraphView(context)
+        lineView = LineView(context)
 
         val lineViewHeight = context.resources.getDimensionPixelSize(R.dimen.forecast_panel_height)
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight)
@@ -73,14 +88,17 @@ class RangeBarGraphPanel : LinearLayout {
             }
             false
         }
-        barChartView.layoutParams = layoutParams
-        barChartView.setOnTouchListener(onTouchListener)
-        barChartView.setDrawDataLabels(true)
-        barChartView.setDrawIconLabels(true)
-        barChartView.setCenterGraphView(true)
+        lineView.layoutParams = layoutParams
+        lineView.setOnTouchListener(onTouchListener)
+        lineView.setDrawGridLines(false)
+        lineView.setDrawDotLine(false)
+        lineView.setDrawDataLabels(true)
+        lineView.setDrawIconLabels(true)
+        lineView.setDrawGraphBackground(true)
+        lineView.setDrawDotPoints(false)
 
         removeAllViews()
-        this.addView(barChartView)
+        this.addView(lineView)
 
         // Individual transitions on the view can cause
         // OpenGLRenderer: GL error:  GL_INVALID_VALUE
@@ -94,26 +112,32 @@ class RangeBarGraphPanel : LinearLayout {
         val isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES
         val bottomTextColor = if (isNightMode) Colors.WHITE else Colors.BLACK
 
-        barChartView.setBottomTextColor(bottomTextColor)
+        lineView.setBackgroundLineColor(
+            ColorUtils.setAlphaComponent(
+                if (isNightMode) Colors.WHITE else Colors.GRAY,
+                0x99
+            )
+        )
+        lineView.setBottomTextColor(bottomTextColor)
     }
 
     private fun resetView() {
         updateViewColors()
 
-        barChartView.resetData(false)
+        lineView.resetData(false)
 
         updateGraphData()
 
-        barChartView.smoothScrollTo(0, 0)
+        lineView.smoothScrollTo(0, 0)
     }
 
     private fun updateGraphData() {
-        barChartView.data = graphData
+        lineView.data = graphData
     }
 
-    fun setGraphData(data: RangeBarGraphData?) {
+    fun setGraphData(data: LineViewData?) {
         this.graphData = data
-        barChartView.data = data
+        lineView.data = data
         resetView()
     }
 }

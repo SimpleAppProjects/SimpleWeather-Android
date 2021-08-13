@@ -6,7 +6,7 @@ public class YEntryData implements Comparable<YEntryData> {
     private float y;
     private CharSequence yLabel;
 
-    public YEntryData(float yValue, CharSequence label) {
+    public YEntryData(float yValue, @NonNull CharSequence label) {
         this.y = yValue;
         this.yLabel = label;
     }
@@ -19,11 +19,12 @@ public class YEntryData implements Comparable<YEntryData> {
         this.y = y;
     }
 
+    @NonNull
     public CharSequence getLabel() {
         return yLabel;
     }
 
-    public void setLabel(CharSequence label) {
+    public void setLabel(@NonNull CharSequence label) {
         this.yLabel = label;
     }
 

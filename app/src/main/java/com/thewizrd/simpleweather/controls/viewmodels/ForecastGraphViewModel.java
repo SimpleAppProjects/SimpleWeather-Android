@@ -3,8 +3,8 @@ package com.thewizrd.simpleweather.controls.viewmodels;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModel;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
@@ -21,7 +21,8 @@ import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.graphs.LineDataSeries;
-import com.thewizrd.simpleweather.controls.graphs.XLabelData;
+import com.thewizrd.simpleweather.controls.graphs.LineGraphEntry;
+import com.thewizrd.simpleweather.controls.graphs.LineViewData;
 import com.thewizrd.simpleweather.controls.graphs.YEntryData;
 
 import java.text.DecimalFormat;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ForecastGraphViewModel extends ViewModel {
+public class ForecastGraphViewModel {
     public enum ForecastGraphType {
         //TEMPERATURE,
         PRECIPITATION,
@@ -42,21 +43,11 @@ public class ForecastGraphViewModel extends ViewModel {
 
     private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
-    private List<XLabelData> labelData;
-    private List<LineDataSeries> seriesData;
-    private String graphLabel;
+    private LineViewData graphData;
     private ForecastGraphType graphType;
 
-    public List<XLabelData> getLabelData() {
-        return labelData;
-    }
-
-    public List<LineDataSeries> getSeriesData() {
-        return seriesData;
-    }
-
-    public String getGraphLabel() {
-        return graphLabel;
+    public LineViewData getGraphData() {
+        return graphData;
     }
 
     public ForecastGraphType getGraphType() {
@@ -64,46 +55,38 @@ public class ForecastGraphViewModel extends ViewModel {
     }
 
     public void addForecastData(BaseForecast forecast, ForecastGraphType graphType) {
-        if (labelData == null) {
-            labelData = new ArrayList<>();
-        }
-
-        if (seriesData == null) {
-            List<YEntryData> yEntryData = new ArrayList<>();
-            addEntryData(forecast, labelData, yEntryData, graphType);
-            seriesData = createSeriesData(yEntryData, graphType);
+        if (graphData == null) {
+            LineDataSeries series = createSeriesData(new ArrayList<>(), graphType);
+            addEntryData(forecast, series, graphType);
+            this.graphData = createGraphData(Collections.singletonList(series), graphType);
         } else {
-            addEntryData(forecast, labelData, seriesData.get(0).getSeriesData(), graphType);
+            addEntryData(forecast, graphData.getDataSetByIndex(0), graphType);
         }
     }
 
     public void setForecastData(List<? extends BaseForecast> forecasts, ForecastGraphType graphType) {
-        List<XLabelData> xData = new ArrayList<>(forecasts.size());
-        List<YEntryData> yData = new ArrayList<>(forecasts.size());
+        LineDataSeries series = createSeriesData(new ArrayList<>(forecasts.size()), graphType);
 
         for (BaseForecast forecast : forecasts) {
-            addEntryData(forecast, xData, yData, graphType);
+            addEntryData(forecast, series, graphType);
         }
 
-        labelData = xData;
-        seriesData = createSeriesData(yData, graphType);
+        this.graphData = createGraphData(Collections.singletonList(series), graphType);
         this.graphType = graphType;
     }
 
     public void setMinutelyForecastData(List<MinutelyForecast> forecasts) {
-        List<XLabelData> xData = new ArrayList<>(forecasts.size());
-        List<YEntryData> yData = new ArrayList<>(forecasts.size());
+        LineDataSeries series = createSeriesData(new ArrayList<>(forecasts.size()), ForecastGraphType.PRECIPITATION);
 
         for (MinutelyForecast forecast : forecasts) {
-            addMinutelyEntryData(forecast, xData, yData);
+            addMinutelyEntryData(forecast, series);
         }
 
-        labelData = xData;
-        seriesData = createSeriesData(yData, ForecastGraphType.PRECIPITATION);
+        this.graphData = createGraphData(Collections.singletonList(series), ForecastGraphType.PRECIPITATION);
         this.graphType = ForecastGraphType.PRECIPITATION;
     }
 
-    private void addEntryData(BaseForecast forecast, List<XLabelData> xData, List<YEntryData> yData, ForecastGraphType graphType) {
+    private void addEntryData(BaseForecast forecast, LineDataSeries series, ForecastGraphType graphType) {
         Context context = App.getInstance().getAppContext();
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
 
@@ -151,8 +134,7 @@ public class ForecastGraphViewModel extends ViewModel {
             default:
             case PRECIPITATION:
                 if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
-                    yData.add(new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%"));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%")));
                 }
                 break;
             case WIND:
@@ -180,8 +162,7 @@ public class ForecastGraphViewModel extends ViewModel {
 
                     String windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
 
-                    yData.add(new YEntryData(speedVal, windSpeed));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(speedVal, windSpeed)));
                 }
                 break;
             case RAIN:
@@ -202,8 +183,7 @@ public class ForecastGraphViewModel extends ViewModel {
                             break;
                     }
 
-                    yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit))));
                 }
                 break;
             case SNOW:
@@ -224,39 +204,36 @@ public class ForecastGraphViewModel extends ViewModel {
                             break;
                     }
 
-                    yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit))));
                 }
                 break;
             case UVINDEX:
                 if (forecast.getExtras() != null && forecast.getExtras().getUvIndex() != null) {
-                    yData.add(new YEntryData(forecast.getExtras().getUvIndex(), String.format(LocaleUtils.getLocale(), "%.1f", forecast.getExtras().getUvIndex())));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(forecast.getExtras().getUvIndex(), String.format(LocaleUtils.getLocale(), "%.1f", forecast.getExtras().getUvIndex()))));
                 }
                 break;
             case HUMIDITY:
                 if (forecast.getExtras() != null && forecast.getExtras().getHumidity() != null) {
-                    yData.add(new YEntryData(forecast.getExtras().getHumidity(), String.format(LocaleUtils.getLocale(), "%d%%", forecast.getExtras().getHumidity())));
-                    xData.add(new XLabelData(date));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(forecast.getExtras().getHumidity(), String.format(LocaleUtils.getLocale(), "%d%%", forecast.getExtras().getHumidity()))));
                 }
                 break;
         }
     }
 
-    private void addMinutelyEntryData(MinutelyForecast forecast, List<XLabelData> xData, List<YEntryData> yData) {
-        Context context = App.getInstance().getAppContext();
-
-        final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
-        df.applyPattern("0.##");
-
-        String date;
-        if (DateFormat.is24HourFormat(context)) {
-            date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
-        } else {
-            date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
-        }
-
+    private void addMinutelyEntryData(MinutelyForecast forecast, LineDataSeries series) {
         if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
+            Context context = App.getInstance().getAppContext();
+
+            final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
+            df.applyPattern("0.##");
+
+            String date;
+            if (DateFormat.is24HourFormat(context)) {
+                date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
+            } else {
+                date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM));
+            }
+
             final String unit = settingsMgr.getPrecipitationUnit();
             float precipValue;
             String precipUnit;
@@ -273,12 +250,12 @@ public class ForecastGraphViewModel extends ViewModel {
                     break;
             }
 
-            yData.add(new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)));
-            xData.add(new XLabelData(date));
+            series.addEntry(new LineGraphEntry(date, new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit))));
         }
     }
 
-    private List<LineDataSeries> createSeriesData(List<YEntryData> yData, ForecastGraphType graphType) {
+    @NonNull
+    private LineDataSeries createSeriesData(List<LineGraphEntry> entryData, @NonNull ForecastGraphType graphType) {
         Context context = App.getInstance().getAppContext();
 
         LineDataSeries series;
@@ -286,59 +263,78 @@ public class ForecastGraphViewModel extends ViewModel {
         switch (graphType) {
             /*
             case TEMPERATURE:
-                graphLabel = context.getString(R.string.label_temperature);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.ORANGERED);
                 break;
              */
             default:
             case PRECIPITATION:
-                graphLabel = context.getString(R.string.label_precipitation);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(ContextCompat.getColor(context, R.color.colorPrimary));
                 series.setSeriesMinMax(0f, 100f);
                 break;
             case WIND:
-                graphLabel = context.getString(R.string.label_wind);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.SEAGREEN);
                 break;
             case RAIN:
-                graphLabel = context.getString(R.string.label_qpf_rain);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.DEEPSKYBLUE);
                 break;
             case SNOW:
-                graphLabel = context.getString(R.string.label_qpf_snow);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.SKYBLUE);
                 break;
             case UVINDEX:
-                graphLabel = context.getString(R.string.label_uv);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.ORANGE);
                 series.setSeriesMinMax(0f, 12f);
                 break;
             case HUMIDITY:
-                graphLabel = context.getString(R.string.label_humidity);
-                series = new LineDataSeries(yData);
+                series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.MEDIUMPURPLE);
                 series.setSeriesMinMax(0f, 100f);
                 break;
         }
 
-        this.graphType = graphType;
-
-        return Collections.singletonList(series);
+        return series;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
+    @NonNull
+    private LineViewData createGraphData(List<LineDataSeries> seriesData, @NonNull ForecastGraphType graphType) {
+        Context context = App.getInstance().getAppContext();
 
-        labelData = null;
-        seriesData = null;
-        graphLabel = null;
-        graphType = null;
+        String graphLabel;
+
+        switch (graphType) {
+            /*
+            case TEMPERATURE:
+                graphLabel = context.getString(R.string.label_temperature);
+                break;
+             */
+            default:
+            case PRECIPITATION:
+                graphLabel = context.getString(R.string.label_precipitation);
+                break;
+            case WIND:
+                graphLabel = context.getString(R.string.label_wind);
+                break;
+            case RAIN:
+                graphLabel = context.getString(R.string.label_qpf_rain);
+                break;
+            case SNOW:
+                graphLabel = context.getString(R.string.label_qpf_snow);
+                break;
+            case UVINDEX:
+                graphLabel = context.getString(R.string.label_uv);
+                break;
+            case HUMIDITY:
+                graphLabel = context.getString(R.string.label_humidity);
+                break;
+        }
+
+        this.graphType = graphType;
+
+        return new LineViewData(graphLabel, seriesData);
     }
 }

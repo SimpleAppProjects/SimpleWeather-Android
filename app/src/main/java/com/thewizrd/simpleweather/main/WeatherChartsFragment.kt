@@ -21,9 +21,12 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.ChartsItemAdapter
 import com.thewizrd.simpleweather.controls.viewmodels.ChartsViewModel
+import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
@@ -154,8 +157,8 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         binding.progressBar.visibility = View.VISIBLE
 
-        chartsView.getGraphModelData().observe(viewLifecycleOwner, {
-            adapter.submitList(it)
+        chartsView.getForecastData().observe(viewLifecycleOwner, {
+            adapter.submitList(createGraphModelData(it?.first, it?.second))
         })
     }
 
@@ -270,5 +273,140 @@ class WeatherChartsFragment : ToolbarFragment() {
             setSwipeDismissEnabled(true)
             setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
         }
+    }
+
+    private fun createGraphModelData(
+        minfcasts: List<MinutelyForecast>?,
+        hrfcasts: List<HourlyForecast>?
+    ): List<ForecastGraphViewModel> {
+        val graphTypes = ForecastGraphViewModel.ForecastGraphType.values()
+        val data =
+            ArrayList<ForecastGraphViewModel>(graphTypes.size + (if (!minfcasts.isNullOrEmpty()) 1 else 0))
+
+        if (!minfcasts.isNullOrEmpty()) {
+            data.add(ForecastGraphViewModel().apply {
+                setMinutelyForecastData(minfcasts)
+            })
+        }
+
+        if (!hrfcasts.isNullOrEmpty()) {
+            // TODO: replace with SortedMap?
+            //var tempData: ForecastGraphViewModel? = null
+            var popData: ForecastGraphViewModel? = null
+            var windData: ForecastGraphViewModel? = null
+            var rainData: ForecastGraphViewModel? = null
+            var snowData: ForecastGraphViewModel? = null
+            var uviData: ForecastGraphViewModel? = null
+            var humidityData: ForecastGraphViewModel? = null
+
+            for (i in hrfcasts.indices) {
+                val hrfcast = hrfcasts[i]
+
+                if (i == 0) {
+                    //tempData = ForecastGraphViewModel()
+
+                    if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
+                        popData = ForecastGraphViewModel()
+                    }
+                    if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
+                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
+                    ) {
+                        windData = ForecastGraphViewModel()
+                    }
+                    if (hrfcasts.firstOrNull()?.extras?.qpfRainIn != null && hrfcasts.firstOrNull()?.extras?.qpfRainMm != null ||
+                        hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null
+                    ) {
+                        rainData = ForecastGraphViewModel()
+                    }
+                    if (hrfcasts.firstOrNull()?.extras?.qpfSnowIn != null && hrfcasts.firstOrNull()?.extras?.qpfSnowCm != null ||
+                        hrfcasts.lastOrNull()?.extras?.qpfSnowIn != null && hrfcasts.lastOrNull()?.extras?.qpfSnowCm != null
+                    ) {
+                        snowData = ForecastGraphViewModel()
+                    }
+                    if (hrfcasts.firstOrNull()?.extras?.uvIndex != null || hrfcasts.lastOrNull()?.extras?.uvIndex != null) {
+                        uviData = ForecastGraphViewModel()
+                    }
+                    if (hrfcasts.firstOrNull()?.extras?.humidity != null || hrfcasts.lastOrNull()?.extras?.humidity != null) {
+                        humidityData = ForecastGraphViewModel()
+                    }
+                }
+
+                //tempData?.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.TEMPERATURE)
+                if (popData != null) {
+                    if (hrfcast.extras?.pop != null) {
+                        popData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+                        )
+                    }
+                }
+                if (windData != null) {
+                    if (hrfcast.windMph != null && hrfcast.windKph != null) {
+                        windData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.WIND
+                        )
+                    }
+                }
+                if (rainData != null) {
+                    if (hrfcast.extras?.qpfRainIn != null && hrfcast.extras?.qpfRainMm != null) {
+                        rainData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.RAIN
+                        )
+                    }
+                }
+                if (snowData != null) {
+                    if (hrfcast.extras?.qpfSnowIn != null && hrfcast.extras?.qpfSnowCm != null) {
+                        snowData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.SNOW
+                        )
+                    }
+                }
+                if (uviData != null) {
+                    if (hrfcast.extras?.uvIndex != null) {
+                        uviData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.UVINDEX
+                        )
+                    }
+                }
+                if (humidityData != null) {
+                    if (hrfcast.extras?.humidity != null) {
+                        humidityData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.HUMIDITY
+                        )
+                    }
+                }
+            }
+
+            /*
+            if (tempData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(tempData!!)
+            }
+             */
+            if (popData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(popData!!)
+            }
+            if (windData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(windData!!)
+            }
+            if (humidityData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(humidityData!!)
+            }
+            if (uviData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(uviData!!)
+            }
+            if (rainData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(rainData!!)
+            }
+            if (snowData?.graphData?.dataCount ?: 0 > 0) {
+                data.add(snowData!!)
+            }
+        }
+
+        return data
     }
 }

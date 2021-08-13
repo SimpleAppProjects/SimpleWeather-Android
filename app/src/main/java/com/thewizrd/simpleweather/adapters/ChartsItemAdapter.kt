@@ -21,7 +21,7 @@ class ChartsItemAdapter : ListAdapter<ForecastGraphViewModel, ChartsItemAdapter.
             }
 
             override fun areContentsTheSame(oldItem: ForecastGraphViewModel, newItem: ForecastGraphViewModel): Boolean {
-                return Objects.equals(oldItem.labelData, newItem.labelData) && Objects.equals(oldItem.seriesData, newItem.seriesData)
+                return Objects.equals(oldItem.graphData, newItem.graphData)
             }
         }
     }

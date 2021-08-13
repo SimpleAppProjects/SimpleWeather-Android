@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="@{graphModel.graphLabel}"
+            android:text="@{graphModel.graphData.graphLabel}"
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@color/colorTextPrimary"
             android:textStyle="bold" />
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:forecast_data="@{graphModel}"
+            app:graphData="@{graphModel.graphData}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <View

@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastListData}"
             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -53,8 +53,8 @@
             android:id="@+id/hourly_forecast_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:forecast_data="@{forecastsView.hourlyForecastData}"
-            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
+            app:forecastData="@{forecastsView.hourlyForecastListData}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastListData}"
             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -66,7 +66,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastListData}"
             app:showIfTrue="@{FeatureSettings.hourlyForecastEnabled}" />
 
     </LinearLayout>

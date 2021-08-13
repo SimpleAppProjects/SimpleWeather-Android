@@ -46,6 +46,13 @@ public final class WeatherIconsManager implements WeatherIconsProviderInterface 
         iconsProvider = getProvider(iconsSource);
     }
 
+    public WeatherIconsProviderInterface getProvider() {
+        if (iconsProvider == null) {
+            updateIconProvider();
+        }
+        return iconsProvider;
+    }
+
     @NonNull
     public static WeatherIconProvider getProvider(String iconsSource) {
         return SimpleLibrary.getInstance().getIconProvider(iconsSource);

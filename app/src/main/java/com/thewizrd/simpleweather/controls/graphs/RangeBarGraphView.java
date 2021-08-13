@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -19,27 +18,15 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieDrawable;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
-import com.thewizrd.shared_resources.helpers.ListChangedArgs;
-import com.thewizrd.shared_resources.helpers.ObservableArrayList;
-import com.thewizrd.shared_resources.helpers.OnListChangedListener;
-import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
-import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.simpleweather.App;
-import com.thewizrd.simpleweather.controls.GraphTemperature;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 import kotlin.collections.CollectionsKt;
 
@@ -193,30 +180,21 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         return this.graph.getItemPositionFromPoint(xCoordinate);
     }
 
-    public List<XLabelData> getDataLabels() {
-        return this.graph.dataLabels;
+    public RangeBarGraphData getData() {
+        return this.graph.mData;
     }
 
-    public List<GraphTemperature> getDataLists() {
-        return this.graph.dataLists;
+    public void setData(RangeBarGraphData data) {
+        this.graph.setData(data);
     }
 
     public void resetData(boolean invalidate) {
         this.graph.resetData(invalidate);
     }
 
-    private class RangeBarChartGraph extends View implements IGraph {
-        private int mViewHeight;
-        private int mViewWidth;
-        // Containers to check if we're drawing w/in bounds
-        private final RectF drawingRect = new RectF();
+    private class RangeBarChartGraph extends BaseGraphView<RangeBarGraphData> {
         private float drwTextWidth;
         private float bottomTextHeight = 0;
-        private final ObservableArrayList<XLabelData> dataLabels; // X
-        private final ObservableArrayList<GraphTemperature> dataLists; // Y data
-
-        private final ArrayList<Float> xCoordinateList;
-        private int horizontalGridNum;
 
         private final ArrayList<Bar> drawDotLists;
 
@@ -227,7 +205,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 2);
         private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
-        private final int MIN_HORIZONTAL_GRID_NUM = 1;
+
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
 
         private float sideLineLength = 0;
@@ -240,25 +218,17 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private final Paint linePaint;
 
-        private final Stack<Animatable> animatedDrawables = new Stack<>();
-
         RangeBarChartGraph(Context context) {
             this(context, null);
         }
 
         RangeBarChartGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
-            setWillNotDraw(false);
 
             bottomTextPaint = new Paint();
-            dataLabels = new ObservableArrayList<>();
-            dataLists = new ObservableArrayList<>();
-            xCoordinateList = new ArrayList<>();
             drawDotLists = new ArrayList<>();
 
             resetData(false);
-            dataLabels.addOnListChangedCallback(onXLabelDataChangedListener);
-            dataLists.addOnListChangedCallback(onLineDataSeriesChangedListener);
 
             bottomTextPaint.setAntiAlias(true);
             bottomTextPaint.setTextSize(ContextUtils.dpToPx(getContext(), 12));
@@ -291,92 +261,58 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             return graphHeight;
         }
 
-        private void resetData(boolean invalidate) {
-            this.dataLists.clear();
-            this.dataLabels.clear();
-            this.xCoordinateList.clear();
+        @Override
+        protected void resetData(boolean invalidate) {
             this.drawDotLists.clear();
             bottomTextDescent = 0;
             longestTextWidth = 0;
             horizontalGridNum = MIN_HORIZONTAL_GRID_NUM;
-            if (invalidate) {
-                this.postInvalidate();
-            }
+            super.resetData(invalidate);
         }
 
-        private final OnListChangedListener<XLabelData> onXLabelDataChangedListener = new OnListChangedListener<XLabelData>() {
-            @Override
-            public void onChanged(@NonNull ArrayList<XLabelData> sender, @NonNull ListChangedArgs<XLabelData> args) {
-                switch (args.action) {
-                    case ADD:
-                        Rect r = new Rect();
-                        float longestWidth = 0;
-                        String longestStr = "";
+        @Override
+        public void updateGraph() {
+            if (!isDataEmpty()) {
+                Rect r = new Rect();
+                float longestWidth = 0;
+                String longestStr = "";
 
-                        for (XLabelData labelData : args.newItems) {
-                            String s = labelData.getLabel().toString();
-                            bottomTextPaint.getTextBounds(s, 0, s.length(), r);
-                            if (bottomTextHeight < r.height()) {
-                                bottomTextHeight = r.height();
-                            }
-                            if (longestWidth < r.width()) {
-                                longestStr = s;
-                                longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
-                            }
-                            if (bottomTextDescent < (Math.abs(r.bottom))) {
-                                bottomTextDescent = Math.abs(r.bottom);
-                            }
+                RangeBarGraphDataSet set = mData.getDataSet();
+                for (RangeBarGraphEntry entry : set.getEntryData()) {
+                    if (entry.getXLabel() != null) {
+                        final String s = entry.getXLabel().toString();
+                        bottomTextPaint.getTextBounds(s, 0, s.length(), r);
+                        if (bottomTextHeight < r.height()) {
+                            bottomTextHeight = r.height();
                         }
-
-                        if (longestTextWidth < longestWidth) {
-                            longestTextWidth = longestWidth;
+                        if (longestWidth < r.width()) {
+                            longestStr = s;
+                            longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
                         }
-                        if (sideLineLength < longestWidth / 2f) {
-                            sideLineLength = longestWidth / 2f;
+                        if (bottomTextDescent < (Math.abs(r.bottom))) {
+                            bottomTextDescent = Math.abs(r.bottom);
                         }
-
-                        backgroundGridWidth = longestTextWidth;
-
-                        // Add XCoordinate list
-                        updateHorizontalGridNum();
-                        refreshXCoordinateList();
-                        break;
-                    case REMOVE:
-                        updateHorizontalGridNum();
-                        break;
-                    case MOVE:
-                    case REPLACE:
-                    case RESET:
-                        bottomTextDescent = 0;
-                        longestTextWidth = 0;
-                        updateHorizontalGridNum();
-                        refreshXCoordinateList();
-                        break;
+                    }
                 }
-            }
-        };
 
-        private final OnListChangedListener<GraphTemperature> onLineDataSeriesChangedListener = new OnListChangedListener<GraphTemperature>() {
-            @Override
-            public void onChanged(@NonNull ArrayList<GraphTemperature> sender, @NonNull final ListChangedArgs<GraphTemperature> args) {
-                switch (args.action) {
-                    case ADD:
-                    case MOVE:
-                    case REMOVE:
-                    case REPLACE:
-                        refreshDrawDotList();
-                        postInvalidate();
-                        break;
-                    case RESET:
-                        longestTextWidth = 0;
-                        refreshXCoordinateList();
-
-                        refreshDrawDotList();
-                        postInvalidate();
-                        break;
+                if (longestTextWidth < longestWidth) {
+                    longestTextWidth = longestWidth;
                 }
+                if (sideLineLength < longestWidth / 2f) {
+                    sideLineLength = longestWidth / 2f;
+                }
+
+                backgroundGridWidth = longestTextWidth;
+            } else {
+                bottomTextDescent = 0;
+                longestTextWidth = 0;
             }
-        };
+
+            updateHorizontalGridNum();
+            refreshXCoordinateList();
+            refreshDrawDotList();
+            postInvalidate();
+        }
 
         private void refreshGridWidth() {
             // Reset the grid width
@@ -390,21 +326,16 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             refreshXCoordinateList();
         }
 
-        private void updateHorizontalGridNum() {
-            horizontalGridNum = Math.max(horizontalGridNum,
-                    Math.max(MIN_HORIZONTAL_GRID_NUM, dataLabels.size() - 1));
-        }
-
         private void refreshXCoordinateList() {
             xCoordinateList.clear();
-            xCoordinateList.ensureCapacity(dataLabels.size());
+            xCoordinateList.ensureCapacity(getMaxEntryCount());
 
             boolean isWithinViewport = getPreferredWidth() < mScrollViewer.getMeasuredWidth();
 
-            for (int i = 0; i < dataLabels.size(); i++) {
+            for (int i = 0; i < getMaxEntryCount(); i++) {
                 float x;
                 if (centerGraphView && isWithinViewport) {
-                    x = (mScrollViewer.getMeasuredWidth() / ((dataLabels.size()) + 1f)) * (i + 1);
+                    x = (mScrollViewer.getMeasuredWidth() / ((getMaxEntryCount()) + 1f)) * (i + 1);
                 } else {
                     x = sideLineLength + backgroundGridWidth * i;
                 }
@@ -413,16 +344,10 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         }
 
         private void refreshDrawDotList() {
-            if (dataLists != null && !dataLists.isEmpty()) {
+            if (!isDataEmpty()) {
                 drawDotLists.clear();
-                float maxValue = Float.MIN_VALUE;
-                float minValue = Float.MAX_VALUE;
-                for (GraphTemperature tempData : dataLists) {
-                    if (tempData.getHiTempData() != null)
-                        maxValue = Math.max(maxValue, tempData.getHiTempData().getY());
-                    if (tempData.getLoTempData() != null)
-                        minValue = Math.min(minValue, tempData.getLoTempData().getY());
-                }
+                float maxValue = mData.getYMax();
+                float minValue = mData.getYMin();
 
                 final float graphHeight = getGraphHeight();
                 final float graphTop = getGraphTop();
@@ -430,11 +355,11 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                 int drawDotSize = drawDotLists.isEmpty() ? 0 : drawDotLists.size();
 
                 if (drawDotSize > 0) {
-                    drawDotLists.ensureCapacity(dataLists.size());
+                    drawDotLists.ensureCapacity(mData.getDataSet().getDataCount());
                 }
 
-                for (int i = 0; i < dataLists.size(); i++) {
-                    GraphTemperature entry = dataLists.get(i);
+                for (int i = 0; i < mData.getDataSet().getDataCount(); i++) {
+                    RangeBarGraphEntry entry = mData.getDataSet().getEntryForIndex(i);
                     float x = xCoordinateList.get(i);
                     Float hiY = null, loY = null;
 
@@ -485,53 +410,51 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                         mScrollViewer.getScrollY() + mScrollViewer.getHeight());
             }
 
-            // Stop running animations
-            while (!animatedDrawables.empty()) {
-                Animatable drw = animatedDrawables.pop();
-                drw.stop();
-                drw = null;
+            if (mData != null) {
+                drawTextAndIcons(canvas);
+                drawLines(canvas);
             }
-
-            drawText(canvas);
-            drawLines(canvas);
         }
 
-        private void drawText(Canvas canvas) {
+        private void drawTextAndIcons(Canvas canvas) {
             // draw bottom text
-            if (dataLabels != null) {
-                for (int i = 0; i < dataLabels.size(); i++) {
+            if (!isDataEmpty()) {
+                RangeBarGraphDataSet set = mData.getDataSet();
+                for (int i = 0; i < set.getDataCount(); i++) {
                     float x = xCoordinateList.get(i);
                     float y = mViewHeight - bottomTextDescent;
-                    XLabelData xData = dataLabels.get(i);
+                    RangeBarGraphEntry entry = set.getEntryForIndex(i);
 
-                    if (!TextUtils.isEmpty(xData.getLabel())) {
-                        drwTextWidth = bottomTextPaint.measureText(xData.getLabel().toString());
+                    if (entry.getXLabel() != null && !TextUtils.isEmpty(entry.getXLabel())) {
+                        drwTextWidth = bottomTextPaint.measureText(entry.getXLabel().toString());
                         drawingRect.set(x, y, x + drwTextWidth, y + bottomTextHeight);
 
                         if (RectF.intersects(drawingRect, visibleRect))
-                            canvas.drawText(xData.getLabel().toString(), x, y, bottomTextPaint);
+                            canvas.drawText(entry.getXLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && xData.getIcon() != null) {
-                        int rotation = xData.getIconRotation();
-                        Drawable iconDrawable = createIconDrawable(xData.getIcon());
-                        iconDrawable.setCallback(this);
+                    if (drawIconsLabels && entry.getXIcon() != null) {
+                        final int rotation = entry.getXIconRotation();
 
                         Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
-                        iconDrawable.setBounds(bounds);
+                        entry.getXIcon().setBounds(bounds);
                         drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
-                            if (iconDrawable instanceof Animatable) {
-                                ((Animatable) iconDrawable).start();
+                            if (entry.getXIcon() instanceof LottieDrawable) {
+                                LottieDrawable lottieDrawable = ((LottieDrawable) entry.getXIcon());
+                                Rect compBounds = lottieDrawable.getComposition().getBounds();
+                                lottieDrawable.setScale((float) bounds.width() / compBounds.width());
+                            }
 
-                                animatedDrawables.push((Animatable) iconDrawable);
+                            if (entry.getXIcon() instanceof Animatable) {
+                                addAnimatedDrawable(entry.getXIcon());
                             }
 
                             canvas.save();
                             canvas.translate(x - bounds.width() / 2f, y - bounds.height() - bottomTextHeight - iconBottomMargin);
                             canvas.rotate(rotation, bounds.width() / 2f, bounds.height() / 2f);
-                            iconDrawable.draw(canvas);
+                            entry.getXIcon().draw(canvas);
                             canvas.restore();
                         }
                     }
@@ -540,13 +463,14 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         }
 
         private void drawLines(Canvas canvas) {
-            if (!drawDotLists.isEmpty()) {
+            if (!drawDotLists.isEmpty() && !isDataEmpty()) {
                 final int hiTempColor = Colors.ORANGERED;
                 final int loTempColor = Colors.LIGHTSKYBLUE;
 
+                RangeBarGraphDataSet set = mData.getDataSet();
                 for (int i = 0; i < drawDotLists.size(); i++) {
                     Bar bar = drawDotLists.get(i);
-                    GraphTemperature entry = dataLists.get(i);
+                    RangeBarGraphEntry entry = set.getEntryForIndex(i);
                     boolean drawLine = true;
 
                     if (entry.getHiTempData() != null && entry.getLoTempData() != null) {
@@ -586,36 +510,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         }
 
         @Override
-        public int getItemPositionFromPoint(float xCoordinate) {
-            if (horizontalGridNum <= 1) {
-                return 0;
-            }
-
-            return binarySearchPointIndex(xCoordinate);
-        }
-
-        private int binarySearchPointIndex(float targetXPoint) {
-            int l = 0;
-            int r = xCoordinateList.size() - 1;
-            while (l <= r) {
-                int midPt = (int) Math.floor((l + r) / 2f);
-                if (targetXPoint > (xCoordinateList.get(midPt) - backgroundGridWidth / 2f) && targetXPoint < (xCoordinateList.get(midPt) + backgroundGridWidth / 2f)) {
-                    return midPt;
-                } else if (targetXPoint <= xCoordinateList.get(midPt) - backgroundGridWidth / 2f) {
-                    r = midPt - 1;
-                } else if (targetXPoint >= xCoordinateList.get(midPt) + backgroundGridWidth / 2f) {
-                    l = midPt + 1;
-                }
-            }
-
-            return 0;
-        }
-
-        @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            mViewWidth = measureWidth(widthMeasureSpec);
-            mViewHeight = measureHeight(heightMeasureSpec);
-            setMeasuredDimension(mViewWidth, mViewHeight);
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             refreshGridWidth();
             refreshDrawDotList();
         }
@@ -627,37 +523,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                 mOnSizeChangedListener.onSizeChanged(RangeBarGraphView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
         }
 
-        private int getPreferredWidth() {
-            return (int) ((backgroundGridWidth * horizontalGridNum) + (sideLineLength * 2));
-        }
-
-        private int measureWidth(int measureSpec) {
-            return getMeasurement(measureSpec, getPreferredWidth());
-        }
-
-        private int measureHeight(int measureSpec) {
-            int preferred = 0;
-            return getMeasurement(measureSpec, preferred);
-        }
-
-        private int getMeasurement(int measureSpec, int preferred) {
-            int specSize = MeasureSpec.getSize(measureSpec);
-            int measurement;
-            switch (MeasureSpec.getMode(measureSpec)) {
-                case MeasureSpec.EXACTLY:
-                    measurement = specSize;
-                    break;
-                case MeasureSpec.AT_MOST:
-                    measurement = Math.min(preferred, specSize);
-                    break;
-                case MeasureSpec.UNSPECIFIED:
-                default:
-                    measurement = preferred;
-                    break;
-            }
-            return measurement;
-        }
-
         private class Bar {
             float x;
             float hiY;
@@ -667,19 +532,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                 this.x = x;
                 this.hiY = hiY;
                 this.loY = loY;
-            }
-        }
-
-        private Drawable createIconDrawable(String icon) {
-            final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
-            final String iconsSource = settingsMgr.getIconsProvider();
-            final WeatherIconsProviderInterface wip = WeatherIconsManager.getProvider(iconsSource);
-
-            if (wip instanceof LottieIconsProviderInterface) {
-                final LottieIconsProviderInterface lottieProvider = (LottieIconsProviderInterface) wip;
-                return lottieProvider.getLottieIconDrawable(getContext(), icon);
-            } else {
-                return ContextCompat.getDrawable(getContext(), wip.getWeatherIconResource(icon));
             }
         }
     }

@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; (forecastsView.minutelyPrecipitationGraphData != null || forecastsView.hourlyPrecipitationGraphData != null)}">
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; (forecastsView.minutelyForecastData != null || forecastsView.hourlyForecastData != null)}">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/precip_label"
@@ -53,8 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:forecast_data="@{forecastsView.minutelyPrecipitationGraphData}"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.minutelyPrecipitationGraphData != null}"
+            app:minForecastData="@{forecastsView.minutelyForecastData}"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.minutelyForecastData != null}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel
@@ -62,8 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:forecast_data="@{forecastsView.hourlyPrecipitationGraphData}"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.hourlyPrecipitationGraphData != null}"
+            app:forecastData="@{forecastsView.hourlyForecastData}"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.hourlyForecastData != null}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <View
@@ -72,7 +72,7 @@
             android:layout_height="1dp"
             android:alpha="0.2"
             android:background="@color/colorOnSurface"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; (forecastsView.minutelyPrecipitationGraphData != null || forecastsView.hourlyPrecipitationGraphData != null)}" />
+            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; (forecastsView.minutelyForecastData != null || forecastsView.hourlyForecastData != null)}" />
 
     </LinearLayout>
 

@@ -17,10 +17,6 @@ import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.databinding.BindingAdapter;
 
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel;
-import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphPanel;
-import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel;
-import com.thewizrd.simpleweather.controls.viewmodels.RangeBarGraphViewModel;
 
 import java.util.Locale;
 
@@ -55,16 +51,6 @@ public class ViewBindingAdapter {
                 background.setColorFilter(progressBackgroundColor, PorterDuff.Mode.SRC_IN);
             }
         }
-    }
-
-    @BindingAdapter("forecast_data")
-    public static void updateForecastGraph(final ForecastGraphPanel view, final ForecastGraphViewModel graphData) {
-        view.updateForecasts(graphData);
-    }
-
-    @BindingAdapter("forecast_data")
-    public static void updateForecastGraph(final RangeBarGraphPanel view, final RangeBarGraphViewModel graphData) {
-        view.updateForecasts(graphData);
     }
 
     @BindingAdapter("attribution")

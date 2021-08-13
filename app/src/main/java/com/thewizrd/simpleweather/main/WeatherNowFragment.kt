@@ -1353,7 +1353,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
             }
         }
 
-        @BindingAdapter("forecast_data")
+        @BindingAdapter("forecastData")
         fun updateHrForecastView(view: RecyclerView, forecasts: List<HourlyForecastNowViewModel>?) {
             if (view.adapter is HourlyForecastItemAdapter) {
                 (view.adapter as HourlyForecastItemAdapter).submitList(forecasts)

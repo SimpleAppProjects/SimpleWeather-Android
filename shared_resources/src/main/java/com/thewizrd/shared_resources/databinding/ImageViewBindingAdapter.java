@@ -13,11 +13,9 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 
-import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
-import com.thewizrd.shared_resources.utils.SettingsManager;
 
 public class ImageViewBindingAdapter {
     @BindingAdapter("srcCompat")
@@ -69,9 +67,7 @@ public class ImageViewBindingAdapter {
 
     @BindingAdapter("weatherIcon")
     public static void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
-        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
-        final String iconsSource = settingsMgr.getIconsProvider();
-        final WeatherIconsProviderInterface wip = WeatherIconsManager.getProvider(iconsSource);
+        final WeatherIconsProviderInterface wip = WeatherIconsManager.getInstance().getProvider();
 
         if (wip instanceof LottieIconsProviderInterface) {
             final LottieIconsProviderInterface lottieProvider = (LottieIconsProviderInterface) wip;
