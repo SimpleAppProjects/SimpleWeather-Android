@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 
-import com.airbnb.lottie.LottieDrawable;
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
@@ -727,15 +726,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         drawingRect.set(x, y, x + bounds.width(), y + bounds.height());
 
                         if (RectF.intersects(drawingRect, visibleRect)) {
-                            if (entry.getXIcon() instanceof LottieDrawable) {
-                                LottieDrawable lottieDrawable = ((LottieDrawable) entry.getXIcon());
-                                Rect compBounds = lottieDrawable.getComposition().getBounds();
-                                lottieDrawable.setScale((float) bounds.width() / compBounds.width());
-                            }
-
                             if (entry.getXIcon() instanceof Animatable) {
-                                entry.getXIcon().setCallback(this);
-                                ((Animatable) entry.getXIcon()).start();
+                                addAnimatedDrawable(entry.getXIcon());
                             }
 
                             canvas.save();

@@ -158,7 +158,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'com.ibm.icu:icu4j:69.1'
     implementation 'com.github.skydoves:colorpickerview:2.2.3'
-    implementation "com.airbnb.android:lottie:4.0.0"
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
         exclude group: "org.jetbrains", module: "annotations-java5"

@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceViewHolder;
 
-import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface;
+import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
@@ -79,8 +79,8 @@ public class IconProviderPreference extends RadioButtonPreference {
 
             for (String icon : PREVIEW_ICONS) {
                 ImageView v = PreferenceIconViewBinding.inflate(LayoutInflater.from(holder.itemView.getContext()), iconsContainer, true).getRoot();
-                if (getIconProvider() instanceof LottieIconsProviderInterface) {
-                    v.setImageDrawable(((LottieIconsProviderInterface) getIconProvider()).getLottieIconDrawable(v.getContext(), icon));
+                if (getIconProvider() instanceof AVDIconsProviderInterface) {
+                    v.setImageDrawable(((AVDIconsProviderInterface) getIconProvider()).getAnimatedDrawable(v.getContext(), icon));
                 } else {
                     v.setImageResource(getIconProvider().getWeatherIconResource(icon));
                 }

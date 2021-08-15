@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
-import com.thewizrd.shared_resources.icons.LottieIconsProviderInterface
+import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
@@ -110,9 +110,9 @@ object GraphBindingAdapter {
         val iconsSource = settingsMgr.getIconsProvider()
         val wip = WeatherIconsManager.getProvider(iconsSource)
 
-        return if (wip is LottieIconsProviderInterface) {
-            val lottieProvider = wip as LottieIconsProviderInterface
-            lottieProvider.getLottieIconDrawable(context, icon)
+        return if (wip is AVDIconsProviderInterface) {
+            val avdProvider = wip as AVDIconsProviderInterface
+            avdProvider.getAnimatedDrawable(context, icon)
         } else {
             ContextCompat.getDrawable(context, wip.getWeatherIconResource(icon))
         }

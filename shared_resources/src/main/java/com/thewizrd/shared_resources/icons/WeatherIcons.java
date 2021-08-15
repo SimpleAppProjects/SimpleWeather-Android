@@ -136,6 +136,19 @@ public class WeatherIcons {
     public static final String MOON_ALT_THIRD_QUARTER = "\uf0e4";
     public static final String MOON_ALT_WANING_CRESCENT_3 = "\uf0e7";
 
+    public static final String UV_INDEX = "\uf00d-uv";
+    public static final String UV_INDEX_1 = "\uf00d-uv1";
+    public static final String UV_INDEX_2 = "\uf00d-uv2";
+    public static final String UV_INDEX_3 = "\uf00d-uv3";
+    public static final String UV_INDEX_4 = "\uf00d-uv4";
+    public static final String UV_INDEX_5 = "\uf00d-uv5";
+    public static final String UV_INDEX_6 = "\uf00d-uv6";
+    public static final String UV_INDEX_7 = "\uf00d-uv7";
+    public static final String UV_INDEX_8 = "\uf00d-uv8";
+    public static final String UV_INDEX_9 = "\uf00d-uv9";
+    public static final String UV_INDEX_10 = "\uf00d-uv10";
+    public static final String UV_INDEX_11 = "\uf00d-uv11";
+
     public static final String FAHRENHEIT = "\uf045";
     public static final String CELSIUS = "\uf03c";
 
