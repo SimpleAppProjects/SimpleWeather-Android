@@ -87,7 +87,6 @@
                     android:layout_alignBottom="@id/condition_hi"
                     android:layout_toEndOf="@id/condition_hi"
                     android:src="@drawable/wi_direction_up"
-                    android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
 
                 <TextView
@@ -123,7 +122,6 @@
                     android:layout_alignBottom="@id/condition_lo"
                     android:layout_toEndOf="@id/condition_lo"
                     android:src="@drawable/wi_direction_down"
-                    android:tint="@color/not_secondary_text_color"
                     android:tintMode="src_in" />
 
             </RelativeLayout>
@@ -178,8 +176,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="end"
                     android:padding="2dp"
-                    android:src="@drawable/wi_direction_up"
-                    android:tint="@color/not_icon_tint" />
+                    android:src="@drawable/wi_direction_up" />
 
                 <TextView
                     android:id="@+id/weather_windspeed"
@@ -265,8 +262,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:src="@drawable/wi_day_rain"
-                android:tint="@color/not_icon_tint" />
+                android:src="@drawable/wi_day_rain" />
 
             <TextView
                 android:id="@+id/humidity"
@@ -298,8 +294,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:src="@drawable/wi_sprinkle"
-                android:tint="@color/not_icon_tint" />
+                android:src="@drawable/wi_sprinkle" />
 
             <TextView
                 android:id="@+id/precip_rain"
@@ -331,8 +326,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:paddingEnd="4dp"
-                android:src="@drawable/wi_snowflake_cold"
-                android:tint="@color/not_icon_tint" />
+                android:src="@drawable/wi_snowflake_cold" />
 
             <TextView
                 android:id="@+id/precip_snow"

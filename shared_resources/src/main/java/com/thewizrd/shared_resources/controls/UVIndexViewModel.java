@@ -12,7 +12,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 public class UVIndexViewModel {
-    private CharSequence icon;
+    private String icon;
     private int index;
     private CharSequence description;
     private int progress;
@@ -23,7 +23,6 @@ public class UVIndexViewModel {
     public UVIndexViewModel(UV uvIdx) {
         Context context = SimpleLibrary.getInstance().getAppContext();
 
-        icon = WeatherIcons.DAY_SUNNY;
         index = uvIdx.getIndex().intValue();
         progressMax = 11;
         progress = Math.min(index, progressMax);
@@ -44,13 +43,52 @@ public class UVIndexViewModel {
             description = context.getString(R.string.uv_11);
             progressColor = Color.rgb(0xAA, 0x00, 0xFF); // Purple
         }
+
+        switch (index) {
+            case 1:
+                icon = WeatherIcons.UV_INDEX_1;
+                break;
+            case 2:
+                icon = WeatherIcons.UV_INDEX_2;
+                break;
+            case 3:
+                icon = WeatherIcons.UV_INDEX_3;
+                break;
+            case 4:
+                icon = WeatherIcons.UV_INDEX_4;
+                break;
+            case 5:
+                icon = WeatherIcons.UV_INDEX_5;
+                break;
+            case 6:
+                icon = WeatherIcons.UV_INDEX_6;
+                break;
+            case 7:
+                icon = WeatherIcons.UV_INDEX_7;
+                break;
+            case 8:
+                icon = WeatherIcons.UV_INDEX_8;
+                break;
+            case 9:
+                icon = WeatherIcons.UV_INDEX_9;
+                break;
+            case 10:
+                icon = WeatherIcons.UV_INDEX_10;
+                break;
+            case 11:
+                icon = WeatherIcons.UV_INDEX_11;
+                break;
+            default:
+                icon = WeatherIcons.UV_INDEX;
+                break;
+        }
     }
 
-    public CharSequence getIcon() {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(CharSequence icon) {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 

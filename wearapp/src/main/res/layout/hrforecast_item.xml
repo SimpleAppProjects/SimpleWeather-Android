@@ -31,7 +31,7 @@
             android:textSize="16sp"
             tools:text="10PM" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/hrforecast_icon"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -39,6 +39,7 @@
             android:includeFontPadding="false"
             android:gravity="center"
             android:padding="4dp"
+            app:animate="true"
             app:weatherIcon="@{viewModel.weatherIcon}"
             tools:srcCompat="@drawable/wi_day_sunny" />
 

@@ -135,9 +135,9 @@ class WeatherTileProviderService : TileProviderService() {
         var windModel: DetailItemViewModel? = null
 
         for (input in viewModel.getWeatherDetails()) {
-            if (input?.detailsType == WeatherDetailsType.POPCHANCE || input?.detailsType == WeatherDetailsType.POPCLOUDINESS) {
+            if (input.detailsType == WeatherDetailsType.POPCHANCE || input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
                 chanceModel = input
-            } else if (input?.detailsType == WeatherDetailsType.WINDSPEED) {
+            } else if (input.detailsType == WeatherDetailsType.WINDSPEED) {
                 windModel = input
             }
 
@@ -147,7 +147,10 @@ class WeatherTileProviderService : TileProviderService() {
         }
 
         if (chanceModel != null) {
-            updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.icon)
+            updateViews.setImageViewResource(
+                R.id.weather_popicon,
+                wim.getWeatherIconResource(chanceModel.icon)
+            )
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.value)
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE)
         } else {
@@ -157,10 +160,18 @@ class WeatherTileProviderService : TileProviderService() {
         if (windModel != null) {
             if (windModel.iconRotation != 0) {
                 updateViews.setImageViewBitmap(R.id.weather_windicon,
-                        ImageUtils.rotateBitmap(ImageUtils.bitmapFromDrawable(this, windModel.icon), windModel.iconRotation.toFloat())
+                    ImageUtils.rotateBitmap(
+                        ImageUtils.bitmapFromDrawable(
+                            this,
+                            wim.getWeatherIconResource(windModel.icon)
+                        ), windModel.iconRotation.toFloat()
+                    )
                 )
             } else {
-                updateViews.setImageViewResource(R.id.weather_windicon, windModel.icon)
+                updateViews.setImageViewResource(
+                    R.id.weather_windicon,
+                    wim.getWeatherIconResource(windModel.icon)
+                )
             }
             var speed = if (TextUtils.isEmpty(windModel.value)) "" else windModel.value.toString()
             speed = speed.split(",").toTypedArray()[0]

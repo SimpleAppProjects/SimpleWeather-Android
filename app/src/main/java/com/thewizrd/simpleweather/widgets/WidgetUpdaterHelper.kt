@@ -870,16 +870,33 @@ object WidgetUpdaterHelper {
                 }
             }
 
+            val wim = WeatherIconsManager.getInstance()
+
             if (chanceModel != null) {
                 if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
-                    updateViews.setImageViewBitmap(R.id.weather_popicon,
-                            ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, false), chanceModel.icon)
+                    updateViews.setImageViewBitmap(
+                        R.id.weather_popicon,
+                        ImageUtils.bitmapFromDrawable(
+                            ContextUtils.getThemeContextOverride(
+                                context,
+                                false
+                            ), wim.getWeatherIconResource(chanceModel.icon)
+                        )
                     )
                 } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                    updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.icon)
+                    updateViews.setImageViewResource(
+                        R.id.weather_popicon,
+                        wim.getWeatherIconResource(chanceModel.icon)
+                    )
                 } else {
-                    updateViews.setImageViewBitmap(R.id.weather_popicon,
-                            ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), chanceModel.icon)
+                    updateViews.setImageViewBitmap(
+                        R.id.weather_popicon,
+                        ImageUtils.bitmapFromDrawable(
+                            ContextUtils.getThemeContextOverride(
+                                context,
+                                style == WidgetUtils.WidgetBackgroundStyle.LIGHT
+                            ), wim.getWeatherIconResource(chanceModel.icon)
+                        )
                     )
                 }
             }
@@ -888,22 +905,37 @@ object WidgetUpdaterHelper {
                 if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType)) {
                     updateViews.setImageViewBitmap(R.id.weather_windicon,
                             ImageUtils.rotateBitmap(
-                                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, false), windModel.icon),
-                                    windModel.iconRotation
-                                            .toFloat())
+                                ImageUtils.bitmapFromDrawable(
+                                    ContextUtils.getThemeContextOverride(
+                                        context,
+                                        false
+                                    ), wim.getWeatherIconResource(windModel.icon)
+                                ),
+                                windModel.iconRotation.toFloat()
+                            )
                     )
                 } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                     updateViews.setImageViewBitmap(R.id.weather_popicon,
                             ImageUtils.rotateBitmap(
-                                    ImageUtils.bitmapFromDrawable(context, windModel.icon),
-                                    windModel.iconRotation
-                                            .toFloat()))
+                                ImageUtils.bitmapFromDrawable(
+                                    context,
+                                    wim.getWeatherIconResource(windModel.icon)
+                                ),
+                                windModel.iconRotation
+                                    .toFloat()
+                            ))
                 } else {
                     updateViews.setImageViewBitmap(R.id.weather_windicon,
                             ImageUtils.rotateBitmap(
-                                    ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(context, style == WidgetUtils.WidgetBackgroundStyle.LIGHT), windModel.icon),
-                                    windModel.iconRotation
-                                            .toFloat())
+                                ImageUtils.bitmapFromDrawable(
+                                    ContextUtils.getThemeContextOverride(
+                                        context,
+                                        style == WidgetUtils.WidgetBackgroundStyle.LIGHT
+                                    ), wim.getWeatherIconResource(windModel.icon)
+                                ),
+                                windModel.iconRotation
+                                    .toFloat()
+                            )
                     )
                 }
             }

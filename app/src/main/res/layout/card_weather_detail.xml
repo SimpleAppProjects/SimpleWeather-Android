@@ -26,7 +26,7 @@
             android:gravity="center"
             android:text="@{viewModel.label}"
             android:textAppearance="@style/ShadowText"
-            android:textColor="@android:color/white"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/forecast_condition_size"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@id/detail_icon"
@@ -37,7 +37,7 @@
             app:layout_constraintVertical_weight="1"
             tools:text="Label" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/detail_icon"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -47,8 +47,9 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:rotation="@{viewModel.iconRotation}"
-            app:srcCompat="@{viewModel.icon}"
-            app:tint="@android:color/white"
+            app:animate="true"
+            app:weatherIcon="@{viewModel.icon}"
+            app:tint="?android:attr/textColorPrimary"
             tools:srcCompat="@drawable/wi_barometer" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -61,7 +62,7 @@
             android:scrollbars="none"
             android:text="@{viewModel.value}"
             android:textAppearance="@style/ShadowText"
-            android:textColor="@android:color/white"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/forecast_condition_size"
             tools:text="50.00 in" />
 

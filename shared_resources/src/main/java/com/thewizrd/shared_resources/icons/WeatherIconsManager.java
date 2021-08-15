@@ -67,4 +67,26 @@ public final class WeatherIconsManager implements WeatherIconsProviderInterface 
     public int getWeatherIconResource(@NonNull String icon) {
         return iconsProvider.getWeatherIconResource(icon);
     }
+
+    public boolean shouldUseMonochrome() {
+        final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+        String iconsSource = settingsMgr.getIconsProvider();
+        return shouldUseMonochrome(iconsSource);
+    }
+
+    public boolean shouldUseMonochrome(String wip) {
+        if (wip == null) return true;
+
+        switch (wip) {
+            case "wi-erik-flowers":
+            case "wui-ashley-jager":
+            case "w-iconic-jackd248":
+            case "pixeden-icons_set-weather":
+            default:
+                return true;
+            case "meteocons-basmilius":
+            case "wci_sliu_iconfinder":
+                return false;
+        }
+    }
 }

@@ -34,7 +34,7 @@
             app:layout_constraintVertical_chainStyle="spread"
             tools:text="Fri 2 AM" />
 
-        <ImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_icon"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -42,6 +42,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/forecast_date"
+            app:animate="true"
             app:weatherIcon="@{viewModel.icon}"
             tools:src="@drawable/wi_night_clear" />
 
@@ -59,13 +60,14 @@
             app:layout_constraintTop_toBottomOf="@id/forecast_icon"
             tools:text="70°" />
 
-        <ImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_extra_popicon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             app:hideIfNullOrWhitespace="@{viewModel.popChance}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/forecast_hi"
+            app:showAsMonochrome="true"
             app:tint="@{Colors.SIMPLEBLUELIGHT}"
             app:weatherIcon="@{WeatherIcons.RAINDROP}"
             tools:src="@drawable/wi_raindrop" />
@@ -87,7 +89,7 @@
             app:layout_constraintTop_toTopOf="@id/forecast_extra_popicon"
             tools:text="45%" />
 
-        <ImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_extra_windicon"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -95,6 +97,7 @@
             app:hideIfNullOrWhitespace="@{viewModel.windSpeed}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/forecast_extra_popicon"
+            app:showAsMonochrome="true"
             app:tint="@{Colors.LIGHTSEAGREEN}"
             app:weatherIcon="@{WeatherIcons.DIRECTION_UP}"
             tools:src="@drawable/wi_direction_up" />

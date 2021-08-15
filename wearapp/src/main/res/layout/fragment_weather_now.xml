@@ -90,7 +90,7 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="8dp">
 
-                    <androidx.appcompat.widget.AppCompatImageView
+                    <com.thewizrd.shared_resources.controls.IconControl
                         android:id="@+id/weather_icon"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -102,6 +102,7 @@
                         android:layout_gravity="end|center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="8dp"
+                        app:animate="true"
                         app:weatherIcon="@{weatherView.weatherIcon}"
                         tools:srcCompat="@drawable/wi_day_sunny" />
 

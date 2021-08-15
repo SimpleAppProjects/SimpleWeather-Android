@@ -8,11 +8,13 @@ import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 
+import com.thewizrd.shared_resources.controls.IconControl;
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.icons.WeatherIconsProviderInterface;
@@ -42,12 +44,12 @@ public class ImageViewBindingAdapter {
         ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(color));
     }
 
-    @BindingAdapter("weatherIcon")
-    public static void animateIconIfAvailable(@NonNull final ImageView view, @DrawableRes final int resId) {
+    @BindingAdapter(value = {"weatherIcon", "animate"}, requireAll = false)
+    public static void setWeatherIcon(@NonNull final ImageView view, @DrawableRes final int resId, boolean animate) {
         view.setImageResource(resId);
 
         final Drawable drwbl = view.getDrawable();
-        if (drwbl instanceof Animatable) {
+        if (animate && drwbl instanceof Animatable) {
             Animatable animVDrwbl = ((Animatable) drwbl);
             if (!animVDrwbl.isRunning())
                 animVDrwbl.start();
@@ -65,16 +67,25 @@ public class ImageViewBindingAdapter {
         }
     }
 
-    @BindingAdapter("weatherIcon")
-    public static void animateIconIfAvailable(@NonNull final ImageView view, String icon) {
-        final WeatherIconsProviderInterface wip = WeatherIconsManager.getInstance().getProvider();
-
-        if (wip instanceof AVDIconsProviderInterface) {
-            final AVDIconsProviderInterface avdProvider = (AVDIconsProviderInterface) wip;
-            final Drawable drwbl = avdProvider.getAnimatedDrawable(view.getContext(), icon);
-            animateIconIfAvailable(view, drwbl);
+    @BindingAdapter(value = {"weatherIcon", "iconProvider", "animate"}, requireAll = false)
+    public static void setWeatherIcon(@NonNull final ImageView view, String icon, @Nullable String iconProvider, boolean animate) {
+        if (view instanceof IconControl) {
+            ((IconControl) view).setWeatherIcon(icon);
         } else {
-            animateIconIfAvailable(view, icon != null ? wip.getWeatherIconResource(icon) : 0);
+            final WeatherIconsProviderInterface wip;
+            if (iconProvider == null) {
+                wip = WeatherIconsManager.getInstance().getProvider();
+            } else {
+                wip = WeatherIconsManager.getProvider(iconProvider);
+            }
+
+            if (animate && wip instanceof AVDIconsProviderInterface) {
+                final AVDIconsProviderInterface avdProvider = (AVDIconsProviderInterface) wip;
+                final Drawable drwbl = avdProvider.getAnimatedDrawable(view.getContext(), icon);
+                animateIconIfAvailable(view, drwbl);
+            } else {
+                setWeatherIcon(view, icon != null ? wip.getWeatherIconResource(icon) : 0, animate);
+            }
         }
     }
 }

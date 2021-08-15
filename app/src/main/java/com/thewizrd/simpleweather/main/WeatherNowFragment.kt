@@ -65,6 +65,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
@@ -649,20 +650,62 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
         if (FeatureSettings.isUVEnabled()) {
             // UV
-            uvControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_uvcontrol, binding.listLayout, false, dataBindingComponent)
+            uvControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_uvcontrol,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             uvControlBinding!!.weatherView = weatherView
             uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(uvControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 5))
+            uvControlBinding!!.uvIcon.setOnIconChangedListener(object :
+                IconControl.OnIconChangedListener {
+                override fun onIconChanged(view: IconControl) {
+                    val wim = WeatherIconsManager.getInstance()
+                    if (view.iconProvider != null) {
+                        view.showAsMonochrome = wim.shouldUseMonochrome(view.iconProvider)
+                    } else {
+                        view.showAsMonochrome = wim.shouldUseMonochrome()
+                    }
+                }
+            })
+
+            binding.listLayout.addView(
+                uvControlBinding!!.root,
+                Math.min(binding.listLayout.childCount - 1, 5)
+            )
         }
 
         if (FeatureSettings.isBeaufortEnabled()) {
             // Beaufort
-            beaufortControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_beaufortcontrol, binding.listLayout, false, dataBindingComponent)
+            beaufortControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_beaufortcontrol,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             beaufortControlBinding!!.weatherView = weatherView
             beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(beaufortControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 6))
+            beaufortControlBinding!!.beaufortIcon.setOnIconChangedListener(object :
+                IconControl.OnIconChangedListener {
+                override fun onIconChanged(view: IconControl) {
+                    val wim = WeatherIconsManager.getInstance()
+                    if (view.iconProvider != null) {
+                        view.showAsMonochrome = wim.shouldUseMonochrome(view.iconProvider)
+                    } else {
+                        view.showAsMonochrome = wim.shouldUseMonochrome()
+                    }
+                }
+            })
+
+            binding.listLayout.addView(
+                beaufortControlBinding!!.root,
+                Math.min(binding.listLayout.childCount - 1, 6)
+            )
         }
 
         if (FeatureSettings.isAQIndexEnabled()) {

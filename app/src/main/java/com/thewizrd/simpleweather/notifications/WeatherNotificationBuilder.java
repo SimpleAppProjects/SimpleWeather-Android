@@ -61,6 +61,8 @@ public class WeatherNotificationBuilder {
         // Details
         updateViews.setTextViewText(R.id.condition_hi, StringUtils.containsDigits(hiTemp) ? (hiTemp + "°") : WeatherIcons.PLACEHOLDER);
         updateViews.setTextViewText(R.id.condition_lo, StringUtils.containsDigits(loTemp) ? (loTemp + "°") : WeatherIcons.PLACEHOLDER);
+        updateViews.setImageViewResource(R.id.hi_icon, wim.getWeatherIconResource(WeatherIcons.DIRECTION_UP));
+        updateViews.setImageViewResource(R.id.lo_icon, wim.getWeatherIconResource(WeatherIcons.DIRECTION_DOWN));
         updateViews.setViewVisibility(R.id.condition_hilo_layout, viewModel.isShowHiLo() ? View.VISIBLE : View.GONE);
 
         // Get extras
@@ -89,7 +91,7 @@ public class WeatherNotificationBuilder {
 
         // Extras
         if (chanceModel != null) {
-            updateViews.setImageViewResource(R.id.weather_popicon, chanceModel.getIcon());
+            updateViews.setImageViewResource(R.id.weather_popicon, wim.getWeatherIconResource(chanceModel.getIcon()));
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.getValue());
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE);
         } else {
@@ -126,16 +128,17 @@ public class WeatherNotificationBuilder {
             bigUpdateViews.setViewVisibility(R.id.feelslike_layout, View.VISIBLE);
         }
         if (humidityModel != null) {
-            bigUpdateViews.setImageViewResource(R.id.humidity_icon, humidityModel.getIcon());
+            bigUpdateViews.setImageViewResource(R.id.humidity_icon, wim.getWeatherIconResource(humidityModel.getIcon()));
             bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE);
         }
         if (popRainModel != null) {
-            bigUpdateViews.setImageViewResource(R.id.precip_rain_icon, popRainModel.getIcon());
+            bigUpdateViews.setImageViewResource(R.id.precip_rain_icon, wim.getWeatherIconResource(popRainModel.getIcon()));
             bigUpdateViews.setTextViewText(R.id.precip_rain, popRainModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.precip_rain_layout, View.VISIBLE);
         }
         if (popSnowModel != null) {
+            bigUpdateViews.setImageViewResource(R.id.precip_snow_icon, wim.getWeatherIconResource(popSnowModel.getIcon()));
             bigUpdateViews.setTextViewText(R.id.precip_snow, popSnowModel.getValue());
             bigUpdateViews.setViewVisibility(R.id.precip_snow_layout, View.VISIBLE);
         }

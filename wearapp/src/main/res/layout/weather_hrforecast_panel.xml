@@ -50,7 +50,7 @@
                 android:layout_width="32dp"
                 android:layout_height="36dp"
                 android:gravity="center"
-                app:weatherIcon="@{viewModel != null ? viewModel.weatherIcon : R.drawable.wi_na}"
+                app:weatherIcon="@{viewModel.weatherIcon}"
                 tools:srcCompat="@drawable/wi_day_sunny" />
 
             <androidx.appcompat.widget.AppCompatTextView

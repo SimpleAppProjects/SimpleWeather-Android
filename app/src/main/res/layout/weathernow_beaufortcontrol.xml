@@ -36,19 +36,20 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/beaufort_icon"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:layout_below="@id/beaufort_label"
+            android:layout_alignParentStart="true"
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
             android:gravity="center_vertical"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:adjustViewBounds="true"
-            android:cropToPadding="false"
-            app:srcCompat="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.icon : R.drawable.wi_na}"
+            app:animate="true"
+            app:weatherIcon="@{weatherView.beaufort.beaufort.icon}"
             app:tint="@color/beaufort_color"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/beaufort_label"
             tools:srcCompat="@drawable/wi_wind_beaufort_11" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -57,7 +58,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:padding="12dp"
-            android:text="@{weatherView.beaufort != null ? weatherView.beaufort.beaufort.value : null}"
+            android:text="@{weatherView.beaufort.beaufort.value}"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
             style="@style/ShadowText"
@@ -76,12 +77,12 @@
             android:layout_marginEnd="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="12dp"
-            android:max="@{weatherView.beaufort != null ? weatherView.beaufort.progressMax : 1}"
+            android:max="@{weatherView.beaufort.progressMax}"
             android:minHeight="4dp"
             android:maxHeight="4dp"
-            android:progress="@{weatherView.beaufort != null ? weatherView.beaufort.progress : 0}"
+            android:progress="@{weatherView.beaufort.progress}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
-            app:progressColor="@{weatherView.beaufort != null ? weatherView.beaufort.progressColor : 0}"
+            app:progressColor="@{weatherView.beaufort.progressColor}"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_below="@id/beaufort_icon"

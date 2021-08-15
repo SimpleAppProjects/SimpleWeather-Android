@@ -17,7 +17,7 @@
         android:paddingStart="@dimen/item_padding"
         android:paddingEnd="@dimen/list_item_padding">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/detail_icon"
             android:layout_width="@dimen/details_icon_size"
             android:layout_height="@dimen/details_icon_size"
@@ -25,7 +25,7 @@
             android:gravity="center"
             android:padding="4dp"
             android:rotation="@{viewModel.iconRotation}"
-            app:srcCompat="@{viewModel.icon}"
+            app:weatherIcon="@{viewModel.icon}"
             app:tint="@color/colorPrimaryLight"
             tools:srcCompat="@drawable/wi_moon_waxing_crescent_3" />
 

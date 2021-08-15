@@ -199,7 +199,7 @@
 
                 </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <com.thewizrd.shared_resources.controls.IconControl
                     android:id="@+id/weather_icon"
                     android:layout_width="0dp"
                     android:layout_height="88dp"
@@ -208,6 +208,7 @@
                     android:padding="4dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitEnd"
+                    app:animate="true"
                     app:weatherIcon="@{weatherView.weatherIcon}"
                     android:layout_toEndOf="@id/weather_hilo_layout"
                     android:layout_alignParentEnd="true"

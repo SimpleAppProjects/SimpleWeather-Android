@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="iconProvider" format="string|reference" />
+
+    <attr name="animate" format="boolean" />
+    <attr name="showAsMonochrome" format="boolean" />
+    <attr name="useDefaultIconProvider" format="boolean" />
+
+    <declare-styleable name="IconControl">
+        <attr name="weatherIcon" format="string|reference" />
+
+        <attr name="iconProvider" />
+        <attr name="animate" />
+        <attr name="showAsMonochrome" />
+        <attr name="useDefaultIconProvider" />
+    </declare-styleable>
+
+    <declare-styleable name="TextViewWeatherIconDrawableCompat">
+        <attr name="weatherIconStart" format="string|reference" />
+        <attr name="weatherIconEnd" format="string|reference" />
+        <attr name="weatherIconTop" format="string|reference" />
+        <attr name="weatherIconBottom" format="string|reference" />
+
+        <attr name="iconProvider" />
+        <attr name="animate" />
+        <attr name="showAsMonochrome" />
+        <attr name="useDefaultIconProvider" />
+    </declare-styleable>
+</resources>

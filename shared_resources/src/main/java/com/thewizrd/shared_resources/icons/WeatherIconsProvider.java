@@ -411,6 +411,31 @@ public final class WeatherIconsProvider extends WeatherIconProvider {
                 weatherIcon = R.drawable.wi_celsius;
                 break;
 
+            case WeatherIcons.UV_INDEX:
+            case WeatherIcons.UV_INDEX_1:
+            case WeatherIcons.UV_INDEX_2:
+            case WeatherIcons.UV_INDEX_3:
+            case WeatherIcons.UV_INDEX_4:
+            case WeatherIcons.UV_INDEX_5:
+            case WeatherIcons.UV_INDEX_6:
+            case WeatherIcons.UV_INDEX_7:
+            case WeatherIcons.UV_INDEX_8:
+            case WeatherIcons.UV_INDEX_9:
+            case WeatherIcons.UV_INDEX_10:
+            case WeatherIcons.UV_INDEX_11:
+                weatherIcon = R.drawable.wi_day_sunny;
+                break;
+
+            case WeatherIcons.TREE_POLLEN:
+                weatherIcon = R.drawable.ic_outline_tree;
+                break;
+            case WeatherIcons.GRASS_POLLEN:
+                weatherIcon = R.drawable.ic_baseline_grass;
+                break;
+            case WeatherIcons.RAGWEED_POLLEN:
+                weatherIcon = R.drawable.ic_ragweed_pollen;
+                break;
+
             case WeatherIcons.NA:
                 weatherIcon = R.drawable.wi_na;
                 break;

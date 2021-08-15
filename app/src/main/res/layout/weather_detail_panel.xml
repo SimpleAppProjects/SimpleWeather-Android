@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
+    </data>
+
     <merge
         tools:context=".controls.WeatherDetailItem"
         tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
@@ -25,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <com.thewizrd.shared_resources.controls.IconControl
                     android:id="@+id/forecast_icon"
                     android:layout_width="72dp"
                     android:layout_height="0dp"
@@ -38,6 +43,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_weight="1"
+                    app:animate="true"
                     tools:srcCompat="@drawable/wi_day_rain" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -91,7 +97,7 @@
                     app:layout_constraintVertical_weight="1"
                     app:constraint_referenced_ids="forecast_extra_pop,forecast_extra_clouds,forecast_extra_windspeed" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                     android:id="@+id/forecast_extra_pop"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -108,7 +114,7 @@
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
-                    app:drawableStartCompat="@drawable/wi_raindrop"
+                    app:weatherIconStart="@{WeatherIcons.RAINDROP}"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/forecast_extra_clouds"
@@ -120,7 +126,7 @@
                     tools:text="100%"
                     tools:visibility="visible" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                     android:id="@+id/forecast_extra_clouds"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -137,7 +143,7 @@
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
-                    app:drawableStartCompat="@drawable/wi_cloudy"
+                    app:weatherIconStart="@{WeatherIcons.CLOUDY}"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/forecast_extra_windspeed"
@@ -147,7 +153,7 @@
                     tools:text="75%"
                     tools:visibility="visible" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                     android:id="@+id/forecast_extra_windspeed"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -165,7 +171,7 @@
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
-                    app:drawableStartCompat="@drawable/wi_strong_wind"
+                    app:weatherIconStart="@{WeatherIcons.STRONG_WIND}"
                     app:drawableTint="@color/colorPrimaryLight"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

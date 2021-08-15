@@ -17,6 +17,7 @@ import androidx.core.widget.ImageViewCompat;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
@@ -106,7 +107,6 @@ public class DetailCard extends LinearLayout {
         final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
-        setTextColor(isNightMode ? Colors.WHITE : Colors.BLACK);
         ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(isNightMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK));
         setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
         setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
@@ -122,6 +122,13 @@ public class DetailCard extends LinearLayout {
     public void bindModel(DetailItemViewModel model) {
         binding.setViewModel(model);
         binding.executePendingBindings();
+
+        WeatherIconsManager wim = WeatherIconsManager.getInstance();
+        if (binding.detailIcon.getIconProvider() != null) {
+            binding.detailIcon.setShowAsMonochrome(wim.shouldUseMonochrome(binding.detailIcon.getIconProvider()));
+        } else {
+            binding.detailIcon.setShowAsMonochrome(wim.shouldUseMonochrome());
+        }
     }
 
     @Override
@@ -135,11 +142,6 @@ public class DetailCard extends LinearLayout {
 
     public void setStrokeWidth(float strokeWidth) {
         bgDrawable.setStrokeWidth(strokeWidth);
-    }
-
-    public void setTextColor(@ColorInt int color) {
-        binding.detailLabel.setTextColor(color);
-        binding.detailValue.setTextColor(color);
     }
 
     public void setShadowColor(@ColorInt int color) {

@@ -18,7 +18,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.UVEnabled || weatherView.uvIndex == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.isUVEnabled || weatherView.uvIndex == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/uv_label"
@@ -35,7 +35,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/uv_icon"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -44,7 +44,8 @@
             android:paddingEnd="12dp"
             android:adjustViewBounds="true"
             android:cropToPadding="false"
-            app:srcCompat="@drawable/wi_day_sunny"
+            app:animate="true"
+            app:weatherIcon="@{weatherView.uvIndex.icon}"
             app:tint="@color/sun_color"
             android:layout_alignParentStart="true"
             android:layout_below="@id/uv_label" />
@@ -75,12 +76,12 @@
             android:layout_marginEnd="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="12dp"
-            android:max="@{weatherView.uvIndex != null ? weatherView.uvIndex.progressMax : 1}"
+            android:max="@{weatherView.uvIndex.progressMax}"
             android:minHeight="4dp"
             android:maxHeight="4dp"
-            android:progress="@{weatherView.uvIndex != null ? weatherView.uvIndex.progress : 0}"
+            android:progress="@{weatherView.uvIndex.progress}"
             android:progressDrawable="@drawable/rounded_progress_horizontal_material"
-            app:progressColor="@{weatherView.uvIndex != null ? weatherView.uvIndex.progressColor : 0}"
+            app:progressColor="@{weatherView.uvIndex.progressColor}"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_below="@id/uv_icon"

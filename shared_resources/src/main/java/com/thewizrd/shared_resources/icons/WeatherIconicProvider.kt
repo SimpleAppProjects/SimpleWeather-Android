@@ -159,6 +159,23 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.FAHRENHEIT -> weatherIcon = R.drawable.wic_fahrenheit
             WeatherIcons.CELSIUS -> weatherIcon = R.drawable.wic_celsius
 
+            WeatherIcons.UV_INDEX,
+            WeatherIcons.UV_INDEX_1,
+            WeatherIcons.UV_INDEX_2,
+            WeatherIcons.UV_INDEX_3,
+            WeatherIcons.UV_INDEX_4,
+            WeatherIcons.UV_INDEX_5,
+            WeatherIcons.UV_INDEX_6,
+            WeatherIcons.UV_INDEX_7,
+            WeatherIcons.UV_INDEX_8,
+            WeatherIcons.UV_INDEX_9,
+            WeatherIcons.UV_INDEX_10,
+            WeatherIcons.UV_INDEX_11 -> weatherIcon = R.drawable.wic_sun
+
+            WeatherIcons.TREE_POLLEN -> weatherIcon = R.drawable.ic_outline_tree
+            WeatherIcons.GRASS_POLLEN -> weatherIcon = R.drawable.ic_baseline_grass
+            WeatherIcons.RAGWEED_POLLEN -> weatherIcon = R.drawable.ic_ragweed_pollen
+
             WeatherIcons.NA -> weatherIcon = R.drawable.wui_unknown
         }
 

@@ -1,6 +1,6 @@
 package com.thewizrd.shared_resources.icons;
 
-public class WeatherIcons {
+public final class WeatherIcons {
     private WeatherIcons() {
     }
 
@@ -148,6 +148,10 @@ public class WeatherIcons {
     public static final String UV_INDEX_9 = "\uf00d-uv9";
     public static final String UV_INDEX_10 = "\uf00d-uv10";
     public static final String UV_INDEX_11 = "\uf00d-uv11";
+
+    public static final String TREE_POLLEN = "\u2eee";
+    public static final String GRASS_POLLEN = "\u2eef";
+    public static final String RAGWEED_POLLEN = "\u2eed";
 
     public static final String FAHRENHEIT = "\uf045";
     public static final String CELSIUS = "\uf03c";

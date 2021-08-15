@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
 import com.thewizrd.simpleweather.R
@@ -43,7 +44,13 @@ object BindingAdapters {
             if (chanceModel != null) {
                 val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(pop)
                 if (oldDrawables[0] == null) {
-                    pop.setCompoundDrawablesRelative(ContextCompat.getDrawable(pop.context, chanceModel.icon), null, null, null)
+                    val wim = WeatherIconsManager.getInstance()
+                    pop.setCompoundDrawablesRelative(
+                        ContextCompat.getDrawable(
+                            pop.context,
+                            wim.getWeatherIconResource(chanceModel.icon)
+                        ), null, null, null
+                    )
                 }
                 pop.text = chanceModel.value
                 pop.visibility = View.VISIBLE
@@ -66,10 +73,15 @@ object BindingAdapters {
             if (windModel != null) {
                 val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(windSpeed)
                 if (oldDrawables[0] == null) {
+                    val wim = WeatherIconsManager.getInstance()
+
                     val d = RotateDrawable()
                     d.fromDegrees = windModel.iconRotation.toFloat()
                     d.toDegrees = windModel.iconRotation.toFloat()
-                    d.drawable = ContextCompat.getDrawable(windSpeed.context, windModel.icon)
+                    d.drawable = ContextCompat.getDrawable(
+                        windSpeed.context,
+                        wim.getWeatherIconResource(windModel.icon)
+                    )
                     // Change level to trigger onLevelChange event
                     // which forces the drawable state to change
                     d.level = 10000
