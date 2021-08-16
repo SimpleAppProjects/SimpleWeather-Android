@@ -257,24 +257,13 @@ class SettingsActivity : WearableListenerActivity() {
                 if (newValue as Boolean) {
                     if (ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            requestPermissions(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                ),
-                                PERMISSION_LOCATION_REQUEST_CODE
-                            )
-                        } else {
-                            requestPermissions(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.ACCESS_FINE_LOCATION
-                                ),
-                                PERMISSION_LOCATION_REQUEST_CODE
-                            )
-                        }
+                        requestPermissions(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ),
+                            PERMISSION_LOCATION_REQUEST_CODE
+                        )
                         return@OnPreferenceChangeListener false
                     } else {
                         val locMan = parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
@@ -298,7 +287,9 @@ class SettingsActivity : WearableListenerActivity() {
                                             PERMISSION_BGLOCATION_REQUEST_CODE
                                         )
                                     }
-                                }.show()
+                                }
+                                    .setMessage(R.string.bg_location_permission_rationale)
+                                    .show()
 
                                 settingsManager.setRequestBGAccess(true)
                             }

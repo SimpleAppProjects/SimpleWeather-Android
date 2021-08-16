@@ -285,24 +285,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 if (newValue as Boolean) {
                     if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            requestPermissions(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                ),
-                                PERMISSION_LOCATION_REQUEST_CODE
-                            )
-                        } else {
-                            requestPermissions(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.ACCESS_FINE_LOCATION
-                                ),
-                                PERMISSION_LOCATION_REQUEST_CODE
-                            )
-                        }
+                        requestPermissions(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ),
+                            PERMISSION_LOCATION_REQUEST_CODE
+                        )
                         return false
                     } else {
                         val locMan = appCompatActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
@@ -581,25 +570,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 if (notCategory.findPreference<Preference?>(SettingsManager.KEY_NOTIFICATIONICON) == null)
                     notCategory.addPreference(notificationIcon)
 
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                    ContextCompat.checkSelfPermission(
-                        appCompatActivity,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    val snackbar = Snackbar.make(
-                        R.string.bg_location_permission_rationale,
-                        Snackbar.Duration.LONG
-                    )
-                    snackbar.setAction(android.R.string.ok) {
-                        requestPermissions(
-                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                            PERMISSION_BGLOCATION_REQUEST_CODE
-                        )
-                    }
-                    showSnackbar(snackbar, null)
-                    settingsManager.setRequestBGAccess(true)
-                }
+                checkBackgroundLocationAccess()
 
                 enqueueIntent(
                     Intent(context, WeatherUpdaterWorker::class.java)
@@ -712,6 +683,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         foregroundPref.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { preference, newValue ->
                     UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
+                    if (newValue) {
+                        checkBackgroundLocationAccess()
+                    }
                     true
                 }
 
@@ -722,6 +696,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 return@OnPreferenceChangeListener false
             }
             UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
+            if (newValue) {
+                checkBackgroundLocationAccess()
+            }
             true
         }
         dailyNotifTimePref = findPreference(SettingsManager.KEY_DAILYNOTIFICATIONTIME)!!
@@ -741,8 +718,12 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
             // Alert notification
             if (newValue as Boolean) {
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK))
+                enqueueIntent(
+                    Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                )
+
+                checkBackgroundLocationAccess()
             } else {
                 enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))
@@ -961,13 +942,39 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                         .setAction(if (value) WeatherWidgetService.ACTION_REFRESHGPSWIDGETS else WeatherWidgetService.ACTION_RESETGPSWIDGETS))
             }
             SettingsManager.KEY_REFRESHINTERVAL -> {
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_REQUEUEWORK))
+                enqueueIntent(
+                    Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_REQUEUEWORK)
+                )
             }
             LocaleUtils.KEY_LANGUAGE -> {
-                enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
+                enqueueIntent(
+                    Intent(context, WearableWorker::class.java)
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
+                )
             }
+        }
+    }
+
+    private fun checkBackgroundLocationAccess() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+            ContextCompat.checkSelfPermission(
+                appCompatActivity,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            val snackbar = Snackbar.make(
+                R.string.bg_location_permission_rationale,
+                Snackbar.Duration.LONG
+            )
+            snackbar.setAction(android.R.string.ok) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    PERMISSION_BGLOCATION_REQUEST_CODE
+                )
+            }
+            showSnackbar(snackbar, null)
+            settingsManager.setRequestBGAccess(true)
         }
     }
 
