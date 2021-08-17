@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.setup
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -17,13 +16,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
@@ -375,11 +375,8 @@ class SetupFragment : CustomFragment() {
     @SuppressLint("MissingPermission")
     @Throws(CustomException::class)
     private suspend fun updateLocation() {
-        if (ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSION_LOCATION_REQUEST_CODE
-            )
+        if (!fragmentActivity.locationPermissionEnabled()) {
+            requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
             return
         }
 

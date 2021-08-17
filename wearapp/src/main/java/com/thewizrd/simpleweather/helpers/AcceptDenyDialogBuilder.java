@@ -25,6 +25,11 @@ public class AcceptDenyDialogBuilder {
         return this;
     }
 
+    public AcceptDenyDialogBuilder setMessage(String message) {
+        this.message = message;
+        return this;
+    }
+
     public AcceptDenyDialog create() {
         AcceptDenyDialog dialog = new AcceptDenyDialog(mContext);
         dialog.create();

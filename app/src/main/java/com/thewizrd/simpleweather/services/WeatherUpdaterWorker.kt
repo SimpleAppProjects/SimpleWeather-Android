@@ -1,12 +1,10 @@
 package com.thewizrd.simpleweather.services
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.Location
 import android.location.LocationManager
@@ -20,6 +18,7 @@ import androidx.core.location.LocationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.thewizrd.shared_resources.AppState
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
@@ -299,8 +298,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             val locationProvider = LocationProvider(context)
 
             if (settingsManager.useFollowGPS()) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (!context.locationPermissionEnabled()) {
                     return@withContext false
                 }
 

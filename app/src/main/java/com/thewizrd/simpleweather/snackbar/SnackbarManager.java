@@ -1,8 +1,12 @@
 package com.thewizrd.simpleweather.snackbar;
 
+import static com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
@@ -14,9 +18,6 @@ import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 
 import java.util.Stack;
-
-import static com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL;
-import static com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT;
 
 /**
  * Manager for the snackbar of an activity or fragment
@@ -156,6 +157,10 @@ public final class SnackbarManager {
                 });
                 snackView.setAnimationMode(mAnimationMode);
                 snackView.setAnchorView(mAnchorView);
+                TextView snackTextView = snackView.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+                if (snackTextView != null) {
+                    snackTextView.setMaxLines(Integer.MAX_VALUE);
+                }
                 mSnackbarView = snackView;
             }
 

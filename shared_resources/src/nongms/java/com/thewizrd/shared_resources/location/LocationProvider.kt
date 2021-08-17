@@ -14,6 +14,7 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.os.postDelayed
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 
 @SuppressLint("MissingPermission")
 class LocationProvider(private val context: Context) {
@@ -25,20 +26,7 @@ class LocationProvider(private val context: Context) {
     private val handlerToken = Object()
 
     private fun checkPermissions(): Boolean {
-        if (!LocationManagerCompat.isLocationEnabled(mLocationMgr) ||
-            !(ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED)
-        ) {
-            return false
-        }
-
-        return true
+        return LocationManagerCompat.isLocationEnabled(mLocationMgr) && context.locationPermissionEnabled()
     }
 
     suspend fun getLastLocation(): Location? {

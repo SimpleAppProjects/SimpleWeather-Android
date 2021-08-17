@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.main
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -65,6 +64,8 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -1232,19 +1233,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         var locationChanged = false
 
         if (appCompatActivity != null && getSettingsManager().useFollowGPS() && locationData?.locationType == LocationType.GPS) {
-            if (ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    PERMISSION_LOCATION_REQUEST_CODE
-                )
+            if (!appCompatActivity!!.locationPermissionEnabled()) {
+                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                 return false
             }
 
-            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan =
+                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 locationData = getSettingsManager().getLastGPSLocData()

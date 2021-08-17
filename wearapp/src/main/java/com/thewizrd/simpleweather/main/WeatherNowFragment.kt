@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.main
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -16,7 +15,6 @@ import android.util.Log
 import android.view.*
 import android.view.View.OnGenericMotionListener
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
 import androidx.databinding.DataBindingUtil
@@ -31,6 +29,8 @@ import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
@@ -563,9 +563,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
         if (settingsManager.getDataSync() == WearableDataSync.OFF &&
                 settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-            if (fragmentActivity != null && ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                        PERMISSION_LOCATION_REQUEST_CODE)
+            if (fragmentActivity != null && !fragmentActivity.locationPermissionEnabled()) {
+                requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                 return false
             }
 

@@ -1,10 +1,8 @@
 package com.thewizrd.shared_resources.location
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -12,10 +10,10 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.os.postDelayed
 import com.google.android.gms.location.*
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import kotlinx.coroutines.tasks.await
 
@@ -45,13 +43,7 @@ class LocationProvider {
     }
 
     private fun checkPermissions(): Boolean {
-        if (!LocationManagerCompat.isLocationEnabled(mLocationMgr) ||
-            !(ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-              ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            return false
-        }
-
-        return true
+        return LocationManagerCompat.isLocationEnabled(mLocationMgr) && mContext.locationPermissionEnabled()
     }
 
     suspend fun getLastLocation(): Location? {

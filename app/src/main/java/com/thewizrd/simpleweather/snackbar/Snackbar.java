@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.snackbar;
 
 import android.view.View;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.StringRes;
 
 import com.thewizrd.simpleweather.App;
@@ -13,6 +14,7 @@ import com.thewizrd.simpleweather.App;
 public class Snackbar {
     private static final int SHORT_DURATION_MS = 2000;
     private static final int LONG_DURATION_MS = 4000;
+    private static final int VERYLONG_DURATION_MS = 4000;
 
     private CharSequence mMessageText;
     private CharSequence mActionText;
@@ -51,6 +53,9 @@ public class Snackbar {
             case LONG:
                 snackbar.mDurationMs = LONG_DURATION_MS;
                 break;
+            case VERY_LONG:
+                snackbar.mDurationMs = VERYLONG_DURATION_MS;
+                break;
         }
 
         return snackbar;
@@ -64,6 +69,10 @@ public class Snackbar {
     public void setAction(CharSequence actionText, View.OnClickListener snackBarAction) {
         this.mActionText = actionText;
         this.mAction = snackBarAction;
+    }
+
+    public void setDuration(@IntRange(from = 1) int durationMs) {
+        this.mDurationMs = durationMs;
     }
 
     public CharSequence getMessageText() {
@@ -84,6 +93,7 @@ public class Snackbar {
 
     public enum Duration {
         SHORT,
-        LONG
+        LONG,
+        VERY_LONG
     }
 }

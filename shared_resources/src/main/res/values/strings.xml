@@ -127,7 +127,10 @@
     <string name="message_needfavorite">Must have at least one favorite location</string>
     <string name="undo">Undo</string>
     <string name="delete">Delete</string>
-    <string name="bg_location_permission_rationale">Allow access to update location in the background for notification and widgets</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">Allow access to update location in the background for notifications and widgets</string>
+    <string name="bg_location_permission_rationale_settings">To update location in the background for notifications and widgets, please set location permission to \'%1$s\'</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">Unable to load weather data</string>

@@ -22,14 +22,12 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.arch.core.util.Function
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.wearable.intent.RemoteIntent
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import com.thewizrd.shared_resources.helpers.ContextUtils
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
+import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.store.PlayStoreUtils
@@ -255,40 +253,34 @@ class SettingsActivity : WearableListenerActivity() {
                 AnalyticsLogger.logEvent("Settings: followGps toggled")
 
                 if (newValue as Boolean) {
-                    if (ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(parentActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(
-                            arrayOf(
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            ),
-                            PERMISSION_LOCATION_REQUEST_CODE
-                        )
+                    if (!parentActivity!!.locationPermissionEnabled()) {
+                        requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                         return@OnPreferenceChangeListener false
                     } else {
-                        val locMan = parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
+                        val locMan =
+                            parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT)
                             settingsManager.setFollowGPS(false)
                             return@OnPreferenceChangeListener false
                         } else {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                ContextCompat.checkSelfPermission(
-                                    parentActivity!!,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                ) != PackageManager.PERMISSION_GRANTED
+                                !parentActivity!!.backgroundLocationPermissionEnabled()
                             ) {
                                 AcceptDenyDialogBuilder(
                                     parentActivity
                                 ) { d: DialogInterface?, which: Int ->
                                     if (which == DialogInterface.BUTTON_POSITIVE) {
-                                        requestPermissions(
-                                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                                            PERMISSION_BGLOCATION_REQUEST_CODE
-                                        )
+                                        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                                            parentActivity?.openAppSettingsActivity()
+                                        } else {
+                                            requestBackgroundLocationPermission(
+                                                PERMISSION_BGLOCATION_REQUEST_CODE
+                                            )
+                                        }
                                     }
                                 }
-                                    .setMessage(R.string.bg_location_permission_rationale)
+                                    .setMessage(parentActivity!!.getBackgroundLocationRationale())
                                     .show()
 
                                 settingsManager.setRequestBGAccess(true)

@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
@@ -27,8 +26,9 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
-import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -43,7 +43,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -225,27 +225,54 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         val inflatedView = root.getChildAt(root.childCount - 1)
         root.removeView(inflatedView)
         binding = FragmentWidgetSetupBinding.inflate(inflater, root, true)
-        binding.layoutContainer.addView(inflatedView)
+
+        val layoutIdx = binding.layoutContainer.indexOfChild(binding.widgetContainer)
+        binding.layoutContainer.addView(inflatedView, layoutIdx + 1)
 
         // For landscape orientation
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
             val layoutParams = v.layoutParams as MarginLayoutParams
-            layoutParams.setMargins(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+            layoutParams.setMargins(
+                insets.systemWindowInsetLeft,
+                0,
+                insets.systemWindowInsetRight,
+                insets.systemWindowInsetBottom
+            )
             insets
         }
 
         listView?.isNestedScrollingEnabled = false
 
-        // Set fragment view
-        setHasOptionsMenu(true)
-
         appCompatActivity.setSupportActionBar(toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val context = root.context
-        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!).mutate()
+        val navIcon = DrawableCompat.wrap(
+            ContextCompat.getDrawable(
+                context,
+                R.drawable.ic_arrow_back_white_24dp
+            )!!
+        ).mutate()
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
         appCompatActivity.supportActionBar?.setHomeAsUpIndicator(navIcon)
+
+        binding.widgetCompleteBtn.setOnClickListener {
+            prepareWidget()
+        }
+
+        binding.bgLocationRationaleText.text = appCompatActivity.getBackgroundLocationRationale()
+
+        binding.bgLocationSettingsBtn.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (!appCompatActivity.backgroundLocationPermissionEnabled()) {
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        appCompatActivity.openAppSettingsActivity()
+                    } else {
+                        requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
+                    }
+                }
+            }
+        }
 
         // Location Listener
         locationProvider = LocationProvider(appCompatActivity)
@@ -336,6 +363,17 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             } else {
                 locationPref.setValueIndex(0)
             }
+
+            viewLifecycleOwnerLiveData.observe(
+                this@WeatherWidgetPreferenceFragment,
+                object : Observer<LifecycleOwner> {
+                    override fun onChanged(t: LifecycleOwner?) {
+                        viewLifecycleOwnerLiveData.removeObserver(this)
+                        if (locationPref.value == Constants.KEY_GPS && !appCompatActivity.backgroundLocationPermissionEnabled()) {
+                            binding.bgLocationLayout.visibility = View.VISIBLE
+                        }
+                    }
+                })
         }
 
         locationPref.onPreferenceChangeListener =
@@ -348,16 +386,21 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     view?.findNavController()
                         ?.navigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2())
                     query_vm = null
-                return@OnPreferenceChangeListener false
-            } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
-                mLastSelectedValue = null
-                query_vm = null
-            } else {
-                mLastSelectedValue = selectedValue
-            }
+                    binding.bgLocationLayout.visibility = View.GONE
+                    return@OnPreferenceChangeListener false
+                } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
+                    mLastSelectedValue = null
+                    query_vm = null
+                    if (!appCompatActivity.backgroundLocationPermissionEnabled()) {
+                        binding.bgLocationLayout.visibility = View.VISIBLE
+                    }
+                } else {
+                    mLastSelectedValue = selectedValue
+                    binding.bgLocationLayout.visibility = View.GONE
+                }
 
-            updateLocationView()
-            true
+                updateLocationView()
+                true
         }
 
         hideLocNamePref = findPreference(KEY_HIDELOCNAME)!!
@@ -836,27 +879,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, menuInflater)
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menu.clear()
-        menuInflater.inflate(R.menu.menu_widgetsetup, menu)
-
-        for (i in 0 until menu.size()) {
-            val item = menu.getItem(i)
-            MenuItemCompat.setIconTintList(item, ColorStateList.valueOf(ContextCompat.getColor(appCompatActivity, R.color.invButtonColorText)))
-        }
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 appCompatActivity.setResult(Activity.RESULT_CANCELED, resultValue)
                 appCompatActivity.finish()
-                return true
-            }
-            R.id.action_done -> {
-                prepareWidget()
                 return true
             }
         }
@@ -876,40 +903,28 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         // Check location
                         val task = async(Dispatchers.Default) {
                             // Changing location to GPS
-                            if (ContextCompat.checkSelfPermission(
-                                    appCompatActivity,
-                                    Manifest.permission.ACCESS_FINE_LOCATION
-                                ) != PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(
-                                    appCompatActivity,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
-                                ) != PackageManager.PERMISSION_GRANTED
-                            ) {
-                                requestPermissions(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
-                                    ),
+                            if (!appCompatActivity.locationPermissionEnabled()) {
+                                this@WeatherWidgetPreferenceFragment.requestLocationPermission(
                                     PERMISSION_LOCATION_REQUEST_CODE
                                 )
                                 return@async false
                             }
 
                             if (settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                ContextCompat.checkSelfPermission(
-                                    appCompatActivity,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                ) != PackageManager.PERMISSION_GRANTED
+                                !appCompatActivity.backgroundLocationPermissionEnabled()
                             ) {
                                 val snackbar = Snackbar.make(
-                                    R.string.bg_location_permission_rationale,
-                                    Snackbar.Duration.LONG
+                                    appCompatActivity.getBackgroundLocationRationale(),
+                                    Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
-                                    requestPermissions(
-                                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                                        PERMISSION_BGLOCATION_REQUEST_CODE
-                                    )
+                                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                                        appCompatActivity.openAppSettingsActivity()
+                                    } else {
+                                        requestBackgroundLocationPermission(
+                                            PERMISSION_BGLOCATION_REQUEST_CODE
+                                        )
+                                    }
                                 }
                                 showSnackbar(snackbar, object : materialSnackbar.Callback() {
                                     override fun onDismissed(
@@ -1060,8 +1075,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private suspend fun updateLocation(): Boolean {
         var locationChanged = false
 
-        if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (appCompatActivity != null && !appCompatActivity.locationPermissionEnabled()) {
             return false
         }
 
@@ -1147,7 +1161,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     )
                 }
             PERMISSION_BGLOCATION_REQUEST_CODE -> {
-                // no-op
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    binding.bgLocationLayout.visibility = View.GONE
+                } else {
+                    showSnackbar(
+                        Snackbar.make(
+                            R.string.error_location_denied,
+                            Snackbar.Duration.SHORT
+                        ), null
+                    )
+                }
             }
         }
     }
@@ -1176,7 +1199,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         if (mockWeatherModel == null) {
             mockWeatherModel = WeatherNowViewModel(Weather().apply {
-                location = com.thewizrd.shared_resources.weatherdata.model.Location().apply {
+                location = Location().apply {
                     name = mockLocData?.name
                     tzLong = "UTC"
                 }

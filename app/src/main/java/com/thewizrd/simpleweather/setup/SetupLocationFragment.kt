@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.setup
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
@@ -13,7 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
@@ -24,6 +22,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
@@ -436,19 +436,13 @@ class SetupLocationFragment : CustomFragment() {
     @SuppressLint("MissingPermission")
     @Throws(CustomException::class)
     private suspend fun updateLocation() {
-        if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                PERMISSION_LOCATION_REQUEST_CODE
-            )
+        if (appCompatActivity != null && !appCompatActivity!!.locationPermissionEnabled()) {
+            this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
             return
         }
 
-        val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        val locMan =
+            appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
             throw CustomException(R.string.error_enable_location_services)

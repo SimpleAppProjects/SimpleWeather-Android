@@ -25,7 +25,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -36,7 +35,7 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
@@ -283,18 +282,14 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
                 AnalyticsLogger.logEvent("Settings: followGps toggled")
                 if (newValue as Boolean) {
-                    if (ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(appCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(
-                            arrayOf(
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            ),
+                    if (!appCompatActivity.locationPermissionEnabled()) {
+                        this@SettingsFragment.requestLocationPermission(
                             PERMISSION_LOCATION_REQUEST_CODE
                         )
                         return false
                     } else {
-                        val locMan = appCompatActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                        val locMan =
+                            appCompatActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showSnackbar(
                                 Snackbar.make(
@@ -306,21 +301,21 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                             settingsManager.setFollowGPS(false)
                             return false
                         } else {
-                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                ContextCompat.checkSelfPermission(
-                                    appCompatActivity,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                                ) != PackageManager.PERMISSION_GRANTED
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                !appCompatActivity.backgroundLocationPermissionEnabled()
                             ) {
                                 val snackbar = Snackbar.make(
-                                    R.string.bg_location_permission_rationale,
-                                    Snackbar.Duration.LONG
+                                    appCompatActivity.getBackgroundLocationRationale(),
+                                    Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
-                                    requestPermissions(
-                                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                                        PERMISSION_BGLOCATION_REQUEST_CODE
-                                    )
+                                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                                        appCompatActivity.openAppSettingsActivity()
+                                    } else {
+                                        requestBackgroundLocationPermission(
+                                            PERMISSION_BGLOCATION_REQUEST_CODE
+                                        )
+                                    }
                                 }
                                 showSnackbar(snackbar, null)
                                 settingsManager.setRequestBGAccess(true)
@@ -957,21 +952,21 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     private fun checkBackgroundLocationAccess() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-            ContextCompat.checkSelfPermission(
-                appCompatActivity,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+            !appCompatActivity.backgroundLocationPermissionEnabled()
         ) {
             val snackbar = Snackbar.make(
-                R.string.bg_location_permission_rationale,
-                Snackbar.Duration.LONG
+                appCompatActivity.getBackgroundLocationRationale(),
+                Snackbar.Duration.VERY_LONG
             )
             snackbar.setAction(android.R.string.ok) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    PERMISSION_BGLOCATION_REQUEST_CODE
-                )
+                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                    appCompatActivity.openAppSettingsActivity()
+                } else {
+                    requestBackgroundLocationPermission(
+                        PERMISSION_BGLOCATION_REQUEST_CODE
+                    )
+                }
             }
             showSnackbar(snackbar, null)
             settingsManager.setRequestBGAccess(true)

@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.main
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -793,18 +792,13 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         var locationData: LocationData? = null
 
         if (getSettingsManager().useFollowGPS()) {
-            if (appCompatActivity != null && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(appCompatActivity!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    PERMISSION_LOCATION_REQUEST_CODE
-                )
+            if (appCompatActivity != null && !appCompatActivity!!.locationPermissionEnabled()) {
+                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                 return null
             }
 
-            val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan =
+                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 return null
