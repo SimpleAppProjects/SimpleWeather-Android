@@ -79,6 +79,7 @@
     <string name="label_nav_locations">Locations</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_fragment_alerts">Severe Weather Alerts</string>
+    <string name="title_dev_settings" translatable="false">Dev Settings</string>
 
     <!-- Settings -->
     <string name="pref_title_general">General</string>

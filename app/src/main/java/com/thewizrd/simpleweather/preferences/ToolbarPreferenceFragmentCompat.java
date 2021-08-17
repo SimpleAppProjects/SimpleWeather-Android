@@ -64,14 +64,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        // Toolbar
-        binding.toolbar.setTitle(getTitle());
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         ViewGroup root = binding.coordinatorLayout;
@@ -109,6 +101,9 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Toolbar
+        binding.toolbar.setTitle(getTitle());
     }
 
     @Override

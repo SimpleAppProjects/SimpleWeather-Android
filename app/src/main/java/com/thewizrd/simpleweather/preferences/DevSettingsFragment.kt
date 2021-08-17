@@ -11,12 +11,7 @@ import com.thewizrd.simpleweather.R
 class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
 
     override fun getTitle(): Int {
-        return R.string.title_activity_settings
-    }
-
-    override fun onResume() {
-        super.onResume()
-        toolbar.title = "Dev Settings"
+        return R.string.title_dev_settings
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
