@@ -119,23 +119,30 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         }
 
         if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                    StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .penaltyLog()
-                            .build())
-
-            val vmPolicyBuild = VmPolicy.Builder()
-                    .detectActivityLeaks()
-                    .detectLeakedClosableObjects()
-                    .detectLeakedSqlLiteObjects()
-                    .penaltyLog()
+            val threadPolicy = StrictMode.ThreadPolicy.Builder()
+                .detectCustomSlowCalls()
+                .penaltyLog()
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                vmPolicyBuild.detectCleartextNetwork()
+                threadPolicy.detectResourceMismatches()
             }
 
-            StrictMode.setVmPolicy(vmPolicyBuild.build())
+            StrictMode.setThreadPolicy(threadPolicy.build())
+
+            val vmPolicy = VmPolicy.Builder()
+                .detectActivityLeaks()
+                .detectLeakedClosableObjects()
+                .detectLeakedSqlLiteObjects()
+                .penaltyLog()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                vmPolicy.detectCleartextNetwork()
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                vmPolicy.detectNonSdkApiUsage()
+            }
+
+            StrictMode.setVmPolicy(vmPolicy.build())
         }
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
