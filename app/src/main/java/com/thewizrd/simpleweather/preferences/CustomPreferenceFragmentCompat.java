@@ -37,6 +37,10 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
         }
     }
 
+    public void showSnackbar(@NonNull final com.thewizrd.simpleweather.snackbar.Snackbar snackbar) {
+        showSnackbar(snackbar, null);
+    }
+
     @Override
     public void showSnackbar(@NonNull final com.thewizrd.simpleweather.snackbar.Snackbar snackbar, final com.google.android.material.snackbar.Snackbar.Callback callback) {
         runWithView(() -> {

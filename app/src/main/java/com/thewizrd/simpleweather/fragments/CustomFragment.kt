@@ -27,7 +27,14 @@ abstract class CustomFragment : LifecycleAwareFragment(), SnackbarManagerInterfa
         mSnackMgr = createSnackManager()
     }
 
-    override fun showSnackbar(snackbar: Snackbar, callback: com.google.android.material.snackbar.Snackbar.Callback?) {
+    fun showSnackbar(snackbar: Snackbar) {
+        showSnackbar(snackbar, null)
+    }
+
+    override fun showSnackbar(
+        snackbar: Snackbar,
+        callback: com.google.android.material.snackbar.Snackbar.Callback?
+    ) {
         runWithView {
             if (appCompatActivity != null && isVisible) {
                 if (mSnackMgr == null) {
