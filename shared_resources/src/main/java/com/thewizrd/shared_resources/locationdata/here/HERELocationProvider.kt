@@ -98,7 +98,7 @@ class HERELocationProvider  // Keep hidden for now
 
             // Connect to webstream
             response = client.newCall(request).await()
-            checkForErrors(response.code)
+            checkForErrors(response)
 
             val stream = response.getStream()
 
@@ -191,7 +191,7 @@ class HERELocationProvider  // Keep hidden for now
 
             // Connect to webstream
             response = client.newCall(request).await()
-            checkForErrors(response.code)
+            checkForErrors(response)
 
             val stream = response.getStream()
 
@@ -258,7 +258,7 @@ class HERELocationProvider  // Keep hidden for now
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 

@@ -75,7 +75,7 @@ class AmbeePollenProvider : PollenProviderInterface, IRateLimitedRequest {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(WeatherAPI.AMBEE, response.code)
+                    response.checkForErrors(WeatherAPI.AMBEE)
 
                     val stream = response.getStream()
 

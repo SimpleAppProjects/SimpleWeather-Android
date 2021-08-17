@@ -92,7 +92,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
 
             // Connect to webstream
             response = client.newCall(request).await()
-            throwIfRateLimited(response.code)
+            throwIfRateLimited(response)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -197,13 +197,13 @@ class AccuWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     val dailyResponse = client.newCall(request).await()
-                    checkForErrors(dailyResponse.code)
+                    checkForErrors(dailyResponse)
 
                     val hourlyResponse = client.newCall(hourlyRequest).await()
-                    checkForErrors(hourlyResponse.code)
+                    checkForErrors(hourlyResponse)
 
                     val currentResponse = client.newCall(currentRequest).await()
-                    checkForErrors(currentResponse.code)
+                    checkForErrors(currentResponse)
 
                     val dailyRoot = dailyResponse.use { r ->
                         r.getStream().use { s ->

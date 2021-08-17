@@ -107,7 +107,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     observationResponse = client.newCall(observationRequest).await()
-                    checkForErrors(observationResponse.code)
+                    checkForErrors(observationResponse)
 
                     val observationStream = observationResponse.getStream()
 
@@ -128,7 +128,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     forecastResponse = client.newCall(hrForecastRequest).await()
-                    checkForErrors(forecastResponse.code)
+                    checkForErrors(forecastResponse)
 
                     val forecastStream = forecastResponse.getStream()
 

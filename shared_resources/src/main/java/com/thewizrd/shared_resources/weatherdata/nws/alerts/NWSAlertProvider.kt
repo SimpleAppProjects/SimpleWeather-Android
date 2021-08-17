@@ -74,7 +74,7 @@ class NWSAlertProvider : WeatherAlertProviderInterface, IRateLimitedRequest {
                     .build()
                     .newCall(request).await()
 
-                checkForErrors(WeatherAPI.NWS, response.code)
+                response.checkForErrors(WeatherAPI.NWS)
 
                 val stream = response.getStream()
 

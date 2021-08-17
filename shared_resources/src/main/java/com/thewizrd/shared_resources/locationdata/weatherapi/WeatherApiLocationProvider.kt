@@ -81,7 +81,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
 
             // Connect to webstream
             response = client.newCall(request).await()
-            checkForErrors(response.code)
+            checkForErrors(response)
 
             val stream = response.getStream()
 
@@ -177,7 +177,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
 
             // Connect to webstream
             response = client.newCall(request).await()
-            checkForErrors(response.code)
+            checkForErrors(response)
 
             val stream = response.getStream()
 

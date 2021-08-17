@@ -101,7 +101,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
             // Connect to webstream
             response = client.newCall(request).await()
-            throwIfRateLimited(response.code)
+            throwIfRateLimited(response)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -208,7 +208,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
                     // Load weather
                     val root = response.getStream().use {
                         JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
@@ -219,7 +219,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     runCatching {
                         minutelyResponse = client.newCall(minutelyRequest).await()
-                        checkForErrors(minutelyResponse!!.code)
+                        checkForErrors(minutelyResponse!!)
                         minutelyResponse!!.getStream().use {
                             minutelyRoot = JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                         }
@@ -227,7 +227,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                     runCatching {
                         alertsResponse = client.newCall(alertsRequest).await()
-                        checkForErrors(alertsResponse!!.code)
+                        checkForErrors(alertsResponse!!)
                         alertsResponse!!.getStream().use {
                             alertsRoot = JSONParser.deserializer<AlertsRootobject>(it, AlertsRootobject::class.java)
                         }

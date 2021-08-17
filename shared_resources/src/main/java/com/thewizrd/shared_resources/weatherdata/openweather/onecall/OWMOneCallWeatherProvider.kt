@@ -104,7 +104,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
 
             // Connect to webstream
             response = client.newCall(request).await()
-            throwIfRateLimited(response.code)
+            throwIfRateLimited(response)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -172,7 +172,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 
@@ -291,7 +291,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 

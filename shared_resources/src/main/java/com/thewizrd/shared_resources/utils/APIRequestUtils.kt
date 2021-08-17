@@ -4,6 +4,7 @@ import androidx.core.content.edit
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
+import okhttp3.Response
 import java.net.HttpURLConnection
 import kotlin.random.Random
 
@@ -12,58 +13,93 @@ object APIRequestUtils {
      * Checks if response was successful; if it was not, throw the appropriate WeatherException
      */
     @Throws(WeatherException::class)
-    fun checkForErrors(apiID: String, responseCode: Int, retryTimeInMs: Long = 60000) {
-        // Check for errors
-        when (responseCode) {
-            HttpURLConnection.HTTP_OK -> {
-            }
-            HttpURLConnection.HTTP_BAD_REQUEST -> {
-                throw WeatherException(ErrorStatus.NOWEATHER)
-            }
-            HttpURLConnection.HTTP_NOT_FOUND -> {
-                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
-            }
-            429 /* Too Many Requests */ -> {
-                throwIfRateLimited(apiID, responseCode, retryTimeInMs)
-            }
-            HttpURLConnection.HTTP_INTERNAL_ERROR -> {
-                throw WeatherException(ErrorStatus.UNKNOWN)
-            }
-            else -> {
-                throw WeatherException(ErrorStatus.NOWEATHER)
+    fun Response.checkForErrors(apiID: String, retryTimeInMs: Long = 60000) {
+        checkForErrors(apiID, this, retryTimeInMs)
+    }
+
+    private fun checkForErrors(apiID: String, response: Response, retryTimeInMs: Long = 60000) {
+        if (!response.isSuccessful) {
+            // Check for errors
+            when (response.code) {
+                HttpURLConnection.HTTP_OK -> {
+                }
+                HttpURLConnection.HTTP_BAD_REQUEST -> {
+                    throw WeatherException(ErrorStatus.NOWEATHER)
+                        .initCause(createThrowable(response))
+                }
+                HttpURLConnection.HTTP_NOT_FOUND -> {
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                        .initCause(createThrowable(response))
+                }
+                429 /* Too Many Requests */ -> {
+                    throwIfRateLimited(apiID, response, retryTimeInMs)
+                }
+                HttpURLConnection.HTTP_INTERNAL_ERROR -> {
+                    throw WeatherException(ErrorStatus.UNKNOWN)
+                        .initCause(createThrowable(response))
+                }
+                else -> {
+                    throw WeatherException(ErrorStatus.NOWEATHER)
+                        .initCause(createThrowable(response))
+                }
             }
         }
     }
 
-    fun WeatherProviderImpl.checkForErrors(responseCode: Int) {
-        checkForErrors(this.getWeatherAPI(), responseCode, this.getRetryTime())
+    fun WeatherProviderImpl.checkForErrors(response: Response) {
+        checkForErrors(this.getWeatherAPI(), response, this.getRetryTime())
     }
 
-    fun LocationProviderImpl.checkForErrors(responseCode: Int) {
-        checkForErrors(this.getLocationAPI(), responseCode, this.getRetryTime())
+    fun Response.checkForErrors(provider: WeatherProviderImpl) {
+        checkForErrors(provider.getWeatherAPI(), this, provider.getRetryTime())
     }
 
-    fun IRateLimitedRequest.checkForErrors(apiID: String, responseCode: Int) {
-        checkForErrors(apiID, responseCode, this.getRetryTime())
+    fun LocationProviderImpl.checkForErrors(response: Response) {
+        checkForErrors(this.getLocationAPI(), response, this.getRetryTime())
     }
 
-    fun throwIfRateLimited(apiID: String, responseCode: Int, retryTimeInMs: Long = 60000) {
-        if (responseCode == 429 /* Too Many Requests */) {
+    fun Response.checkForErrors(provider: LocationProviderImpl) {
+        checkForErrors(provider.getLocationAPI(), this, provider.getRetryTime())
+    }
+
+    fun IRateLimitedRequest.checkForErrors(apiID: String, response: Response) {
+        checkForErrors(apiID, response, this.getRetryTime())
+    }
+
+    fun Response.checkForErrors(apiID: String, request: IRateLimitedRequest) {
+        checkForErrors(apiID, this, request.getRetryTime())
+    }
+
+    fun throwIfRateLimited(apiID: String, response: Response, retryTimeInMs: Long = 60000) {
+        if (response.code == 429 /* Too Many Requests */) {
             setNextRetryTime(apiID, retryTimeInMs)
             throw WeatherException(ErrorStatus.NETWORKERROR)
+                .initCause(createThrowable(response))
         }
     }
 
-    fun WeatherProviderImpl.throwIfRateLimited(responseCode: Int) {
-        throwIfRateLimited(this.getWeatherAPI(), responseCode, this.getRetryTime())
+    fun WeatherProviderImpl.throwIfRateLimited(response: Response) {
+        throwIfRateLimited(this.getWeatherAPI(), response, this.getRetryTime())
     }
 
-    fun LocationProviderImpl.throwIfRateLimited(responseCode: Int) {
-        throwIfRateLimited(this.getLocationAPI(), responseCode, this.getRetryTime())
+    fun Response.throwIfRateLimited(provider: WeatherProviderImpl) {
+        throwIfRateLimited(provider.getWeatherAPI(), this, provider.getRetryTime())
     }
 
-    fun IRateLimitedRequest.throwIfRateLimited(apiID: String, responseCode: Int) {
-        throwIfRateLimited(apiID, responseCode, this.getRetryTime())
+    fun LocationProviderImpl.throwIfRateLimited(response: Response) {
+        throwIfRateLimited(this.getLocationAPI(), response, this.getRetryTime())
+    }
+
+    fun Response.throwIfRateLimited(provider: LocationProviderImpl) {
+        throwIfRateLimited(provider.getLocationAPI(), this, provider.getRetryTime())
+    }
+
+    fun IRateLimitedRequest.throwIfRateLimited(apiID: String, response: Response) {
+        throwIfRateLimited(apiID, response, this.getRetryTime())
+    }
+
+    fun Response.throwIfRateLimited(apiID: String, request: IRateLimitedRequest) {
+        throwIfRateLimited(apiID, this, request.getRetryTime())
     }
 
     /**
@@ -160,6 +196,20 @@ object APIRequestUtils {
                 Random.Default.nextLong(500, 5000 + 1)
             }
         }
+    }
+
+    private fun createThrowable(response: Response): Throwable {
+        val errorBody = response.body?.string()
+        val responseCode = response.code
+        val responseMsg = response.message
+
+        val throwableMsg = StringBuilder()
+            .appendLine("HTTP Error $responseCode: $responseMsg")
+            .appendLine("Request: ${response.request}")
+            .appendLine("Response body: $errorBody")
+            .toString()
+
+        return Throwable(throwableMsg)
     }
 }
 

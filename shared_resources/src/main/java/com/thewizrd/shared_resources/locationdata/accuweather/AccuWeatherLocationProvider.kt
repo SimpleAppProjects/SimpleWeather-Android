@@ -101,7 +101,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 
@@ -181,7 +181,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 

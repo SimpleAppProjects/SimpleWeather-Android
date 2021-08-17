@@ -55,7 +55,7 @@ object HEREOAuthUtils {
                 .build()
 
             response = client.newCall(request).await()
-            checkForErrors(WeatherAPI.HERE, response.code, 10000)
+            response.checkForErrors(WeatherAPI.HERE, 10000)
 
             val stream = response.getStream()
             val dateField = response.header("Date", null)

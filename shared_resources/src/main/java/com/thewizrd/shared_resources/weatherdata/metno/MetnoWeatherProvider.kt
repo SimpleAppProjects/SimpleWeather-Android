@@ -111,10 +111,10 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     forecastResponse = client.newCall(forecastRequest).await()
-                    checkForErrors(forecastResponse.code)
+                    checkForErrors(forecastResponse)
 
                     sunriseResponse = client.newCall(sunriseRequest).await()
-                    checkForErrors(sunriseResponse.code)
+                    checkForErrors(sunriseResponse)
 
                     val forecastStream = forecastResponse.getStream()
                     val sunrisesetStream = sunriseResponse.getStream()

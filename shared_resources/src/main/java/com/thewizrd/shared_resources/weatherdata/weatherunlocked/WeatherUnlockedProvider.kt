@@ -129,10 +129,10 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     currentResponse = client.newCall(currentRequest).await()
-                    checkForErrors(currentResponse.code)
+                    checkForErrors(currentResponse)
 
                     forecastResponse = client.newCall(forecastRequest).await()
-                    checkForErrors(forecastResponse.code)
+                    checkForErrors(forecastResponse)
 
                     val currentStream = currentResponse.getStream()
                     val forecastStream = forecastResponse.getStream()

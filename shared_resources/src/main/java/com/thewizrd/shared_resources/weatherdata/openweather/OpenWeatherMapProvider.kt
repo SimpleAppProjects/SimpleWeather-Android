@@ -93,7 +93,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
 
             // Connect to webstream
             response = client.newCall(request).await()
-            throwIfRateLimited(response.code)
+            throwIfRateLimited(response)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -170,10 +170,10 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
 
                     // Connect to webstream
                     currentResponse = client.newCall(currentRequest).await()
-                    checkForErrors(currentResponse.code)
+                    checkForErrors(currentResponse)
 
                     forecastResponse = client.newCall(forecastRequest).await()
-                    checkForErrors(forecastResponse.code)
+                    checkForErrors(forecastResponse)
 
                     val currentStream = currentResponse.getStream()
                     val forecastStream = forecastResponse.getStream()

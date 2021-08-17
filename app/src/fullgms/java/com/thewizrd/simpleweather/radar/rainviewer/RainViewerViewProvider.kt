@@ -190,7 +190,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
         @Synchronized
         override fun onResponse(call: Call, response: Response) {
             try {
-                checkForErrors(RadarProvider.RAINVIEWER, response.code)
+                response.checkForErrors(RadarProvider.RAINVIEWER, this)
 
                 val stream = response.getStream()
 

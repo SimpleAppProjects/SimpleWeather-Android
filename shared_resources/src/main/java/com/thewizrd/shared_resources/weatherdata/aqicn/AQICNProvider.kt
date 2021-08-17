@@ -77,7 +77,7 @@ class AQICNProvider : AirQualityProviderInterface, IRateLimitedRequest {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(API_ID, response.code)
+                    response.checkForErrors(API_ID)
 
                     val stream = response.getStream()
 

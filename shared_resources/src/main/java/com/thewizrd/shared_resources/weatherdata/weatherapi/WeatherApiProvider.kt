@@ -98,7 +98,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
 
             // Connect to webstream
             response = client.newCall(request).await()
-            throwIfRateLimited(response.code)
+            throwIfRateLimited(response)
 
             when (response.code) {
                 HttpURLConnection.HTTP_BAD_REQUEST -> isValid = true
@@ -160,7 +160,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 
@@ -235,7 +235,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-                    checkForErrors(response.code)
+                    checkForErrors(response)
 
                     val stream = response.getStream()
 

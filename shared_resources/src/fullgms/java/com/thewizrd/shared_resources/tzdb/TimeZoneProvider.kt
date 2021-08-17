@@ -74,8 +74,7 @@ class TimeZoneProvider : TimeZoneProviderInterface, IRateLimitedRequest {
 
                     // Connect to webstream
                     response = client.newCall(request).await()
-
-                    checkForErrors(API_ID, response.code)
+                    checkForErrors(API_ID, response)
 
                     val stream = response.getStream()
 
