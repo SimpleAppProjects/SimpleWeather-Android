@@ -10,6 +10,7 @@ import com.google.android.clockwork.tiles.TileData
 import com.google.android.clockwork.tiles.TileProviderService
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.StringUtils
@@ -292,6 +293,6 @@ class WeatherTileProviderService : TileProviderService() {
     private fun getTapIntent(context: Context): PendingIntent {
         val onClickIntent = Intent(context.applicationContext, LaunchActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        return PendingIntent.getActivity(context, 0, onClickIntent, 0)
+        return PendingIntent.getActivity(context, 0, onClickIntent, 0.toImmutableCompatFlag())
     }
 }

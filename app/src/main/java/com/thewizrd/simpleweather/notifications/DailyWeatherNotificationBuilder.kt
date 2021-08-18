@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
@@ -93,7 +94,9 @@ object DailyWeatherNotificationBuilder {
         val onClickIntent = Intent(context.applicationContext, MainActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
-        return PendingIntent.getActivity(context, location.hashCode(),
-                onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(
+            context, location.hashCode(),
+            onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 }

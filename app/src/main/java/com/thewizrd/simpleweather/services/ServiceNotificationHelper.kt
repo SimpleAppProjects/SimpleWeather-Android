@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.NotificationUtils
 
@@ -62,6 +63,11 @@ internal object ServiceNotificationHelper {
     }
 
     internal fun Intent.toPendingActivity(context: Context): PendingIntent {
-        return PendingIntent.getActivity(context, 0, this, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(
+            context,
+            0,
+            this,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 }

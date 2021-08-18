@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.Logger
@@ -68,7 +69,12 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
         private fun getLaunchUpdatesIntent(context: Context): PendingIntent {
             val i = Intent(context.applicationContext, LaunchActivity::class.java)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            return PendingIntent.getActivity(context.applicationContext, 0, i, PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getActivity(
+                context.applicationContext,
+                0,
+                i,
+                PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+            )
         }
     }
 

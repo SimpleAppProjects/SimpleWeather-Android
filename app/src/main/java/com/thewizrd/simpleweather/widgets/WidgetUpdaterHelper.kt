@@ -28,6 +28,7 @@ import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ColorsUtils
 import com.thewizrd.shared_resources.helpers.ContextUtils
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -150,7 +151,12 @@ object WidgetUpdaterHelper {
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
 
-        val clickPendingIntent = PendingIntent.getActivity(context, appWidgetId, configureIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val clickPendingIntent = PendingIntent.getActivity(
+            context,
+            appWidgetId,
+            configureIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
         views.setOnClickPendingIntent(R.id.widget, clickPendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -1302,10 +1308,10 @@ object WidgetUpdaterHelper {
         val componentName = WidgetUtils.getCalendarAppComponent(context)
         return if (componentName != null) {
             val launchIntent = context.packageManager.getLaunchIntentForPackage(componentName.packageName)
-            PendingIntent.getActivity(context, 0, launchIntent, 0)
+            PendingIntent.getActivity(context, 0, launchIntent, 0.toImmutableCompatFlag())
         } else {
             val onClickIntent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR)
-            PendingIntent.getActivity(context, 0, onClickIntent, 0)
+            PendingIntent.getActivity(context, 0, onClickIntent, 0.toImmutableCompatFlag())
         }
     }
 
@@ -1313,10 +1319,10 @@ object WidgetUpdaterHelper {
         val componentName = WidgetUtils.getClockAppComponent(context)
         return if (componentName != null) {
             val launchIntent = context.packageManager.getLaunchIntentForPackage(componentName.packageName)
-            PendingIntent.getActivity(context, 0, launchIntent, 0)
+            PendingIntent.getActivity(context, 0, launchIntent, 0.toImmutableCompatFlag())
         } else {
             val onClickIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
-            PendingIntent.getActivity(context, 0, onClickIntent, 0)
+            PendingIntent.getActivity(context, 0, onClickIntent, 0.toImmutableCompatFlag())
         }
     }
 
@@ -1325,7 +1331,12 @@ object WidgetUpdaterHelper {
                 .setComponent(info.componentName)
                 .setAction(WeatherWidgetProvider.ACTION_SHOWNEXTFORECAST)
                 .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_ID, appWidgetId)
-        return PendingIntent.getBroadcast(context, appWidgetId, showNext, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            appWidgetId,
+            showNext,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 
     private suspend fun setOnClickIntent(
@@ -1353,7 +1364,7 @@ object WidgetUpdaterHelper {
             location?.hashCode()
                 ?: SystemClock.uptimeMillis().toInt(),
             onClickIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
         )
     }
 
@@ -1369,7 +1380,12 @@ object WidgetUpdaterHelper {
                 onClickIntent.putExtra(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, location?.query)
             }
             onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            val clickPendingIntent = PendingIntent.getActivity(context, appWidgetId, onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val clickPendingIntent = PendingIntent.getActivity(
+                context,
+                appWidgetId,
+                onClickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+            )
             updateViews.setOnClickPendingIntent(R.id.settings_button, clickPendingIntent)
         }
     }

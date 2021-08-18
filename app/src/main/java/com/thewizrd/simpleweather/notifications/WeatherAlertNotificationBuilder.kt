@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.WeatherAlertViewModel
+import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
@@ -41,11 +42,16 @@ object WeatherAlertNotificationBuilder {
         // Create click intent
         // Start WeatherNow Activity with weather data
         val intent = Intent(context, MainActivity::class.java)
-                .setAction(WeatherAlertNotificationService.ACTION_SHOWALERTS)
-                .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
-                .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val clickPendingIntent = PendingIntent.getActivity(context, location.hashCode(), intent, 0)
+            .setAction(WeatherAlertNotificationService.ACTION_SHOWALERTS)
+            .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
+            .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val clickPendingIntent = PendingIntent.getActivity(
+            context,
+            location.hashCode(),
+            intent,
+            0.toImmutableCompatFlag()
+        )
 
         // Build update
         for (alert in alerts) {
@@ -188,14 +194,24 @@ object WeatherAlertNotificationBuilder {
                 .putExtra(WeatherAlertNotificationService.EXTRA_NOTIFICATIONID, notId)
 
         // Use notification id as unique request code
-        return PendingIntent.getBroadcast(context, notId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            notId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 
     private fun getDeleteAllNotificationsIntent(): PendingIntent {
         val context = App.instance.appContext
         val intent = Intent(context, WeatherAlertNotificationBroadcastReceiver::class.java)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
-        return PendingIntent.getBroadcast(context, 19, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            19,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 
     private fun getDeleteAllNotificationsIntentJB(): PendingIntent {
@@ -203,7 +219,12 @@ object WeatherAlertNotificationBuilder {
         val intent = Intent(context, WeatherAlertNotificationBroadcastReceiver::class.java)
                 .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
                 .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
-        return PendingIntent.getBroadcast(context, 16, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            16,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT.toImmutableCompatFlag()
+        )
     }
 
     private fun initChannel() {

@@ -172,7 +172,9 @@ public class WeatherNotificationBuilder {
 
         Intent onClickIntent = new Intent(context, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, 0);
+        int flags = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) flags |= PendingIntent.FLAG_IMMUTABLE;
+        PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, flags);
         mBuilder.setContentIntent(clickPendingIntent);
 
         // Builds the notification and issues it.
