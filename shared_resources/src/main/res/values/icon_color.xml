@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="wicon_color">#000000</color>
+
+    <!-- On Light Background -->
+    <!--<color name="logo_cloud_stop1">#C5D1E2</color>
+    <color name="logo_cloud_stop2">#DADEE5</color>
+    <color name="logo_cloud_stop3">#DADEE5</color>
+
+    <color name="logo_sun_stop1">#fc0</color>
+    <color name="logo_sun_stop2">#fa0</color>
+    <color name="logo_sun_stop3">#f60</color>-->
+
+    <!-- Dark -->
+    <color name="logo_cloud_stop1">#DADEE5</color>
+    <color name="logo_cloud_stop2">#DADEE5</color>
+    <color name="logo_cloud_stop3">#F3F7FE</color>
+
+    <color name="logo_sun_stop1">#ffd42a</color>
+    <color name="logo_sun_stop2">#fc0</color>
+    <color name="logo_sun_stop3">#f60</color>
 </resources>

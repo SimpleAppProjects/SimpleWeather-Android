@@ -81,7 +81,7 @@
         </receiver>
 
         <service
-            android:icon="@drawable/wi_day_cloudy"
+            android:icon="@drawable/ic_logo_stroke"
             android:label="Weather"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherComplicationService">
