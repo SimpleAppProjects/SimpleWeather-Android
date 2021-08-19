@@ -4,7 +4,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -13,7 +17,6 @@ import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.extras.checkPremiumStatus
-import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
@@ -21,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LaunchActivity : UserLocaleActivity() {
+class LaunchActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LaunchActivity"
         private const val INSTALL_REQUESTCODE = 168
@@ -31,8 +34,25 @@ class LaunchActivity : UserLocaleActivity() {
     private var appUpdateManager: InAppUpdateManager? = null
     private val settingsMgr = App.instance.settingsManager
 
+    private var isReadyToView = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val splashScreen = installSplashScreen()
+
+        // Stop activity from rendering until next activity or if immediate update available
+        val content = findViewById<View>(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                return if (isReadyToView) {
+                    content.viewTreeObserver.removeOnPreDrawListener(this)
+                    true
+                } else {
+                    false
+                }
+            }
+        })
 
         if (FeatureSettings.isUpdateAvailable()) {
             // Update is available; double check if mandatory
@@ -42,6 +62,7 @@ class LaunchActivity : UserLocaleActivity() {
                 lifecycleScope.launch {
                     if (it.shouldStartImmediateUpdateFlow()) {
                         it.startImmediateUpdateFlow(this@LaunchActivity, INSTALL_REQUESTCODE)
+                        isReadyToView = true
                     } else {
                         startMainActivity()
                     }
@@ -67,6 +88,7 @@ class LaunchActivity : UserLocaleActivity() {
         // However, you should execute this check at all entry points into the app.
         if (FeatureSettings.isUpdateAvailable()) {
             appUpdateManager?.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE)
+            isReadyToView = true
         }
     }
 

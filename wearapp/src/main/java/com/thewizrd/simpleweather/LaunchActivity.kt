@@ -3,6 +3,10 @@ package com.thewizrd.simpleweather
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.activity.ComponentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.Constants
@@ -10,20 +14,37 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LaunchActivity : UserLocaleActivity() {
+class LaunchActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LaunchActivity"
     }
 
+    private var isReadyToView = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val splashScreen = installSplashScreen()
+
+        // Stop activity from rendering until next activity or if immediate update available
+        val content = findViewById<View>(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                return if (isReadyToView) {
+                    content.viewTreeObserver.removeOnPreDrawListener(this)
+                    true
+                } else {
+                    false
+                }
+            }
+        })
+
         val settingsMgr = App.instance.settingsManager
 
         lifecycleScope.launch {

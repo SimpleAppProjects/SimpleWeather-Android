@@ -22,8 +22,11 @@
 
     </style>
 
-    <style name="WearAppTheme.Launcher">
-        <item name="android:background">@drawable/ic_splash_screen</item>
+    <style name="WearAppTheme.Launcher" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <item name="postSplashScreenTheme">@style/WearAppTheme</item>
     </style>
 
     <style name="WearSettingsTheme" parent="Theme.Wearable">

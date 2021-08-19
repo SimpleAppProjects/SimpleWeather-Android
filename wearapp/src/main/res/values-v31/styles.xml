@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="WearAppTheme.Launcher">
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_logo_anim</item>
-        <item name="android:windowSplashScreenAnimationDuration">1000</item>
-        <item name="android:windowSplashScreenBackground">@color/colorPrimaryBackground</item>
+    <style name="WearAppTheme.Launcher" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_anim</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <item name="postSplashScreenTheme">@style/WearAppTheme</item>
     </style>
+
 </resources>

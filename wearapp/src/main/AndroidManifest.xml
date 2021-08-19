@@ -30,7 +30,9 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <activity android:name=".LaunchActivity">
+        <activity
+            android:name=".LaunchActivity"
+            android:theme="@style/WearAppTheme.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

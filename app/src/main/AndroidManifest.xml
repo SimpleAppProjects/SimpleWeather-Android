@@ -30,7 +30,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".LaunchActivity">
+        <activity
+            android:name=".LaunchActivity"
+            android:theme="@style/AppTheme.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
