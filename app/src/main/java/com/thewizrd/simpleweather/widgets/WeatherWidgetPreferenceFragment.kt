@@ -12,7 +12,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.*
@@ -92,7 +91,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
-    private val mMainHandler = Handler(Looper.getMainLooper())
 
     private var job: Job? = null
 

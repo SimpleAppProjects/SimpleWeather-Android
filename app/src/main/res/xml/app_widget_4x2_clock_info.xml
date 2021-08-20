@@ -9,4 +9,7 @@
     android:previewImage="@drawable/appwidget_preview_4x2_clock"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen" />
+    android:widgetCategory="home_screen"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:widgetFeatures="reconfigurable" />

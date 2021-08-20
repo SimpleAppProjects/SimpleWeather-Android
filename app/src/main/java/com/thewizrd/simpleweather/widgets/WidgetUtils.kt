@@ -710,7 +710,10 @@ object WidgetUtils {
 
     fun isSettingsButtonHidden(widgetId: Int): Boolean {
         val prefs = getPreferences(widgetId)
-        return prefs.getBoolean(KEY_HIDESETTINGSBUTTON, false)
+        return prefs.getBoolean(
+            KEY_HIDESETTINGSBUTTON,
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S /* Android 12 widgets have own reconfigure btn */
+        )
     }
 
     fun setSettingsButtonHidden(widgetId: Int, value: Boolean) {

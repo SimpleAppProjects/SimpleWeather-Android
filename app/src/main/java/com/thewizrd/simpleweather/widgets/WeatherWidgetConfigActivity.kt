@@ -53,14 +53,24 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
             args.putAll(intent.extras)
         }
 
+        if (intent?.extras?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == false && WidgetUtils.exists(
+                mAppWidgetId
+            )
+        ) {
+            WidgetUtils.getLocationData(mAppWidgetId)?.let {
+                args.putString(WeatherWidgetProvider.EXTRA_LOCATIONNAME, it.name)
+                args.putString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, it.query)
+            }
+        }
+
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (fragment == null) {
             val hostFragment = NavHostFragment.create(R.navigation.widget_graph, args)
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, hostFragment)
-                    .setPrimaryNavigationFragment(hostFragment)
-                    .commit()
+                .replace(R.id.fragment_container, hostFragment)
+                .setPrimaryNavigationFragment(hostFragment)
+                .commit()
         }
 
         // Update configuration

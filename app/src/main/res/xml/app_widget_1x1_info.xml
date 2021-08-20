@@ -9,4 +9,7 @@
     android:previewImage="@drawable/appwidget_preview_1x1"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen" />
+    android:widgetCategory="home_screen"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:widgetFeatures="reconfigurable" />
