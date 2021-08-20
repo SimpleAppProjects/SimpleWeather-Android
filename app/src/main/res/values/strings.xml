@@ -22,7 +22,8 @@
     <string name="widget_configure_prompt">Configure Widget</string>
     <string name="title_activity_widget_config">Widget Preferences</string>
     <string name="pref_title_bgcolor">Background</string>
-    <string name="label_color_currentconditions">Current Condition</string>
+    <!-- String: "Default" -->
+    <string name="label_color_currentconditions" translatable="false">@string/label_style_panda</string>
     <string name="label_color_custom">Custom</string>
     <string name="label_color_transparent">Transparent</string>
     <string name="pref_title_bgcolorcode">Background Color</string>

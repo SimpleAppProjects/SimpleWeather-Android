@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.core.util.ObjectsCompat;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
@@ -37,6 +38,7 @@ public class ForecastItemViewModel extends BaseForecastItemViewModel {
         weatherIcon = forecast.getIcon();
         date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
         shortDate = date;
+        longDate = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.DAY_OF_THE_WEEK));
         condition = wm.supportsWeatherLocale() ? forecast.getCondition() : wm.getWeatherCondition(forecast.getIcon());
         try {
             if (forecast.getHighF() != null && forecast.getHighC() != null) {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    Having themes.xml for v31 variant because @android:dimen/system_app_widget_background_radius
+    and @android:dimen/system_app_widget_inner_radius requires API level 31.
+    -->
+    <style name="AppWidgetTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="appWidgetRadius">@android:dimen/system_app_widget_background_radius</item>
+        <item name="appWidgetInnerRadius">@android:dimen/system_app_widget_inner_radius</item>
+    </style>
+
+    <!--
+    Having clipToOutline to true is needed for the background (that has id with
+    android:id/background so that the system knows the widget has been updated
+    and doesn't need to be clipped by the launcher.
+    -->
+    <style name="Widget.AppWidget.AppWidget.Container" parent="android:Widget">
+        <item name="android:padding">?attr/appWidgetPadding</item>
+        <item name="android:background">@drawable/app_widget_background</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+    <!--
+    Having clipToOutline to true for the inner view makes sure the content of the view
+    is clipped.
+    -->
+    <style name="Widget.AppWidget.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:padding">?attr/appWidgetPadding</item>
+        <item name="android:background">@drawable/app_widget_inner_view_background</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+</resources>

@@ -13,4 +13,6 @@
     <color name="sun_color">#FFFFFF00</color>
     <color name="beaufort_color">#FF1E90FF</color>
 
+    <color name="widget_innerview_background_color">#06509e</color>
+
 </resources>

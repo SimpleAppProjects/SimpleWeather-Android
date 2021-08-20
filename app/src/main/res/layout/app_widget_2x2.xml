@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/background_overlay" />
+        android:src="@drawable/app_widget_background" />
 
     <FrameLayout
         android:id="@+id/panda_container"
@@ -22,14 +22,15 @@
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        tools:background="@color/colorOnPrimary" />
+        android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+        tools:background="@drawable/widget_background" />
 
     <LinearLayout
         android:id="@+id/datetime_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_above="@id/weather_notif_layout"
+        android:layout_alignParentTop="true"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="4dp">

@@ -18,7 +18,6 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.utils.ArrayUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -80,9 +79,7 @@ object WidgetUtils {
     }
 
     enum class WidgetBackgroundStyle(val value: Int) {
-        FULLBACKGROUND(0),
         PANDA(1),
-        PENDINGCOLOR(2),
         DARK(3),
         LIGHT(4);
 
@@ -201,26 +198,16 @@ object WidgetUtils {
     }
 
     private fun getAllWidgetIds(): IntArray {
-        val mAppWidgetManager = AppWidgetManager.getInstance(App.instance.appContext)
-        val mAppWidget1x1 = WeatherWidgetProvider1x1.Info.getInstance()
-        val mAppWidget2x2 = WeatherWidgetProvider2x2.Info.getInstance()
-        val mAppWidget4x1 = WeatherWidgetProvider4x1.Info.getInstance()
-        val mAppWidget4x2 = WeatherWidgetProvider4x2.Info.getInstance()
-        val mAppWidget4x1G = WeatherWidgetProvider4x1.Info.getInstance()
-        val mAppWidget4x1N = WeatherWidgetProvider4x1Notification.Info.getInstance()
-        val mAppWidget4x2C = WeatherWidgetProvider4x2Clock.Info.getInstance()
-        val mAppWidget4x2BC = WeatherWidgetProvider4x2Huawei.Info.getInstance()
+        var widgetIds = IntArray(0)
 
-        return ArrayUtils.concat(
-            mAppWidgetManager.getAppWidgetIds(mAppWidget1x1.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget2x2.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x1.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x2.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x1G.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x1N.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x2C.componentName),
-            mAppWidgetManager.getAppWidgetIds(mAppWidget4x2BC.componentName)
-        )
+        for (widgetType in WidgetType.values()) {
+            val ids = getWidgetIds(widgetType)
+            if (ids.isNotEmpty()) {
+                widgetIds = widgetIds.plus(ids)
+            }
+        }
+
+        return widgetIds
     }
 
     private fun getWidgetIds(widgetType: WidgetType): IntArray {
@@ -252,6 +239,15 @@ object WidgetUtils {
             WidgetType.Widget4x2Huawei -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x2Huawei.Info.getInstance().componentName
             )
+            WidgetType.Widget2x2MaterialYou -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider2x2MaterialYou.Info.getInstance().componentName
+            )
+            WidgetType.Widget4x2MaterialYou -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider4x2MaterialYou.Info.getInstance().componentName
+            )
+            WidgetType.Widget4x4MaterialYou -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider4x4MaterialYou.Info.getInstance().componentName
+            )
         }
     }
 
@@ -266,6 +262,9 @@ object WidgetUtils {
             WidgetType.Widget4x1Notification -> WeatherWidgetProvider4x1Notification.Info.getInstance()
             WidgetType.Widget4x2Clock -> WeatherWidgetProvider4x2Clock.Info.getInstance()
             WidgetType.Widget4x2Huawei -> WeatherWidgetProvider4x2Huawei.Info.getInstance()
+            WidgetType.Widget2x2MaterialYou -> WeatherWidgetProvider2x2MaterialYou.Info.getInstance()
+            WidgetType.Widget4x2MaterialYou -> WeatherWidgetProvider4x2MaterialYou.Info.getInstance()
+            WidgetType.Widget4x4MaterialYou -> WeatherWidgetProvider4x4MaterialYou.Info.getInstance()
         }
     }
 
@@ -528,9 +527,12 @@ object WidgetUtils {
     }
 
     fun getForecastLength(widgetType: WidgetType, cellWidth: Int): Int {
-        if (widgetType != WidgetType.Widget4x1 && widgetType != WidgetType.Widget4x2) return 0
+        if (!isForecastWidget(widgetType)) return 0
 
         return when {
+            widgetType == WidgetType.Widget4x2MaterialYou || widgetType == WidgetType.Widget4x4MaterialYou -> {
+                WIDE_FORECAST_LENGTH + 1
+            }
             cellWidth >= 5 -> {
                 WIDE_FORECAST_LENGTH + 1
             }
@@ -572,6 +574,15 @@ object WidgetUtils {
                 }
                 WeatherWidgetProvider4x2Huawei.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget4x2Huawei
+                }
+                WeatherWidgetProvider2x2MaterialYou.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget2x2MaterialYou
+                }
+                WeatherWidgetProvider4x2MaterialYou.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget4x2MaterialYou
+                }
+                WeatherWidgetProvider4x4MaterialYou.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget4x4MaterialYou
                 }
             }
         }
@@ -618,7 +629,7 @@ object WidgetUtils {
     }
 
     fun isForecastWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2
+        return widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2MaterialYou || widgetType == WidgetType.Widget4x4MaterialYou
     }
 
     fun isBackgroundOptionalWidget(widgetType: WidgetType): Boolean {
@@ -642,23 +653,12 @@ object WidgetUtils {
     fun getPanelTextColor(
         appWidgetId: Int,
         background: WidgetBackground,
-        style: WidgetBackgroundStyle?,
-        isNightMode: Boolean
+        style: WidgetBackgroundStyle?
     ): Int {
         return if (background == WidgetBackground.CUSTOM) {
             getTextColor(appWidgetId)
-        } else if (style == WidgetBackgroundStyle.DARK) {
-            Colors.WHITE
         } else if (style == WidgetBackgroundStyle.LIGHT) {
             Colors.BLACK
-        } else if (background == WidgetBackground.TRANSPARENT) {
-            Colors.WHITE
-        } else if (background == WidgetBackground.CURRENT_CONDITIONS) {
-            if (style == WidgetBackgroundStyle.PANDA) {
-                if (isNightMode) Colors.WHITE else Colors.BLACK
-            } else {
-                Colors.WHITE
-            }
         } else {
             Colors.WHITE
         }

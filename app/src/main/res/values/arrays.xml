@@ -21,7 +21,7 @@
         <item>1</item>
     </string-array>
     <string-array name="bgcolor_entries">
-        <item>@string/label_color_currentconditions</item>
+        <item>@string/label_color_currentconditions</item><!-- Default -->
         <item>@string/label_color_transparent</item>
         <item>@string/label_color_custom</item>
     </string-array>

@@ -16,6 +16,7 @@ public abstract class BaseForecastItemViewModel {
     protected String weatherIcon;
     protected String date;
     protected String shortDate;
+    protected String longDate;
     protected String condition;
     protected String hiTemp;
     protected int windDirection;
@@ -55,6 +56,14 @@ public abstract class BaseForecastItemViewModel {
 
     public void setShortDate(String date) {
         this.shortDate = date;
+    }
+
+    public String getLongDate() {
+        return longDate;
+    }
+
+    public void setLongDate(String date) {
+        this.longDate = date;
     }
 
     public String getCondition() {
@@ -118,6 +127,8 @@ public abstract class BaseForecastItemViewModel {
         if (date != null ? !date.equals(that.date) : that.date != null) return false;
         if (shortDate != null ? !shortDate.equals(that.shortDate) : that.shortDate != null)
             return false;
+        if (longDate != null ? !longDate.equals(that.longDate) : that.longDate != null)
+            return false;
         if (condition != null ? !condition.equals(that.condition) : that.condition != null)
             return false;
         if (hiTemp != null ? !hiTemp.equals(that.hiTemp) : that.hiTemp != null) return false;
@@ -132,6 +143,7 @@ public abstract class BaseForecastItemViewModel {
         int result = weatherIcon != null ? weatherIcon.hashCode() : 0;
         result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (shortDate != null ? shortDate.hashCode() : 0);
+        result = 31 * result + (longDate != null ? longDate.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (hiTemp != null ? hiTemp.hashCode() : 0);
         result = 31 * result + windDirection;

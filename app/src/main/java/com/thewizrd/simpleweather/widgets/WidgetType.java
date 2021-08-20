@@ -11,7 +11,10 @@ public enum WidgetType {
     Widget4x1Google(4),
     Widget4x1Notification(5),
     Widget4x2Clock(6),
-    Widget4x2Huawei(7);
+    Widget4x2Huawei(7),
+    Widget2x2MaterialYou(8),
+    Widget4x2MaterialYou(9),
+    Widget4x4MaterialYou(10);
 
     private final int value;
 
@@ -23,7 +26,7 @@ public enum WidgetType {
         this.value = value;
     }
 
-    private static SparseArray<WidgetType> map = new SparseArray<>();
+    private static final SparseArray<WidgetType> map = new SparseArray<>();
 
     static {
         for (WidgetType widgetType : values()) {

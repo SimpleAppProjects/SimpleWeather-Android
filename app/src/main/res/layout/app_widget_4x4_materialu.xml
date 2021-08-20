@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Widget.AppWidget.AppWidget.Container"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:layout_height="384dp"
+    tools:layout_width="384dp"
+    tools:viewBindingIgnore="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/wi_day_sunny" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_gravity="end|center_vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/location_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:padding="4dp"
+                android:ellipsize="end"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="bold"
+                android:text="London" />
+
+            <TextView
+                android:id="@+id/condition_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:padding="4dp"
+                android:textSize="16sp"
+                android:ellipsize="end"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="bold"
+                android:text="Mostly Cloudy" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:layout_gravity="bottom"
+        android:gravity="bottom">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/condition_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="14°"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="36sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/condition_hi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:text="16°" />
+
+                <TextView
+                    android:id="@+id/condition_lo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:text="11°" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/hrforecast_layout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical">
+
+            <include layout="@layout/app_widget_hrforecast_layout_container_material" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        style="@style/Widget.AppWidget.AppWidget.InnerView"
+        android:theme="@style/AppWidgetTheme.AppWidgetContainer">
+
+        <include layout="@layout/app_widget_forecast_item_material" />
+
+        <include layout="@layout/app_widget_forecast_item_material" />
+    </LinearLayout>
+
+</LinearLayout>

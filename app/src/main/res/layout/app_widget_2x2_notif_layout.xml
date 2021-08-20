@@ -79,13 +79,13 @@
                 android:id="@+id/hi_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:maxWidth="16dp"
-                android:layout_toEndOf="@id/condition_hi"
                 android:layout_alignTop="@id/condition_hi"
                 android:layout_alignBottom="@id/condition_hi"
+                android:layout_gravity="center_vertical"
+                android:layout_toEndOf="@id/condition_hi"
+                android:adjustViewBounds="true"
+                android:maxWidth="16dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/wi_direction_up" />
 
             <TextView

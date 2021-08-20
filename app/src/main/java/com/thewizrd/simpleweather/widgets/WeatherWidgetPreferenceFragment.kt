@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -428,6 +429,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideSettingsBtnPref.isChecked = WidgetUtils.isSettingsButtonHidden(mAppWidgetId)
 
+        if (mWidgetType == WidgetType.Widget2x2MaterialYou || mWidgetType == WidgetType.Widget4x2MaterialYou || mWidgetType == WidgetType.Widget4x4MaterialYou) {
+            hideSettingsBtnPref.isVisible = false
+        }
+
         // Time and Date
         clockPref = findPreference(KEY_CLOCKAPP)!!
         calPref = findPreference(KEY_CALENDARAPP)!!
@@ -435,8 +440,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         clockPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             AppChoiceDialogBuilder(requireContext())
-                    .setOnItemSelectedListener(object : OnAppSelectedListener {
-                        override fun onItemSelected(key: String?) {
+                .setOnItemSelectedListener(object : OnAppSelectedListener {
+                    override fun onItemSelected(key: String?) {
                             WidgetUtils.setOnClickClockApp(key)
                             updateClockPreference()
                         }
@@ -533,18 +538,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         for (i in styles.indices) {
             when (val style = styles[i]) {
-                WidgetBackgroundStyle.FULLBACKGROUND -> {
-                    styleEntries[i] = requireContext().getString(R.string.label_style_fullbg)
-                    styleEntryValues[i] = style.value.toString()
-                }
                 WidgetBackgroundStyle.PANDA -> {
                     styleEntries[i] = requireContext().getString(R.string.label_style_panda)
                     styleEntryValues[i] = style.value.toString()
                     bgStylePref.setDefaultValue(styleEntryValues[i])
-                }
-                WidgetBackgroundStyle.PENDINGCOLOR -> {
-                    styleEntries[i] = requireContext().getText(R.string.label_style_pendingcolor)
-                    styleEntryValues[i] = style.value.toString()
                 }
                 WidgetBackgroundStyle.DARK -> {
                     styleEntries[i] = requireContext().getText(R.string.label_style_dark)
@@ -600,7 +597,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             true
         }
 
-        if (WidgetUtils.isForecastWidget(mWidgetType)) {
+        if (WidgetUtils.isForecastWidget(mWidgetType) && mWidgetType != WidgetType.Widget4x2MaterialYou && mWidgetType != WidgetType.Widget4x4MaterialYou) {
             fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).value)
             fcastOptPref.callChangeListener(fcastOptPref.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = true
@@ -715,16 +712,54 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             val views = withContext(Dispatchers.Default) {
                 buildMockData()
 
-                val view = WidgetUpdaterHelper.buildUpdate(requireContext(), info, mAppWidgetId,
-                        mockLocData!!, mockWeatherModel!!, mWidgetOptions, false)
-                WidgetUpdaterHelper.buildExtras(requireContext(), mWidgetInfo,
-                        mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions)
+                val view = WidgetUpdaterHelper.buildUpdate(
+                    requireContext(), info, mAppWidgetId,
+                    mockLocData!!, mockWeatherModel!!, mWidgetOptions, false
+                )
+                WidgetUpdaterHelper.buildExtras(
+                    requireContext(), mWidgetInfo,
+                    mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions
+                )
                 view
             }
 
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
-            widgetView.minimumWidth = ContextUtils.dpToPx(mWidgetViewCtx, 360f).toInt()
             binding.widgetContainer.addView(widgetView)
+            widgetView.updateLayoutParams<FrameLayout.LayoutParams> {
+                height = ContextUtils.dpToPx(
+                    mWidgetViewCtx, 96 * when (mWidgetType) {
+                        WidgetType.Unknown -> 4
+                        WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget2x2 -> 2
+                        WidgetType.Widget4x1 -> 1
+                        WidgetType.Widget4x2 -> 2
+                        WidgetType.Widget4x1Google -> 1
+                        WidgetType.Widget4x1Notification -> 1
+                        WidgetType.Widget4x2Clock -> 2
+                        WidgetType.Widget4x2Huawei -> 2
+                        WidgetType.Widget2x2MaterialYou -> 2
+                        WidgetType.Widget4x2MaterialYou -> 2
+                        WidgetType.Widget4x4MaterialYou -> 4
+                    }.toFloat()
+                ).toInt()
+                width = ContextUtils.dpToPx(
+                    mWidgetViewCtx, 96 * when (mWidgetType) {
+                        WidgetType.Unknown -> 4
+                        WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget2x2 -> 2
+                        WidgetType.Widget4x1 -> 4
+                        WidgetType.Widget4x2 -> 4
+                        WidgetType.Widget4x1Google -> 4
+                        WidgetType.Widget4x1Notification -> 4
+                        WidgetType.Widget4x2Clock -> 4
+                        WidgetType.Widget4x2Huawei -> 4
+                        WidgetType.Widget2x2MaterialYou -> 2
+                        WidgetType.Widget4x2MaterialYou -> 4
+                        WidgetType.Widget4x4MaterialYou -> 4
+                    }.toFloat()
+                ).toInt()
+                gravity = Gravity.CENTER
+            }
 
             updateLocationView()
             updateBackground()
@@ -808,36 +843,17 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
     private fun resizeWidgetContainer() {
         val widgetView = binding.widgetContainer.findViewById<View>(R.id.widget)
-
         val screenWidth = binding.scrollView.measuredWidth
 
-        val preferredHeight = ContextUtils.dpToPx(appCompatActivity, 225f).toInt()
-        var minHeight = ContextUtils.dpToPx(appCompatActivity, 96f).toInt()
-        val maxCellWidth = minHeight * 5
-
-        if (mWidgetType == WidgetType.Widget2x2 || mWidgetType == WidgetType.Widget4x2) {
-            minHeight *= 2
-        }
-
         TransitionManager.beginDelayedTransition(binding.scrollView, AutoTransition())
-
-        if (appCompatActivity.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            binding.widgetContainer.minimumHeight = preferredHeight
-        } else {
-            if (mWidgetType == WidgetType.Widget1x1 || mWidgetType == WidgetType.Widget4x1Google) {
-                minHeight = (minHeight * 1.5f).toInt()
-            }
-            binding.widgetContainer.minimumHeight = minHeight
-        }
 
         if (widgetView != null) {
             val widgetParams = widgetView.layoutParams as FrameLayout.LayoutParams
             if (widgetView.measuredWidth > screenWidth) {
                 widgetParams.width = screenWidth
-            } else if (widgetView.measuredWidth > maxCellWidth) {
-                widgetParams.width = maxCellWidth
+            } else {
+                widgetParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             }
-            widgetParams.gravity = Gravity.CENTER
             widgetView.layoutParams = widgetParams
         }
     }
@@ -1202,7 +1218,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     tzLong = "UTC"
                 }
                 updateTime = ZonedDateTime.now()
-                forecast = List(5) { index ->
+                forecast = List(6) { index ->
                     Forecast().apply {
                         date = LocalDateTime.now().plusDays(index.toLong())
                         highF = 75f
@@ -1213,7 +1229,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         icon = WeatherIcons.DAY_SUNNY
                     }
                 }
-                hrForecast = List(5) { index ->
+                hrForecast = List(6) { index ->
                     HourlyForecast().apply {
                         date = ZonedDateTime.now().plusHours(index.toLong())
                         highF = 70f

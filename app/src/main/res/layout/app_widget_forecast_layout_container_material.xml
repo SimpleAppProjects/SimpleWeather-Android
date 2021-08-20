@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true"
+    android:baselineAligned="false"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:id="@+id/forecast1"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast1_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast1_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast1_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast1_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast2"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast2_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast2_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast2_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast2_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast3"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast3_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast3_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast3_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast3_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast4"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast4_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast4_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast4_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast4_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast5"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast5_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast5_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast5_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast5_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast6"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/forecast6_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Tuesday" />
+
+        <ImageView
+            android:id="@+id/forecast6_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            tools:src="@drawable/wi_day_sunny" />
+
+        <TextView
+            android:id="@+id/forecast6_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="15°" />
+
+        <TextView
+            android:id="@+id/forecast6_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="11°" />
+
+    </LinearLayout>
+
+</LinearLayout>

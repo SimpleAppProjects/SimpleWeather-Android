@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    tools:ignore="HardcodedText">
+
+    <LinearLayout
+        android:id="@+id/hrforecast1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast1_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast1_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast1_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="4pm" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hrforecast2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast2_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast2_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast2_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="5pm" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hrforecast3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast3_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast3_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast3_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="6pm" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hrforecast4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast4_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast4_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast4_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="7pm" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hrforecast5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast5_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast5_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast5_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="8pm" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hrforecast6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/hrforecast6_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="70°" />
+
+        <ImageView
+            android:id="@+id/hrforecast6_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <TextView
+            android:id="@+id/hrforecast6_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="9pm" />
+
+    </LinearLayout>
+
+</LinearLayout>
