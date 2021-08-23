@@ -1034,12 +1034,21 @@ object WidgetUpdaterHelper {
                     if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
                         updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
                     } else {
+                        val panelBackgroundColor =
+                            if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+                                WidgetUtils.getBackgroundColor(appWidgetId)
+                            } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
+                                Colors.WHITE
+                            } else {
+                                Colors.BLACK
+                            }
+
                         updateViews.setImageViewBitmap(
                             R.id.weather_icon,
                             ImageUtils.bitmapFromDrawable(
                                 ContextUtils.getThemeContextOverride(
                                     context,
-                                    style == WidgetUtils.WidgetBackgroundStyle.LIGHT
+                                    ColorsUtils.isSuperLight(panelBackgroundColor)
                                 ),
                                 weatherIconResId
                             )
