@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     style="@style/Widget.AppWidget.AppWidget.Container"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:layout_height="384dp"
+    tools:layout_height="192dp"
     tools:layout_width="384dp"
-    tools:viewBindingIgnore="true">
+    tools:viewBindingIgnore="true"
+    tools:ignore="HardcodedText">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:id="@+id/weather_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            tools:src="@drawable/wi_day_sunny" />
+            android:src="@drawable/wi_day_sunny" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -36,10 +37,11 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="4dp"
+                android:text="London"
                 android:ellipsize="end"
                 android:textColor="?android:attr/textColorPrimary"
-                android:textStyle="bold"
-                tools:text="London" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/condition_weather"
@@ -47,11 +49,11 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="4dp"
+                android:text="Mostly Cloudy"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp"
                 android:ellipsize="end"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textStyle="bold"
-                tools:text="Mostly Cloudy" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -59,7 +61,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal"
         android:baselineAligned="false"
         android:layout_gravity="bottom"
@@ -75,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                tools:text="14°"
+                android:text="14°"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="36sp" />
 
@@ -92,7 +95,7 @@
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="16°" />
+                    android:text="16°" />
 
                 <TextView
                     android:id="@+id/condition_lo"
@@ -102,7 +105,7 @@
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="11°" />
+                    android:text="11°" />
 
             </LinearLayout>
 
@@ -111,23 +114,15 @@
         <LinearLayout
             android:id="@+id/hrforecast_layout"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical" />
+            android:gravity="bottom"
+            android:layout_gravity="bottom">
+
+            <include layout="@layout/app_widget_hrforecast_layout_container_material_preview" />
+        </LinearLayout>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/forecast_layout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
-        style="@style/Widget.AppWidget.AppWidget.InnerView"
-        android:theme="@style/AppWidgetTheme.AppWidgetContainer" />
 
 </LinearLayout>

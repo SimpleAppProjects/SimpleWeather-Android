@@ -1,0 +1,77 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:layout_height="96dp"
+    tools:layout_width="96dp"
+    tools:viewBindingIgnore="true">
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:alpha="0.7"
+        android:padding="4dp"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:tint="?android:attr/textColorPrimary"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/spacer_top"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:adjustViewBounds="true"
+            android:maxWidth="36dp"
+            android:src="@drawable/wi_day_sunny"
+            android:tint="?android:attr/textColorPrimary" />
+
+        <TextView
+            android:id="@+id/condition_temp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="18sp"
+            android:text="70°F" />
+
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_vertical"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="New York, NY"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/spacer_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+</FrameLayout>

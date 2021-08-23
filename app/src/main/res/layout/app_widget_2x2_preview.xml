@@ -1,0 +1,89 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:layout_height="192dp"
+    tools:layout_width="192dp">
+
+    <ImageView
+        android:id="@+id/widgetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="?android:attr/colorBackground" />
+
+    <FrameLayout
+        android:id="@+id/panda_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/weather_notif_layout"
+        android:layout_alignParentBottom="true"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+        android:background="?android:attr/colorButtonNormal" />
+
+    <LinearLayout
+        android:id="@+id/datetime_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/weather_notif_layout"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="4dp">
+
+        <TextClock
+            android:id="@+id/clock_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="true"
+            android:fontFamily="sans-serif-light"
+            android:format12Hour="@string/clock_12_hours_ampm_format"
+            android:format24Hour="@string/clock_24_hours_format"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="@dimen/clock_text_size" />
+
+        <TextClock
+            android:id="@+id/date_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="@string/widget_short_date_format"
+            android:format24Hour="@string/widget_short_date_format"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="@dimen/date_text_size" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/weather_notif_layout"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_alignParentBottom="true">
+
+        <include layout="@layout/app_widget_2x2_notif_layout_themed_preview" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_vertical"
+        android:alpha="0.7"
+        android:padding="4dp"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:tint="?android:attr/textColorPrimary"
+        android:visibility="gone" />
+
+</RelativeLayout>

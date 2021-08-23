@@ -21,7 +21,7 @@
             android:id="@+id/weather_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/wi_day_sunny" />
+            tools:src="@drawable/wi_day_sunny" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="4dp"
-                android:text="London"
+                tools:text="London"
                 android:ellipsize="end"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="14sp"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="4dp"
-                android:text="Mostly Cloudy"
+                tools:text="Mostly Cloudy"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp"
                 android:ellipsize="end"
@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:text="14°"
+                tools:text="14°"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="36sp" />
 
@@ -95,7 +95,7 @@
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:text="16°" />
+                    tools:text="16°" />
 
                 <TextView
                     android:id="@+id/condition_lo"
@@ -105,7 +105,7 @@
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:text="11°" />
+                    tools:text="11°" />
 
             </LinearLayout>
 
@@ -118,10 +118,7 @@
             android:orientation="horizontal"
             android:layout_weight="1"
             android:gravity="bottom"
-            android:layout_gravity="bottom">
-
-            <include layout="@layout/app_widget_hrforecast_layout_container_material" />
-        </LinearLayout>
+            android:layout_gravity="bottom" />
 
     </LinearLayout>
 

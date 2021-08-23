@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/forecast_container"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    tools:viewBindingIgnore="true"
+    android:baselineAligned="false">
+
+    <LinearLayout
+        android:id="@+id/forecast1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast1_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            android:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast1_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast1_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast1_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast1_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast2_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            android:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast2_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast2_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast2_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast2_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast3_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            android:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast3_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast3_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast3_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast3_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast4_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            android:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast4_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast4_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast4_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast4_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast5_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            android:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast5_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast5_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                android:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast5_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast5_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                tools:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:layout_height="wrap_content"
+        tools:layout_width="144dp">
+
+        <TextView
+            android:id="@+id/forecast6_date"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/colorOnSurface"
+            android:textSize="12sp"
+            tools:text="Mon" />
+
+        <ImageView
+            android:id="@+id/forecast6_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="-4dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="36dp"
+            android:maxWidth="36dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/wi_day_thunderstorm" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/forecast6_hi"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                tools:text="70°" />
+
+            <TextView
+                android:id="@+id/forecast6_divider"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingEnd="2dp"
+                android:paddingRight="2dp"
+                android:text="|"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/forecast6_lo"
+                style="@style/ShadowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+                android:textColor="@color/colorOnSurface"
+                android:textSize="12sp"
+                tools:text="52°" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

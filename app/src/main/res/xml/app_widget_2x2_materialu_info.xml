@@ -6,7 +6,7 @@
     android:minWidth="110dp"
     android:minResizeHeight="110dp"
     android:minResizeWidth="110dp"
-    android:previewImage="@drawable/appwidget_preview_2x2"
+    android:previewImage="@drawable/appwidget_preview_2x2_materialu"
     android:previewLayout="@layout/app_widget_2x2_materialu"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"

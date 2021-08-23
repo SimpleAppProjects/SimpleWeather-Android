@@ -7,6 +7,7 @@
     android:minResizeHeight="110dp"
     android:minResizeWidth="250dp"
     android:previewImage="@drawable/appwidget_preview_4x2_huawei"
+    android:previewLayout="@layout/app_widget_4x2_huawei_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"

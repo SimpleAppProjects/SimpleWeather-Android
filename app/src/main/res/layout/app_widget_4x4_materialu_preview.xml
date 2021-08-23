@@ -20,7 +20,7 @@
             android:id="@+id/weather_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            tools:src="@drawable/wi_day_sunny" />
+            android:src="@drawable/wi_day_sunny" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -39,7 +39,7 @@
                 android:ellipsize="end"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="bold"
-                tools:text="London" />
+                android:text="London" />
 
             <TextView
                 android:id="@+id/condition_weather"
@@ -51,7 +51,7 @@
                 android:ellipsize="end"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="bold"
-                tools:text="Mostly Cloudy" />
+                android:text="Mostly Cloudy" />
 
         </LinearLayout>
 
@@ -75,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                tools:text="14°"
+                android:text="14°"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="36sp" />
 
@@ -92,7 +92,7 @@
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="16°" />
+                    android:text="16°" />
 
                 <TextView
                     android:id="@+id/condition_lo"
@@ -102,7 +102,7 @@
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="11°" />
+                    android:text="11°" />
 
             </LinearLayout>
 
@@ -115,7 +115,10 @@
             android:orientation="horizontal"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical">
+
+            <include layout="@layout/app_widget_hrforecast_layout_container_material_preview" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -128,6 +131,13 @@
         android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         style="@style/Widget.AppWidget.AppWidget.InnerView"
-        android:theme="@style/AppWidgetTheme.AppWidgetContainer" />
+        android:theme="@style/AppWidgetTheme.AppWidgetContainer">
+
+        <include layout="@layout/app_widget_forecast_item_material" />
+
+        <include layout="@layout/app_widget_forecast_item_material" />
+
+        <include layout="@layout/app_widget_forecast_item_material" />
+    </LinearLayout>
 
 </LinearLayout>

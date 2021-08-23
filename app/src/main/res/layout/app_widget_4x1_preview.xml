@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:layout_height="wrap_content"
+    tools:layout_width="384dp">
+
+    <LinearLayout
+        android:id="@+id/layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:padding="0dp"
+        android:baselineAligned="false">
+
+        <ViewFlipper
+            android:id="@+id/forecast_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:autoStart="true"
+            android:flipInterval="10000"
+            android:loopViews="true">
+
+            <include layout="@layout/app_widget_forecast_layout_container_themed_preview" />
+        </ViewFlipper>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:paddingLeft="4dp"
+        android:paddingStart="4dp"
+        android:paddingRight="4dp"
+        android:paddingEnd="4dp">
+
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingLeft="4dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="4dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            android:text="New York, NY" />
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="top"
+            android:padding="4dp"
+            android:alpha="0.7"
+            android:src="@drawable/ic_settings_black_24dp"
+            android:tint="?android:attr/textColorPrimary" />
+
+    </LinearLayout>
+
+</LinearLayout>
