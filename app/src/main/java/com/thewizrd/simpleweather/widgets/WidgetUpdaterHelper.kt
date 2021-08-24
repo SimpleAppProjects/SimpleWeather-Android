@@ -533,14 +533,9 @@ object WidgetUpdaterHelper {
             updateViews.removeAllViews(R.id.hrforecast_layout)
         }
 
-        // Widget dimensions
-        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-        val cellWidth = WidgetUtils.getCellsForSize(minWidth)
-
         // Determine forecast size
-        val forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
         buildForecastPanel(
-            context, info, updateViews, appWidgetId, forecastLength,
+            context, info, updateViews, appWidgetId,
             locData, weather, newOptions
         )
     }
@@ -548,7 +543,6 @@ object WidgetUpdaterHelper {
     private suspend fun buildForecastPanel(
         context: Context, info: WidgetProviderInfo,
         updateViews: RemoteViews, appWidgetId: Int,
-        forecastLength: Int,
         locData: LocationData, weather: Weather?,
         newOptions: Bundle
     ) {
@@ -562,8 +556,8 @@ object WidgetUpdaterHelper {
             var forecastPanel: RemoteViews? = null
             var hrForecastPanel: RemoteViews? = null
 
-            val forecasts = getForecasts(locData, weather?.forecast, forecastLength)
-            val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, forecastLength)
+            val forecasts = getForecasts(locData, weather?.forecast, MAX_FORECASTS)
+            val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, MAX_FORECASTS)
             var forecastOption = WidgetUtils.getForecastOption(appWidgetId)
 
             val forecastLayoutId: Int
@@ -596,7 +590,7 @@ object WidgetUpdaterHelper {
                 }
             }
 
-            for (i in 0 until forecastLength) {
+            for (i in 0 until MAX_FORECASTS) {
                 if (forecastPanel != null && i < forecasts.size) {
                     setForecastItem(
                         context,
