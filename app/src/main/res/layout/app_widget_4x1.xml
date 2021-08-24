@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="288dp"
     tools:layout_width="288dp">
 
@@ -54,7 +55,6 @@
             android:paddingRight="4dp"
             android:paddingBottom="2dp"
             android:shadowColor="#000000"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="New York, NY" />

@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_width="match_parent"
     tools:layout_height="288dp"
     tools:viewBindingIgnore="true">
@@ -54,7 +55,6 @@
             android:layout_gravity="center_horizontal"
             android:shadowColor="#DD000000"
             android:textAllCaps="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Sun, Oct 08" />
@@ -70,7 +70,6 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:shadowColor="#000000"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="New York, NY"
@@ -116,7 +115,6 @@
                     android:fontFamily="sans-serif-light"
                     android:gravity="start|center_vertical"
                     android:shadowColor="#000000"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="36sp"
                     tools:text="70°F" />
@@ -138,7 +136,6 @@
                     android:maxLines="2"
                     android:padding="4dp"
                     android:shadowColor="#000000"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
                     tools:text="Mostly Sunny. Refreshingly cool." />

@@ -83,7 +83,6 @@
         android:gravity="top|center_horizontal"
         android:maxLines="1"
         android:padding="0dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="14sp"
         android:text="New York, NY"

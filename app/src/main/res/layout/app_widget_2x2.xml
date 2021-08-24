@@ -3,6 +3,7 @@
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="288dp"
     tools:layout_width="288dp">
 
@@ -63,7 +64,6 @@
             android:shadowColor="#DD000000"
             android:shadowDy="2.0"
             android:shadowRadius="2.75"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="@dimen/date_text_size" />
 

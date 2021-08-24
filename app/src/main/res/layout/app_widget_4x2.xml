@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="180dp"
     tools:layout_width="match_parent"
     tools:targetApi="JELLY_BEAN_MR1"
@@ -67,7 +68,6 @@
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:shadowColor="#000000"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
                 tools:text="New York, NY" />
@@ -86,7 +86,6 @@
             android:paddingRight="4dp"
             android:paddingEnd="4dp"
             android:shadowColor="#000000"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             style="@style/ShadowText"
@@ -136,7 +135,6 @@
                     android:shadowColor="#DD000000"
                     android:shadowDy="2.0"
                     android:shadowRadius="2.75"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
 
@@ -172,7 +170,6 @@
                     android:layout_marginStart="2dp"
                     android:layout_toEndOf="@id/weather_icon"
                     android:shadowColor="#000000"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="@android:color/white"
                     android:textSize="36sp"
                     tools:text="70°F" />

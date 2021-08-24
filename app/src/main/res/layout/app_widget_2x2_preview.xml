@@ -57,7 +57,6 @@
             android:format24Hour="@string/widget_short_date_format"
             android:gravity="center_horizontal"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/date_text_size" />
 

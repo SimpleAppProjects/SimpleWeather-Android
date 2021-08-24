@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:viewBindingIgnore="true"
     android:baselineAligned="false">
 
@@ -30,7 +31,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -63,7 +63,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -79,7 +78,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -90,7 +88,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />
@@ -119,7 +116,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -152,7 +148,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -168,7 +163,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -179,7 +173,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />
@@ -208,7 +201,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -241,7 +233,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -257,7 +248,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -268,7 +258,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />
@@ -297,7 +286,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -330,7 +318,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -346,7 +333,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -357,7 +343,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />
@@ -386,7 +371,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -419,7 +403,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -435,7 +418,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -446,7 +428,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />
@@ -475,7 +456,6 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             tools:text="Mon" />
@@ -508,7 +488,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="70°" />
@@ -524,7 +503,6 @@
                 android:paddingEnd="2dp"
                 android:paddingRight="2dp"
                 android:text="|"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -535,7 +513,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="52°" />

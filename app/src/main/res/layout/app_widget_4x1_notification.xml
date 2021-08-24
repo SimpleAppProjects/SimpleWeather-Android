@@ -3,6 +3,7 @@
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="96dp"
     tools:layout_width="384dp"
     tools:viewBindingIgnore="true">

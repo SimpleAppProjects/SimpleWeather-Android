@@ -67,7 +67,6 @@
                 android:maxLines="1"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="14sp"
                 android:text="New York, NY" />
@@ -85,7 +84,6 @@
             android:paddingStart="4dp"
             android:paddingRight="4dp"
             android:paddingEnd="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="12sp"
             android:text="Thunderstorms" />
@@ -128,7 +126,6 @@
                     android:format24Hour="@string/widget_long_date_format"
                     android:gravity="bottom"
                     android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="12sp" />
 
@@ -162,7 +159,6 @@
                     android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
                     android:layout_toEndOf="@id/weather_icon"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="36sp"
                     android:text="70°F" />

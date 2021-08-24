@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true"
     android:baselineAligned="false"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer">
 
     <LinearLayout
         android:id="@+id/forecast1"

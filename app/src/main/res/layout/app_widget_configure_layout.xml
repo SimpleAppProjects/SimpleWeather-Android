@@ -5,20 +5,18 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
     android:backgroundTint="#40121212"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="144dp"
     tools:layout_width="144dp"
     tools:viewBindingIgnore="true">
 
     <TextView
-        android:id="@+id/location_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/widget_configure_prompt"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
         android:textColor="@android:color/white"
-        android:textSize="14sp"
-        tools:text="@string/widget_configure_prompt" />
+        android:textSize="14sp" />
 </LinearLayout>
