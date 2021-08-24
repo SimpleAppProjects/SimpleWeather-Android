@@ -35,13 +35,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="4dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="14sp"
+            android:textFontWeight="500"
             tools:text="New York, NY" />
 
         <TextView

@@ -48,7 +48,6 @@
             android:layout_gravity="start|top"
             android:layout_weight="1"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
             android:maxLines="1"
             android:paddingStart="4dp"
             android:paddingLeft="4dp"
@@ -58,7 +57,8 @@
             android:paddingBottom="2dp"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="12sp"
-            android:text="New York, NY" />
+            android:text="New York, NY"
+            android:textFontWeight="500" />
 
         <ImageView
             android:id="@+id/settings_button"

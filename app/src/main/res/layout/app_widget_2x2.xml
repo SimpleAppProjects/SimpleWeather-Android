@@ -41,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:baselineAligned="true"
-            android:fontFamily="sans-serif-light"
             android:format12Hour="@string/clock_12_hours_ampm_format"
             android:format24Hour="@string/clock_24_hours_format"
             android:gravity="center_horizontal"

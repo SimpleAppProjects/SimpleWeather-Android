@@ -41,13 +41,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:baselineAligned="true"
-            android:fontFamily="sans-serif-light"
             android:format12Hour="@string/clock_12_hours_ampm_format"
             android:format24Hour="@string/clock_24_hours_format"
             android:gravity="center_horizontal"
             android:maxLines="1"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="@dimen/clock_text_size" />
+            android:textSize="@dimen/clock_text_size"
+            tools:text="11:00AM" />
 
         <TextClock
             android:id="@+id/date_panel"
@@ -58,7 +58,8 @@
             android:gravity="center_horizontal"
             android:maxLines="1"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="@dimen/date_text_size" />
+            android:textSize="@dimen/date_text_size"
+            tools:text="Fri, Aug 27" />
 
     </LinearLayout>
 

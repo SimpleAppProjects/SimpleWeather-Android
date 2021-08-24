@@ -61,7 +61,6 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/weather_icon"
-            android:fontFamily="sans-serif-thin"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="2dp"
@@ -71,7 +70,6 @@
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="24sp"
-            android:textStyle="bold"
             tools:text="77°F" />
 
     </RelativeLayout>
@@ -82,13 +80,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
         android:gravity="top|center_horizontal"
         android:maxLines="1"
         android:padding="0dp"
         android:shadowColor="#000000"
         android:textColor="@android:color/white"
         android:textSize="14sp"
+        android:textStyle="bold"
         tools:text="New York, NY"
         tools:visibility="visible" />
 

@@ -32,14 +32,12 @@
             android:id="@+id/date_panel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-thin"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:format12Hour="@string/widget_4x1_date_format"
             android:format24Hour="@string/widget_4x1_date_format"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="24sp"
-            android:textStyle="bold"
             android:layout_centerVertical="true"
             tools:text="Sunday, Jan 17"
             tools:visibility="visible" />
@@ -58,19 +56,17 @@
             android:id="@+id/condition_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-thin"
-            android:gravity="center_vertical"
-            android:layout_toEndOf="@id/weather_icon"
             android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/weather_icon"
+            android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="2dp"
             android:paddingLeft="2dp"
             android:paddingEnd="2dp"
             android:paddingRight="2dp"
+            android:text="77°F"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:text="77°F" />
+            android:textSize="24sp" />
 
     </RelativeLayout>
 
@@ -79,13 +75,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
         android:gravity="top|center_horizontal"
         android:maxLines="1"
         android:padding="0dp"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="14sp"
         android:text="New York, NY"
+        android:textFontWeight="500"
         tools:visibility="visible" />
 
 </LinearLayout>

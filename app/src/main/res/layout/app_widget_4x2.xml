@@ -63,13 +63,13 @@
                 android:layout_gravity="start"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
+                android:textFontWeight="500"
                 tools:text="New York, NY" />
 
         </LinearLayout>
@@ -111,7 +111,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:baselineAligned="true"
-                    android:fontFamily="sans-serif-light"
                     android:format12Hour="@string/clock_12_hours_ampm_format"
                     android:format24Hour="@string/clock_24_hours_format"
                     android:layout_gravity="start"
@@ -165,7 +164,6 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical|start"
-                    android:fontFamily="sans-serif-light"
                     android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
                     android:layout_toEndOf="@id/weather_icon"
