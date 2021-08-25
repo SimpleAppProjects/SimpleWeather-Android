@@ -153,6 +153,10 @@ class WeatherListFragment : ToolbarFragment() {
         return root
     }
 
+    override fun getScrollTargetViewId(): Int {
+        return binding.recyclerView.id
+    }
+
     private fun updateHeaderElevation() {
         binding.recyclerView.post {
             runWithView {
@@ -377,12 +381,16 @@ class WeatherListFragment : ToolbarFragment() {
 
     override fun updateWindowColors() {
         super.updateWindowColors()
-        var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+
+        var backgroundColor =
+            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var surfaceColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK
+            backgroundColor = Colors.BLACK
+            surfaceColor = Colors.BLACK
         }
-        binding.locationHeader.setCardBackgroundColor(color)
-        binding.recyclerView.setBackgroundColor(color)
+        binding.locationHeader.setCardBackgroundColor(surfaceColor)
+        binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 
     override fun createSnackManager(): SnackbarManager {

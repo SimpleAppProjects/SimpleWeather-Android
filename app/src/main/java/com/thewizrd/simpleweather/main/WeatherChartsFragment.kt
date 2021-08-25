@@ -81,7 +81,15 @@ class WeatherChartsFragment : ToolbarFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun getScrollTargetViewId(): Int {
+        return binding.recyclerView.id
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup?
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true)
@@ -89,7 +97,12 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         // Setup Actionbar
         val context = binding.root.context
-        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!).mutate()
+        val navIcon = DrawableCompat.wrap(
+            ContextCompat.getDrawable(
+                context,
+                R.drawable.ic_arrow_back_white_24dp
+            )!!
+        ).mutate()
         DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
         toolbar.navigationIcon = navIcon
 
@@ -260,12 +273,15 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var backgroundColor =
+            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var surfaceColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK
+            backgroundColor = Colors.BLACK
+            surfaceColor = Colors.BLACK
         }
-        binding.locationHeader.setCardBackgroundColor(color)
-        binding.recyclerView.setBackgroundColor(color)
+        binding.locationHeader.setCardBackgroundColor(surfaceColor)
+        binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 
     override fun createSnackManager(): SnackbarManager {

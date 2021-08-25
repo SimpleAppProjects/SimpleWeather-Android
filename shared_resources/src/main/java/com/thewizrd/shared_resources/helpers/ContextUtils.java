@@ -63,8 +63,12 @@ public final class ContextUtils {
 
     public static ColorStateList getColorStateList(@NonNull Context activityContext, @AttrRes int resId) {
         final TypedArray array = activityContext.getTheme().obtainStyledAttributes(new int[]{resId});
-        ColorStateList color = array.getColorStateList(0);
-        array.recycle();
+        ColorStateList color = null;
+        try {
+            color = array.getColorStateList(0);
+        } finally {
+            array.recycle();
+        }
 
         return color;
     }

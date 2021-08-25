@@ -24,6 +24,7 @@
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
@@ -31,10 +32,8 @@
             android:minHeight="@dimen/fab_size"
             android:scrollbars="none"
             android:text="@string/label_fab_add_location"
-            android:textColor="@color/invButtonColorText"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/ic_add_location_white_24dp"
-            app:iconTint="@color/invButtonColorText" />
+            android:textColor="?attr/colorOnSecondary"
+            app:icon="@drawable/ic_add_location_white_24dp" />
 
     </merge>
 </layout>

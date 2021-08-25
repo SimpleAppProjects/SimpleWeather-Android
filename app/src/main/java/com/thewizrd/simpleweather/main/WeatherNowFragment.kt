@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.SensorManager
 import android.location.Location
@@ -14,7 +15,6 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.text.SpannableString
 import android.text.Spanned
@@ -29,10 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.OnApplyWindowInsetsListener
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewGroupCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.*
 import androidx.core.widget.NestedScrollView
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingComponent
@@ -57,6 +54,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
@@ -97,6 +95,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
@@ -158,7 +157,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
-    private val mMainHandler = Handler(Looper.getMainLooper())
 
     private val weatherObserver = Observer<Weather> { weather ->
         if (weather != null && weather.isValid) {
@@ -358,39 +356,32 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
         ViewGroupCompat.setTransitionGroup((view as ViewGroup), true)
 
-        // Setup ActionBar
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar, object : OnApplyWindowInsetsListener {
-            private val paddingStart = ViewCompat.getPaddingStart(binding.toolbar)
-            private val paddingTop = binding.toolbar.paddingTop
-            private val paddingEnd = ViewCompat.getPaddingEnd(binding.toolbar)
-            private val paddingBottom = binding.toolbar.paddingBottom
-
-            override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart + insets.systemWindowInsetLeft,
-                        paddingTop + insets.systemWindowInsetTop,
-                        paddingEnd + insets.systemWindowInsetRight,
-                        paddingBottom)
-                return insets
-            }
-        })
-
-        // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val layoutParams = v.layoutParams as MarginLayoutParams
-            layoutParams.setMargins(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, 0)
-            insets
+        if (binding.toolbar.background is ColorDrawable) {
+            val materialShapeDrawable = MaterialShapeDrawable()
+            materialShapeDrawable.fillColor =
+                ColorStateList.valueOf((binding.toolbar.background as ColorDrawable).color)
+            materialShapeDrawable.initializeElevationOverlay(binding.toolbar.context)
+            ViewCompat.setBackground(binding.toolbar, materialShapeDrawable)
         }
 
-        binding.scrollView.setOnScrollChangeListener(object : NestedScrollView.OnScrollChangeListener {
+        binding.scrollView.setOnScrollChangeListener(object :
+            NestedScrollView.OnScrollChangeListener {
+            var mShouldLift = false
+
             @SuppressLint("RestrictedApi")
-            override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+            override fun onScrollChange(
+                v: NestedScrollView,
+                scrollX: Int,
+                scrollY: Int,
+                oldScrollX: Int,
+                oldScrollY: Int
+            ) {
                 runWithView {
                     val offset = v.computeVerticalScrollOffset()
-                    if (offset > 0) {
-                        ViewCompat.setElevation(binding.toolbar, ContextUtils.dpToPx(appCompatActivity!!, 4f))
-                    } else {
-                        ViewCompat.setElevation(binding.toolbar, 0f)
+                    val shouldLift = offset > 0
+                    if (mShouldLift != shouldLift) {
+                        v.postOnAnimationDelayed(150) { updateWindowColors() }
+                        mShouldLift = shouldLift
                     }
                 }
             }
@@ -447,7 +438,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                     if (dY == 0) return@runWithView
 
-                    Timber.tag("ScrollView").d(String.format("onFlingStopped: height: %d; offset|scrollY: %d; prevScrollY: %d; dY: %d;", condPnlHeight, scrollOffset, oldScrollY, dY))
+                    Timber.tag("ScrollView")
+                        .d("onFlingStopped: height: $condPnlHeight; offset|scrollY: $scrollOffset; prevScrollY: $oldScrollY; dY: $dY;")
 
                     if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
                         binding.scrollView.smoothScrollTo(0, 0)
@@ -464,7 +456,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         val animDY = getSplineFlingDistance(startvelocityY).toInt()
                         val animScrollY = oldScrollY + animDY
 
-                        Timber.tag("ScrollView").d(String.format("onFlingStopped: height: %d; animScrollY: %d; prevScrollY: %d; animDY: %d;", condPnlHeight, animScrollY, oldScrollY, animDY))
+                        Timber.tag("ScrollView")
+                            .d("onFlingStopped: height: $condPnlHeight; animScrollY: $animScrollY; prevScrollY: $oldScrollY; animDY: $animDY;")
 
                         if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
                             binding.scrollView.smoothScrollTo(0, 0)
@@ -492,8 +485,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
                     if (dY == 0) return@runWithView
 
-                    Timber.tag("ScrollView").d(String.format("onTouchScrollChange: height: %d; offset: %d; scrollY: %d; prevScrollY: %d; dY: %d",
-                            condPnlHeight, scrollOffset, scrollY, oldScrollY, dY))
+                    Timber.tag("ScrollView")
+                        .d("onTouchScrollChange: height: $condPnlHeight; offset: $scrollOffset; scrollY: $scrollY; prevScrollY: $oldScrollY; dY: $dY")
 
                     if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
                         binding.scrollView.smoothScrollTo(0, 0)
@@ -1218,14 +1211,25 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     }
 
     override fun updateWindowColors() {
-        var color = ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var backgroundColor =
+            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var navBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
+        var statusBarColor = navBarColor
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK
+            backgroundColor = Colors.BLACK
+            navBarColor = Colors.BLACK
+            statusBarColor = Colors.BLACK
         }
 
-        binding.toolbar.setBackgroundColor(color)
-        binding.rootView.setBackgroundColor(color)
-        binding.rootView.setStatusBarBackgroundColor(color)
+        binding.rootView.setBackgroundColor(backgroundColor)
+        if (binding.toolbar.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = binding.toolbar.background as MaterialShapeDrawable
+            materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
+            statusBarColor = materialShapeDrawable.getTintColor(binding.toolbar.context)
+        } else {
+            binding.toolbar.setBackgroundColor(navBarColor)
+        }
+        binding.rootView.setStatusBarBackgroundColor(statusBarColor)
     }
 
     @SuppressLint("MissingPermission")

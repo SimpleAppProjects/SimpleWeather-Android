@@ -604,7 +604,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                 snackbar.setAction(R.string.undo) { undoAction() }
 
                 val callback = object : MaterialSnackbar.Callback() {
-                    override fun onDismissed(transientBottomBar: MaterialSnackbar, event: Int) {
+                    override fun onDismissed(transientBottomBar: MaterialSnackbar?, event: Int) {
                         super.onDismissed(transientBottomBar, event)
 
                         if (event != DISMISS_EVENT_ACTION) {

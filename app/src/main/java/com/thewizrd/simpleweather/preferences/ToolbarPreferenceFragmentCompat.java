@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,11 +15,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
@@ -27,6 +27,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
+import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils;
 
 public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPreferenceFragmentCompat {
 
@@ -85,16 +86,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
         root.addView(inflatedView, lp);
 
-        // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         return root;
     }
 
@@ -104,6 +95,20 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
 
         // Toolbar
         binding.toolbar.setTitle(getTitle());
+        binding.appBar.setLiftOnScrollTargetViewId(getListView().getId());
+        getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+            boolean mShouldLift = false;
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                boolean shouldLift = recyclerView.canScrollVertically(-1) || recyclerView.getScrollY() > 0 || recyclerView.computeVerticalScrollOffset() > 0;
+                if (mShouldLift != shouldLift) {
+                    recyclerView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
+                    mShouldLift = shouldLift;
+                }
+            }
+        });
     }
 
     @Override
@@ -119,13 +124,20 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
     }
 
     protected final void updateWindowColors(UserThemeMode mode) {
-        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int backgroundColor = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int statusBarColor = ContextUtils.getColor(getAppCompatActivity(), R.attr.colorSurface);
         if (mode == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK;
+            backgroundColor = statusBarColor = Colors.BLACK;
         }
 
-        binding.coordinatorLayout.setBackgroundColor(color);
-        binding.appBar.setBackgroundColor(color);
-        binding.coordinatorLayout.setStatusBarBackgroundColor(color);
+        binding.coordinatorLayout.setBackgroundColor(backgroundColor);
+        if (binding.appBar.getBackground() instanceof MaterialShapeDrawable) {
+            MaterialShapeDrawable materialShapeDrawable = (MaterialShapeDrawable) binding.appBar.getBackground();
+            materialShapeDrawable.setFillColor(ColorStateList.valueOf(statusBarColor));
+            statusBarColor = MaterialShapeDrawableUtils.getTintColor(materialShapeDrawable, binding.appBar.getContext());
+        } else {
+            binding.appBar.setBackgroundColor(statusBarColor);
+        }
+        binding.coordinatorLayout.setStatusBarBackgroundColor(statusBarColor);
     }
 }

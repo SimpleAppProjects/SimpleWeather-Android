@@ -56,12 +56,31 @@ public final class ActivityUtils {
         }
 
         window.setStatusBarColor((setColors ?
-                (statBarProtected ?
-                        statusBarColor == Colors.TRANSPARENT ? ColorUtils.setAlphaComponent(backgroundColor, 0xB3) : statusBarColor :
-                        ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
+                (statBarProtected ? statusBarColor : ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
                 : Colors.TRANSPARENT));
         window.setNavigationBarColor((setColors ?
                 (navBarProtected ? navBarColor : ColorUtils.blendARGB(navBarColor, Colors.BLACK, 0.25f))
                 : Colors.TRANSPARENT));
+
+        ActivityUtils.setFullScreen(window, window.getStatusBarColor() == Colors.TRANSPARENT && window.getNavigationBarColor() == Colors.TRANSPARENT);
+    }
+
+    public static void setFullScreen(@NonNull Window window, boolean fullScreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(!fullScreen);
+        } else if (fullScreen) {
+            window.getDecorView().setSystemUiVisibility(
+                    window.getDecorView().getSystemUiVisibility()
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            );
+        } else {
+            int flags = window.getDecorView().getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            flags &= ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            window.getDecorView().setSystemUiVisibility(flags);
+        }
     }
 }

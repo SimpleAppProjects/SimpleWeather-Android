@@ -4,19 +4,19 @@
     <!-- Base application theme. -->
     <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@android:color/system_accent1_600</item>
-        <item name="colorPrimaryDark">@android:color/system_accent1_600</item>
+        <item name="colorPrimary">@android:color/system_accent1_200</item>
+        <item name="colorPrimaryDark">@android:color/system_accent1_200</item>
         <item name="colorAccent">?attr/colorSecondary</item>
-        <item name="colorSecondary">@android:color/system_accent2_600</item>
-        <item name="android:colorBackground">@android:color/system_neutral1_10</item>
-        <item name="colorSurface">@android:color/system_neutral1_10</item>
-        <item name="colorError">#ffb3261e</item>
+        <item name="colorSecondary">@android:color/system_accent2_200</item>
+        <item name="android:colorBackground">@android:color/system_neutral1_900</item>
+        <item name="colorSurface">@android:color/system_neutral1_900</item>
+        <item name="colorError">#fff2b8b5</item>
 
-        <item name="colorOnPrimary">@android:color/system_accent1_0</item>
-        <item name="colorOnSecondary">@android:color/system_accent2_0</item>
-        <item name="colorOnBackground">@android:color/system_neutral1_900</item>
-        <item name="colorOnSurface">@android:color/system_neutral1_900</item>
-        <item name="colorOnError">#ffffffff</item>
+        <item name="colorOnPrimary">@android:color/system_accent1_800</item>
+        <item name="colorOnSecondary">@android:color/system_accent2_800</item>
+        <item name="colorOnBackground">@android:color/system_neutral1_100</item>
+        <item name="colorOnSurface">@android:color/system_neutral1_100</item>
+        <item name="colorOnError">#ff601410</item>
 
         <!-- Elevation overlays. -->
         <item name="elevationOverlayEnabled">true</item>
@@ -101,10 +101,4 @@
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
     </style>
 
-    <style name="AppTheme.Launcher" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_anim</item>
-        <item name="windowSplashScreenAnimationDuration">1000</item>
-        <item name="windowSplashScreenBackground">@color/colorPrimaryBackground</item>
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
-    </style>
 </resources>

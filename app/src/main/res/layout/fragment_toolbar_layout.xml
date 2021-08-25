@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
@@ -13,7 +14,6 @@
         style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
         android:fitsSystemWindows="true"
         android:stateListAnimator="@animator/design_appbar_state_list_animator"
-        android:theme="@style/AppTheme.AppBarOverlay"
         app:liftOnScroll="true"
         tools:stateListAnimator="@null">
 
@@ -23,7 +23,6 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_collapseMode="pin"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="@color/invButtonColorText"
             tools:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>

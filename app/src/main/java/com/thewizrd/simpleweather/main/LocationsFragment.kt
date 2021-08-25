@@ -340,8 +340,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         mRequestingLocationUpdates = false
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun getScrollTargetViewId(): Int {
+        return binding.recyclerView.id
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
         // Inflate the layout for this fragment
         binding = FragmentLocationsBinding.inflate(inflater, root, true)

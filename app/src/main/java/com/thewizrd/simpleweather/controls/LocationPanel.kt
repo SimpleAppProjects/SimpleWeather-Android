@@ -75,7 +75,10 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         strokeWidth = ContextUtils.dpToPx(context, 1f).toInt()
         setStrokeColor(AppCompatResources.getColorStateList(context, if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_card_stroke_imageon else R.color.location_panel_card_stroke_imageoff))
         stateListAnimator = null
-        checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled()) ColorStateList.valueOf(Colors.WHITE) else ContextUtils.getColorStateList(context, R.attr.colorPrimary)
+        checkedIconTint =
+            if (FeatureSettings.isLocationPanelImageEnabled()) ColorStateList.valueOf(Colors.WHITE) else ColorStateList.valueOf(
+                ContextUtils.getColor(context, R.attr.colorPrimary)
+            )
         setRippleColorResource(if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_ripple_imageon else R.color.location_panel_ripple_imageoff)
         setCardForegroundColor(AppCompatResources.getColorStateList(context, if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_foreground_imageon else R.color.location_panel_foreground_imageoff))
 

@@ -1,28 +1,32 @@
 package com.thewizrd.simpleweather.fragments;
 
+import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
+import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
+import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils;
 
 public abstract class ToolbarFragment extends WindowColorFragment
         implements OnBackPressedFragmentListener {
@@ -50,6 +54,11 @@ public abstract class ToolbarFragment extends WindowColorFragment
     protected abstract @StringRes
     int getTitle();
 
+    protected @IdRes
+    int getScrollTargetViewId() {
+        return View.NO_ID;
+    }
+
     @CallSuper
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,16 +83,6 @@ public abstract class ToolbarFragment extends WindowColorFragment
         // Toolbar
         binding.toolbar.setTitle(getTitle());
 
-        // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), 0);
-                return insets;
-            }
-        });
-
         return root;
     }
 
@@ -91,6 +90,41 @@ public abstract class ToolbarFragment extends WindowColorFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.appBar.setLiftOnScrollTargetViewId(getScrollTargetViewId());
+        if (getView() != null && getScrollTargetViewId() != View.NO_ID) {
+            View scrollView = getView().findViewById(getScrollTargetViewId());
+            if (scrollView != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                        boolean mShouldLift = false;
+
+                        @Override
+                        public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                            boolean shouldLift = scrollView.canScrollVertically(-1) || scrollView.getScrollY() > 0;
+                            if (mShouldLift != shouldLift) {
+                                scrollView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
+                                mShouldLift = shouldLift;
+                            }
+                        }
+                    });
+                } else {
+                    scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                        boolean mShouldLift = false;
+
+                        @Override
+                        public void onScrollChanged() {
+                            if (scrollView != null) {
+                                boolean shouldLift = scrollView.canScrollVertically(-1) || scrollView.getScrollY() > 0;
+                                if (mShouldLift != shouldLift) {
+                                    scrollView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
+                                    mShouldLift = shouldLift;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 
     @Override
@@ -101,13 +135,20 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        int color = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int backgroundColor = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int statusBarColor = ContextUtils.getColor(getAppCompatActivity(), R.attr.colorSurface);
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK;
+            backgroundColor = statusBarColor = Colors.BLACK;
         }
 
-        binding.rootView.setBackgroundColor(color);
-        binding.appBar.setBackgroundColor(color);
-        binding.rootView.setStatusBarBackgroundColor(color);
+        binding.rootView.setBackgroundColor(backgroundColor);
+        if (binding.appBar.getBackground() instanceof MaterialShapeDrawable) {
+            MaterialShapeDrawable materialShapeDrawable = (MaterialShapeDrawable) binding.appBar.getBackground();
+            materialShapeDrawable.setFillColor(ColorStateList.valueOf(statusBarColor));
+            statusBarColor = MaterialShapeDrawableUtils.getTintColor(materialShapeDrawable, binding.appBar.getContext());
+        } else {
+            binding.appBar.setBackgroundColor(statusBarColor);
+        }
+        binding.rootView.setStatusBarBackgroundColor(statusBarColor);
     }
 }

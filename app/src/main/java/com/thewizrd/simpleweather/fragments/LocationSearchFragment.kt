@@ -406,15 +406,17 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     override fun updateWindowColors() {
-        val bg_color = if (getSettingsManager().getUserThemeMode() != UserThemeMode.AMOLED_DARK) {
+        var backgroundColor =
             ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        } else {
-            Colors.BLACK
+        var surfaceColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
+        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+            backgroundColor = Colors.BLACK
+            surfaceColor = Colors.BLACK
         }
 
-        binding.rootView.setBackgroundColor(bg_color)
-        binding.rootView.setStatusBarBackgroundColor(bg_color)
-        searchBarBinding.root.setBackgroundColor(bg_color)
+        binding.rootView.setBackgroundColor(backgroundColor)
+        binding.rootView.setStatusBarBackgroundColor(surfaceColor)
+        searchBarBinding.root.setBackgroundColor(surfaceColor)
     }
 
     override fun onDestroyView() {

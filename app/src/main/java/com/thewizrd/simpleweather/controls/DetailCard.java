@@ -17,6 +17,7 @@ import androidx.core.widget.ImageViewCompat;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.simpleweather.R;
@@ -107,7 +108,7 @@ public class DetailCard extends LinearLayout {
         final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
 
         setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
-        ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(isNightMode ? Colors.SIMPLEBLUELIGHT : Colors.SIMPLEBLUEDARK));
+        ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getColor(getContext(), R.attr.colorAccent)));
         setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
         setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
     }

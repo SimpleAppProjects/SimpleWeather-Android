@@ -2,19 +2,17 @@ package com.thewizrd.simpleweather.main
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewOutlineProvider
+import android.view.*
 import android.webkit.WebView
 import androidx.annotation.RequiresApi
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.OnApplyWindowInsetsListener
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -24,6 +22,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.helpers.ActivityUtils
 import com.thewizrd.shared_resources.helpers.ContextUtils
@@ -41,6 +40,7 @@ import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
+import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -58,6 +58,8 @@ class MainActivity : UserLocaleActivity(),
     private lateinit var binding: ActivityMainBinding
     private var mNavController: NavController? = null
 
+    private var prevConfig: Configuration? = null
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private var appUpdateManager: InAppUpdateManager? = null
 
@@ -72,21 +74,7 @@ class MainActivity : UserLocaleActivity(),
 
         binding.bottomNavBar.setOnNavigationItemSelectedListener(this)
 
-        // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar, object : OnApplyWindowInsetsListener {
-            private val paddingStart = ViewCompat.getPaddingStart(binding.bottomNavBar)
-            private val paddingTop = binding.bottomNavBar.paddingTop
-            private val paddingEnd = ViewCompat.getPaddingEnd(binding.bottomNavBar)
-            private val paddingBottom = binding.bottomNavBar.paddingBottom
-            override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-                ViewCompat.setPaddingRelative(v,
-                        paddingStart + insets.systemWindowInsetLeft,
-                        paddingTop,
-                        paddingEnd + insets.systemWindowInsetRight,
-                        paddingBottom + insets.systemWindowInsetBottom)
-                return insets
-            }
-        })
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets -> insets }
 
         binding.bottomNavBar.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
@@ -171,6 +159,7 @@ class MainActivity : UserLocaleActivity(),
 
     override fun onStart() {
         super.onStart()
+        prevConfig = Configuration(this.resources.configuration)
 
         AnalyticsLogger.logEvent("$TAG: onStart")
 
@@ -371,13 +360,38 @@ class MainActivity : UserLocaleActivity(),
     }
 
     private fun updateWindowColors(mode: UserThemeMode) {
-        var color = ContextUtils.getColor(this, android.R.attr.colorBackground)
+        var backgroundColor = ContextUtils.getColor(this, android.R.attr.colorBackground)
+        var navBarColor = ContextUtils.getColor(this, R.attr.colorSurface)
         if (mode == UserThemeMode.AMOLED_DARK) {
-            color = Colors.BLACK
+            backgroundColor = Colors.BLACK
+            navBarColor = Colors.BLACK
         }
 
-        ActivityUtils.setTransparentWindow(window, color, Colors.TRANSPARENT, color)
-        binding.root.setBackgroundColor(color)
-        binding.bottomNavBar.setBackgroundColor(color)
+        binding.root.setBackgroundColor(backgroundColor)
+        if (binding.bottomNavBar.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = binding.bottomNavBar.background as MaterialShapeDrawable
+            materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
+            navBarColor = materialShapeDrawable.getTintColor(this)
+        } else {
+            binding.bottomNavBar.setBackgroundColor(navBarColor)
+        }
+        ActivityUtils.setTransparentWindow(
+            window, backgroundColor, Colors.TRANSPARENT,
+            if (ContextUtils.getOrientation(this) == Configuration.ORIENTATION_PORTRAIT) {
+                Colors.TRANSPARENT
+            } else {
+                backgroundColor
+            }
+        )
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (prevConfig == null || (newConfig.diff(prevConfig) and ActivityInfo.CONFIG_ORIENTATION) != 0) {
+            updateWindowColors(settingsManager.getUserThemeMode())
+        }
+
+        prevConfig = Configuration(newConfig)
     }
 }
