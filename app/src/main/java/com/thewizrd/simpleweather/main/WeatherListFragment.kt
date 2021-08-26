@@ -1,12 +1,8 @@
 package com.thewizrd.simpleweather.main
 
-import android.graphics.Outline
 import android.os.Bundle
 import android.view.*
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -28,6 +24,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
+import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
@@ -43,6 +40,7 @@ class WeatherListFragment : ToolbarFragment() {
     private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
+    private lateinit var headerBinding: LayoutLocationHeaderBinding
     private var layoutManager: LinearLayoutManager? = null
 
     var weatherListType: WeatherListType? = null
@@ -118,37 +116,23 @@ class WeatherListFragment : ToolbarFragment() {
         val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true)
+        headerBinding = LayoutLocationHeaderBinding.inflate(inflater, appBarLayout, true)
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        val context = binding.root.context
-        val navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)!!).mutate()
-        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
-        toolbar.navigationIcon = navIcon
-
+        toolbar.setNavigationIcon(
+            ContextUtils.getResourceId(
+                toolbar.context,
+                R.attr.homeAsUpIndicator
+            )
+        )
         toolbar.setNavigationOnClickListener { v -> v.findNavController().navigateUp() }
-
-        binding.locationHeader.clipToOutline = false
-        binding.locationHeader.outlineProvider = object : ViewOutlineProvider() {
-            var elevation = context.resources.getDimensionPixelSize(R.dimen.appbar_elevation)
-
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRect(0, view.height - elevation, view.width, view.height)
-            }
-        }
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
         binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also { layoutManager = it }
-
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                updateHeaderElevation()
-            }
-        })
 
         return root
     }
@@ -157,35 +141,10 @@ class WeatherListFragment : ToolbarFragment() {
         return binding.recyclerView.id
     }
 
-    private fun updateHeaderElevation() {
-        binding.recyclerView.post {
-            runWithView {
-                if (binding.recyclerView.computeVerticalScrollOffset() > 0) {
-                    binding.locationHeader.elevation = ContextUtils.dpToPx(requireContext(), 4f)
-                } else {
-                    binding.locationHeader.elevation = 0f
-                }
-            }
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         args = WeatherListFragmentArgs.fromBundle(requireArguments())
-
-        binding.locationHeader.viewTreeObserver.addOnPreDrawListener(object :
-                ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                binding.locationHeader.viewTreeObserver.removeOnPreDrawListener(this)
-                runWithView {
-                    val layoutParams = binding.recyclerView.layoutParams as MarginLayoutParams
-                    layoutParams.topMargin = binding.locationHeader.height
-                    binding.recyclerView.layoutParams = layoutParams
-                }
-                return true
-            }
-        })
 
         binding.progressBar.visibility = View.VISIBLE
     }
@@ -269,14 +228,14 @@ class WeatherListFragment : ToolbarFragment() {
                             weatherView.updateView(weather)
                             forecastsView.updateForecasts(locationData!!)
                             alertsView.updateAlerts(locationData!!)
-                            binding.locationName.text = weatherView.location
+                            headerBinding.locationName.text = weatherView.location
                         }
                     }
                 }
             } else {
                 forecastsView.updateForecasts(locationData!!)
                 alertsView.updateAlerts(locationData!!)
-                binding.locationName.text = weatherView.location
+                headerBinding.locationName.text = weatherView.location
             }
 
             // specify an adapter (see also next example)
@@ -357,7 +316,6 @@ class WeatherListFragment : ToolbarFragment() {
                             binding.recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                             runWithView {
                                 layoutManager!!.scrollToPositionWithOffset(args!!.position, 0)
-                                updateHeaderElevation()
                             }
                         }
                     })
@@ -384,12 +342,10 @@ class WeatherListFragment : ToolbarFragment() {
 
         var backgroundColor =
             ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        var surfaceColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
-            surfaceColor = Colors.BLACK
         }
-        binding.locationHeader.setCardBackgroundColor(surfaceColor)
+
         binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 

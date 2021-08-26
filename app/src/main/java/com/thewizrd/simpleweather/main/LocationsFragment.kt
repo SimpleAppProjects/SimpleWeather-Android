@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
@@ -18,11 +17,9 @@ import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.MenuItemCompat
-import androidx.core.view.ViewCompat
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -244,9 +241,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            for (i in 0 until menu.size()) {
-                MenuItemCompat.setIconTintList(menu.getItem(i), ColorStateList.valueOf(ContextCompat.getColor(appCompatActivity!!, R.color.invButtonColorText)))
-            }
             return false
         }
 
@@ -384,6 +378,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         toolbar.setOnMenuItemClickListener(menuItemClickListener)
 
         // FAB
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            insets.replaceSystemWindowInsets(
+                insets.systemWindowInsetLeft,
+                insets.systemWindowInsetTop,
+                insets.systemWindowInsetRight,
+                0
+            )
+        }
         binding.fab.setOnClickListener {
             binding.root.findNavController()
                     .navigate(
@@ -560,17 +562,17 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         val editMenuBtn = optionsMenu!!.findItem(R.id.action_editmode)
         if (editMenuBtn != null) {
             editMenuBtn.isVisible = !onlyHomeIsLeft
-            MenuItemCompat.setIconTintList(editMenuBtn, ColorStateList.valueOf(ContextCompat.getColor(appCompatActivity!!, R.color.invButtonColorText)))
         }
     }
 
-    private val menuItemClickListener = Toolbar.OnMenuItemClickListener { item -> // Handle action bar item clicks here. The action bar will
+    private val menuItemClickListener = Toolbar.OnMenuItemClickListener { item ->
+        // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent AppCompatActivity in AndroidManifest.xml.
         val id = item.itemId
 
         if (id == R.id.action_editmode) {
-            actionMode = appCompatActivity!!.startSupportActionMode(actionModeCallback)
+            actionMode = appCompatActivity?.startSupportActionMode(actionModeCallback)
             return@OnMenuItemClickListener true
         }
 
@@ -943,7 +945,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private val onRecyclerLongClickListener = RecyclerOnClickListenerInterface { view, position ->
         if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
             if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
-                actionMode = appCompatActivity!!.startSupportActionMode(actionModeCallback)
+                actionMode = appCompatActivity?.startSupportActionMode(actionModeCallback)
 
                 val model = mAdapter.getPanelViewModel(position)
                 if (model != null) {

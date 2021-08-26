@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.widgets
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.graphics.ColorUtils
 import androidx.navigation.fragment.NavHostFragment
 import com.thewizrd.shared_resources.helpers.ActivityUtils
 import com.thewizrd.shared_resources.helpers.ContextUtils
@@ -43,7 +44,13 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
             color = Colors.BLACK
         }
 
-        ActivityUtils.setTransparentWindow(window, color, Colors.TRANSPARENT, Colors.TRANSPARENT)
+        ActivityUtils.setTransparentWindow(
+            window,
+            color,
+            Colors.TRANSPARENT,
+            ColorUtils.setAlphaComponent(color, 0xB3)
+        )
+        ActivityUtils.setFullScreen(window, true)
 
         val args = Bundle().apply {
             putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)

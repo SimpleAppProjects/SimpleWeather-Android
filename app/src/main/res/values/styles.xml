@@ -82,11 +82,6 @@
         </item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Material.LargeComponent
         </item>
-
-        <!-- SnackBar Style -->
-        <item name="snackbarStyle">@style/SnackBarStyle</item>
-        <item name="snackbarButtonStyle">@style/SnackBarButtonStyle</item>
-        <item name="snackbarTextViewStyle">@style/SnackBarTextViewStyle</item>
     </style>
 
     <style name="AppTheme.Base" parent="Base.AppTheme">
@@ -95,28 +90,26 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
 
-        <item name="android:windowActionModeOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
-
-        <item name="android:actionModeCloseButtonStyle">@style/CloseButton</item>
         <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
-        <item name="actionModeStyle">@style/ActionModeStyle</item>
-        <item name="android:actionModeStyle">@style/ActionModeStyle</item>
-        <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
     </style>
 
-    <style name="CloseButton" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
-        <item name="android:tint">@color/invButtonColorText</item>
+    <style name="CloseButton" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:tint">?attr/colorControlNormal</item>
     </style>
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
         <item name="titleTextStyle">@style/TextAppearance.OpenSans.ActionModeTitle</item>
+        <item name="background">?android:attr/colorBackground</item>
+        <item name="backgroundSplit">?android:attr/colorBackground</item>
     </style>
 
     <style name="TextAppearance.OpenSans.ActionModeTitle" parent="TextAppearance.OpenSans.Title">
-        <item name="android:textColor">@color/invButtonColorText</item>
-        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="fontFamily">@font/open_sans</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
@@ -363,32 +356,6 @@
     <style name="ShapeAppearance.Material.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/shape_corner_radius</item>
-    </style>
-
-    <style name="SnackBarStyle" parent="@style/Widget.MaterialComponents.Snackbar">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Snackbar</item>
-        <item name="backgroundOverlayColorAlpha">1.0</item>
-        <item name="actionTextColorAlpha">1.0</item>
-    </style>
-
-    <style name="SnackBarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
-        <item name="android:textColor">@color/colorPrimaryLight</item>
-    </style>
-
-    <style name="SnackBarTextViewStyle" parent="@style/Widget.MaterialComponents.Snackbar.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.Design.Snackbar.Message</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="TextAppearance.Design.Snackbar.Message" parent="TextAppearance.OpenSans.Body2" tools:override="true">
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="ThemeOverlay.App.Snackbar" parent="">
-        <item name="colorPrimary">@color/colorPrimaryLight</item>
-        <item name="colorOnSurface" tools:ignore="PrivateResource">
-            @color/design_snackbar_background_color
-        </item>
     </style>
 
 </resources>

@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,7 +12,6 @@ import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.thewizrd.shared_resources.Constants
@@ -43,6 +44,7 @@ import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback
+import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -270,14 +272,6 @@ class LocationSearchFragment : WindowColorFragment() {
         // Initialize
         view.setOnClickListener { v -> v.findNavController().navigateUp() }
         searchBarBinding.searchBackButton.setOnClickListener { v -> v.findNavController().navigateUp() }
-
-        // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val layoutParams = v.layoutParams as MarginLayoutParams
-            layoutParams.setMargins(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
-            insets
-        }
-
         searchBarBinding.searchCloseButton.setOnClickListener { searchBarBinding.searchView.setText("") }
         searchBarBinding.searchCloseButton.visibility = View.GONE
 
@@ -366,16 +360,6 @@ class LocationSearchFragment : WindowColorFragment() {
                 return false
             }
         })
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (recyclerView.computeVerticalScrollOffset() > 0) {
-                    ViewCompat.setElevation(searchBarBinding.root, ContextUtils.dpToPx(appCompatActivity!!, 4f))
-                } else {
-                    ViewCompat.setElevation(searchBarBinding.root, 0f)
-                }
-            }
-        })
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -408,15 +392,21 @@ class LocationSearchFragment : WindowColorFragment() {
     override fun updateWindowColors() {
         var backgroundColor =
             ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        var surfaceColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
+        var statusBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
-            surfaceColor = Colors.BLACK
+            statusBarColor = Colors.BLACK
         }
 
         binding.rootView.setBackgroundColor(backgroundColor)
-        binding.rootView.setStatusBarBackgroundColor(surfaceColor)
-        searchBarBinding.root.setBackgroundColor(surfaceColor)
+        if (binding.appBar.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = binding.appBar.background as MaterialShapeDrawable
+            materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
+            statusBarColor = materialShapeDrawable.getTintColor(binding.appBar.context)
+        } else {
+            binding.appBar.setBackgroundColor(statusBarColor)
+        }
+        binding.rootView.setStatusBarBackgroundColor(statusBarColor)
     }
 
     override fun onDestroyView() {

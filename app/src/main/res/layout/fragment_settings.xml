@@ -16,13 +16,15 @@
         android:fitsSystemWindows="true"
         android:stateListAnimator="@animator/design_appbar_state_list_animator"
         app:liftOnScroll="true"
-        tools:stateListAnimator="@null">
+        tools:stateListAnimator="@null"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_collapseMode="pin"
+            app:navigationIcon="?attr/homeAsUpIndicator"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/title_activity_settings" />
 

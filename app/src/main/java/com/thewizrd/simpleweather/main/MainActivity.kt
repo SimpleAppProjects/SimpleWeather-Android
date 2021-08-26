@@ -34,19 +34,19 @@ import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
+import com.thewizrd.simpleweather.helpers.WindowColorManager
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
 import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
-import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : UserLocaleActivity(),
-        BottomNavigationView.OnNavigationItemSelectedListener,
-        OnThemeChangeListener {
+    BottomNavigationView.OnNavigationItemSelectedListener,
+    OnThemeChangeListener, WindowColorManager {
 
     companion object {
         private const val TAG = "MainActivity"
@@ -89,7 +89,7 @@ class MainActivity : UserLocaleActivity(),
         // Back stack listener
         supportFragmentManager.addOnBackStackChangedListener { refreshNavViewCheckedItem() }
 
-        updateWindowColors(settingsManager.getUserThemeMode())
+        updateWindowColors()
 
         lifecycleScope.launch {
             val args = Bundle()
@@ -359,6 +359,10 @@ class MainActivity : UserLocaleActivity(),
         updateWindowColors(mode)
     }
 
+    override fun updateWindowColors() {
+        updateWindowColors(settingsManager.getUserThemeMode())
+    }
+
     private fun updateWindowColors(mode: UserThemeMode) {
         var backgroundColor = ContextUtils.getColor(this, android.R.attr.colorBackground)
         var navBarColor = ContextUtils.getColor(this, R.attr.colorSurface)
@@ -371,7 +375,6 @@ class MainActivity : UserLocaleActivity(),
         if (binding.bottomNavBar.background is MaterialShapeDrawable) {
             val materialShapeDrawable = binding.bottomNavBar.background as MaterialShapeDrawable
             materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
-            navBarColor = materialShapeDrawable.getTintColor(this)
         } else {
             binding.bottomNavBar.setBackgroundColor(navBarColor)
         }
@@ -382,6 +385,10 @@ class MainActivity : UserLocaleActivity(),
             } else {
                 backgroundColor
             }
+        )
+        ActivityUtils.setFullScreen(
+            window,
+            ContextUtils.getOrientation(this) == Configuration.ORIENTATION_PORTRAIT
         )
     }
 

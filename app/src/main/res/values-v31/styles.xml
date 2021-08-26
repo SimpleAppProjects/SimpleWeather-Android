@@ -90,15 +90,10 @@
     </style>
 
     <style name="AppTheme.Base" parent="Base.AppTheme">
-        <item name="android:windowActionModeOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
-
-        <item name="android:actionModeCloseButtonStyle">@style/CloseButton</item>
         <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
-        <item name="actionModeStyle">@style/ActionModeStyle</item>
-        <item name="android:actionModeStyle">@style/ActionModeStyle</item>
-        <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
     </style>
 
     <style name="AppTheme.Launcher" parent="Theme.SplashScreen">

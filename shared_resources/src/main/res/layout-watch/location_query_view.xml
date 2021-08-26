@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             app:srcCompat="@drawable/ic_place_white_24dp"
-            app:tint="@color/colorPrimary"
+            app:tint="?attr/colorPrimary"
             android:visibility="@{StringUtils.isNullOrWhitespace(viewModel.locationQuery) &amp;&amp; StringUtils.isNullOrWhitespace(viewModel.locationCountry) ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

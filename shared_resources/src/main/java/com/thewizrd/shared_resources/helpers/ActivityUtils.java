@@ -61,8 +61,6 @@ public final class ActivityUtils {
         window.setNavigationBarColor((setColors ?
                 (navBarProtected ? navBarColor : ColorUtils.blendARGB(navBarColor, Colors.BLACK, 0.25f))
                 : Colors.TRANSPARENT));
-
-        ActivityUtils.setFullScreen(window, window.getStatusBarColor() == Colors.TRANSPARENT && window.getNavigationBarColor() == Colors.TRANSPARENT);
     }
 
     public static void setFullScreen(@NonNull Window window, boolean fullScreen) {

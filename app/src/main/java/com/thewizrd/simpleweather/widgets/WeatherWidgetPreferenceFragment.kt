@@ -15,18 +15,16 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.*
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -229,13 +227,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         binding.layoutContainer.addView(inflatedView, layoutIdx + 1)
 
         // For landscape orientation
-        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-            val layoutParams = v.layoutParams as MarginLayoutParams
-            layoutParams.setMargins(
-                insets.systemWindowInsetLeft,
-                0,
-                insets.systemWindowInsetRight,
-                insets.systemWindowInsetBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            v.updatePaddingRelative(
+                start = insets.systemWindowInsetLeft,
+                end = insets.systemWindowInsetRight,
+                bottom = insets.systemWindowInsetBottom
             )
             insets
         }
@@ -244,16 +240,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         appCompatActivity.setSupportActionBar(toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val context = root.context
-        val navIcon = DrawableCompat.wrap(
-            ContextCompat.getDrawable(
-                context,
-                R.drawable.ic_arrow_back_white_24dp
-            )!!
-        ).mutate()
-        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText))
-        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(navIcon)
 
         binding.widgetCompleteBtn.setOnClickListener {
             prepareWidget()
@@ -349,6 +335,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             if (locationPref.entryCount > MAX_LOCATIONS)
                 locationPref.removeEntry(locationPref.entryCount - 1)
 
+            // Reset value
+            locationPref.value = null
+
             if (!args.simpleWeatherDroidExtraLOCATIONQUERY.isNullOrBlank()) {
                 val locName = args.simpleWeatherDroidExtraLOCATIONNAME
                 val locQuery = args.simpleWeatherDroidExtraLOCATIONQUERY
@@ -371,6 +360,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         if (locationPref.value == Constants.KEY_GPS && !appCompatActivity.backgroundLocationPermissionEnabled()) {
                             binding.bgLocationLayout.visibility = View.VISIBLE
                         }
+                        updateLocationView()
                     }
                 })
         }
@@ -659,13 +649,17 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         initializeWidget()
 
         // Resize necessary views
-        binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        binding.root.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 binding.root.viewTreeObserver.removeOnPreDrawListener(this)
                 runWithView { resizeWidgetContainer() }
                 return true
             }
         })
+
+        listView.clearOnScrollListeners()
+        appBarLayout.liftOnScrollTargetViewId = binding.scrollView.id
     }
 
     private fun updateClockPreference() {

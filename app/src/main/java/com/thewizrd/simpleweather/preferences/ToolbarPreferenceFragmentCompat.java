@@ -1,8 +1,6 @@
 package com.thewizrd.simpleweather.preferences;
 
-import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -70,17 +66,7 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         ViewGroup root = binding.coordinatorLayout;
         View inflatedView = super.onCreateView(inflater, container, savedInstanceState);
 
-        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAppCompatActivity().onBackPressed();
-            }
-        });
-
-        Context context = root.getContext();
-        Drawable navIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_white_24dp)).mutate();
-        DrawableCompat.setTint(navIcon, ContextCompat.getColor(context, R.color.invButtonColorText));
-        binding.toolbar.setNavigationIcon(navIcon);
+        binding.toolbar.setNavigationOnClickListener(v -> getAppCompatActivity().onBackPressed());
 
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
