@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <color name="widget_innerview_background_color">@android:color/system_accent1_100</color>
 
-    <color name="invColorText">@android:color/system_accent1_500</color>
-    <color name="invButtonColorText">@android:color/system_accent1_500</color>
-    <color name="invButtonColorTextHint">@android:color/system_accent2_200</color>
-
-    <color name="abc_decor_view_status_guard" tools:override="true">
-        @android:color/system_neutral1_900
-    </color>
-    <color name="abc_decor_view_status_guard_light" tools:override="true">
-        @android:color/system_neutral1_10
-    </color>
+    <color name="invColorText">@android:color/system_accent1_600</color>
+    <color name="invButtonColorText">@android:color/system_accent1_600</color>
+    <color name="invButtonColorTextHint">@android:color/system_accent2_600</color>
 
 </resources>

@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.shape.MaterialShapeDrawable;
@@ -82,19 +81,6 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         // Toolbar
         binding.toolbar.setTitle(getTitle());
         binding.appBar.setLiftOnScrollTargetViewId(getListView().getId());
-        getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
-            boolean mShouldLift = false;
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                boolean shouldLift = recyclerView.canScrollVertically(-1) || recyclerView.getScrollY() > 0 || recyclerView.computeVerticalScrollOffset() > 0;
-                if (mShouldLift != shouldLift) {
-                    recyclerView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
-                    mShouldLift = shouldLift;
-                }
-            }
-        });
     }
 
     @Override

@@ -15,7 +15,6 @@ import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
@@ -74,7 +73,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private lateinit var mITHCallback: ItemTouchHelperCallback
-    private var actionMode: ActionMode? = null
 
     // GPS Location
     private lateinit var locationProvider: LocationProvider
@@ -85,9 +83,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
      */
     private var mRequestingLocationUpdates = false
     private val mMainHandler = Handler(Looper.getMainLooper())
-
-    // OptionsMenu
-    private var optionsMenu: Menu? = null
 
     private var onBackPressedCallback: OnBackPressedCallback? = null
 
@@ -226,44 +221,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
     }
 
-    private val actionModeCallback: ActionMode.Callback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.title = if (!mAdapter.selectedItems.isEmpty()) mAdapter.selectedItems.size.toString() else ""
-
-            val inflater = mode.menuInflater
-            inflater.inflate(R.menu.locations_context, menu)
-
-            val deleteBtnItem = menu.findItem(R.id.action_delete)
-            deleteBtnItem?.isVisible = mAdapter.selectedItems.isNotEmpty()
-
-            if (!mEditMode) toggleEditMode()
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            return false
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                R.id.action_delete -> {
-                    mAdapter.removeSelectedItems()
-                    true
-                }
-                R.id.action_done -> {
-                    mode.finish()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            actionMode = null
-            if (mEditMode) toggleEditMode()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -388,12 +345,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
         binding.fab.setOnClickListener {
             binding.root.findNavController()
-                    .navigate(
-                            LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment(),
-                            FragmentNavigator.Extras.Builder()
-                                    .addSharedElement(binding.fab, Constants.SHARED_ELEMENT)
-                                    .build()
-                    )
+                .navigate(
+                    LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment(),
+                    FragmentNavigator.Extras.Builder()
+                        .addSharedElement(binding.fab, Constants.SHARED_ELEMENT)
+                        .build()
+                )
         }
         ViewCompat.setTransitionName(binding.fab, Constants.SHARED_ELEMENT)
 
@@ -554,29 +511,32 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun createOptionsMenu() {
         // Inflate the menu; this adds items to the action bar if it is present.
         val menu = toolbar.menu
-        optionsMenu = menu
         menu.clear()
         toolbar.inflateMenu(R.menu.locations)
 
-        val onlyHomeIsLeft = mAdapter.getFavoritesCount() == 1
-        val editMenuBtn = optionsMenu!!.findItem(R.id.action_editmode)
-        if (editMenuBtn != null) {
-            editMenuBtn.isVisible = !onlyHomeIsLeft
-        }
+        val editMenuBtn = menu?.findItem(R.id.action_editmode)
+        editMenuBtn?.isVisible = !mEditMode && mAdapter.getFavoritesCount() > 1
     }
 
     private val menuItemClickListener = Toolbar.OnMenuItemClickListener { item ->
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent AppCompatActivity in AndroidManifest.xml.
-        val id = item.itemId
-
-        if (id == R.id.action_editmode) {
-            actionMode = appCompatActivity?.startSupportActionMode(actionModeCallback)
-            return@OnMenuItemClickListener true
+        when (item.itemId) {
+            R.id.action_editmode -> {
+                toggleEditMode()
+                return@OnMenuItemClickListener true
+            }
+            R.id.action_delete -> {
+                mAdapter.removeSelectedItems()
+                return@OnMenuItemClickListener true
+            }
+            R.id.action_done -> {
+                toggleEditMode()
+                true
+            }
+            else -> false
         }
-
-        false
     }
 
     private fun resume() {
@@ -603,8 +563,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     override fun onPause() {
         AnalyticsLogger.logEvent("LocationsFragment: onPause")
 
-        // End actionmode
-        actionMode?.finish()
+        // End edit mode
+        if (mEditMode) {
+            toggleEditMode()
+        }
 
         // Remove location updates to save battery.
         stopLocationUpdates()
@@ -904,8 +866,9 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private val onListChangedListener = object : OnListChangedListener<LocationPanelViewModel>() {
         override fun onChanged(sender: ArrayList<LocationPanelViewModel>, e: ListChangedArgs<LocationPanelViewModel>) {
             runWithView(Dispatchers.Main) {
-                val dataMoved = e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE
-                val onlyHomeIsLeft = mAdapter.getFavoritesCount() == 1
+                val dataMoved =
+                    e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE
+                val onlyHomeIsLeft = mAdapter.getFavoritesCount() <= 1
 
                 // Flag that data has changed
                 if (mEditMode && dataMoved)
@@ -925,18 +888,18 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 if (mEditMode && onlyHomeIsLeft) toggleEditMode()
 
                 // Disable EditMode if only single location
-                val editMenuBtn = optionsMenu?.findItem(R.id.action_editmode)
-                editMenuBtn?.isVisible = !onlyHomeIsLeft
+                val editMenuBtn = toolbar?.menu?.findItem(R.id.action_editmode)
+                editMenuBtn?.isVisible = if (mEditMode) false else !onlyHomeIsLeft
             }
         }
     }
     private val onSelectionChangedListener = object : OnListChangedListener<LocationPanelViewModel>() {
         override fun onChanged(sender: ArrayList<LocationPanelViewModel>, args: ListChangedArgs<LocationPanelViewModel>) {
             runWithView(Dispatchers.Main) {
-                if (actionMode != null) {
-                    actionMode!!.title = if (sender.isNotEmpty()) sender.size.toString() else ""
+                if (mEditMode) {
+                    toolbar!!.title = if (sender.isNotEmpty()) sender.size.toString() else ""
 
-                    val deleteBtnItem = actionMode!!.menu.findItem(R.id.action_delete)
+                    val deleteBtnItem = toolbar!!.menu.findItem(R.id.action_delete)
                     deleteBtnItem?.isVisible = sender.isNotEmpty()
                 }
             }
@@ -945,7 +908,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private val onRecyclerLongClickListener = RecyclerOnClickListenerInterface { view, position ->
         if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
             if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
-                actionMode = appCompatActivity?.startSupportActionMode(actionModeCallback)
+                toggleEditMode()
 
                 val model = mAdapter.getPanelViewModel(position)
                 if (model != null) {
@@ -974,8 +937,9 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             mAdapter.setOnClickListener(onRecyclerClickListener)
             mAdapter.setOnLongClickListener(onRecyclerLongClickListener)
             mAdapter.clearSelection()
-            actionMode?.finish()
         }
+
+        updateToolbarForEditMode(mEditMode)
 
         for (view in mAdapter.getDataset()) {
             view.isEditMode = mEditMode
@@ -993,14 +957,57 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         if (!mEditMode && mHomeChanged) {
             Timber.tag(TAG).d("Home changed; sending update")
             LocalBroadcastManager.getInstance(instance.appContext)
-                    .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-                            .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
+                .sendBroadcast(
+                    Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
+                )
             LocalBroadcastManager.getInstance(instance.appContext)
-                    .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
+                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
         }
 
         mDataChanged = false
         mHomeChanged = false
+    }
+
+    private fun updateToolbarForEditMode(inEditMode: Boolean) {
+        if (inEditMode) {
+            toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp)
+            toolbar.setNavigationOnClickListener {
+                toggleEditMode()
+            }
+            toolbar.title = if (mAdapter.selectedItems.isNotEmpty()) {
+                mAdapter.selectedItems.size.toString()
+            } else {
+                ""
+            }
+        } else {
+            toolbar.navigationIcon = null
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setTitle(title)
+        }
+
+        toolbar.menu.forEach {
+            when (it.itemId) {
+                R.id.action_editmode -> {
+                    it.isVisible = if (inEditMode) {
+                        false
+                    } else {
+                        mAdapter.getFavoritesCount() > 1
+                    }
+                }
+                R.id.action_delete -> {
+                    it.isVisible = if (inEditMode) {
+                        mAdapter.selectedItems.isNotEmpty()
+                    } else {
+                        false
+                    }
+                }
+                R.id.action_done -> {
+                    it.isVisible = inEditMode
+                }
+                else -> it.isVisible = !inEditMode
+            }
+        }
     }
 
     private fun updateFavoritesPosition(view: LocationPanelViewModel) {

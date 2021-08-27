@@ -378,6 +378,7 @@ class MainActivity : UserLocaleActivity(),
         } else {
             binding.bottomNavBar.setBackgroundColor(navBarColor)
         }
+
         ActivityUtils.setTransparentWindow(
             window, backgroundColor, Colors.TRANSPARENT,
             if (ContextUtils.getOrientation(this) == Configuration.ORIENTATION_PORTRAIT) {

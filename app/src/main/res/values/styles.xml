@@ -106,6 +106,14 @@
         <item name="backgroundSplit">?android:attr/colorBackground</item>
     </style>
 
+    <style name="ToolbarSurfaceTheme" parent="@style/ThemeOverlay.MaterialComponents.Toolbar.Surface">
+        <item name="toolbarNavigationButtonStyle">@style/ToolbarNavButtonStyle</item>
+    </style>
+
+    <style name="ToolbarNavButtonStyle" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="tint">?attr/colorControlNormal</item>
+    </style>
+
     <style name="TextAppearance.OpenSans.ActionModeTitle" parent="TextAppearance.OpenSans.Title">
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="fontFamily">@font/open_sans</item>
@@ -132,10 +140,6 @@
     <style name="ActionButton" parent="Widget.AppCompat.ActionButton">
         <item name="android:drawablePadding">8dp</item>
     </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
     <style name="WeatherDetails" parent="@style/TextAppearance.OpenSans.Medium.Inverse">
         <item name="android:textColor">@android:color/white</item>

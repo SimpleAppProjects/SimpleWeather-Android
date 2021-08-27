@@ -1,12 +1,10 @@
 package com.thewizrd.simpleweather.fragments;
 
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
@@ -91,40 +89,6 @@ public abstract class ToolbarFragment extends WindowColorFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.appBar.setLiftOnScrollTargetViewId(getScrollTargetViewId());
-        if (getView() != null && getScrollTargetViewId() != View.NO_ID) {
-            View scrollView = getView().findViewById(getScrollTargetViewId());
-            if (scrollView != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                        boolean mShouldLift = false;
-
-                        @Override
-                        public void onScrollChange(View view, int i, int i1, int i2, int i3) {
-                            boolean shouldLift = scrollView.canScrollVertically(-1) || scrollView.getScrollY() > 0;
-                            if (mShouldLift != shouldLift) {
-                                scrollView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
-                                mShouldLift = shouldLift;
-                            }
-                        }
-                    });
-                } else {
-                    scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-                        boolean mShouldLift = false;
-
-                        @Override
-                        public void onScrollChanged() {
-                            if (scrollView != null) {
-                                boolean shouldLift = scrollView.canScrollVertically(-1) || scrollView.getScrollY() > 0;
-                                if (mShouldLift != shouldLift) {
-                                    scrollView.postOnAnimationDelayed(() -> updateWindowColors(), 150);
-                                    mShouldLift = shouldLift;
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        }
     }
 
     @Override
