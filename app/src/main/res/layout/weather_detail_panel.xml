@@ -10,7 +10,8 @@
 
     <merge
         tools:context=".controls.WeatherDetailItem"
-        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/header_card"
@@ -55,7 +56,6 @@
                     android:maxLines="1"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification.Title"
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="@dimen/not_primary_textSize"
                     android:textStyle="bold"
@@ -76,7 +76,6 @@
                     android:maxLines="1"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="@dimen/not_primary_textSize"
                     app:layout_constraintBottom_toTopOf="@id/forecast_extra_barrier"
@@ -108,7 +107,6 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="4dp"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
@@ -137,7 +135,6 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="4dp"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
@@ -165,7 +162,6 @@
                     android:paddingBottom="4dp"
                     android:ellipsize="end"
                     android:scrollbars="none"
-                    android:textAppearance="@style/TextAppearance.Compat.Notification"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/not_primary_textSize"
                     android:visibility="gone"
@@ -208,7 +204,8 @@
                 android:paddingLeft="16dp"
                 android:paddingEnd="16dp"
                 android:paddingRight="16dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textSize="14sp"
                 tools:text="Hello \t\t\t\t\t 50%\nHello" />
         </com.google.android.material.card.MaterialCardView>
 

@@ -77,7 +77,7 @@
                     android:paddingTop="4dp"
                     android:paddingEnd="@dimen/wnow_horizontal_padding"
                     android:text="@{weatherView.location}"
-                    android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
+                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"

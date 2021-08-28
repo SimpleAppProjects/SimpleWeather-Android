@@ -41,7 +41,7 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:text="@string/pref_category_providers"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textAppearance="?attr/textAppearanceHeadline5"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"

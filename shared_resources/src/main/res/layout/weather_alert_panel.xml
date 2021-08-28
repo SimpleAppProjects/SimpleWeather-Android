@@ -12,7 +12,9 @@
             type="com.thewizrd.shared_resources.controls.WeatherAlertViewModel" />
     </data>
 
-    <merge tools:parentTag="android.widget.RelativeLayout">
+    <merge
+        tools:parentTag="android.widget.RelativeLayout"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/header_card"
@@ -25,7 +27,7 @@
             android:layout_alignParentTop="true"
             app:cardBackgroundColor="@{viewModel.alertSeverityColor}"
             app:cardCornerRadius="0dp"
-            tools:background="@android:color/red">
+            tools:cardBackgroundColor="@color/colorError">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,7 +61,7 @@
                     android:paddingStart="8dp"
                     android:singleLine="true"
                     android:text="@{viewModel.title}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textAppearance="?attr/textAppearanceListItemSmall"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -79,7 +81,7 @@
                     android:paddingStart="8dp"
                     android:singleLine="true"
                     android:text="@{viewModel.postDate}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Tooltip"
+                    android:textAppearance="?attr/textAppearanceListItemSmall"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -117,7 +119,8 @@
                 android:layout_height="wrap_content"
                 android:padding="24dp"
                 android:text="@{viewModel.alertBodyMessage}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textSize="14sp"
                 tools:text="TextView" />
 
         </androidx.cardview.widget.CardView>

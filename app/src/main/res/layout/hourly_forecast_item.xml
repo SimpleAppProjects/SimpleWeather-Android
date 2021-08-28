@@ -17,7 +17,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="100dp"
         android:layout_height="150dp"
-        android:background="?attr/selectableItemBackground">
+        android:background="?attr/selectableItemBackground"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <TextView
             android:id="@+id/forecast_date"
