@@ -82,10 +82,14 @@ fun createForecast(item: IntervalsItem): Forecast {
     return Forecast().apply {
         date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
             .toLocalDateTime()
-        highF = ConversionMethods.CtoF(item.values.temperatureMax)
-        highC = item.values.temperatureMax
-        lowF = ConversionMethods.CtoF(item.values.temperatureMin)
-        lowC = item.values.temperatureMin
+        item.values.temperatureMax?.let {
+            highF = ConversionMethods.CtoF(it)
+            highC = it
+        }
+        item.values.temperatureMin?.let {
+            lowF = ConversionMethods.CtoF(it)
+            lowC = it
+        }
 
         icon = item.values.weatherCode?.toString()
 
