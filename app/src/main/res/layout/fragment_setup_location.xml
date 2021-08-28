@@ -10,7 +10,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         tools:context=".setup.SetupLocationFragment"
-        tools:background="@color/colorPrimaryBackground">
+        tools:background="@color/colorPrimaryBackground"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/main_logo"
@@ -63,7 +64,6 @@
             android:textColor="@color/invButtonColorText"
             style="@style/Widget.MaterialComponents.Button"
             app:backgroundTint="?attr/colorSurface"
-            app:elevation="@dimen/appbar_elevation"
             app:icon="@drawable/ic_my_location_white_24dp"
             app:iconPadding="8dp"
             app:iconTint="@color/invButtonColorText"
