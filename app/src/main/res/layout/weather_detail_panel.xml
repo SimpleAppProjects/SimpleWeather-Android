@@ -204,6 +204,7 @@
                 android:paddingLeft="16dp"
                 android:paddingEnd="16dp"
                 android:paddingRight="16dp"
+                android:letterSpacing="0"
                 android:textAppearance="?attr/textAppearanceBody1"
                 android:textSize="14sp"
                 tools:text="Hello \t\t\t\t\t 50%\nHello" />
