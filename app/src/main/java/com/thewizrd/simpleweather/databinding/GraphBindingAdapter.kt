@@ -85,6 +85,10 @@ object GraphBindingAdapter {
             entry.xIcon = createIconDrawable(context, forecast.icon)
 
             // Temp Data
+            if (forecast.highF == null && forecast.lowF == null) {
+                continue
+            }
+
             if (forecast.highF != null && forecast.highC != null) {
                 val value =
                     if (isFahrenheit) forecast.highF.roundToInt() else forecast.highC.roundToInt()

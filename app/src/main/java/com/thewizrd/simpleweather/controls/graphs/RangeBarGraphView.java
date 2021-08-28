@@ -376,6 +376,11 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                         loY = ((entry.getLoTempData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphHeight) + graphHeight;
                     }
 
+                    // Skip empty entry
+                    if (hiY == null && loY == null) {
+                        continue;
+                    }
+
                     if (hiY == null) {
                         hiY = loY;
                     }
