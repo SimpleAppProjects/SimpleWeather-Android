@@ -18,6 +18,7 @@
             android:orientation="vertical"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:clipToPadding="false"
             app:layout_anchor="@id/app_bar"
             app:layout_anchorGravity="bottom"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
