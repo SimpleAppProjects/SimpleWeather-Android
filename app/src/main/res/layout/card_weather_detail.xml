@@ -25,7 +25,6 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@{viewModel.label}"
-            android:textAppearance="@style/ShadowText"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/forecast_condition_size"
             app:layout_constrainedHeight="true"
@@ -61,7 +60,6 @@
             android:gravity="center"
             android:scrollbars="none"
             android:text="@{viewModel.value}"
-            android:textAppearance="@style/ShadowText"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/forecast_condition_size"
             tools:text="50.00 in" />

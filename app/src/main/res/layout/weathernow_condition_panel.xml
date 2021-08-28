@@ -88,7 +88,6 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/bg_attribution"
-                style="@style/ShadowText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -99,7 +98,6 @@
                 android:gravity="end"
                 android:linksClickable="true"
                 android:padding="4dp"
-                android:shadowColor="@android:color/black"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="@android:color/white"
                 android:textColorLink="@android:color/white"

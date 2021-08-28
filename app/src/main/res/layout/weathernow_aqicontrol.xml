@@ -22,7 +22,6 @@
 
         <TextView
             android:id="@+id/aqi_label"
-            style="@style/ShadowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
@@ -33,9 +32,7 @@
             android:textStyle="bold"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentEnd="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_index"
@@ -45,16 +42,13 @@
             android:text="@{weatherView.airQuality != null ? weatherView.airQuality.index + `` : null}"
             android:textColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
             android:textSize="36sp"
-            style="@style/ShadowText"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/aqi_label"
             android:layout_above="@id/aqi_progressBar"
             tools:text="300" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_level"
-            style="@style/ShadowText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -64,15 +58,12 @@
             android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_toEndOf="@id/aqi_index"
             android:layout_below="@id/aqi_label"
-            android:layout_toRightOf="@id/aqi_index"
             tools:text="@string/aqi_level_300" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_description"
-            style="@style/ShadowText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -84,9 +75,7 @@
             android:textSize="14sp"
             android:layout_below="@id/aqi_level"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_toEndOf="@id/aqi_index"
-            android:layout_toRightOf="@id/aqi_index"
             tools:text="@string/aqi_desc_300" />
 
         <ProgressBar
@@ -115,7 +104,6 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_attribution"
-            style="@style/ShadowText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -131,8 +119,6 @@
             android:textSize="14sp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:layout_below="@id/aqi_progressBar" />
 
         <View

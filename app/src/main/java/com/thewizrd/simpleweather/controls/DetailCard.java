@@ -110,7 +110,7 @@ public class DetailCard extends LinearLayout {
         setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
         ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getColor(getContext(), R.attr.colorAccent)));
         setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
-        setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
+        //setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
     }
 
     @Override

@@ -31,7 +31,6 @@
             android:textColor="@color/colorTextPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            style="@style/ShadowText"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true" />
@@ -61,7 +60,6 @@
             android:text="@{weatherView.beaufort.beaufort.value}"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
-            style="@style/ShadowText"
             android:layout_below="@id/beaufort_label"
             android:layout_alignParentEnd="true"
             android:layout_toEndOf="@id/beaufort_icon"

@@ -28,7 +28,6 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/precip_label"
-                style="@style/ShadowText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

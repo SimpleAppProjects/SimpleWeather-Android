@@ -29,7 +29,6 @@
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@color/colorTextPrimary"
             android:textStyle="bold"
-            style="@style/ShadowText"
             app:showIfNotEmpty="@{weatherView.weatherDetails}"
             app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
 

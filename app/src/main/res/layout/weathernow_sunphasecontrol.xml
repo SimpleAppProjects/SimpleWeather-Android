@@ -28,7 +28,6 @@
             android:textAppearance="?android:textAppearanceMediumInverse"
             android:textColor="@color/colorTextPrimary"
             android:textStyle="bold"
-            style="@style/ShadowText"
             app:showIfTrue="@{FeatureSettings.sunPhaseEnabled &amp;&amp; weatherView.sunPhase != null}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
