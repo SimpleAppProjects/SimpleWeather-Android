@@ -1,11 +1,13 @@
 package com.thewizrd.simpleweather.main
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
@@ -15,9 +17,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.*
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.appcompat.widget.Toolbar
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
@@ -30,8 +34,11 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import androidx.transition.TransitionManager
+import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.transition.MaterialFade
 import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.helpers.*
@@ -975,6 +982,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun updateToolbarForEditMode(inEditMode: Boolean) {
+        TransitionManager.beginDelayedTransition(appBarLayout, MaterialFade().apply {
+            duration = 175
+            secondaryAnimatorProvider = null
+        })
+
         if (inEditMode) {
             val navIcon =
                 ContextCompat.getDrawable(toolbar.context, R.drawable.ic_close_white_24dp)!!
@@ -1048,7 +1060,13 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             }
         }
 
-        updateWindowColors()
+        runAppBarAnimation(
+            if (inEditMode) {
+                ContextUtils.getColor(appBarLayout.context, R.attr.colorPrimary)
+            } else {
+                ContextUtils.getColor(appBarLayout.context, R.attr.colorSurface)
+            }
+        )
     }
 
     private fun updateFavoritesPosition(view: LocationPanelViewModel) {
@@ -1079,6 +1097,37 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     ColorsUtils.isSuperLight(statusBarColor)
                 )
             }
+        }
+    }
+
+    private var mAppBarAnimator: ValueAnimator? = null
+    private fun runAppBarAnimation(@ColorInt colorTo: Int) {
+        val colorFrom = if (appBarLayout.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
+            materialShapeDrawable.fillColor?.defaultColor
+        } else {
+            (appBarLayout.background as? ColorDrawable)?.color
+        } ?: ContextUtils.getColor(appBarLayout.context, R.attr.colorSurface)
+        if (colorFrom != colorTo) {
+            if (mAppBarAnimator?.isRunning == true) {
+                mAppBarAnimator?.cancel()
+            }
+            mAppBarAnimator = ValueAnimator.ofObject(ArgbEvaluatorCompat(), colorFrom, colorTo)
+            mAppBarAnimator!!.addUpdateListener {
+                val statusBarColor = it.animatedValue as Int
+                if (appBarLayout.background is MaterialShapeDrawable) {
+                    val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
+                    materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
+                } else {
+                    appBarLayout.setBackgroundColor(statusBarColor)
+                }
+            }
+            mAppBarAnimator!!.doOnEnd {
+                updateWindowColors()
+            }
+            mAppBarAnimator!!.duration = 195
+            mAppBarAnimator!!.startDelay = 0
+            mAppBarAnimator!!.start()
         }
     }
 }

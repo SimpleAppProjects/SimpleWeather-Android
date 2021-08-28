@@ -33,7 +33,6 @@
             android:minHeight="@dimen/fab_size"
             android:scrollbars="none"
             android:text="@string/label_fab_add_location"
-            android:textColor="?attr/colorOnSecondary"
             app:icon="@drawable/ic_add_location_white_24dp" />
 
     </merge>
