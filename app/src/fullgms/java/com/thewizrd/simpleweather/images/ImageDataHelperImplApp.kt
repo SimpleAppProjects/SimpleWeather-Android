@@ -10,11 +10,13 @@ import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import java.util.*
 
@@ -81,7 +83,9 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
                     args.putString("imageData", imageData.toString())
                     AnalyticsLogger.logEvent("ImageDataHelperImplApp: storeImage", args)
 
-                    storageRef.getFile(imageFile).await()
+                    withTimeoutOrNull(SettingsManager.CONNECTION_TIMEOUT.toLong()) {
+                        storageRef.getFile(imageFile).await()
+                    }
                 } catch (e: Exception) {
                     Logger.writeLine(Log.ERROR, e, "ImageDataHelper: Error retrieving download url")
                     imageFile.delete()

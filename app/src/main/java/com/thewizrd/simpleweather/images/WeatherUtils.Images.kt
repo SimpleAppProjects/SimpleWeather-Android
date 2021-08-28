@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherBackground
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
+import kotlinx.coroutines.withTimeoutOrNull
 
 suspend fun Weather.getImageData(): ImageDataViewModel? {
     val icon: String = this.condition.icon
@@ -121,7 +122,9 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
         return ImageDataViewModel(imageData)
     } else {
         if (!FeatureSettings.isUpdateAvailable()) {
-            imageData = imageHelper.getRemoteImageData(backgroundCode)
+            imageData = withTimeoutOrNull(15000) {
+                imageHelper.getRemoteImageData(backgroundCode)
+            }
             if (imageData?.isValid == true) {
                 return ImageDataViewModel(imageData)
             } else {
