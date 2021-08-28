@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            app:srcCompat="@color/colorSurface" />
+            app:srcCompat="?attr/colorSurface" />
 
         <View
             android:id="@+id/image_overlay"
@@ -46,19 +46,17 @@
                 android:gravity="center_vertical"
                 android:padding="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:singleLine="true"
                 android:text="@{viewModel.locationName}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="14sp"
                 android:textStyle="bold"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="New York, NY"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_temp"
@@ -71,24 +69,22 @@
                 android:paddingEnd="8dp"
                 android:paddingRight="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.currTemp}"
                 android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="36sp"
                 android:textStyle="normal"
                 app:autoSizeMaxTextSize="36sp"
                 app:autoSizeTextType="uniform"
                 app:hideIfNull="@{viewModel.currTemp}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toTopOf="@id/weather_condition"
                 app:layout_constraintEnd_toStartOf="@id/weather_hi"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/location_name"
                 tools:text="50°F"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_condition"
@@ -100,21 +96,19 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:padding="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:singleLine="true"
                 android:text="@{viewModel.currWeather}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="14sp"
                 android:textStyle="bold"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/temp_barrier_left"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/weather_temp"
                 tools:text="Mostly Cloudy. Breezy. Chance of rain"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="?attr/colorOnSurface" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/temp_barrier_left"
@@ -138,19 +132,16 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.hiTemp}"
                 android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:drawableHeight="24dp"
                 app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_up"
-                app:drawableTint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
                 app:showIfTrue="@{viewModel.showHiLo}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toTopOf="@id/weather_lo"
                 app:layout_constraintEnd_toStartOf="@id/extra_barrier"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -158,9 +149,9 @@
                 app:layout_constraintTop_toBottomOf="@id/location_name"
                 app:layout_constraintVertical_bias="0.5"
                 app:layout_constraintVertical_chainStyle="packed"
-                tools:drawableTint="@color/colorOnSurface"
+                tools:drawableTint="?attr/colorOnSurface"
                 tools:text="&#8226;"
-                tools:textColor="@color/colorOnSurface"
+                tools:textColor="?attr/colorOnSurface"
                 tools:visibility="visible" />
 
             <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
@@ -171,18 +162,15 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.loTemp}"
                 android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:drawableHeight="24dp"
                 app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_down"
-                app:drawableTint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:showIfTrue="@{viewModel.showHiLo}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/extra_barrier"
@@ -191,7 +179,7 @@
                 app:layout_constraintStart_toEndOf="@id/weather_condition"
                 app:layout_constraintTop_toBottomOf="@id/weather_hi"
                 tools:text="60°"
-                tools:textColor="@color/colorOnSurface"
+                tools:textColor="?attr/colorOnSurface"
                 tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.Barrier
@@ -228,9 +216,9 @@
                 android:paddingRight="8dp"
                 android:scrollbars="none"
                 app:srcCompat="@{viewModel.popIcon}"
-                app:tint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 tools:srcCompat="@drawable/wi_umbrella"
-                tools:tint="@color/colorOnSurface" />
+                tools:tint="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_pop"
@@ -241,17 +229,15 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.pop}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:hideIfNull="@{viewModel.pop}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintWidth_min="60dp"
                 tools:text="5%"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="?attr/colorOnSurface" />
 
             <androidx.constraintlayout.helper.widget.Flow
                 android:id="@+id/weather_windgroup"
@@ -280,9 +266,9 @@
                 android:paddingTop="1dp"
                 android:rotation="@{viewModel.windDir}"
                 app:srcCompat="@drawable/wi_direction_up"
-                app:tint="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 tools:rotation="0"
-                tools:tint="@color/colorOnSurface" />
+                tools:tint="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_windspeed"
@@ -293,16 +279,14 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:scrollbars="none"
-                android:shadowColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/black : @android:color/transparent}"
-                android:shadowRadius="@{FeatureSettings.locationPanelImageEnabled ? 1 : 0}"
                 android:text="@{viewModel.windSpeed}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-                android:textColor="@{FeatureSettings.locationPanelImageEnabled ? @android:color/white : @color/colorOnSurface}"
+                android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintWidth_min="60dp"
                 tools:text="16 mph"
-                tools:textColor="@color/colorOnSurface" />
+                tools:textColor="?attr/colorOnSurface" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -312,7 +296,7 @@
             android:layout_height="24dp"
             android:layout_gravity="center"
             android:indeterminate="true"
-            android:indeterminateTint="@color/colorOnSurface"
+            android:indeterminateTint="?attr/colorOnSurface"
             android:indeterminateTintMode="src_in"
             android:visibility="visible" />
 

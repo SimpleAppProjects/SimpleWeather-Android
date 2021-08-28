@@ -3,14 +3,18 @@ package com.thewizrd.simpleweather.controls
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.MainThread
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
+import androidx.core.widget.TextViewCompat
+import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DecodeFormat
@@ -19,6 +23,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.card.MaterialCardView
+import com.thewizrd.shared_resources.controls.TextViewDrawableCompat
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.simpleweather.R
@@ -29,8 +34,6 @@ import kotlin.coroutines.CoroutineContext
 
 class LocationPanel : MaterialCardView, CoroutineScope {
     private lateinit var binding: LocationPanelBinding
-    var colorDrawable: Drawable? = null
-        private set
     private var overlayDrawable: Drawable? = null
     private lateinit var mGlide: RequestManager
 
@@ -67,20 +70,42 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         val height = context.resources.getDimensionPixelSize(R.dimen.location_panel_height)
         this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
 
-        colorDrawable = ColorDrawable(ContextCompat.getColor(context, R.color.colorSurface))
+        setCardBackgroundColor(ContextUtils.getColor(context, R.attr.colorSurface))
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay)
 
-        cardElevation = 0f
-        maxCardElevation = 0f
+        cardElevation = ContextUtils.dpToPx(context, 2f)
         strokeWidth = ContextUtils.dpToPx(context, 1f).toInt()
-        setStrokeColor(AppCompatResources.getColorStateList(context, if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_card_stroke_imageon else R.color.location_panel_card_stroke_imageoff))
-        stateListAnimator = null
-        checkedIconTint =
-            if (FeatureSettings.isLocationPanelImageEnabled()) ColorStateList.valueOf(Colors.WHITE) else ColorStateList.valueOf(
-                ContextUtils.getColor(context, R.attr.colorPrimary)
+        setStrokeColor(
+            AppCompatResources.getColorStateList(
+                context, if (FeatureSettings.isLocationPanelImageEnabled()) {
+                    R.color.location_panel_card_stroke_imageon
+                } else {
+                    R.color.location_panel_card_stroke_imageoff
+                }
             )
-        setRippleColorResource(if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_ripple_imageon else R.color.location_panel_ripple_imageoff)
-        setCardForegroundColor(AppCompatResources.getColorStateList(context, if (FeatureSettings.isLocationPanelImageEnabled()) R.color.location_panel_foreground_imageon else R.color.location_panel_foreground_imageoff))
+        )
+        checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled()) {
+            ColorStateList.valueOf(Colors.WHITE)
+        } else ColorStateList.valueOf(
+            ContextUtils.getColor(context, R.attr.colorPrimary)
+        )
+        setRippleColorResource(
+            if (FeatureSettings.isLocationPanelImageEnabled()) {
+                R.color.location_panel_ripple_imageon
+            } else {
+                R.color.location_panel_ripple_imageoff
+            }
+        )
+        setCardForegroundColor(
+            AppCompatResources.getColorStateList(
+                context,
+                if (FeatureSettings.isLocationPanelImageEnabled()) {
+                    R.color.location_panel_foreground_imageon
+                } else {
+                    R.color.location_panel_foreground_imageoff
+                }
+            )
+        )
 
         mGlide = Glide.with(this)
         showLoading(true)
@@ -103,11 +128,12 @@ class LocationPanel : MaterialCardView, CoroutineScope {
                 if (FeatureSettings.isLocationPanelImageEnabled() && backgroundUri != null) {
                     mGlide.asBitmap()
                             .load(backgroundUri)
-                            .apply(RequestOptions
+                            .apply(
+                                RequestOptions
                                     .centerCropTransform()
                                     .format(DecodeFormat.PREFER_RGB_565)
-                                    .error(colorDrawable)
-                                    .placeholder(colorDrawable)
+                                    .error(null)
+                                    .placeholder(null)
                                     .skipMemoryCache(skipCache))
                             .transition(BitmapTransitionOptions.withCrossFade())
                             .into(object : BitmapImageViewTarget(binding.imageView) {
@@ -145,7 +171,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
     fun clearBackground() {
         launch(Dispatchers.Main.immediate) {
             mGlide.clear(binding.imageView)
-            binding.imageView.setImageDrawable(colorDrawable)
+            binding.imageView.setImageDrawable(null)
         }
     }
 
@@ -195,5 +221,51 @@ class LocationPanel : MaterialCardView, CoroutineScope {
             strokeDp = if (isDragged) 2f else 1f
         }
         strokeWidth = ContextUtils.dpToPx(context, strokeDp).toInt()
+    }
+}
+
+object LocationPanelBindingAdapter {
+    @JvmStatic
+    @BindingAdapter("locImageEnabled")
+    fun updateWithPanelImage(view: TextView, panelImageEnabled: Boolean) {
+        if (panelImageEnabled) {
+            view.setShadowLayer(1f, view.shadowDx, view.shadowDy, Colors.BLACK)
+            view.setTextColor(Colors.WHITE)
+        } else {
+            view.setShadowLayer(0f, view.shadowDx, view.shadowDy, Colors.TRANSPARENT)
+            view.setTextColor(ContextUtils.getColor(view.context, R.attr.colorOnSurface))
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter("locImageEnabled")
+    fun updateWithPanelImage(view: TextViewDrawableCompat, panelImageEnabled: Boolean) {
+        updateWithPanelImage(view as TextView, panelImageEnabled)
+
+        TextViewCompat.setCompoundDrawableTintList(
+            view,
+            ColorStateList.valueOf(
+                if (panelImageEnabled) {
+                    Colors.WHITE
+                } else {
+                    ContextUtils.getColor(view.context, R.attr.colorOnSurface)
+                }
+            )
+        )
+    }
+
+    @JvmStatic
+    @BindingAdapter("locImageEnabled")
+    fun updateWithPanelImage(view: ImageView, panelImageEnabled: Boolean) {
+        ImageViewCompat.setImageTintList(
+            view,
+            ColorStateList.valueOf(
+                if (panelImageEnabled) {
+                    Colors.WHITE
+                } else {
+                    ContextUtils.getColor(view.context, R.attr.colorOnSurface)
+                }
+            )
+        )
     }
 }
