@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.AppTheme" parent="Base.AppTheme.Bridge">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -16,7 +16,9 @@
         <item name="colorOnBackground">@color/colorOnBackground</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
         <item name="colorOnError">@color/colorOnError</item>
+    </style>
 
+    <style name="Base.AppTheme.Bridge" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="actionButtonStyle">@style/ActionButton</item>
 
         <!-- Text styles -->

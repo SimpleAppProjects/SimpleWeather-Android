@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base application theme. -->
-    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.AppTheme" parent="Base.AppTheme.Bridge">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@android:color/system_accent1_200</item>
         <item name="colorPrimaryDark">@android:color/system_accent1_200</item>
@@ -21,79 +21,6 @@
         <!-- Elevation overlays. -->
         <item name="elevationOverlayEnabled">true</item>
         <item name="elevationOverlayColor">?attr/colorPrimary</item>
-
-        <item name="actionButtonStyle">@style/ActionButton</item>
-
-        <!-- Text styles -->
-        <item name="android:fontFamily">@font/open_sans</item>
-        <item name="fontFamily">@font/open_sans</item>
-        <item name="android:textAppearance">@style/TextAppearance.OpenSans</item>
-        <item name="android:textAppearanceInverse">@style/TextAppearance.OpenSans.Inverse</item>
-        <item name="android:textAppearanceLarge">@style/TextAppearance.OpenSans</item>
-        <item name="android:textAppearanceLargeInverse">
-            @style/TextAppearance.OpenSans.Large.Inverse
-        </item>
-        <item name="android:textAppearanceMedium">@style/TextAppearance.OpenSans.Medium</item>
-        <item name="android:textAppearanceMediumInverse">
-            @style/TextAppearance.OpenSans.Medium.Inverse
-        </item>
-        <item name="android:textAppearanceSmall">@style/TextAppearance.OpenSans.Small</item>
-        <item name="android:textAppearanceSmallInverse">
-            @style/TextAppearance.OpenSans.Small.Inverse
-        </item>
-        <item name="textAppearanceHeadline1">@style/TextAppearance.OpenSans.Headline1</item>
-        <item name="textAppearanceHeadline2">@style/TextAppearance.OpenSans.Headline2</item>
-        <item name="textAppearanceHeadline3">@style/TextAppearance.OpenSans.Headline3</item>
-        <item name="textAppearanceHeadline4">@style/TextAppearance.OpenSans.Headline4</item>
-        <item name="textAppearanceHeadline5">@style/TextAppearance.OpenSans.Headline5</item>
-        <item name="textAppearanceHeadline6">@style/TextAppearance.OpenSans.Headline6</item>
-        <item name="textAppearanceSubtitle1">@style/TextAppearance.OpenSans.Subtitle1</item>
-        <item name="textAppearanceSubtitle2">@style/TextAppearance.OpenSans.Subtitle2</item>
-        <item name="textAppearanceBody1">@style/TextAppearance.OpenSans.Body1</item>
-        <item name="textAppearanceBody2">@style/TextAppearance.OpenSans.Body2</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.OpenSans.Caption</item>
-        <item name="textAppearanceButton">@style/TextAppearance.OpenSans.Button</item>
-        <item name="textAppearanceOverline">@style/TextAppearance.OpenSans.Overline</item>
-
-        <item name="android:textAppearanceListItem">@style/TextAppearance.OpenSans.ListItem</item>
-        <item name="android:textAppearanceListItemSmall">@style/TextAppearance.OpenSans.ListItem
-        </item>
-        <item name="android:textAppearanceListItemSecondary" tools:targetApi="lollipop">
-            @style/TextAppearance.OpenSans.ListItemSecondary
-        </item>
-        <item name="textAppearanceListItem">@style/TextAppearance.OpenSans.ListItem</item>
-        <item name="textAppearanceListItemSmall">@style/TextAppearance.OpenSans.ListItem</item>
-        <item name="textAppearanceListItemSecondary">
-            @style/TextAppearance.OpenSans.ListItemSecondary
-        </item>
-
-        <item name="titleTextAppearance">@style/TextAppearance.OpenSans.Title</item>
-
-        <!-- AlertDialog attributes -->
-        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
-        <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
-        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
-        <item name="materialAlertDialogTheme">
-            @style/ThemeOverlay.App.MaterialAlertDialog
-        </item>
-        <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
-        <item name="alertDialogStyle">@style/AlertDialogStyle</item>
-
-        <!-- ShapeAppearance Attributes -->
-        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Material.SmallComponent
-        </item>
-        <item name="shapeAppearanceMediumComponent">
-            @style/ShapeAppearance.Material.MediumComponent
-        </item>
-        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Material.LargeComponent
-        </item>
-    </style>
-
-    <style name="AppTheme.Base" parent="Base.AppTheme">
-        <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
-        <item name="actionModeStyle">@style/ActionModeStyle</item>
     </style>
 
 </resources>

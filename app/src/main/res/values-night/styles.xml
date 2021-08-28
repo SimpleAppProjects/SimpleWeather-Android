@@ -1,17 +1,12 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme.Base" parent="Base.AppTheme">
+    <style name="Base.AppTheme" parent="Base.AppTheme.Bridge">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorSecondary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">?attr/colorSecondary</item>
         <item name="colorSecondary">@color/colorSecondary</item>
-
-        <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
-        <item name="actionModeStyle">@style/ActionModeStyle</item>
     </style>
 
 </resources>
