@@ -5,8 +5,8 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorPrimaryLight</item>
+        <item name="colorAccent">?attr/colorSecondary</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorError">@color/colorError</item>
@@ -85,11 +85,6 @@
     </style>
 
     <style name="AppTheme.Base" parent="Base.AppTheme">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
-
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/CloseButton</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>

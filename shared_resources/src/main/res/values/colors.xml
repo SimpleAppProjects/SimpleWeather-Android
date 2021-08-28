@@ -1,9 +1,12 @@
 <resources>
     <color name="colorPrimary">#0070c0</color>
-    <color name="colorPrimaryDark">#00468f</color>
-    <color name="colorPrimaryLight">#599ef3</color>
-    <color name="colorPrimaryMedium">#007dd6</color>
+    <color name="colorPrimaryDark">#00458e</color>
+    <color name="colorPrimaryLight">#589df2</color>
     <color name="colorPrimaryBackground">@color/colorPrimary</color>
+
+    <color name="colorSecondary">#91cfff</color>
+    <color name="colorSecondaryLight">#c5ffff</color>
+    <color name="colorSecondaryDark">#5e9ecc</color>
 
     <!--colorBackground appears behind scrollable content and is used for the default window-->
     <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
@@ -16,7 +19,7 @@
     <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
     <!--on which they appear.-->
     <color name="colorOnPrimary">#ffffff</color>
-    <color name="colorOnSecondary">#000000</color>
+    <color name="colorOnSecondary">#ffffff</color>
     <color name="colorOnBackground">#000000</color>
     <color name="colorOnSurface">#000000</color>
     <color name="colorOnError">#ffffff</color>
