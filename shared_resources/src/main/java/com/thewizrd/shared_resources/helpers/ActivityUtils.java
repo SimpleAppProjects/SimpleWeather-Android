@@ -6,6 +6,7 @@ import android.view.Window;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.WindowCompat;
 
@@ -33,27 +34,11 @@ public final class ActivityUtils {
         boolean statBarProtected = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) || !isLightStatusBar;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (setColors && isLightStatusBar) {
-                window.getDecorView().setSystemUiVisibility(
-                        window.getDecorView().getSystemUiVisibility()
-                                | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            } else {
-                window.getDecorView().setSystemUiVisibility(
-                        window.getDecorView().getSystemUiVisibility()
-                                & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }
+            setLightStatusBar(window, setColors && isLightStatusBar);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (setColors && isLightNavBar) {
-                window.getDecorView().setSystemUiVisibility(
-                        window.getDecorView().getSystemUiVisibility()
-                                | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-            } else {
-                window.getDecorView().setSystemUiVisibility(
-                        window.getDecorView().getSystemUiVisibility()
-                                & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-            }
+            setLightNavBar(window, setColors && isLightNavBar);
         }
 
         window.setStatusBarColor((setColors ?
@@ -93,5 +78,31 @@ public final class ActivityUtils {
         window.setStatusBarColor((setColors ?
                 (statBarProtected ? statusBarColor : ColorUtils.blendARGB(statusBarColor, Colors.BLACK, 0.25f))
                 : Colors.TRANSPARENT));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static void setLightStatusBar(@NonNull Window window, boolean setLight) {
+        if (setLight) {
+            window.getDecorView().setSystemUiVisibility(
+                    window.getDecorView().getSystemUiVisibility()
+                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            window.getDecorView().setSystemUiVisibility(
+                    window.getDecorView().getSystemUiVisibility()
+                            & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void setLightNavBar(@NonNull Window window, boolean setLight) {
+        if (setLight) {
+            window.getDecorView().setSystemUiVisibility(
+                    window.getDecorView().getSystemUiVisibility()
+                            | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        } else {
+            window.getDecorView().setSystemUiVisibility(
+                    window.getDecorView().getSystemUiVisibility()
+                            & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        }
     }
 }

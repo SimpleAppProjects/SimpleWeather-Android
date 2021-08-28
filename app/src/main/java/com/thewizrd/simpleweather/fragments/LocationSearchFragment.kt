@@ -44,7 +44,6 @@ import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback
-import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -402,11 +401,9 @@ class LocationSearchFragment : WindowColorFragment() {
         if (binding.appBar.background is MaterialShapeDrawable) {
             val materialShapeDrawable = binding.appBar.background as MaterialShapeDrawable
             materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
-            statusBarColor = materialShapeDrawable.getTintColor(binding.appBar.context)
         } else {
             binding.appBar.setBackgroundColor(statusBarColor)
         }
-        binding.rootView.setStatusBarBackgroundColor(statusBarColor)
     }
 
     override fun onDestroyView() {

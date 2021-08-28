@@ -95,7 +95,6 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils.getTintColor
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
@@ -1225,11 +1224,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         if (binding.toolbar.background is MaterialShapeDrawable) {
             val materialShapeDrawable = binding.toolbar.background as MaterialShapeDrawable
             materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
-            statusBarColor = materialShapeDrawable.getTintColor(binding.toolbar.context)
         } else {
             binding.toolbar.setBackgroundColor(navBarColor)
         }
-        binding.rootView.setStatusBarBackgroundColor(statusBarColor)
     }
 
     @SuppressLint("MissingPermission")

@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,6 +18,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.view.*
@@ -26,6 +30,7 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.shared_resources.Constants
@@ -525,11 +530,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         when (item.itemId) {
             R.id.action_editmode -> {
                 toggleEditMode()
-                return@OnMenuItemClickListener true
+                true
             }
             R.id.action_delete -> {
                 mAdapter.removeSelectedItems()
-                return@OnMenuItemClickListener true
+                true
             }
             R.id.action_done -> {
                 toggleEditMode()
@@ -971,7 +976,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private fun updateToolbarForEditMode(inEditMode: Boolean) {
         if (inEditMode) {
-            toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp)
+            val navIcon =
+                ContextCompat.getDrawable(toolbar.context, R.drawable.ic_close_white_24dp)!!
+                    .mutate()
+            DrawableCompat.setTint(
+                navIcon,
+                ContextUtils.getColor(toolbar.context, R.attr.colorOnPrimary)
+            )
+            toolbar.navigationIcon = navIcon
             toolbar.setNavigationOnClickListener {
                 toggleEditMode()
             }
@@ -980,10 +992,19 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             } else {
                 ""
             }
+            toolbar.setTitleTextAppearance(
+                toolbar.context,
+                R.style.TextAppearance_OpenSans_ActionModeTitleOnPrimary
+            )
         } else {
             toolbar.navigationIcon = null
             toolbar.setNavigationOnClickListener(null)
             toolbar.setTitle(title)
+            toolbar.setTitleTextAppearance(
+                toolbar.context,
+                ContextUtils.getResourceId(toolbar.context, R.attr.textAppearanceHeadline6)
+            )
+            (appCompatActivity as? WindowColorManager)?.updateWindowColors()
         }
 
         toolbar.menu.forEach {
@@ -1001,13 +1022,33 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     } else {
                         false
                     }
+                    MenuItemCompat.setIconTintList(
+                        it,
+                        ColorStateList.valueOf(
+                            ContextUtils.getColor(
+                                toolbar.context,
+                                R.attr.colorOnPrimary
+                            )
+                        )
+                    )
                 }
                 R.id.action_done -> {
                     it.isVisible = inEditMode
+                    MenuItemCompat.setIconTintList(
+                        it,
+                        ColorStateList.valueOf(
+                            ContextUtils.getColor(
+                                toolbar.context,
+                                R.attr.colorOnPrimary
+                            )
+                        )
+                    )
                 }
                 else -> it.isVisible = !inEditMode
             }
         }
+
+        updateWindowColors()
     }
 
     private fun updateFavoritesPosition(view: LocationPanelViewModel) {
@@ -1016,6 +1057,28 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
         GlobalScope.launch(Dispatchers.Default) {
             getSettingsManager().moveLocation(query, pos)
+        }
+    }
+
+    override fun updateWindowColors() {
+        super.updateWindowColors()
+
+        if (mEditMode) {
+            val statusBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorPrimary)
+
+            if (appBarLayout.background is MaterialShapeDrawable) {
+                val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
+                materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
+            } else {
+                appBarLayout.setBackgroundColor(statusBarColor)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityUtils.setLightStatusBar(
+                    appCompatActivity!!.window,
+                    ColorsUtils.isSuperLight(statusBarColor)
+                )
+            }
         }
     }
 }

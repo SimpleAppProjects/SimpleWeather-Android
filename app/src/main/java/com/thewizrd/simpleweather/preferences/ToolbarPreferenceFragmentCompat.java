@@ -22,7 +22,6 @@ import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentSettingsBinding;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
-import com.thewizrd.simpleweather.utils.MaterialShapeDrawableUtils;
 
 public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPreferenceFragmentCompat {
 
@@ -106,10 +105,8 @@ public abstract class ToolbarPreferenceFragmentCompat extends WindowColorPrefere
         if (binding.appBar.getBackground() instanceof MaterialShapeDrawable) {
             MaterialShapeDrawable materialShapeDrawable = (MaterialShapeDrawable) binding.appBar.getBackground();
             materialShapeDrawable.setFillColor(ColorStateList.valueOf(statusBarColor));
-            statusBarColor = MaterialShapeDrawableUtils.getTintColor(materialShapeDrawable, binding.appBar.getContext());
         } else {
             binding.appBar.setBackgroundColor(statusBarColor);
         }
-        binding.coordinatorLayout.setStatusBarBackgroundColor(statusBarColor);
     }
 }

@@ -114,10 +114,17 @@
         <item name="tint">?attr/colorControlNormal</item>
     </style>
 
-    <style name="TextAppearance.OpenSans.ActionModeTitle" parent="TextAppearance.OpenSans.Title">
+    <style name="TextAppearance.OpenSans.ActionModeTitle" parent="@style/TextAppearance.MaterialComponents.Headline6">
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="fontFamily">@font/open_sans</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.OpenSans.ActionModeTitleOnPrimary" parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="fontFamily">@font/open_sans</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
