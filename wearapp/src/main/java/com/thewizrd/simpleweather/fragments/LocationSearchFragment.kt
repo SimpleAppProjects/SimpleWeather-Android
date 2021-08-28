@@ -83,7 +83,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                     if (queryResult?.locationQuery.isNullOrEmpty()) {
                         // Stop since there is no valid query
-                        throw CustomException(R.string.error_retrieve_location)
+                        throw CancellationException()
                     }
 
                     if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
@@ -187,6 +187,10 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                 deferredJob.invokeOnCompletion callback@{
                     if (it is CancellationException) {
+                        runWithView {
+                            showLoading(false)
+                            binding.recyclerView.isEnabled = true
+                        }
                         return@callback
                     }
 

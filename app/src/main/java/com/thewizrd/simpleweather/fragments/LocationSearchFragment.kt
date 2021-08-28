@@ -112,7 +112,7 @@ class LocationSearchFragment : WindowColorFragment() {
 
                     if (queryResult?.locationQuery.isNullOrBlank()) {
                         // Stop since there is no valid query
-                        throw CustomException(R.string.error_retrieve_location)
+                        throw CancellationException()
                     }
 
                     if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
@@ -210,6 +210,10 @@ class LocationSearchFragment : WindowColorFragment() {
 
                 deferredJob.invokeOnCompletion callback@{
                     if (it is CancellationException) {
+                        runWithView {
+                            showLoading(false)
+                            enableRecyclerView(true)
+                        }
                         return@callback
                     }
 
