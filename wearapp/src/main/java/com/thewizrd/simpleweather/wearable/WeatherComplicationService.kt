@@ -117,14 +117,23 @@ class WeatherComplicationService : ComplicationProviderService() {
         val temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit)
 
         // Condition text
-        val condition = weather.condition.weather
+        val provider = WeatherManager.getProvider(weather.source)
+        val condition = if (provider.supportsWeatherLocale()) {
+            weather.condition.weather
+        } else {
+            provider.getWeatherCondition(weather.condition.icon)
+        }
 
         val builder = ComplicationData.Builder(dataType)
 
         val wim = WeatherIconsManager.getInstance()
         val weatherIcon = wim.getWeatherIconResource(weather.condition.icon)
         val icon = Icon.createWithBitmap(
-                ImageUtils.bitmapFromDrawable(ContextUtils.getThemeContextOverride(this, false), weatherIcon))
+            ImageUtils.bitmapFromDrawable(
+                ContextUtils.getThemeContextOverride(this, false),
+                weatherIcon
+            )
+        )
         if (dataType == ComplicationData.TYPE_SHORT_TEXT) {
             builder.setShortText(ComplicationText.plainText(temp))
 
