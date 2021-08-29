@@ -48,6 +48,9 @@ interface LocationsDAO {
     @Query("SELECT COUNT(*) FROM locations")
     suspend fun getLocationDataCount(): Int
 
+    @Query("SELECT COUNT(*) FROM locations")
+    fun getLocationDataCountSync(): Int
+
     /* Favorites methods */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorite(favorite: Favorites)

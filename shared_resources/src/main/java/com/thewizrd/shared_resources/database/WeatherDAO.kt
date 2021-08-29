@@ -34,6 +34,9 @@ interface WeatherDAO {
     @Query("SELECT COUNT(*) FROM weatherdata")
     suspend fun getWeatherDataCount(): Int
 
+    @Query("SELECT COUNT(*) FROM weatherdata")
+    fun getWeatherDataCountSync(): Int
+
     @Query("SELECT COUNT(*) FROM weatherdata WHERE `query` = :query")
     suspend fun getWeatherDataCountByKey(query: String?): Int
 
