@@ -1,1 +1,5 @@
-<manifest package="com.thewizrd.shared_resources" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.thewizrd.shared_resources">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+</manifest>

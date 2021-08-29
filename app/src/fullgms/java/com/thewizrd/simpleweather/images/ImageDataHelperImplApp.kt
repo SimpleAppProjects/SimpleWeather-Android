@@ -7,10 +7,7 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
-import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +44,12 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
 
     @WorkerThread
     override suspend fun getRemoteImageData(backgroundCode: String?): ImageData? {
-        val imageData = ImageDatabase.getRandomImageForCondition(backgroundCode)
+        val imageData = if (ConnectivityUtils.isNetworkConnected()) {
+            ImageDatabase.getRandomImageForCondition(backgroundCode)
+        } else {
+            Logger.writeLine(Log.INFO, "Network not connected!!")
+            null
+        }
 
         return if (imageData?.isValid == true) {
             cacheImage(imageData)
