@@ -29,7 +29,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:targetApi="n">
         <activity
             android:name=".LaunchActivity"
             android:theme="@style/AppTheme.Launcher">
