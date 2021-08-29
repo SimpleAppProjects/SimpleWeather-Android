@@ -139,7 +139,9 @@
     <string name="message_needfavorite">"Mindestens ein Favorit erforderlich"</string>
     <string name="undo">"Rückgängig"</string>
     <string name="delete">"Löschen"</string>
-    <string name="bg_location_permission_rationale">"Standortzugriff für Benachrichtigung und Widgets erlauben"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"Standortzugriff im Hintergrund für Benachrichtigungen und Widgets erlauben"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Laden von Wetterdaten nicht möglich"</string>
@@ -208,4 +210,20 @@
     <string name="pref_title_icons">"Symbole"</string>
     <string name="refresh_30min">"30 Minuten"</string>
     <string name="label_day">"Tag"</string>
+
+    <!-- Pollen -->
+    <string name="label_pollen_count">"Pollenflug"</string>
+    <string name="label_pollen_tree">"Baum"</string>
+    <string name="label_tree_pollen">"Baumpollen"</string>
+    <string name="label_pollen_grass">"Gras"</string>
+    <string name="label_grass_pollen">"Gräserpollen"</string>
+    <string name="label_pollen_ragweed">"Ambrosia"</string>
+    <string name="label_ragweed_pollen">"Ambrosia-Pollen"</string>
+    <string name="label_count_low">"Niedrig"</string>
+    <string name="label_count_moderate">"Moderat"</string>
+    <string name="label_count_high">"Hoch"</string>
+    <string name="label_count_veryhigh">"Sehr hoch"</string>
+
+    <!-- Fuzzy -->
+    <string name="bg_location_permission_rationale_settings">"Um den Standort im Hintergrund für Benachrichtigungen und Widgets zu aktualisieren, setzen Sie bitte die Standortberechtigung auf '%1$s'"</string>
 </resources>

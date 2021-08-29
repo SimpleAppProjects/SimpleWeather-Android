@@ -112,8 +112,9 @@
     <string name="undo">"Deshacer"</string>
     <string name="delete">"Borrar"</string>
 
+    <!-- Background Location Permission -->
     <!-- Fuzzy -->
-    <string name="bg_location_permission_rationale">"Permitir el acceso a la actualización de la ubicación para la notificación y los widgets"</string>
+    <string name="bg_location_permission_rationale">"Permitir el acceso a la actualización de la ubicación en segundo plano para las notificaciones y los widgets"</string>
 
     <!-- Weather Exceptions -->
     <!-- Fuzzy -->
@@ -188,4 +189,31 @@
     <string name="pref_title_icons">"Iconos"</string>
     <string name="refresh_30min">"30 minutos"</string>
     <string name="label_day">"Día"</string>
+
+    <!-- Pollen -->
+    <!-- Fuzzy -->
+    <string name="label_pollen_count">"Nivel de polen"</string>
+    <string name="label_pollen_tree">"Árbol"</string>
+    <string name="label_tree_pollen">"Polen de los árboles"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_pollen_grass">"Pasto"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_grass_pollen">"Polen de pasto"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_pollen_ragweed">"Ambrosía"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_ragweed_pollen">"Polen de la maleza"</string>
+    <string name="label_count_low">"Bajo"</string>
+    <string name="label_count_moderate">"Moderado"</string>
+    <string name="label_count_high">"Alto"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_count_veryhigh">"Muy alto"</string>
+
+    <!-- Fuzzy -->
+    <string name="bg_location_permission_rationale_settings">"Para actualizar la ubicación en segundo plano para las notificaciones y los widgets, establezca el permiso de ubicación en '%1$s'"</string>
 </resources>

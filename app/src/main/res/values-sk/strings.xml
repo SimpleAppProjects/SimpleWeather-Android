@@ -20,7 +20,6 @@
     <string name="widget_configure_prompt">"Nastavenia miniaplikácie"</string>
     <string name="title_activity_widget_config">"Predvoľby miniaplikácie"</string>
     <string name="pref_title_bgcolor">"Pozadie"</string>
-    <string name="label_color_currentconditions">"Aktuálne podmienky"</string>
     <string name="label_color_transparent">"Priehľadná"</string>
     <string name="pref_title_bgstyle">"Štýl pozadia"</string>
     <string name="label_style_fullbg">"Celé pozadie"</string>
@@ -106,4 +105,7 @@
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
     <string name="precipitation_text_format">"%1$d%% pravdepodobnosť dažďa do %2$s"</string>
     <string name="precipitation_nexthour_text_format">"%1$d%% pravdepodobnosť dažďa v nasledujúcej hodine"</string>
+
+    <!-- Weather Summary or Weather Overview -->
+    <string name="pref_title_feature_summary">"Prehľad počasia"</string>
 </resources>

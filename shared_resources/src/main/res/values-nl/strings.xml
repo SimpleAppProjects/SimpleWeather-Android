@@ -6,7 +6,7 @@
     <string name="api_label">"Weeraanbieder"</string>
     <string name="key_hint">"Sleutel weeraanbieder"</string>
     <string name="label_gpsfollow">"Huidige locatie"</string>
-    <string name="label_getstarted">"Beginnen"</string>
+    <string name="label_getstarted">"Starten"</string>
     <string name="setup_welcome_prompt">"Welkom bij SimpleWeather"</string>
     <string name="setup_welcome_tagline_prompt">"Gewoon een simpele weerapp"</string>
     <string name="setup_location_prompt">"Voeg een locatie toe om te beginnen"</string>
@@ -29,8 +29,8 @@
     <string name="label_forecast">"Voorspelling"</string>
     <string name="label_condition">"Staat"</string>
     <string name="label_sunriseset">"Zon op / Zon onder"</string>
-    <string name="label_sunrise">"Zonsopkomst"</string>
-    <string name="label_sunset">"Zonsondergang"</string>
+    <string name="label_sunrise">"Zon op"</string>
+    <string name="label_sunset">"Zon onder"</string>
     <string name="label_hourlyforecast">"Per uur"</string>
     <string name="label_precipitation">"Neerslag"</string>
     <string name="label_chance">"Kans"</string>
@@ -41,12 +41,12 @@
     <string name="attrib_prefix">"Foto door"</string>
     <string name="label_high">"Hoog"</string>
     <string name="label_low">"Laag"</string>
-    <string name="label_dewpoint">"Dauwppunt"</string>
+    <string name="label_dewpoint">"Dauwpunt"</string>
     <string name="label_moonrise">"Maan op"</string>
     <string name="label_moonset">"Maan onder"</string>
     <string name="label_moonphase">"Maanfase"</string>
     <string name="label_beaufort">"Beaufort"</string>
-    <string name="label_uv">"UV Inder"</string>
+    <string name="label_uv">"UV Index"</string>
     <string name="label_airquality">"Luchtkwaliteitsindex"</string>
     <string name="label_airquality_short">"Luchtkwaliteit"</string>
     <string name="label_radar">"Radar"</string>
@@ -80,10 +80,10 @@
     <string name="message_keyverified">"Sleutel Geverifieerd"</string>
     <string name="message_keyinvalid">"Sleutel Onjuist"</string>
     <string name="pref_title_onnotification">"Weer Meldingen"</string>
-    <string name="pref_summary_notification">"Continue melding met het huidige weer tonen"</string>
+    <string name="pref_summary_notification">"Persistente melding met het huidige weer tonen"</string>
     <string name="pref_title_api">"Weeraanbieder"</string>
     <string name="pref_category_notification">"Meldingen"</string>
-    <string name="pref_title_notificationicon">"Meldinsicoon"</string>
+    <string name="pref_title_notificationicon">"Meldingsicoon"</string>
     <string name="pref_title_alerts">"Weerwaarschuwingen"</string>
     <string name="pref_summary_alerts">"Toon melding voor weerwaarschuwingen"</string>
     <string name="pref_summary_alerts_disabled">"Weerwaarschuwingen niet ondersteund door huidige weeraanbieder"</string>
@@ -105,7 +105,9 @@
     <string name="message_needfavorite">"Er dient minstens één favoriete locatie ingesteld te zijn"</string>
     <string name="undo">"Ongedaan maken"</string>
     <string name="delete">"Verwijderen"</string>
-    <string name="bg_location_permission_rationale">"Doorlopende toegang tot locatie voor meldingen en widgets"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"Doorlopende toegang tot locatie op de achtergrond voor meldingen en widgets"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Kan weerdata niet laden"</string>
@@ -141,8 +143,8 @@
     <string name="datetime_validuntil">"Geldig tot"</string>
 
     <!-- HERE API -->
-    <string name="pref_title_personalkey">"Persoonlijke Providerssleutel"</string>
-    <string name="pref_summary_personalkey">"Gebruik persoonlijk weersproviderssleutel"</string>
+    <string name="pref_title_personalkey">"Persoonlijke Providersleutel"</string>
+    <string name="pref_summary_personalkey">"Gebruik persoonlijk weersprovidersleutel"</string>
 
     <!-- Dark Theme -->
     <string name="pref_title_userthememode">"Thema"</string>
@@ -165,4 +167,21 @@
     <string name="pref_title_icons">"Iconen"</string>
     <string name="refresh_30min">"30 minuten"</string>
     <string name="label_day">"Dag"</string>
+
+    <!-- Pollen -->
+    <!-- Fuzzy -->
+    <string name="label_pollen_count">"Pollen telling"</string>
+    <string name="label_pollen_tree">"Boom"</string>
+    <string name="label_tree_pollen">"Boompollen"</string>
+    <string name="label_pollen_grass">"Gras"</string>
+    <string name="label_grass_pollen">"Graspollen"</string>
+    <string name="label_pollen_ragweed">"Ambrosia"</string>
+    <string name="label_ragweed_pollen">"Ambrosiapollen"</string>
+    <string name="label_count_low">"Laag"</string>
+    <string name="label_count_moderate">"Matig"</string>
+    <string name="label_count_high">"Hoog"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_count_veryhigh">"Zeer hoog"</string>
+    <string name="bg_location_permission_rationale_settings">"Om de locatie op de achtergrond te updaten voor meldingen en widgets, stel de locatietoestemming in op '%1$s'"</string>
 </resources>

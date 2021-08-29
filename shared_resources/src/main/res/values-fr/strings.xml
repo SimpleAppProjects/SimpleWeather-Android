@@ -107,7 +107,9 @@
     <string name="message_needfavorite">"Doit avoir au moins un emplacement préféré"</string>
     <string name="undo">"Annuler"</string>
     <string name="delete">"Supprimer"</string>
-    <string name="bg_location_permission_rationale">"Permettre l'accès à la mise à jour de votre localisation pour les notifications et les widgets"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"Autoriser l'accès à la mise à jour de la localisation en arrière-plan pour les notifications et les widgets"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Impossible de charger les données météo"</string>
@@ -167,4 +169,18 @@
     <string name="pref_title_icons">"Icônes"</string>
     <string name="refresh_30min">"30 minutes"</string>
     <string name="label_day">"Jour"</string>
+
+    <!-- Pollen -->
+    <string name="label_pollen_count">"Compte de pollen"</string>
+    <string name="label_pollen_tree">"Arbre"</string>
+    <string name="label_tree_pollen">"Pollen d'arbre"</string>
+    <string name="label_pollen_grass">"Herbe"</string>
+    <string name="label_grass_pollen">"Pollen d'herbe"</string>
+    <string name="label_pollen_ragweed">"Ambroisie"</string>
+    <string name="label_ragweed_pollen">"Pollen d'ambroisie"</string>
+    <string name="label_count_low">"Bas"</string>
+    <string name="label_count_moderate">"Modéré"</string>
+    <string name="label_count_high">"Élevé"</string>
+    <string name="label_count_veryhigh">"Très élevé"</string>
+    <string name="bg_location_permission_rationale_settings">"Pour mettre à jour la localisation en arrière-plan pour les notifications et les widgets, veuillez définir l'autorisation de localisation sur '%1$s'"</string>
 </resources>

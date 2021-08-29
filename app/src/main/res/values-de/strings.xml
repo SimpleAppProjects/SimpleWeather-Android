@@ -22,7 +22,6 @@
     <string name="widget_configure_prompt">"Widget konfigurieren"</string>
     <string name="title_activity_widget_config">"Widgeteinstellungen"</string>
     <string name="pref_title_bgcolor">"Hintergrund"</string>
-    <string name="label_color_currentconditions">"Aktuelle Bedingung"</string>
     <string name="label_color_transparent">"Transparent"</string>
     <string name="pref_title_bgstyle">"Hintergrundstil"</string>
     <string name="label_style_fullbg">"Hintergrund"</string>
@@ -119,4 +118,8 @@
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
     <string name="precipitation_text_format">"%1$d%% Chance auf Regen in %2$s"</string>
     <string name="precipitation_nexthour_text_format">"%1$d%% Chance auf Regen in der nächsten Stunde"</string>
+
+    <!-- Weather Summary or Weather Overview -->
+    <!-- Fuzzy -->
+    <string name="pref_title_feature_summary">"Wetterübersicht"</string>
 </resources>

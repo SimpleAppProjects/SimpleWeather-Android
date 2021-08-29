@@ -107,7 +107,9 @@
     <string name="message_needfavorite">"Musisz mieć przynajmniej jedną ulubioną lokalizację"</string>
     <string name="undo">"Cofnij"</string>
     <string name="delete">"Usuń"</string>
-    <string name="bg_location_permission_rationale">"Zezwól na dostęp, aby aktualizować lokalizację w powiadomieniu i na widgecie"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"Zezwól na dostęp do lokalizacji w tle dla powiadomień i widżetów"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Nie udało się załadować danych pogodowych"</string>
@@ -169,4 +171,23 @@
     <string name="pref_title_icons">"Ikony"</string>
     <string name="refresh_30min">"30 minut"</string>
     <string name="label_day">"Dzień"</string>
+
+    <!-- Pollen -->
+    <!-- Fuzzy -->
+    <string name="label_pollen_count">"Ilość pyłku"</string>
+    <string name="label_pollen_tree">"Drzewo"</string>
+    <string name="label_tree_pollen">"Pyłki drzew"</string>
+    <string name="label_pollen_grass">"Trawa"</string>
+    <string name="label_grass_pollen">"Pyłki traw"</string>
+    <string name="label_pollen_ragweed">"Ambrozja"</string>
+    <string name="label_ragweed_pollen">"Pyłki ambrozji"</string>
+    <string name="label_count_low">"Niski"</string>
+    <string name="label_count_moderate">"Średni"</string>
+    <string name="label_count_high">"Wysoki"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_count_veryhigh">"Bardzo wysoki"</string>
+
+    <!-- Fuzzy -->
+    <string name="bg_location_permission_rationale_settings">"Aby aktualizować lokalizację w tle dla powiadomień i widżetów, należy ustawić zezwolenie na lokalizację na '%1$s'"</string>
 </resources>

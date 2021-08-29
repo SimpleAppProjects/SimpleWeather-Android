@@ -19,11 +19,11 @@
     <string name="error_notinstalled">"Installeer app op apparaat en probeer opnieuw"</string>
     <string name="message_continueondevice">"Installatie voortzetten op verbonden apparaat"</string>
     <string name="message_retrievingdata">"Data ophalen van verbonden apparaat…"</string>
-    <string name="error_syncing">"Data synchroniseren mislukt"</string>
+    <string name="error_syncing">"Datasynchronisatie mislukt"</string>
     <string name="message_settingsretrieved">"Data van instellingen opgehaald…"</string>
     <string name="message_locationretrieved">"Data van locatie opgehaald…"</string>
     <string name="message_weatherretrieved">"Data van weer opgehaald…"</string>
-    <string name="message_synccompleted">"Data synchroniseren succesvol"</string>
+    <string name="message_synccompleted">"Datasynchronisatie succesvol"</string>
 
     <!-- Preferences -->
     <string name="pref_sync_off">"Uit"</string>
@@ -33,5 +33,5 @@
     <!-- Preferences -->
     <string name="pref_category_title_sync">"Sync"</string>
     <string name="pref_sync_title">"Datasynchronisatie"</string>
-    <string name="pref_connectionstatus_title">"Verbindinsstatus"</string>
+    <string name="pref_connectionstatus_title">"Verbindingsstatus"</string>
 </resources>

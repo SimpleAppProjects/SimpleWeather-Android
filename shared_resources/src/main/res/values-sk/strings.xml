@@ -48,7 +48,7 @@
     <string name="label_beaufort">"Beaufort"</string>
     <string name="label_uv">"UV index"</string>
     <string name="label_airquality">"Index kvality ovzdušia"</string>
-    <string name="label_airquality_short">"Kvalita ovzdušia"</string>
+    <string name="label_airquality_short">"Index kvality ovzdušia"</string>
     <string name="label_radar">"Radar"</string>
     <string name="label_afternoon">"Popoludní"</string>
     <string name="label_eve">"Večer"</string>
@@ -89,8 +89,6 @@
     <string name="pref_summary_alerts_disabled">"Tento poskytovateľ nepodporuje meteovýstrahy"</string>
     <string name="pref_title_apiregister">"Vytvoriť užívateľa"</string>
     <string name="pref_summary_apiregister">"Vytvoriť registráciu na získanie kľúča poskytovateľa"</string>
-
-    <!-- Fuzzy -->
     <string name="error_message_weather_region_unsupported">"Táto krajina nie je podporovaná týmto poskytovateľom počasia"</string>
 
     <!-- Locations -->
@@ -107,7 +105,9 @@
     <string name="message_needfavorite">"Je potrebná minimálne jedna obľúbená lokalita"</string>
     <string name="undo">"Vrátiť"</string>
     <string name="delete">"Vymazať"</string>
-    <string name="bg_location_permission_rationale">"Povoliť aktualizáciu polohy pre oznámenia a miniaplikácie"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"Povoliť prístup k umiestneniu na pozadí pre oznámenia a widgety"</string>
 
     <!-- Weather Exceptions -->
     <string name="werror_noweather">"Načítanie údajov o počasí nie je možné"</string>
@@ -169,4 +169,21 @@
 
     <!-- Fuzzy -->
     <string name="label_day">"Deň"</string>
+
+    <!-- Pollen -->
+    <!-- Fuzzy -->
+    <string name="label_pollen_count">"Počet peľov"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_pollen_tree">"Strom"</string>
+    <string name="label_tree_pollen">"Peľ zo stromov"</string>
+    <string name="label_pollen_grass">"Tráva"</string>
+    <string name="label_grass_pollen">"Peľ z tráv"</string>
+    <string name="label_pollen_ragweed">"Ambrózia"</string>
+    <string name="label_ragweed_pollen">"Peľ ambrózie"</string>
+    <string name="label_count_low">"Nízka"</string>
+    <string name="label_count_moderate">"Stredná"</string>
+    <string name="label_count_high">"Vysoká"</string>
+    <string name="label_count_veryhigh">"Veľmi vysoká"</string>
+    <string name="bg_location_permission_rationale_settings">"Ak chcete aktualizovať polohu na pozadí pre oznámenia a miniaplikácie, nastavte povolenie polohy na '%1$s'"</string>
 </resources>

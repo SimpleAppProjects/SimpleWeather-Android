@@ -35,7 +35,7 @@
     <string name="weather_scatteredshowers">Scattered Showers</string>
     <string name="weather_heavysnow">Heavy Snow</string>
     <!-- Not Available -->
-    <string name="weather_notavailable" translatable="false" />
+    <string name="weather_notavailable" translatable="false">N/A</string>
 
     <string name="weather_fog">Fog</string>
     <string name="weather_lightrain">Light Rain</string>

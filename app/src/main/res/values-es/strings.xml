@@ -20,7 +20,6 @@
     <string name="widget_configure_prompt">"Configurar el widget"</string>
     <string name="title_activity_widget_config">"Preferencias de los widgets"</string>
     <string name="pref_title_bgcolor">"Fondo"</string>
-    <string name="label_color_currentconditions">"Estado actual"</string>
     <string name="label_color_transparent">"Transparente"</string>
     <string name="pref_title_bgstyle">"Estilo de fondo"</string>
     <string name="label_style_fullbg">"Imagen de fondo completa"</string>
@@ -130,4 +129,7 @@
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
     <string name="precipitation_text_format">"%1$d%% de probabilidad de lluvia en %2$s"</string>
     <string name="precipitation_nexthour_text_format">"%1$d%% de probabilidad de lluvia en la próxima hora"</string>
+
+    <!-- Weather Summary or Weather Overview -->
+    <string name="pref_title_feature_summary">"Resumen del tiempo"</string>
 </resources>
