@@ -20,16 +20,25 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if (CommonActions.ACTION_SETTINGS_UPDATEAPI == intent?.action || CommonActions.ACTION_SETTINGS_UPDATEGPS == intent?.action) {
-            WeatherUpdaterWorker.enqueueAction(context, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
-        } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT == intent?.action || CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE == intent?.action) {
-            GlobalScope.launch(Dispatchers.Default) {
-                WidgetUpdaterWorker.requestWidgetUpdate(context)
+        when (intent?.action) {
+            CommonActions.ACTION_SETTINGS_UPDATEAPI,
+            CommonActions.ACTION_SETTINGS_UPDATEGPS -> {
+                WeatherUpdaterWorker.enqueueAction(
+                    context,
+                    WeatherUpdaterWorker.ACTION_UPDATEWEATHER
+                )
             }
-        } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC == intent?.action) {
-            val settingsMgr = SettingsManager(context.applicationContext)
-            // Reset UpdateTime value to force a refresh
-            settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+            CommonActions.ACTION_SETTINGS_UPDATEUNIT,
+            CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE -> {
+                GlobalScope.launch(Dispatchers.Default) {
+                    WidgetUpdaterWorker.requestWidgetUpdate(context)
+                }
+            }
+            CommonActions.ACTION_SETTINGS_UPDATEDATASYNC -> {
+                val settingsMgr = SettingsManager(context.applicationContext)
+                // Reset UpdateTime value to force a refresh
+                settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+            }
         }
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)
     }

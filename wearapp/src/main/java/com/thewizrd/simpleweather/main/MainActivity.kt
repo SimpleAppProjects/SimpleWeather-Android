@@ -272,7 +272,7 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
             NavDrawerItem(
                 R.id.weatherNowFragment,
                 R.string.label_nav_weathernow,
-                R.drawable.wi_day_cloudy
+                R.drawable.ic_solar_stroke
             ),
             NavDrawerItem(
                 R.id.weatherAlertsFragment,

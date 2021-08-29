@@ -21,6 +21,8 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.ZonedDateTime
@@ -58,6 +60,10 @@ class WeatherTileProviderService : TileProviderService() {
         if (!isIdForDummyData(tileId)) {
             id = tileId
             sendRemoteViews()
+
+            // Enqueue work if not already
+            WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
+            WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
         }
     }
 

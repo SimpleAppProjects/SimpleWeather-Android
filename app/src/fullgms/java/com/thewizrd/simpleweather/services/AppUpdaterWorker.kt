@@ -14,6 +14,7 @@ import androidx.work.*
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
@@ -36,7 +37,7 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
         }
 
         private fun enqueueWork(context: Context) {
-            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, isWorkScheduled(context.applicationContext).toString())
+            Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
 
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.UNMETERED)
@@ -54,9 +55,9 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun isWorkScheduled(context: Context): Boolean {
+        private suspend fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context)
-            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
             if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {

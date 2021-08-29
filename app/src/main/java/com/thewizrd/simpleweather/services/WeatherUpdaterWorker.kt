@@ -24,6 +24,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -68,8 +69,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    if (onBoot || !isWorkScheduled(context.applicationContext)) {
-                        startWork(context.applicationContext)
+                    GlobalScope.launch(Dispatchers.Default) {
+                        if (onBoot || !isWorkScheduled(context.applicationContext)) {
+                            startWork(context.applicationContext)
+                        }
                     }
                 ACTION_UPDATEWEATHER ->
                     // For immediate action
@@ -124,9 +127,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun isWorkScheduled(context: Context): Boolean {
+        private suspend fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context.applicationContext)
-            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
             if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
@@ -145,7 +148,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private fun getForegroundNotification(context: Context): Notification {
             initChannel(context)
             val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.wi_day_cloudy)
+                .setSmallIcon(R.drawable.ic_logo_stroke)
                     .setContentTitle(context.getString(R.string.not_title_weather_update))
                     .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     .setOnlyAlertOnce(true)

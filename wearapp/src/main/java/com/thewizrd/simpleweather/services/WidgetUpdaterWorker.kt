@@ -3,10 +3,14 @@ package com.thewizrd.simpleweather.services
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -14,9 +18,10 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
     companion object {
         private const val TAG = "WidgetUpdaterWorker"
 
-        const val ACTION_STARTALARM = "SimpleWeather.Droid.action.START_ALARM"
-        const val ACTION_CANCELALARM = "SimpleWeather.Droid.action.CANCEL_ALARM"
-        const val ACTION_UPDATEALARM = "SimpleWeather.Droid.action.UPDATE_ALARM"
+        const val ACTION_UPDATEWIDGETS = "SimpleWeather.Droid.action.UPDATE_WIDGETS"
+        const val ACTION_ENQUEUEWORK = "SimpleWeather.Droid.action.START_ALARM"
+        const val ACTION_CANCELWORK = "SimpleWeather.Droid.action.CANCEL_ALARM"
+        const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         suspend fun requestWidgetUpdate(context: Context) {
             if (App.instance.settingsManager.isWeatherLoaded()) {
@@ -31,13 +36,20 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         @JvmStatic
-        fun enqueueAction(context: Context, intentAction: String) {
+        @JvmOverloads
+        fun enqueueAction(context: Context, intentAction: String, onBoot: Boolean = false) {
             when (intentAction) {
-                ACTION_UPDATEALARM -> enqueueWork(context.applicationContext)
-                ACTION_STARTALARM ->
+                ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
+                ACTION_ENQUEUEWORK ->
+                    GlobalScope.launch(Dispatchers.Default) {
+                        if (onBoot || !isWorkScheduled(context.applicationContext)) {
+                            startWork(context.applicationContext)
+                        }
+                    }
+                ACTION_UPDATEWIDGETS ->
                     // For immediate action
-                    startWork(context)
-                ACTION_CANCELALARM -> cancelWork(context.applicationContext)
+                    startWork(context.applicationContext)
+                ACTION_CANCELWORK -> cancelWork(context.applicationContext)
             }
         }
 
@@ -57,7 +69,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         private fun enqueueWork(context: Context) {
-            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
+            Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
 
             val updateRequest = PeriodicWorkRequest.Builder(
                 WidgetUpdaterWorker::class.java,
@@ -76,9 +88,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun isWorkScheduled(context: Context): Boolean {
+        private suspend fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context.applicationContext)
-            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
             if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
@@ -88,11 +100,10 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             return running
         }
 
-        private fun cancelWork(context: Context): Boolean {
+        private fun cancelWork(context: Context) {
             // Cancel alarm if dependent features are turned off
             WorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
-            return true
         }
     }
 

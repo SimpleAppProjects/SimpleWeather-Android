@@ -2,8 +2,6 @@ package com.thewizrd.simpleweather.services
 
 import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.location.Location
@@ -18,12 +16,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.work.*
 import com.google.android.gms.location.*
+import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
@@ -32,6 +32,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -45,31 +48,44 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private const val TAG = "WeatherUpdaterWorker"
 
         const val ACTION_UPDATEWEATHER = "SimpleWeather.Droid.Wear.action.UPDATE_WEATHER"
-        const val ACTION_STARTALARM = "SimpleWeather.Droid.Wear.action.START_ALARM"
-        const val ACTION_CANCELALARM = "SimpleWeather.Droid.Wear.action.CANCEL_ALARM"
-        const val ACTION_UPDATEALARM = "SimpleWeather.Droid.Wear.action.UPDATE_ALARM"
-
-        private const val JOB_ID = 1000
-        private const val NOT_CHANNEL_ID = "SimpleWeather.generalnotif"
+        const val ACTION_ENQUEUEWORK = "SimpleWeather.Droid.Wear.action.START_ALARM"
+        const val ACTION_CANCELWORK = "SimpleWeather.Droid.Wear.action.CANCEL_ALARM"
+        const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.Wear.action.UPDATE_ALARM"
 
         @JvmStatic
-        fun enqueueAction(context: Context, intentAction: String) {
+        @JvmOverloads
+        fun enqueueAction(context: Context, intentAction: String, onBoot: Boolean = false) {
             when (intentAction) {
-                ACTION_UPDATEALARM -> enqueueWork(context.applicationContext)
-                ACTION_UPDATEWEATHER, ACTION_STARTALARM ->
+                ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
+                ACTION_ENQUEUEWORK ->
+                    GlobalScope.launch(Dispatchers.Default) {
+                        if (onBoot || !isWorkScheduled(context.applicationContext)) {
+                            startWork(context.applicationContext)
+                        }
+                    }
+                ACTION_UPDATEWEATHER ->
                     // For immediate action
                     startWork(context.applicationContext)
-                ACTION_CANCELALARM -> cancelWork(context.applicationContext)
+                ACTION_CANCELWORK -> cancelWork(context.applicationContext)
             }
         }
 
         private fun startWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
-            val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java)
-                    .setInitialDelay(60, TimeUnit.SECONDS)
-                    .build()
+
+            val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
+                if (App.instance.appState != AppState.FOREGROUND) {
+                    setInitialDelay(60, TimeUnit.SECONDS)
+                }
+            }
+
             WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                .enqueueUniqueWork(
+                    TAG + "_onBoot",
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    updateRequest.build()
+                )
+
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well
@@ -78,10 +94,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         private fun enqueueWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
+
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresCharging(false)
                 .build()
+
             val updateRequest = PeriodicWorkRequest.Builder(
                 WeatherUpdaterWorker::class.java,
                 SettingsManager.DEFAULTINTERVAL.toLong(),
@@ -92,9 +110,23 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 .setConstraints(constraints)
                 .addTag(TAG)
                 .build()
+
             WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
+                .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
+
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
+        }
+
+        private suspend fun isWorkScheduled(context: Context): Boolean {
+            val workMgr = WorkManager.getInstance(context.applicationContext)
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
+            if (statuses.isNullOrEmpty()) return false
+            var running = false
+            for (workStatus in statuses) {
+                running = (workStatus.state == WorkInfo.State.RUNNING
+                        || workStatus.state == WorkInfo.State.ENQUEUED)
+            }
+            return running
         }
 
         private fun cancelWork(context: Context): Boolean {
@@ -105,28 +137,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        private fun initChannel(context: Context) {
-            // Gets an instance of the NotificationManager service
-            val mNotifyMgr = context.getSystemService(NotificationManager::class.java)
-            var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-            val notchannel_name = context.resources.getString(R.string.not_channel_name_general)
-            if (mChannel == null) {
-                mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
-            }
-
-            // Configure the notification channel.
-            mChannel.name = notchannel_name
-            mChannel.setShowBadge(false)
-            mChannel.enableLights(false)
-            mChannel.enableVibration(false)
-            mNotifyMgr.createNotificationChannel(mChannel)
-        }
-
-        @RequiresApi(Build.VERSION_CODES.O)
         private fun getForegroundNotification(context: Context): Notification {
             initChannel(context)
             val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.wi_day_cloudy)
+                .setSmallIcon(R.drawable.ic_logo_stroke)
                     .setContentTitle(context.getString(R.string.not_title_weather_update))
                     .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     .setOnlyAlertOnce(true)
@@ -144,8 +158,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             // Request work to be in foreground (only for Oreo+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION))
+                    setForeground(
+                        ForegroundInfo(
+                            JOB_ID, getForegroundNotification(context),
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                        )
+                    )
                 } else {
                     setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context)))
                 }
@@ -162,6 +180,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         suspend fun executeWork(context: Context): Boolean {
             val wm = WeatherManager.instance
             val settingsManager = App.instance.settingsManager
+            var locationChanged = false
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                 runCatching {
@@ -173,11 +192,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             if (settingsManager.isWeatherLoaded()) {
                 if (settingsManager.getDataSync() == WearableDataSync.OFF && settingsManager.useFollowGPS()) {
                     try {
-                        updateLocation()
+                        locationChanged = updateLocation()
+                        Timber.tag(TAG).i("locationChanged = $locationChanged...")
                     } catch (e: CancellationException) {
                         // ignore
                     } catch (e: Exception) {
-                        Logger.writeLine(Log.ERROR, e)
+                        Logger.writeLine(Log.ERROR, e, "Error updating location")
                     }
                 }
 
@@ -202,6 +222,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
             val settingsManager = App.instance.settingsManager
+
+            Timber.tag(TAG).d("Getting weather data...")
+
             val weather = try {
                 val locData = settingsManager.getHomeData() ?: return@withContext null
                 val wloader = WeatherDataLoader(locData)
@@ -213,7 +236,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
                 wloader.loadWeatherData(request.build())
             } catch (ex: Exception) {
-                Logger.writeLine(Log.ERROR, ex, "%s: GetWeather error", TAG)
+                Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
                 null
             }
             weather

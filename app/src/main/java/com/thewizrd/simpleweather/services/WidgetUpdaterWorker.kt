@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.work.*
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
@@ -11,6 +12,9 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -33,8 +37,10 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    if (onBoot || !isWorkScheduled(context.applicationContext)) {
-                        startWork(context.applicationContext)
+                    GlobalScope.launch(Dispatchers.Default) {
+                        if (onBoot || !isWorkScheduled(context.applicationContext)) {
+                            startWork(context.applicationContext)
+                        }
                     }
                 ACTION_UPDATEWIDGETS ->
                     // For immediate action
@@ -61,7 +67,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         private fun enqueueWork(context: Context) {
-            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
+            Logger.writeLine(Log.INFO, "%s: Requesting work")
 
             val updateRequest = PeriodicWorkRequest.Builder(
                 WidgetUpdaterWorker::class.java,
@@ -80,9 +86,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun isWorkScheduled(context: Context): Boolean {
+        private suspend fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context.applicationContext)
-            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
             if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {

@@ -17,7 +17,7 @@ public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {
             UpdaterUtils.startAlarm(context, true);
 
             if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
-                ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorkerActions.ACTION_STARTALARM);
+                ImageDatabaseWorker.enqueueAction(context, ImageDatabaseWorkerActions.ACTION_STARTALARM, true);
 
                 AppUpdaterWorker.registerWorker(context);
             }

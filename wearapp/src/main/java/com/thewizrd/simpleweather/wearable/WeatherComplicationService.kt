@@ -18,10 +18,13 @@ import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
+import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
+import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -40,6 +43,10 @@ class WeatherComplicationService : ComplicationProviderService() {
 
     override fun onComplicationActivated(complicationId: Int, type: Int, manager: ComplicationManager) {
         super.onComplicationActivated(complicationId, type, manager)
+
+        // Enqueue work if not already
+        WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
+        WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
 
         // Request complication update
         WeatherComplicationHelper.requestComplicationUpdate(this, complicationId)

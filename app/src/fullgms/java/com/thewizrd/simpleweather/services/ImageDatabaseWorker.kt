@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.images.ImageDataHelper
 import com.thewizrd.simpleweather.images.ImageDatabase
@@ -12,6 +13,9 @@ import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CAN
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CHECKUPDATETIME
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_STARTALARM
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_UPDATEALARM
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
@@ -20,14 +24,23 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
         private const val TAG = "ImageDatabaseWorker"
 
         @JvmStatic
-        fun enqueueAction(context: Context, intentAction: String) {
-            if (ACTION_UPDATEALARM == intentAction) {
-                enqueueWork(context.applicationContext)
-            } else if (ACTION_CHECKUPDATETIME == intentAction || ACTION_STARTALARM == intentAction) {
-                // For immediate action
-                startWork(context.applicationContext)
-            } else if (ACTION_CANCELALARM == intentAction) {
-                cancelWork(context.applicationContext)
+        @JvmOverloads
+        fun enqueueAction(context: Context, intentAction: String, onBoot: Boolean = false) {
+            // For immediate action
+            when (intentAction) {
+                ACTION_UPDATEALARM -> enqueueWork(context.applicationContext)
+                ACTION_STARTALARM -> {
+                    GlobalScope.launch(Dispatchers.Default) {
+                        if (onBoot || !isWorkScheduled(context.applicationContext)) {
+                            startWork(context.applicationContext)
+                        }
+                    }
+                }
+                ACTION_CHECKUPDATETIME -> {
+                    // For immediate action
+                    startWork(context.applicationContext)
+                }
+                ACTION_CANCELALARM -> cancelWork(context.applicationContext)
             }
         }
 
@@ -51,7 +64,7 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
         }
 
         private fun enqueueWork(context: Context) {
-            Logger.writeLine(Log.INFO, "%s: Requesting work; workExists: %s", TAG, java.lang.Boolean.toString(isWorkScheduled(context)))
+            Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
 
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -69,9 +82,9 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
         }
 
-        private fun isWorkScheduled(context: Context): Boolean {
+        private suspend fun isWorkScheduled(context: Context): Boolean {
             val workMgr = WorkManager.getInstance(context)
-            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).value
+            val statuses = workMgr.getWorkInfosForUniqueWorkLiveData(TAG).awaitWithTimeout(10000)
             if (statuses.isNullOrEmpty()) return false
             var running = false
             for (workStatus in statuses) {
