@@ -111,6 +111,7 @@
                         android:text="@{weatherView.weatherCredit}"
                         android:textAppearance="?android:textAppearanceSmallInverse"
                         android:textColor="?android:attr/textColorPrimary"
+                        app:hideIfNullOrWhitespace="@{weatherView.weatherCredit}"
                         tools:text="Data from WeatherUnderground" />
 
                 </LinearLayout>

@@ -618,41 +618,43 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
             }
 
-            for (location in locations) {
-                val panel = LocationPanelViewModel()
-                panel.locationData = location
-                withContext(Dispatchers.Main) {
-                    mAdapter.add(panel)
-                }
-
-                launch(Dispatchers.Default) {
-                    supervisorScope {
-                        val weather = WeatherDataLoader(location)
-                                .loadWeatherData(WeatherRequest.Builder()
-                                        .forceRefresh(false)
-                                        .setErrorListener(this@LocationsFragment)
-                                        .build())
-
-                        onWeatherLoaded(location, weather)
-                    }
-                }
+            if (gpsData != null) {
+                locations.add(0, gpsData)
             }
 
             if (!isActive) return@runWithView
 
-            if (gpsData != null) {
-                locations.add(0, gpsData)
+            if (locations.isNotEmpty()) {
+                withContext(Dispatchers.Main) {
+                    binding.noLocationsPrompt.visibility = View.GONE
+                }
 
-                launch(Dispatchers.Default) {
-                    supervisorScope {
-                        val weather = WeatherDataLoader(gpsData)
-                                .loadWeatherData(WeatherRequest.Builder()
+                for (location in locations) {
+                    if (location != gpsData) {
+                        val panel = LocationPanelViewModel()
+                        panel.locationData = location
+                        withContext(Dispatchers.Main) {
+                            mAdapter.add(panel)
+                        }
+                    }
+
+                    launch(Dispatchers.Default) {
+                        supervisorScope {
+                            val weather = WeatherDataLoader(location)
+                                .loadWeatherData(
+                                    WeatherRequest.Builder()
                                         .forceRefresh(false)
                                         .setErrorListener(this@LocationsFragment)
-                                        .build())
+                                        .build()
+                                )
 
-                        onWeatherLoaded(gpsData, weather)
+                            onWeatherLoaded(location, weather)
+                        }
                     }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    binding.noLocationsPrompt.visibility = View.VISIBLE
                 }
             }
         }
@@ -716,15 +718,27 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             } else {
                 val dataset = mAdapter.getDataset()
 
-                for (view in dataset) {
-                    launch(Dispatchers.Default) {
-                        val weather = WeatherDataLoader(view.locationData!!)
-                                .loadWeatherData(WeatherRequest.Builder()
+                if (dataset.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        binding.noLocationsPrompt.visibility = View.GONE
+                    }
+
+                    for (view in dataset) {
+                        launch(Dispatchers.Default) {
+                            val weather = WeatherDataLoader(view.locationData!!)
+                                .loadWeatherData(
+                                    WeatherRequest.Builder()
                                         .forceRefresh(false)
                                         .setErrorListener(this@LocationsFragment)
-                                        .build())
+                                        .build()
+                                )
 
-                        onWeatherLoaded(view.locationData!!, weather)
+                            onWeatherLoaded(view.locationData!!, weather)
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        binding.noLocationsPrompt.visibility = View.VISIBLE
                     }
                 }
             }

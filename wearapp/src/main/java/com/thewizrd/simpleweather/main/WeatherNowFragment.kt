@@ -42,6 +42,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorList
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
@@ -345,13 +346,20 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             v.findNavController().navigate(WeatherNowFragmentDirections.actionGlobalWeatherAlertsFragment())
         }
         binding.conditionDetails.setOnClickListener { v ->
-            v.findNavController().navigate(WeatherNowFragmentDirections.actionGlobalWeatherDetailsFragment())
+            v.findNavController()
+                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherDetailsFragment())
         }
         binding.forecastContainer.setOnClickListener { v ->
-            v.findNavController().navigate(WeatherNowFragmentDirections.actionGlobalWeatherForecastFragment())
+            v.findNavController()
+                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherForecastFragment())
         }
         binding.hourlyForecastContainer.setOnClickListener { v ->
-            v.findNavController().navigate(WeatherNowFragmentDirections.actionGlobalWeatherHrForecastFragment())
+            v.findNavController()
+                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherHrForecastFragment())
+        }
+
+        binding.noLocationsPrompt.setOnClickListener { v ->
+            v.findNavController().navigate(NavGraphDirections.actionGlobalSetupActivity())
         }
 
         return view
@@ -509,7 +517,14 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         // Weather was loaded before. Lets load it up...
                         locationData = settingsManager.getHomeData()
                     }
-                    if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
+
+                    if (locationData?.isValid == true) {
+                        wLoader = WeatherDataLoader(locationData!!)
+                    } else {
+                        // Show error prompt
+                        binding.noLocationsPrompt.visibility = View.VISIBLE
+                        this.cancel()
+                    }
                     forceRefresh
                 }
 
@@ -517,6 +532,11 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     val t = task.getCompletionExceptionOrNull()
                     if (t == null) {
                         refreshWeather(task.getCompleted())
+                    } else {
+                        runWithView {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                            binding.scrollView.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -528,14 +548,16 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             binding.swipeRefreshLayout.isRefreshing = true
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
-                launch(Dispatchers.IO) {
+                val task = launch(Dispatchers.IO) {
                     supervisorScope {
-                        val result = wLoader?.loadWeatherResult(WeatherRequest.Builder()
+                        val result = wLoader?.loadWeatherResult(
+                            WeatherRequest.Builder()
                                 .forceRefresh(forceRefresh)
                                 .setErrorListener(this@WeatherNowFragment)
-                                .build())
+                                .build()
+                        ) ?: throw CancellationException()
 
-                        weatherLiveData.postValue(result!!.weather)
+                        weatherLiveData.postValue(result.weather)
 
                         runWithView {
                             val isRound = resources.configuration.isScreenRound
@@ -548,6 +570,15 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                             if (locationData != null) {
                                 alertsView.updateAlerts(locationData!!)
                             }
+                        }
+                    }
+                }
+
+                task.invokeOnCompletion {
+                    if (it != null) {
+                        runWithView {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                            binding.scrollView.visibility = View.VISIBLE
                         }
                     }
                 }

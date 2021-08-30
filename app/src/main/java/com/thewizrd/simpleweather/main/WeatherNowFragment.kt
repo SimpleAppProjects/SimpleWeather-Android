@@ -79,6 +79,9 @@ import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
+import com.thewizrd.simpleweather.banner.Banner
+import com.thewizrd.simpleweather.banner.BannerManager
+import com.thewizrd.simpleweather.banner.BannerManagerInterface
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
@@ -105,7 +108,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.coroutines.coroutineContext
 
-class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
+class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
     companion object {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
     }
@@ -135,6 +138,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
     private var sunphaseControlBinding: WeathernowSunphasecontrolBinding? = null
     private var radarControlBinding: WeathernowRadarcontrolBinding? = null
     private val dataBindingComponent = WeatherFragmentDataBindingComponent(this)
+
+    private var mBannerMgr: BannerManager? = null
 
     // Data
     private var locationData: LocationData? = null
@@ -275,6 +280,34 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         return mSnackMgr
     }
 
+    override fun createBannerManager(): BannerManager {
+        return BannerManager(binding.listLayout)
+    }
+
+    override fun initBannerManager() {
+        mBannerMgr = createBannerManager()
+    }
+
+    override fun showBanner(banner: Banner) {
+        runWithView {
+            if (appCompatActivity != null && isVisible) {
+                if (mBannerMgr == null) {
+                    mBannerMgr = createBannerManager()
+                }
+                mBannerMgr?.show(banner)
+            }
+        }
+    }
+
+    override fun dismissBanner() {
+        runWithView { mBannerMgr?.dismiss() }
+    }
+
+    override fun unloadBannerManager() {
+        dismissBanner()
+        mBannerMgr = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherNowFragment: onCreate")
@@ -354,6 +387,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         view.requestFocus()
 
         ViewGroupCompat.setTransitionGroup((view as ViewGroup), true)
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            insets.replaceSystemWindowInsets(
+                insets.systemWindowInsetLeft,
+                insets.systemWindowInsetTop,
+                insets.systemWindowInsetRight,
+                0
+            )
+        }
 
         if (binding.toolbar.background is ColorDrawable) {
             val materialShapeDrawable = MaterialShapeDrawable()
@@ -830,6 +872,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
         super.onResume()
         AnalyticsLogger.logEvent("WeatherNowFragment: onResume")
 
+        if (!isHidden) {
+            initBannerManager()
+        } else {
+            dismissBanner()
+        }
+
         radarViewProvider?.onResume()
     }
 
@@ -840,6 +888,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
 
         // Remove location updates to save battery.
         stopLocationUpdates()
+        unloadBannerManager()
         super.onPause()
     }
 
@@ -1076,7 +1125,20 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                         // Weather was loaded before. Lets load it up...
                         locationData = getSettingsManager().getHomeData()
                     }
-                    if (locationData != null) wLoader = WeatherDataLoader(locationData!!)
+
+                    if (locationData?.isValid == true) {
+                        wLoader = WeatherDataLoader(locationData!!)
+                    } else {
+                        showBanner(Banner.make(R.string.prompt_location_not_set).apply {
+                            setBannerIcon(binding.root.context, R.drawable.ic_location_off_24dp)
+                            setPrimaryAction(R.string.label_fab_add_location) {
+                                binding.root.findNavController().navigate(
+                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
+                                )
+                            }
+                        })
+                        this.cancel()
+                    }
                     forceRefresh
                 }
 
@@ -1084,6 +1146,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                     val t = task.getCompletionExceptionOrNull()
                     if (t == null) {
                         refreshWeather(task.getCompleted())
+                    } else {
+                        runWithView {
+                            binding.refreshLayout.isRefreshing = false
+                            binding.progressBar.hide()
+                            binding.scrollView.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -1096,14 +1164,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                 wLoader = WeatherDataLoader(locationData!!)
             }
 
-            launch(Dispatchers.Default) {
+            val task = launch(Dispatchers.Default) {
                 supervisorScope {
                     val result = wLoader?.loadWeatherResult(
                         WeatherRequest.Builder()
                             .forceRefresh(forceRefresh)
                             .setErrorListener(this@WeatherNowFragment)
                             .build()
-                    ) ?: return@supervisorScope
+                    ) ?: throw CancellationException()
 
                     weatherLiveData.postValue(result.weather)
 
@@ -1126,12 +1194,25 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener {
                                 // Alerts are posted to the user here. Set them as notified.
                                 GlobalScope.launch(Dispatchers.Default) {
                                     if (BuildConfig.DEBUG) {
-                                        WeatherAlertHandler.postAlerts(locationData!!, weatherAlerts)
+                                        WeatherAlertHandler.postAlerts(
+                                            locationData!!,
+                                            weatherAlerts
+                                        )
                                     }
                                     WeatherAlertHandler.setAsNotified(locationData!!, weatherAlerts)
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            task.invokeOnCompletion {
+                if (it != null) {
+                    runWithView {
+                        binding.refreshLayout.isRefreshing = false
+                        binding.progressBar.hide()
+                        binding.scrollView.visibility = View.VISIBLE
                     }
                 }
             }

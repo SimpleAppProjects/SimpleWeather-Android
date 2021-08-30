@@ -185,8 +185,10 @@ public final class SnackbarManager {
 
             mMainHandler.removeCallbacks(mHideRunnable);
             int durationMs = snackPair.snackbar.getDuration();
-            durationMs *= App.getInstance().getSettingsManager().getAnimatorScale();
-            mMainHandler.postDelayed(mHideRunnable, durationMs);
+            if (durationMs >= 0) {
+                durationMs *= App.getInstance().getSettingsManager().getAnimatorScale();
+                mMainHandler.postDelayed(mHideRunnable, durationMs);
+            }
         }
     }
 

@@ -24,6 +24,22 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/location_panel" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/no_locations_prompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:padding="4dp"
+            android:text="@string/prompt_location_not_set"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            app:drawableTopCompat="@drawable/ic_add_location_white_24dp"
+            app:drawableTint="?attr/colorOnSurface"
+            android:drawablePadding="8dp"
+            tools:visibility="visible" />
+
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
             style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"

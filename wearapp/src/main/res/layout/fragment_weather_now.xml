@@ -40,9 +40,27 @@
             tools:visibility="visible">
 
             <LinearLayout
+                android:id="@+id/listLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/no_locations_prompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:paddingStart="@dimen/wnow_horizontal_padding"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="@dimen/wnow_horizontal_padding"
+                    android:layout_marginHorizontal="8dp"
+                    app:drawableTopCompat="@drawable/ic_location_off_24dp"
+                    android:drawablePadding="8dp"
+                    android:text="@string/prompt_location_not_set"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <LinearLayout
                     android:id="@+id/alert_button"
@@ -81,6 +99,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     tools:text="New York, New York" />
 
                 <LinearLayout
@@ -88,7 +107,8 @@
                     android:layout_height="wrap_content"
                     android:baselineAligned="true"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="8dp"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}">
 
                     <com.thewizrd.shared_resources.controls.IconControl
                         android:id="@+id/weather_icon"
@@ -144,6 +164,7 @@
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     tools:text="Mostly Cloudy. Breezy. Cool" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -154,7 +175,7 @@
                     android:orientation="horizontal"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:visibility="@{weatherView.showHiLo ? View.VISIBLE : View.GONE}">
+                    android:visibility="@{weatherView.showHiLo &amp;&amp; weatherView.location != null ? View.VISIBLE : View.GONE}">
 
                     <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                         android:id="@+id/weather_hi"
@@ -236,7 +257,8 @@
                     android:paddingStart="@dimen/list_item_padding"
                     android:paddingEnd="@dimen/list_item_padding"
                     app:popData="@{weatherView.weatherDetails}"
-                    app:windData="@{weatherView.weatherDetails}">
+                    app:windData="@{weatherView.weatherDetails}"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}">
 
                     <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
                         android:id="@+id/condition_pop"
@@ -305,7 +327,8 @@
                     android:paddingTop="16dp"
                     android:paddingBottom="16dp"
                     app:forecasts="@{forecastsView.forecasts}"
-                    app:hideIfEmpty="@{forecastsView.forecasts}" />
+                    app:showIfTrue="@{weatherView.location != null}"
+                    app:showIfNotEmpty="@{forecastsView.forecasts}" />
 
                 <com.thewizrd.simpleweather.controls.HourlyForecastPanel
                     android:id="@+id/hourly_forecast_container"
@@ -319,7 +342,8 @@
                     android:paddingTop="16dp"
                     android:paddingBottom="16dp"
                     app:forecasts="@{forecastsView.hourlyForecasts}"
-                    app:hideIfEmpty="@{forecastsView.hourlyForecasts}" />
+                    app:showIfTrue="@{weatherView.location != null}"
+                    app:showIfNotEmpty="@{forecastsView.hourlyForecasts}" />
 
                 <TextView
                     android:id="@+id/label_updatetime"
@@ -332,6 +356,7 @@
                     android:textAppearance="?android:textAppearanceSmallInverse"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     tools:text="Updated on Sun 11:12 PM" />
 
                 <TextView
@@ -347,6 +372,7 @@
                     android:textAppearance="?android:textAppearanceSmallInverse"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     tools:text="Data from WeatherUnderground" />
 
             </LinearLayout>

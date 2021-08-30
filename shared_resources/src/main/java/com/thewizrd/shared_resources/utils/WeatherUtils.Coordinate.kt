@@ -42,6 +42,10 @@ class Coordinate {
         this.longitude = longitude
     }
 
+    fun isValid(): Boolean {
+        return latitude != 0.toDouble() || longitude != 0.toDouble()
+    }
+
     override fun toString(): String {
         return String.format(Locale.ROOT, "%s,%s", latitude.toString(), longitude.toString())
     }

@@ -19,7 +19,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.radarEnabled ? View.GONE : View.VISIBLE}">
+        android:visibility="@{FeatureSettings.radarEnabled &amp;&amp; weatherView.locationCoord.isValid ? View.VISIBLE : View.GONE}">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/radar_label"

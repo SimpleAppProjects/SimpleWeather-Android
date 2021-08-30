@@ -36,6 +36,12 @@ public class Snackbar {
             case LONG:
                 snackbar.mDurationMs = LONG_DURATION_MS;
                 break;
+            case VERY_LONG:
+                snackbar.mDurationMs = VERYLONG_DURATION_MS;
+                break;
+            case FOREVER:
+                snackbar.mDurationMs = -1;
+                break;
         }
 
         return snackbar;
@@ -55,6 +61,9 @@ public class Snackbar {
                 break;
             case VERY_LONG:
                 snackbar.mDurationMs = VERYLONG_DURATION_MS;
+                break;
+            case FOREVER:
+                snackbar.mDurationMs = -1;
                 break;
         }
 
@@ -94,6 +103,7 @@ public class Snackbar {
     public enum Duration {
         SHORT,
         LONG,
-        VERY_LONG
+        VERY_LONG,
+        FOREVER
     }
 }
