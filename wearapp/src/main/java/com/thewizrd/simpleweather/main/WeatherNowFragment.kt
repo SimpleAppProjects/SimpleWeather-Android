@@ -400,7 +400,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         if (!mRequestingLocationUpdates) {
             Logger.writeLine(
                 Log.DEBUG,
-                "SetupLocationFragment: stopLocationUpdates: updates never requested, no-op."
+                "WeatherNowFragment: stopLocationUpdates: updates never requested, no-op."
             )
             return
         }

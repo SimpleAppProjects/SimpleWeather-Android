@@ -141,23 +141,28 @@ class SetupLocationFragment : CustomFragment() {
 
             try {
                 v.findNavController()
-                        .navigate(
-                                SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                                FragmentNavigator.Extras.Builder().addSharedElement(v, Constants.SHARED_ELEMENT)
-                                        .build()
-                        )
-            } catch (ex: IllegalArgumentException) {
-                val props = Bundle().apply {
-                    putString("method", "searchViewContainer.onClick")
-                    putBoolean("isAlive", isAlive)
-                    putBoolean("isViewAlive", isViewAlive)
-                    putBoolean("isDetached", isDetached)
-                    putBoolean("isResumed", isResumed)
-                    putBoolean("isRemoving", isRemoving)
-                }
-                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
+                    .navigate(
+                        SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
+                        FragmentNavigator.Extras.Builder()
+                            .addSharedElement(v, Constants.SHARED_ELEMENT)
+                            .build()
+                    )
+            } catch (ex: Exception) {
+                if (ex is IllegalArgumentException || ex is IllegalStateException) {
+                    val props = Bundle().apply {
+                        putString("method", "searchViewContainer.onClick")
+                        putBoolean("isAlive", isAlive)
+                        putBoolean("isViewAlive", isViewAlive)
+                        putBoolean("isDetached", isDetached)
+                        putBoolean("isResumed", isResumed)
+                        putBoolean("isRemoving", isRemoving)
+                    }
+                    AnalyticsLogger.logEvent("$TAG: navigation failed", props)
 
-                Logger.writeLine(Log.ERROR, ex)
+                    Logger.writeLine(Log.ERROR, ex)
+                } else {
+                    throw ex
+                }
             }
         }
         ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT)
@@ -386,19 +391,26 @@ class SetupLocationFragment : CustomFragment() {
                                     viewModel.locationData = data
                                     try {
                                         binding.root.findNavController()
-                                                .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment())
-                                    } catch (ex: IllegalStateException) {
-                                        val args = Bundle().apply {
-                                            putString("method", "fetchGeoLocation")
-                                            putBoolean("isAlive", isAlive)
-                                            putBoolean("isViewAlive", isViewAlive)
-                                            putBoolean("isDetached", isDetached)
-                                            putBoolean("isResumed", isResumed)
-                                            putBoolean("isRemoving", isRemoving)
-                                        }
-                                        AnalyticsLogger.logEvent("$TAG: navigation failed", args)
+                                            .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment())
+                                    } catch (ex: Exception) {
+                                        if (ex is IllegalArgumentException || ex is IllegalStateException) {
+                                            val args = Bundle().apply {
+                                                putString("method", "fetchGeoLocation")
+                                                putBoolean("isAlive", isAlive)
+                                                putBoolean("isViewAlive", isViewAlive)
+                                                putBoolean("isDetached", isDetached)
+                                                putBoolean("isResumed", isResumed)
+                                                putBoolean("isRemoving", isRemoving)
+                                            }
+                                            AnalyticsLogger.logEvent(
+                                                "$TAG: navigation failed",
+                                                args
+                                            )
 
-                                        Logger.writeLine(Log.ERROR, ex)
+                                            Logger.writeLine(Log.ERROR, ex)
+                                        } else {
+                                            throw ex
+                                        }
                                     }
                                 } else {
                                     enableControls(true)

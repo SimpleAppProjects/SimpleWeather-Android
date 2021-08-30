@@ -417,7 +417,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         providerPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
                 if (!isWeatherAPISupported(newValue.toString())) {
-                    navigateToPremiumFragment()
+                    runWithView {
+                        navigateToPremiumFragment()
+                    }
                     return false
                 }
 
@@ -687,7 +689,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
         dailyNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
             if (newValue == true && !areNotificationExtrasEnabled()) {
-                navigateToPremiumFragment()
+                runWithView {
+                    navigateToPremiumFragment()
+                }
                 return@OnPreferenceChangeListener false
             }
             UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
@@ -705,7 +709,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         popChanceNotifPref = findPreference(SettingsManager.KEY_POPCHANCENOTIFICATION)!!
         popChanceNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
             if (newValue == true && !areNotificationExtrasEnabled()) {
-                navigateToPremiumFragment()
+                runWithView {
+                    navigateToPremiumFragment()
+                }
                 return@OnPreferenceChangeListener false
             }
 

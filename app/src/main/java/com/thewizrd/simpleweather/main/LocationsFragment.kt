@@ -216,18 +216,22 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
                 try {
                     binding.root.findNavController().navigate(args)
-                } catch (ex: IllegalArgumentException) {
-                    val props = Bundle().apply {
-                        putString("method", "onRecyclerClickListener.onClick")
-                        putBoolean("isAlive", isAlive)
-                        putBoolean("isViewAlive", isViewAlive)
-                        putBoolean("isDetached", isDetached)
-                        putBoolean("isResumed", isResumed)
-                        putBoolean("isRemoving", isRemoving)
-                    }
-                    AnalyticsLogger.logEvent("$TAG: navigation failed", props)
+                } catch (ex: Exception) {
+                    if (ex is IllegalArgumentException || ex is IllegalStateException) {
+                        val props = Bundle().apply {
+                            putString("method", "onRecyclerClickListener.onClick")
+                            putBoolean("isAlive", isAlive)
+                            putBoolean("isViewAlive", isViewAlive)
+                            putBoolean("isDetached", isDetached)
+                            putBoolean("isResumed", isResumed)
+                            putBoolean("isRemoving", isRemoving)
+                        }
+                        AnalyticsLogger.logEvent("$TAG: navigation failed", props)
 
-                    Logger.writeLine(Log.ERROR, ex)
+                        Logger.writeLine(Log.ERROR, ex)
+                    } else {
+                        throw ex
+                    }
                 }
             }
         }
