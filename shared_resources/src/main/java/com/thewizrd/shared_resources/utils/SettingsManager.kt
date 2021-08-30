@@ -563,28 +563,12 @@ class SettingsManager(context: Context) {
         editor.apply()
     }
 
-    suspend fun isWeatherLoaded(): Boolean {
-        if (isPhone) {
-            if (!DBUtils.locationDataExists(getLocationDB())) {
-                setWeatherLoaded(false)
-                return false
-            }
-        } else {
-            if (!DBUtils.weatherDataExists(getWeatherDB())) {
-                setWeatherLoaded(false)
-                return false
-            }
-        }
-
-        return if (preferences.contains(KEY_WEATHERLOADED) && preferences.getBoolean(
-                KEY_WEATHERLOADED,
-                false
-            )
-        ) {
-            setWeatherLoaded(true)
-            true
-        } else {
+    fun isWeatherLoaded(): Boolean {
+        return if (!preferences.contains(KEY_WEATHERLOADED)) {
+            setWeatherLoaded(false)
             false
+        } else {
+            preferences.getBoolean(KEY_WEATHERLOADED, false)
         }
     }
 
