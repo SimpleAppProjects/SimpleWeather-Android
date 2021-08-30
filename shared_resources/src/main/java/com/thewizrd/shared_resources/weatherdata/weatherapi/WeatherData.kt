@@ -20,7 +20,6 @@ import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.math.roundToInt
 
 fun createWeatherData(root: ForecastResponse): Weather {
@@ -35,23 +34,25 @@ fun createWeatherData(root: ForecastResponse): Weather {
         )
 
         forecast = ArrayList(root.forecast!!.forecastday!!.size)
-        hrForecast = ArrayList(root.forecast!!.forecastday!![0].hour!!.size)
+        hrForecast = ArrayList<HourlyForecast>().apply {
+            root.forecast!!.forecastday?.firstOrNull()?.hour?.size?.let {
+                ensureCapacity(it)
+            }
+        }
 
         // Forecast
         for (day in root.forecast!!.forecastday!!) {
             val fcast = createForecast(day)
 
-            for (hour in day.hour!!) {
+            day.hour?.forEach { hour ->
                 val date = ZonedDateTime.ofInstant(
                     Instant.ofEpochSecond(hour.timeEpoch!!.toLong()),
                     ZoneOffset.UTC
                 )
 
-                if (date.isBefore(updateTime)) {
-                    continue
+                if (!date.isBefore(updateTime)) {
+                    hrForecast.add(createHourlyForecast(hour, root.location!!.tzId!!))
                 }
-
-                hrForecast.add(createHourlyForecast(hour, root.location!!.tzId!!))
             }
 
             forecast.add(fcast)
@@ -163,7 +164,7 @@ fun createHourlyForecast(hour: HourItem, tzId: String): HourlyForecast {
 
 fun createCondition(current: Current, tzId: String): Condition {
     return Condition().apply {
-        weather = current.condition!!.text
+        weather = current.condition?.text
 
         tempF = current.tempF
         tempC = current.tempC

@@ -81,9 +81,9 @@ fun createLocation(foreRoot: ForecastResponse): Location {
     return Location().apply {
         // Use location name from location provider
         name = null
-        latitude = foreRoot.position!!.lat!!.toFloat()
-        longitude = foreRoot.position!!.lon!!.toFloat()
-        tzLong = foreRoot.position!!.timezone
+        latitude = foreRoot.position?.lat
+        longitude = foreRoot.position?.lon
+        tzLong = foreRoot.position?.timezone
     }
 }
 
@@ -94,38 +94,40 @@ fun createForecast(day: DailyForecastItem): Forecast {
 
         date = LocalDateTime.ofEpochSecond(day.dt!!, 0, ZoneOffset.UTC)
 
-        if (day.T?.max != null) {
-            highC = day.T!!.max!!
-            highF = ConversionMethods.CtoF(day.T!!.max!!)
+        day.T?.max?.let {
+            highC = it
+            highF = ConversionMethods.CtoF(it)
         }
 
-        if (day.T?.min != null) {
-            lowC = day.T!!.min!!
-            lowF = ConversionMethods.CtoF(day.T!!.min!!)
+        day.T?.min?.let {
+            lowC = it
+            lowF = ConversionMethods.CtoF(it)
         }
 
-        condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-            locale == Locale.ROOT
-        ) {
-            day.weather12H!!.desc
-        } else {
-            provider.getWeatherCondition(day.weather12H!!.icon)
-        }
-        icon = provider.getWeatherIcon(false, day.weather12H!!.icon)
+        condition =
+            if (!day.weather12H?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+                    .startsWith("en_") ||
+                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale == Locale.ROOT
+            ) {
+                day.weather12H?.desc
+            } else {
+                provider.getWeatherCondition(day.weather12H?.icon)
+            }
+        icon = provider.getWeatherIcon(false, day.weather12H?.icon)
 
         // Extras
         extras = ForecastExtras()
         if (day.humidity?.max != null && day.humidity?.min != null) {
             extras.humidity = ((day.humidity!!.min!! + day.humidity!!.max!!) / 2f).roundToInt()
         }
-        if (day.T?.sea != null) {
-            extras.pressureMb = day.T!!.sea
-            extras.pressureIn = ConversionMethods.mbToInHg(day.T!!.sea!!)
+        day.T?.sea?.let {
+            extras.pressureMb = it
+            extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
-        if (day.precipitation?.jsonMember24h != null) {
-            extras.qpfRainMm = day.precipitation!!.jsonMember24h!!.toFloat()
-            extras.qpfRainIn = ConversionMethods.mmToIn(day.precipitation!!.jsonMember24h!!.toFloat())
+        day.precipitation?.jsonMember24h?.let {
+            extras.qpfRainMm = it
+            extras.qpfRainIn = ConversionMethods.mmToIn(it)
         }
         extras.uvIndex = day.uv
     }
@@ -140,34 +142,36 @@ fun createHourlyForecast(forecast: ForecastItem,
         val date = Instant.ofEpochSecond(forecast.dt!!).atZone(ZoneOffset.UTC)
         setDate(date)
 
-        if (forecast.T?.value != null) {
-            highC = forecast.T!!.value!!
-            highF = ConversionMethods.CtoF(forecast.T!!.value!!)
+        forecast.T?.value?.let {
+            highC = it
+            highF = ConversionMethods.CtoF(it)
         }
 
-        condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-            locale == Locale.ROOT
-        ) {
-            forecast.weather!!.desc
-        } else {
-            provider.getWeatherCondition(forecast.weather!!.icon)
-        }
-        icon = forecast.weather!!.icon
+        condition =
+            if (!forecast.weather?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+                    .startsWith("en_") ||
+                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale == Locale.ROOT
+            ) {
+                forecast.weather?.desc
+            } else {
+                provider.getWeatherCondition(forecast.weather?.icon)
+            }
+        icon = forecast.weather?.icon
 
         // Extras
         extras = ForecastExtras()
 
-        if (forecast.T?.windchill != null) {
-            extras.feelslikeC = forecast.T!!.windchill
-            extras.feelslikeF = ConversionMethods.CtoF(forecast.T!!.windchill!!)
+        forecast.T?.windchill?.let {
+            extras.feelslikeC = it
+            extras.feelslikeF = ConversionMethods.CtoF(it)
         }
 
         extras.humidity = forecast.humidity
 
-        if (forecast.seaLevel != null) {
-            extras.pressureMb = forecast.seaLevel
-            extras.pressureIn = ConversionMethods.mbToInHg(forecast.seaLevel!!)
+        forecast.seaLevel?.let {
+            extras.pressureMb = it
+            extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
 
         if (forecast.wind != null) {
@@ -273,20 +277,22 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
         val provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE)
         val locale = LocaleUtils.getLocale()
 
-        if (currRoot.observation?.T != null) {
-            tempC = currRoot.observation!!.T!!.toFloat()
-            tempF = ConversionMethods.CtoF(tempC)
+        currRoot.observation?.T?.let {
+            tempC = it
+            tempF = ConversionMethods.CtoF(it)
         }
 
-        weather = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-            locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
-            locale == Locale.ROOT
-        ) {
-            currRoot.observation!!.weather!!.desc
-        } else {
-            provider.getWeatherCondition(currRoot.observation!!.weather!!.icon)
-        }
-        icon = currRoot.observation!!.weather!!.icon
+        weather =
+            if (!currRoot.observation?.weather?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+                    .startsWith("en_") ||
+                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale == Locale.ROOT
+            ) {
+                currRoot.observation?.weather?.desc
+            } else {
+                provider.getWeatherCondition(currRoot.observation?.weather?.icon)
+            }
+        icon = currRoot.observation?.weather?.icon
 
         if (currRoot.observation!!.wind != null) {
             windDegrees = currRoot.observation!!.wind!!.direction
