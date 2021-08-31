@@ -1,8 +1,12 @@
 # Unofficial Tile API for Wear OS
 
-In early May 2019, Wear OS added *Tiles*, a widget-like UI for viewing snippets of app data alongside your watch face. Unfortunately, they didn't release an API at the same time - meaning Tiles were limited to just Google (and select partners). As an Android dev with a long history of widget work, I wanted in on the fun.
+In early May 2019, Wear OS added *Tiles*, a widget-like UI for viewing snippets of app data
+alongside your watch face. Unfortunately, they didn't release an API at the same time - meaning
+Tiles were limited to just Google (and select partners). As an Android dev with a long history with
+both Wear OS and widgets, I wanted in on the fun.
 
-So, I extracted the relevant code bits from the Wear OS app, and extrapolated the API. Hey presto, [it works](<https://youtu.be/Wm8eitGBKhw)!
+So, I extracted the relevant code bits from the Wear OS app, and extrapolated the API. Hey
+presto, [it works](<https://youtu.be/Wm8eitGBKhw)!
 
 NOTE: This is **very much** a work in progress, and there are still plenty of rough edges. I'll be updating this repo as work progresses.
 
@@ -13,9 +17,15 @@ NOTE 3: FYI, code samples below are in Kotlin. If you're still using Java, you'l
 NOTE 4: In June 2019, Google added a *My Tiles* screen to the Wear OS phone app. While Tiles built with this unofficial API will appear on that menu, I haven't yet found a way to configure a preview image. If you have any ideas on how to accomplish this, please share!
 
 ## Installation
-*UnofficialTileAPI* is a standard Android library, so just grab the source from this site and include it in your project like you would any other. If you haven't used one before, you can find general instructions for adding a library to your project here: https://stackoverflow.com/q/20377591/252080
 
-Specifically for this, you'll need to download the source from here (there's a Download link in the nav pane on the left), unzip it to your project dir, and make sure the name you use when unzipping matches what you put in your *.gradle files.
+*UnofficialTileAPI* is a standard Android library, so just grab the source from this site and
+include it in your project like you would any other. If you haven't used one before, you can find
+general instructions for adding a library to your project
+here: [https://stackoverflow.com/q/20377591/252080]()
+
+Specifically for this, you'll need to download the source from here (there's a Download link in the
+nav pane on the left), unzip it to your project dir, and make sure the name you use when unzipping
+matches what you put in your *.gradle files.
 
 ## Use
 It turns out that Tiles are widget-like in more than just appearance; they're based on [`RemoteViews`](https://developer.android.com/reference/android/widget/RemoteViews.html), same as an App Widget on an Android phone. So in order to provide a Tile, you'll need to build off that framework.
@@ -54,13 +64,18 @@ This is a basic builder class that takes your `RemoteViews` and bundles them up 
 
     TileData.Builder().setRemoteViews(myRemoteViews).build())
 
-The returned `TileData` object is a thin wrapper around a standard `Bundle`, and is ready for use with... 
- 
-### `sendData(tileId: Int, data: TileData)`
+The returned `TileData` object is a thin wrapper around a standard `Bundle`, and is ready for use with...
 
-Another superclass method, `sendData` is where the rubber meets the road: pass it the `TileData` you built in the previous section, and if all goes well, the system will display your `RemoteViews` in your Tile.
+### `sendUpdate(tileId: Int, data: TileData)`
 
-I say *if all goes well* because `RemoteViews` aren't very forgiving. If you got something wrong while putting yours together, it's likely to just fail silently, and give you a blank tile for your trouble. If you're lucky, you may see a `RemoteViews` error in logcat - but I generally haven't, and even if one does appear, it's easy to miss because it won't come from your process.
+Another superclass method, `sendUpdate` is where the rubber meets the road: pass it the `TileData`
+you built in the previous section, and if all goes well, the system will display your `RemoteViews`
+in your Tile.
+
+I say *if all goes well* because `RemoteViews` aren't very forgiving. If you got something wrong
+while putting yours together, it's likely to just fail silently, and give you a blank tile for your
+trouble. If you're lucky, you may get a `RemoteViews` error in logcat - but you frequently don't,
+and even if one does appear, it's easy to miss because it won't come from your process.
 
 ### Scheduling regular updates
 Some Tiles get by with static data, but most will want updating periodically, so it'd be nice if there was a built-in way to schedule this. Looking at Google's own tiles, I found two approaches:
@@ -128,8 +143,8 @@ class MyTileProviderService : TileProviderService() {
         // *** Update your tile UI here
 
         val bob = TileData.Builder()
-                .setRemoteViews(remoteViews)
-        sendData(id, bob.build())
+            .setRemoteViews(remoteViews)
+        sendUpdate(id, bob.build())
     }
 
     companion object {
@@ -193,8 +208,10 @@ Since I first released this unofficial API, several developers have integrated T
 
 - [NavMusic](https://play.google.com/store/apps/details?id=com.turndapage.navmusic)
 
-- [TerraTime](https://play.google.com/store/apps/details?id=com.daylightclock.android): 2 tiles, *Daylight Map* and *Daylight Wave*
+- [TerraTime](https://play.google.com/store/apps/details?id=com.daylightclock.android): 2 tiles, *
+  Daylight Map* and *Daylight Wave*
 
-- [Wearable Widgets](https://play.google.com/store/apps/details?id=com.wearablewidgets) *Coming Soon!*
+- [Wearable Widgets](https://play.google.com/store/apps/details?id=com.wearablewidgets):
+  in [beta](https://play.google.com/apps/testing/com.wearablewidgets)
 
 If you know of others, drop me a line at *sterling@udell.dev* and I'll add them to the list.
