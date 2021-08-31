@@ -112,9 +112,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 forecastsView.updateForecasts(locationData!!)
             }
             if (locationData?.locationType == LocationType.GPS) {
-                binding.labelLocationName.showCompoundDrawables()
+                binding.gpsIcon.visibility = View.VISIBLE
             } else {
-                binding.labelLocationName.hideCompoundDrawables()
+                binding.gpsIcon.visibility = View.GONE
             }
 
             binding.swipeRefreshLayout.isRefreshing = false

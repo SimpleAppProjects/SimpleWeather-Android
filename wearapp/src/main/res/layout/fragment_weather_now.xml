@@ -84,26 +84,39 @@
 
                 </LinearLayout>
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
-                    android:id="@+id/label_location_name"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:fontFamily="sans-serif-light"
-                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
                     android:paddingStart="@dimen/wnow_horizontal_padding"
                     android:paddingTop="4dp"
                     android:paddingEnd="@dimen/wnow_horizontal_padding"
-                    android:text="@{weatherView.location}"
-                    android:textAppearance="?android:attr/textAppearanceLargeInverse"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/ic_place_white_24dp"
-                    app:drawableHeight="18dp"
-                    app:drawableWidth="18dp"
-                    app:hideIfNullOrWhitespace="@{weatherView.location}"
-                    tools:text="New York, New York" />
+                    app:hideIfNullOrWhitespace="@{weatherView.location}">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/gps_icon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center_vertical"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/ic_place_white_24dp"
+                        tools:visibility="visible" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/label_location_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="center_horizontal"
+                        android:text="@{weatherView.location}"
+                        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:text="New York, New York" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
