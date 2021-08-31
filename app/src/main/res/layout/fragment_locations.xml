@@ -38,7 +38,7 @@
             app:drawableTopCompat="@drawable/ic_add_location_white_24dp"
             app:drawableTint="?attr/colorOnSurface"
             android:drawablePadding="8dp"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"

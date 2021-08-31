@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -26,6 +27,7 @@ import com.google.android.material.card.MaterialCardView
 import com.thewizrd.shared_resources.controls.TextViewDrawableCompat
 import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding
 import com.thewizrd.simpleweather.preferences.FeatureSettings
@@ -186,10 +188,17 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         // Do this after if checkable state is now enabled
         this.isChecked = model.isChecked
 
+        if (model.locationType == LocationType.GPS.value) {
+            binding.gpsIcon.visibility = View.VISIBLE
+        } else {
+            binding.gpsIcon.visibility = View.GONE
+        }
+
         this.tag = model.locationData
 
         if (FeatureSettings.isLocationPanelImageEnabled() && model.imageData != null ||
-                !FeatureSettings.isLocationPanelImageEnabled() && model.locationName != null && tag != null) {
+            !FeatureSettings.isLocationPanelImageEnabled() && model.locationName != null && tag != null
+        ) {
             showLoading(false)
         }
     }

@@ -37,6 +37,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/gps_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_margin="8dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_place_white_24dp"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/location_name"
+                tools:visibility="visible"
+                tools:tint="?attr/colorOnSurface" />
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/location_name"
                 style="@style/ShadowText"
@@ -53,7 +67,7 @@
                 android:textStyle="bold"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/gps_icon"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="New York, NY"
                 tools:textColor="?attr/colorOnSurface" />

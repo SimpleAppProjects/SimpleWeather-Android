@@ -8,7 +8,6 @@ import android.content.res.Resources
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.support.wearable.input.RotaryEncoder
 import android.util.Log
@@ -95,7 +94,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
-    private val mMainHandler = Handler(Looper.getMainLooper())
 
     // Data sync
     private lateinit var syncDataReceiver: BroadcastReceiver
@@ -112,6 +110,11 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             if (locationData != null) {
                 forecastPanelsView.updateForecasts(locationData!!)
                 forecastsView.updateForecasts(locationData!!)
+            }
+            if (locationData?.locationType == LocationType.GPS) {
+                binding.labelLocationName.showCompoundDrawables()
+            } else {
+                binding.labelLocationName.hideCompoundDrawables()
             }
 
             binding.swipeRefreshLayout.isRefreshing = false

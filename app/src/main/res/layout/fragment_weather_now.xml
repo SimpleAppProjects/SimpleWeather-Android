@@ -42,18 +42,37 @@
             app:liftOnScroll="true"
             app:liftOnScrollTargetViewId="@id/scrollView">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/toolbar_title"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:maxLines="2"
-                android:text="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? weatherView.location : @string/title_activity_weather_now}"
-                android:textAppearance="?titleTextAppearance"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="@dimen/label_location_size"
-                tools:text="A Really Long String of Text, New York, United States"
-                tools:ignore="MissingConstraints" />
+                android:gravity="center">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/gps_icon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_margin="8dp"
+                    android:visibility="gone"
+                    android:layout_gravity="center_vertical"
+                    app:srcCompat="@drawable/ic_place_white_24dp"
+                    app:tint="?attr/colorOnSurface"
+                    tools:visibility="visible"
+                    tools:tint="?attr/colorOnSurface" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_horizontal"
+                    android:maxLines="2"
+                    android:text="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? weatherView.location : @string/title_activity_weather_now}"
+                    android:textAppearance="?titleTextAppearance"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/label_location_size"
+                    tools:text="A Really Long String of Text, New York, United States" />
+
+            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/label_updatetime"
@@ -63,7 +82,7 @@
                 android:gravity="center_horizontal"
                 android:text="@{weatherView.updateDate}"
                 android:textAppearance="?titleTextAppearance"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/label_updatetime_size"
                 tools:text="Updated on 11:12 PM"
                 tools:ignore="MissingConstraints" />

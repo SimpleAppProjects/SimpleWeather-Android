@@ -166,6 +166,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         if (weather != null && weather.isValid) {
             weatherView.updateView(weather)
 
+            if (locationData?.locationType == LocationType.GPS) {
+                binding.gpsIcon.visibility = View.VISIBLE
+            } else {
+                binding.gpsIcon.visibility = View.GONE
+            }
+
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                 if (FeatureSettings.isBackgroundImageEnabled()) {
                     imageData.postValue(withContext(Dispatchers.Default) {
