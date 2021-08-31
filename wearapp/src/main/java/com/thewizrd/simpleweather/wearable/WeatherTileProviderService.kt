@@ -113,7 +113,7 @@ class WeatherTileProviderService : TileProviderService() {
                         .build()
 
                 Timber.tag(TAG).d("sending update...")
-                sendData(id, tileData)
+                sendUpdate(id, tileData)
             } else {
                 Timber.tag(TAG).d("unable to update tile...")
             }

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/tile_horizontal_padding"
+    android:paddingEnd="@dimen/tile_horizontal_padding"
+    tools:ignore="NestedWeights"
+    tools:theme="@android:style/Theme.DeviceDefault"
+    tools:viewBindingIgnore="true">
+
+    <ImageView
+        android:id="@+id/weather_icon"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:paddingTop="@dimen/tile_horizontal_padding"
+        android:scaleType="fitCenter"
+        tools:srcCompat="@drawable/wi_day_rain_mix" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/condition_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:autoSizeMaxTextSize="@dimen/current_g_temp_textsize"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/current_g_temp_textsize"
+            tools:text="777°" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/condition_weather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="start"
+                android:maxLines="1"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/current_g_condition_textsize"
+                tools:text="Partly cloudy with a chance of rain tomorrow" />
+
+            <TextView
+                android:id="@+id/location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="start"
+                android:maxLines="1"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="@dimen/current_g_condition_textsize"
+                tools:text="New York, NY" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/condition_hilo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/list_horizontal_padding"
+        android:paddingEnd="@dimen/list_horizontal_padding"
+        android:paddingBottom="@dimen/tile_horizontal_padding">
+
+        <TextView
+            android:id="@+id/condition_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="@dimen/current_g_hilo_textsize"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/current_g_hilo_textsize"
+            tools:text="74°" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:adjustViewBounds="true"
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_arrow_upward_24dp"
+            android:tint="#FFFF4500" />
+
+        <TextView
+            android:id="@+id/condition_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="@dimen/current_g_hilo_textsize"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="@dimen/current_g_hilo_textsize"
+            tools:text="68°" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:adjustViewBounds="true"
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_arrow_downward_24dp"
+            android:tint="#FF87CEFA" />
+
+    </LinearLayout>
+
+</LinearLayout>

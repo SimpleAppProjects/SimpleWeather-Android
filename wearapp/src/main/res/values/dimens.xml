@@ -28,5 +28,8 @@
 
     <!-- Tiles -->
     <dimen name="tile_horizontal_padding">4dp</dimen>
+    <dimen name="current_g_temp_textsize">36sp</dimen>
+    <dimen name="current_g_hilo_textsize">16sp</dimen>
+    <dimen name="current_g_condition_textsize">16sp</dimen>
 
 </resources>
