@@ -48,6 +48,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
+import kotlin.math.min
 
 object WidgetUpdaterHelper {
     private const val TAG = "WidgetUpdaterHelper"
@@ -623,6 +624,10 @@ object WidgetUpdaterHelper {
                     break
             }
 
+            // Needed to determine how many items to show when resizing
+            WidgetUtils.setMaxForecastLength(appWidgetId, forecasts.size)
+            WidgetUtils.setMaxHrForecastLength(appWidgetId, hourlyForecasts.size)
+
             if (forecastPanel != null) {
                 updateViews.addView(R.id.forecast_layout, forecastPanel)
             }
@@ -759,6 +764,10 @@ object WidgetUpdaterHelper {
 
         if (info.widgetType != WidgetType.Widget4x2MaterialYou && info.widgetType != WidgetType.Widget4x4MaterialYou) {
             val forecastLength = WidgetUtils.getForecastLength(info.widgetType, cellWidth)
+            val maxForecastLength =
+                min(forecastLength, WidgetUtils.getMaxForecastLength(appWidgetId))
+            val maxHrForecastLength =
+                min(forecastLength, WidgetUtils.getMaxHrForecastLength(appWidgetId))
 
             var maxIconSize = ContextUtils.dpToPx(context, 40f).toInt()
             if (info.widgetType == WidgetType.Widget4x1) {
@@ -836,11 +845,11 @@ object WidgetUpdaterHelper {
 
                 views.setViewVisibility(
                     fcastViewId,
-                    if (i < forecastLength) View.VISIBLE else View.GONE
+                    if (i < maxForecastLength) View.VISIBLE else View.GONE
                 )
                 views.setViewVisibility(
                     hrfcastViewId,
-                    if (i < forecastLength) View.VISIBLE else View.GONE
+                    if (i < maxHrForecastLength) View.VISIBLE else View.GONE
                 )
             }
         } else {
@@ -852,12 +861,21 @@ object WidgetUpdaterHelper {
                 if (cellWidth > 2) View.VISIBLE else View.GONE
             )
 
-            val forecastLength =
-                if (cellHeight >= 2) (remainingCellHeight).coerceAtMost(MAX_FORECASTS) else 0
-            val hrForecastLength =
-                if (cellWidth > 2) cellWidth.coerceAtMost(MAX_FORECASTS - 1) else 0
+            val forecastLength = if (cellHeight >= 2) {
+                minOf(
+                    remainingCellHeight,
+                    WidgetUtils.getMaxForecastLength(appWidgetId),
+                    MAX_FORECASTS
+                )
+            } else {
+                0
+            }
+            val hrForecastLength = if (cellWidth > 2) {
+                minOf(cellWidth, WidgetUtils.getMaxHrForecastLength(appWidgetId), MAX_FORECASTS - 1)
+            } else {
+                0
+            }
 
-            // 0, 1, 2, 3, 4, 5
             for (i in 0 until MAX_FORECASTS) {
                 val fcastViewId = getResIdentifier(R.id::class.java, "forecast${i + 1}") ?: 0
                 val hrfcastViewId = getResIdentifier(R.id::class.java, "hrforecast${i + 1}") ?: 0

@@ -49,6 +49,8 @@ object WidgetUtils {
     private const val KEY_USETIMEZONE = "key_usetimezone"
     private const val KEY_BGCOLORCODE = "key_bgcolorcode"
     private const val KEY_TXTCOLORCODE = "key_txtcolorcode"
+    private const val KEY_MAXFORECAST_LENGTH = "key_forecastlengthset"
+    private const val KEY_MAXHRFORECAST_LENGTH = "key_hrforecastlengthset"
 
     private const val FORECAST_LENGTH = 3 // 3-day
     private const val MEDIUM_FORECAST_LENGTH = 4 // 4-day
@@ -542,6 +544,28 @@ object WidgetUtils {
             else -> {
                 cellWidth + 1
             }
+        }
+    }
+
+    internal fun getMaxForecastLength(widgetId: Int): Int {
+        val prefs = getPreferences(widgetId)
+        return prefs.getInt(KEY_MAXFORECAST_LENGTH, WIDE_FORECAST_LENGTH)
+    }
+
+    internal fun setMaxForecastLength(widgetId: Int, value: Int) {
+        getPreferences(widgetId).edit(true) {
+            putInt(KEY_MAXFORECAST_LENGTH, value)
+        }
+    }
+
+    internal fun getMaxHrForecastLength(widgetId: Int): Int {
+        val prefs = getPreferences(widgetId)
+        return prefs.getInt(KEY_MAXHRFORECAST_LENGTH, WIDE_FORECAST_LENGTH)
+    }
+
+    internal fun setMaxHrForecastLength(widgetId: Int, value: Int) {
+        getPreferences(widgetId).edit(true) {
+            putInt(KEY_MAXHRFORECAST_LENGTH, value)
         }
     }
 
