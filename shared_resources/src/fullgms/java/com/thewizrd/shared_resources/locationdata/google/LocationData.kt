@@ -99,6 +99,6 @@ fun createLocationModel(response: FetchPlaceResponse,
         locationTZLong = null
 
         locationSource = WeatherAPI.GOOGLE
-        updateWeatherSource(weatherAPI!!)
+        updateWeatherSource(weatherAPI)
     }
 }

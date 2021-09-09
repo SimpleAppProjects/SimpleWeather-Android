@@ -18,9 +18,17 @@ fun createLocationModel(result: Address, weatherAPI: String): LocationQueryViewM
         val region = result.adminArea
 
         locationName = if (region != null && !ObjectsCompat.equals(town, region)) {
-            String.format("%s, %s", town, region)
+            if (town != null) {
+                "$town, $region"
+            } else {
+                region
+            }
         } else {
-            String.format("%s, %s", town, result.countryName)
+            if (town != null) {
+                "$town, ${result.countryName}"
+            } else {
+                result.countryName
+            }
         }
 
         locationRegion = result.subAdminArea
