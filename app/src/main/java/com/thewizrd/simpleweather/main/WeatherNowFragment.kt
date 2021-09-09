@@ -41,7 +41,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.DiffUtil
@@ -585,13 +584,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
 
             conditionPanelBinding.alertButton.setOnClickListener { v ->
-                AnalyticsLogger.logEvent("WeatherNowFragment: alerts click")
-                v.isEnabled = false
-                // Show Alert Fragment
-                val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                        .setWeatherListType(WeatherListType.ALERTS)
-                v.findNavController().navigate(args)
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: alerts click")
+                    v.isEnabled = false
+                    // Show Alert Fragment
+                    val args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                            .setWeatherListType(WeatherListType.ALERTS)
+                    v.findNavController().navigate(args)
+                }
             }
 
             binding.listLayout.addView(conditionPanelBinding.root, Math.min(binding.listLayout.childCount - 1, 0))
@@ -606,13 +608,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             forecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
             forecastPanelBinding!!.rangebarGraphPanel.setOnClickPositionListener { view, position ->
-                AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
-                view.isEnabled = false
-                val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                        .setWeatherListType(WeatherListType.FORECAST)
-                        .setPosition(position)
-                Navigation.findNavController(view).navigate(args)
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
+                    view.isEnabled = false
+                    val args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                            .setWeatherListType(WeatherListType.FORECAST)
+                            .setPosition(position)
+                    view.findNavController().navigate(args)
+                }
             }
 
             binding.listLayout.addView(forecastPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 1))
@@ -636,13 +641,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             })
 
             hourlyForecastItemAdapter.onClickListener = RecyclerOnClickListenerInterface { view, position ->
-                AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click")
-                view.isEnabled = false
-                val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                        .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                        .setPosition(position)
-                Navigation.findNavController(view).navigate(args)
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click")
+                    view.isEnabled = false
+                    val args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                            .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                            .setPosition(position)
+                    view.findNavController().navigate(args)
+                }
             }
 
             hrForecastPanelBinding!!.hourlyForecastList.adapter = hourlyForecastItemAdapter
@@ -657,11 +665,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             precipPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
             val onClickListener = RecyclerOnClickListenerInterface { view, position ->
-                AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
-                view.isEnabled = false
-                val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                Navigation.findNavController(view).navigate(args)
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
+                    view.isEnabled = false
+                    val args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                    view.findNavController().navigate(args)
+                }
             }
 
             precipPanelBinding!!.minutelyPrecipGraphPanel.setOnClickPositionListener(onClickListener)
@@ -790,15 +801,17 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent)
 
             radarControlBinding!!.radarWebviewCover.setOnClickListener { v ->
-                AnalyticsLogger.logEvent("WeatherNowFragment: radar view click")
-                v.isEnabled = false
-                Navigation.findNavController(v)
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: radar view click")
+                    v.isEnabled = false
+                    v.findNavController()
                         .navigate(
-                                WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
-                                FragmentNavigator.Extras.Builder()
-                                        .addSharedElement(v, "radar")
-                                        .build()
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
+                            FragmentNavigator.Extras.Builder()
+                                .addSharedElement(v, "radar")
+                                .build()
                         )
+                }
             }
 
             ViewCompat.setTransitionName(radarControlBinding!!.radarWebviewCover, "radar")
