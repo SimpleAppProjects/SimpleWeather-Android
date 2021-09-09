@@ -453,13 +453,17 @@ class WeatherDataLoader(private val location: LocationData) {
     }
 
     private suspend fun saveWeatherData() = withContext(Dispatchers.IO) {
-        // Save location query
-        weather!!.query = location.query
+        if (weather != null) {
+            // Save location query
+            weather!!.query = location.query
 
-        settingsMgr.saveWeatherData(weather!!)
+            settingsMgr.saveWeatherData(weather!!)
 
-        if (!SimpleLibrary.instance.app.isPhone) {
-            settingsMgr.setUpdateTime(weather!!.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())
+            if (!SimpleLibrary.instance.app.isPhone) {
+                settingsMgr.setUpdateTime(
+                    weather!!.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
+                )
+            }
         }
     }
 
@@ -487,15 +491,17 @@ class WeatherDataLoader(private val location: LocationData) {
     }
 
     private suspend fun saveWeatherForecasts() = withContext(Dispatchers.IO) {
-        val forecasts = Forecasts(weather!!)
-        settingsMgr.saveWeatherForecasts(forecasts)
-        val hrForecasts = ArrayList<HourlyForecasts>()
-        if (weather?.hrForecast != null) {
-            hrForecasts.ensureCapacity(weather!!.hrForecast.size)
-            for (f in weather!!.hrForecast) {
-                hrForecasts.add(HourlyForecasts(weather!!.query, f!!))
+        if (weather != null) {
+            val forecasts = Forecasts(weather!!)
+            settingsMgr.saveWeatherForecasts(forecasts)
+            val hrForecasts = ArrayList<HourlyForecasts>()
+            if (weather?.hrForecast != null) {
+                hrForecasts.ensureCapacity(weather!!.hrForecast.size)
+                for (f in weather!!.hrForecast) {
+                    hrForecasts.add(HourlyForecasts(weather!!.query, f!!))
+                }
             }
+            settingsMgr.saveWeatherForecasts(location.query, hrForecasts)
         }
-        settingsMgr.saveWeatherForecasts(location.query, hrForecasts)
     }
 }
