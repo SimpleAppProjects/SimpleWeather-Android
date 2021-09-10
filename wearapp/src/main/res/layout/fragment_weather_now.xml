@@ -276,7 +276,7 @@
                     app:windData="@{weatherView.weatherDetails}"
                     app:hideIfNullOrWhitespace="@{weatherView.location}">
 
-                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                    <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                         android:id="@+id/condition_pop"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -292,6 +292,7 @@
                         android:tag="pop"
                         app:autoSizeMaxTextSize="16sp"
                         app:autoSizeTextType="uniform"
+                        app:useDefaultIconProvider="true"
                         app:drawableWidth="24dp"
                         app:drawableHeight="24dp"
                         android:drawablePadding="2dp"
@@ -299,7 +300,7 @@
                         tools:drawableStartCompat="@drawable/wi_umbrella"
                         tools:text="50%" />
 
-                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                    <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                         android:id="@+id/condition_windspeed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -315,6 +316,7 @@
                         android:tag="windspeed"
                         app:autoSizeMaxTextSize="16sp"
                         app:autoSizeTextType="uniform"
+                        app:useDefaultIconProvider="true"
                         app:drawableWidth="24dp"
                         app:drawableHeight="24dp"
                         android:drawablePadding="2dp"

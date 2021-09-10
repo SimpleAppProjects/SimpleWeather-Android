@@ -25,5 +25,6 @@
         <attr name="animate" />
         <attr name="showAsMonochrome" />
         <attr name="useDefaultIconProvider" />
+        <attr name="iconRotation" format="integer" />
     </declare-styleable>
 </resources>

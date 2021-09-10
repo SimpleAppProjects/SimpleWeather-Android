@@ -9,10 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.widget.TextViewCompat
 import androidx.databinding.BindingAdapter
-import com.thewizrd.shared_resources.controls.DetailItemViewModel
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
@@ -42,16 +39,27 @@ object BindingAdapters {
             val chanceModel = details.find { input -> input.detailsType == WeatherDetailsType.POPCHANCE }
 
             if (chanceModel != null) {
-                val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(pop)
-                if (oldDrawables[0] == null) {
-                    val wim = WeatherIconsManager.getInstance()
-                    pop.setCompoundDrawablesRelative(
-                        ContextCompat.getDrawable(
-                            pop.context,
-                            wim.getWeatherIconResource(chanceModel.icon)
-                        ), null, null, null
-                    )
+                val wim = WeatherIconsManager.getInstance()
+
+                if (pop is TextViewWeatherIconDrawableCompat) {
+                    pop.weatherIconStart = chanceModel.icon
+                    if (pop.iconProvider != null) {
+                        pop.showAsMonochrome = wim.shouldUseMonochrome(pop.iconProvider)
+                    } else {
+                        pop.showAsMonochrome = wim.shouldUseMonochrome()
+                    }
+                } else {
+                    val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(pop)
+                    if (oldDrawables[0] == null) {
+                        pop.setCompoundDrawablesRelative(
+                            ContextCompat.getDrawable(
+                                pop.context,
+                                wim.getWeatherIconResource(chanceModel.icon)
+                            ), null, null, null
+                        )
+                    }
                 }
+
                 pop.text = chanceModel.value
                 pop.visibility = View.VISIBLE
             } else {
@@ -71,42 +79,53 @@ object BindingAdapters {
             val windModel = details.find { input -> input.detailsType == WeatherDetailsType.WINDSPEED }
 
             if (windModel != null) {
-                val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(windSpeed)
-                if (oldDrawables[0] == null) {
-                    val wim = WeatherIconsManager.getInstance()
+                val wim = WeatherIconsManager.getInstance()
 
-                    val d = RotateDrawable()
-                    d.fromDegrees = windModel.iconRotation.toFloat()
-                    d.toDegrees = windModel.iconRotation.toFloat()
-                    d.drawable = ContextCompat.getDrawable(
-                        windSpeed.context,
-                        wim.getWeatherIconResource(windModel.icon)
-                    )
-                    // Change level to trigger onLevelChange event
-                    // which forces the drawable state to change
-                    d.level = 10000
-                    d.level = 0
-                    TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null)
-                } else if (oldDrawables[0] is RotateDrawable) {
-                    val d = oldDrawables[0] as RotateDrawable
-                    if (d.fromDegrees != windModel.iconRotation.toFloat()) {
+                if (windSpeed is TextViewWeatherIconDrawableCompat) {
+                    windSpeed.weatherIconStart = windModel.icon
+                    if (windSpeed.iconProvider != null) {
+                        windSpeed.showAsMonochrome = wim.shouldUseMonochrome(windSpeed.iconProvider)
+                    } else {
+                        windSpeed.showAsMonochrome = wim.shouldUseMonochrome()
+                    }
+                    windSpeed.iconRotation = windModel.iconRotation
+                } else {
+                    val oldDrawables = TextViewCompat.getCompoundDrawablesRelative(windSpeed)
+                    if (oldDrawables[0] == null) {
+
+                        val d = RotateDrawable()
                         d.fromDegrees = windModel.iconRotation.toFloat()
                         d.toDegrees = windModel.iconRotation.toFloat()
+                        d.drawable = ContextCompat.getDrawable(
+                            windSpeed.context,
+                            wim.getWeatherIconResource(windModel.icon)
+                        )
                         // Change level to trigger onLevelChange event
                         // which forces the drawable state to change
                         d.level = 10000
                         d.level = 0
+                        TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null)
+                    } else if (oldDrawables[0] is RotateDrawable) {
+                        val d = oldDrawables[0] as RotateDrawable
+                        if (d.fromDegrees != windModel.iconRotation.toFloat()) {
+                            d.fromDegrees = windModel.iconRotation.toFloat()
+                            d.toDegrees = windModel.iconRotation.toFloat()
+                            // Change level to trigger onLevelChange event
+                            // which forces the drawable state to change
+                            d.level = 10000
+                            d.level = 0
+                        }
+                    } else {
+                        val d = RotateDrawable()
+                        d.fromDegrees = windModel.iconRotation.toFloat()
+                        d.toDegrees = windModel.iconRotation.toFloat()
+                        d.drawable = oldDrawables[0]
+                        // Change level to trigger onLevelChange event
+                        // which forces the drawable state to change
+                        d.level = 10000
+                        d.level = 0
+                        TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null)
                     }
-                } else {
-                    val d = RotateDrawable()
-                    d.fromDegrees = windModel.iconRotation.toFloat()
-                    d.toDegrees = windModel.iconRotation.toFloat()
-                    d.drawable = oldDrawables[0]
-                    // Change level to trigger onLevelChange event
-                    // which forces the drawable state to change
-                    d.level = 10000
-                    d.level = 0
-                    TextViewCompat.setCompoundDrawablesRelative(windSpeed, d, null, null, null)
                 }
 
                 var speed = if (TextUtils.isEmpty(windModel.value)) "" else windModel.value.toString()

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.RotateDrawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
@@ -19,6 +20,8 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
     private var mWeatherIconEnd: String? = null
     private var mWeatherIconTop: String? = null
     private var mWeatherIconBottom: String? = null
+
+    private var mIconRotation: Int = 0
 
     private var mIconProvider: String? = null
     private var mShouldAnimate = false
@@ -77,6 +80,11 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
                 if (a.hasValue(R.styleable.TextViewWeatherIconDrawableCompat_weatherIconBottom)) {
                     mWeatherIconBottom =
                         a.getString(R.styleable.TextViewWeatherIconDrawableCompat_weatherIconBottom)
+                }
+
+                if (a.hasValue(R.styleable.TextViewWeatherIconDrawableCompat_iconRotation)) {
+                    mIconRotation =
+                        a.getInteger(R.styleable.TextViewWeatherIconDrawableCompat_iconRotation, 0)
                 }
             } finally {
                 a.recycle()
@@ -145,6 +153,13 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             updateIconDrawables()
         }
 
+    var iconRotation: Int
+        get() = mIconRotation
+        set(value) {
+            mIconRotation = value
+            updateIconDrawables()
+        }
+
     fun useDefaultIconProvider() {
         this.iconProvider = WeatherIconsProvider.KEY
     }
@@ -154,10 +169,10 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             iconProvider ?: SettingsManager(context).getIconsProvider()
         )
         if (shouldAnimate && wip is AVDIconsProviderInterface) {
-            val drawableStart = weatherIconStart?.let { wip.getAnimatedDrawable(context, it) }
-            val drawableEnd = weatherIconEnd?.let { wip.getAnimatedDrawable(context, it) }
-            val drawableTop = weatherIconTop?.let { wip.getAnimatedDrawable(context, it) }
-            val drawableBottom = weatherIconBottom?.let { wip.getAnimatedDrawable(context, it) }
+            var drawableStart = weatherIconStart?.let { wip.getAnimatedDrawable(context, it) }
+            var drawableEnd = weatherIconEnd?.let { wip.getAnimatedDrawable(context, it) }
+            var drawableTop = weatherIconTop?.let { wip.getAnimatedDrawable(context, it) }
+            var drawableBottom = weatherIconBottom?.let { wip.getAnimatedDrawable(context, it) }
 
             if (drawableStart is Animatable && !drawableStart.isRunning) {
                 drawableStart.start()
@@ -170,6 +185,52 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             }
             if (drawableBottom is Animatable && !drawableBottom.isRunning) {
                 drawableBottom.start()
+            }
+
+            if (mIconRotation != 0) {
+                drawableStart = drawableStart?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableTop = drawableTop?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableEnd = drawableEnd?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableBottom = drawableBottom?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
             }
 
             this.setCompoundDrawablesRelative(
@@ -179,25 +240,25 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
                 drawableBottom
             )
         } else {
-            val drawableStart = weatherIconStart?.let {
+            var drawableStart = weatherIconStart?.let {
                 ContextCompat.getDrawable(
                     context,
                     wip.getWeatherIconResource(it)
                 )
             }
-            val drawableEnd = weatherIconEnd?.let {
+            var drawableEnd = weatherIconEnd?.let {
                 ContextCompat.getDrawable(
                     context,
                     wip.getWeatherIconResource(it)
                 )
             }
-            val drawableTop = weatherIconTop?.let {
+            var drawableTop = weatherIconTop?.let {
                 ContextCompat.getDrawable(
                     context,
                     wip.getWeatherIconResource(it)
                 )
             }
-            val drawableBottom = weatherIconBottom?.let {
+            var drawableBottom = weatherIconBottom?.let {
                 ContextCompat.getDrawable(
                     context,
                     wip.getWeatherIconResource(it)
@@ -215,6 +276,52 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             }
             if (drawableBottom is Animatable && !drawableBottom.isRunning) {
                 drawableBottom.start()
+            }
+
+            if (mIconRotation != 0) {
+                drawableStart = drawableStart?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableTop = drawableTop?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableEnd = drawableEnd?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
+
+                drawableBottom = drawableBottom?.let {
+                    RotateDrawable().apply {
+                        fromDegrees = mIconRotation.toFloat()
+                        toDegrees = mIconRotation.toFloat()
+                        drawable = it
+                        level = 10000
+                    }.apply {
+                        level = 0
+                    }
+                }
             }
 
             this.setCompoundDrawablesRelative(

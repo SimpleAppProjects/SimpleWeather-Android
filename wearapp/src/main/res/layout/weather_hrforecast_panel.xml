@@ -78,7 +78,7 @@
             app:popData="@{viewModel.extras}"
             app:windData="@{viewModel.extras}">
 
-            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/hrforecast_pop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -89,6 +89,7 @@
                 android:textColor="@color/colorPrimaryLight"
                 android:textSize="14sp"
                 android:layout_marginEnd="2dp"
+                app:useDefaultIconProvider="true"
                 app:drawableWidth="24dp"
                 app:drawableHeight="20dp"
                 android:drawablePadding="2dp"
@@ -96,7 +97,7 @@
                 tools:drawableStartCompat="@drawable/wi_umbrella"
                 tools:text="50%" />
 
-            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/hrforecast_windspeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -107,6 +108,7 @@
                 android:textColor="#FF20B2AA"
                 android:textSize="14sp"
                 android:layout_marginStart="2dp"
+                app:useDefaultIconProvider="true"
                 app:drawableWidth="24dp"
                 app:drawableHeight="20dp"
                 android:drawablePadding="2dp"
