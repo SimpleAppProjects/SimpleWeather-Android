@@ -48,6 +48,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
@@ -978,9 +979,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     if (!imageURI.isNullOrBlank()) {
                         Glide.with(this@WeatherNowFragment)
                                 .load(imageURI)
-                                .apply(RequestOptions.centerCropTransform()
+                                .apply(
+                                    RequestOptions.centerCropTransform()
                                         .format(DecodeFormat.PREFER_RGB_565)
-                                        .skipMemoryCache(skipCache))
+                                        .skipMemoryCache(skipCache)
+                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                )
                                 .transition(DrawableTransitionOptions.withCrossFade())
                                 .addListener(object : RequestListener<Drawable?> {
                                     override fun onLoadFailed(e: GlideException?, model: Any,

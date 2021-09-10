@@ -29,6 +29,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.thewizrd.shared_resources.helpers.ContextUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ImageUtils {
@@ -163,5 +164,90 @@ public class ImageUtils {
         Canvas canvas = new Canvas(bmp);
         canvas.drawColor(color);
         return bmp;
+    }
+
+    public enum ImageType {
+        JPEG,
+        PNG,
+        GIF,
+        BMP,
+        WEBP,
+        UNKNOWN
+    }
+
+    /**
+     * Guess image file type from file header
+     * <p>
+     * Checks for GIF, JPEG, PNG, WEBP and BMP file formats
+     * <p>
+     * Sources:
+     * <p>
+     * URLConnection.guessContentTypeFromStream
+     * <p>
+     * https://stackoverflow.com/questions/670546/determine-if-file-is-an-image
+     *
+     * @see java.net.URLConnection#guessContentTypeFromStream(InputStream)
+     * @see com.bumptech.glide.load.resource.bitmap.DefaultImageHeaderParser
+     */
+    public static ImageType guessImageType(@NonNull InputStream is) throws IOException {
+        // If we can't read ahead safely, just give up on guessing
+        if (!is.markSupported())
+            return ImageType.UNKNOWN;
+
+        is.mark(16);
+        int c1 = is.read();
+        int c2 = is.read();
+        int c3 = is.read();
+        int c4 = is.read();
+        int c5 = is.read();
+        int c6 = is.read();
+        int c7 = is.read();
+        int c8 = is.read();
+        int c9 = is.read();
+        int c10 = is.read();
+        int c11 = is.read();
+        int c12 = is.read();
+        is.reset();
+
+        if (c1 == 0xFF && c2 == 0xD8 && c3 == 0xFF) {
+            if (c4 == 0xE0 || c4 == 0xEE) {
+                return ImageType.JPEG;
+            }
+
+            /*
+             * File format used by digital cameras to store images.
+             * Exif Format can be read by any application supporting
+             * JPEG. Exif Spec can be found at:
+             * http://www.pima.net/standards/it10/PIMA15740/Exif_2-1.PDF
+             */
+            if ((c4 == 0xE1) &&
+                    (c7 == 'E' && c8 == 'x' && c9 == 'i' && c10 == 'f' &&
+                            c11 == 0)) {
+                return ImageType.JPEG;
+            }
+        }
+
+        if (c1 == 0x89 && c2 == 0x50 && c3 == 0x4e &&
+                c4 == 0x47 && c5 == 0x0d && c6 == 0x0a &&
+                c7 == 0x1a && c8 == 0x0a) {
+            return ImageType.PNG;
+        }
+
+        // 0x47 0x49 0x46
+        if (c1 == 'G' && c2 == 'I' && c3 == 'F' && c4 == '8') {
+            return ImageType.GIF;
+        }
+
+        // WebP - "RIFF"
+        if (c1 == 0x52 && c2 == 0x49 && c3 == 0x46 && c4 == 0x46) {
+            return ImageType.WEBP;
+        }
+
+        // "BM"
+        if (c1 == 0x42 && c2 == 0x4D) {
+            return ImageType.BMP;
+        }
+
+        return ImageType.UNKNOWN;
     }
 }

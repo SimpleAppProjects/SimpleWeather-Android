@@ -19,6 +19,7 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.BitmapImageViewTarget
@@ -136,6 +137,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
                                     .format(DecodeFormat.PREFER_RGB_565)
                                     .error(null)
                                     .placeholder(null)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                                     .skipMemoryCache(skipCache))
                             .transition(BitmapTransitionOptions.withCrossFade())
                             .into(object : BitmapImageViewTarget(binding.imageView) {

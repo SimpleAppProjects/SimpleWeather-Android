@@ -30,7 +30,9 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -302,5 +304,25 @@ class ExampleInstrumentedTest {
         Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.US).format(date))
         Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.FRANCE).format(date))
         Log.d("Time", DateFormat.getInstanceForSkeleton("eeeeeHm", Locale.JAPAN).format(date))
+    }
+
+    @Test
+    fun imageTest() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        val file = File(ctx.cacheDir, "images")
+        runBlocking(Dispatchers.IO) {
+            file.listFiles()?.forEach {
+                while (FileUtils.isFileLocked(it)) {
+                    delay(250)
+                }
+
+                BufferedInputStream(FileInputStream(it)).use { fs ->
+                    val imageType = ImageUtils.guessImageType(fs)
+                    Log.d("ImageTest", "file path: ${it.path}")
+                    Log.d("ImageTest", "type: $imageType")
+                    Assert.assertNotEquals(imageType, ImageUtils.ImageType.UNKNOWN)
+                }
+            }
+        }
     }
 }

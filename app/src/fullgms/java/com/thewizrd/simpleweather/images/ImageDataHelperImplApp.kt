@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.WorkerThread
+import androidx.core.content.edit
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.utils.*
@@ -94,17 +95,30 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
                     return@withContext null
                 }
 
-                val newImageData = ImageData.copyWithNewImageUrl(imageData, Uri.fromFile(imageFile).toString())
+                val newImageData =
+                    ImageData.copyWithNewImageUrl(imageData, Uri.fromFile(imageFile).toString())
 
-                imageDataPrefs.edit().putString(imageData.condition,
-                        JSONParser.serializer(newImageData, ImageData::class.java)).apply()
+                // Check if stored image is a valid image
+                if (!newImageData.isImageValid()) {
+                    imageFile.delete()
+                    return@withContext null
+                }
+
+                imageDataPrefs.edit {
+                    putString(
+                        imageData.condition,
+                        JSONParser.serializer(newImageData, ImageData::class.java)
+                    )
+                }
 
                 return@withContext newImageData
             }
 
     override suspend fun clearCachedImageData() {
         if (imageDataFolder.exists()) imageDataFolder.delete()
-        imageDataPrefs.edit().clear().apply()
+        imageDataPrefs.edit {
+            clear()
+        }
     }
 
     override suspend fun getDefaultImageData(backgroundCode: String?, weather: Weather): ImageData {

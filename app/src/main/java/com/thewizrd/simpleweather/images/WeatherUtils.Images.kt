@@ -3,14 +3,28 @@
 
 package com.thewizrd.simpleweather.images
 
+import android.net.Uri
+import android.util.Log
 import androidx.annotation.ColorInt
+import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.shared_resources.utils.FileUtils
+import com.thewizrd.shared_resources.utils.ImageUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherBackground
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
+import com.thewizrd.simpleweather.images.model.ImageData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.net.URI
 
 suspend fun Weather.getImageData(): ImageDataViewModel? {
     val icon: String = this.condition.icon
@@ -118,9 +132,23 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
     val imageHelper = ImageDataHelper.getImageDataHelper()
     var imageData = imageHelper.getCachedImageData(backgroundCode)
     // Check if cache is available and valid
-    if (imageData != null && imageData.isValid) {
+    val imgDataValid = imageData != null && imageData.isValid
+    // Validate image header/contents
+    val imgValid = imgDataValid && imageData?.isImageValid() == true
+    if (imgValid) {
         return ImageDataViewModel(imageData)
     } else {
+        // Delete invalid file
+        if (imgDataValid && !imgValid && imageData!!.imageURL.startsWith("file") && !imageData.imageURL.contains(
+                "/android_asset/"
+            )
+        ) {
+            val imageFile = File(URI.create(imageData.imageURL))
+            if (imageFile.exists()) {
+                imageFile.delete()
+            }
+        }
+
         if (!FeatureSettings.isUpdateAvailable()) {
             imageData = withTimeoutOrNull(15000) {
                 imageHelper.getRemoteImageData(backgroundCode)
@@ -256,4 +284,43 @@ fun Weather.getBackgroundColor(): Int {
     }
 
     return rgb
+}
+
+suspend fun ImageData.isImageValid(): Boolean {
+    val imgData = this
+    return withContext(Dispatchers.IO) {
+        if (imgData.isValid) {
+            val uri = Uri.parse(imgData.imageURL)
+            if ("file" == uri.scheme) {
+                val stream = uri.path?.let {
+                    try {
+                        if (it.startsWith("/android_asset")) {
+                            val startAsset = it.indexOf("/android_asset/")
+                            val path = it.substring(startAsset + 15)
+                            val ctx = SimpleLibrary.instance.appContext
+                            BufferedInputStream(ctx.resources.assets.open(path))
+                        } else {
+                            val file = File(it)
+
+                            while (FileUtils.isFileLocked(file)) {
+                                delay(250)
+                            }
+
+                            BufferedInputStream(FileInputStream(file))
+                        }
+                    } catch (e: Exception) {
+                        Logger.writeLine(Log.ERROR, e, "ImageData: unable to open file")
+                        null
+                    }
+                }
+                return@withContext stream?.use {
+                    ImageUtils.guessImageType(it) != ImageUtils.ImageType.UNKNOWN
+                } ?: false
+            } else {
+                return@withContext true
+            }
+        } else {
+            return@withContext false
+        }
+    }
 }

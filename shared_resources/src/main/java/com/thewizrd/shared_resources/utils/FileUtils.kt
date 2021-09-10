@@ -155,4 +155,22 @@ object FileUtils {
         //file is not locked
         return false
     }
+
+    /*
+    @JvmStatic
+    @WorkerThread
+    fun calculateMD5Hash(file: File): String? {
+        if (!file.exists())
+            return null
+
+        val md = MessageDigest.getInstance("MD5")
+        val fs = file.inputStream()
+        fs.use {
+            DigestInputStream(fs, md).use {
+                val digest = md.digest()
+                return digest.toByteString().hex()
+            }
+        }
+    }
+     */
 }
