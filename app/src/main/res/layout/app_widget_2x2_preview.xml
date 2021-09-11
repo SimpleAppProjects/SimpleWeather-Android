@@ -24,7 +24,7 @@
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-        android:background="?android:attr/colorButtonNormal" />
+        android:background="@color/colorSurface" />
 
     <LinearLayout
         android:id="@+id/datetime_container"

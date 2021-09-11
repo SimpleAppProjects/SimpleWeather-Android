@@ -27,7 +27,7 @@
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-        android:background="?android:attr/colorButtonNormal" />
+        android:background="@color/colorSurface" />
 
     <ImageView
         android:id="@+id/settings_button"
@@ -114,7 +114,8 @@
                     android:gravity="start"
                     android:maxLines="1"
                     android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="@dimen/clock_text_size" />
+                    android:textSize="32sp"
+                    tools:text="3:26PM" />
 
                 <TextClock
                     android:id="@+id/date_panel"
