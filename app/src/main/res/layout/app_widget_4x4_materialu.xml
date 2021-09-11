@@ -20,6 +20,8 @@
             android:id="@+id/weather_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in"
             tools:src="@drawable/wi_day_sunny" />
 
         <LinearLayout
@@ -111,11 +113,12 @@
         <LinearLayout
             android:id="@+id/hrforecast_layout"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginBottom="2dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical" />
+            android:gravity="bottom"
+            android:layout_gravity="bottom" />
 
     </LinearLayout>
 

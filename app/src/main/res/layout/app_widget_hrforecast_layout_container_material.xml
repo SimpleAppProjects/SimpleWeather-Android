@@ -42,7 +42,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast1_date"
@@ -89,7 +91,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast2_date"
@@ -136,7 +140,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast3_date"
@@ -183,7 +189,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast4_date"
@@ -230,7 +238,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast5_date"
@@ -277,7 +287,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast6_date"

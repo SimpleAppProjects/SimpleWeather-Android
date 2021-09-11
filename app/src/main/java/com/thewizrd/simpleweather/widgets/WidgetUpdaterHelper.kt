@@ -712,6 +712,10 @@ object WidgetUpdaterHelper {
         val weatherIconResId = wim.getWeatherIconResource(forecast.weatherIcon)
         if (info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
             forecastPanel.setImageViewResource(iconId, weatherIconResId)
+            if (!wim.isFontIcon) {
+                // Remove tint
+                forecastPanel.setInt(iconId, "setColorFilter", 0x0)
+            }
         } else if (!WidgetUtils.isBackgroundOptionalWidget(info.widgetType) || background == WidgetUtils.WidgetBackground.TRANSPARENT) {
             forecastPanel.setImageViewBitmap(
                 iconId,
@@ -1074,7 +1078,7 @@ object WidgetUpdaterHelper {
                 info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou
             ) {
                 updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
-                if (!wim.isFontIcon && info.widgetType == WidgetType.Widget2x2PillMaterialYou) {
+                if (!wim.isFontIcon) {
                     // Remove tint
                     updateViews.setInt(R.id.weather_icon, "setColorFilter", 0x0)
                 }
