@@ -2,4 +2,7 @@
 <resources>
     <!-- WeatherNow -->
     <dimen name="sun_phase_view_height">300dp</dimen>
+
+    <!-- Widgets -->
+    <dimen name="widget_2x2_pill_size">168dp</dimen>
 </resources>

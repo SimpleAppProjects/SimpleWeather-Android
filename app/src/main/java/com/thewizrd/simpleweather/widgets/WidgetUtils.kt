@@ -244,6 +244,9 @@ object WidgetUtils {
             WidgetType.Widget2x2MaterialYou -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider2x2MaterialYou.Info.getInstance().componentName
             )
+            WidgetType.Widget2x2PillMaterialYou -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider2x2PillMaterialYou.Info.getInstance().componentName
+            )
             WidgetType.Widget4x2MaterialYou -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x2MaterialYou.Info.getInstance().componentName
             )
@@ -265,6 +268,7 @@ object WidgetUtils {
             WidgetType.Widget4x2Clock -> WeatherWidgetProvider4x2Clock.Info.getInstance()
             WidgetType.Widget4x2Huawei -> WeatherWidgetProvider4x2Huawei.Info.getInstance()
             WidgetType.Widget2x2MaterialYou -> WeatherWidgetProvider2x2MaterialYou.Info.getInstance()
+            WidgetType.Widget2x2PillMaterialYou -> WeatherWidgetProvider2x2PillMaterialYou.Info.getInstance()
             WidgetType.Widget4x2MaterialYou -> WeatherWidgetProvider4x2MaterialYou.Info.getInstance()
             WidgetType.Widget4x4MaterialYou -> WeatherWidgetProvider4x4MaterialYou.Info.getInstance()
         }
@@ -601,6 +605,9 @@ object WidgetUtils {
                 }
                 WeatherWidgetProvider2x2MaterialYou.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget2x2MaterialYou
+                }
+                WeatherWidgetProvider2x2PillMaterialYou.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget2x2PillMaterialYou
                 }
                 WeatherWidgetProvider4x2MaterialYou.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget4x2MaterialYou

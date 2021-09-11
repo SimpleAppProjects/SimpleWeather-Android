@@ -493,17 +493,19 @@ object WidgetUpdaterHelper {
                 R.id.condition_hilo,
                 if (weather.isShowHiLo) View.VISIBLE else View.GONE
             )
-        } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
-            updateViews.setTextViewText(
-                R.id.condition_hi,
-                if (weather.hiTemp?.isNotBlank() == true) weather.hiTemp else WeatherIcons.PLACEHOLDER
-            )
-            updateViews.setTextViewText(
-                R.id.condition_lo,
-                if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER
-            )
+        } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget2x2PillMaterialYou || info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
+            if (info.widgetType != WidgetType.Widget2x2PillMaterialYou) {
+                updateViews.setTextViewText(
+                    R.id.condition_hi,
+                    if (weather.hiTemp?.isNotBlank() == true) weather.hiTemp else WeatherIcons.PLACEHOLDER
+                )
+                updateViews.setTextViewText(
+                    R.id.condition_lo,
+                    if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER
+                )
+            }
 
-            if (info.widgetType != WidgetType.Widget2x2MaterialYou) {
+            if (info.widgetType != WidgetType.Widget2x2MaterialYou && info.widgetType != WidgetType.Widget2x2PillMaterialYou) {
                 updateViews.setTextViewText(R.id.condition_weather, weather.curCondition)
             }
 
@@ -514,6 +516,7 @@ object WidgetUpdaterHelper {
         if (info.widgetType != WidgetType.Widget2x2 &&
             info.widgetType != WidgetType.Widget4x1Notification &&
             info.widgetType != WidgetType.Widget2x2MaterialYou &&
+            info.widgetType != WidgetType.Widget2x2PillMaterialYou &&
             info.widgetType != WidgetType.Widget4x2MaterialYou &&
             info.widgetType != WidgetType.Widget4x4MaterialYou
         ) {
@@ -1067,8 +1070,14 @@ object WidgetUpdaterHelper {
                         )
                     }
                 }
-            } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
+            } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget2x2PillMaterialYou ||
+                info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou
+            ) {
                 updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
+                if (!wim.isFontIcon && info.widgetType == WidgetType.Widget2x2PillMaterialYou) {
+                    // Remove tint
+                    updateViews.setInt(R.id.weather_icon, "setColorFilter", 0x0)
+                }
             } else {
                 updateViews.setImageViewBitmap(
                     R.id.weather_icon,

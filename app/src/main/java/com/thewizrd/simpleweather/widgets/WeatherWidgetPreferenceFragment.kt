@@ -732,6 +732,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x2Clock -> 2
                         WidgetType.Widget4x2Huawei -> 2
                         WidgetType.Widget2x2MaterialYou -> 2
+                        WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 2
                         WidgetType.Widget4x4MaterialYou -> 4
                     }.toFloat()
@@ -748,6 +749,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x2Clock -> 4
                         WidgetType.Widget4x2Huawei -> 4
                         WidgetType.Widget2x2MaterialYou -> 2
+                        WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 4
                         WidgetType.Widget4x4MaterialYou -> 4
                     }.toFloat()
