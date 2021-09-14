@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -182,16 +183,23 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime.withZoneSameInstant(offset)
-        weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(offset)
+        weather.condition.observationTime =
+            weather.condition.observationTime.withZoneSameInstant(offset)
 
-        weather.astronomy = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        weather.astronomy = try {
+            SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        } catch (e: WeatherException) {
+            Logger.writeLine(Log.ERROR, e)
+            SolCalcAstroProvider().getAstronomyData(location, weather.condition.observationTime)
+        }
 
         // Update icons
         val now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime()
         val sunrise = weather.astronomy.sunrise.toLocalTime()
         val sunset = weather.astronomy.sunset.toLocalTime()
 
-        weather.condition.icon = getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
+        weather.condition.icon =
+            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
 
         for (hr_forecast in weather.hrForecast) {
             val hrf_date = hr_forecast.date.withZoneSameInstant(offset)

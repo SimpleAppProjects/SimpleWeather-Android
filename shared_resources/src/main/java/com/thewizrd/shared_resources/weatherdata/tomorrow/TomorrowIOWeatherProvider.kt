@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -267,16 +268,25 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
         // Update tz for weather properties
         weather.updateTime = weather.updateTime.withZoneSameInstant(offset)
-        weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(offset)
+        weather.condition.observationTime =
+            weather.condition.observationTime.withZoneSameInstant(offset)
 
-        val newAstro = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
-        if (weather.astronomy == null) {
-            weather.astronomy = newAstro
-        } else {
-            weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
-            weather.astronomy.sunset = weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
+        val newAstro = try {
+            SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        } catch (e: WeatherException) {
+            Logger.writeLine(Log.ERROR, e)
+            SolCalcAstroProvider().getAstronomyData(location, weather.condition.observationTime)
+        }
+
+        if (weather.astronomy != null) {
+            weather.astronomy.sunrise =
+                weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
+            weather.astronomy.sunset =
+                weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
             weather.astronomy.moonrise = newAstro.moonrise
             weather.astronomy.moonset = newAstro.moonset
+        } else {
+            weather.astronomy = newAstro
         }
 
         // Update icons

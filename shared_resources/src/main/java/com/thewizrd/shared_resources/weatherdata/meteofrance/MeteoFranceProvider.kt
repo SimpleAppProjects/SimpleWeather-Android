@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -212,8 +213,12 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             weather.condition.observationTime.withZoneSameInstant(offset)
 
         // Calculate astronomy
-        weather.astronomy =
+        weather.astronomy = try {
             SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        } catch (e: WeatherException) {
+            Logger.writeLine(Log.ERROR, e)
+            SolCalcAstroProvider().getAstronomyData(location, weather.condition.observationTime)
+        }
 
         // Update icons
         val now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime()

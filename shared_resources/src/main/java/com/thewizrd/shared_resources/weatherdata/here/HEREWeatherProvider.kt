@@ -179,10 +179,17 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
 
         val old = weather.astronomy
         if (old.moonset.isEqual(DateTimeUtils.getLocalDateTimeMIN()) || old.moonrise.isEqual(DateTimeUtils.getLocalDateTimeMIN())) {
-            val newAstro = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
-            newAstro.sunrise = old.sunrise
-            newAstro.sunset = old.sunset
-            weather.astronomy = newAstro
+            runCatching {
+                val newAstro = SunMoonCalcProvider().getAstronomyData(
+                    location,
+                    weather.condition.observationTime
+                )
+                newAstro.sunrise = old.sunrise
+                newAstro.sunset = old.sunset
+                weather.astronomy = newAstro
+            }.onFailure {
+                Logger.writeLine(Log.ERROR, it)
+            }
         }
 
         for (forecast in weather.forecast) {

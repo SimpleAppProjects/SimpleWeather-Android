@@ -342,11 +342,18 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         val offset = location.tzOffset
 
         weather.updateTime = weather.updateTime.withZoneSameInstant(offset)
-        weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(offset)
+        weather.condition.observationTime =
+            weather.condition.observationTime.withZoneSameInstant(offset)
 
         // NWS does not provide astrodata; calculate this ourselves (using their calculator)
-        val solCalcData = SolCalcAstroProvider().getAstronomyData(location, weather.condition.observationTime)
-        weather.astronomy = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        val solCalcData =
+            SolCalcAstroProvider().getAstronomyData(location, weather.condition.observationTime)
+        weather.astronomy = try {
+            SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+        } catch (e: WeatherException) {
+            Logger.writeLine(Log.ERROR, e)
+            solCalcData
+        }
         weather.astronomy.sunrise = solCalcData.sunrise
         weather.astronomy.sunset = solCalcData.sunset
 
@@ -355,7 +362,8 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         val sunrise = weather.astronomy.sunrise.toLocalTime()
         val sunset = weather.astronomy.sunset.toLocalTime()
 
-        weather.condition.icon = getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
+        weather.condition.icon =
+            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
 
         for (hr_forecast in weather.hrForecast) {
             val hrf_date = hr_forecast.date.withZoneSameInstant(offset)

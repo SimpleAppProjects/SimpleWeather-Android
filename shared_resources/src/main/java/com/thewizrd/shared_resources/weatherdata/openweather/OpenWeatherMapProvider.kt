@@ -224,21 +224,29 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         // OWM reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime.withZoneSameInstant(offset)
-        weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(offset)
+        weather.condition.observationTime =
+            weather.condition.observationTime.withZoneSameInstant(offset)
         for (hr_forecast in weather.hrForecast) {
             hr_forecast.date = hr_forecast.date.withZoneSameInstant(offset)
         }
         for (forecast in weather.forecast) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
         }
-        weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
-        weather.astronomy.sunset = weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
+        weather.astronomy.sunrise =
+            weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
+        weather.astronomy.sunset =
+            weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
 
-        val old = weather.astronomy
-        val newAstro = SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
-        newAstro.sunrise = old.sunrise
-        newAstro.sunset = old.sunset
-        weather.astronomy = newAstro
+        runCatching {
+            val old = weather.astronomy
+            val newAstro =
+                SunMoonCalcProvider().getAstronomyData(location, weather.condition.observationTime)
+            newAstro.sunrise = old.sunrise
+            newAstro.sunset = old.sunset
+            weather.astronomy = newAstro
+        }.onFailure {
+            Logger.writeLine(Log.ERROR, it)
+        }
     }
 
     override fun updateLocationQuery(weather: Weather): String {
