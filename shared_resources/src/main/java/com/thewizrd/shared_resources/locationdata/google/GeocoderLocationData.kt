@@ -1,7 +1,6 @@
 package com.thewizrd.shared_resources.locationdata.google
 
 import android.location.Address
-import androidx.core.util.ObjectsCompat
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 
@@ -10,18 +9,36 @@ fun createLocationModel(result: Address, weatherAPI: String): LocationQueryViewM
     return LocationQueryViewModel().apply {
         if (!result.hasLatitude() || !result.hasLongitude()) return@apply
 
-        val town = if (!result.locality.isNullOrBlank()) {
-            result.locality
-        } else  /* if (result.subLocality.isNullOrBlank())*/ {
-            result.subLocality
-        }
-        val region = result.adminArea
+        // SubLocality - Neighborhood, Suburb, Subdivision of locality
+        // Locality - Village, Town, City
+        // SubAdminArea - County, District
+        // AdminArea - State, Province
+        // CountryCode
+        // CountryName
 
-        locationName = if (region != null && !ObjectsCompat.equals(town, region)) {
+        val town = if (!result.subLocality.isNullOrBlank()) {
+            result.subLocality
+        } else if (!result.locality.isNullOrBlank()) {
+            result.locality
+        } else {
+            result.subAdminArea
+        }
+
+        val region = if (!result.adminArea.isNullOrBlank()) {
+            result.adminArea
+        } else {
+            result.countryName
+        }
+
+        locationName = if (region != null && town != region) {
             if (town != null) {
                 "$town, $region"
             } else {
-                region
+                if (region != result.countryName) {
+                    "$region, ${result.countryName}"
+                } else {
+                    region
+                }
             }
         } else {
             if (town != null) {

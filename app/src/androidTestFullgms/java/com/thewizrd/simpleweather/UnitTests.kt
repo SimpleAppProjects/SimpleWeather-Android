@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
+import com.thewizrd.shared_resources.locationdata.google.createLocationModel
 import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.tzdb.TimeZoneProvider
@@ -341,13 +342,15 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             Assert.assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
-            //List<Address> addressList = geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington
             val addressList = withContext(Dispatchers.IO) {
+                //geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington
                 geocoder.getFromLocation(51.5073884, -0.1334347, 1) // London
             }
             Assert.assertFalse(addressList.isNullOrEmpty())
             val result = addressList!![0]
             Assert.assertNotNull(result)
+            val locQVM = createLocationModel(result, WeatherAPI.ANDROID)
+            Assert.assertFalse(locQVM.locationName.toString().contains("null"))
         }
     }
 
