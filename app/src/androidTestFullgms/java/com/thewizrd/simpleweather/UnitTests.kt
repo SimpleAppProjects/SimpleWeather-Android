@@ -382,7 +382,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val locationProvider: LocationProviderImpl = WeatherApiLocationProvider()
             val locations = withContext(Dispatchers.IO) {
-                locationProvider.getLocations("Redmond, WA", null)
+                locationProvider.getLocations("Redmond, WA", WeatherAPI.WEATHERAPI)
             }
             Assert.assertFalse(locations.isNullOrEmpty())
 
