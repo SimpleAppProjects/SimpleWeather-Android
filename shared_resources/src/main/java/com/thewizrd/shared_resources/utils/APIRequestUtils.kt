@@ -211,6 +211,11 @@ object APIRequestUtils {
 
         return Throwable(throwableMsg)
     }
+
+    @JvmName("createThrowableExt")
+    fun Response.createThrowable(): Throwable {
+        return APIRequestUtils.createThrowable(this)
+    }
 }
 
 interface IRateLimitedRequest {

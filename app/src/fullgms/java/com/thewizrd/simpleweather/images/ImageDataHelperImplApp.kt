@@ -8,15 +8,20 @@ import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
+import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.APIRequestUtils.createThrowable
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.CacheControl
+import okhttp3.Request
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ImageDataHelperImplApp : ImageDataHelperImpl() {
     // Shared Preferences
@@ -77,8 +82,6 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
                 if (!imageDataFolder.exists())
                     imageDataFolder.mkdir()
 
-                val storage = FirebaseHelper.getFirebaseStorage()
-                val storageRef = storage.getReferenceFromUrl(imageUri.toString())
                 val imageFile = File(imageDataFolder, String.format("%s-%s", imageData.condition, UUID.randomUUID().toString()))
 
                 try {
@@ -86,8 +89,40 @@ class ImageDataHelperImplApp : ImageDataHelperImpl() {
                     args.putString("imageData", imageData.toString())
                     AnalyticsLogger.logEvent("ImageDataHelperImplApp: storeImage", args)
 
-                    withTimeoutOrNull(SettingsManager.CONNECTION_TIMEOUT.toLong()) {
-                        storageRef.getFile(imageFile).await()
+                    if (imageUri.scheme == "gs" || imageUri.toString()
+                            .contains("firebasestorage")
+                    ) {
+                        val storage = FirebaseHelper.getFirebaseStorage()
+                        val storageRef = storage.getReferenceFromUrl(imageUri.toString())
+
+                        withTimeoutOrNull(SettingsManager.CONNECTION_TIMEOUT.toLong()) {
+                            storageRef.getFile(imageFile).await()
+                        }
+                    } else {
+                        val client = SimpleLibrary.instance.httpClient
+                        val request = Request.Builder()
+                            .cacheControl(
+                                CacheControl.Builder()
+                                    .maxAge(1, TimeUnit.DAYS)
+                                    .build()
+                            )
+                            .url(imageData.imageURL)
+                            .build()
+                        val response = client.newCall(request).await()
+                        if (!response.isSuccessful) {
+                            throw response.createThrowable()
+                        } else {
+                            response.body!!.byteStream().use { inputStream ->
+                                if (!imageFile.exists()) {
+                                    imageFile.createNewFile()
+                                }
+
+                                imageFile.outputStream().use {
+                                    inputStream.copyTo(it)
+                                    it.flush()
+                                }
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     Logger.writeLine(Log.ERROR, e, "ImageDataHelper: Error retrieving download url")
