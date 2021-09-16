@@ -6,9 +6,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
@@ -50,7 +50,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
@@ -102,7 +102,6 @@ import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.lang.Runnable
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -978,37 +977,42 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     conditionPanelBinding.imageView.tag = imageURI
                     if (!imageURI.isNullOrBlank()) {
                         Glide.with(this@WeatherNowFragment)
-                                .load(imageURI)
-                                .apply(
-                                    RequestOptions.centerCropTransform()
-                                        .format(DecodeFormat.PREFER_RGB_565)
-                                        .skipMemoryCache(skipCache)
-                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                )
-                                .transition(DrawableTransitionOptions.withCrossFade())
-                                .addListener(object : RequestListener<Drawable?> {
-                                    override fun onLoadFailed(e: GlideException?, model: Any,
-                                                              target: Target<Drawable?>,
-                                                              isFirstResource: Boolean
-                                    ): Boolean {
+                            .asBitmap()
+                            .load(imageURI)
+                            //.override(Target.SIZE_ORIGINAL)
+                            .apply(
+                                RequestOptions.centerCropTransform()
+                                    .format(DecodeFormat.PREFER_ARGB_8888)
+                                    .skipMemoryCache(skipCache)
+                                    .disallowHardwareConfig()
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            )
+                            .transition(BitmapTransitionOptions.withCrossFade())
+                            .addListener(object : RequestListener<Bitmap?> {
+                                override fun onLoadFailed(
+                                    e: GlideException?, model: Any,
+                                    target: Target<Bitmap?>,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.refreshLayout.isRefreshing = false
+                                    binding.progressBar.hide()
+                                    binding.scrollView.visibility = View.VISIBLE
+                                    return false
+                                }
+
+                                override fun onResourceReady(
+                                    resource: Bitmap?, model: Any,
+                                    target: Target<Bitmap?>,
+                                    dataSource: DataSource,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    binding.refreshLayout.postOnAnimation {
                                         binding.refreshLayout.isRefreshing = false
                                         binding.progressBar.hide()
                                         binding.scrollView.visibility = View.VISIBLE
-                                        return false
                                     }
-
-                                    override fun onResourceReady(resource: Drawable?, model: Any,
-                                                                 target: Target<Drawable?>,
-                                                                 dataSource: DataSource,
-                                                                 isFirstResource: Boolean
-                                    ): Boolean {
-                                        binding.refreshLayout.postOnAnimation(Runnable {
-                                            binding.refreshLayout.isRefreshing = false
-                                            binding.progressBar.hide()
-                                            binding.scrollView.visibility = View.VISIBLE
-                                        })
-                                        return false
-                                    }
+                                    return false
+                                }
                                 })
                                 .into(conditionPanelBinding.imageView)
                     } else {
