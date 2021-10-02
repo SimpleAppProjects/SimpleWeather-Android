@@ -47,6 +47,8 @@ import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.App
@@ -196,10 +198,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         super.onCreate(savedInstanceState)
 
-        mWidgetViewCtx = ContextUtils.getThemeContextOverride(
-            requireContext().applicationContext,
-            !requireContext().isNightMode()
-        )
+        mWidgetViewCtx =
+            requireContext().applicationContext.getThemeContextOverride(!requireContext().isNightMode())
 
         lifecycleScope.launchWhenCreated {
             if (!settingsManager.isWeatherLoaded() && isActive) {
@@ -720,8 +720,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
             binding.widgetContainer.addView(widgetView)
             widgetView.updateLayoutParams<FrameLayout.LayoutParams> {
-                height = ContextUtils.dpToPx(
-                    mWidgetViewCtx, 96 * when (mWidgetType) {
+                height = mWidgetViewCtx.dpToPx(
+                    96 * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
                         WidgetType.Widget2x2 -> 2
@@ -737,8 +737,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x4MaterialYou -> 4
                     }.toFloat()
                 ).toInt()
-                width = ContextUtils.dpToPx(
-                    mWidgetViewCtx, 96 * when (mWidgetType) {
+                width = mWidgetViewCtx.dpToPx(
+                    96 * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
                         WidgetType.Widget2x2 -> 2
@@ -832,7 +832,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         })
 
         val currentNightMode: Int = newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        mWidgetViewCtx = ContextUtils.getThemeContextOverride(requireContext().applicationContext, currentNightMode != Configuration.UI_MODE_NIGHT_YES)
+        mWidgetViewCtx =
+            requireContext().applicationContext.getThemeContextOverride(currentNightMode != Configuration.UI_MODE_NIGHT_YES)
 
         updateWidgetView()
     }

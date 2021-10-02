@@ -18,7 +18,6 @@ import androidx.preference.Preference
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.WeatherException

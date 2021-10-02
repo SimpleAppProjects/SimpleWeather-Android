@@ -3,40 +3,39 @@ package com.thewizrd.simpleweather.wearable
 import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.IntentFilter
-import android.support.wearable.phone.PhoneDeviceType
-import android.support.wearable.view.ConfirmationOverlay
+import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.Lifecycle
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.wear.phone.interactions.PhoneTypeHelper
+import androidx.wear.remote.interactions.RemoteActivityHelper
+import androidx.wear.widget.ConfirmationOverlay
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
 import com.google.android.gms.wearable.CapabilityClient.OnCapabilityChangedListener
 import com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener
-import com.google.android.wearable.intent.RemoteIntent
 import com.thewizrd.shared_resources.store.PlayStoreUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
+import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceivedListener, OnCapabilityChangedListener {
-    protected var mPhoneNodeWithApp: Node? = null
-    protected var mConnectionStatus = WearConnectionStatus.DISCONNECTED
-    var isAcceptingDataUpdates = false
-
-    protected val settingsManager: SettingsManager = App.instance.settingsManager
-
     companion object {
         // Actions
         const val ACTION_OPENONPHONE = "SimpleWeather.Droid.Wear.action.OPEN_APP_ON_PHONE"
@@ -88,15 +87,30 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
         }
     }
 
+    @Volatile
+    protected var mPhoneNodeWithApp: Node? = null
+    private var mConnectionStatus = WearConnectionStatus.CONNECTING
+    var isAcceptingDataUpdates = false
+
+    protected val settingsManager: SettingsManager = App.instance.settingsManager
+
     protected abstract val broadcastReceiver: BroadcastReceiver
     protected abstract val intentFilter: IntentFilter
+
+    protected lateinit var remoteActivityHelper: RemoteActivityHelper
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        remoteActivityHelper = RemoteActivityHelper(this)
+    }
 
     override fun onStart() {
         Wearable.getCapabilityClient(this).addListener(this, WearableHelper.CAPABILITY_PHONE_APP)
         Wearable.getMessageClient(this).addListener(this)
 
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(broadcastReceiver, intentFilter)
+            .registerReceiver(broadcastReceiver, intentFilter)
 
         lifecycleScope.launch { checkConnectionStatus() }
 
@@ -106,77 +120,66 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
 
     override fun onPause() {
         LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(broadcastReceiver)
+            .unregisterReceiver(broadcastReceiver)
         Wearable.getCapabilityClient(this).removeListener(this, WearableHelper.CAPABILITY_PHONE_APP)
         Wearable.getMessageClient(this).removeListener(this)
         super.onPause()
     }
 
-    protected suspend fun openAppOnPhone(showAnimation: Boolean = true) = withContext(Dispatchers.Default) {
-        connect()
+    protected fun openAppOnPhone(showAnimation: Boolean = true) {
+        lifecycleScope.launch {
+            connect()
 
-        if (mPhoneNodeWithApp == null) {
-            launch(Dispatchers.Main) {
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                    Toast.makeText(this@WearableListenerActivity, R.string.status_node_unavailable, Toast.LENGTH_SHORT).show()
-                }
-            }
+            if (mPhoneNodeWithApp == null) {
+                Toast.makeText(
+                    this@WearableListenerActivity,
+                    R.string.status_node_unavailable,
+                    Toast.LENGTH_SHORT
+                ).show()
 
-            val deviceType = PhoneDeviceType.getPhoneDeviceType(this@WearableListenerActivity)
-            when (deviceType) {
-                PhoneDeviceType.DEVICE_TYPE_ANDROID -> {
-                    val intentAndroid = Intent(Intent.ACTION_VIEW)
+                when (PhoneTypeHelper.getPhoneDeviceType(this@WearableListenerActivity)) {
+                    PhoneTypeHelper.DEVICE_TYPE_ANDROID -> {
+                        val intentAndroid = Intent(Intent.ACTION_VIEW)
                             .addCategory(Intent.CATEGORY_BROWSABLE)
                             .setData(PlayStoreUtils.getPlayStoreURI())
 
-                    RemoteIntent.startRemoteActivity(this@WearableListenerActivity, intentAndroid,
-                            ConfirmationResultReceiver(this@WearableListenerActivity))
-                }
-                PhoneDeviceType.DEVICE_TYPE_IOS -> {
-                    launch(Dispatchers.Main) {
-                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                            Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
+                        runCatching {
+                            remoteActivityHelper.startRemoteActivity(intentAndroid)
+                                .await()
+
+                            showConfirmationOverlay(true)
+                        }.onFailure {
+                            if (it !is CancellationException) {
+                                showConfirmationOverlay(false)
+                            }
                         }
                     }
-                }
-                else -> {
-                    launch(Dispatchers.Main) {
-                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                            Toast.makeText(this@WearableListenerActivity, R.string.status_node_notsupported, Toast.LENGTH_SHORT).show()
-                        }
+                    else -> {
+                        Toast.makeText(
+                            this@WearableListenerActivity,
+                            R.string.status_node_notsupported,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
-            }
+            } else {
+                // Send message to device to start activity
+                val result = sendMessage(
+                    mPhoneNodeWithApp!!.id,
+                    WearableHelper.StartActivityPath,
+                    ByteArray(0)
+                )
 
-            false
-        } else {
-            // Send message to device to start activity
-            var result = -1
-            try {
-                result = withContext(Dispatchers.IO) {
-                    Wearable.getMessageClient(this@WearableListenerActivity)
-                        .sendMessage(
-                            mPhoneNodeWithApp!!.id,
-                            WearableHelper.StartActivityPath,
-                            ByteArray(0)
-                        )
-                        .await()
-                }
-            } catch (e: Exception) {
-                logError(e)
-            }
+                val success = result != -1
 
-            val success = result != -1
-
-            if (showAnimation) {
-                launch(Dispatchers.Main) {
-                    ConfirmationOverlay()
+                if (showAnimation) {
+                    launch(Dispatchers.Main) {
+                        ConfirmationOverlay()
                             .setType(if (success) ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION else ConfirmationOverlay.FAILURE_ANIMATION)
                             .showOn(this@WearableListenerActivity)
+                    }
                 }
             }
-
-            success
         }
     }
 
@@ -195,12 +198,25 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
 
     override fun onCapabilityChanged(capabilityInfo: CapabilityInfo) {
         lifecycleScope.launch(Dispatchers.Default) {
+            val connectedNodes = getConnectedNodes()
             mPhoneNodeWithApp = pickBestNodeId(capabilityInfo.nodes)
 
             if (mPhoneNodeWithApp == null) {
-                mConnectionStatus = WearConnectionStatus.DISCONNECTED
+                /*
+                 * If a device is disconnected from the wear network, capable nodes are empty
+                 *
+                 * No capable nodes can mean the app is not installed on the remote device or the
+                 * device is disconnected.
+                 *
+                 * Verify if we're connected to any nodes; if not, we're truly disconnected
+                 */
+                mConnectionStatus = if (connectedNodes.isNullOrEmpty()) {
+                    WearConnectionStatus.DISCONNECTED
+                } else {
+                    WearConnectionStatus.APPNOTINSTALLED
+                }
             } else {
-                if (mPhoneNodeWithApp!!.isNearby) {
+                if (mPhoneNodeWithApp!!.isNearby && connectedNodes.any { it.id == mPhoneNodeWithApp!!.id }) {
                     mConnectionStatus = WearConnectionStatus.CONNECTED
                 } else {
                     try {
@@ -209,14 +225,18 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                     } catch (e: ApiException) {
                         if (e.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
                             mConnectionStatus = WearConnectionStatus.DISCONNECTED
+                        } else {
+                            Logger.writeLine(Log.ERROR, e)
                         }
                     }
                 }
             }
 
             LocalBroadcastManager.getInstance(this@WearableListenerActivity)
-                    .sendBroadcast(Intent(ACTION_UPDATECONNECTIONSTATUS)
-                            .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value))
+                .sendBroadcast(
+                    Intent(ACTION_UPDATECONNECTIONSTATUS)
+                        .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+                )
         }
     }
 
@@ -245,11 +265,25 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     }
 
     protected suspend fun checkConnectionStatus() {
+        val connectedNodes = getConnectedNodes()
         mPhoneNodeWithApp = checkIfPhoneHasApp()
+
         if (mPhoneNodeWithApp == null) {
-            mConnectionStatus = WearConnectionStatus.DISCONNECTED
+            /*
+             * If a device is disconnected from the wear network, capable nodes are empty
+             *
+             * No capable nodes can mean the app is not installed on the remote device or the
+             * device is disconnected.
+             *
+             * Verify if we're connected to any nodes; if not, we're truly disconnected
+             */
+            mConnectionStatus = if (connectedNodes.isNullOrEmpty()) {
+                WearConnectionStatus.DISCONNECTED
+            } else {
+                WearConnectionStatus.APPNOTINSTALLED
+            }
         } else {
-            if (mPhoneNodeWithApp!!.isNearby) {
+            if (mPhoneNodeWithApp!!.isNearby && connectedNodes.any { it.id == mPhoneNodeWithApp!!.id }) {
                 mConnectionStatus = WearConnectionStatus.CONNECTED
             } else {
                 try {
@@ -258,10 +292,17 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                 } catch (e: ApiException) {
                     if (e.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
                         mConnectionStatus = WearConnectionStatus.DISCONNECTED
+                    } else {
+                        Logger.writeLine(Log.ERROR, e)
                     }
                 }
             }
         }
+    }
+
+    suspend fun getConnectionStatus(): WearConnectionStatus {
+        checkConnectionStatus()
+        return mConnectionStatus
     }
 
     protected suspend fun checkIfPhoneHasApp(): Node? = withContext(Dispatchers.IO) {
@@ -285,6 +326,42 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
             mPhoneNodeWithApp = checkIfPhoneHasApp()
 
         return mPhoneNodeWithApp != null
+    }
+
+    private suspend fun getConnectedNodes(): List<Node> {
+        try {
+            return Wearable.getNodeClient(this)
+                .connectedNodes
+                .await()
+        } catch (e: Exception) {
+            Logger.writeLine(Log.ERROR, e)
+        }
+
+        return emptyList()
+    }
+
+    protected suspend fun sendMessage(nodeID: String, path: String, data: ByteArray?): Int? {
+        try {
+            return Wearable.getMessageClient(this@WearableListenerActivity)
+                .sendMessage(nodeID, path, data).await()
+        } catch (e: Exception) {
+            if (e is ApiException || e.cause is ApiException) {
+                val apiException = e.cause as? ApiException ?: e as? ApiException
+                if (apiException?.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
+                    mConnectionStatus = WearConnectionStatus.DISCONNECTED
+
+                    LocalBroadcastManager.getInstance(this@WearableListenerActivity)
+                        .sendBroadcast(
+                            Intent(ACTION_UPDATECONNECTIONSTATUS)
+                                .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+                        )
+                }
+            }
+
+            Logger.writeLine(Log.ERROR, e)
+        }
+
+        return -1
     }
 
     @Throws(ApiException::class)
@@ -319,5 +396,17 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
         }
 
         Timber.e(e)
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    protected fun setConnectionStatus(status: WearConnectionStatus) {
+        mConnectionStatus = status
+
+        LocalBroadcastManager.getInstance(this@WearableListenerActivity)
+            .sendBroadcast(
+                Intent(ACTION_UPDATECONNECTIONSTATUS)
+                    .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+            )
     }
 }

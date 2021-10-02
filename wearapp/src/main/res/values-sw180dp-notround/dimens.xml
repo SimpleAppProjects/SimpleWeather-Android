@@ -5,4 +5,6 @@
     <dimen name="current_g_temp_textsize">48sp</dimen>
     <dimen name="current_g_hilo_textsize">24sp</dimen>
 
+    <dimen name="diag_button_size">48dp</dimen>
+
 </resources>

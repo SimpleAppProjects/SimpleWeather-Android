@@ -15,7 +15,7 @@ android {
         testApplicationId "com.thewizrd.simpleweather.test"
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 30
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
         versionCode 305200401
@@ -134,7 +134,6 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-base:17.6.0'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
-    implementation 'com.google.android.libraries.places:places:2.4.0'
 
     // WearOS
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'
@@ -143,6 +142,8 @@ dependencies {
     implementation 'androidx.wear:wear:1.2.0'
     implementation 'androidx.wear:wear-phone-interactions:1.0.0'
     implementation 'androidx.wear:wear-remote-interactions:1.0.0'
+    implementation 'androidx.wear.watchface:watchface-complications-data:1.0.0-alpha23'
+    implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.0.0-alpha23'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:28.4.1')

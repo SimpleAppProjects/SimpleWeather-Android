@@ -22,8 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.thewizrd.shared_resources.helpers.ColorsUtils;
-import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 
 import java.util.ArrayList;
 

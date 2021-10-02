@@ -37,7 +37,7 @@ import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
-import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -141,9 +141,12 @@ class SetupFragment : CustomFragment() {
         binding.locationButton.setOnClickListener { fetchGeoLocation() }
 
         binding.setupPhoneButton.setOnClickListener {
-            AcceptDenyDialogBuilder(requireActivity()) { dialog, which ->
+            AcceptDenyDialog.Builder(requireActivity()) { dialog, which ->
                 if (which == DialogInterface.BUTTON_POSITIVE) {
-                    startActivityForResult(Intent(requireActivity(), SetupSyncActivity::class.java), REQUEST_CODE_SYNC_ACTIVITY)
+                    startActivityForResult(
+                        Intent(requireActivity(), SetupSyncActivity::class.java),
+                        REQUEST_CODE_SYNC_ACTIVITY
+                    )
                 }
             }.setMessage(R.string.prompt_confirmsetup)
                     .show()

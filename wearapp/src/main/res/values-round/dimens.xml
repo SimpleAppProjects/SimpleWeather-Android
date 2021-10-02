@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
+    <dimen name="inner_layout_padding">32dp</dimen>
+    <dimen name="conf_overlay_image_size">36dp</dimen>
 
     <dimen name="header_start_padding">36dp</dimen>
     <dimen name="header_end_padding">36dp</dimen>
@@ -15,5 +17,11 @@
 
     <!-- Tiles -->
     <dimen name="tile_horizontal_padding">20dp</dimen>
+
+    <!-- WearOS 3 -->
+    <dimen name="timer_top_margin">16dp</dimen>
+    <dimen name="clock_top_margin">8dp</dimen>
+
+    <dimen name="diag_button_size">48dp</dimen>
 
 </resources>

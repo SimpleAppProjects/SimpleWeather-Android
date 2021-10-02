@@ -17,8 +17,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.TransitionManager
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.ActivityUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.SettingsManager
@@ -64,7 +64,7 @@ class SetupActivity : UserLocaleActivity() {
         }
 
         val color = ContextCompat.getColor(this@SetupActivity, R.color.colorPrimaryBackground)
-        ActivityUtils.setTransparentWindow(window, color)
+        window.setTransparentWindow(color)
 
         lifecycleScope.launch {
             isWeatherLoaded = settingsManager.isWeatherLoaded()

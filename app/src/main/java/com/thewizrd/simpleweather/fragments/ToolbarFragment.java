@@ -18,9 +18,9 @@ import androidx.navigation.Navigation;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.transition.MaterialFadeThrough;
-import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding;
@@ -98,8 +98,8 @@ public abstract class ToolbarFragment extends WindowColorFragment
 
     @CallSuper
     public void updateWindowColors() {
-        int backgroundColor = ContextUtils.getColor(getAppCompatActivity(), android.R.attr.colorBackground);
-        int statusBarColor = ContextUtils.getColor(getAppCompatActivity(), R.attr.colorSurface);
+        int backgroundColor = ContextUtils.getAttrColor(getAppCompatActivity(), android.R.attr.colorBackground);
+        int statusBarColor = ContextUtils.getAttrColor(getAppCompatActivity(), R.attr.colorSurface);
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = statusBarColor = Colors.BLACK;
         }

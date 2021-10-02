@@ -9,9 +9,9 @@ import android.widget.RemoteViews
 import com.google.android.clockwork.tiles.TileData
 import com.google.android.clockwork.tiles.TileProviderService
 import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
@@ -128,7 +128,7 @@ class WeatherTileProviderService : TileProviderService() {
         val wim = WeatherIconsManager.getInstance()
         val updateViews = RemoteViews(packageName, R.layout.tile_layout_weather)
         val viewModel = WeatherNowViewModel(weather)
-        val mDarkIconCtx = ContextUtils.getThemeContextOverride(applicationContext, false)
+        val mDarkIconCtx = applicationContext.getThemeContextOverride(false)
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(applicationContext))
 

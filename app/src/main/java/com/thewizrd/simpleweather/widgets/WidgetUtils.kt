@@ -12,9 +12,9 @@ import androidx.annotation.ColorInt
 import androidx.core.content.edit
 import com.google.gson.reflect.TypeToken
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
@@ -786,7 +786,7 @@ object WidgetUtils {
 
                 if (pkgName.isNotBlank() && activityName.isNotBlank()) {
                     val componentName = ComponentName(pkgName, activityName)
-                    if (ContextUtils.verifyActivityInfo(context, componentName)) {
+                    if (context.verifyActivityInfo(componentName)) {
                         return componentName
                     }
                 }
@@ -810,7 +810,7 @@ object WidgetUtils {
 
                 if (pkgName.isNotBlank() && activityName.isNotBlank()) {
                     val componentName = ComponentName(pkgName, activityName)
-                    if (ContextUtils.verifyActivityInfo(context, componentName)) {
+                    if (context.verifyActivityInfo(componentName)) {
                         return componentName
                     }
                 }

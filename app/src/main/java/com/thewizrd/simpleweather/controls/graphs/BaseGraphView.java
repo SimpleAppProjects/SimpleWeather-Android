@@ -11,7 +11,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 
 import java.util.ArrayList;
 import java.util.Stack;

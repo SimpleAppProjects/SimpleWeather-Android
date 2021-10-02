@@ -7,13 +7,16 @@ import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.support.wearable.input.RotaryEncoder
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnGenericMotionListener
+import android.view.ViewConfiguration
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.InputDeviceCompat
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.ViewConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,9 +31,10 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ForecastsListViewModel
 import com.thewizrd.shared_resources.controls.WeatherAlertsViewModel
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
@@ -62,7 +66,7 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
 
     override fun attachBaseContext(newBase: Context) {
         // Use night mode resources (needed for external weather icons)
-        super.attachBaseContext(ContextUtils.getThemeContextOverride(newBase, false))
+        super.attachBaseContext(newBase.getThemeContextOverride(false))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,13 +119,19 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
             var xTotalOffset = 0f
 
             override fun onGenericMotion(v: View, event: MotionEvent): Boolean {
-                if (pager != null && event.action == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
+                if (pager != null && event.action == MotionEvent.ACTION_SCROLL && event.isFromSource(
+                        InputDeviceCompat.SOURCE_ROTARY_ENCODER
+                    )
+                ) {
                     timer.cancel()
                     // Send event to postpone auto close of drawer
                     binding.topNavDrawer.onInterceptTouchEvent(event)
 
                     // Don't forget the negation here
-                    val delta = RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(this@MainActivity)
+                    val delta = -event.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
+                            ViewConfigurationCompat.getScaledVerticalScrollFactor(
+                                ViewConfiguration.get(this@MainActivity), this@MainActivity
+                            )
                     if (Math.signum(delta) != Math.signum(xTotalOffset)) {
                         timer.onFinish()
                         xTotalOffset = delta * 1.5f
@@ -312,7 +322,7 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
 
         override fun getItemDrawable(pos: Int): Drawable {
             val drawable = ContextCompat.getDrawable(mContext, navItems[pos].drawableIcon)!!.mutate()
-            drawable.setTint(ContextUtils.getColor(mContext, R.attr.colorOnSurface))
+            drawable.setTint(mContext.getAttrColor(R.attr.colorOnSurface))
             return drawable
         }
 

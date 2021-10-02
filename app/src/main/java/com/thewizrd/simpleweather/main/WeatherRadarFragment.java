@@ -19,8 +19,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.android.material.transition.MaterialFadeThrough;
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
-import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.FragmentWeatherRadarBinding;
 import com.thewizrd.simpleweather.fragments.ToolbarFragment;
@@ -62,7 +62,7 @@ public class WeatherRadarFragment extends ToolbarFragment {
         ViewCompat.setTransitionName(binding.radarWebviewContainer, "radar");
 
         // Setup Actionbar
-        getToolbar().setNavigationIcon(ContextUtils.getResourceId(getToolbar().getContext(), R.attr.homeAsUpIndicator));
+        getToolbar().setNavigationIcon(ContextUtils.getAttrResourceId(getToolbar().getContext(), R.attr.homeAsUpIndicator));
         getToolbar().setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
         radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), binding.radarWebviewContainer);

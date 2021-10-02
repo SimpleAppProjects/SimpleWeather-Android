@@ -5,11 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.core.graphics.ColorUtils
 import androidx.navigation.fragment.NavHostFragment
-import com.thewizrd.shared_resources.helpers.ActivityUtils
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.utils.ActivityUtils.setFullScreen
+import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
@@ -39,18 +40,17 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
 
         setContentView(R.layout.activity_widget_setup)
 
-        var color = ContextUtils.getColor(this, android.R.attr.colorBackground)
+        var color = getAttrColor(android.R.attr.colorBackground)
         if (App.instance.settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }
 
-        ActivityUtils.setTransparentWindow(
-            window,
+        window.setTransparentWindow(
             color,
             Colors.TRANSPARENT,
             ColorUtils.setAlphaComponent(color, 0xB3)
         )
-        ActivityUtils.setFullScreen(window, true)
+        window.setFullScreen(true)
 
         val args = Bundle().apply {
             putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)

@@ -4,9 +4,9 @@ import android.text.format.DateFormat
 import android.util.Log
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.simpleweather.App
@@ -32,14 +32,14 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
         val wm = WeatherManager.instance
 
         date = if (DateFormat.is24HourFormat(context)) {
-            val skeleton = if (ContextUtils.isLargeTablet(context)) {
+            val skeleton = if (context.isLargeTablet()) {
                 DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR
             } else {
                 DateTimeConstants.SKELETON_24HR
             }
             forecast.date.format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(skeleton)))
         } else {
-            val pattern = if (ContextUtils.isLargeTablet(context)) {
+            val pattern = if (context.isLargeTablet()) {
                 DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM
             } else {
                 DateTimeConstants.ABBREV_12HR_AMPM

@@ -46,6 +46,11 @@ import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ActivityUtils.setLightStatusBar
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
+import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
@@ -374,14 +379,17 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
 
-        if (ContextUtils.isLargeTablet(appCompatActivity!!)) {
+        if (appCompatActivity!!.isLargeTablet()) {
             // use a linear layout manager
-            val gridLayoutManager: GridLayoutManager = object : GridLayoutManager(appCompatActivity, 2, VERTICAL, false) {
-                override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
-                    return RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT)
+            val gridLayoutManager: GridLayoutManager =
+                object : GridLayoutManager(appCompatActivity, 2, VERTICAL, false) {
+                    override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
+                        return RecyclerView.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                    }
                 }
-            }
             gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return when (mAdapter.getItemViewType(position)) {
@@ -457,13 +465,20 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
             }
         })
-        if (!ContextUtils.isLargeTablet(appCompatActivity!!)) {
-            val swipeDecor = SwipeToDeleteOffSetItemDecoration(binding.recyclerView.context, 2f,
-                    OffsetMargin.TOP or OffsetMargin.BOTTOM)
+        if (!appCompatActivity!!.isLargeTablet()) {
+            val swipeDecor = SwipeToDeleteOffSetItemDecoration(
+                binding.recyclerView.context, 2f,
+                OffsetMargin.TOP or OffsetMargin.BOTTOM
+            )
             mITHCallback.addItemTouchHelperCallbackListener(swipeDecor)
             binding.recyclerView.addItemDecoration(swipeDecor)
         } else {
-            binding.recyclerView.addItemDecoration(LocationPanelOffsetDecoration(binding.recyclerView.context, 2f))
+            binding.recyclerView.addItemDecoration(
+                LocationPanelOffsetDecoration(
+                    binding.recyclerView.context,
+                    2f
+                )
+            )
         }
         binding.recyclerView.itemAnimator = DefaultItemAnimator().apply {
             supportsChangeAnimations = false
@@ -487,13 +502,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun adjustPanelContainer() {
-        if (ContextUtils.isLargeTablet(appCompatActivity!!)) {
-            binding.recyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        if (appCompatActivity!!.isLargeTablet()) {
+            binding.recyclerView.viewTreeObserver.addOnPreDrawListener(object :
+                ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     binding.recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
 
                     runWithView(Dispatchers.Main.immediate) {
-                        val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
+                        val isLandscape =
+                            appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
                         val viewWidth = binding.recyclerView.measuredWidth
                         val minColumns = if (isLandscape) 2 else 1
 
@@ -1011,7 +1028,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     .mutate()
             DrawableCompat.setTint(
                 navIcon,
-                ContextUtils.getColor(toolbar.context, R.attr.colorOnPrimary)
+                toolbar.context.getAttrColor(R.attr.colorOnPrimary)
             )
             toolbar.navigationIcon = navIcon
             toolbar.setNavigationOnClickListener {
@@ -1032,7 +1049,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             toolbar.setTitle(title)
             toolbar.setTitleTextAppearance(
                 toolbar.context,
-                ContextUtils.getResourceId(toolbar.context, R.attr.textAppearanceHeadline6)
+                toolbar.context.getAttrResourceId(R.attr.textAppearanceHeadline6)
             )
             (appCompatActivity as? WindowColorManager)?.updateWindowColors()
         }
@@ -1054,24 +1071,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     }
                     MenuItemCompat.setIconTintList(
                         it,
-                        ColorStateList.valueOf(
-                            ContextUtils.getColor(
-                                toolbar.context,
-                                R.attr.colorOnPrimary
-                            )
-                        )
+                        ColorStateList.valueOf(toolbar.context.getAttrColor(R.attr.colorOnPrimary))
                     )
                 }
                 R.id.action_done -> {
                     it.isVisible = inEditMode
                     MenuItemCompat.setIconTintList(
                         it,
-                        ColorStateList.valueOf(
-                            ContextUtils.getColor(
-                                toolbar.context,
-                                R.attr.colorOnPrimary
-                            )
-                        )
+                        ColorStateList.valueOf(toolbar.context.getAttrColor(R.attr.colorOnPrimary))
                     )
                 }
                 else -> it.isVisible = !inEditMode
@@ -1080,9 +1087,9 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         runAppBarAnimation(
             if (inEditMode) {
-                ContextUtils.getColor(appBarLayout.context, R.attr.colorPrimary)
+                appBarLayout.context.getAttrColor(R.attr.colorPrimary)
             } else {
-                ContextUtils.getColor(appBarLayout.context, R.attr.colorSurface)
+                appBarLayout.context.getAttrColor(R.attr.colorSurface)
             }
         )
     }
@@ -1100,7 +1107,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         super.updateWindowColors()
 
         if (mEditMode) {
-            val statusBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorPrimary)
+            val statusBarColor = appCompatActivity!!.getAttrColor(R.attr.colorPrimary)
 
             if (appBarLayout.background is MaterialShapeDrawable) {
                 val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
@@ -1110,8 +1117,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ActivityUtils.setLightStatusBar(
-                    appCompatActivity!!.window,
+                appCompatActivity?.window?.setLightStatusBar(
                     ColorsUtils.isSuperLight(statusBarColor)
                 )
             }
@@ -1125,7 +1131,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             materialShapeDrawable.fillColor?.defaultColor
         } else {
             (appBarLayout.background as? ColorDrawable)?.color
-        } ?: ContextUtils.getColor(appBarLayout.context, R.attr.colorSurface)
+        } ?: appBarLayout.context.getAttrColor(R.attr.colorSurface)
         if (colorFrom != colorTo) {
             if (mAppBarAnimator?.isRunning == true) {
                 mAppBarAnimator?.cancel()

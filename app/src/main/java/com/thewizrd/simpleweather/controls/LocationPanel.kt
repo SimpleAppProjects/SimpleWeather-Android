@@ -26,8 +26,9 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.card.MaterialCardView
 import com.thewizrd.shared_resources.controls.TextViewDrawableCompat
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding
@@ -73,11 +74,11 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         val height = context.resources.getDimensionPixelSize(R.dimen.location_panel_height)
         this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
 
-        setCardBackgroundColor(ContextUtils.getColor(context, R.attr.colorSurface))
+        setCardBackgroundColor(context.getAttrColor(R.attr.colorSurface))
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay)
 
-        cardElevation = ContextUtils.dpToPx(context, 2f)
-        strokeWidth = ContextUtils.dpToPx(context, 1f).toInt()
+        cardElevation = context.dpToPx(2f)
+        strokeWidth = context.dpToPx(1f).toInt()
         setStrokeColor(
             AppCompatResources.getColorStateList(
                 context, if (FeatureSettings.isLocationPanelImageEnabled()) {
@@ -90,7 +91,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled()) {
             ColorStateList.valueOf(Colors.WHITE)
         } else ColorStateList.valueOf(
-            ContextUtils.getColor(context, R.attr.colorPrimary)
+            context.getAttrColor(R.attr.colorPrimary)
         )
         setRippleColorResource(
             if (FeatureSettings.isLocationPanelImageEnabled()) {
@@ -231,7 +232,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         } else {
             strokeDp = if (isDragged) 2f else 1f
         }
-        strokeWidth = ContextUtils.dpToPx(context, strokeDp).toInt()
+        strokeWidth = context.dpToPx(strokeDp).toInt()
     }
 }
 
@@ -244,7 +245,7 @@ object LocationPanelBindingAdapter {
             view.setTextColor(Colors.WHITE)
         } else {
             view.setShadowLayer(0f, view.shadowDx, view.shadowDy, Colors.TRANSPARENT)
-            view.setTextColor(ContextUtils.getColor(view.context, R.attr.colorOnSurface))
+            view.setTextColor(view.context.getAttrColor(R.attr.colorOnSurface))
         }
     }
 
@@ -259,7 +260,7 @@ object LocationPanelBindingAdapter {
                 if (panelImageEnabled) {
                     Colors.WHITE
                 } else {
-                    ContextUtils.getColor(view.context, R.attr.colorOnSurface)
+                    view.context.getAttrColor(R.attr.colorOnSurface)
                 }
             )
         )
@@ -274,7 +275,7 @@ object LocationPanelBindingAdapter {
                 if (panelImageEnabled) {
                     Colors.WHITE
                 } else {
-                    ContextUtils.getColor(view.context, R.attr.colorOnSurface)
+                    view.context.getAttrColor(R.attr.colorOnSurface)
                 }
             )
         )

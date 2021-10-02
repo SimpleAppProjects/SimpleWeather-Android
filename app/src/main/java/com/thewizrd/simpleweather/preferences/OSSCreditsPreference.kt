@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.UserThemeMode

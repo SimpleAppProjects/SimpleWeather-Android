@@ -2,8 +2,8 @@ package com.thewizrd.simpleweather.wearable
 
 import android.content.ComponentName
 import android.content.Context
-import android.support.wearable.complications.ProviderUpdateRequester
 import android.util.Log
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import com.thewizrd.shared_resources.utils.Logger
 
 object WeatherComplicationHelper {
@@ -11,10 +11,17 @@ object WeatherComplicationHelper {
 
     @JvmStatic
     fun requestComplicationUpdate(context: Context, complicationId: Int) {
-        Logger.writeLine(Log.INFO, "%s: requesting complication update (complicationId = %s)", TAG, complicationId)
+        Logger.writeLine(
+            Log.INFO,
+            "%s: requesting complication update (complicationId = %s)",
+            TAG,
+            complicationId
+        )
 
-        val updateRequester = ProviderUpdateRequester(context.applicationContext,
-                ComponentName(context.applicationContext, WeatherComplicationService::class.java))
+        val updateRequester = ComplicationDataSourceUpdateRequester.create(
+            context.applicationContext,
+            ComponentName(context.applicationContext, WeatherComplicationService::class.java)
+        )
         updateRequester.requestUpdate(complicationId)
     }
 
@@ -22,8 +29,10 @@ object WeatherComplicationHelper {
     fun requestComplicationUpdateAll(context: Context) {
         Logger.writeLine(Log.INFO, "%s: requesting complication update all", TAG)
 
-        val updateRequester = ProviderUpdateRequester(context.applicationContext,
-                ComponentName(context.applicationContext, WeatherComplicationService::class.java))
+        val updateRequester = ComplicationDataSourceUpdateRequester.create(
+            context.applicationContext,
+            ComponentName(context.applicationContext, WeatherComplicationService::class.java)
+        )
         updateRequester.requestUpdateAll()
     }
 }

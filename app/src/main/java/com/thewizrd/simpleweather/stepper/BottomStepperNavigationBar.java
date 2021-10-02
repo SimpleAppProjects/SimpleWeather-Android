@@ -19,7 +19,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
-import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.BottomNavStepperLayoutBinding;
 
@@ -89,8 +89,8 @@ public class BottomStepperNavigationBar extends RelativeLayout {
     }
 
     private void initDefaultValues(Context context) {
-        mBackgroundColor = ContextUtils.getResourceId(context, android.R.attr.colorBackground);
-        mForegroundColor = ContextUtils.getColorStateList(context, R.attr.colorAccent);
+        mBackgroundColor = ContextUtils.getAttrResourceId(context, android.R.attr.colorBackground);
+        mForegroundColor = ContextUtils.getAttrColorStateList(context, R.attr.colorAccent);
 
         mBackButtonText = context.getString(R.string.label_back);
         mStartButtonText = mNextButtonText = context.getString(R.string.label_next);

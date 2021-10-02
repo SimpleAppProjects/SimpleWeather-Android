@@ -21,8 +21,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
-import com.thewizrd.shared_resources.helpers.ContextUtils;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.simpleweather.R;
 

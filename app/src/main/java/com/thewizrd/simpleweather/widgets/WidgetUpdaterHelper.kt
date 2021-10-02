@@ -26,12 +26,13 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.ColorsUtils
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -720,7 +721,7 @@ object WidgetUpdaterHelper {
             forecastPanel.setImageViewBitmap(
                 iconId,
                 ImageUtils.bitmapFromDrawable(
-                    ContextUtils.getThemeContextOverride(context, false),
+                    context.getThemeContextOverride(false),
                     weatherIconResId
                 )
             )
@@ -737,8 +738,7 @@ object WidgetUpdaterHelper {
             forecastPanel.setImageViewBitmap(
                 iconId,
                 ImageUtils.bitmapFromDrawable(
-                    ContextUtils.getThemeContextOverride(
-                        context,
+                    context.getThemeContextOverride(
                         ColorsUtils.isSuperLight(backgroundColor)
                     ),
                     weatherIconResId
@@ -776,7 +776,7 @@ object WidgetUpdaterHelper {
             val maxHrForecastLength =
                 min(forecastLength, WidgetUtils.getMaxHrForecastLength(appWidgetId))
 
-            var maxIconSize = ContextUtils.dpToPx(context, 40f).toInt()
+            var maxIconSize = context.dpToPx(40f).toInt()
             if (info.widgetType == WidgetType.Widget4x1) {
                 if (WidgetUtils.isLocationNameHidden(appWidgetId) && WidgetUtils.isSettingsButtonHidden(
                         appWidgetId
@@ -792,7 +792,7 @@ object WidgetUpdaterHelper {
                 datePadding = if (cellHeight <= 1) {
                     0
                 } else {
-                    ContextUtils.dpToPx(context, 2f).toInt()
+                    context.dpToPx(2f).toInt()
                 }
 
                 if (cellHeight > 1 && (hasExtraWidth || cellWidth > 4)) textSize = 14f
@@ -942,30 +942,41 @@ object WidgetUpdaterHelper {
                 textSize *= 0.75f // 18sp
             }
 
-            val layoutPadding = ContextUtils.dpToPx(context, if (forceSmall) 0f else 12f).toInt()
+            val layoutPadding = context.dpToPx(if (forceSmall) 0f else 12f).toInt()
             updateViews.setViewPadding(R.id.layout_container, layoutPadding, layoutPadding, layoutPadding, layoutPadding)
 
             updateViews.setTextViewTextSize(R.id.date_panel, TypedValue.COMPLEX_UNIT_PX, textSize)
             updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize)
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, if (forceSmall) 12f else 14f)
         } else if (info.widgetType == WidgetType.Widget4x2) {
-            val maxHeightSize = ContextUtils.dpToPx(context, 60f).toInt()
+            val maxHeightSize = context.dpToPx(60f).toInt()
 
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) {
-                val iconWidth = ContextUtils.dpToPx(context, 45f).toInt()
+                val iconWidth = context.dpToPx(45f).toInt()
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth)
                 updateViews.setInt(R.id.weather_icon, "setMaxHeight", maxHeightSize)
             } else {
-                val iconWidth = ContextUtils.dpToPx(context, 55f).toInt()
+                val iconWidth = context.dpToPx(55f).toInt()
                 updateViews.setInt(R.id.weather_icon, "setMaxWidth", iconWidth)
-                updateViews.setInt(R.id.weather_icon, "setMaxHeight", (maxHeightSize * 7f / 6).toInt()) // 70dp
+                updateViews.setInt(
+                    R.id.weather_icon,
+                    "setMaxHeight",
+                    (maxHeightSize * 7f / 6).toInt()
+                ) // 70dp
             }
 
-            var textSize = ContextUtils.dpToPx(context, 36f)
-            if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) textSize = ContextUtils.dpToPx(context, 28f)
+            var textSize = context.dpToPx(36f)
+            if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) textSize = context.dpToPx(28f)
 
-            updateViews.setTextViewTextSize(R.id.condition_temp, TypedValue.COMPLEX_UNIT_PX, textSize)
-            updateViews.setViewVisibility(R.id.condition_weather, if (forceSmallHeight && cellHeight <= 2) View.GONE else View.VISIBLE)
+            updateViews.setTextViewTextSize(
+                R.id.condition_temp,
+                TypedValue.COMPLEX_UNIT_PX,
+                textSize
+            )
+            updateViews.setViewVisibility(
+                R.id.condition_weather,
+                if (forceSmallHeight && cellHeight <= 2) View.GONE else View.VISIBLE
+            )
         } else if (info.widgetType == WidgetType.Widget4x1) {
             var locTextSize = 12
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) locTextSize = 14
@@ -973,10 +984,10 @@ object WidgetUpdaterHelper {
             updateViews.setTextViewTextSize(R.id.location_name, TypedValue.COMPLEX_UNIT_SP, locTextSize.toFloat())
 
             if (isSmallHeight && cellHeight == 1) {
-                val padding = ContextUtils.dpToPx(context, 0f).toInt()
+                val padding = context.dpToPx(0f).toInt()
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding)
             } else {
-                val padding = ContextUtils.dpToPx(context, 8f).toInt()
+                val padding = context.dpToPx(8f).toInt()
                 updateViews.setViewPadding(R.id.layout_container, padding, padding, padding, padding)
             }
         } else if (info.widgetType == WidgetType.Widget2x2 || info.widgetType == WidgetType.Widget4x1Notification) {
@@ -1041,8 +1052,7 @@ object WidgetUpdaterHelper {
                         updateViews.setImageViewBitmap(
                             R.id.weather_icon,
                             ImageUtils.bitmapFromDrawable(
-                                ContextUtils.getThemeContextOverride(
-                                    context,
+                                context.getThemeContextOverride(
                                     ColorsUtils.isSuperLight(backgroundColor)
                                 ),
                                 weatherIconResId
@@ -1065,8 +1075,7 @@ object WidgetUpdaterHelper {
                         updateViews.setImageViewBitmap(
                             R.id.weather_icon,
                             ImageUtils.bitmapFromDrawable(
-                                ContextUtils.getThemeContextOverride(
-                                    context,
+                                context.getThemeContextOverride(
                                     ColorsUtils.isSuperLight(panelBackgroundColor)
                                 ),
                                 weatherIconResId
@@ -1086,7 +1095,7 @@ object WidgetUpdaterHelper {
                 updateViews.setImageViewBitmap(
                     R.id.weather_icon,
                     ImageUtils.bitmapFromDrawable(
-                        ContextUtils.getThemeContextOverride(context, false),
+                        context.getThemeContextOverride(false),
                         weatherIconResId
                     )
                 )
@@ -1168,10 +1177,8 @@ object WidgetUpdaterHelper {
                     updateViews.setImageViewBitmap(
                         R.id.weather_popicon,
                         ImageUtils.bitmapFromDrawable(
-                            ContextUtils.getThemeContextOverride(
-                                context,
-                                false
-                            ), wim.getWeatherIconResource(chanceModel.icon)
+                            context.getThemeContextOverride(false),
+                            wim.getWeatherIconResource(chanceModel.icon)
                         )
                     )
                 } else if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS && style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
@@ -1190,10 +1197,8 @@ object WidgetUpdaterHelper {
                     updateViews.setImageViewBitmap(
                         R.id.weather_popicon,
                         ImageUtils.bitmapFromDrawable(
-                            ContextUtils.getThemeContextOverride(
-                                context,
-                                ColorsUtils.isSuperLight(backgroundColor)
-                            ), wim.getWeatherIconResource(chanceModel.icon)
+                            context.getThemeContextOverride(ColorsUtils.isSuperLight(backgroundColor)),
+                            wim.getWeatherIconResource(chanceModel.icon)
                         )
                     )
                 }
@@ -1205,10 +1210,8 @@ object WidgetUpdaterHelper {
                         R.id.weather_windicon,
                         ImageUtils.rotateBitmap(
                             ImageUtils.bitmapFromDrawable(
-                                ContextUtils.getThemeContextOverride(
-                                    context,
-                                    false
-                                ), wim.getWeatherIconResource(windModel.icon)
+                                context.getThemeContextOverride(false),
+                                wim.getWeatherIconResource(windModel.icon)
                             ),
                             windModel.iconRotation.toFloat()
                         )
@@ -1237,13 +1240,14 @@ object WidgetUpdaterHelper {
                         R.id.weather_windicon,
                         ImageUtils.rotateBitmap(
                             ImageUtils.bitmapFromDrawable(
-                                ContextUtils.getThemeContextOverride(
-                                    context,
-                                    ColorsUtils.isSuperLight(backgroundColor)
-                                ), wim.getWeatherIconResource(windModel.icon)
+                                context.getThemeContextOverride(
+                                    ColorsUtils.isSuperLight(
+                                        backgroundColor
+                                    )
+                                ),
+                                wim.getWeatherIconResource(windModel.icon)
                             ),
-                            windModel.iconRotation
-                                .toFloat()
+                            windModel.iconRotation.toFloat()
                         )
                     )
                 }

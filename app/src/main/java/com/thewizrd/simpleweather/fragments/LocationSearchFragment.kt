@@ -28,12 +28,12 @@ import com.google.android.material.transition.MaterialContainerTransform
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.adapters.LocationQueryAdapter
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
@@ -394,8 +394,8 @@ class LocationSearchFragment : WindowColorFragment() {
 
     override fun updateWindowColors() {
         var backgroundColor =
-            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        var statusBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
+            appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
+        var statusBarColor = appCompatActivity!!.getAttrColor(R.attr.colorSurface)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
             statusBarColor = Colors.BLACK

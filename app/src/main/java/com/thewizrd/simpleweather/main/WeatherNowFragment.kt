@@ -60,7 +60,6 @@ import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.helpers.requestLocationPermission
@@ -1294,7 +1293,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 runWithView(Dispatchers.Main.immediate) {
                     val pxWidth = binding.scrollView.getChildAt(0).measuredWidth
 
-                    val minColumns = if (ContextUtils.isLargeTablet(appCompatActivity!!)) 3 else 2
+                    val minColumns = if (appCompatActivity!!.isLargeTablet()) 3 else 2
 
                     // Minimum width for ea. card
                     val minWidth = appCompatActivity!!.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)

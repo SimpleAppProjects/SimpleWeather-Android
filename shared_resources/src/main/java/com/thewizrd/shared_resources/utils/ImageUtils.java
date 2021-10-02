@@ -27,8 +27,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import com.thewizrd.shared_resources.helpers.ContextUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 

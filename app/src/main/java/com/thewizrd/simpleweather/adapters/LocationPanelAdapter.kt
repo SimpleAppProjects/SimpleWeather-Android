@@ -12,12 +12,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.ObservableArrayList
 import com.thewizrd.shared_resources.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
@@ -503,7 +503,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         }
 
         override fun setHeaderTextColor() {
-            header.setTextColor(ContextUtils.getColor(header.context, android.R.attr.textColorPrimary))
+            header.setTextColor(header.context.getAttrColor(android.R.attr.textColorPrimary))
         }
     }
 
@@ -515,7 +515,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         }
 
         override fun setHeaderTextColor() {
-            header.setTextColor(ContextUtils.getColor(header.context, android.R.attr.textColorPrimary))
+            header.setTextColor(header.context.getAttrColor(android.R.attr.textColorPrimary))
         }
     }
 

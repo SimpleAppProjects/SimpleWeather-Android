@@ -21,15 +21,16 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.ActivityUtils
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ActivityUtils.setFullScreen
+import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
@@ -44,10 +45,7 @@ import com.thewizrd.simpleweather.updates.InAppUpdateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : UserLocaleActivity(),
-    BottomNavigationView.OnNavigationItemSelectedListener,
-    OnThemeChangeListener, WindowColorManager {
-
+class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorManager {
     companion object {
         private const val TAG = "MainActivity"
         private const val INSTALL_REQUESTCODE = 168
@@ -72,14 +70,24 @@ class MainActivity : UserLocaleActivity(),
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.bottomNavBar.setOnNavigationItemSelectedListener(this)
+        binding.bottomNavBar.setOnItemSelectedListener { item ->
+            // Handle navigation view item clicks here.
+            val id = item.itemId
+
+            if (mNavController?.currentDestination != null && id != mNavController!!.currentDestination!!.id) {
+                item.onNavDestinationSelected(mNavController!!)
+            }
+
+            return@setOnItemSelectedListener true
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets -> insets }
 
         binding.bottomNavBar.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
-                outline.setRect(view.paddingLeft,
-                        0,
+                outline.setRect(
+                    view.paddingLeft,
+                    0,
                     view.width - view.paddingRight,
                     view.height
                 )
@@ -261,17 +269,6 @@ class MainActivity : UserLocaleActivity(),
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        val id = item.itemId
-
-        if (mNavController?.currentDestination != null && id != mNavController!!.currentDestination!!.id) {
-            item.onNavDestinationSelected(mNavController!!)
-        }
-
-        return true
-    }
-
     override fun onResumeFragments() {
         super.onResumeFragments()
         refreshNavViewCheckedItem()
@@ -364,8 +361,8 @@ class MainActivity : UserLocaleActivity(),
     }
 
     private fun updateWindowColors(mode: UserThemeMode) {
-        var backgroundColor = ContextUtils.getColor(this, android.R.attr.colorBackground)
-        var navBarColor = ContextUtils.getColor(this, R.attr.colorSurface)
+        var backgroundColor = getAttrColor(android.R.attr.colorBackground)
+        var navBarColor = getAttrColor(R.attr.colorSurface)
         if (mode == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
             navBarColor = Colors.BLACK
@@ -379,18 +376,15 @@ class MainActivity : UserLocaleActivity(),
             binding.bottomNavBar.setBackgroundColor(navBarColor)
         }
 
-        ActivityUtils.setTransparentWindow(
-            window, backgroundColor, Colors.TRANSPARENT,
-            if (ContextUtils.getOrientation(this) == Configuration.ORIENTATION_PORTRAIT) {
+        window.setTransparentWindow(
+            backgroundColor, Colors.TRANSPARENT,
+            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT) {
                 Colors.TRANSPARENT
             } else {
                 backgroundColor
             }
         )
-        ActivityUtils.setFullScreen(
-            window,
-            ContextUtils.getOrientation(this) == Configuration.ORIENTATION_PORTRAIT
-        )
+        window.setFullScreen(getOrientation() == Configuration.ORIENTATION_PORTRAIT)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

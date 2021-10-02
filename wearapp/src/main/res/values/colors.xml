@@ -25,4 +25,8 @@
     <color name="invButtonColorTextHint">@color/colorTextHint</color>
 
     <color name="colorTextShadow">#888888</color>
+
+    <!-- Chip Button -->
+    <color name="button_end_gradient">#00ffffff</color>
+    <color name="button_start_gradient">#7fffffff</color>
 </resources>

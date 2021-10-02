@@ -9,13 +9,15 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import android.support.wearable.input.RotaryEncoder
 import android.util.Log
 import android.view.*
 import android.view.View.OnGenericMotionListener
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
+import androidx.core.view.InputDeviceCompat
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.ViewConfigurationCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
@@ -27,13 +29,13 @@ import com.google.android.gms.location.*
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
@@ -317,7 +319,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         mDrawerView = fragmentActivity.findViewById(R.id.bottom_action_drawer)
 
         // SwipeRefresh
-        binding.swipeRefreshLayout.setColorSchemeColors(ContextUtils.getColor(fragmentActivity, R.attr.colorPrimary))
+        binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
+            fragmentActivity.getAttrColor(
+                R.attr.colorSurface
+            )
+        )
+        binding.swipeRefreshLayout.setColorSchemeColors(fragmentActivity.getAttrColor(R.attr.colorAccent))
         binding.swipeRefreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
@@ -332,10 +339,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
 
         binding.scrollView.setOnGenericMotionListener(OnGenericMotionListener { v, event ->
-            if (event.action == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(event)) {
-
+            if (event.action == MotionEvent.ACTION_SCROLL && event.isFromSource(InputDeviceCompat.SOURCE_ROTARY_ENCODER)) {
                 // Don't forget the negation here
-                val delta = -RotaryEncoder.getRotaryAxisValue(event) * RotaryEncoder.getScaledScrollFactor(fragmentActivity)
+                val delta = -event.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
+                        ViewConfigurationCompat.getScaledVerticalScrollFactor(
+                            ViewConfiguration.get(fragmentActivity), fragmentActivity
+                        )
 
                 // Swap these axes if you want to do horizontal scrolling instead
                 v.scrollBy(0, Math.round(delta))

@@ -8,18 +8,19 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener
-import com.google.android.wearable.intent.RemoteIntent
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivitySetupSyncBinding
-import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
+import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.wearable.WearableDataListenerService
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 class SetupSyncActivity : WearableListenerActivity() {
@@ -84,11 +85,19 @@ class SetupSyncActivity : WearableListenerActivity() {
 
                                 // Open store on remote device
                                 val intentAndroid = Intent(Intent.ACTION_VIEW)
-                                        .addCategory(Intent.CATEGORY_BROWSABLE)
-                                        .setData(PlayStoreUtils.getPlayStoreURI())
+                                    .addCategory(Intent.CATEGORY_BROWSABLE)
+                                    .setData(PlayStoreUtils.getPlayStoreURI())
 
-                                RemoteIntent.startRemoteActivity(this@SetupSyncActivity, intentAndroid,
-                                        ConfirmationResultReceiver(this@SetupSyncActivity))
+                                runCatching {
+                                    remoteActivityHelper.startRemoteActivity(intentAndroid)
+                                        .await()
+
+                                    showConfirmationOverlay(true)
+                                }.onFailure {
+                                    if (it !is CancellationException) {
+                                        showConfirmationOverlay(false)
+                                    }
+                                }
 
                                 errorProgress()
                             }
@@ -195,7 +204,7 @@ class SetupSyncActivity : WearableListenerActivity() {
         binding.circularProgress.startTimer()
     }
 
-    private suspend fun start(isDeviceSetup: Boolean) {
+    private fun start(isDeviceSetup: Boolean) {
         if (isDeviceSetup) {
             binding.message.setText(R.string.message_retrievingdata)
             WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTSETTINGSUPDATE, true)
@@ -203,10 +212,6 @@ class SetupSyncActivity : WearableListenerActivity() {
             WearableWorker.enqueueAction(this, WearableWorker.ACTION_REQUESTWEATHERUPDATE, true)
         } else {
             binding.message.setText(R.string.message_continueondevice)
-            if (!openAppOnPhone(true)) {
-                binding.message.setText(R.string.error_syncing)
-                errorProgress()
-            }
         }
     }
 }

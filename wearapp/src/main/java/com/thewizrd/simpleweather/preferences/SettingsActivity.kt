@@ -14,7 +14,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.preference.*
-import android.support.wearable.view.ConfirmationOverlay
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextUtils
@@ -25,13 +24,15 @@ import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.wearable.intent.RemoteIntent
+import androidx.wear.remote.interactions.RemoteActivityHelper
+import androidx.wear.widget.ConfirmationOverlay
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -43,14 +44,16 @@ import com.thewizrd.simpleweather.extras.isWeatherAPISupported
 import com.thewizrd.simpleweather.extras.navigateToPremiumFragment
 import com.thewizrd.simpleweather.extras.navigateUnsupportedIconPack
 import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment
-import com.thewizrd.simpleweather.helpers.AcceptDenyDialogBuilder
-import com.thewizrd.simpleweather.helpers.ConfirmationResultReceiver
+import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
+import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -65,7 +68,7 @@ class SettingsActivity : WearableListenerActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         // Use night mode resources (needed for external weather icons)
-        super.attachBaseContext(ContextUtils.getThemeContextOverride(newBase, false))
+        super.attachBaseContext(newBase.getThemeContextOverride(false))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,14 +86,16 @@ class SettingsActivity : WearableListenerActivity() {
 
         intentFilter = IntentFilter(ACTION_SENDCONNECTIONSTATUS)
 
+        remoteActivityHelper = RemoteActivityHelper(this)
+
         // Display the fragment as the main content.
         val fragment = fragmentManager.findFragmentById(android.R.id.content)
 
         // Check if fragment exists
         if (fragment == null) {
             fragmentManager.beginTransaction()
-                    .replace(android.R.id.content, SettingsFragment())
-                    .commit()
+                .replace(android.R.id.content, SettingsFragment())
+                .commit()
         }
     }
 
@@ -141,10 +146,18 @@ class SettingsActivity : WearableListenerActivity() {
         private var mConnectionStatus = WearConnectionStatus.DISCONNECTED
         private var statusReceiver: BroadcastReceiver? = null
 
+        protected lateinit var remoteActivityHelper: RemoteActivityHelper
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            remoteActivityHelper = RemoteActivityHelper(context)
+        }
+
         override fun onBackPressed(): Boolean {
             if (settingsManager.usePersonalKey() &&
-                    settingsManager.getAPIKEY().isNullOrBlank() &&
-                    WeatherManager.isKeyRequired(providerPref.value)) {
+                settingsManager.getAPIKEY().isNullOrBlank() &&
+                WeatherManager.isKeyRequired(providerPref.value)
+            ) {
                 // Set keyentrypref color to red
                 showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT)
                 return true
@@ -267,7 +280,7 @@ class SettingsActivity : WearableListenerActivity() {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
                                 !parentActivity!!.backgroundLocationPermissionEnabled()
                             ) {
-                                AcceptDenyDialogBuilder(
+                                AcceptDenyDialog.Builder(
                                     parentActivity
                                 ) { d: DialogInterface?, which: Int ->
                                     if (which == DialogInterface.BUTTON_POSITIVE) {
@@ -567,21 +580,41 @@ class SettingsActivity : WearableListenerActivity() {
 
         private val connStatusPrefClickListener = Preference.OnPreferenceClickListener {
             val intentAndroid = Intent(Intent.ACTION_VIEW)
-                    .addCategory(Intent.CATEGORY_BROWSABLE)
-                    .setData(PlayStoreUtils.getPlayStoreURI())
+                .addCategory(Intent.CATEGORY_BROWSABLE)
+                .setData(PlayStoreUtils.getPlayStoreURI())
 
-            RemoteIntent.startRemoteActivity(parentActivity, intentAndroid,
-                    ConfirmationResultReceiver(parentActivity))
+            lifecycleScope.launch {
+                runCatching {
+                    remoteActivityHelper.startRemoteActivity(intentAndroid)
+                        .await()
+
+                    showConfirmationOverlay(true)
+                }.onFailure {
+                    if (it !is CancellationException) {
+                        showConfirmationOverlay(false)
+                    }
+                }
+            }
 
             true
         }
 
         private val registerPrefClickListener = Preference.OnPreferenceClickListener { preference ->
             val intentAndroid = Intent(preference.intent)
-                    .addCategory(Intent.CATEGORY_BROWSABLE)
+                .addCategory(Intent.CATEGORY_BROWSABLE)
 
-            RemoteIntent.startRemoteActivity(parentActivity, intentAndroid,
-                    ConfirmationResultReceiver(parentActivity))
+            lifecycleScope.launch {
+                runCatching {
+                    remoteActivityHelper.startRemoteActivity(intentAndroid)
+                        .await()
+
+                    showConfirmationOverlay(true)
+                }.onFailure {
+                    if (it !is CancellationException) {
+                        showConfirmationOverlay(false)
+                    }
+                }
+            }
 
             true
         }
@@ -815,20 +848,36 @@ class SettingsActivity : WearableListenerActivity() {
     }
 
     class CreditsFragment : SwipeDismissPreferenceFragment() {
+        protected lateinit var remoteActivityHelper: RemoteActivityHelper
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            remoteActivityHelper = RemoteActivityHelper(context)
+        }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?) {
             addPreferencesFromResource(R.xml.pref_credits)
         }
 
-        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
+        override fun onPreferenceTreeClick(
+            preferenceScreen: PreferenceScreen,
+            preference: Preference
+        ): Boolean {
             if (preference.intent != null) {
-                RemoteIntent.startRemoteActivity(parentActivity, preference.intent
-                        .setAction(Intent.ACTION_VIEW).addCategory(Intent.CATEGORY_BROWSABLE),
-                        null)
+                runWithView {
+                    runCatching {
+                        remoteActivityHelper.startRemoteActivity(
+                            preference.intent
+                                .setAction(Intent.ACTION_VIEW)
+                                .addCategory(Intent.CATEGORY_BROWSABLE)
+                        )
 
-                // Show open on phone animation
-                ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                        .setMessage(parentActivity!!.getString(R.string.message_openedonphone))
-                        .showAbove(view)
+                        // Show open on phone animation
+                        ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
+                            .setMessage(parentActivity!!.getString(R.string.message_openedonphone))
+                            .showAbove(view!!)
+                    }
+                }
 
                 return true
             }

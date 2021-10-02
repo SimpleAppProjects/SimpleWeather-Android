@@ -144,6 +144,7 @@ dependencies {
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:17.2.1'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation 'com.google.android.libraries.places:places:2.4.0'
+    fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^
     fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2'
 
     // Firebase

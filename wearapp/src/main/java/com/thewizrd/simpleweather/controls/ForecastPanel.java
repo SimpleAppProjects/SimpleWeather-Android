@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.helpers.ContextUtils;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.databinding.ForecastItemBinding;
 
 import java.util.List;

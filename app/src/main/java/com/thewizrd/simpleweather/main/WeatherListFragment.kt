@@ -14,7 +14,6 @@ import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.ContextUtils
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
