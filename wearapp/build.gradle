@@ -9,6 +9,7 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 31
     buildToolsVersion '31.0.0'
+
     defaultConfig {
         applicationId "com.thewizrd.simpleweather"
         testApplicationId "com.thewizrd.simpleweather.test"
@@ -20,7 +21,7 @@ android {
         versionCode 305200401
         versionName "5.2.0"
 
-        vectorDrawables.useSupportLibrary = true
+        vectorDrawables.useSupportLibrary true
     }
 
     buildTypes {
@@ -41,8 +42,8 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
-        viewBinding = true
+        dataBinding true
+        viewBinding true
     }
 
     bundle {
@@ -51,7 +52,7 @@ android {
             // configuration APKs for language resources. These
             // resources are instead packaged with each base and
             // dynamic feature APK.
-            enableSplit = false
+            enableSplit false
         }
     }
 
@@ -111,7 +112,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2'
 
-    implementation 'androidx.wear:wear:1.1.0'
+    implementation 'androidx.wear:wear:1.2.0'
     implementation 'com.google.android.support:wearable:2.8.1'
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
 
@@ -124,7 +125,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.annotation:annotation:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
