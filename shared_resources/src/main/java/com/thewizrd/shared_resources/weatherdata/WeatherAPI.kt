@@ -94,17 +94,21 @@ object WeatherAPI {
                     "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
             ),
             ProviderEntry(
-                    "WeatherAPI.com", WEATHERAPI,
-                    "https://weatherapi.com", "https://weatherapi.com/api"
+                "WeatherAPI.com", WEATHERAPI,
+                "https://weatherapi.com", "https://weatherapi.com/api"
             ),
-            ProviderEntry(
-                    "WeatherUnlocked", WEATHERUNLOCKED,
-                    "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
-            ),
-            ProviderEntry(
-                    "Meteo France", METEOFRANCE,
-                    "https://meteofrance.com/", "https://meteofrance.com/"
-            )
+        ProviderEntry(
+            "WeatherUnlocked", WEATHERUNLOCKED,
+            "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
+        ),
+        ProviderEntry(
+            "Meteo France", METEOFRANCE,
+            "https://meteofrance.com/", "https://meteofrance.com/"
+        ),
+        ProviderEntry(
+            "Tomorrow.io", TOMORROWIO,
+            "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+        )
     )
 
     private val NonGMSAPIs = listOf(
@@ -124,10 +128,6 @@ object WeatherAPI {
     )
 
     private val TestingAPIs = listOf(
-            ProviderEntry(
-                    "Tomorrow.io", TOMORROWIO,
-                    "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
-            ),
             ProviderEntry(
                     "AccuWeather", ACCUWEATHER,
                     "https://www.accuweather.com/", "https://developer.accuweather.com/"
