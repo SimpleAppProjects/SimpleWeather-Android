@@ -3,140 +3,104 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="@dimen/horizontal_padding"
-    android:layout_margin="@dimen/inner_frame_layout_padding">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="center">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/search_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="4dp"
-            android:layout_alignParentStart="true"
-            android:clickable="true"
-            android:tint="@android:color/white"
-            app:elevation="2dp"
-            app:fabCustomSize="@dimen/fab_custom_size"
-            app:maxImageSize="@dimen/fab_image_size"
-            app:srcCompat="@drawable/ic_search_black_24dp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/search_button"
-            android:layout_alignBottom="@+id/search_button"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="center_vertical"
-            android:layout_toEndOf="@+id/search_button"
-            android:gravity="center_vertical"
-            android:maxLines="2"
-            android:paddingStart="8dp"
-            android:text="@string/location_search_hint"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
-
-        <Space
-            android:id="@+id/space1"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_margin"
-            android:layout_below="@id/search_button" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/location_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/space1"
-            android:layout_marginStart="4dp"
-            android:clickable="true"
-            android:gravity="center"
-            android:tint="@android:color/white"
-            app:elevation="2dp"
-            app:fabCustomSize="@dimen/fab_custom_size"
-            app:maxImageSize="@dimen/fab_image_size"
-            app:srcCompat="@drawable/ic_my_location_white_24dp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/location_button"
-            android:layout_alignBottom="@+id/location_button"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="center_vertical"
-            android:layout_toEndOf="@+id/location_button"
-            android:gravity="center_vertical"
-            android:maxLines="2"
-            android:paddingStart="8dp"
-            android:text="@string/label_gpsfollow"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
-
-        <Space
-            android:id="@+id/space2"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_margin"
-            android:layout_below="@id/location_button" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/setup_phone_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/space2"
-            android:layout_marginStart="4dp"
-            android:clickable="true"
-            android:gravity="center"
-            android:tint="@android:color/white"
-            app:elevation="2dp"
-            app:fabCustomSize="@dimen/fab_custom_size"
-            app:maxImageSize="@dimen/fab_image_size"
-            app:srcCompat="@drawable/open_on_phone" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/setup_phone_button"
-            android:layout_alignBottom="@+id/setup_phone_button"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="center_vertical"
-            android:layout_toEndOf="@+id/setup_phone_button"
-            android:gravity="center_vertical"
-            android:maxLines="2"
-            android:paddingStart="8dp"
-            android:text="@string/action_setupfromphone"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="6sp"
-            app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
-
-    </RelativeLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:background="?android:attr/colorBackground"
-        android:indeterminate="true"
-        android:padding="48dp"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/left_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/setup_horizontal_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/right_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/setup_horizontal_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/top_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/inner_layout_padding" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/bottom_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/inner_layout_padding" />
+
+            <com.thewizrd.simpleweather.controls.WearChipButton
+                android:id="@+id/search_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_search_black_24dp"
+                app:iconTint="?colorOnSurface"
+                app:primaryText="@string/location_search_hint" />
+
+            <com.thewizrd.simpleweather.controls.WearChipButton
+                android:id="@+id/location_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_my_location_white_24dp"
+                app:iconTint="?colorOnSurface"
+                app:primaryText="@string/label_gpsfollow" />
+
+            <com.thewizrd.simpleweather.controls.WearChipButton
+                android:id="@+id/setup_phone_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                app:icon="@drawable/open_on_phone"
+                app:iconTint="?colorOnSurface"
+                app:primaryText="@string/action_setupfromphone" />
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                app:constraint_referenced_ids="search_button,location_button,setup_phone_button"
+                app:flow_maxElementsWrap="1"
+                app:flow_verticalAlign="center"
+                app:flow_verticalGap="4dp"
+                app:flow_verticalStyle="packed"
+                app:flow_wrapMode="aligned"
+                app:layout_constraintBottom_toTopOf="@id/bottom_guide"
+                app:layout_constraintEnd_toStartOf="@id/right_guide"
+                app:layout_constraintStart_toEndOf="@id/left_guide"
+                app:layout_constraintTop_toBottomOf="@id/top_guide" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/progressBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:colorBackground"
         android:visibility="gone"
-        tools:visibility="invisible" />
+        tools:visibility="invisible">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </FrameLayout>
 
 </FrameLayout>

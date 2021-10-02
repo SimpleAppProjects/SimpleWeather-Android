@@ -1,67 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/inner_frame_layout_padding"
     tools:context=".fragments.LocationSearchFragment">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_boxedEdges="all">
+        android:paddingHorizontal="14dp">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/top_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/bottom_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="48dp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/search_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:paddingStart="4dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="4dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:maxLines="2"
+            android:minHeight="48dp"
             android:text="@string/location_search_hint"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textColor="?colorOnSurfaceVariant"
+            android:textAppearance="?textAppearanceButton"
+            app:layout_constraintTop_toBottomOf="@id/top_guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/voice_button"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@id/spacer"
-            android:tint="@android:color/white"
-            app:fabCustomSize="@dimen/fab_custom_size"
-            app:maxImageSize="@dimen/fab_image_size"
-            app:srcCompat="@drawable/ic_keyboard_voice_black_24dp" />
+            app:collapsedSize="@dimen/diag_button_size"
+            app:icon="@drawable/ic_keyboard_voice_black_24dp"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/keyboard_button"
+            app:layout_constraintTop_toBottomOf="@id/search_title"
+            app:layout_constraintBottom_toTopOf="@id/bottom_guideline" />
 
-        <Space
-            android:id="@+id/spacer"
-            android:layout_width="32dp"
-            android:layout_height="0dp"
-            android:layout_centerInParent="true" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/keyboard_button"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/spacer"
-            android:tint="@android:color/white"
-            app:fabCustomSize="@dimen/fab_custom_size"
-            app:maxImageSize="@dimen/fab_image_size"
-            app:srcCompat="@drawable/ic_keyboard_black_24dp" />
+            app:collapsedSize="@dimen/diag_button_size"
+            app:icon="@drawable/ic_keyboard_black_24dp"
+            app:layout_constraintStart_toEndOf="@id/voice_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_title"
+            app:layout_constraintBottom_toTopOf="@id/bottom_guideline" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
-        android:id="@+id/search_view"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:id="@+id/edit_text_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:imeOptions="actionSearch"
-        android:visibility="gone"
-        app:layout_boxedEdges="all" />
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/search_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
+            android:visibility="visible" />
+
+    </FrameLayout>
 
     <androidx.wear.widget.SwipeDismissFrameLayout
         android:id="@+id/recycler_view_layout"
@@ -69,8 +90,6 @@
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground"
         android:descendantFocusability="afterDescendants"
-        android:paddingEnd="8dp"
-        android:paddingStart="8dp"
         android:visibility="gone">
 
         <androidx.wear.widget.WearableRecyclerView
@@ -81,13 +100,21 @@
 
     </androidx.wear.widget.SwipeDismissFrameLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <FrameLayout
+        android:id="@+id/progressBarContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground"
-        android:indeterminate="true"
-        android:padding="48dp"
-        android:visibility="gone" />
+        android:background="?android:colorBackground"
+        android:visibility="gone"
+        tools:visibility="invisible">
 
-</androidx.wear.widget.BoxInsetLayout>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </FrameLayout>
+
+</FrameLayout>

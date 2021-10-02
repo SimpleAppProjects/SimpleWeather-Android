@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
@@ -60,7 +59,6 @@ class SetupFragment : CustomFragment() {
      * Tracks the status of the location updates request.
      */
     private var mRequestingLocationUpdates = false
-    private val mMainHandler = Handler(Looper.getMainLooper())
 
     private val wm = WeatherManager.instance
 
@@ -152,7 +150,7 @@ class SetupFragment : CustomFragment() {
                     .show()
         }
 
-        binding.progressBar.visibility = View.GONE
+        binding.progressBarContainer.visibility = View.GONE
 
         return binding.root
     }
@@ -206,9 +204,9 @@ class SetupFragment : CustomFragment() {
         binding.searchButton.isEnabled = enable
         binding.locationButton.isEnabled = enable
         if (enable) {
-            binding.progressBar.visibility = View.GONE
+            binding.progressBarContainer.visibility = View.GONE
         } else {
-            binding.progressBar.visibility = View.VISIBLE
+            binding.progressBarContainer.visibility = View.VISIBLE
         }
     }
 

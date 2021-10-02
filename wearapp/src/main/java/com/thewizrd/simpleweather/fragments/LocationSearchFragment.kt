@@ -20,23 +20,29 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
-import com.thewizrd.shared_resources.adapters.LocationQueryAdapter
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.adapters.ListHeaderAdapter
+import com.thewizrd.simpleweather.adapters.LocationQueryAdapter
+import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
+import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
+import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
+import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -53,7 +59,6 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
     private lateinit var binding: FragmentLocationSearchBinding
     private lateinit var mAdapter: LocationQueryAdapter
-    private lateinit var mLayoutManager: RecyclerView.LayoutManager
     private lateinit var swipeCallback: SwipeDismissFrameLayout.Callback
     private val wm = WeatherManager.instance
 
@@ -64,184 +69,219 @@ class LocationSearchFragment : SwipeDismissFragment() {
         AnalyticsLogger.logEvent("$TAG: onCreate")
     }
 
-    private val recyclerClickListener = RecyclerOnClickListenerInterface { view, position ->
-        val navController = view.findNavController()
+    private val recyclerClickListener =
+        object : ListAdapterOnClickInterface<LocationQueryViewModel> {
+            override fun onClick(view: View, item: LocationQueryViewModel) {
+                val navController = view.findNavController()
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
-            showLoading(true)
-            binding.recyclerView.isEnabled = false
+                viewLifecycleOwner.lifecycleScope.launch {
+                    showLoading(true)
+                    binding.recyclerView.isEnabled = false
 
-            // Cancel other tasks
-            job?.cancel()
+                    // Cancel other tasks
+                    job?.cancel()
 
-            supervisorScope {
-                val deferredJob = viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
-                    var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
+                    supervisorScope {
+                        val deferredJob =
+                            viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
+                                var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
 
-                    if (!mAdapter.dataset[position].locationQuery.isNullOrEmpty())
-                        queryResult = mAdapter.dataset[position]
+                                if (!item.locationQuery.isNullOrEmpty())
+                                    queryResult = item
 
-                    if (queryResult?.locationQuery.isNullOrEmpty()) {
-                        // Stop since there is no valid query
-                        throw CancellationException()
-                    }
-
-                    if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY().isNullOrBlank() && wm.isKeyRequired()) {
-                        throw CustomException(R.string.werror_invalidkey)
-                    }
-
-                    ensureActive()
-
-                    // Need to get FULL location data for HERE API
-                    // Data provided is incomplete
-                    if (wm.getLocationProvider().needsLocationFromID()) {
-                        val loc = queryResult!!
-                        queryResult = withContext(Dispatchers.IO) {
-                            wm.getLocationProvider().getLocationFromID(loc)
-                        }
-                    } else if (wm.getLocationProvider().needsLocationFromName()) {
-                        val loc = queryResult!!
-                        queryResult = withContext(Dispatchers.IO) {
-                            wm.getLocationProvider().getLocationFromName(loc)
-                        }
-                    } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
-                        val loc = queryResult!!
-                        queryResult = withContext(Dispatchers.IO) {
-                            wm.getLocationProvider().getLocation(Coordinate(loc.locationLat, loc.locationLong), loc.weatherSource)
-                        }
-                    }
-
-                    if (queryResult == null) {
-                        throw InterruptedException()
-                    } else if (queryResult.locationTZLong.isNullOrEmpty() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                        val tzId =
-                                TZDBCache.getTimeZone(queryResult.locationLat, queryResult.locationLong)
-                        if ("unknown" != tzId)
-                            queryResult.locationTZLong = tzId
-                    }
-
-                    if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
-                        // Set default provider based on location
-                        val provider =
-                                RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
-                        settingsManager.setAPI(provider)
-                        queryResult.updateWeatherSource(provider)
-                        wm.updateAPI()
-                    }
-
-                    if (!wm.isRegionSupported(queryResult.locationCountry)) {
-                        throw CustomException(R.string.error_message_weather_region_unsupported)
-                    }
-
-                    // Check if location already exists
-                    val locData = settingsManager.getLocationData()
-                    val finalQueryResult: LocationQueryViewModel = queryResult
-                    val loc =
-                            locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
-
-                    if (loc != null) {
-                        // Location exists; return
-                        return@async null
-                    }
-
-                    ensureActive()
-
-                    val location = LocationData(queryResult)
-                    if (!location.isValid) {
-                        throw CustomException(R.string.werror_noweather)
-                    }
-                    var weather = settingsManager.getWeatherData(location.query)
-                    if (weather == null) {
-                        weather = wm.getWeather(location)
-                    }
-
-                    if (weather == null) {
-                        throw WeatherException(ErrorStatus.NOWEATHER)
-                    } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
-                        weather.weatherAlerts = wm.getAlerts(location)
-                    }
-
-                    // Save weather data
-                    settingsManager.saveHomeData(location)
-                    if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                        settingsManager.saveWeatherAlerts(location, weather.weatherAlerts)
-                    settingsManager.saveWeatherData(weather)
-                    settingsManager.saveWeatherForecasts(Forecasts(weather))
-                    settingsManager.saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input!!) })
-
-                    // If we're changing locations, trigger an update
-                    if (settingsManager.isWeatherLoaded()) {
-                        LocalBroadcastManager.getInstance(fragmentActivity)
-                                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-                    }
-
-                    // If we're using search
-                    // make sure gps feature is off
-                    settingsManager.setFollowGPS(false)
-                    settingsManager.setWeatherLoaded(true)
-                    settingsManager.setDataSync(WearableDataSync.OFF)
-                    location
-                }.also {
-                    job = it
-                }
-
-                deferredJob.invokeOnCompletion callback@{
-                    if (it is CancellationException) {
-                        runWithView {
-                            showLoading(false)
-                            binding.recyclerView.isEnabled = true
-                        }
-                        return@callback
-                    }
-
-                    val t = deferredJob.getCompletionExceptionOrNull()
-                    if (t == null) {
-                        val result = deferredJob.getCompleted()
-                        runWithView { // Go back to where we started
-                            if (result != null) {
-                                // Start WeatherNow Activity with weather data
-                                val args = LocationSearchFragmentDirections.actionGlobalMainActivity().setData(withContext(Dispatchers.Default) {
-                                    JSONParser.serializer(result, LocationData::class.java)
-                                })
-
-                                try {
-                                    navController.navigate(args)
-                                } catch (ex: IllegalArgumentException) {
-                                    val props = Bundle().apply {
-                                        putString("method", "recyclerClickListener.success")
-                                        putBoolean("isAlive", isAlive)
-                                        putBoolean("isViewAlive", isViewAlive)
-                                        putBoolean("isDetached", isDetached)
-                                        putBoolean("isResumed", isResumed)
-                                        putBoolean("isRemoving", isRemoving)
-                                    }
-                                    AnalyticsLogger.logEvent("$TAG: navigation failed", props)
-                                    Logger.writeLine(Log.ERROR, ex)
+                                if (queryResult?.locationQuery.isNullOrEmpty()) {
+                                    // Stop since there is no valid query
+                                    throw CancellationException()
                                 }
-                                fragmentActivity.finishAffinity()
-                            } else {
-                                showLoading(false)
-                                binding.recyclerView.isEnabled = true
+
+                                if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY()
+                                        .isNullOrBlank() && wm.isKeyRequired()
+                                ) {
+                                    throw CustomException(R.string.werror_invalidkey)
+                                }
+
+                                ensureActive()
+
+                                // Need to get FULL location data for HERE API
+                                // Data provided is incomplete
+                                if (wm.getLocationProvider().needsLocationFromID()) {
+                                    val loc = queryResult!!
+                                    queryResult = withContext(Dispatchers.IO) {
+                                        wm.getLocationProvider().getLocationFromID(loc)
+                                    }
+                                } else if (wm.getLocationProvider().needsLocationFromName()) {
+                                    val loc = queryResult!!
+                                    queryResult = withContext(Dispatchers.IO) {
+                                        wm.getLocationProvider().getLocationFromName(loc)
+                                    }
+                                } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
+                                    val loc = queryResult!!
+                                    queryResult = withContext(Dispatchers.IO) {
+                                        wm.getLocationProvider().getLocation(
+                                            Coordinate(
+                                                loc.locationLat,
+                                                loc.locationLong
+                                            ), loc.weatherSource
+                                        )
+                                    }
+                                }
+
+                                if (queryResult == null) {
+                                    throw InterruptedException()
+                                } else if (queryResult.locationTZLong.isNullOrEmpty() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
+                                    val tzId =
+                                        TZDBCache.getTimeZone(
+                                            queryResult.locationLat,
+                                            queryResult.locationLong
+                                        )
+                                    if ("unknown" != tzId)
+                                        queryResult.locationTZLong = tzId
+                                }
+
+                                if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                                    // Set default provider based on location
+                                    val provider =
+                                        RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                                    settingsManager.setAPI(provider)
+                                    queryResult.updateWeatherSource(provider)
+                                    wm.updateAPI()
+                                }
+
+                                if (!wm.isRegionSupported(queryResult.locationCountry)) {
+                                    throw CustomException(R.string.error_message_weather_region_unsupported)
+                                }
+
+                                // Check if location already exists
+                                val locData = settingsManager.getLocationData()
+                                val finalQueryResult: LocationQueryViewModel = queryResult
+                                val loc =
+                                    locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+
+                                if (loc != null) {
+                                    // Location exists; return
+                                    return@async null
+                                }
+
+                                ensureActive()
+
+                                val location = LocationData(queryResult)
+                                if (!location.isValid) {
+                                    throw CustomException(R.string.werror_noweather)
+                                }
+                                var weather = settingsManager.getWeatherData(location.query)
+                                if (weather == null) {
+                                    weather = wm.getWeather(location)
+                                }
+
+                                if (weather == null) {
+                                    throw WeatherException(ErrorStatus.NOWEATHER)
+                                } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
+                                    weather.weatherAlerts = wm.getAlerts(location)
+                                }
+
+                                // Save weather data
+                                settingsManager.saveHomeData(location)
+                                if (wm.supportsAlerts() && weather.weatherAlerts != null)
+                                    settingsManager.saveWeatherAlerts(
+                                        location,
+                                        weather.weatherAlerts
+                                    )
+                                settingsManager.saveWeatherData(weather)
+                                settingsManager.saveWeatherForecasts(Forecasts(weather))
+                                settingsManager.saveWeatherForecasts(
+                                    location.query,
+                                    weather.hrForecast?.map { input ->
+                                        HourlyForecasts(
+                                            weather.query,
+                                            input!!
+                                        )
+                                    })
+
+                                // If we're changing locations, trigger an update
+                                if (settingsManager.isWeatherLoaded()) {
+                                    LocalBroadcastManager.getInstance(fragmentActivity)
+                                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                                }
+
+                                // If we're using search
+                                // make sure gps feature is off
+                                settingsManager.setFollowGPS(false)
+                                settingsManager.setWeatherLoaded(true)
+                                settingsManager.setDataSync(WearableDataSync.OFF)
+                                location
+                            }.also {
+                                job = it
                             }
-                        }
-                    } else {
-                        runWithView {
-                            if (t is WeatherException || t is CustomException) {
-                                showToast(t.message, Toast.LENGTH_SHORT)
-                            } else {
-                                showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
+
+                        deferredJob.invokeOnCompletion callback@{
+                            if (it is CancellationException) {
+                                runWithView {
+                                    showLoading(false)
+                                    binding.recyclerView.isEnabled = true
+                                }
+                                return@callback
                             }
-                            showLoading(false)
-                            binding.recyclerView.isEnabled = true
+
+                            val t = deferredJob.getCompletionExceptionOrNull()
+                            if (t == null) {
+                                val result = deferredJob.getCompleted()
+                                runWithView { // Go back to where we started
+                                    if (result != null) {
+                                        // Start WeatherNow Activity with weather data
+                                        val args =
+                                            LocationSearchFragmentDirections.actionGlobalMainActivity()
+                                                .setData(withContext(Dispatchers.Default) {
+                                                    JSONParser.serializer(
+                                                        result,
+                                                        LocationData::class.java
+                                                    )
+                                                })
+
+                                        try {
+                                            navController.navigate(args)
+                                        } catch (ex: IllegalArgumentException) {
+                                            val props = Bundle().apply {
+                                                putString("method", "recyclerClickListener.success")
+                                                putBoolean("isAlive", isAlive)
+                                                putBoolean("isViewAlive", isViewAlive)
+                                                putBoolean("isDetached", isDetached)
+                                                putBoolean("isResumed", isResumed)
+                                                putBoolean("isRemoving", isRemoving)
+                                            }
+                                            AnalyticsLogger.logEvent(
+                                                "$TAG: navigation failed",
+                                                props
+                                            )
+                                            Logger.writeLine(Log.ERROR, ex)
+                                        }
+                                        fragmentActivity.finishAffinity()
+                                    } else {
+                                        showLoading(false)
+                                        binding.recyclerView.isEnabled = true
+                                    }
+                                }
+                            } else {
+                                runWithView {
+                                    if (t is WeatherException || t is CustomException) {
+                                        showToast(t.message, Toast.LENGTH_SHORT)
+                                    } else {
+                                        showToast(
+                                            R.string.error_retrieve_location,
+                                            Toast.LENGTH_SHORT
+                                        )
+                                    }
+                                    showLoading(false)
+                                    binding.recyclerView.isEnabled = true
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
     private fun showLoading(show: Boolean) {
-        binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+        binding.progressBarContainer.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -256,12 +296,10 @@ class LocationSearchFragment : SwipeDismissFragment() {
         }
         binding.recyclerViewLayout.addCallback(swipeCallback)
         binding.keyboardButton.setOnClickListener {
-            binding.searchView.visibility = View.VISIBLE
             binding.searchView.requestFocus()
             showInputMethod(binding.searchView)
         }
         binding.voiceButton.setOnClickListener {
-            binding.searchView.visibility = View.GONE
             binding.searchView.setText("")
             view!!.requestFocus()
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -306,17 +344,24 @@ class LocationSearchFragment : SwipeDismissFragment() {
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
 
-        // To align the edge children (first and last) with the center of the screen
-        binding.recyclerView.isEdgeItemsCenteringEnabled = true
-
-        // use a linear layout manager
-        mLayoutManager = WearableLinearLayoutManager(fragmentActivity)
-        binding.recyclerView.layoutManager = mLayoutManager
+        binding.recyclerView.addItemDecoration(
+            SpacerItemDecoration(
+                requireContext().dpToPx(16f).toInt(),
+                requireContext().dpToPx(4f).toInt()
+            )
+        )
+        binding.recyclerView.layoutManager =
+            WearableLinearLayoutManager(fragmentActivity, CustomScrollingLayoutCallback())
 
         // specify an adapter (see also next example)
-        mAdapter = LocationQueryAdapter(ArrayList())
+        mAdapter = LocationQueryAdapter()
         mAdapter.setOnClickListener(recyclerClickListener)
-        binding.recyclerView.adapter = mAdapter
+        binding.recyclerView.adapter = ConcatAdapter(
+            ListHeaderAdapter(getString(R.string.label_nav_locations)),
+            mAdapter,
+            LocationQueryFooterAdapter(),
+            SpacerAdapter(requireContext().dpToPx(48f).toInt())
+        )
         binding.recyclerView.requestFocus()
 
         if (savedInstanceState != null) {
@@ -337,8 +382,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
     }
 
     private fun doSearchAction() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.searchView.visibility = View.GONE
+        binding.progressBarContainer.visibility = View.VISIBLE
         binding.recyclerViewLayout.visibility = View.VISIBLE
         binding.recyclerViewLayout.requestFocus()
 
@@ -358,28 +402,27 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     }
 
                     launch(Dispatchers.Main.immediate) {
-                        mAdapter.setLocations(ArrayList(results))
-                        binding.progressBar.visibility = View.GONE
+                        mAdapter.submitList(results.toList())
+                        binding.progressBarContainer.visibility = View.GONE
                     }
                 } catch (e: Exception) {
                     launch(Dispatchers.Main.immediate) {
                         if (e is WeatherException) {
                             showToast(e.message, Toast.LENGTH_SHORT)
                         }
-                        mAdapter.setLocations(listOf(LocationQueryViewModel()))
+                        mAdapter.submitList(listOf(LocationQueryViewModel()))
                     }
                 }
             }
         } else if (queryString.isNullOrEmpty()) {
             // Cancel pending searches
             job?.cancel()
-            binding.progressBar.visibility = View.GONE
+            binding.progressBarContainer.visibility = View.GONE
             binding.recyclerViewLayout.visibility = View.GONE
             binding.recyclerViewLayout.clearFocus()
 
             // Hide flyout if query is empty or null
-            mAdapter.dataset.clear()
-            mAdapter.notifyDataSetChanged()
+            mAdapter.submitList(emptyList())
         }
     }
 
@@ -410,7 +453,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
             fragmentActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
                 ?: return
         view?.let {
-            imm.showSoftInput(it, 0)
+            imm.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }
     }
 

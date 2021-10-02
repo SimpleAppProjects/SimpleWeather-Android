@@ -21,6 +21,8 @@
     <!-- WearOS 3 -->
     <dimen name="timer_top_margin">16dp</dimen>
     <dimen name="clock_top_margin">8dp</dimen>
+    <dimen name="setup_horizontal_margin">24dp</dimen>
+    <dimen name="sync_message_horizontal_margin">36dp</dimen>
 
     <dimen name="diag_button_size">48dp</dimen>
 
