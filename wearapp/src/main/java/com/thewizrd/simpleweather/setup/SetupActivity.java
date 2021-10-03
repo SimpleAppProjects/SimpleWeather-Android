@@ -9,8 +9,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.locale.UserLocaleActivity;
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding;
+import com.thewizrd.simpleweather.fragments.WearNavHostFragment;
+import com.thewizrd.simpleweather.locale.UserLocaleActivity;
 
 public class SetupActivity extends UserLocaleActivity {
 
@@ -29,7 +30,7 @@ public class SetupActivity extends UserLocaleActivity {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            NavHostFragment hostFragment = NavHostFragment.create(R.navigation.setup_graph);
+            NavHostFragment hostFragment = WearNavHostFragment.create(R.navigation.setup_graph);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, hostFragment)
                     .setPrimaryNavigationFragment(hostFragment)

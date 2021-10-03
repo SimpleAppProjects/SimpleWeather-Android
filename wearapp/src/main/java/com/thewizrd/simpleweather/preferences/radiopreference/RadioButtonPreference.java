@@ -1,8 +1,9 @@
 package com.thewizrd.simpleweather.preferences.radiopreference;
 
 import android.content.Context;
-import android.preference.CheckBoxPreference;
 import android.util.AttributeSet;
+
+import androidx.preference.CheckBoxPreference;
 
 import com.thewizrd.simpleweather.R;
 

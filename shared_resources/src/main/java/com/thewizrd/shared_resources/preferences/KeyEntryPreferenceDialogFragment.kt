@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.preferences
+package com.thewizrd.shared_resources.preferences
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -12,8 +12,8 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.EditTextPreferenceDialogFragmentCompat
-import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.SimpleLibrary
 
 class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat() {
     private var posButtonClickListener: View.OnClickListener? = null
@@ -78,6 +78,6 @@ class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat(
             }
         }
 
-        key = App.instance.settingsManager.getAPIKEY()
+        key = SimpleLibrary.instance.app.settingsManager.getAPIKEY()
     }
 }

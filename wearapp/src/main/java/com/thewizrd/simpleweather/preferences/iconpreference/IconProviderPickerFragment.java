@@ -1,9 +1,9 @@
 package com.thewizrd.simpleweather.preferences.iconpreference;
 
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceScreen;
 
 import androidx.annotation.LayoutRes;
+import androidx.preference.PreferenceScreen;
 
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;

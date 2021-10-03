@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager.widget.ViewPager
 import androidx.wear.widget.drawer.WearableDrawerLayout
 import androidx.wear.widget.drawer.WearableDrawerView
@@ -39,6 +38,7 @@ import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
+import com.thewizrd.simpleweather.fragments.WearNavHostFragment
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -188,7 +188,7 @@ class MainActivity : WearableListenerActivity(), MenuItem.OnMenuItemClickListene
                 args.putString(Constants.KEY_DATA, intent.getStringExtra(Constants.KEY_DATA))
             }
 
-            val hostFragment = NavHostFragment.create(R.navigation.nav_graph, args)
+            val hostFragment = WearNavHostFragment.create(R.navigation.nav_graph, args)
 
             // Navigate to WeatherNowFragment
             supportFragmentManager.beginTransaction()

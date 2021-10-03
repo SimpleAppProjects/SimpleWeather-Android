@@ -1,9 +1,6 @@
-@file:Suppress("DEPRECATION")
-
 package com.thewizrd.simpleweather.preferences
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.*
 import android.content.Intent.FilterComparison
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -13,7 +10,6 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.*
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextUtils
@@ -24,6 +20,8 @@ import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
+import androidx.preference.*
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -43,7 +41,9 @@ import com.thewizrd.simpleweather.extras.isIconPackSupported
 import com.thewizrd.simpleweather.extras.isWeatherAPISupported
 import com.thewizrd.simpleweather.extras.navigateToPremiumFragment
 import com.thewizrd.simpleweather.extras.navigateUnsupportedIconPack
-import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment
+import com.thewizrd.simpleweather.fragments.WearDialogFragment
+import com.thewizrd.simpleweather.fragments.WearDialogParams
+import com.thewizrd.simpleweather.fragments.WearNavHostFragment
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
 import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
@@ -56,7 +56,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import java.util.*
-
 
 class SettingsActivity : WearableListenerActivity() {
     companion object {
@@ -89,20 +88,25 @@ class SettingsActivity : WearableListenerActivity() {
         remoteActivityHelper = RemoteActivityHelper(this)
 
         // Display the fragment as the main content.
-        val fragment = fragmentManager.findFragmentById(android.R.id.content)
+        val fragment = supportFragmentManager.findFragmentById(android.R.id.content)
 
         // Check if fragment exists
         if (fragment == null) {
-            fragmentManager.beginTransaction()
-                .replace(android.R.id.content, SettingsFragment())
+            val hostFragment = WearNavHostFragment.create(R.navigation.settings_graph)
+            supportFragmentManager.beginTransaction()
+                .replace(android.R.id.content, hostFragment)
+                .setPrimaryNavigationFragment(hostFragment)
                 .commit()
         }
     }
 
     override fun onBackPressed() {
-        val current = fragmentManager.findFragmentById(android.R.id.content)
+        val current =
+            supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.primaryNavigationFragment
+
         var fragBackPressedListener: OnBackPressedFragmentListener? = null
-        if (current is OnBackPressedFragmentListener) fragBackPressedListener = current
+        if (current is OnBackPressedFragmentListener)
+            fragBackPressedListener = current
 
         // If fragment doesn't handle onBackPressed event fallback to this impl
         if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
@@ -130,7 +134,7 @@ class SettingsActivity : WearableListenerActivity() {
         private lateinit var languagePref: ListPreference
         private lateinit var providerPref: ListPreference
         private lateinit var personalKeyPref: SwitchPreference
-        private lateinit var keyEntry: KeyEntryPreference
+        private lateinit var keyEntry: EditTextPreference
         private lateinit var syncPreference: ListPreference
         private lateinit var unitsPref: Preference
         private lateinit var iconsPref: Preference
@@ -148,9 +152,11 @@ class SettingsActivity : WearableListenerActivity() {
 
         protected lateinit var remoteActivityHelper: RemoteActivityHelper
 
+        override fun getTitle(): Int = R.string.title_activity_settings
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            remoteActivityHelper = RemoteActivityHelper(context)
+            remoteActivityHelper = RemoteActivityHelper(requireContext())
         }
 
         override fun onBackPressed(): Boolean {
@@ -238,7 +244,8 @@ class SettingsActivity : WearableListenerActivity() {
                             Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
                 } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC == filter.intent.action) {
                     mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC))
+                        Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
+                    )
                 } else {
                     parentActivity!!.startService(filter.intent)
                 }
@@ -247,31 +254,30 @@ class SettingsActivity : WearableListenerActivity() {
             super.onPause()
         }
 
-        override fun onCreatePreferences(savedInstanceState: Bundle?) {
-            addPreferencesFromResource(R.xml.pref_general)
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_general, rootKey)
 
-            generalCategory = findPreference(CATEGORY_GENERAL) as PreferenceCategory
-            apiCategory = findPreference(CATEGORY_API) as PreferenceCategory
+            generalCategory = findPreference(CATEGORY_GENERAL)!!
+            apiCategory = findPreference(CATEGORY_API)!!
 
-            findPreference(KEY_ABOUTAPP).onPreferenceClickListener = Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-                fragmentManager.beginTransaction()
-                        .replace(android.R.id.content, AboutAppFragment())
-                        .addToBackStack(null)
-                        .commit()
-                true
-            }
+            findPreference<Preference>(KEY_ABOUTAPP)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    findNavController().navigate(R.id.action_settingsFragment_to_aboutAppFragment)
+                    true
+                }
 
-            followGps = findPreference(SettingsManager.KEY_FOLLOWGPS) as SwitchPreference
-            followGps.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                AnalyticsLogger.logEvent("Settings: followGps toggled")
+            followGps = findPreference(SettingsManager.KEY_FOLLOWGPS)!!
+            followGps.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    AnalyticsLogger.logEvent("Settings: followGps toggled")
 
-                if (newValue as Boolean) {
-                    if (!parentActivity!!.locationPermissionEnabled()) {
-                        requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
-                        return@OnPreferenceChangeListener false
-                    } else {
-                        val locMan =
-                            parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
+                    if (newValue as Boolean) {
+                        if (!parentActivity!!.locationPermissionEnabled()) {
+                            requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                            return@OnPreferenceChangeListener false
+                        } else {
+                            val locMan =
+                                parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT)
                             settingsManager.setFollowGPS(false)
@@ -305,27 +311,21 @@ class SettingsActivity : WearableListenerActivity() {
                 true
             }
 
-            iconsPref = findPreference(KEY_ICONS)
+            iconsPref = findPreference(KEY_ICONS)!!
             iconsPref.setOnPreferenceClickListener {
                 // Display the fragment as the main content.
-                fragmentManager.beginTransaction()
-                        .replace(android.R.id.content, IconsFragment())
-                        .addToBackStack(null)
-                        .commit()
+                findNavController().navigate(R.id.action_settingsFragment_to_iconsFragment)
                 true
             }
 
-            unitsPref = findPreference(KEY_UNITS)
+            unitsPref = findPreference(KEY_UNITS)!!
             unitsPref.setOnPreferenceClickListener {
                 // Display the fragment as the main content.
-                fragmentManager.beginTransaction()
-                        .replace(android.R.id.content, UnitsFragment())
-                        .addToBackStack(null)
-                        .commit()
+                findNavController().navigate(R.id.action_settingsFragment_to_unitsFragment)
                 true
             }
 
-            languagePref = findPreference(LocaleUtils.KEY_LANGUAGE) as ListPreference
+            languagePref = findPreference(LocaleUtils.KEY_LANGUAGE)!!
             val langCodes = languagePref.entryValues
             val langEntries = arrayOfNulls<CharSequence>(langCodes.size)
             for (i in langCodes.indices) {
@@ -343,46 +343,25 @@ class SettingsActivity : WearableListenerActivity() {
             languagePref.setDefaultValue("")
             languagePref.value = LocaleUtils.getLocaleCode()
             languagePref.summary = localeSummaryFunc.apply(languagePref.value)
-            languagePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                LocaleUtils.setLocaleCode(newValue.toString())
-                languagePref.summary = localeSummaryFunc.apply(newValue.toString())
-                true
-            }
-
-            keyEntry = findPreference(SettingsManager.KEY_APIKEY) as KeyEntryPreference
-            keyEntry.setPositiveButtonOnClickListener { dialog, which ->
-                runWithView {
-                    val key = keyEntry.apiKey
-
-                    val API = providerPref.value
-                    try {
-                        if (WeatherManager.isKeyValid(key, API)) {
-                            settingsManager.setAPIKEY(key)
-                            settingsManager.setAPI(API)
-
-                            settingsManager.setKeyVerified(true)
-                            updateKeySummary()
-
-                            dialog.dismiss()
-                        } else {
-                            showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
-                        }
-                    } catch (e: WeatherException) {
-                        Logger.writeLine(Log.ERROR, e)
-                        showToast(e.message, Toast.LENGTH_SHORT)
-                    }
+            languagePref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    LocaleUtils.setLocaleCode(newValue.toString())
+                    languagePref.summary = localeSummaryFunc.apply(newValue.toString())
+                    true
                 }
-            }
-            personalKeyPref = findPreference(SettingsManager.KEY_USEPERSONALKEY) as SwitchPreference
-            personalKeyPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                if (newValue as Boolean) {
-                    if (apiCategory.findPreference(SettingsManager.KEY_APIKEY) == null)
-                        apiCategory.addPreference(keyEntry)
-                    if (apiCategory.findPreference(KEY_APIREGISTER) == null)
-                        apiCategory.addPreference(registerPref)
-                    keyEntry.isEnabled = true
-                } else {
-                    val selectedWProv = WeatherManager.getProvider(providerPref.value)
+
+            keyEntry = findPreference(SettingsManager.KEY_APIKEY)!!
+            personalKeyPref = findPreference(SettingsManager.KEY_USEPERSONALKEY)!!
+            personalKeyPref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    if (newValue as Boolean) {
+                        if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
+                            apiCategory.addPreference(keyEntry)
+                        if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null)
+                            apiCategory.addPreference(registerPref)
+                        keyEntry.isEnabled = true
+                    } else {
+                        val selectedWProv = WeatherManager.getProvider(providerPref.value)
 
                     if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey().isNullOrBlank()) {
                         // We're using our own (verified) keys
@@ -399,7 +378,7 @@ class SettingsActivity : WearableListenerActivity() {
             }
 
             val providers = WeatherAPI.APIs
-            providerPref = findPreference(SettingsManager.KEY_API) as ListPreference
+            providerPref = findPreference(SettingsManager.KEY_API)!!
 
             val entries = arrayOfNulls<String>(providers.size)
             val entryValues = arrayOfNulls<String>(providers.size)
@@ -447,13 +426,13 @@ class SettingsActivity : WearableListenerActivity() {
 
                         keyEntry.isEnabled = true
 
-                        if (apiCategory.findPreference(SettingsManager.KEY_APIKEY) == null)
+                        if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
                             apiCategory.addPreference(keyEntry)
-                        if (apiCategory.findPreference(KEY_APIREGISTER) == null)
+                        if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null)
                             apiCategory.addPreference(registerPref)
                     }
 
-                    if (apiCategory.findPreference(SettingsManager.KEY_USEPERSONALKEY) == null)
+                    if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_USEPERSONALKEY) == null)
                         apiCategory.addPreference(personalKeyPref)
 
                     // Reset to old value if not verified
@@ -490,7 +469,7 @@ class SettingsActivity : WearableListenerActivity() {
                 true
             }
 
-            registerPref = findPreference(KEY_APIREGISTER)
+            registerPref = findPreference(KEY_APIREGISTER)!!
             registerPref.onPreferenceClickListener = registerPrefClickListener
 
             // Set key as verified if API Key is req for API and its set
@@ -525,9 +504,9 @@ class SettingsActivity : WearableListenerActivity() {
 
                     keyEntry.isEnabled = true
 
-                    if (apiCategory.findPreference(SettingsManager.KEY_APIKEY) == null)
+                    if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
                         apiCategory.addPreference(keyEntry)
-                    if (apiCategory.findPreference(KEY_APIREGISTER) == null)
+                    if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null)
                         apiCategory.addPreference(registerPref)
                 }
             } else {
@@ -544,25 +523,69 @@ class SettingsActivity : WearableListenerActivity() {
             updateKeySummary()
             updateRegisterLink()
 
-            syncPreference = findPreference(SettingsManager.KEY_DATASYNC) as ListPreference
-            syncPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                val newVal = newValue.toString().toInt()
+            syncPreference = findPreference(SettingsManager.KEY_DATASYNC)!!
+            syncPreference.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val newVal = newValue.toString().toInt()
 
-                val args = Bundle().apply {
-                    putInt("mode", newVal)
+                    val args = Bundle().apply {
+                        putInt("mode", newVal)
+                    }
+                    AnalyticsLogger.logEvent("Settings: sync pref changed", args)
+
+                    val pref = preference as ListPreference
+                    pref.summary = pref.entries[newVal]
+
+                    enableSyncedSettings(WearableDataSync.valueOf(newVal) == WearableDataSync.OFF)
+                    true
                 }
-                AnalyticsLogger.logEvent("Settings: sync pref changed", args)
-
-                val pref = preference as ListPreference
-                pref.summary = pref.entries[newVal]
-
-                enableSyncedSettings(WearableDataSync.valueOf(newVal) == WearableDataSync.OFF)
-                true
-            }
             syncPreference.summary = syncPreference.entries[syncPreference.value.toInt()]
             enableSyncedSettings(settingsManager.getDataSync() == WearableDataSync.OFF)
 
-            connStatusPref = findPreference(KEY_CONNSTATUS)
+            connStatusPref = findPreference(KEY_CONNSTATUS)!!
+        }
+
+        override fun onDisplayPreferenceDialog(preference: Preference?) {
+            if (preference is WearEditTextPreference && (SettingsManager.KEY_APIKEY == preference.getKey())) {
+                val TAG = KeyEntryPreferenceDialogFragment::class.java.name
+
+                if (parentFragmentManager.findFragmentByTag(TAG) != null) {
+                    return
+                }
+
+                val fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey())
+                fragment.setPositiveButtonOnClickListener { dialog, which ->
+                    runWithView {
+                        val key = fragment.key
+
+                        val API = providerPref.value
+                        try {
+                            if (WeatherManager.isKeyValid(key, API)) {
+                                settingsManager.setAPIKEY(key)
+                                settingsManager.setAPI(API)
+
+                                settingsManager.setKeyVerified(true)
+                                updateKeySummary()
+
+                                dialog.dismiss()
+                            } else {
+                                showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
+                            }
+                        } catch (e: WeatherException) {
+                            Logger.writeLine(Log.ERROR, e)
+                            showToast(e.message, Toast.LENGTH_SHORT)
+                        }
+                    }
+                }
+
+                fragment.setTargetFragment(this, 0)
+                fragment.show(
+                    parentFragmentManager,
+                    KeyEntryPreferenceDialogFragment::class.java.name
+                )
+            } else {
+                super.onDisplayPreferenceDialog(preference)
+            }
         }
 
         private val localeSummaryFunc: Function<String, CharSequence> = Function { input ->
@@ -731,44 +754,53 @@ class SettingsActivity : WearableListenerActivity() {
         private lateinit var pressureUnitPref: ListPreference
         private lateinit var localBroadcastMgr: LocalBroadcastManager
 
-        override fun onCreatePreferences(savedInstanceState: Bundle?) {
-            addPreferencesFromResource(R.xml.pref_units)
+        override fun getTitle(): Int = R.string.pref_title_units
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_units, rootKey)
 
             preferenceScreen.setTitle(R.string.pref_title_units)
 
             localBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity!!)
 
-            tempUnitPref = findPreference(SettingsManager.KEY_TEMPUNIT) as ListPreference
-            speedUnitPref = findPreference(SettingsManager.KEY_SPEEDUNIT) as ListPreference
-            distanceUnitPref = findPreference(SettingsManager.KEY_DISTANCEUNIT) as ListPreference
-            precipationUnitPref = findPreference(SettingsManager.KEY_PRECIPITATIONUNIT) as ListPreference
-            pressureUnitPref = findPreference(SettingsManager.KEY_PRESSUREUNIT) as ListPreference
+            tempUnitPref = findPreference(SettingsManager.KEY_TEMPUNIT)!!
+            speedUnitPref = findPreference(SettingsManager.KEY_SPEEDUNIT)!!
+            distanceUnitPref = findPreference(SettingsManager.KEY_DISTANCEUNIT)!!
+            precipationUnitPref = findPreference(SettingsManager.KEY_PRECIPITATIONUNIT)!!
+            pressureUnitPref = findPreference(SettingsManager.KEY_PRESSUREUNIT)!!
 
-            findPreference(KEY_RESETUNITS).onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                AlertDialog.Builder(parentActivity)
+            findPreference<Preference>(KEY_RESETUNITS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    val params = WearDialogParams.Builder(parentActivity!!)
                         .setTitle(R.string.pref_title_units)
                         .setItems(R.array.default_units) { dialog, which ->
                             val isFahrenheit = which == 0
-                            tempUnitPref.value = if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
-                            speedUnitPref.value = if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
-                            distanceUnitPref.value = if (isFahrenheit) Units.MILES else Units.KILOMETERS
-                            precipationUnitPref.value = if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
-                            pressureUnitPref.value = if (isFahrenheit) Units.INHG else Units.MILLIBAR
+                            tempUnitPref.value =
+                                if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
+                            speedUnitPref.value =
+                                if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
+                            distanceUnitPref.value =
+                                if (isFahrenheit) Units.MILES else Units.KILOMETERS
+                            precipationUnitPref.value =
+                                if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
+                            pressureUnitPref.value =
+                                if (isFahrenheit) Units.INHG else Units.MILLIBAR
                             dialog.dismiss()
 
                             localBroadcastMgr.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
                         }
-                        .setNegativeButton(android.R.string.cancel) { dialog, which ->
-                            dialog.cancel()
-                        }
-                        .setCancelable(true)
-                        .show()
-                true
+                        .hidePositiveButton()
+                        .build()
+
+                    WearDialogFragment.show(parentFragmentManager, params, null)
+                    true
             }
         }
     }
 
     class IconsFragment : IconProviderPickerFragment() {
+        override fun getTitle(): Int = R.string.pref_title_icons
+
         override fun getDefaultKey(): String {
             return settingsManager.getIconsProvider()
         }
@@ -796,8 +828,8 @@ class SettingsActivity : WearableListenerActivity() {
             super.onSelectionPerformed(success)
 
             // Update tiles and complications
-            WeatherComplicationHelper.requestComplicationUpdateAll(context)
-            WeatherTileHelper.requestTileUpdateAll(context)
+            WeatherComplicationHelper.requestComplicationUpdateAll(requireContext())
+            WeatherTileHelper.requestTileUpdateAll(requireContext())
         }
 
         override fun onRadioButtonConfirmed(selectedKey: String?) {
@@ -817,30 +849,28 @@ class SettingsActivity : WearableListenerActivity() {
             private const val KEY_ABOUTVERSION = "key_aboutversion"
         }
 
-        override fun onCreatePreferences(savedInstanceState: Bundle?) {
-            addPreferencesFromResource(R.xml.pref_aboutapp)
+        override fun getTitle(): Int = R.string.pref_title_about
 
-            findPreference(KEY_ABOUTCREDITS).onPreferenceClickListener = Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-                fragmentManager.beginTransaction()
-                        .replace(android.R.id.content, CreditsFragment())
-                        .addToBackStack(null)
-                        .commit()
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_aboutapp, rootKey)
 
-                true
-            }
+            findPreference<Preference>(KEY_ABOUTCREDITS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { // Display the fragment as the main content.
+                    findNavController().navigate(R.id.action_aboutAppFragment_to_creditsFragment)
+                    true
+                }
 
-            findPreference(KEY_ABOUTOSLIBS).onPreferenceClickListener = Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-                fragmentManager.beginTransaction()
-                        .replace(android.R.id.content, OSSCreditsFragment())
-                        .addToBackStack(null)
-                        .commit()
-
-                true
-            }
+            findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { // Display the fragment as the main content.
+                    findNavController().navigate(R.id.action_aboutAppFragment_to_OSSCreditsFragment)
+                    true
+                }
 
             try {
-                val packageInfo = parentActivity!!.packageManager.getPackageInfo(parentActivity!!.packageName, 0)
-                findPreference(KEY_ABOUTVERSION).summary = String.format("v%s", packageInfo.versionName)
+                val packageInfo =
+                    parentActivity!!.packageManager.getPackageInfo(parentActivity!!.packageName, 0)
+                findPreference<Preference>(KEY_ABOUTVERSION)!!.summary =
+                    String.format("v%s", packageInfo.versionName)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }
@@ -848,22 +878,21 @@ class SettingsActivity : WearableListenerActivity() {
     }
 
     class CreditsFragment : SwipeDismissPreferenceFragment() {
-        protected lateinit var remoteActivityHelper: RemoteActivityHelper
+        private lateinit var remoteActivityHelper: RemoteActivityHelper
+
+        override fun getTitle(): Int = R.string.pref_title_credits
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            remoteActivityHelper = RemoteActivityHelper(context)
+            remoteActivityHelper = RemoteActivityHelper(requireContext())
         }
 
-        override fun onCreatePreferences(savedInstanceState: Bundle?) {
-            addPreferencesFromResource(R.xml.pref_credits)
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_credits, rootKey)
         }
 
-        override fun onPreferenceTreeClick(
-            preferenceScreen: PreferenceScreen,
-            preference: Preference
-        ): Boolean {
-            if (preference.intent != null) {
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            if (preference?.intent != null) {
                 runWithView {
                     runCatching {
                         remoteActivityHelper.startRemoteActivity(
@@ -873,21 +902,24 @@ class SettingsActivity : WearableListenerActivity() {
                         )
 
                         // Show open on phone animation
-                        ConfirmationOverlay().setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
+                        ConfirmationOverlay()
+                            .setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
                             .setMessage(parentActivity!!.getString(R.string.message_openedonphone))
-                            .showAbove(view!!)
+                            .showAbove(requireView())
                     }
                 }
 
                 return true
             }
-            return super.onPreferenceTreeClick(preferenceScreen, preference)
+            return super.onPreferenceTreeClick(preference)
         }
     }
 
     class OSSCreditsFragment : SwipeDismissPreferenceFragment() {
-        override fun onCreatePreferences(savedInstanceState: Bundle?) {
-            addPreferencesFromResource(R.xml.pref_oslibs)
+        override fun getTitle(): Int = R.string.pref_title_oslibs
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_oslibs, rootKey)
         }
     }
 }

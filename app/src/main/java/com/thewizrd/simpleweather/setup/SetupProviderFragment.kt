@@ -18,6 +18,7 @@ import androidx.preference.Preference
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.WeatherException
@@ -26,7 +27,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupProvidersBinding
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat
-import com.thewizrd.simpleweather.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.stepper.StepperFragment

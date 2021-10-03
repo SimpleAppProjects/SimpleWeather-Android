@@ -18,34 +18,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?attr/listPreferredItemHeightSmall"
-    android:gravity="center_vertical"
-    android:paddingStart="?attr/listPreferredItemPaddingStart"
-    android:paddingEnd="?attr/listPreferredItemPaddingEnd"
     android:background="?android:attr/activatedBackgroundIndicator"
+    android:baselineAligned="false"
     android:clipToPadding="false"
+    android:foreground="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="?attr/listPreferredItemHeightSmall"
+    android:paddingHorizontal="8dp"
     tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@android:id/widget_frame"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:minWidth="56dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:orientation="vertical" />
 
     <LinearLayout
         android:id="@+id/icon_frame"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         tools:visibility="gone">
 
         <androidx.preference.internal.PreferenceImageView
@@ -59,28 +60,28 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
             android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:ellipsize="end" />
+            android:textAppearance="?textAppearanceButton" />
 
         <TextView
             android:id="@android:id/summary"
+            style="@style/PreferenceSummaryTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:textAlignment="viewStart"
-            android:textColor="?android:attr/textColorSecondary"
             android:maxLines="10"
-            style="@style/PreferenceSummaryTextStyle" />
+            android:textAlignment="viewStart"
+            android:textAppearance="?textAppearanceCaption" />
 
         <LinearLayout
             android:id="@+id/icons_container"

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_graph"
+    app:startDestination="@id/settingsFragment">
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$SettingsFragment"
+        android:label="SettingsFragment">
+        <action
+            android:id="@+id/action_settingsFragment_to_aboutAppFragment"
+            app:destination="@id/aboutAppFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_iconsFragment"
+            app:destination="@id/iconsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_unitsFragment"
+            app:destination="@id/unitsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/unitsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$UnitsFragment"
+        android:label="UnitsFragment" />
+    <fragment
+        android:id="@+id/iconsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$IconsFragment"
+        android:label="IconsFragment" />
+    <fragment
+        android:id="@+id/aboutAppFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$AboutAppFragment"
+        android:label="AboutAppFragment">
+        <action
+            android:id="@+id/action_aboutAppFragment_to_creditsFragment"
+            app:destination="@id/creditsFragment" />
+        <action
+            android:id="@+id/action_aboutAppFragment_to_OSSCreditsFragment"
+            app:destination="@id/OSSCreditsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/creditsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$CreditsFragment"
+        android:label="CreditsFragment" />
+    <fragment
+        android:id="@+id/OSSCreditsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsActivity$OSSCreditsFragment"
+        android:label="OSSCreditsFragment" />
+</navigation>

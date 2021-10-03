@@ -1,13 +1,13 @@
 package com.thewizrd.simpleweather.preferences.radiopreference;
 
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceScreen;
 import android.text.TextUtils;
 
 import androidx.annotation.LayoutRes;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
-import com.thewizrd.simpleweather.fragments.SwipeDismissPreferenceFragment;
+import com.thewizrd.simpleweather.preferences.SwipeDismissPreferenceFragment;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +18,7 @@ public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFr
     private static final String TAG = "RadioButtonPckrFrgmt";
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState) {
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         final int resId = getPreferenceScreenResId();
         if (resId > 0) {
             addPreferencesFromResource(resId);

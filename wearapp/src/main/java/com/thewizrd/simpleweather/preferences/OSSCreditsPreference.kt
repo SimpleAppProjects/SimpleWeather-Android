@@ -1,11 +1,11 @@
 package com.thewizrd.simpleweather.preferences
 
 import android.content.Context
-import android.preference.Preference
 import android.util.AttributeSet
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.preference.Preference
+import androidx.preference.PreferenceViewHolder
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.*
 import java.io.InputStreamReader
@@ -15,14 +15,26 @@ class OSSCreditsPreference : Preference {
 
     constructor(context: Context?) : super(context) {}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {}
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
+    }
 
-    override fun onBindView(view: View) {
-        super.onBindView(view)
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
+    }
 
-        val textView = view.findViewById<TextView>(R.id.textview)
-        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
+        super.onBindViewHolder(holder)
+
+        val textView = holder.findViewById(R.id.textview) as TextView
+        val progressBar = holder.findViewById(R.id.progressBar)
 
         loadJob?.cancel()
         loadJob = GlobalScope.launch(Dispatchers.Main.immediate) {

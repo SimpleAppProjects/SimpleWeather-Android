@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.thewizrd.simpleweather.preferences.WearListPreference
+        android:defaultValue="F"
+        android:entries="@array/temperatureunit_entries"
+        android:entryValues="@array/temperatureunit_values"
+        android:key="key_tempunit"
+        android:summary="%s"
+        android:title="@string/label_temperature" />
+
+    <com.thewizrd.simpleweather.preferences.WearListPreference
+        android:defaultValue="MPH"
+        android:entries="@array/speedunit_entries"
+        android:entryValues="@array/speedunit_values"
+        android:key="key_speedunit"
+        android:summary="%s"
+        android:title="@string/label_speed" />
+
+    <com.thewizrd.simpleweather.preferences.WearListPreference
+        android:defaultValue="MILES"
+        android:entries="@array/distanceunit_entries"
+        android:entryValues="@array/distanceunit_values"
+        android:key="key_distanceunit"
+        android:summary="%s"
+        android:title="@string/label_distance" />
+
+    <com.thewizrd.simpleweather.preferences.WearListPreference
+        android:defaultValue="INCHES"
+        android:entries="@array/precipitationunit_entries"
+        android:entryValues="@array/precipitationunit_values"
+        android:key="key_precipitationunit"
+        android:summary="%s"
+        android:title="@string/label_precipitation" />
+
+    <com.thewizrd.simpleweather.preferences.WearListPreference
+        android:defaultValue="INMERCURY"
+        android:entries="@array/pressureunit_entries"
+        android:entryValues="@array/pressureunit_values"
+        android:key="key_pressureunit"
+        android:summary="%s"
+        android:title="@string/label_pressure" />
+
+    <com.thewizrd.simpleweather.preferences.WearPreference
+        android:key="key_resetunits"
+        android:title="@string/pref_title_resetunits" />
+
+</PreferenceScreen>

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.fragments
+package com.thewizrd.simpleweather.preferences
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -11,16 +11,34 @@ import android.widget.Toast
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceRecyclerViewAccessibilityDelegate
+import androidx.preference.PreferenceScreen
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.SwipeDismissFrameLayout
+import androidx.wear.widget.WearableLinearLayoutManager
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.adapters.PreferenceListHeaderAdapter
+import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding
+import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
+import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
+abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
+    companion object {
+        private const val DIALOG_FRAGMENT_TAG =
+            "com.thewizrd.simpleweather.preferences.SwipeDismissPreferenceFragment.DIALOG"
+    }
+
     @IntDef(Toast.LENGTH_SHORT, Toast.LENGTH_LONG)
     @Retention(AnnotationRetention.SOURCE)
     annotation class ToastDuration
@@ -31,6 +49,9 @@ abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var swipeCallback: SwipeDismissFrameLayout.Callback? = null
+
+    @StringRes
+    protected abstract fun getTitle(): Int
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,11 +68,6 @@ abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
         super.onDestroy()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        onCreatePreferences(savedInstanceState)
-    }
-
     @SuppressLint("RestrictedApi")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -63,6 +79,7 @@ abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
         binding.swipeLayout.isSwipeable = true
         swipeCallback = object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
+                layout.visibility = View.GONE
                 parentActivity?.onBackPressed()
             }
         }
@@ -76,8 +93,6 @@ abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
         binding.swipeLayout.removeCallback(swipeCallback)
         super.onDestroyView()
     }
-
-    abstract fun onCreatePreferences(savedInstanceState: Bundle?)
 
     fun showToast(@StringRes resId: Int, @ToastDuration duration: Int) {
         lifecycleScope.launch {
@@ -112,6 +127,63 @@ abstract class SwipeDismissPreferenceFragment : LifecyclePreferenceFragment() {
             // no-op
         }.onSuccess {
             it.launch(context = context, block = block)
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onCreateRecyclerView(
+        inflater: LayoutInflater?,
+        parent: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): RecyclerView {
+        val recyclerView =
+            inflater?.inflate(R.layout.preference_recyclerview, parent, false) as RecyclerView
+
+        recyclerView.setHasFixedSize(true)
+        recyclerView.addItemDecoration(
+            SpacerItemDecoration(
+                recyclerView.context.dpToPx(16f).toInt(),
+                recyclerView.context.dpToPx(4f).toInt()
+            )
+        )
+        recyclerView.layoutManager = onCreateLayoutManager()
+        recyclerView.setAccessibilityDelegateCompat(
+            PreferenceRecyclerViewAccessibilityDelegate(
+                recyclerView
+            )
+        )
+
+        return recyclerView
+    }
+
+    override fun onCreateLayoutManager(): RecyclerView.LayoutManager {
+        return WearableLinearLayoutManager(context, CustomScrollingLayoutCallback())
+    }
+
+    override fun onCreateAdapter(preferenceScreen: PreferenceScreen?): RecyclerView.Adapter<*> {
+        return ConcatAdapter(
+            PreferenceListHeaderAdapter(requireContext().getString(getTitle())),
+            super.onCreateAdapter(preferenceScreen),
+            SpacerAdapter(requireContext().dpToPx(48f).toInt())
+        )
+    }
+
+    override fun onDisplayPreferenceDialog(preference: Preference?) {
+        // check if dialog is already showing
+        if (parentFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
+            return
+        }
+
+        if (preference is WearEditTextPreference) {
+            val f = WearEditTextPreferenceDialogFragment.newInstance(preference.key)
+            f.setTargetFragment(this, 0)
+            f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+        } else if (preference is WearListPreference) {
+            val f = WearListPreferenceDialogFragment.newInstance(preference.key)
+            f.setTargetFragment(this, 0)
+            f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+        } else {
+            super.onDisplayPreferenceDialog(preference)
         }
     }
 }

@@ -42,6 +42,7 @@
     <dimen name="sync_message_horizontal_margin">8dp</dimen>
 
     <dimen name="diag_button_size">44dp</dimen>
+    <dimen name="diag_title_min_height">0dp</dimen>
 
     <!-- Material dimens -->
     <dimen name="shape_corner_radius">8dp</dimen>

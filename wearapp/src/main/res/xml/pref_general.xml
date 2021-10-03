@@ -1,84 +1,84 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/title_activity_settings">
 
-    <PreferenceCategory
+    <com.thewizrd.simpleweather.preferences.WearPreferenceCategory
         android:title="@string/pref_title_general"
         android:key="category_general">
 
-        <SwitchPreference
+        <com.thewizrd.simpleweather.preferences.WearSwitchPreference
             android:defaultValue="false"
             android:key="key_followgps"
             android:summary="@string/pref_summary_currentlocation"
             android:title="@string/label_currentlocation" />
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:key="key_units"
             android:title="@string/pref_title_units" />
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:key="key_icons"
             android:title="@string/pref_title_icons" />
 
-        <ListPreference
+        <com.thewizrd.simpleweather.preferences.WearListPreference
             android:key="key_language"
             android:title="@string/pref_title_language"
             android:defaultValue=""
             android:entryValues="@array/supportedlanguages_values" />
 
-    </PreferenceCategory>
+    </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
-    <PreferenceCategory
+    <com.thewizrd.simpleweather.preferences.WearPreferenceCategory
         android:title="@string/pref_title_api"
         android:key="category_api">
 
-        <ListPreference
+        <com.thewizrd.simpleweather.preferences.WearListPreference
             android:key="API"
             android:summary="%s"
             android:title="@string/api_label" />
 
-        <SwitchPreference
+        <com.thewizrd.simpleweather.preferences.WearSwitchPreference
             android:defaultValue="false"
             android:key="key_usepersonalkey"
             android:summary="@string/pref_summary_personalkey"
             android:title="@string/pref_title_personalkey" />
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:key="key_apiregister"
             android:summary="@string/pref_summary_apiregister"
             android:title="@string/pref_title_apiregister" />
 
-        <com.thewizrd.simpleweather.preferences.KeyEntryPreference
+        <com.thewizrd.simpleweather.preferences.WearEditTextPreference
             android:key="API_KEY"
             android:singleLine="true"
             android:summary="@string/pref_summary_apikey"
             android:title="@string/key_hint" />
 
-    </PreferenceCategory>
+    </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
-    <PreferenceCategory
+    <com.thewizrd.simpleweather.preferences.WearPreferenceCategory
         android:title="@string/pref_category_title_sync"
         android:key="category_sync">
 
-        <ListPreference
+        <com.thewizrd.simpleweather.preferences.WearListPreference
             android:key="key_datasync"
             android:defaultValue="0"
             android:entries="@array/datasync_entries"
             android:entryValues="@array/datasync_values"
             android:title="@string/pref_sync_title" />
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:key="key_connectionstatus"
             android:title="@string/pref_connectionstatus_title"
             android:summary="" />
 
-    </PreferenceCategory>
+    </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_title_about">
+    <com.thewizrd.simpleweather.preferences.WearPreferenceCategory android:title="@string/pref_title_about">
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:key="key_aboutapp"
             android:title="@string/pref_title_about_app" />
 
-    </PreferenceCategory>
+    </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
 </PreferenceScreen>

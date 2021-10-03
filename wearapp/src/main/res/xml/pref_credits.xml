@@ -2,43 +2,43 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/pref_title_credits">
 
-    <PreferenceCategory android:title="@string/pref_category_providers">
+    <com.thewizrd.simpleweather.preferences.WearPreferenceCategory android:title="@string/pref_category_providers">
 
-        <Preference
+        <com.thewizrd.simpleweather.preferences.WearPreference
             android:summary="@string/copyright_here"
             android:title="@string/api_here" />
         <Preference android:layout="@layout/credit_here">
             <intent android:data="https://here.com/en" />
         </Preference>
-        <Preference android:title="@string/api_metno" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_metno" />
         <Preference android:layout="@layout/credit_metno">
             <intent android:data="https://www.met.no/en" />
         </Preference>
-        <Preference android:title="@string/api_nws" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_nws" />
         <Preference android:layout="@layout/credit_nws">
             <intent android:data="http://www.weather.gov" />
         </Preference>
-        <Preference android:title="@string/api_owm" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_owm" />
         <Preference android:layout="@layout/credit_openweathermap">
             <intent android:data="http://www.openweathermap.org" />
         </Preference>
-        <Preference android:title="@string/api_lociq" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_lociq" />
         <Preference android:layout="@layout/credit_lociq">
             <intent android:data="https://locationiq.com" />
         </Preference>
-        <Preference android:title="@string/api_waqi" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_waqi" />
         <Preference android:layout="@layout/credit_waqi">
             <intent android:data="https://aqicn.org" />
         </Preference>
-        <Preference android:title="@string/api_wunlocked" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_wunlocked" />
         <Preference android:layout="@layout/credit_wunlocked">
             <intent android:data="https://developer.weatherunlocked.com/" />
         </Preference>
-        <Preference android:title="@string/api_weatherapi" />
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_weatherapi" />
         <Preference android:layout="@layout/credit_weatherapi">
             <intent android:data="https://www.weatherapi.com/" />
         </Preference>
 
-    </PreferenceCategory>
+    </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
 </PreferenceScreen>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="WearPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="android:scrollbars">vertical</item>
+        <item name="alertDialogStyle">@style/WearAlertDialogStyle</item>
+    </style>
+
+    <style name="WearAlertDialogStyle" parent="@style/AlertDialog.AppCompat">
+        <item name="singleChoiceItemLayout">@layout/wear_single_choice_item_layout</item>
+        <item name="multiChoiceItemLayout">@layout/wear_multi_choice_item_layout</item>
+    </style>
+
+    <style name="WearPreference" parent="@style/Preference.Material">
+        <item name="android:layout">@layout/wear_preference</item>
+    </style>
+
+    <style name="WearPreference.CheckBoxPreference" parent="@style/Preference.CheckBoxPreference.Material">
+        <item name="android:layout">@layout/wear_checkbox_preference</item>
+    </style>
+
+    <style name="WearPreference.DialogPreference" parent="@style/Preference.DialogPreference.Material">
+        <item name="android:layout">@layout/wear_preference</item>
+        <item name="android:positiveButtonText"></item>
+        <item name="android:negativeButtonText"></item>
+    </style>
+
+    <style name="WearPreference.EditTextPreference" parent="@style/Preference.DialogPreference.EditTextPreference.Material">
+        <item name="android:layout">@layout/wear_preference</item>
+    </style>
+
+    <style name="WearPreference.Category" parent="@style/Preference.Category.Material">
+        <item name="android:layout">@layout/wear_preference_category</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+    </style>
+
+    <style name="WearPreference.SwitchPreference" parent="@style/Preference.SwitchPreference.Material">
+        <item name="android:layout">@layout/wear_switch_preference</item>
+    </style>
+
+</resources>

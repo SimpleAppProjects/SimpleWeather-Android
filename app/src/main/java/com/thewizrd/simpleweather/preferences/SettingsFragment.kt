@@ -36,8 +36,10 @@ import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.helpers.*
+import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -750,7 +752,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             popChanceNotifPref.isVisible = true
         }
 
-        tintIcons(preferenceScreen, ContextUtils.getColor(appCompatActivity, R.attr.colorPrimary))
+        tintIcons(preferenceScreen, appCompatActivity.getAttrColor(R.attr.colorPrimary))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -790,7 +792,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                             updateKeySummary()
                             updateAlertPreference(WeatherManager.instance.supportsAlerts())
 
-                            fragment.dialog!!.dismiss()
+                            fragment.dialog?.dismiss()
                         } else {
                             Toast.makeText(appCompatActivity, R.string.message_keyinvalid, Toast.LENGTH_SHORT).show()
                         }

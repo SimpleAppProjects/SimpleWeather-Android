@@ -21,7 +21,7 @@ fun isWeatherAPISupported(api: String?): Boolean {
 fun SettingsActivity.SettingsFragment.navigateToPremiumFragment() {
     // Navigate to premium page
     showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
-    LocalBroadcastManager.getInstance(context).sendBroadcast(
+    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(
         Intent(WearableListenerActivity.ACTION_OPENONPHONE)
             .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
     )
@@ -31,7 +31,7 @@ fun SettingsActivity.SettingsFragment.navigateToPremiumFragment() {
 fun SettingsActivity.IconsFragment.navigateUnsupportedIconPack() {
     // Navigate to premium page
     showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
-    LocalBroadcastManager.getInstance(context).sendBroadcast(
+    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(
         Intent(WearableListenerActivity.ACTION_OPENONPHONE)
             .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
     )

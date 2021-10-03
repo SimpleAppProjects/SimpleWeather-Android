@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceViewHolder;
 
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
@@ -59,13 +60,13 @@ public class IconProviderPreference extends RadioButtonPreference {
     }
 
     @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
 
-        mIconFrame = view.findViewById(R.id.icon_frame);
+        mIconFrame = holder.findViewById(R.id.icon_frame);
         setIconFrameVisibility(mIconVisibility);
 
-        ViewGroup iconsContainer = view.findViewById(R.id.icons_container);
+        ViewGroup iconsContainer = (ViewGroup) holder.findViewById(R.id.icons_container);
         if (iconsContainer != null) {
             iconsContainer.removeAllViews();
             // Stop running animations
@@ -76,7 +77,7 @@ public class IconProviderPreference extends RadioButtonPreference {
             }
 
             for (String icon : PREVIEW_ICONS) {
-                ImageView v = PreferenceIconViewBinding.inflate(LayoutInflater.from(view.getContext()), iconsContainer, true).getRoot();
+                ImageView v = PreferenceIconViewBinding.inflate(LayoutInflater.from(holder.itemView.getContext()), iconsContainer, true).getRoot();
                 if (getIconProvider() instanceof AVDIconsProviderInterface) {
                     v.setImageDrawable(((AVDIconsProviderInterface) getIconProvider()).getAnimatedDrawable(v.getContext(), icon));
                 } else {
