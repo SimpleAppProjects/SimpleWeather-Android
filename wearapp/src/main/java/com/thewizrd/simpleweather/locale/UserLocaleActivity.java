@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.simpleweather.App;
+import com.thewizrd.simpleweather.activities.AppCompatLiteActivity;
 
-public abstract class UserLocaleActivity extends FragmentActivity {
+public abstract class UserLocaleActivity extends AppCompatLiteActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleUtils.attachBaseContext(newBase));

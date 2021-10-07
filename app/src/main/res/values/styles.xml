@@ -22,8 +22,6 @@
         <item name="actionButtonStyle">@style/ActionButton</item>
 
         <!-- Text styles -->
-        <item name="android:fontFamily">@font/open_sans</item>
-        <item name="fontFamily">@font/open_sans</item>
         <item name="android:textAppearance">@style/TextAppearance.OpenSans</item>
         <item name="android:textAppearanceInverse">@style/TextAppearance.OpenSans.Inverse</item>
         <item name="android:textAppearanceLarge">@style/TextAppearance.OpenSans</item>

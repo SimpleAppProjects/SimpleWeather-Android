@@ -55,8 +55,6 @@
 
     <style name="Base.AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
         <!-- Text styles -->
-        <item name="android:fontFamily">@font/roboto</item>
-        <item name="fontFamily">@font/roboto</item>
         <item name="android:textAppearance">@style/TextAppearance.Roboto</item>
         <item name="android:textAppearanceInverse">@style/TextAppearance.Roboto.Inverse</item>
         <item name="android:textAppearanceLarge">@style/TextAppearance.Roboto</item>
