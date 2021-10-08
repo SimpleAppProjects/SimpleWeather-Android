@@ -4,10 +4,16 @@ import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.Window
+import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object ActivityUtils {
     fun Window.setTransparentWindow(@ColorInt color: Int) {
@@ -146,6 +152,18 @@ object ActivityUtils {
             decorView.systemUiVisibility = (
                     decorView.systemUiVisibility
                             and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv())
+        }
+    }
+
+    fun ComponentActivity.showToast(@StringRes resId: Int, duration: Int) {
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            Toast.makeText(this@showToast, resId, duration).show()
+        }
+    }
+
+    fun ComponentActivity.showToast(message: CharSequence?, duration: Int) {
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            Toast.makeText(this@showToast, message, duration).show()
         }
     }
 }

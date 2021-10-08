@@ -16,7 +16,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="?selectableItemBackground">
 
         <TextView
             android:id="@+id/forecast_date"

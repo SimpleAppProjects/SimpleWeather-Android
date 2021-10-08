@@ -1,34 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.drawer.WearableDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:deviceIds="wear">
 
-    <androidx.wear.widget.drawer.WearableNavigationDrawerView
-        android:id="@+id/top_nav_drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/colorSurface"
-        android:focusableInTouchMode="true"
-        app:navigationStyle="multiPage" />
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <androidx.wear.widget.drawer.WearableActionDrawerView
-        android:id="@+id/bottom_action_drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom"
-        android:background="?attr/colorSurface"
-        android:descendantFocusability="afterDescendants"
-        android:focusableInTouchMode="true"
-        app:actionMenu="@menu/main_botton_drawer_menu"
-        app:showOverflowInPeek="true" />
-
-</androidx.wear.widget.drawer.WearableDrawerLayout>
+</FrameLayout>

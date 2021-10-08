@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,6 +17,7 @@ import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.simpleweather.adapters.ForecastItemAdapter
 import com.thewizrd.simpleweather.adapters.MinutelyItemAdapter
@@ -23,6 +26,27 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
 
 class WeatherListFragment : SwipeDismissFragment() {
+    companion object {
+        fun newInstance(
+            type: WeatherListType,
+            data: String? = null,
+            scrollToPosition: Int? = null
+        ): WeatherListFragment {
+            val b = Bundle(3)
+            b.putSerializable(Constants.ARGS_WEATHERLISTTYPE, type)
+            if (data != null) {
+                b.putString(Constants.KEY_DATA, data)
+            }
+            if (scrollToPosition != null) {
+                b.putInt(Constants.KEY_POSITION, scrollToPosition)
+            }
+
+            return WeatherListFragment().apply {
+                arguments = b
+            }
+        }
+    }
+
     private val forecastsView: ForecastsListViewModel by activityViewModels()
     private val forecastsPanelView: ForecastPanelsViewModel by activityViewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
@@ -33,17 +57,9 @@ class WeatherListFragment : SwipeDismissFragment() {
 
     private var weatherListType: WeatherListType? = null
 
-    private var args: WeatherListFragmentArgs? = null
-
-    init {
-        arguments = Bundle()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherList: onCreate")
-
-        args = WeatherListFragmentArgs.fromBundle(requireArguments())
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.ARGS_WEATHERLISTTYPE)) {
@@ -57,9 +73,12 @@ class WeatherListFragment : SwipeDismissFragment() {
                 )
             }
         } else {
-            weatherListType = args?.weatherListType
-            if (args?.data != null) {
-                locationData = JSONParser.deserializer(args?.data, LocationData::class.java)
+            weatherListType =
+                arguments?.getSerializable(Constants.ARGS_WEATHERLISTTYPE) as? WeatherListType
+            if (arguments?.containsKey(Constants.KEY_DATA) == true) {
+                locationData = arguments?.getString(Constants.KEY_DATA)?.let { data ->
+                    JSONParser.deserializer(data, LocationData::class.java)
+                }
             }
         }
     }
@@ -76,11 +95,21 @@ class WeatherListFragment : SwipeDismissFragment() {
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.isEdgeItemsCenteringEnabled = true
         binding.recyclerView.layoutManager = LinearLayoutManager(fragmentActivity)
         binding.recyclerView.requestFocus()
 
         itemDecoration = DividerItemDecoration(fragmentActivity, DividerItemDecoration.VERTICAL)
+
+        val verticalPadding = requireContext().dpToPx(48f).toInt()
+        binding.recyclerView.updatePadding(top = verticalPadding, bottom = verticalPadding)
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                binding.timeText.apply {
+                    translationY = -recyclerView.computeVerticalScrollOffset().toFloat()
+                }
+            }
+        })
 
         return outerView
     }
@@ -158,10 +187,7 @@ class WeatherListFragment : SwipeDismissFragment() {
                     })
                 }
                 WeatherListType.PRECIPITATION -> {
-                    if (binding.recyclerView.itemDecorationCount == 0) {
-                        binding.recyclerView.addItemDecoration(itemDecoration)
-                    }
-
+                    binding.recyclerView.removeItemDecoration(itemDecoration)
                     val minForecastAdapter = binding.recyclerView.adapter as? MinutelyItemAdapter?
                         ?: MinutelyItemAdapter()
                     if (binding.recyclerView.adapter !== minForecastAdapter) {
@@ -203,9 +229,23 @@ class WeatherListFragment : SwipeDismissFragment() {
         }
 
         detailsAdapter.registerAdapterDataObserver(object : SimpleRecyclerViewAdapterObserver() {
+            val scrollToPosition = arguments?.getInt(Constants.KEY_POSITION, 0) ?: 0
+
             override fun onChanged() {
-                if (detailsAdapter.currentList != null) {
+                if (detailsAdapter.currentList != null && detailsAdapter.itemCount > scrollToPosition) {
                     detailsAdapter.unregisterAdapterDataObserver(this)
+                    detailsAdapter.currentList!!.loadAround(scrollToPosition)
+                    binding.recyclerView.viewTreeObserver.addOnGlobalLayoutListener(object :
+                        ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            binding.recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                            runWithView {
+                                val layoutMgr =
+                                    binding.recyclerView.layoutManager as? LinearLayoutManager
+                                layoutMgr?.scrollToPositionWithOffset(scrollToPosition, 0)
+                            }
+                        }
+                    })
                     binding.progressBar.visibility = View.GONE
                 }
             }

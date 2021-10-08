@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -23,18 +22,18 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.findNavController
-import androidx.wear.widget.drawer.WearableActionDrawerView
 import com.google.android.gms.location.*
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
@@ -43,13 +42,17 @@ import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorList
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.adapters.ForecastNowAdapter
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
+import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
+import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
+import com.thewizrd.simpleweather.setup.SetupActivity
+import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -58,24 +61,20 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.coroutines.coroutineContext
+import kotlin.math.max
 
 class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, WeatherErrorListener {
     companion object {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
     }
 
-    init {
-        arguments = Bundle()
-    }
-
-    private lateinit var args: WeatherNowFragmentArgs
-
     private val wm = WeatherManager.instance
     private var wLoader: WeatherDataLoader? = null
 
     // Views
     private lateinit var binding: FragmentWeatherNowBinding
-    private lateinit var mDrawerView: WearableActionDrawerView
+    private lateinit var mForecastAdapter: ForecastNowAdapter<ForecastItemViewModel>
+    private lateinit var mHrForecastAdapter: ForecastNowAdapter<HourlyForecastItemViewModel>
 
     // Data
     private var locationData: LocationData? = null
@@ -185,15 +184,16 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherNowFragment: onCreate")
 
-        args = WeatherNowFragmentArgs.fromBundle(requireArguments())
-
         if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
             locationData = JSONParser.deserializer(
                 savedInstanceState.getString(Constants.KEY_DATA),
                 LocationData::class.java
             )
-        } else if (args.data != null) {
-            locationData = JSONParser.deserializer(args.data, LocationData::class.java)
+        } else if (arguments?.containsKey(Constants.KEY_DATA) == true) {
+            locationData = JSONParser.deserializer(
+                arguments?.getString(Constants.KEY_DATA),
+                LocationData::class.java
+            )
         }
 
         locationProvider = LocationProvider(fragmentActivity)
@@ -305,8 +305,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false)
         binding.weatherView = weatherView
@@ -315,8 +317,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         binding.lifecycleOwner = this
 
         val view = binding.root
-
-        mDrawerView = fragmentActivity.findViewById(R.id.bottom_action_drawer)
 
         // SwipeRefresh
         binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
@@ -354,24 +354,115 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             false
         })
 
+        mForecastAdapter = ForecastNowAdapter<ForecastItemViewModel>().also {
+            binding.forecastContainer.adapter = it
+        }
+
+        binding.hourlyForecastContainer.addItemDecoration(
+            SpacerItemDecoration(
+                horizontalSpace = requireContext().dpToPx(16f).toInt()
+            )
+        )
+        mHrForecastAdapter = ForecastNowAdapter<HourlyForecastItemViewModel>().also {
+            binding.hourlyForecastContainer.adapter = it
+        }
+
         binding.alertButton.setOnClickListener { v ->
-            v.findNavController().navigate(WeatherNowFragmentDirections.actionGlobalWeatherAlertsFragment())
+            parentFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    WeatherListFragment.newInstance(WeatherListType.ALERTS)
+                )
+                .addToBackStack(null)
+                .commit()
         }
-        binding.conditionDetails.setOnClickListener { v ->
-            v.findNavController()
-                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherDetailsFragment())
+        binding.conditionDetails.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, WeatherDetailsFragment())
+                .addToBackStack(null)
+                .commit()
         }
-        binding.forecastContainer.setOnClickListener { v ->
-            v.findNavController()
-                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherForecastFragment())
+        binding.detailsButton.setOnClickListener {
+            binding.conditionDetails.callOnClick()
         }
-        binding.hourlyForecastContainer.setOnClickListener { v ->
-            v.findNavController()
-                .navigate(WeatherNowFragmentDirections.actionGlobalWeatherHrForecastFragment())
+
+        mForecastAdapter.setOnClickListener(object : RecyclerOnClickListenerInterface {
+            override fun onClick(view: View, position: Int) {
+                parentFragmentManager.beginTransaction()
+                    .add(
+                        R.id.fragment_container,
+                        WeatherListFragment.newInstance(
+                            WeatherListType.FORECAST,
+                            scrollToPosition = position
+                        )
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
+        })
+        binding.forecastButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    WeatherListFragment.newInstance(WeatherListType.FORECAST)
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+
+        mHrForecastAdapter.setOnClickListener(object : RecyclerOnClickListenerInterface {
+            override fun onClick(view: View, position: Int) {
+                parentFragmentManager.beginTransaction()
+                    .add(
+                        R.id.fragment_container,
+                        WeatherListFragment.newInstance(
+                            WeatherListType.HOURLYFORECAST,
+                            scrollToPosition = position
+                        )
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
+        })
+        binding.hrforecastButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    WeatherListFragment.newInstance(WeatherListType.HOURLYFORECAST)
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.precipForecastButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    WeatherListFragment.newInstance(WeatherListType.PRECIPITATION)
+                )
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.noLocationsPrompt.setOnClickListener { v ->
-            v.findNavController().navigate(NavGraphDirections.actionGlobalSetupActivity())
+            // Go to setup
+            startActivity(Intent(requireContext(), SetupActivity::class.java))
+        }
+
+        binding.changeLocationButton.setOnClickListener {
+            startActivity(Intent(requireContext(), SetupActivity::class.java))
+        }
+
+        binding.settingsButton.setOnClickListener {
+            startActivity(Intent(requireContext(), SettingsActivity::class.java))
+        }
+
+        binding.openonphoneButton.setOnClickListener {
+            LocalBroadcastManager.getInstance(requireActivity())
+                .sendBroadcast(
+                    Intent(WearableListenerActivity.ACTION_OPENONPHONE)
+                        .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
+                )
         }
 
         return view
@@ -380,36 +471,14 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        args = WeatherNowFragmentArgs.fromBundle(requireArguments())
+        forecastPanelsView.getForecasts()?.observe(viewLifecycleOwner, Observer {
+            val containerWidth = binding.forecastContainer.measuredWidth
+            val maxItemCount = max(4f, containerWidth / requireContext().dpToPx(50f)).toInt()
 
-        binding.swipeRefreshLayout.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            /* BoxInsetLayout impl */
-            private val FACTOR = 0.146447f //(1 - sqrt(2)/2)/2
-            private val mIsRound = resources.configuration.isScreenRound
-
-            override fun onPreDraw(): Boolean {
-                binding.swipeRefreshLayout.viewTreeObserver.removeOnPreDrawListener(this)
-                binding.swipeRefreshLayout.isRefreshing = true
-
-                val innerLayout = binding.scrollView.getChildAt(0)
-                val peekContainer = mDrawerView.findViewById<View>(R.id.ws_drawer_view_peek_container)
-
-                runWithView {
-                    val verticalPadding = resources.getDimensionPixelSize(R.dimen.inner_frame_layout_padding)
-                    val mScreenHeight = Resources.getSystem().displayMetrics.heightPixels
-                    val mScreenWidth = Resources.getSystem().displayMetrics.widthPixels
-                    val rightEdge = Math.min(binding.swipeRefreshLayout.measuredWidth, mScreenWidth)
-                    val bottomEdge = Math.min(binding.swipeRefreshLayout.measuredHeight, mScreenHeight)
-                    val verticalInset = (FACTOR * Math.max(rightEdge, bottomEdge)).toInt()
-                    innerLayout.setPaddingRelative(
-                            innerLayout.paddingStart,
-                            verticalPadding,
-                            innerLayout.paddingEnd,
-                            if (mIsRound) verticalInset else peekContainer.height)
-                }
-
-                return true
-            }
+            mForecastAdapter.submitList(it.take(maxItemCount))
+        })
+        forecastPanelsView.getHourlyForecasts()?.observe(viewLifecycleOwner, Observer {
+            mHrForecastAdapter.submitList(it.take(12))
         })
     }
 
@@ -458,9 +527,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     private suspend fun verifyLocationData(): Boolean = withContext(Dispatchers.IO) {
         var locationChanged = false
 
-        if (args.data != null) {
+        if (arguments?.containsKey(Constants.KEY_DATA) == true) {
             val location = withContext(Dispatchers.IO) {
-                JSONParser.deserializer(args.data, LocationData::class.java)
+                JSONParser.deserializer(
+                    arguments?.getString(Constants.KEY_DATA),
+                    LocationData::class.java
+                )
             }
 
             if (!ObjectsCompat.equals(location, locationData)) {
@@ -572,8 +644,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         weatherLiveData.postValue(result.weather)
 
                         runWithView {
-                            val isRound = resources.configuration.isScreenRound
-                            binding.alertButton.visibility = if (isRound) View.INVISIBLE else View.GONE
+                            binding.alertButton.visibility = View.GONE
                         }
 
                         val weatherAlerts = wLoader?.loadWeatherAlerts(result.isSavedData)

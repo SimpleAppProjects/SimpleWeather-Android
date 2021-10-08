@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
@@ -17,12 +16,13 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
+import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -53,10 +53,6 @@ class LocationSearchFragment : SwipeDismissFragment() {
         private const val REQUEST_CODE_VOICE_INPUT = 0
     }
 
-    init {
-        userVisibleHint = true
-    }
-
     private lateinit var binding: FragmentLocationSearchBinding
     private lateinit var mAdapter: LocationQueryAdapter
     private lateinit var swipeCallback: SwipeDismissFrameLayout.Callback
@@ -72,8 +68,6 @@ class LocationSearchFragment : SwipeDismissFragment() {
     private val recyclerClickListener =
         object : ListAdapterOnClickInterface<LocationQueryViewModel> {
             override fun onClick(view: View, item: LocationQueryViewModel) {
-                val navController = view.findNavController()
-
                 viewLifecycleOwner.lifecycleScope.launch {
                     showLoading(true)
                     binding.recyclerView.isEnabled = false
@@ -227,34 +221,14 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                 val result = deferredJob.getCompleted()
                                 runWithView { // Go back to where we started
                                     if (result != null) {
-                                        // Start WeatherNow Activity with weather data
-                                        val args =
-                                            LocationSearchFragmentDirections.actionGlobalMainActivity()
-                                                .setData(withContext(Dispatchers.Default) {
-                                                    JSONParser.serializer(
-                                                        result,
-                                                        LocationData::class.java
-                                                    )
-                                                })
-
-                                        try {
-                                            navController.navigate(args)
-                                        } catch (ex: IllegalArgumentException) {
-                                            val props = Bundle().apply {
-                                                putString("method", "recyclerClickListener.success")
-                                                putBoolean("isAlive", isAlive)
-                                                putBoolean("isViewAlive", isViewAlive)
-                                                putBoolean("isDetached", isDetached)
-                                                putBoolean("isResumed", isResumed)
-                                                putBoolean("isRemoving", isRemoving)
-                                            }
-                                            AnalyticsLogger.logEvent(
-                                                "$TAG: navigation failed",
-                                                props
-                                            )
-                                            Logger.writeLine(Log.ERROR, ex)
-                                        }
-                                        fragmentActivity.finishAffinity()
+                                        // Send result to SetupActivity
+                                        val data = JSONParser.serializer(
+                                            result,
+                                            LocationData::class.java
+                                        )
+                                        setFragmentResult(Constants.KEY_DATA, Bundle(1).apply {
+                                            putString(Constants.KEY_DATA, data)
+                                        })
                                     } else {
                                         showLoading(false)
                                         binding.recyclerView.isEnabled = true

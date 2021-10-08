@@ -4,6 +4,12 @@
     tools:parentTag="androidx.wear.widget.SwipeDismissFrameLayout"
     tools:showIn="@layout/activity_settings">
 
+    <com.thewizrd.simpleweather.controls.timetext.TimeText
+        android:id="@+id/timeText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:titleTextColor="?colorPrimary" />
+
     <androidx.wear.widget.WearableRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

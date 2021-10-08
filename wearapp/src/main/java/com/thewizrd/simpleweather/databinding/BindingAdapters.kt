@@ -9,27 +9,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.widget.TextViewCompat
 import androidx.databinding.BindingAdapter
-import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.shared_resources.controls.DetailItemViewModel
+import com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+import com.thewizrd.shared_resources.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.controls.ForecastPanel
-import com.thewizrd.simpleweather.controls.HourlyForecastPanel
 
 object BindingAdapters {
-    @BindingAdapter("forecasts")
-    @JvmStatic
-    fun updateForecasts(view: ForecastPanel, models: List<ForecastItemViewModel?>?) {
-        view.bindModel(models)
-    }
-
-    @BindingAdapter("forecasts")
-    @JvmStatic
-    fun updateForecasts(view: HourlyForecastPanel, models: List<HourlyForecastItemViewModel?>?) {
-        view.bindModel(models)
-    }
-
     @BindingAdapter("popData")
     @JvmStatic
     fun updatePopLayout(view: ViewGroup, details: List<DetailItemViewModel>?) {

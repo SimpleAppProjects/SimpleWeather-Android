@@ -10,52 +10,98 @@
             type="com.thewizrd.shared_resources.controls.DetailItemViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/item_padding"
-        android:paddingEnd="@dimen/list_item_padding">
+        android:clickable="false"
+        style="@style/Widget.Wear.WearChipButton">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/top_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="7dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/bottom_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="7dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/start_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="14dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/end_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="14dp" />
 
         <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/detail_icon"
             android:layout_width="@dimen/details_icon_size"
             android:layout_height="@dimen/details_icon_size"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="4dp"
+            android:scaleType="fitCenter"
             android:rotation="@{viewModel.iconRotation}"
             app:weatherIcon="@{viewModel.icon}"
             app:tint="@color/colorPrimaryLight"
-            tools:srcCompat="@drawable/wi_moon_waxing_crescent_3" />
+            tools:srcCompat="@drawable/wi_moon_waxing_crescent_3"
+            app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
+            app:layout_constraintStart_toStartOf="@id/start_guideline"
+            app:layout_constraintTop_toTopOf="@id/top_guideline" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/detail_label"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:padding="2dp"
+            android:layout_marginStart="7dp"
+            android:duplicateParentState="true"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:textAppearance="?textAppearanceButton"
+            android:textColor="@color/wear_chip_primary_text_color"
             android:text="@{viewModel.label}"
-            android:textAppearance="?android:textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/details_text_size"
-            tools:text="Moon Phase" />
+            tools:text="Moon Phase"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/detail_value"
+            app:layout_constraintEnd_toStartOf="@id/end_barrier"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/detail_icon"
+            app:layout_constraintTop_toTopOf="@id/top_guideline" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/detail_value"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:padding="2dp"
+            android:layout_marginStart="7dp"
+            android:duplicateParentState="true"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:textAppearance="?textAppearanceCaption"
+            android:textColor="@color/wear_chip_seconary_text_color"
             android:text="@{viewModel.value}"
-            android:textAppearance="?android:textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/details_text_size"
-            tools:text="Waxing Cresent" />
+            tools:text="Waxing Cresent"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/bottom_guideline"
+            app:layout_constraintEnd_toStartOf="@id/end_barrier"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/detail_icon"
+            app:layout_constraintTop_toBottomOf="@id/detail_label" />
 
-    </LinearLayout>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/end_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="start"
+            app:constraint_referenced_ids="end_guideline" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -20,7 +20,6 @@ import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.fragment.findNavController
 import androidx.preference.*
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
@@ -43,7 +42,6 @@ import com.thewizrd.simpleweather.extras.navigateToPremiumFragment
 import com.thewizrd.simpleweather.extras.navigateUnsupportedIconPack
 import com.thewizrd.simpleweather.fragments.WearDialogFragment
 import com.thewizrd.simpleweather.fragments.WearDialogParams
-import com.thewizrd.simpleweather.fragments.WearNavHostFragment
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
 import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
@@ -92,17 +90,14 @@ class SettingsActivity : WearableListenerActivity() {
 
         // Check if fragment exists
         if (fragment == null) {
-            val hostFragment = WearNavHostFragment.create(R.navigation.settings_graph)
             supportFragmentManager.beginTransaction()
-                .replace(android.R.id.content, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
+                .replace(android.R.id.content, SettingsFragment())
                 .commit()
         }
     }
 
     override fun onBackPressed() {
-        val current =
-            supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.primaryNavigationFragment
+        val current = supportFragmentManager.findFragmentById(android.R.id.content)
 
         var fragBackPressedListener: OnBackPressedFragmentListener? = null
         if (current is OnBackPressedFragmentListener)
@@ -110,7 +105,11 @@ class SettingsActivity : WearableListenerActivity() {
 
         // If fragment doesn't handle onBackPressed event fallback to this impl
         if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
-            super.onBackPressed()
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -262,7 +261,10 @@ class SettingsActivity : WearableListenerActivity() {
 
             findPreference<Preference>(KEY_ABOUTAPP)!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    findNavController().navigate(R.id.action_settingsFragment_to_aboutAppFragment)
+                    parentFragmentManager.beginTransaction()
+                        .add(android.R.id.content, AboutAppFragment())
+                        .addToBackStack(null)
+                        .commit()
                     true
                 }
 
@@ -313,15 +315,19 @@ class SettingsActivity : WearableListenerActivity() {
 
             iconsPref = findPreference(KEY_ICONS)!!
             iconsPref.setOnPreferenceClickListener {
-                // Display the fragment as the main content.
-                findNavController().navigate(R.id.action_settingsFragment_to_iconsFragment)
+                parentFragmentManager.beginTransaction()
+                    .add(android.R.id.content, IconsFragment())
+                    .addToBackStack(null)
+                    .commit()
                 true
             }
 
             unitsPref = findPreference(KEY_UNITS)!!
             unitsPref.setOnPreferenceClickListener {
-                // Display the fragment as the main content.
-                findNavController().navigate(R.id.action_settingsFragment_to_unitsFragment)
+                parentFragmentManager.beginTransaction()
+                    .add(android.R.id.content, UnitsFragment())
+                    .addToBackStack(null)
+                    .commit()
                 true
             }
 
@@ -856,13 +862,19 @@ class SettingsActivity : WearableListenerActivity() {
 
             findPreference<Preference>(KEY_ABOUTCREDITS)!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-                    findNavController().navigate(R.id.action_aboutAppFragment_to_creditsFragment)
+                    parentFragmentManager.beginTransaction()
+                        .add(android.R.id.content, CreditsFragment())
+                        .addToBackStack(null)
+                        .commit()
                     true
                 }
 
             findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-                    findNavController().navigate(R.id.action_aboutAppFragment_to_OSSCreditsFragment)
+                    parentFragmentManager.beginTransaction()
+                        .add(android.R.id.content, OSSCreditsFragment())
+                        .addToBackStack(null)
+                        .commit()
                     true
                 }
 

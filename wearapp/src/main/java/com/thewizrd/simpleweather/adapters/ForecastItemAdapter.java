@@ -5,9 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.ObjectsCompat;
 import androidx.paging.PagedListAdapter;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
@@ -65,20 +63,8 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel>
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public ForecastItemAdapter() {
-        super((DiffUtil.ItemCallback<T>) diffCallback);
+        super(new ForecastDiffer<>());
     }
-
-    private static final DiffUtil.ItemCallback<BaseForecastItemViewModel> diffCallback = new DiffUtil.ItemCallback<BaseForecastItemViewModel>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull BaseForecastItemViewModel oldItem, @NonNull BaseForecastItemViewModel newItem) {
-            return ObjectsCompat.equals(oldItem.getDate(), newItem.getDate());
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull BaseForecastItemViewModel oldItem, @NonNull BaseForecastItemViewModel newItem) {
-            return ObjectsCompat.equals(oldItem, newItem);
-        }
-    };
 
     @SuppressLint("NewApi")
     @NonNull

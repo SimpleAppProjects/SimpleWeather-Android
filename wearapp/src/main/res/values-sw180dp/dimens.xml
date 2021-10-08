@@ -6,8 +6,4 @@
     <dimen name="fab_image_size">24dp</dimen>
     <dimen name="divider_margin">8dp</dimen>
 
-    <!-- WeatherNow -->
-    <dimen name="details_icon_size">32dp</dimen>
-    <dimen name="details_text_size">14sp</dimen>
-
 </resources>
