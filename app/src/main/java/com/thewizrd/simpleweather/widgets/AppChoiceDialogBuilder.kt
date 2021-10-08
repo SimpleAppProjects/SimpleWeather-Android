@@ -11,7 +11,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding
@@ -78,10 +78,12 @@ class AppChoiceDialogBuilder(private val context: Context) {
             scope.cancel()
         }
 
-        mAdapter.setOnClickListener { view, position ->
-            onItemSelectedListener?.onItemSelected(mAdapter.currentList[position]?.key)
-            dialog.dismiss()
-        }
+        mAdapter.setOnClickListener(object : ListAdapterOnClickInterface<AppsViewModel> {
+            override fun onClick(view: View, item: AppsViewModel) {
+                onItemSelectedListener?.onItemSelected(item.key)
+                dialog.dismiss()
+            }
+        })
 
         mAdapter.registerAdapterDataObserver(object : SimpleRecyclerViewAdapterObserver() {
             override fun onChanged() {
@@ -167,12 +169,12 @@ class AppChoiceDialogBuilder(private val context: Context) {
     }
 
     private class AppsListAdapter : ListAdapter<AppsViewModel, AppsListAdapter.ViewHolder> {
-        private var onClickListener: RecyclerOnClickListenerInterface? = null
+        private var onClickListener: ListAdapterOnClickInterface<AppsViewModel>? = null
 
         constructor(diffCallback: DiffUtil.ItemCallback<AppsViewModel>) : super(diffCallback)
         protected constructor(config: AsyncDifferConfig<AppsViewModel>) : super(config)
 
-        fun setOnClickListener(onClickListener: RecyclerOnClickListenerInterface?) {
+        fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<AppsViewModel>?) {
             this.onClickListener = onClickListener
         }
 
@@ -181,13 +183,13 @@ class AppChoiceDialogBuilder(private val context: Context) {
 
             init {
                 itemView.isClickable = true
-                itemView.setOnClickListener { v ->
-                    onClickListener?.onClick(v, adapterPosition)
-                }
             }
 
             fun bindModel(model: AppsViewModel) {
                 binding.appViewModel = model
+                itemView.setOnClickListener { v ->
+                    onClickListener?.onClick(v, model)
+                }
             }
         }
 

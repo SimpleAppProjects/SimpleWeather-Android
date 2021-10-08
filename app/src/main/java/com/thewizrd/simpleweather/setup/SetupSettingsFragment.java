@@ -59,7 +59,7 @@ public class SetupSettingsFragment extends CustomPreferenceFragmentCompat {
 
         binding.fragmentContainer.addView(inflatedView);
 
-        setDivider(new ColorDrawable(ContextUtils.getColor(root.getContext(), R.attr.colorPrimary)));
+        setDivider(new ColorDrawable(ContextUtils.getAttrColor(root.getContext(), R.attr.colorPrimary)));
         setDividerHeight((int) ContextUtils.dpToPx(root.getContext(), 1f));
 
         return root;

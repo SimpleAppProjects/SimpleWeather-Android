@@ -202,41 +202,45 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     // For LocationPanels
-    private val onRecyclerClickListener = RecyclerOnClickListenerInterface { view, position ->
-        AnalyticsLogger.logEvent("LocationsFragment: recycler click")
+    private val onRecyclerClickListener =
+        object : ListAdapterOnClickInterface<LocationPanelViewModel> {
+            override fun onClick(view: View, item: LocationPanelViewModel) {
+                AnalyticsLogger.logEvent("LocationsFragment: recycler click")
 
-        if (view?.isEnabled == true && view.tag is LocationData) {
-            runWithView {
-                val locData = view.tag as LocationData
-                val vm = mAdapter.getPanelViewModel(position)
+                if (view.isEnabled && view.tag is LocationData) {
+                    runWithView {
+                        val locData = view.tag as LocationData
 
-                val isHome = ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
+                        val isHome =
+                            ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
 
-                val args = LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
-                    .setData(withContext(Dispatchers.Default) {
-                        JSONParser.serializer(locData, LocationData::class.java)
-                    })
-                    .setBackground(vm?.imageData?.imageURI)
-                    .setHome(isHome)
+                        val args =
+                            LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
+                                .setData(withContext(Dispatchers.Default) {
+                                    JSONParser.serializer(locData, LocationData::class.java)
+                                })
+                                .setBackground(item.imageData?.imageURI)
+                                .setHome(isHome)
 
-                try {
-                    binding.root.findNavController().navigate(args)
-                } catch (ex: Exception) {
-                    if (ex is IllegalArgumentException || ex is IllegalStateException) {
-                        val props = Bundle().apply {
-                            putString("method", "onRecyclerClickListener.onClick")
-                            putBoolean("isAlive", isAlive)
-                            putBoolean("isViewAlive", isViewAlive)
-                            putBoolean("isDetached", isDetached)
-                            putBoolean("isResumed", isResumed)
-                            putBoolean("isRemoving", isRemoving)
+                        try {
+                            binding.root.findNavController().navigate(args)
+                        } catch (ex: Exception) {
+                            if (ex is IllegalArgumentException || ex is IllegalStateException) {
+                                val props = Bundle().apply {
+                                    putString("method", "onRecyclerClickListener.onClick")
+                                    putBoolean("isAlive", isAlive)
+                                    putBoolean("isViewAlive", isViewAlive)
+                                    putBoolean("isDetached", isDetached)
+                                    putBoolean("isResumed", isResumed)
+                                    putBoolean("isRemoving", isRemoving)
+                                }
+                                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
+
+                                Logger.writeLine(Log.ERROR, ex)
+                            } else {
+                                throw ex
+                            }
                         }
-                        AnalyticsLogger.logEvent("$TAG: navigation failed", props)
-
-                        Logger.writeLine(Log.ERROR, ex)
-                    } else {
-                        throw ex
-                    }
                 }
             }
         }
@@ -952,19 +956,23 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             }
         }
     }
-    private val onRecyclerLongClickListener = RecyclerOnClickListenerInterface { view, position ->
-        if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
-            if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
-                toggleEditMode()
+    private val onRecyclerLongClickListener =
+        object : ListAdapterOnClickInterface<LocationPanelViewModel> {
+            override fun onClick(view: View, item: LocationPanelViewModel) {
+                val position = mAdapter.getViewPosition(item)
 
-                val model = mAdapter.getPanelViewModel(position)
-                if (model != null) {
-                    model.isChecked = true
-                    mAdapter.notifyItemChanged(position)
+                if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
+                    if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
+                        toggleEditMode()
+
+                        if (item != null) {
+                            item.isChecked = true
+                            mAdapter.notifyItemChanged(position)
+                        }
+                    }
                 }
             }
         }
-    }
 
     private fun toggleEditMode() {
         // Toggle EditMode

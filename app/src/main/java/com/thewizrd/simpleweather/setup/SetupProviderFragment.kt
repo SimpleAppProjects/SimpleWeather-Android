@@ -19,6 +19,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.WeatherException
@@ -68,8 +70,8 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
         binding.fragmentContainer.addView(inflatedView)
 
-        setDivider(ColorDrawable(ContextUtils.getColor(root.context, R.attr.colorPrimary)))
-        setDividerHeight(ContextUtils.dpToPx(root.context, 1f).toInt())
+        setDivider(ColorDrawable(root.context.getAttrColor(R.attr.colorPrimary)))
+        setDividerHeight(root.context.dpToPx(1f).toInt())
 
         return root
     }

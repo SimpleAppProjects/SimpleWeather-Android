@@ -12,9 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.helpers.ObservableArrayList
 import com.thewizrd.shared_resources.helpers.OnListChangedListener
-import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -73,19 +73,19 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     private var isInEditMode = false
 
     // Event listeners
-    private var onClickListener: RecyclerOnClickListenerInterface? = null
-    private var onLongClickListener: RecyclerOnClickListenerInterface? = null
+    private var onClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
+    private var onLongClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
     private val onLongClickToDragListener: ViewHolderLongClickListener?
     private var onListChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
     private var onSelectionChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
 
     private val scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
 
-    fun setOnClickListener(onClickListener: RecyclerOnClickListenerInterface?) {
+    fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>?) {
         this.onClickListener = onClickListener
     }
 
-    fun setOnLongClickListener(onLongClickListener: RecyclerOnClickListenerInterface?) {
+    fun setOnLongClickListener(onLongClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>?) {
         this.onLongClickListener = onLongClickListener
     }
 
@@ -126,9 +126,17 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
 
         init {
             mLocView.showLoading(true)
+        }
+
+        fun bind(model: LocationPanelViewModel) {
+            this.model = model
+            if (!model.isEditMode) {
+                model.isChecked = false
+            }
+            mLocView.bindModel(model)
 
             mLocView.setOnClickListener { v ->
-                onClickListener?.onClick(v, adapterPosition)
+                onClickListener?.onClick(v, model)
 
                 if (itemViewType == ItemType.SEARCH_PANEL && model.isEditMode) {
                     if (model.isChecked) {
@@ -150,17 +158,9 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                         mSelectedItems.add(model)
                     }
                 }
-                onLongClickListener?.onClick(v, adapterPosition)
+                onLongClickListener?.onClick(v, model)
                 true
             }
-        }
-
-        fun bind(model: LocationPanelViewModel) {
-            this.model = model
-            if (!model.isEditMode) {
-                model.isChecked = false
-            }
-            mLocView.bindModel(model)
         }
     }
 

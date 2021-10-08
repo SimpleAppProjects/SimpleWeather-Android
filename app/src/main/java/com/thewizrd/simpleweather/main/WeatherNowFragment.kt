@@ -68,6 +68,10 @@ import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
@@ -470,7 +474,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
-                if (ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
+                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
                     return
 
                 runWithView {
@@ -518,7 +522,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         binding.scrollView.setTouchScrollListener(object : OnTouchScrollChangeListener {
             @SuppressLint("RestrictedApi")
             override fun onTouchScrollChange(scrollY: Int, oldScrollY: Int) {
-                if (ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
+                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
                     return
 
                 runWithView {
@@ -546,8 +550,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         // SwipeRefresh
         binding.progressBar.show()
-        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(appCompatActivity!!, R.color.invButtonColor))
-        binding.refreshLayout.setColorSchemeColors(ContextUtils.getColor(appCompatActivity!!, R.attr.colorPrimary))
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                appCompatActivity!!,
+                R.color.invButtonColor
+            )
+        )
+        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorPrimary))
         binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
@@ -602,24 +611,41 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isForecastEnabled()) {
             // Forecast
-            forecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_forecastgraphpanel, binding.listLayout, false, dataBindingComponent)
+            forecastPanelBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_forecastgraphpanel,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             forecastPanelBinding!!.forecastsView = forecastsView
             forecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            forecastPanelBinding!!.rangebarGraphPanel.setOnClickPositionListener { view, position ->
-                runWithView {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
-                    view.isEnabled = false
-                    val args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                            .setWeatherListType(WeatherListType.FORECAST)
-                            .setPosition(position)
-                    view.findNavController().navigate(args)
+            forecastPanelBinding!!.rangebarGraphPanel.setOnClickPositionListener(object :
+                RecyclerOnClickListenerInterface {
+                override fun onClick(view: View, position: Int) {
+                    runWithView {
+                        AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
+                        view.isEnabled = false
+                        val args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                .setData(
+                                    JSONParser.serializer(
+                                        locationData,
+                                        LocationData::class.java
+                                    )
+                                )
+                                .setWeatherListType(WeatherListType.FORECAST)
+                                .setPosition(position)
+                        view.findNavController().navigate(args)
+                    }
                 }
-            }
+            })
 
-            binding.listLayout.addView(forecastPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 1))
+            binding.listLayout.addView(
+                forecastPanelBinding!!.root,
+                Math.min(binding.listLayout.childCount - 1, 1)
+            )
         }
 
         if (FeatureSettings.isHourlyForecastEnabled()) {
@@ -629,55 +655,88 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             hrForecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
             // Setup RecyclerView
-            val hourlyForecastItemAdapter = HourlyForecastItemAdapter(object : DiffUtil.ItemCallback<HourlyForecastNowViewModel>() {
-                override fun areItemsTheSame(oldItem: HourlyForecastNowViewModel, newItem: HourlyForecastNowViewModel): Boolean {
+            val hourlyForecastItemAdapter = HourlyForecastItemAdapter(object :
+                DiffUtil.ItemCallback<HourlyForecastNowViewModel>() {
+                override fun areItemsTheSame(
+                    oldItem: HourlyForecastNowViewModel,
+                    newItem: HourlyForecastNowViewModel
+                ): Boolean {
                     return ObjectsCompat.equals(oldItem.date, newItem.date)
                 }
 
-                override fun areContentsTheSame(oldItem: HourlyForecastNowViewModel, newItem: HourlyForecastNowViewModel): Boolean {
+                override fun areContentsTheSame(
+                    oldItem: HourlyForecastNowViewModel,
+                    newItem: HourlyForecastNowViewModel
+                ): Boolean {
                     return ObjectsCompat.equals(oldItem, newItem)
                 }
             })
 
-            hourlyForecastItemAdapter.onClickListener = RecyclerOnClickListenerInterface { view, position ->
-                runWithView {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click")
-                    view.isEnabled = false
-                    val args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                            .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                            .setPosition(position)
-                    view.findNavController().navigate(args)
+            hourlyForecastItemAdapter.onClickListener = object : RecyclerOnClickListenerInterface {
+                override fun onClick(view: View, position: Int) {
+                    runWithView {
+                        AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click")
+                        view.isEnabled = false
+                        val args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                .setData(
+                                    JSONParser.serializer(
+                                        locationData,
+                                        LocationData::class.java
+                                    )
+                                )
+                                .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                .setPosition(position)
+                        view.findNavController().navigate(args)
+                    }
                 }
             }
 
             hrForecastPanelBinding!!.hourlyForecastList.adapter = hourlyForecastItemAdapter
 
-            binding.listLayout.addView(hrForecastPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 2))
+            binding.listLayout.addView(
+                hrForecastPanelBinding!!.root,
+                Math.min(binding.listLayout.childCount - 1, 2)
+            )
         }
 
         if (FeatureSettings.isChartsEnabled()) {
             // Precipitation graph
-            precipPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_precipitationgraphpanel, binding.listLayout, false, dataBindingComponent)
+            precipPanelBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_precipitationgraphpanel,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             precipPanelBinding!!.forecastsView = forecastsView
             precipPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            val onClickListener = RecyclerOnClickListenerInterface { view, position ->
-                runWithView {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
-                    view.isEnabled = false
-                    val args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                    view.findNavController().navigate(args)
+            val onClickListener = object : RecyclerOnClickListenerInterface {
+                override fun onClick(view: View, position: Int) {
+                    runWithView {
+                        AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
+                        view.isEnabled = false
+                        val args =
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
+                                .setData(
+                                    JSONParser.serializer(
+                                        locationData,
+                                        LocationData::class.java
+                                    )
+                                )
+                        view.findNavController().navigate(args)
+                    }
                 }
             }
 
             precipPanelBinding!!.minutelyPrecipGraphPanel.setOnClickPositionListener(onClickListener)
             precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener(onClickListener)
 
-            binding.listLayout.addView(precipPanelBinding!!.root, Math.min(binding.listLayout.childCount - 1, 3))
+            binding.listLayout.addView(
+                precipPanelBinding!!.root,
+                Math.min(binding.listLayout.childCount - 1, 3)
+            )
         }
 
         if (FeatureSettings.isDetailsEnabled()) {
@@ -954,8 +1013,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         weatherView.notifyChange()
 
-        binding.refreshLayout.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(appCompatActivity!!, R.color.invButtonColor))
-        binding.refreshLayout.setColorSchemeColors(ContextUtils.getColor(appCompatActivity!!, R.attr.colorPrimary))
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                appCompatActivity!!,
+                R.color.invButtonColor
+            )
+        )
+        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorPrimary))
 
         // Resize necessary views
         adjustConditionPanelLayout()
@@ -1247,7 +1311,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     private fun adjustConditionPanelLayout() {
         conditionPanelBinding.conditionPanel.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            val imageLandSize = ContextUtils.dpToPx(conditionPanelBinding.conditionPanel.context, 560f).toInt()
+            val imageLandSize = conditionPanelBinding.conditionPanel.context.dpToPx(560f).toInt()
 
             override fun onPreDraw(): Boolean {
                 conditionPanelBinding.conditionPanel.viewTreeObserver.removeOnPreDrawListener(this)
@@ -1259,10 +1323,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                     val containerLP = conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
                     val conditionPLP = conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
-                    if (ContextUtils.getOrientation(context) == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                    if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
                         containerLP.height = imageLandSize
                     } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                        containerLP.height = height - conditionPanelBinding.conditionPanel.measuredHeight - containerLP.bottomMargin - containerLP.topMargin
+                        containerLP.height =
+                            height - conditionPanelBinding.conditionPanel.measuredHeight - containerLP.bottomMargin - containerLP.topMargin
                         if (conditionPanelBinding.alertButton.visibility != View.GONE) {
                             containerLP.height -= conditionPanelBinding.alertButton.measuredHeight
                         }
@@ -1302,7 +1367,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                     detailsContainerBinding!!.detailsContainer.numColumns = availColumns
 
-                    val isLandscape = ContextUtils.getOrientation(appCompatActivity!!) == Configuration.ORIENTATION_LANDSCAPE
+                    val isLandscape =
+                        appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
 
                     val horizMargin = 16
                     val marginMultiplier = if (isLandscape) 2 else 3
@@ -1317,9 +1383,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun updateWindowColors() {
-        var backgroundColor =
-            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
-        var navBarColor = ContextUtils.getColor(appCompatActivity!!, R.attr.colorSurface)
+        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
+        var navBarColor = appCompatActivity!!.getAttrColor(R.attr.colorSurface)
         var statusBarColor = navBarColor
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK

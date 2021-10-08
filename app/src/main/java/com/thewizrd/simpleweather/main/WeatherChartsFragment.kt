@@ -11,6 +11,8 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
@@ -92,12 +94,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(
-            ContextUtils.getResourceId(
-                toolbar.context,
-                R.attr.homeAsUpIndicator
-            )
-        )
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { v -> v.findNavController().navigateUp() }
 
         // use this setting to improve performance if you know that changes
@@ -222,8 +219,7 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        var backgroundColor =
-            ContextUtils.getColor(appCompatActivity!!, android.R.attr.colorBackground)
+        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
         }
