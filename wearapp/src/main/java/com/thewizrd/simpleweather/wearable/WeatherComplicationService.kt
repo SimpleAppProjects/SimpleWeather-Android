@@ -116,7 +116,7 @@ class WeatherComplicationService : SuspendingComplicationDataSourceService() {
                     PlainComplicationText.Builder("Sunny").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).setTitle(
-                    PlainComplicationText.Builder("Sunny").build()
+                    PlainComplicationText.Builder("70°").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(
