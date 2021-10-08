@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
+
         <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
 
         <variable
@@ -28,7 +31,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical|end"
             android:padding="4dp"
-            android:text="@{viewModel.shortDate}"
+            android:text="@{WeatherIcons.EM_DASH}"
             android:textAppearance="?textAppearanceBody1"
             tools:text="10PM" />
 

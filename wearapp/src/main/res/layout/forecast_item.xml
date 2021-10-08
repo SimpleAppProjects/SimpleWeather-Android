@@ -27,9 +27,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="@{StringUtils.removeDigitChars(viewModel.shortDate)}"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textAppearance="?textAppearanceBody1"
             tools:text="Mon" />
 
         <com.thewizrd.shared_resources.controls.IconControl
@@ -50,9 +48,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="@{viewModel.hiTemp}"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textAppearance="?textAppearanceBody1"
             tools:text="70°" />
 
         <TextView
@@ -63,9 +59,8 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="@{viewModel.loTemp}"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textAppearance="?textAppearanceBody1"
+            android:textColor="?colorOnSurfaceVariant2"
             tools:text="52°" />
 
     </LinearLayout>

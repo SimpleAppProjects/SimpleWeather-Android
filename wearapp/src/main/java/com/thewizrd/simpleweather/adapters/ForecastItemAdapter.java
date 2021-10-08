@@ -1,16 +1,28 @@
 package com.thewizrd.simpleweather.adapters;
 
 import android.annotation.SuppressLint;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.format.DateFormat;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.text.SpannableStringBuilderKt;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
+import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.simpleweather.databinding.WeatherForecastPanelBinding;
 import com.thewizrd.simpleweather.databinding.WeatherHrforecastPanelBinding;
 
@@ -49,6 +61,32 @@ public class ForecastItemAdapter<T extends BaseForecastItemViewModel>
         public void bind(HourlyForecastItemViewModel model) {
             binding.setViewModel(model);
             binding.executePendingBindings();
+
+            final HourlyForecast fcast = model.getForecast();
+            final boolean is24hr = DateFormat.is24HourFormat(itemView.getContext());
+            final String dayOfWeek = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAY_OF_THE_WEEK));
+            final String time;
+            final String timeSuffix;
+            if (is24hr) {
+                time = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
+                timeSuffix = "";
+            } else {
+                time = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale("h"));
+                timeSuffix = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale("a"));
+            }
+
+            SpannableStringBuilder sb = new SpannableStringBuilder(time);
+            SpannableStringBuilderKt.scale(sb, 0.8f, spannableStringBuilder -> {
+                spannableStringBuilder.append(timeSuffix);
+                return null;
+            });
+            sb.append(StringUtils.lineSeparator());
+            final int start = sb.length();
+            sb.append(dayOfWeek);
+            sb.setSpan(new RelativeSizeSpan(0.8f), start, sb.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            sb.setSpan(new ForegroundColorSpan(ColorUtils.setAlphaComponent(Colors.WHITE, 0xB3)), start, sb.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+            binding.hrforecastDate.setText(sb);
         }
     }
 

@@ -32,36 +32,39 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/hrforecast_date"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
+                android:gravity="center"
+                android:layout_gravity="center"
                 android:padding="4dp"
-                android:text="@{viewModel != null ? viewModel.date : WeatherIcons.EM_DASH}"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="@android:color/white"
+                android:text="@{WeatherIcons.EM_DASH}"
+                android:textAppearance="?textAppearanceBody1"
                 android:textSize="16sp"
                 app:autoSizeMaxTextSize="16sp"
                 app:autoSizeMinTextSize="12sp"
                 app:autoSizeTextType="uniform"
-                tools:text="Thu 10PM" />
+                tools:text="10PM\nThu" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.thewizrd.shared_resources.controls.IconControl
                 android:id="@+id/hrforecast_icon"
                 android:layout_width="32dp"
                 android:layout_height="36dp"
                 android:gravity="center"
+                android:layout_gravity="center"
+                app:animate="true"
                 app:weatherIcon="@{viewModel.weatherIcon}"
                 tools:srcCompat="@drawable/wi_day_sunny" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/hrforecast_temphi"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_gravity="center"
                 android:padding="4dp"
                 android:text="@{viewModel != null ? viewModel.hiTemp : WeatherIcons.PLACEHOLDER}"
-                android:textAppearance="?android:textAppearanceSmallInverse"
-                android:textColor="@android:color/white"
+                android:textAppearance="?textAppearanceBody1"
                 android:textSize="16sp"
                 app:autoSizeMaxTextSize="16sp"
                 app:autoSizeMinTextSize="12sp"

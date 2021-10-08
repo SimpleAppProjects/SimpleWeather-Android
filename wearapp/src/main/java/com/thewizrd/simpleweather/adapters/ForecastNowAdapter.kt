@@ -1,13 +1,18 @@
 package com.thewizrd.simpleweather.adapters
 
+import android.text.SpannableStringBuilder
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.text.scale
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.simpleweather.databinding.ForecastItemBinding
 import com.thewizrd.simpleweather.databinding.HrforecastItemBinding
 
@@ -37,6 +42,29 @@ class ForecastNowAdapter<T : BaseForecastItemViewModel> :
         fun bind(model: HourlyForecastItemViewModel) {
             binding.viewModel = model
             binding.executePendingBindings()
+
+            val fcast = model.forecast
+            val is24hr = DateFormat.is24HourFormat(itemView.context)
+            val time: String
+            val timeSuffix: String
+            if (is24hr) {
+                time = fcast.date.format(
+                    DateTimeUtils.ofPatternForUserLocale(
+                        DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)
+                    )
+                )
+                timeSuffix = ""
+            } else {
+                time = fcast.date.format(DateTimeUtils.ofPatternForUserLocale("h"))
+                timeSuffix = fcast.date.format(DateTimeUtils.ofPatternForUserLocale("a"))
+            }
+
+            val sb = SpannableStringBuilder(time)
+            sb.scale(0.8f) {
+                this.append(timeSuffix)
+            }
+
+            binding.hrforecastDate.text = sb
         }
     }
 

@@ -11,11 +11,12 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/Widget.Wear.WearChipButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:background="@null"
         android:clickable="false"
-        style="@style/Widget.Wear.WearChipButton">
+        android:orientation="horizontal">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/top_guideline"
@@ -49,14 +50,14 @@
             android:id="@+id/detail_icon"
             android:layout_width="@dimen/details_icon_size"
             android:layout_height="@dimen/details_icon_size"
-            android:scaleType="fitCenter"
             android:rotation="@{viewModel.iconRotation}"
-            app:weatherIcon="@{viewModel.icon}"
-            app:tint="@color/colorPrimaryLight"
-            tools:srcCompat="@drawable/wi_moon_waxing_crescent_3"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
             app:layout_constraintStart_toStartOf="@id/start_guideline"
-            app:layout_constraintTop_toTopOf="@id/top_guideline" />
+            app:layout_constraintTop_toTopOf="@id/top_guideline"
+            app:tint="@color/colorPrimaryLight"
+            app:weatherIcon="@{viewModel.icon}"
+            tools:srcCompat="@drawable/wi_moon_waxing_crescent_3" />
 
         <TextView
             android:id="@+id/detail_label"
@@ -66,16 +67,16 @@
             android:duplicateParentState="true"
             android:ellipsize="end"
             android:gravity="center_vertical"
+            android:text="@{viewModel.label}"
             android:textAppearance="?textAppearanceButton"
             android:textColor="@color/wear_chip_primary_text_color"
-            android:text="@{viewModel.label}"
-            tools:text="Moon Phase"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@id/detail_value"
             app:layout_constraintEnd_toStartOf="@id/end_barrier"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/detail_icon"
-            app:layout_constraintTop_toTopOf="@id/top_guideline" />
+            app:layout_constraintTop_toTopOf="@id/top_guideline"
+            tools:text="Moon Phase" />
 
         <TextView
             android:id="@+id/detail_value"
@@ -85,16 +86,16 @@
             android:duplicateParentState="true"
             android:ellipsize="end"
             android:gravity="center_vertical"
+            android:text="@{viewModel.value}"
             android:textAppearance="?textAppearanceCaption"
             android:textColor="@color/wear_chip_seconary_text_color"
-            android:text="@{viewModel.value}"
-            tools:text="Waxing Cresent"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@id/bottom_guideline"
             app:layout_constraintEnd_toStartOf="@id/end_barrier"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/detail_icon"
-            app:layout_constraintTop_toBottomOf="@id/detail_label" />
+            app:layout_constraintTop_toBottomOf="@id/detail_label"
+            tools:text="Waxing Cresent" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/end_barrier"
