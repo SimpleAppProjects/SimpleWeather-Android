@@ -24,9 +24,8 @@
     </style>
 
     <style name="AppTheme.Launcher" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_anim</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_simpleblue_anim</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
-        <item name="windowSplashScreenBackground">@color/colorPrimaryBackground</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>

@@ -129,9 +129,8 @@
     </style>
 
     <style name="AppTheme.Launcher" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
-        <item name="windowSplashScreenBackground">@color/colorPrimaryBackground</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
