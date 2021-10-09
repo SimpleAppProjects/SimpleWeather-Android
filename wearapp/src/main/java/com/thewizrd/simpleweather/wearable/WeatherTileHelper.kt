@@ -10,20 +10,29 @@ object WeatherTileHelper {
     private const val TAG = "WeatherTileHelper"
 
     @JvmStatic
-    fun requestTileUpdate(context: Context, tileId: Int) {
-        Logger.writeLine(Log.INFO, "%s: requesting tile update (tileId = %s)", TAG, tileId)
-
-        val updateRequester = TileProviderUpdateRequester(context.applicationContext,
-                ComponentName(context.applicationContext, WeatherTileProviderService::class.java))
-        updateRequester.requestUpdate(tileId)
-    }
-
-    @JvmStatic
     fun requestTileUpdateAll(context: Context) {
         Logger.writeLine(Log.INFO, "%s: requesting tile update all", TAG)
 
-        val updateRequester = TileProviderUpdateRequester(context.applicationContext,
-                ComponentName(context.applicationContext, WeatherTileProviderService::class.java))
-        updateRequester.requestUpdateAll()
+        TileProviderUpdateRequester(
+            context.applicationContext,
+            ComponentName(
+                context.applicationContext,
+                ForecastWeatherTileProviderService::class.java
+            )
+        )
+            .requestUpdateAll()
+        TileProviderUpdateRequester(
+            context.applicationContext,
+            ComponentName(context.applicationContext, CurrentWeatherTileProviderService::class.java)
+        )
+            .requestUpdateAll()
+        TileProviderUpdateRequester(
+            context.applicationContext,
+            ComponentName(
+                context.applicationContext,
+                CurrentWeatherGoogleTileProviderService::class.java
+            )
+        )
+            .requestUpdateAll()
     }
 }

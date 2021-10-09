@@ -17,6 +17,8 @@
 
     <!-- Tiles -->
     <dimen name="tile_horizontal_padding">20dp</dimen>
+    <dimen name="tile_vertical_padding">24dp</dimen>
+    <dimen name="tile_current_header_minheight">60dp</dimen>
 
     <!-- WearOS 3 -->
     <dimen name="timer_top_margin">16dp</dimen>

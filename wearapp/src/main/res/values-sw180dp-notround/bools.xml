@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="tiles_show_extra">true</bool>
+    <integer name="tiles_extra_visibility">0</integer>
+</resources>

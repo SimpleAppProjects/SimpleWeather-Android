@@ -6,10 +6,12 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.AnyRes
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 
 object ContextUtils {
     @JvmStatic
@@ -33,6 +35,12 @@ object ContextUtils {
     @JvmStatic
     fun Context.isSmallestWidth(swdp: Int): Boolean {
         return this.resources.configuration.smallestScreenWidthDp >= swdp
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    @JvmStatic
+    fun Context.isScreenRound(): Boolean {
+        return this.resources.configuration.isScreenRound
     }
 
     @JvmStatic

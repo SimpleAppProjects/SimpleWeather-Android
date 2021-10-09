@@ -25,7 +25,6 @@
         android:supportsRtl="true"
         android:theme="@style/WearAppTheme.Launcher"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
@@ -101,47 +100,47 @@
 
         <service
             android:icon="@mipmap/ic_launcher_round"
-            android:label="Weather + Forecast"
+            android:label="@string/tile_label_weather_forecast"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
-            android:name=".wearable.WeatherTileProviderService">
-            <meta-data
-                android:name="com.google.android.clockwork.tiles.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
-
+            android:name=".wearable.ForecastWeatherTileProviderService">
             <intent-filter>
                 <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
             </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.clockwork.tiles.PREVIEW"
+                android:resource="@drawable/tile_preview_forecast" />
         </service>
 
         <service
             android:icon="@mipmap/ic_launcher_round"
-            android:label="Current Weather"
+            android:label="@string/tile_label_currentweather"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
             android:name=".wearable.CurrentWeatherTileProviderService">
-            <meta-data
-                android:name="com.google.android.clockwork.tiles.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
-
             <intent-filter>
                 <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
             </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.clockwork.tiles.PREVIEW"
+                android:resource="@drawable/tile_preview_current" />
         </service>
 
         <service
             android:icon="@mipmap/ic_launcher_round"
-            android:label="Current Weather"
+            android:label="@string/tile_label_currentweather"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
             android:name=".wearable.CurrentWeatherGoogleTileProviderService">
-            <meta-data
-                android:name="com.google.android.clockwork.tiles.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
-
             <intent-filter>
                 <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
             </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.clockwork.tiles.PREVIEW"
+                android:resource="@drawable/tile_preview_current_g" />
         </service>
 
         <service

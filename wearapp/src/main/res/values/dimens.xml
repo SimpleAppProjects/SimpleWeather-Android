@@ -31,9 +31,11 @@
 
     <!-- Tiles -->
     <dimen name="tile_horizontal_padding">4dp</dimen>
+    <dimen name="tile_vertical_padding">4dp</dimen>
     <dimen name="current_g_temp_textsize">36sp</dimen>
     <dimen name="current_g_hilo_textsize">16sp</dimen>
     <dimen name="current_g_condition_textsize">16sp</dimen>
+    <dimen name="tile_current_header_minheight">24dp</dimen>
 
     <!-- WearOS 3 -->
     <dimen name="timer_top_margin">0dp</dimen>

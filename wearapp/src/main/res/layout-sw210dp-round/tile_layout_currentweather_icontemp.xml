@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:gravity="center"
+    android:orientation="horizontal"
+    tools:layout_width="match_parent"
+    tools:layout_height="60dp"
+    tools:layout_gravity="center">
+
+    <ImageView
+        android:id="@+id/weather_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center"
+        tools:srcCompat="@drawable/wui_day_mostlycloudy" />
+
+    <TextView
+        android:id="@+id/condition_temp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:minWidth="56dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="0dp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        android:autoSizeMaxTextSize="36sp"
+        android:autoSizeTextType="uniform"
+        tools:text="777°" />
+
+    <LinearLayout
+        android:id="@+id/condition_hilo_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48dp"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/condition_hi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            tools:text="74°" />
+
+        <TextView
+            android:id="@+id/condition_lo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="16sp"
+            tools:text="68°" />
+
+    </LinearLayout>
+
+</LinearLayout>
