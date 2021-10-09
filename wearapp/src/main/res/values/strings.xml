@@ -33,5 +33,6 @@
     <string name="pref_sync_off">Off</string>
     <string name="pref_sync_deviceonly">Sync from device only</string>
     <string name="pref_sync_whenavailable">Sync from device (when available)</string>
+    <string name="message_disconnected">Disconnected</string>
 
 </resources>

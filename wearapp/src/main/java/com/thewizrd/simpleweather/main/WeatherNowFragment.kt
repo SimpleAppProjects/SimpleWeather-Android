@@ -14,9 +14,7 @@ import android.view.View.OnGenericMotionListener
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.InputDeviceCompat
-import androidx.core.view.MotionEventCompat
-import androidx.core.view.ViewConfigurationCompat
+import androidx.core.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
@@ -35,6 +33,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.shared_resources.weatherdata.*
@@ -132,6 +131,15 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     context,
                     WeatherUpdaterWorker.ACTION_UPDATEWEATHER
                 )
+
+                binding.scrollView.post {
+                    runWithView {
+                        val activity = requireActivity()
+                        if (activity is WearableListenerActivity && activity.getConnectionStatus() != WearConnectionStatus.CONNECTED) {
+                            showDisconnectedView()
+                        }
+                    }
+                }
             } else {
                 lifecycleScope.launch(Dispatchers.Default) {
                     WidgetUpdaterWorker.requestWidgetUpdate(context)
@@ -937,5 +945,27 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         syncTimer?.cancel()
         syncTimer?.purge()
         syncTimerEnabled = false
+    }
+
+    private fun showDisconnectedView() {
+        binding.disconnectedView.scaleX = 0f
+        binding.disconnectedView.scaleY = 0f
+        binding.disconnectedView.visibility = View.VISIBLE
+        binding.disconnectedView.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(250)
+
+        binding.disconnectedView.postOnAnimationDelayed(2500) {
+            binding.disconnectedView.scaleX = 1f
+            binding.disconnectedView.scaleY = 1f
+            binding.disconnectedView.animate()
+                .scaleX(0f)
+                .scaleY(0f)
+                .setDuration(250)
+                .withEndAction {
+                    binding.disconnectedView.visibility = View.GONE
+                }
+        }
     }
 }
