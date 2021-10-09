@@ -46,6 +46,8 @@ import com.thewizrd.simpleweather.adapters.ForecastNowAdapter
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
+import com.thewizrd.simpleweather.fragments.WearDialogFragment
+import com.thewizrd.simpleweather.fragments.WearDialogParams
 import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
@@ -392,6 +394,17 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
         binding.detailsButton.setOnClickListener {
             binding.conditionDetails.callOnClick()
+        }
+
+        binding.weatherSummary.setOnClickListener {
+            val dialogParams = WearDialogParams.Builder(it.context)
+                .setMessage(binding.weatherSummary.text)
+                .hidePositiveButton()
+                .hideNegativeButton()
+                .setTitle("")
+                .build()
+
+            WearDialogFragment.show(parentFragmentManager, dialogParams)
         }
 
         mForecastAdapter.setOnClickListener(object : RecyclerOnClickListenerInterface {
