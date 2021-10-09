@@ -27,7 +27,7 @@ public class WearDialogFragment private constructor(private val params: WearDial
             }
         }
 
-        fun show(fragmentManager: FragmentManager, params: WearDialogParams, tag: String?) {
+        fun show(fragmentManager: FragmentManager, params: WearDialogParams, tag: String? = null) {
             val f = newInstance(params)
             f.show(fragmentManager, tag)
         }
@@ -65,6 +65,9 @@ public class WearDialogFragment private constructor(private val params: WearDial
         binding.title.text = params.mTitle
         binding.icon.setImageDrawable(params.mIcon)
         binding.message.text = params.mMessage
+
+        binding.icon.visibility = if (params.mIcon != null) View.VISIBLE else View.GONE
+        binding.message.visibility = if (params.mMessage != null) View.VISIBLE else View.GONE
 
         binding.buttonPositive.setOnClickListener {
             if (params.mOnPositiveButtonClicked != null) {

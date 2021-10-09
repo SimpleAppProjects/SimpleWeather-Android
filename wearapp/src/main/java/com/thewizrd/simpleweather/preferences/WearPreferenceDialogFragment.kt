@@ -220,6 +220,9 @@ abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterf
         binding.icon.setImageDrawable(params.mIcon)
         binding.message.text = params.mMessage
 
+        binding.icon.visibility = if (params.mIcon != null) View.VISIBLE else View.GONE
+        binding.message.visibility = if (params.mMessage != null) View.VISIBLE else View.GONE
+
         binding.buttonPositive.setOnClickListener {
             if (params.mOnPositiveButtonClicked != null) {
                 params.mOnPositiveButtonClicked!!.onClick(this, WearDialogInterface.BUTTON_POSITIVE)
