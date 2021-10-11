@@ -101,6 +101,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import kotlinx.coroutines.*
@@ -600,7 +601,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
                             .setData(JSONParser.serializer(locationData, LocationData::class.java))
                             .setWeatherListType(WeatherListType.ALERTS)
-                    v.findNavController().navigate(args)
+                    v.findNavController().safeNavigate(args)
                 }
             }
 
@@ -637,7 +638,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                 )
                                 .setWeatherListType(WeatherListType.FORECAST)
                                 .setPosition(position)
-                        view.findNavController().navigate(args)
+                        view.findNavController().safeNavigate(args)
                     }
                 }
             })
@@ -687,7 +688,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                 )
                                 .setWeatherListType(WeatherListType.HOURLYFORECAST)
                                 .setPosition(position)
-                        view.findNavController().navigate(args)
+                        view.findNavController().safeNavigate(args)
                     }
                 }
             }
@@ -725,7 +726,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                         LocationData::class.java
                                     )
                                 )
-                        view.findNavController().navigate(args)
+                        view.findNavController().safeNavigate(args)
                     }
                 }
             }
@@ -863,7 +864,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     AnalyticsLogger.logEvent("WeatherNowFragment: radar view click")
                     v.isEnabled = false
                     v.findNavController()
-                        .navigate(
+                        .safeNavigate(
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherRadarFragment(),
                             FragmentNavigator.Extras.Builder()
                                 .addSharedElement(v, "radar")
@@ -1222,7 +1223,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         showBanner(Banner.make(R.string.prompt_location_not_set).apply {
                             setBannerIcon(binding.root.context, R.drawable.ic_location_off_24dp)
                             setPrimaryAction(R.string.label_fab_add_location) {
-                                binding.root.findNavController().navigate(
+                                binding.root.findNavController().safeNavigate(
                                     WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
                                 )
                             }

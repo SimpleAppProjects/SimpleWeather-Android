@@ -67,6 +67,7 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.helpers.*
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.lang.Runnable
@@ -222,29 +223,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .setBackground(item.imageData?.imageURI)
                                 .setHome(isHome)
 
-                        try {
-                            binding.root.findNavController().navigate(args)
-                        } catch (ex: Exception) {
-                            if (ex is IllegalArgumentException || ex is IllegalStateException) {
-                                val props = Bundle().apply {
-                                    putString("method", "onRecyclerClickListener.onClick")
-                                    putBoolean("isAlive", isAlive)
-                                    putBoolean("isViewAlive", isViewAlive)
-                                    putBoolean("isDetached", isDetached)
-                                    putBoolean("isResumed", isResumed)
-                                    putBoolean("isRemoving", isRemoving)
-                                }
-                                AnalyticsLogger.logEvent("$TAG: navigation failed", props)
-
-                                Logger.writeLine(Log.ERROR, ex)
-                            } else {
-                                throw ex
-                            }
-                        }
+                        binding.root.findNavController().safeNavigate(args)
+                    }
                 }
             }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -370,7 +353,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
         binding.fab.setOnClickListener {
             binding.root.findNavController()
-                .navigate(
+                .safeNavigate(
                     LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment(),
                     FragmentNavigator.Extras.Builder()
                         .addSharedElement(binding.fab, Constants.SHARED_ELEMENT)

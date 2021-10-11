@@ -38,6 +38,7 @@ import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import kotlinx.coroutines.*
@@ -139,31 +140,13 @@ class SetupLocationFragment : CustomFragment() {
             val bottomNavBar = appCompatActivity!!.findViewById<View>(R.id.bottom_nav_bar)
             bottomNavBar.visibility = View.GONE
 
-            try {
-                v.findNavController()
-                    .navigate(
-                        SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                        FragmentNavigator.Extras.Builder()
-                            .addSharedElement(v, Constants.SHARED_ELEMENT)
-                            .build()
-                    )
-            } catch (ex: Exception) {
-                if (ex is IllegalArgumentException || ex is IllegalStateException) {
-                    val props = Bundle().apply {
-                        putString("method", "searchViewContainer.onClick")
-                        putBoolean("isAlive", isAlive)
-                        putBoolean("isViewAlive", isViewAlive)
-                        putBoolean("isDetached", isDetached)
-                        putBoolean("isResumed", isResumed)
-                        putBoolean("isRemoving", isRemoving)
-                    }
-                    AnalyticsLogger.logEvent("$TAG: navigation failed", props)
-
-                    Logger.writeLine(Log.ERROR, ex)
-                } else {
-                    throw ex
-                }
-            }
+            v.findNavController()
+                .safeNavigate(
+                    SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
+                    FragmentNavigator.Extras.Builder()
+                        .addSharedElement(v, Constants.SHARED_ELEMENT)
+                        .build()
+                )
         }
         ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT)
 
@@ -195,8 +178,8 @@ class SetupLocationFragment : CustomFragment() {
                             if (data != null) {
                                 // Setup complete
                                 viewModel.locationData = data
-                                navController.navigate(
-                                        SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+                                navController.safeNavigate(
+                                    SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
                                 )
                                 return@launch
                             }
@@ -389,29 +372,10 @@ class SetupLocationFragment : CustomFragment() {
                                 if (data.isValid) {
                                     // Setup complete
                                     viewModel.locationData = data
-                                    try {
-                                        binding.root.findNavController()
-                                            .navigate(SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment())
-                                    } catch (ex: Exception) {
-                                        if (ex is IllegalArgumentException || ex is IllegalStateException) {
-                                            val args = Bundle().apply {
-                                                putString("method", "fetchGeoLocation")
-                                                putBoolean("isAlive", isAlive)
-                                                putBoolean("isViewAlive", isViewAlive)
-                                                putBoolean("isDetached", isDetached)
-                                                putBoolean("isResumed", isResumed)
-                                                putBoolean("isRemoving", isRemoving)
-                                            }
-                                            AnalyticsLogger.logEvent(
-                                                "$TAG: navigation failed",
-                                                args
-                                            )
-
-                                            Logger.writeLine(Log.ERROR, ex)
-                                        } else {
-                                            throw ex
-                                        }
-                                    }
+                                    binding.root.findNavController()
+                                        .safeNavigate(
+                                            SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+                                        )
                                 } else {
                                     enableControls(true)
                                     getSettingsManager().setFollowGPS(false)

@@ -60,6 +60,7 @@ import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
@@ -269,13 +270,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         findPreference<Preference>(KEY_ABOUTAPP)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
             appCompatActivity.findNavController(R.id.fragment_container)
-                    .navigate(SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment())
+                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment())
             true
         }
 
         findPreference<Preference>(KEY_UNITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { // Display the fragment as the main content.
             appCompatActivity.findNavController(R.id.fragment_container)
-                    .navigate(SettingsFragmentDirections.actionSettingsFragmentToUnitsFragment())
+                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToUnitsFragment())
             true
         }
 
@@ -617,14 +618,14 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
             appCompatActivity.findNavController(R.id.fragment_container)
-                    .navigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
+                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
             true
         }
 
         findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
             appCompatActivity.findNavController(R.id.fragment_container)
-                    .navigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
+                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
             true
         }
 
@@ -1135,14 +1136,14 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             findPreference<Preference>(KEY_ABOUTCREDITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 // Display the fragment as the main content.
                 appCompatActivity.findNavController(R.id.fragment_container)
-                        .navigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToCreditsFragment())
+                    .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToCreditsFragment())
                 true
             }
 
             findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 // Display the fragment as the main content.
                 appCompatActivity.findNavController(R.id.fragment_container)
-                        .navigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
+                    .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
                 true
             }
 

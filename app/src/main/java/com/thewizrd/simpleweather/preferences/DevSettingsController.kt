@@ -7,7 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
-import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 
 class DevSettingsController(private val prefFragment: PreferenceFragmentCompat, private val prefKey: String) {
     private val context = prefFragment.requireContext()
@@ -29,7 +29,8 @@ class DevSettingsController(private val prefFragment: PreferenceFragmentCompat, 
         screen.addPreference(Preference(context).apply {
             title = "Developer settings"
             onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                prefFragment.listView.findNavController().navigate(R.id.action_aboutAppFragment_to_devSettingsFragment)
+                prefFragment.listView.findNavController()
+                    .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToDevSettingsFragment())
                 true
             }
             isVisible = DevSettingsEnabler.isDevSettingsEnabled(context)

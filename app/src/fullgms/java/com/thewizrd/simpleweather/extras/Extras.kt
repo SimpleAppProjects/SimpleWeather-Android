@@ -19,6 +19,7 @@ import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.preferences.SettingsFragmentDirections
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 
 fun initializeExtras(app: ApplicationLib) {
     ExtrasLibrary.initialize(app)
@@ -97,7 +98,7 @@ fun SettingsFragment.createPremiumPreference(): Preference {
     }
     premiumPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
         if (isPremiumSupported()) {
-            rootView.findNavController().navigate(
+            rootView.findNavController().safeNavigate(
                 SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment()
             )
         } else {
