@@ -242,17 +242,17 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         return mNavController
     }
 
-    override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
         // Alerts: from weather alert notification
-        if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent.action) {
+        if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
             val args = Bundle()
             if (intent.extras != null) {
                 args.putAll(intent.extras)
             }
             args.putSerializable(Constants.ARGS_WEATHERLISTTYPE, WeatherListType.ALERTS)
-            mNavController!!.navigate(R.id.weatherListFragment, args)
+            mNavController?.navigate(R.id.weatherListFragment, args)
         }
     }
 

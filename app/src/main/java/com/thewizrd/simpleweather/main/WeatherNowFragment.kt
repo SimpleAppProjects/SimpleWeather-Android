@@ -1383,6 +1383,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun updateWindowColors() {
+        if (appCompatActivity == null) return
+
         var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
         var navBarColor = appCompatActivity!!.getAttrColor(R.attr.colorSurface)
         var statusBarColor = navBarColor

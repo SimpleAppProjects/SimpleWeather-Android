@@ -219,6 +219,8 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
+        if (appCompatActivity == null) return
+
         var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
         if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
