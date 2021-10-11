@@ -17,6 +17,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 abstract class WeatherTileProviderService : TileProviderService() {
     protected abstract val LOGTAG: String
@@ -112,6 +113,7 @@ abstract class WeatherTileProviderService : TileProviderService() {
         if (updateViews != null) {
             val tileData = TileData.Builder()
                 .setRemoteViews(updateViews)
+                .setOutdatedTimeMs(TimeUnit.HOURS.toMillis(1))
                 .build()
 
             Timber.tag(LOGTAG).d("sending update...")
