@@ -6,10 +6,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -129,10 +131,30 @@ fun Context.openAppSettingsActivity() {
 fun Context.getBackgroundLocationRationale(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         this.getString(
-            R.string.bg_location_permission_rationale_settings,
+            getBackgroundLocationRationalResId(),
             this.packageManager.backgroundPermissionOptionLabel
         )
     } else {
-        this.getString(R.string.bg_location_permission_rationale)
+        this.getString(getBackgroundLocationRationalResId())
+    }
+}
+
+@StringRes
+private fun Context.getBackgroundLocationRationalResId(): Int {
+    val isWatch =
+        resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (isWatch) {
+            R.string.wear_bg_location_permission_rationale_settings
+        } else {
+            R.string.bg_location_permission_rationale_settings
+        }
+    } else {
+        if (isWatch) {
+            R.string.wear_bg_location_permission_rationale
+        } else {
+            R.string.bg_location_permission_rationale
+        }
     }
 }

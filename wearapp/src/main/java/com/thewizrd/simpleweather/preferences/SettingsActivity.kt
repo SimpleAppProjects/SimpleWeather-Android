@@ -120,6 +120,7 @@ class SettingsActivity : WearableListenerActivity() {
 
             // Preference Keys
             private const val KEY_ABOUTAPP = "key_aboutapp"
+            private const val KEY_BGLOCATIONACCESS = "key_bglocationaccess"
             private const val KEY_CONNSTATUS = "key_connectionstatus"
             private const val KEY_APIREGISTER = "key_apiregister"
             private const val KEY_UNITS = "key_units"
@@ -130,6 +131,7 @@ class SettingsActivity : WearableListenerActivity() {
 
         // Preferences
         private lateinit var followGps: SwitchPreference
+        private lateinit var bgLocationPref: Preference
         private lateinit var languagePref: ListPreference
         private lateinit var providerPref: ListPreference
         private lateinit var personalKeyPref: SwitchPreference
@@ -307,9 +309,26 @@ class SettingsActivity : WearableListenerActivity() {
                                 settingsManager.setRequestBGAccess(true)
                             }
                         }
+                        }
                     }
+
+                    true
                 }
 
+            bgLocationPref = findPreference(KEY_BGLOCATIONACCESS)!!
+            bgLocationPref.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                    !parentActivity!!.backgroundLocationPermissionEnabled() &&
+                    settingsManager.useFollowGPS()
+            bgLocationPref.setOnPreferenceClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        parentActivity?.openAppSettingsActivity()
+                    } else {
+                        requestBackgroundLocationPermission(
+                            PERMISSION_BGLOCATION_REQUEST_CODE
+                        )
+                    }
+                }
                 true
             }
 
