@@ -127,7 +127,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
     implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.core:core-splashscreen:1.0.0-alpha01'
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.fragment:fragment-ktx:1.3.6'
     implementation 'com.google.android.material:material:1.4.0'
@@ -168,10 +168,10 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations-java5"
     }
 
-    fullgmsImplementation 'com.revenuecat.purchases:purchases:4.3.2'
+    fullgmsImplementation 'com.revenuecat.purchases:purchases:4.3.3'
 
     // Firebase
-    fullgmsImplementation platform('com.google.firebase:firebase-bom:28.4.1')
+    fullgmsImplementation platform('com.google.firebase:firebase-bom:28.4.2')
     fullgmsImplementation 'com.google.firebase:firebase-analytics'
     fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
     fullgmsImplementation 'com.google.firebase:firebase-auth'
