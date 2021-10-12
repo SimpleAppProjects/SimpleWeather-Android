@@ -6,6 +6,7 @@
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="windowSplashScreenBackground">@android:color/black</item>
         <item name="postSplashScreenTheme">@style/WearAppTheme</item>
+        <item name="splashScreenIconSize">48dp</item>
     </style>
 
 </resources>

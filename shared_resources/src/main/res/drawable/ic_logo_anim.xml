@@ -13,6 +13,18 @@
                 android:valueTo="0" />
         </aapt:attr>
     </target>
+    <target android:name="sun_rays_shadow">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="rotation"
+                android:duration="1000"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:valueFrom="-45"
+                android:valueTo="0" />
+        </aapt:attr>
+    </target>
+
     <target android:name="sun">
         <aapt:attr name="android:animation">
             <objectAnimator
@@ -24,7 +36,30 @@
                 android:valueTo="0" />
         </aapt:attr>
     </target>
+    <target android:name="sun_shadow">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="rotation"
+                android:duration="1000"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:valueFrom="-45"
+                android:valueTo="0" />
+        </aapt:attr>
+    </target>
+
     <target android:name="cloud">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateX"
+                android:duration="1000"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:valueFrom="24"
+                android:valueTo="0" />
+        </aapt:attr>
+    </target>
+    <target android:name="cloud_shadow">
         <aapt:attr name="android:animation">
             <objectAnimator
                 android:propertyName="translateX"
