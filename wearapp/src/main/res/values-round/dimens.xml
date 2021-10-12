@@ -29,4 +29,6 @@
     <dimen name="diag_button_size">48dp</dimen>
     <dimen name="diag_title_min_height">48dp</dimen>
 
+    <dimen name="list_header_horizontal_padding">36dp</dimen>
+
 </resources>

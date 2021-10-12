@@ -16,9 +16,10 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingHorizontal="@dimen/list_header_horizontal_padding"
         android:textColor="?colorOnSurfaceVariant2"
         android:textAppearance="?titleTextAppearance"
         android:gravity="center"
-        tools:text="Header" />
+        tools:text="Open Source Libraries" />
 
 </LinearLayout>

@@ -46,6 +46,8 @@
     <dimen name="diag_button_size">44dp</dimen>
     <dimen name="diag_title_min_height">0dp</dimen>
 
+    <dimen name="list_header_horizontal_padding">0dp</dimen>
+
     <!-- Material dimens -->
     <dimen name="shape_corner_radius">8dp</dimen>
 
