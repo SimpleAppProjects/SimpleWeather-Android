@@ -3,6 +3,7 @@ package com.thewizrd.shared_resources.utils
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import com.bumptech.glide.Glide
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDatabase
@@ -11,6 +12,9 @@ import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.DBUtils.updateLocationKey
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 internal object VersionMigrations {
     suspend fun performMigrations(
@@ -71,6 +75,17 @@ internal object VersionMigrations {
                     WeatherManager.instance.updateAPI()
                     settingsMgr.setPersonalKey(false)
                     settingsMgr.setKeyVerified(true)
+                }
+            }
+
+            if (settingsMgr.getVersionCode() < 305300000) {
+                // v5.3.0: Clear Glide cache
+                // Changed default decode format for Glide
+                if (SimpleLibrary.instance.app.isPhone) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        Glide.get(context.applicationContext)
+                            .clearDiskCache()
+                    }
                 }
             }
 
