@@ -390,7 +390,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
                     String.format(LocaleUtils.getLocale(), "%d %s", visibilityVal, visibilityUnit)))
         }
 
-        if (weatherData?.condition?.uv != null) {
+        if (weatherData?.condition?.uv?.index != null) {
             if (isPhone) {
                 uvIndex = UVIndexViewModel(weatherData!!.condition.uv)
             } else {
@@ -402,7 +402,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
         notifyPropertyChanged(BR.uvIndex)
 
         // Additional Details
-        if (weatherData?.condition?.airQuality != null) {
+        if (weatherData?.condition?.airQuality?.index != null) {
             if (isPhone) {
                 airQuality = AirQualityViewModel(weatherData!!.condition.airQuality)
             } else {
