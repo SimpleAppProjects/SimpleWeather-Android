@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.google.GoogleLocationProvider
@@ -139,7 +140,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.HERE)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -149,7 +150,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.METNO)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -174,7 +175,7 @@ class UnitTests {
             val provider = WeatherManager.getProvider(WeatherAPI.NWS)
             val weather = getWeather(provider)
             Assert.assertTrue(weather.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -184,7 +185,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -195,7 +196,7 @@ class UnitTests {
             val provider = WeatherManager.getProvider(WeatherAPI.WEATHERUNLOCKED)
             val weather = getWeather(provider)
             Assert.assertTrue(!weather.forecast.isNullOrEmpty() && !weather.hrForecast.isNullOrEmpty())
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -400,7 +401,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE)
             val weather = getWeather(provider, Coordinate(48.85, 2.34))
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -410,7 +411,17 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.WEATHERAPI)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getTomorrowIOWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.TOMORROWIO)
+            val weather = getWeather(provider)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
