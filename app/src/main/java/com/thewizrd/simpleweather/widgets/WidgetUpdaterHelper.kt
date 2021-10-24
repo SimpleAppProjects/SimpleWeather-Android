@@ -11,7 +11,6 @@ import android.os.SystemClock
 import android.provider.AlarmClock
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.util.TypedValue
@@ -33,6 +32,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.TextUtils.getTextBounds
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -601,7 +601,7 @@ object WidgetUpdaterHelper {
             }
 
             if (windModel != null) {
-                var speed = if (TextUtils.isEmpty(windModel.value)) "" else windModel.value.toString()
+                var speed = if (windModel.value.isNullOrEmpty()) "" else windModel.value.toString()
                 speed = speed.split(",").toTypedArray()[0]
                 updateViews.setTextViewText(R.id.weather_windspeed, speed)
                 updateViews.setViewVisibility(R.id.weather_wind_layout, View.VISIBLE)
@@ -1158,14 +1158,17 @@ object WidgetUpdaterHelper {
                 if (cellWidth <= 2) View.GONE else View.VISIBLE
             )
         } else if (info.widgetType == WidgetType.Widget4x3Locations) {
-            val locationsCellHeight = cellHeight - 1.5f
-            if (locationsCellHeight <= 0) {
+            val clockSizeBounds = "3:00".getTextBounds(context, 66f)
+            val dateSizeBounds = "Sun, Oct 24".getTextBounds(context, 14f)
+            val locationsContainerHeight =
+                context.dpToPx(minHeight.toFloat()) - clockSizeBounds.height() - dateSizeBounds.height()
+
+            if (locationsContainerHeight <= 0) {
                 updateViews.setViewVisibility(R.id.locations_container, View.GONE)
             } else {
                 updateViews.setViewVisibility(R.id.locations_container, View.VISIBLE)
 
-                val cellHeightDp = minHeight / cellHeight
-                val maxAmountToFit = max(1f, locationsCellHeight * cellHeightDp / 36)
+                val maxAmountToFit = max(1f, locationsContainerHeight / context.dpToPx(36f))
                 val maxForecastLength =
                     min(maxAmountToFit.toInt(), WidgetUtils.getMaxForecastLength(appWidgetId))
 

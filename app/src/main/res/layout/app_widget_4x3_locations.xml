@@ -67,7 +67,8 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginHorizontal="16dp">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="4dp">
 
             <LinearLayout
                 android:id="@+id/location1"
