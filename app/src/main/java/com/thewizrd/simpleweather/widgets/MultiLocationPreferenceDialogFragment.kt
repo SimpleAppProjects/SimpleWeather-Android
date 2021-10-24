@@ -1,29 +1,31 @@
 package com.thewizrd.simpleweather.widgets
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.PreferenceDialogFragmentCompat
+import com.thewizrd.simpleweather.R
 import java.util.*
 import kotlin.collections.LinkedHashSet
-import kotlin.collections.MutableSet
 
-internal class MultiLocationPrefDialogFragment : PreferenceDialogFragmentCompat() {
-    private val MAX_LOCATION_ITEMS = 5
-
-    private val SAVE_STATE_VALUES = "MultiLocationPrefDialogFragment.values"
-    private val SAVE_STATE_CHANGED = "MultiLocationPrefDialogFragment.changed"
-    private val SAVE_STATE_ENTRIES = "MultiLocationPrefDialogFragment.entries"
-    private val SAVE_STATE_ENTRY_VALUES = "MultiLocationPrefDialogFragment.entryValues"
-
-    var mNewValues: MutableSet<String> = LinkedHashSet()
-    var mPreferenceChanged = false
-    var mEntries: Array<CharSequence>? = null
-    var mEntryValues: Array<CharSequence>? = null
+internal class MultiLocationPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
+    private var mNewValues: MutableSet<String> = LinkedHashSet()
+    private var mPreferenceChanged = false
+    private var mEntries: Array<CharSequence>? = null
+    private var mEntryValues: Array<CharSequence>? = null
 
     companion object {
-        fun newInstance(key: String): MultiLocationPrefDialogFragment {
-            val fragment = MultiLocationPrefDialogFragment()
+        private const val MAX_LOCATION_ITEMS = 5
+
+        private const val SAVE_STATE_VALUES = "MultiLocationPreferenceDialogFragment.values"
+        private const val SAVE_STATE_CHANGED = "MultiLocationPreferenceDialogFragment.changed"
+        private const val SAVE_STATE_ENTRIES = "MultiLocationPreferenceDialogFragment.entries"
+        private const val SAVE_STATE_ENTRY_VALUES =
+            "MultiLocationPreferenceDialogFragment.entryValues"
+
+        fun newInstance(key: String): MultiLocationPreferenceDialogFragment {
+            val fragment = MultiLocationPreferenceDialogFragment()
             val b = Bundle(1).apply {
                 putString(ARG_KEY, key)
             }
@@ -79,11 +81,18 @@ internal class MultiLocationPrefDialogFragment : PreferenceDialogFragmentCompat(
 
         builder.setMultiChoiceItems(mEntries, checkedItems) { dialog, which, isChecked ->
             val listView = (dialog as? AlertDialog)?.listView
+            val checkedItemCount = mNewValues.size
 
             mPreferenceChanged = if (isChecked) {
-                if (mNewValues.size > MAX_LOCATION_ITEMS) {
+                if (checkedItemCount >= MAX_LOCATION_ITEMS) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.prompt_max_locations_allowed,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    checkedItems[which] = false
                     listView?.setItemChecked(which, false)
-                    mPreferenceChanged
+                    mPreferenceChanged or false
                 } else {
                     mPreferenceChanged or mNewValues.add(
                         mEntryValues!![which].toString()

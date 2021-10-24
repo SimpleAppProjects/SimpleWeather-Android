@@ -102,7 +102,6 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         private const val KEY_HIDESETTINGSBTN = "key_hidesettingsbtn"
 
         private const val KEY_CATCLOCKDATE = "key_catclockdate"
-        private const val KEY_USETIMEZONE = "key_usetimezone"
         private const val KEY_CLOCKAPP = "key_clockapp"
         private const val KEY_CALENDARAPP = "key_calendarapp"
 
@@ -374,14 +373,15 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {
         if (preference is ArrayMultiSelectListPreference && preference.key == KEY_LOCATION) {
-            val DIALOG_FRAGMENT_TAG = "${MultiLocationPrefDialogFragment::class.java.name}.DIALOG"
+            val DIALOG_FRAGMENT_TAG =
+                "${MultiLocationPreferenceDialogFragment::class.java.name}.DIALOG"
 
             // check if dialog is already showing
             if (parentFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
                 return
             }
 
-            val f = MultiLocationPrefDialogFragment.newInstance(preference.key)
+            val f = MultiLocationPreferenceDialogFragment.newInstance(preference.key)
             f.setTargetFragment(this, 0)
             f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
         } else {
