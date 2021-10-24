@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -39,6 +40,7 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.LocationQueryAdapter
+import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
 import com.thewizrd.simpleweather.snackbar.Snackbar
@@ -341,8 +343,12 @@ class LocationSearchFragment : WindowColorFragment() {
                     supervisorScope {
                         ensureActive()
                         val newText = e.toString()
-                        searchBarBinding.searchCloseButton.visibility = if (newText.isEmpty()) View.GONE else View.VISIBLE
+                        searchBarBinding.searchCloseButton.visibility =
+                            if (newText.isEmpty()) View.GONE else View.VISIBLE
                         fetchLocations(newText)
+
+                        binding.recyclerView.visibility =
+                            if (newText.isNotEmpty()) View.VISIBLE else View.INVISIBLE
                     }
                 }
             }
@@ -406,7 +412,10 @@ class LocationSearchFragment : WindowColorFragment() {
         // specify an adapter (see also next example)
         mAdapter = LocationQueryAdapter()
         mAdapter.setOnClickListener(recyclerClickListener)
-        binding.recyclerView.adapter = mAdapter
+        binding.recyclerView.adapter = ConcatAdapter(
+            mAdapter,
+            LocationQueryFooterAdapter()
+        )
 
         if (savedInstanceState != null) {
             val text = savedInstanceState.getString(KEY_SEARCHTEXT)
