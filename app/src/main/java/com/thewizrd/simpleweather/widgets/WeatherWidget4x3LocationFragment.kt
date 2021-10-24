@@ -670,6 +670,9 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                                     // Save data for widget
                                     WidgetUtils.deleteWidget(mAppWidgetId)
                                     WidgetUtils.saveLocationDataSet(mAppWidgetId, selectedValues)
+                                    selectedValues.forEach {
+                                        WidgetUtils.addWidgetId(it, mAppWidgetId)
+                                    }
                                     finalizeWidgetUpdate()
                                 }
                             }

@@ -328,7 +328,18 @@ object WidgetUtils {
         }
 
         for (id in getWidgetIds(newLocation.query)) {
-            saveLocationData(id, newLocation)
+            if (getWidgetTypeFromID(id) == WidgetType.Widget4x3Locations) {
+                val locationSet = getLocationDataSet(id)?.toMutableSet() ?: mutableSetOf()
+
+                if (locationSet.contains(oldQuery)) {
+                    locationSet.remove(oldQuery)
+                    locationSet.add(newLocation.query)
+                }
+
+                saveLocationDataSet(id, locationSet)
+            } else {
+                saveLocationData(id, newLocation)
+            }
         }
 
         cleanupWidgetData()
@@ -481,7 +492,15 @@ object WidgetUtils {
     }
 
     fun deleteWidget(id: Int) {
-        if (isGPS(id)) {
+        if (getWidgetTypeFromID(id) == WidgetType.Widget4x3Locations) {
+            val locations = getLocationDataSet(id)
+
+            locations?.forEach { locKey ->
+                removeWidgetId(locKey, id)
+            }
+
+            deletePreferences(id)
+        } else if (isGPS(id)) {
             removeWidgetId(Constants.KEY_GPS, id)
         } else {
             val locData = getLocationData(id)
@@ -492,7 +511,17 @@ object WidgetUtils {
     }
 
     fun remapWidget(oldId: Int, newId: Int) {
-        if (isGPS(oldId)) {
+        if (getWidgetTypeFromID(newId) == WidgetType.Widget4x3Locations) {
+            val locations = getLocationDataSet(oldId)
+
+            locations?.forEach { locKey ->
+                removeWidgetId(locKey, oldId)
+                addWidgetId(locKey, newId)
+            }
+
+            deletePreferences(oldId)
+            saveLocationDataSet(newId, locations)
+        } else if (isGPS(oldId)) {
             removeWidgetId(Constants.KEY_GPS, oldId)
             addWidgetId(Constants.KEY_GPS, newId)
         } else {
