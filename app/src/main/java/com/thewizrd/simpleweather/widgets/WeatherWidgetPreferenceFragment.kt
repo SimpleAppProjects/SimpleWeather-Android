@@ -49,6 +49,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.App
@@ -735,6 +736,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 2
                         WidgetType.Widget4x4MaterialYou -> 4
+                        WidgetType.Widget4x3Locations -> 4
                     }.toFloat()
                 ).toInt()
                 width = mWidgetViewCtx.dpToPx(
@@ -752,6 +754,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 4
                         WidgetType.Widget4x4MaterialYou -> 4
+                        WidgetType.Widget4x3Locations -> 3
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER
@@ -1261,10 +1264,5 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         } else {
             mockWeatherModel?.location = mockLocData?.name
         }
-    }
-
-    private fun Context.isNightMode(): Boolean {
-        val currentNightMode: Int = this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
     }
 }

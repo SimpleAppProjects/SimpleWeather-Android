@@ -49,12 +49,14 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
+import kotlin.math.max
 import kotlin.math.min
 
 object WidgetUpdaterHelper {
     private const val TAG = "WidgetUpdaterHelper"
     private val settingsManager = App.instance.settingsManager
     private const val MAX_FORECASTS = 6
+    private const val MAX_LOCATION_ITEMS = 5
 
     @JvmStatic
     fun widgetsExist(): Boolean {
@@ -140,24 +142,78 @@ object WidgetUpdaterHelper {
 
     suspend fun refreshWidget(context: Context, info: WidgetProviderInfo, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
-            val locData = getLocation(context, appWidgetId)
-            if (locData != null) {
-                val weather = getWeather(context, info, appWidgetId, locData)
-                if (weather != null) {
-                    val viewModel = WeatherNowViewModel(weather)
+            if (info.widgetType == WidgetType.Widget4x3Locations) {
+                val locationSet = WidgetUtils.getLocationDataSet(appWidgetId)
+                if (!locationSet.isNullOrEmpty()) {
+                    val locations = MutableList(locationSet.size) {
+                        val location = locationSet.elementAt(it)
+                        if (location == Constants.KEY_GPS) {
+                            settingsManager.getHomeData()
+                        } else {
+                            settingsManager.getLocation(location)
+                        }
+                    }
+
+                    val weather = MutableList(locations.size) {
+                        val l = locations[it]
+                        l?.let { loc ->
+                            val w = loadWeather(info, loc, appWidgetId)
+                            w?.let { data ->
+                                WeatherNowViewModel(data)
+                            }
+                        }
+                    }
+
                     val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
 
-                    // Build the widget update for provider
-                    val views = buildUpdate(context, info, appWidgetId, locData, viewModel, newOptions)
-
-                    buildExtras(context, info, locData, weather, views, appWidgetId, newOptions)
+                    val views = buildUpdate4x3Locations(
+                        context,
+                        info,
+                        appWidgetId,
+                        locations,
+                        weather,
+                        newOptions
+                    )
 
                     // Push update for this widget to the home screen
                     appWidgetManager.updateAppWidget(appWidgetId, views)
+                } else {
+                    Logger.writeLine(
+                        Log.DEBUG,
+                        "%s: provider: %s; widgetId: %d; Unable to find location data",
+                        TAG,
+                        info.className,
+                        appWidgetId
+                    )
+                    resetWidget(context, appWidgetId, appWidgetManager)
                 }
             } else {
-                Logger.writeLine(Log.DEBUG, "%s: provider: %s; widgetId: %d; Unable to find location data", TAG, info.className, appWidgetId)
-                resetWidget(context, appWidgetId, appWidgetManager)
+                val locData = getLocation(context, appWidgetId)
+                if (locData != null) {
+                    val weather = getWeather(context, info, appWidgetId, locData)
+                    if (weather != null) {
+                        val viewModel = WeatherNowViewModel(weather)
+                        val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+
+                        // Build the widget update for provider
+                        val views =
+                            buildUpdate(context, info, appWidgetId, locData, viewModel, newOptions)
+
+                        buildExtras(context, info, locData, weather, views, appWidgetId, newOptions)
+
+                        // Push update for this widget to the home screen
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
+                } else {
+                    Logger.writeLine(
+                        Log.DEBUG,
+                        "%s: provider: %s; widgetId: %d; Unable to find location data",
+                        TAG,
+                        info.className,
+                        appWidgetId
+                    )
+                    resetWidget(context, appWidgetId, appWidgetManager)
+                }
             }
         }
     }
@@ -214,7 +270,7 @@ object WidgetUpdaterHelper {
         setWidgetDependents(info, updateViews, weather)
 
         // Set sizes for views
-        updateViewSizes(context, info, updateViews, newOptions)
+        updateViewSizes(context, info, updateViews, appWidgetId, newOptions)
 
         if (WidgetUtils.isDateWidget(info.widgetType)) {
             // Open default clock/calendar app
@@ -241,6 +297,82 @@ object WidgetUpdaterHelper {
         setOnClickIntent(context, location, updateViews)
         setOnSettingsClickIntent(context, updateViews, location, appWidgetId)
         /* Common END */
+
+        return updateViews
+    }
+
+    internal suspend fun buildUpdate4x3Locations(
+        context: Context, info: WidgetProviderInfo,
+        appWidgetId: Int, locations: List<LocationData?>,
+        weatherData: List<WeatherNowViewModel?>, newOptions: Bundle
+    ): RemoteViews {
+        // Build an update that holds the updated widget contents
+        val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
+
+        if (WidgetUtils.isDateWidget(info.widgetType)) {
+            // Open default clock/calendar app
+            updateViews.setOnClickPendingIntent(R.id.date_panel, getCalendarAppIntent(context))
+        }
+        if (WidgetUtils.isClockWidget(info.widgetType)) {
+            // Open default clock/calendar app
+            updateViews.setOnClickPendingIntent(R.id.clock_panel, getClockAppIntent(context))
+        }
+
+        // Locations
+        for (i in 0 until MAX_LOCATION_ITEMS) {
+            val location = locations.elementAtOrNull(i)
+            val weather = weatherData.elementAtOrNull(i)
+
+            val locationItemId = getResIdentifier(R.id::class.java, "location${i + 1}") ?: continue
+            val locationNameViewId =
+                getResIdentifier(R.id::class.java, "location${i + 1}_name") ?: continue
+            val forecastIconId =
+                getResIdentifier(R.id::class.java, "forecast${i + 1}_icon") ?: continue
+            val forecastHiId = getResIdentifier(R.id::class.java, "forecast${i + 1}_hi") ?: continue
+            val forecastLoId = getResIdentifier(R.id::class.java, "forecast${i + 1}_lo") ?: continue
+
+            if (location == null || weather == null) {
+                updateViews.setViewVisibility(locationItemId, View.GONE)
+                continue
+            }
+
+            updateViews.setTextViewText(locationNameViewId, location.name)
+            updateViews.setTextViewText(forecastHiId, weather.hiTemp)
+            updateViews.setTextViewText(forecastLoId, weather.loTemp)
+
+            updateViews.setOnClickPendingIntent(
+                locationItemId,
+                getOnClickIntent(context, location)
+            )
+
+            val wim = WeatherIconsManager.getInstance()
+            val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
+            updateViews.setImageViewBitmap(
+                forecastIconId,
+                ImageUtils.bitmapFromDrawable(
+                    context.getThemeContextOverride(false),
+                    weatherIconResId
+                )
+            )
+
+            updateViews.setViewVisibility(locationItemId, View.VISIBLE)
+        }
+
+        WidgetUtils.setMaxForecastLength(appWidgetId, locations.size)
+
+        // Date + Time
+        updateDateSize(context, info, updateViews, appWidgetId, newOptions)
+        updateClockSize(context, info, updateViews, appWidgetId, newOptions)
+
+        updateViewSizes(context, info, updateViews, appWidgetId, newOptions)
+
+        updateViews.setViewVisibility(
+            R.id.settings_button,
+            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+        )
+
+        setOnClickIntent(context, null, updateViews)
+        setOnSettingsClickIntent(context, updateViews, null, appWidgetId)
 
         return updateViews
     }
@@ -903,7 +1035,13 @@ object WidgetUpdaterHelper {
         }
     }
 
-    private fun updateViewSizes(context: Context, info: WidgetProviderInfo, updateViews: RemoteViews, newOptions: Bundle) {
+    private fun updateViewSizes(
+        context: Context,
+        info: WidgetProviderInfo,
+        updateViews: RemoteViews,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
         // Widget dimensions
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -1019,6 +1157,39 @@ object WidgetUpdaterHelper {
                 R.id.condition_weather,
                 if (cellWidth <= 2) View.GONE else View.VISIBLE
             )
+        } else if (info.widgetType == WidgetType.Widget4x3Locations) {
+            val locationsCellHeight = cellHeight - 1.5f
+            if (locationsCellHeight <= 0) {
+                updateViews.setViewVisibility(R.id.locations_container, View.GONE)
+            } else {
+                updateViews.setViewVisibility(R.id.locations_container, View.VISIBLE)
+
+                val cellHeightDp = minHeight / cellHeight
+                val maxAmountToFit = max(1f, locationsCellHeight * cellHeightDp / 36)
+                val maxForecastLength =
+                    min(maxAmountToFit.toInt(), WidgetUtils.getMaxForecastLength(appWidgetId))
+
+                val locationFontSize = if (cellHeight >= 3 && cellWidth > 3) 16f else 14f
+
+                for (i in 0 until MAX_LOCATION_ITEMS) {
+                    val locationViewId = getResIdentifier(R.id::class.java, "location${i + 1}") ?: 0
+                    val locationNameViewId =
+                        getResIdentifier(R.id::class.java, "location${i}_name") ?: continue
+
+                    if (locationViewId != 0) {
+                        updateViews.setViewVisibility(
+                            locationViewId,
+                            if (i < maxForecastLength) View.VISIBLE else View.GONE
+                        )
+                    }
+
+                    if (locationNameViewId != 0) {
+                        updateViews.setTextViewTextSize(
+                            locationNameViewId, TypedValue.COMPLEX_UNIT_SP, locationFontSize
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -1449,7 +1620,7 @@ object WidgetUpdaterHelper {
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
 
         // Set sizes for views
-        updateViewSizes(context, info, updateViews, newOptions)
+        updateViewSizes(context, info, updateViews, appWidgetId, newOptions)
 
         // Rebuild extras
         resizeExtras(context, info, updateViews, appWidgetId, newOptions)
@@ -1502,8 +1673,10 @@ object WidgetUpdaterHelper {
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
 
         // Update clock widgets
-        val useAmPm = !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei)
-        val timeStr12hr = SpannableString(context.getText(if (useAmPm) R.string.clock_12_hours_ampm_format else R.string.clock_12_hours_format))
+        val useAmPm =
+            !(widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations)
+        val timeStr12hr =
+            SpannableString(context.getText(if (useAmPm) R.string.clock_12_hours_ampm_format else R.string.clock_12_hours_format))
         if (useAmPm) {
             val start12hr = timeStr12hr.length - 2
             timeStr12hr.setSpan(RelativeSizeSpan(0.875f), start12hr, timeStr12hr.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -1514,11 +1687,20 @@ object WidgetUpdaterHelper {
                 context.getText(R.string.clock_24_hours_format))
 
         if (widgetType == WidgetType.Widget4x2Huawei) {
-            views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, if (cellWidth <= 3) 48f else 60f)
-        } else if (widgetType == WidgetType.Widget4x2Clock) {
-            views.setTextViewTextSize(R.id.clock_panel, TypedValue.COMPLEX_UNIT_SP, if (isSmallHeight && cellHeight <= 2) 60f else 66f)
+            views.setTextViewTextSize(
+                R.id.clock_panel,
+                TypedValue.COMPLEX_UNIT_SP,
+                if (cellWidth <= 3) 48f else 60f
+            )
+        } else if (widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x3Locations) {
+            views.setTextViewTextSize(
+                R.id.clock_panel,
+                TypedValue.COMPLEX_UNIT_SP,
+                if (isSmallHeight && cellHeight <= 2) 60f else 66f
+            )
         } else {
-            var clockTextSize = context.resources.getDimensionPixelSize(R.dimen.clock_text_size).toFloat() // 36sp
+            var clockTextSize =
+                context.resources.getDimensionPixelSize(R.dimen.clock_text_size).toFloat() // 36sp
             if (isSmallHeight && cellHeight <= 2 || cellWidth < 4) {
                 clockTextSize *= 8f / 9 // 32sp
                 if (cellWidth < 4 && widgetType == WidgetType.Widget4x2) {
@@ -1586,10 +1768,12 @@ object WidgetUpdaterHelper {
         }
 
         val datePattern = if (widgetType == WidgetType.Widget2x2 && cellWidth >= 3 ||
-                widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4 ||
-                widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4) {
+            widgetType == WidgetType.Widget4x2Clock && cellWidth >= 4 ||
+            widgetType == WidgetType.Widget4x3Locations && cellWidth >= 4 ||
+            widgetType == WidgetType.Widget4x2Huawei && cellWidth >= 4
+        ) {
             DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_LONG_DATE_FORMAT)
-        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock) {
+        } else if (widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x3Locations) {
             DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_WDAY_ABBR_MONTH_FORMAT)
         } else if (widgetType == WidgetType.Widget4x2) {
             DateTimeUtils.getBestPatternForSkeleton(if (cellWidth > 4) DateTimeConstants.SKELETON_ABBR_WDAY_MONTH_FORMAT else DateTimeConstants.SKELETON_SHORT_DATE_FORMAT)

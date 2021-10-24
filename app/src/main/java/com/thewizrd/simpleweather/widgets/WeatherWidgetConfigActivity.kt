@@ -52,32 +52,46 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         )
         window.setFullScreen(true)
 
-        val args = Bundle().apply {
-            putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-        }
+        val mWidgetType = WidgetUtils.getWidgetTypeFromID(mAppWidgetId)
 
-        if (intent?.extras != null) {
-            args.putAll(intent.extras)
-        }
-
-        if (intent?.extras?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == false && WidgetUtils.exists(
-                mAppWidgetId
-            )
-        ) {
-            WidgetUtils.getLocationData(mAppWidgetId)?.let {
-                args.putString(WeatherWidgetProvider.EXTRA_LOCATIONNAME, it.name)
-                args.putString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, it.query)
+        if (mWidgetType == WidgetType.Widget4x3Locations) {
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragment == null) {
+                supportFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        WeatherWidget4x3LocationFragment.newInstance(mAppWidgetId)
+                    )
+                    .commit()
             }
-        }
+        } else {
+            val args = Bundle().apply {
+                putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+            }
 
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (intent?.extras != null) {
+                args.putAll(intent.extras)
+            }
 
-        if (fragment == null) {
-            val hostFragment = NavHostFragment.create(R.navigation.widget_graph, args)
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, hostFragment)
-                .setPrimaryNavigationFragment(hostFragment)
-                .commit()
+            if (intent?.extras?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == false && WidgetUtils.exists(
+                    mAppWidgetId
+                )
+            ) {
+                WidgetUtils.getLocationData(mAppWidgetId)?.let {
+                    args.putString(WeatherWidgetProvider.EXTRA_LOCATIONNAME, it.name)
+                    args.putString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, it.query)
+                }
+            }
+
+            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+            if (fragment == null) {
+                val hostFragment = NavHostFragment.create(R.navigation.widget_graph, args)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, hostFragment)
+                    .setPrimaryNavigationFragment(hostFragment)
+                    .commit()
+            }
         }
 
         // Update configuration

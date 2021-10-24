@@ -21,7 +21,6 @@ import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
 
@@ -37,6 +36,7 @@ object WidgetUtils {
     // Keys
     private const val KEY_VERSION = "key_version"
     private const val KEY_LOCATIONDATA = "key_locationdata"
+    private const val KEY_LOCATIONS = "key_locations"
     private const val KEY_LOCATIONQUERY = "key_locationquery"
     private const val KEY_WIDGETBACKGROUND = "key_widgetbackground"
     private const val KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle"
@@ -124,24 +124,6 @@ object WidgetUtils {
     private fun init() {
         if (getVersion() < CurrentPrefsVersion) {
             when (getVersion()) {
-                // TODO: remove this old migration path
-                2 -> {
-                    runBlocking(Dispatchers.Default) {
-                        if (settingsMgr.isWeatherLoaded()) {
-                            val homeLocation = settingsMgr.getHomeData()
-                            val widgetMap = widgetPrefs.all
-                            for (key in widgetMap.keys) {
-                                if (key == homeLocation!!.query) {
-                                    widgetPrefs.edit(true) {
-                                        putString(Constants.KEY_GPS, widgetMap[key]?.toString())
-                                        remove(key)
-                                    }
-                                    break
-                                }
-                            }
-                        }
-                    }
-                }
                 3 -> {
                     // Migrate color options
                     val widgetIds = getAllWidgetIds()
@@ -253,6 +235,9 @@ object WidgetUtils {
             WidgetType.Widget4x4MaterialYou -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x4MaterialYou.Info.getInstance().componentName
             )
+            WidgetType.Widget4x3Locations -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider4x3Locations.Info.getInstance().componentName
+            )
         }
     }
 
@@ -271,6 +256,7 @@ object WidgetUtils {
             WidgetType.Widget2x2PillMaterialYou -> WeatherWidgetProvider2x2PillMaterialYou.Info.getInstance()
             WidgetType.Widget4x2MaterialYou -> WeatherWidgetProvider4x2MaterialYou.Info.getInstance()
             WidgetType.Widget4x4MaterialYou -> WeatherWidgetProvider4x4MaterialYou.Info.getInstance()
+            WidgetType.Widget4x3Locations -> WeatherWidgetProvider4x3Locations.Info.getInstance()
         }
     }
 
@@ -615,6 +601,9 @@ object WidgetUtils {
                 WeatherWidgetProvider4x4MaterialYou.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget4x4MaterialYou
                 }
+                WeatherWidgetProvider4x3Locations.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget4x3Locations
+                }
             }
         }
 
@@ -652,11 +641,11 @@ object WidgetUtils {
     }
 
     fun isClockWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations
     }
 
     fun isDateWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations
     }
 
     fun isForecastWidget(widgetType: WidgetType): Boolean {
@@ -857,6 +846,18 @@ object WidgetUtils {
     fun setUseTimeZone(widgetId: Int, value: Boolean) {
         getPreferences(widgetId).edit(true) {
             putBoolean(KEY_USETIMEZONE, value)
+        }
+    }
+
+    fun getLocationDataSet(appWidgetId: Int): Set<String>? {
+        val prefs = getPreferences(appWidgetId)
+        val string = prefs.getString(KEY_LOCATIONS, null)
+        return string?.split(";separator;")?.toSet()
+    }
+
+    fun saveLocationDataSet(appWidgetId: Int, locations: Set<String>?) {
+        getPreferences(appWidgetId).edit(true) {
+            putString(KEY_LOCATIONS, locations?.joinToString(separator = ";separator;") { it })
         }
     }
 }

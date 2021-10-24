@@ -206,6 +206,19 @@
                 android:resource="@xml/app_widget_4x4_materialu_info" />
         </receiver>
         <receiver
+            android:name=".widgets.WeatherWidgetProvider4x3Locations"
+            android:label="Clock + Weather (4x3)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_4x3_locations_info" />
+        </receiver>
+        <receiver
             android:name=".notifications.WeatherAlertNotificationBroadcastReceiver"
             android:enabled="@bool/enable_alertnotifservice"
             android:exported="false">

@@ -126,4 +126,11 @@ object ContextUtils {
 
         return createConfigurationContext(newConfig)
     }
+
+    @JvmStatic
+    fun Context.isNightMode(): Boolean {
+        val currentNightMode: Int =
+            this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+    }
 }
