@@ -60,6 +60,9 @@
     public static int hrforecast?_hi;
     public static int hrforecast?_divider;
     public static int hrforecast?_lo;
+
+    public static int location?;
+    public static int location?_name;
 }
 
 # Keep custom model classes (ImageData)
