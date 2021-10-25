@@ -7,7 +7,7 @@
     android:minWidth="250dp"
     android:minResizeHeight="110dp"
     android:minResizeWidth="250dp"
-    android:previewImage="@drawable/appwidget_preview_4x2_clock"
+    android:previewImage="@drawable/appwidget_preview_4x3_locations"
     android:previewLayout="@layout/app_widget_4x3_locations"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
