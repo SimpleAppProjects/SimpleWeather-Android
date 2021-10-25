@@ -51,6 +51,7 @@ import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 object WidgetUpdaterHelper {
     private const val TAG = "WidgetUpdaterHelper"
@@ -1158,6 +1159,7 @@ object WidgetUpdaterHelper {
                 if (cellWidth <= 2) View.GONE else View.VISIBLE
             )
         } else if (info.widgetType == WidgetType.Widget4x3Locations) {
+            // TODO: move dimensions to resources
             val clockSizeBounds = "3:00".getTextBounds(context, 66f)
             val dateSizeBounds = "Sun, Oct 24".getTextBounds(context, 14f)
             val locationsContainerHeight =
@@ -1170,7 +1172,7 @@ object WidgetUpdaterHelper {
 
                 val maxAmountToFit = max(1f, locationsContainerHeight / context.dpToPx(36f))
                 val maxForecastLength =
-                    min(maxAmountToFit.toInt(), WidgetUtils.getMaxForecastLength(appWidgetId))
+                    min(maxAmountToFit.roundToInt(), WidgetUtils.getMaxForecastLength(appWidgetId))
 
                 val locationFontSize = if (cellHeight >= 3 && cellWidth > 3) 16f else 14f
 

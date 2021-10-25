@@ -133,8 +133,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         )
         mWidgetType = WidgetUtils.getWidgetTypeFromID(mAppWidgetId)
         mWidgetInfo = WidgetUtils.getWidgetProviderInfoFromType(mWidgetType)!!
-        mWidgetOptions =
-            AppWidgetManager.getInstance(requireContext()).getAppWidgetOptions(mAppWidgetId)
+        mWidgetOptions = WidgetUtils.getPreviewAppWidgetOptions(requireContext(), mAppWidgetId)
 
         // Set the result value for WidgetConfigActivity
         resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)

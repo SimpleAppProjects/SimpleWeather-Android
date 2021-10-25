@@ -191,8 +191,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         mAppWidgetId = args.appWidgetId
         mWidgetType = WidgetUtils.getWidgetTypeFromID(mAppWidgetId)
         mWidgetInfo = WidgetUtils.getWidgetProviderInfoFromType(mWidgetType)!!
-        mWidgetOptions =
-            AppWidgetManager.getInstance(requireContext()).getAppWidgetOptions(mAppWidgetId)
+        mWidgetOptions = WidgetUtils.getPreviewAppWidgetOptions(requireContext(), mAppWidgetId)
 
         // Set the result value for WidgetConfigActivity
         resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
@@ -736,7 +735,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 2
                         WidgetType.Widget4x4MaterialYou -> 4
-                        WidgetType.Widget4x3Locations -> 4
+                        WidgetType.Widget4x3Locations -> 3
                     }.toFloat()
                 ).toInt()
                 width = mWidgetViewCtx.dpToPx(
@@ -754,7 +753,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 4
                         WidgetType.Widget4x4MaterialYou -> 4
-                        WidgetType.Widget4x3Locations -> 3
+                        WidgetType.Widget4x3Locations -> 4
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.ColorInt
@@ -545,6 +546,59 @@ object WidgetUtils {
         // Android's UI guidelines for widget design:
         // http://developer.android.com/guide/practices/ui_guidelines/widget_design.html
         return (size + 30) / 70
+    }
+
+    internal fun getPreviewAppWidgetOptions(context: Context, appwidgetId: Int): Bundle {
+        val options = AppWidgetManager.getInstance(context.applicationContext)
+            .getAppWidgetOptions(appwidgetId) ?: Bundle()
+
+        val widgetType = getWidgetTypeFromID(appwidgetId)
+
+        val widgetWidth = when (widgetType) {
+            WidgetType.Unknown -> 0
+            WidgetType.Widget1x1 -> 96 * 1
+            WidgetType.Widget2x2 -> 96 * 2
+            WidgetType.Widget4x1 -> 96 * 4
+            WidgetType.Widget4x2 -> 96 * 4
+            WidgetType.Widget4x1Google -> 96 * 4
+            WidgetType.Widget4x1Notification -> 96 * 4
+            WidgetType.Widget4x2Clock -> 96 * 4
+            WidgetType.Widget4x2Huawei -> 96 * 4
+            WidgetType.Widget2x2MaterialYou -> 96 * 2
+            WidgetType.Widget4x2MaterialYou -> 96 * 4
+            WidgetType.Widget4x4MaterialYou -> 96 * 4
+            WidgetType.Widget2x2PillMaterialYou -> 96 * 2
+            WidgetType.Widget4x3Locations -> 96 * 4
+        }
+
+        val widgetHeight = when (widgetType) {
+            WidgetType.Unknown -> 0
+            WidgetType.Widget1x1 -> 96 * 1
+            WidgetType.Widget2x2 -> 96 * 2
+            WidgetType.Widget4x1 -> 96 * 1
+            WidgetType.Widget4x2 -> 96 * 2
+            WidgetType.Widget4x1Google -> 96 * 1
+            WidgetType.Widget4x1Notification -> 96 * 1
+            WidgetType.Widget4x2Clock -> 96 * 2
+            WidgetType.Widget4x2Huawei -> 96 * 2
+            WidgetType.Widget2x2MaterialYou -> 96 * 2
+            WidgetType.Widget4x2MaterialYou -> 96 * 2
+            WidgetType.Widget4x4MaterialYou -> 96 * 4
+            WidgetType.Widget2x2PillMaterialYou -> 96 * 2
+            WidgetType.Widget4x3Locations -> 96 * 3
+        }
+
+        if (!options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)) {
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetWidth)
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetWidth)
+        }
+
+        if (!options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)) {
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetHeight)
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetHeight)
+        }
+
+        return options
     }
 
     fun getForecastLength(widgetType: WidgetType, cellWidth: Int): Int {
