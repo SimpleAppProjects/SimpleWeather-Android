@@ -439,7 +439,22 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
             /* Heavy rain */
             4201 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
+            }
+
+            /*
+             * 3000: Light Wind
+             * 3001: Wind
+             */
+            3000, 3001 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_WINDY else WeatherIcons.DAY_CLOUDY_WINDY
+            }
+
+            /* Strong Wind */
+            3002 -> {
+                weatherIcon = WeatherIcons.STRONG_WIND
             }
         }
 
