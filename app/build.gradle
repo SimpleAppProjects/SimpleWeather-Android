@@ -126,7 +126,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.fragment:fragment-ktx:1.3.6'
@@ -142,10 +142,10 @@ dependencies {
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
-    implementation 'androidx.work:work-runtime-ktx:2.6.0'
+    implementation 'androidx.work:work-runtime-ktx:2.7.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
@@ -171,7 +171,7 @@ dependencies {
     fullgmsImplementation 'com.revenuecat.purchases:purchases:4.3.3'
 
     // Firebase
-    fullgmsImplementation platform('com.google.firebase:firebase-bom:28.4.2')
+    fullgmsImplementation platform('com.google.firebase:firebase-bom:29.0.0')
     fullgmsImplementation 'com.google.firebase:firebase-analytics'
     fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
     fullgmsImplementation 'com.google.firebase:firebase-auth'
@@ -184,7 +184,7 @@ dependencies {
 
     fullgmsImplementation 'com.google.android.gms:play-services-base:17.6.0'
     fullgmsImplementation 'com.google.android.gms:play-services-location:18.0.0'
-    fullgmsImplementation 'com.google.android.gms:play-services-maps:17.0.1'
+    fullgmsImplementation 'com.google.android.gms:play-services-maps:18.0.0'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation 'com.google.android.play:core:1.10.2'
     fullgmsImplementation 'com.google.android.play:core-ktx:1.8.1'

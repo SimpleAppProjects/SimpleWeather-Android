@@ -104,7 +104,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'com.google.android.material:material:1.4.0'
@@ -143,12 +143,12 @@ dependencies {
     fullgmsImplementation 'com.google.android.gms:play-services-base:17.6.0'
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:17.2.1'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
-    fullgmsImplementation 'com.google.android.libraries.places:places:2.4.0'
+    fullgmsImplementation 'com.google.android.libraries.places:places:2.5.0'
     fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^
     fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2'
 
     // Firebase
-    fullgmsImplementation platform('com.google.firebase:firebase-bom:28.4.2')
+    fullgmsImplementation platform('com.google.firebase:firebase-bom:29.0.0')
     fullgmsImplementation 'com.google.firebase:firebase-analytics'
     fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
     fullgmsImplementation 'com.google.firebase:firebase-auth'
