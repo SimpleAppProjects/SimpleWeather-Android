@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.weatherdata.openweather
 
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.StringUtils.toUpperCase
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -109,7 +110,7 @@ fun createHourlyForecast(hr_forecast: ListItem): HourlyForecast {
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(hr_forecast.dt), ZoneOffset.UTC)
         highF = ConversionMethods.KtoF(hr_forecast.main.temp)
         highC = ConversionMethods.KtoC(hr_forecast.main.temp)
-        condition = StringUtils.toUpperCase(hr_forecast.weather[0].description)
+        condition = hr_forecast.weather[0].description.toUpperCase()
 
         // Use icon to determine if day or night
         val ico = hr_forecast.weather[0].icon
@@ -176,9 +177,9 @@ fun createForecast(forecast: ListItem): Forecast {
         highC = ConversionMethods.KtoC(forecast.main.tempMax)
         lowF = ConversionMethods.KtoF(forecast.main.tempMin)
         lowC = ConversionMethods.KtoC(forecast.main.tempMin)
-        condition = StringUtils.toUpperCase(forecast.weather[0].description)
+        condition = forecast.weather[0].description.toUpperCase()
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
-                .getWeatherIcon(forecast.weather[0].id.toString())
+            .getWeatherIcon(forecast.weather[0].id.toString())
 
         // Extras
         extras = ForecastExtras()
@@ -223,7 +224,7 @@ fun createForecast(forecast: ListItem): Forecast {
 
 fun createCondition(current: CurrentRootobject): Condition {
     return Condition().apply {
-        weather = StringUtils.toUpperCase(current.weather[0].description)
+        weather = current.weather[0].description.toUpperCase()
         tempF = ConversionMethods.KtoF(current.main.temp)
         tempC = ConversionMethods.KtoC(current.main.temp)
         highF = ConversionMethods.KtoF(current.main.tempMax)

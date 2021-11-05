@@ -11,7 +11,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isScreenRound
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.ImageUtils
-import com.thewizrd.shared_resources.utils.StringUtils
+import com.thewizrd.shared_resources.utils.StringUtils.removeDigitChars
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
@@ -202,7 +202,7 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
         if (forecast is ForecastItemViewModel) {
             forecastItem.setTextViewText(
                 R.id.forecast_date,
-                StringUtils.removeDigitChars(forecast.getShortDate())
+                forecast.getShortDate().removeDigitChars()
             )
         } else {
             forecastItem.setTextViewText(R.id.forecast_date, forecast.shortDate)

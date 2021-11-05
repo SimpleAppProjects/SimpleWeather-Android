@@ -275,9 +275,8 @@ class SetupActivity : UserLocaleActivity() {
                             view.updateWeatherSource(provider)
                         }
 
-                        if (settingsManager.usePersonalKey() && StringUtils.isNullOrWhitespace(
-                                settingsManager.getAPIKEY()
-                            ) && wm.isKeyRequired()
+                        if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY()
+                                .isNullOrBlank() && wm.isKeyRequired()
                         ) {
                             throw CustomException(R.string.werror_invalidkey)
                         }

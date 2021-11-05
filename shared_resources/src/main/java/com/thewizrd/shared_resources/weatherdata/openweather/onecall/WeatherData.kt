@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.AirQualityUtils.SO2_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.StringUtils
+import com.thewizrd.shared_resources.utils.StringUtils.toUpperCase
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -96,7 +97,7 @@ fun createHourlyForecast(hr_forecast: HourlyItem): HourlyForecast {
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(hr_forecast.dt), ZoneOffset.UTC)
         highF = ConversionMethods.KtoF(hr_forecast.temp)
         highC = ConversionMethods.KtoC(hr_forecast.temp)
-        condition = StringUtils.toUpperCase(hr_forecast.weather[0].description)
+        condition = hr_forecast.weather[0].description.toUpperCase()
 
         // Use icon to determine if day or night
         val ico = hr_forecast.weather[0].icon
@@ -162,9 +163,9 @@ fun createForecast(forecast: DailyItem): Forecast {
         highC = ConversionMethods.KtoC(forecast.temp.max)
         lowF = ConversionMethods.KtoF(forecast.temp.min)
         lowC = ConversionMethods.KtoC(forecast.temp.min)
-        condition = StringUtils.toUpperCase(forecast.weather[0].description)
+        condition = forecast.weather[0].description.toUpperCase()
         icon = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
-                .getWeatherIcon(forecast.weather[0].id.toString())
+            .getWeatherIcon(forecast.weather[0].id.toString())
 
         // Extras
         extras = ForecastExtras()
@@ -280,7 +281,7 @@ fun createMinutelyForecast(minutelyItem: MinutelyItem): MinutelyForecast {
 
 fun createCondition(current: Current): Condition {
     return Condition().apply {
-        weather = StringUtils.toUpperCase(current.weather[0].description)
+        weather = current.weather[0].description.toUpperCase()
         tempF = ConversionMethods.KtoF(current.temp)
         tempC = ConversionMethods.KtoC(current.temp)
         windDegrees = current.windDeg

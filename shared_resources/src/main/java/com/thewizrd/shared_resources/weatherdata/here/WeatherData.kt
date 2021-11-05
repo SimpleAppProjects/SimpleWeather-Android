@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.StringUtils.toPascalCase
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -83,9 +84,9 @@ fun createForecast(forecast: ForecastItem): Forecast {
             lowF = low_f
             lowC = ConversionMethods.FtoC(low_f)
         }
-        condition = StringUtils.toPascalCase(forecast.description)
+        condition = forecast.description.toPascalCase()
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
-                .getWeatherIcon(String.format("%s_%s", forecast.daylight, forecast.iconName))
+            .getWeatherIcon(String.format("%s_%s", forecast.daylight, forecast.iconName))
 
         // Extras
         extras = ForecastExtras()
@@ -142,10 +143,10 @@ fun createTextForecast(forecast: ForecastItem): TextForecast {
     return TextForecast().apply {
         date = ZonedDateTime.parse(forecast.utcTime)
         fcttext = String.format(
-                Locale.ROOT, "%s - %s %s",
-                forecast.weekday,
-                StringUtils.toPascalCase(forecast.description),
-                StringUtils.toPascalCase(forecast.beaufortDescription)
+            Locale.ROOT, "%s - %s %s",
+            forecast.weekday,
+            forecast.description.toPascalCase(),
+            forecast.beaufortDescription.toPascalCase()
         )
         fcttextMetric = fcttext
     }
@@ -159,7 +160,7 @@ fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
             highF = high_f
             highC = ConversionMethods.FtoC(high_f)
         }
-        condition = StringUtils.toPascalCase(hr_forecast.description)
+        condition = hr_forecast.description.toPascalCase()
 
         icon = WeatherManager.getProvider(WeatherAPI.HERE)
                 .getWeatherIcon(String.format("%s_%s", hr_forecast.daylight, hr_forecast.iconName))
@@ -223,7 +224,7 @@ fun createCondition(
     todaysTxtForecast: TextForecast? = null
 ): Condition {
     return Condition().apply {
-        weather = StringUtils.toPascalCase(observation.description)
+        weather = observation.description.toPascalCase()
         val temp_F = NumberUtils.tryParseFloat(observation.temperature)
         if (temp_F != null) {
             tempF = temp_F

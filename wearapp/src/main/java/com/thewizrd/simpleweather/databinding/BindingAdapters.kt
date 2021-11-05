@@ -13,8 +13,12 @@ import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
+import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
+import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.simpleweather.R
 
 object BindingAdapters {
@@ -133,10 +137,12 @@ object BindingAdapters {
     @BindingAdapter(value = ["tempTextColor", "tempUnit"], requireAll = false)
     @JvmStatic
     fun tempTextColor(view: TextView, temp: CharSequence?, @TemperatureUnits tempUnit: String?) {
-        val temp_str = StringUtils.removeNonDigitChars(temp)
-        var temp_f = NumberUtils.tryParseFloat(temp_str)
+        val temp_str = temp?.removeNonDigitChars()
+        var temp_f = temp_str?.toString()?.toFloatOrNull()
         if (temp_f != null) {
-            if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString().endsWith(Units.CELSIUS)) {
+            if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp.toString()
+                    .endsWith(Units.CELSIUS)
+            ) {
                 temp_f = ConversionMethods.CtoF(temp_f)
             }
 

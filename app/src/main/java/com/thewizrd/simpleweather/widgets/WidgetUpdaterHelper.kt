@@ -32,6 +32,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.TextUtils.getTextBounds
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
@@ -643,8 +644,15 @@ object WidgetUpdaterHelper {
                 updateViews.setTextViewText(R.id.condition_weather, weather.curCondition)
             }
 
-            val temp = StringUtils.removeNonDigitChars(weather.curTemp)
-            updateViews.setTextViewText(R.id.condition_temp, "$temp°")
+            val temp = weather.curTemp?.removeNonDigitChars()
+            updateViews.setTextViewText(
+                R.id.condition_temp,
+                if (temp.isNullOrBlank()) {
+                    WeatherIcons.PLACEHOLDER
+                } else {
+                    "$temp°"
+                }
+            )
         }
 
         if (info.widgetType != WidgetType.Widget2x2 &&

@@ -72,6 +72,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
+import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
@@ -1594,10 +1595,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         @BindingAdapter(value = ["tempTextColor", "tempUnit"], requireAll = false)
         fun tempTextColor(view: TextView, temp: CharSequence?, @TemperatureUnits tempUnit: String?) {
-            val temp_str = StringUtils.removeNonDigitChars(temp)
-            var temp_f = temp_str.toFloatOrNull()
+            val temp_str = temp?.removeNonDigitChars()?.toString()
+            var temp_f = temp_str?.toFloatOrNull()
             if (temp_f != null) {
-                if (ObjectsCompat.equals(tempUnit, Units.CELSIUS) || temp?.endsWith(Units.CELSIUS) == true) {
+                if (ObjectsCompat.equals(
+                        tempUnit,
+                        Units.CELSIUS
+                    ) || temp?.endsWith(Units.CELSIUS) == true
+                ) {
                     temp_f = ConversionMethods.CtoF(temp_f)
                 }
 

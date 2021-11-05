@@ -4,7 +4,7 @@ import androidx.annotation.IntRange
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.NumberUtils
-import com.thewizrd.shared_resources.utils.StringUtils
+import com.thewizrd.shared_resources.utils.StringUtils.unescapeUnicode
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
@@ -185,7 +185,7 @@ fun createWeatherAlert(alert: AlertsItem): WeatherAlert {
         }
 
         // NOTE: Alert description may be encoded; unescape encoded characters
-        title = StringUtils.unescapeUnicode(alert.description).also { message = it }
+        title = alert.description.unescapeUnicode().also { message = it }
 
         setDateTimeFromSegment(alert.timeSegment)
 
@@ -291,38 +291,49 @@ private fun getAlertType(@IntRange(from = 0, to = 38) type: Int, alertDescriptio
          * 38: Air Stagnation Advisory
          */
         else -> {
-            if (alertDescription.contains("Hurricane".toLowerCase(Locale.ROOT))) {
+            if (alertDescription.contains("Hurricane".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.HURRICANEWINDWARNING
-            } else if (alertDescription.contains("Tornado".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Tornado".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.TORNADOWARNING
-            } else if (alertDescription.contains("Heat".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Heat".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.HEAT
-            } else if (alertDescription.contains("Dense Fog".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Dense Fog".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.DENSEFOG
-            } else if (alertDescription.contains("Dense Smoke".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Dense Smoke".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.DENSESMOKE
-            } else if (alertDescription.contains("Fire".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Fire".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.FIRE
-            } else if (alertDescription.contains("Wind".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Wind".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.HIGHWIND
-            } else if (alertDescription.contains("Snow".toLowerCase(Locale.ROOT)) || alertDescription.contains("Blizzard".toLowerCase(Locale.ROOT)) ||
-                    alertDescription.contains("Winter".toLowerCase(Locale.ROOT)) || alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) ||
-                    alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) || alertDescription.contains("Ice".toLowerCase(Locale.ROOT)) ||
-                    alertDescription.contains("Avalanche".toLowerCase(Locale.ROOT)) || alertDescription.contains("Cold".toLowerCase(Locale.ROOT)) ||
-                    alertDescription.contains("Freez".toLowerCase(Locale.ROOT)) || alertDescription.contains("Frost".toLowerCase(Locale.ROOT)) ||
-                    alertDescription.contains("Chill".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Snow".lowercase(Locale.ROOT)) || alertDescription.contains(
+                    "Blizzard".lowercase(Locale.ROOT)
+                ) ||
+                alertDescription.contains("Winter".lowercase(Locale.ROOT)) || alertDescription.contains(
+                    "Ice".lowercase(Locale.ROOT)
+                ) ||
+                alertDescription.contains("Ice".lowercase(Locale.ROOT)) || alertDescription.contains(
+                    "Ice".lowercase(Locale.ROOT)
+                ) ||
+                alertDescription.contains("Avalanche".lowercase(Locale.ROOT)) || alertDescription.contains(
+                    "Cold".lowercase(Locale.ROOT)
+                ) ||
+                alertDescription.contains("Freez".lowercase(Locale.ROOT)) || alertDescription.contains(
+                    "Frost".lowercase(Locale.ROOT)
+                ) ||
+                alertDescription.contains("Chill".lowercase(Locale.ROOT))
+            ) {
                 return WeatherAlertType.WINTERWEATHER
-            } else if (alertDescription.contains("Earthquake".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Earthquake".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.EARTHQUAKEWARNING
-            } else if (alertDescription.contains("Gale".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Gale".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.GALEWARNING
-            } else if (alertDescription.contains("Dust".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Dust".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.DUSTADVISORY
-            } else if (alertDescription.contains("Small Craft".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Small Craft".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.SMALLCRAFT
-            } else if (alertDescription.contains("Storm".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Storm".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.STORMWARNING
-            } else if (alertDescription.contains("Tsunami".toLowerCase(Locale.ROOT))) {
+            } else if (alertDescription.contains("Tsunami".lowercase(Locale.ROOT))) {
                 return WeatherAlertType.TSUNAMIWARNING
             }
 

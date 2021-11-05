@@ -13,7 +13,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.Coordinate
-import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.simpleweather.helpers.RadarWebClient
 import com.thewizrd.simpleweather.helpers.WebViewHelper.disableInteractions
 import com.thewizrd.simpleweather.helpers.WebViewHelper.enableInteractions
@@ -60,7 +59,7 @@ class EarthWindMapViewProvider(context: Context, rootView: ViewGroup) : RadarVie
             webView?.disableInteractions()
         }
 
-        if (!StringUtils.isNullOrWhitespace(radarURL)) {
+        if (!radarURL.isNullOrEmpty()) {
             webView?.postLoadUrl(radarURL!!)
         } else {
             webView?.postLoadUrl(EARTHWINDMAP_DEFAULT_URL)
