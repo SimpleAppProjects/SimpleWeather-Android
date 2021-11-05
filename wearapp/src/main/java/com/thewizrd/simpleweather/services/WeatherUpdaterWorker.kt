@@ -77,6 +77,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 if (App.instance.appState != AppState.FOREGROUND) {
                     setInitialDelay(60, TimeUnit.SECONDS)
                 }
+                setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             }
 
             WorkManager.getInstance(context.applicationContext)
@@ -108,6 +109,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 TimeUnit.MINUTES
             )
                 .setConstraints(constraints)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG)
                 .build()
 
@@ -141,35 +143,31 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             initChannel(context)
             val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo_stroke)
-                    .setContentTitle(context.getString(R.string.not_title_weather_update))
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                    .setOnlyAlertOnce(true)
-                    .setNotificationSilent()
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentTitle(context.getString(R.string.not_title_weather_update))
+                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                .setOnlyAlertOnce(true)
+                .setNotificationSilent()
+                .setPriority(NotificationCompat.PRIORITY_LOW)
             return mBuilder.build()
+        }
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                JOB_ID, getForegroundNotification(applicationContext),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        } else {
+            ForegroundInfo(JOB_ID, getForegroundNotification(applicationContext))
         }
     }
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.Default) {
             Logger.writeLine(Log.INFO, "%s: Work started", TAG)
-            val context = applicationContext
 
-            // Request work to be in foreground (only for Oreo+)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    setForeground(
-                        ForegroundInfo(
-                            JOB_ID, getForegroundNotification(context),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                        )
-                    )
-                } else {
-                    setForeground(ForegroundInfo(JOB_ID, getForegroundNotification(context)))
-                }
-            }
-
-            if (!WeatherUpdaterHelper.executeWork(context))
+            if (!WeatherUpdaterHelper.executeWork(applicationContext))
                 return@withContext Result.failure()
 
             Result.success()
