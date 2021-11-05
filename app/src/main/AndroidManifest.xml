@@ -32,7 +32,8 @@
         tools:targetApi="n">
         <activity
             android:name=".LaunchActivity"
-            android:theme="@style/AppTheme.Launcher">
+            android:theme="@style/AppTheme.Launcher"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -57,7 +58,8 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -65,7 +67,8 @@
 
         <receiver
             android:name=".widgets.WeatherWidgetProvider1x1"
-            android:label="Weather (1x1)">
+            android:label="Weather (1x1)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -76,7 +79,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2"
-            android:label="Weather + Clock (2x2)">
+            android:label="Weather + Clock (2x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -89,7 +93,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1"
-            android:label="Weather (4x1)">
+            android:label="Weather (4x1)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -100,7 +105,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2"
-            android:label="Weather + Clock (4x2)">
+            android:label="Weather + Clock (4x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -113,7 +119,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1Google"
-            android:label="Weather + Date (4x1)">
+            android:label="Weather + Date (4x1)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -126,7 +133,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1Notification"
-            android:label="Weather (4x1)">
+            android:label="Weather (4x1)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -137,7 +145,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2Clock"
-            android:label="Clock + Weather (4x2)">
+            android:label="Clock + Weather (4x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -150,7 +159,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2Huawei"
-            android:label="Clock + Weather (4x2)">
+            android:label="Clock + Weather (4x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -163,7 +173,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2MaterialYou"
-            android:label="Weather (2x2)">
+            android:label="Weather (2x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -174,7 +185,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2PillMaterialYou"
-            android:label="Weather (2x2)">
+            android:label="Weather (2x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -185,7 +197,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2MaterialYou"
-            android:label="Weather (4x2)">
+            android:label="Weather (4x2)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -196,7 +209,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x4MaterialYou"
-            android:label="Weather (4x4)">
+            android:label="Weather (4x4)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -207,7 +221,8 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x3Locations"
-            android:label="Clock + Weather (4x3)">
+            android:label="Clock + Weather (4x3)"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.TIME_SET" />
