@@ -258,9 +258,12 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
     private fun addLayer(mapFrame: RadarFrame) {
         if (!radarLayers.containsKey(mapFrame.timeStamp)) {
             val overlay = googleMap!!.addTileOverlay(
-                    TileOverlayOptions().tileProvider(RainViewTileProvider(context, mapFrame))
-                            .transparency(1f))
-            radarLayers[mapFrame.timeStamp] = overlay
+                TileOverlayOptions().tileProvider(RainViewTileProvider(context, mapFrame))
+                    .transparency(1f)
+            )
+            if (overlay != null) {
+                radarLayers[mapFrame.timeStamp] = overlay
+            }
         }
 
         radarContainerBinding!!.animationSeekbar.stepSize = 1f
