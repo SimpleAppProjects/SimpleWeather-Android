@@ -4,7 +4,8 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
+import android.graphics.drawable.Icon
+import android.os.Build
 import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
@@ -50,7 +51,7 @@ object DailyWeatherNotificationBuilder {
                 appendLine = false
             }
             if (appendDiv) {
-                contentText.append("; ")
+                contentText.append(" ${WeatherIcons.PLACEHOLDER} ")
             }
             contentText.append("${feelsLikeModel.label}: ${feelsLikeModel.value}")
             appendDiv = true
@@ -61,30 +62,38 @@ object DailyWeatherNotificationBuilder {
                 appendLine = false
             }
             if (appendDiv) {
-                contentText.append("; ")
+                contentText.append(" ${WeatherIcons.PLACEHOLDER} ")
             }
             contentText.append("${chanceModel.label}: ${chanceModel.value}")
             appendDiv = true
         }
 
-        val notifBuilder = NotificationCompat.Builder(context, notChannelID)
-                .setOnlyAlertOnce(true)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(getOnClickIntent(context, location))
-                .setContentTitle("$hiTemp / $loTemp - ${location.name.split(",")[0]}")
-                .setContentText(contentText)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+        val contentIntent = getOnClickIntent(context, location)
+        val contentTitle = "$hiTemp / $loTemp - ${location.name.split(",")[0]}"
+        val weatherIconResId = wim.getWeatherIconResource(forecast.icon)
+
+        val notifBuilder = NotificationUtils.createNotificationBuilder(context, notChannelID)
+            .setOnlyAlertOnce(true)
+            .setAutoCancel(true)
+            .setPriority(Notification.PRIORITY_DEFAULT)
+            .setContentIntent(contentIntent)
+            .setContentTitle(contentTitle)
+            .setContentText(contentText)
+            .setStyle(Notification.BigTextStyle().bigText(contentText))
 
         if (wim.isFontIcon) {
-            notifBuilder.setSmallIcon(wim.getWeatherIconResource(forecast.icon))
+            notifBuilder.setSmallIcon(weatherIconResId)
         } else {
             // Use default icon pack here; animated icons are not supported here
             val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
             notifBuilder.setSmallIcon(wip.getWeatherIconResource(forecast.icon))
         }
 
-        notifBuilder.setLargeIcon(ImageUtils.bitmapFromDrawable(context, wim.getWeatherIconResource(forecast.icon)))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            notifBuilder.setLargeIcon(Icon.createWithResource(context, weatherIconResId))
+        } else {
+            notifBuilder.setLargeIcon(ImageUtils.bitmapFromDrawable(context, weatherIconResId))
+        }
 
         return notifBuilder.build()
     }

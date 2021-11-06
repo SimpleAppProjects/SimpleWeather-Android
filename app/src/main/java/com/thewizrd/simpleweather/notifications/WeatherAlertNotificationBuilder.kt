@@ -1,13 +1,14 @@
 package com.thewizrd.simpleweather.notifications
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.SystemClock
-import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.thewizrd.shared_resources.Constants
@@ -60,53 +61,46 @@ object WeatherAlertNotificationBuilder {
 
             val alertVM = WeatherAlertViewModel(alert)
 
-            val title = String.format("%s - %s", alertVM.title, location.name)
+            val title = alertVM.title
+            val contentText = alertVM.expireDate
+            val alertIconResId = alertVM.alertType.getDrawableFromAlertType()
 
-            val view = RemoteViews(context.packageName, R.layout.alert_notification_layout)
+            val notification = NotificationUtils.createNotificationBuilder(context, NOT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_error)
+                .setStyle(Notification.BigTextStyle().bigText(alertVM.alertBodyMessage))
+                .setContentTitle(title)
+                .setContentText(contentText)
+                .setSubText(location.name)
+                .setContentIntent(clickPendingIntent)
+                .setOnlyAlertOnce(true)
+                .setAutoCancel(true)
+                .setColor(alert.severity.getColorFromAlertSeverity())
+                .setPriority(Notification.PRIORITY_DEFAULT).apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        setLargeIcon(Icon.createWithResource(context, alertIconResId))
+                    } else {
+                        setLargeIcon(ImageUtils.bitmapFromDrawable(context, alertIconResId))
+                    }
 
-            // Alert Title
-            view.setTextViewText(R.id.alert_title, title)
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                        // Tell service to remove stored notification
+                        setDeleteIntent(getDeleteNotificationIntent(alertVM.alertType.value))
+                    }
 
-            // Alert text
-            view.setTextViewText(R.id.alert_text, alertVM.expireDate)
-
-            // Alert icon
-            view.setImageViewResource(R.id.alert_icon, alertVM.alertType.getDrawableFromAlertType())
-
-            val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_error_white)
-                    .setContentIntent(clickPendingIntent)
-                    .setOnlyAlertOnce(true)
-                    .setAutoCancel(true)
-                    .setColor(alert.severity.getColorFromAlertSeverity())
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-            mBuilder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                    .setContentTitle(title)
-                    .setContentText(alertVM.expireDate)
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                mBuilder.setCustomBigContentView(view)
-            } else {
-                mBuilder.setCustomContentView(view)
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                // Tell service to remove stored notification
-                mBuilder.setDeleteIntent(getDeleteNotificationIntent(alertVM.alertType.value))
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    || WeatherAlertNotificationService.getNotificationsCount() >= MIN_GROUPCOUNT) {
-                mBuilder.setGroup(TAG)
-            }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                        || WeatherAlertNotificationService.getNotificationsCount() >= MIN_GROUPCOUNT
+                    ) {
+                        setGroup(TAG)
+                    }
+                }.build()
 
             // Builds the notification and issues it.
             // Tag: location.query; id: weather alert type
             val notId = (SystemClock.uptimeMillis() + alertVM.alertType.value).toInt()
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                 WeatherAlertNotificationService.addNotification(notId, title)
-            mNotifyMgr.notify(TAG, notId, mBuilder.build())
+
+            mNotifyMgr.notify(TAG, notId, notification)
         }
 
         var buildSummary = false
@@ -149,14 +143,8 @@ object WeatherAlertNotificationBuilder {
                 inboxStyle.setSummaryText(context.getString(R.string.title_fragment_alerts))
             }
 
-            val iconBmp = withContext(Dispatchers.Default) {
-                ImageUtils.tintedBitmapFromDrawable(context, R.drawable.ic_error_white,
-                        Colors.BLACK)
-            }
-
             val mSummaryBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_error_white)
-                    .setLargeIcon(iconBmp)
+                .setSmallIcon(R.drawable.ic_error)
                     .setContentTitle(context.getString(R.string.title_fragment_alerts))
                     .setContentText(context.getString(R.string.app_name))
                     .setStyle(inboxStyle)

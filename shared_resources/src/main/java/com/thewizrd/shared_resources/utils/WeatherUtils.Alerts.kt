@@ -50,9 +50,9 @@ fun WeatherAlertType?.getDrawableFromAlertType(): Int {
         WeatherAlertType.TSUNAMIWARNING, WeatherAlertType.TSUNAMIWATCH -> R.drawable.wi_tsunami
 
         WeatherAlertType.SEVEREWEATHER,
-        WeatherAlertType.SPECIALWEATHERALERT -> R.drawable.ic_error_white
+        WeatherAlertType.SPECIALWEATHERALERT -> R.drawable.ic_error
 
-        else -> R.drawable.ic_error_white
+        else -> R.drawable.ic_error
     }
 }
 

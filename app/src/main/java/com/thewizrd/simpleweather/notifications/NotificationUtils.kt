@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.notifications
 
+import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -26,10 +27,22 @@ class NotificationUtils {
 
         @RequiresApi(Build.VERSION_CODES.O)
         @JvmStatic
-        fun getAppNotificationChannelSettingsActivityIntent(context: Context, notificationChannelId: String): Intent {
+        fun getAppNotificationChannelSettingsActivityIntent(
+            context: Context,
+            notificationChannelId: String
+        ): Intent {
             return Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                 putExtra(Settings.EXTRA_CHANNEL_ID, notificationChannelId)
+            }
+        }
+
+        @JvmStatic
+        fun createNotificationBuilder(context: Context, channelId: String): Notification.Builder {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(context, channelId)
+            } else {
+                Notification.Builder(context)
             }
         }
     }
