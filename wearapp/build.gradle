@@ -156,8 +156,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
-    implementation 'com.google.code.gson:gson:2.8.8'
-    implementation 'com.ibm.icu:icu4j:69.1'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.ibm.icu:icu4j:70.1'
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
         exclude group: "org.jetbrains", module: "annotations-java5"
