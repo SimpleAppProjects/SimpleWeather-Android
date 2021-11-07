@@ -70,10 +70,6 @@ class GoogleLocationProvider : LocationProviderImpl() {
     @Throws(WeatherException::class)
     override suspend fun getLocations(ac_query: String?, weatherAPI: String?
     ): Collection<LocationQueryViewModel> = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
-            throw WeatherException(ErrorStatus.UNKNOWN)
-        }
-
         var locations: Collection<LocationQueryViewModel>? = null
         var wEx: WeatherException? = null
 
@@ -133,10 +129,6 @@ class GoogleLocationProvider : LocationProviderImpl() {
     @Throws(WeatherException::class)
     override suspend fun getLocationFromID(model: LocationQueryViewModel): LocationQueryViewModel =
             withContext(Dispatchers.IO) {
-                if (!Geocoder.isPresent()) {
-                    throw WeatherException(ErrorStatus.NETWORKERROR)
-                }
-
                 val location: LocationQueryViewModel
                 var response: FetchPlaceResponse? = null
                 var wEx: WeatherException? = null

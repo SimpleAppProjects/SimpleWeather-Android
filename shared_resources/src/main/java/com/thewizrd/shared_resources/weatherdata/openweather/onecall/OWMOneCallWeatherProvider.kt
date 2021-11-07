@@ -5,6 +5,7 @@ import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.locationdata.locationiq.LocationIQProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit
 import com.thewizrd.shared_resources.weatherdata.openweather.onecall.Rootobject as OneCallRootobject
 import com.thewizrd.shared_resources.weatherdata.openweather.onecall.createWeatherData as createOneCallWeatherData
 
-class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInterface {
+class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterface {
     companion object {
         private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast?appid=%s"
@@ -44,9 +45,13 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl(), AirQualityProviderInter
         private const val AQI_QUERY_URL = BASE_URL + "air_pollution?lat=%s&lon=%s&appid=%s"
     }
 
-    init {
+    constructor() {
         mLocationProvider = RemoteConfig.getLocationProvider(getWeatherAPI())
-                ?: LocationIQProvider()
+            ?: LocationIQProvider()
+    }
+
+    internal constructor(locationProvider: LocationProviderImpl) {
+        mLocationProvider = locationProvider
     }
 
     override fun getWeatherAPI(): String {

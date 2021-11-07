@@ -1,6 +1,8 @@
 package com.thewizrd.shared_resources.remoteconfig
 
+import android.location.Geocoder
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.locationdata.citydb.CityDBLocationProvider
 import com.thewizrd.shared_resources.locationdata.google.AndroidLocationProvider
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -8,8 +10,12 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
 
 object RemoteConfig {
     @JvmStatic
-    fun getLocationProvider(weatherAPI: String): LocationProviderImpl? {
-        return AndroidLocationProvider()
+    fun getLocationProvider(weatherAPI: String): LocationProviderImpl {
+        return if (Geocoder.isPresent()) {
+            AndroidLocationProvider()
+        } else {
+            CityDBLocationProvider()
+        }
     }
 
     @JvmStatic

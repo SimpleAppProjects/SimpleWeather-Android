@@ -18,6 +18,7 @@ import androidx.preference.Preference
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -26,6 +27,7 @@ import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupProvidersBinding
 import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat
@@ -49,6 +51,9 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
 
         settingsManager.setPersonalKey(true)
+        if (BuildConfig.IS_NONGMS) {
+            DevSettingsEnabler.setDevSettingsEnabled(requireContext(), true)
+        }
     }
 
     override fun createSnackManager(): SnackbarManager {

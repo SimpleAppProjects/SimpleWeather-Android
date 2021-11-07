@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.locationdata.openweather.OpenWeatherMapLocationProvider
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.accuweather.AccuWeatherProvider
@@ -48,10 +49,16 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
                 WeatherAPI.OPENWEATHERMAP -> {
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
-                    providerImpl = if (BuildConfig.IS_NONGMS || settingsMgr.usePersonalKey()) {
-                        OWMOneCallWeatherProvider()
-                    } else {
-                        OpenWeatherMapProvider()
+                    providerImpl = when {
+                        BuildConfig.IS_NONGMS -> {
+                            OWMOneCallWeatherProvider(OpenWeatherMapLocationProvider())
+                        }
+                        settingsMgr.usePersonalKey() -> {
+                            OWMOneCallWeatherProvider()
+                        }
+                        else -> {
+                            OpenWeatherMapProvider()
+                        }
                     }
                 }
                 WeatherAPI.METNO -> providerImpl = MetnoWeatherProvider()
