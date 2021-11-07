@@ -149,10 +149,18 @@ object WeatherAPI {
     )
 
     private val NonGMSLocationAPIs = listOf(
-            ProviderEntry("Google", ANDROID,
-                    "https://google.com/maps", "https://google.com/maps"),
-            ProviderEntry("Google", ACCUWEATHER,
-                    /* Uses AndroidLocationProvider | accuweather is used for locationid only */
-                    "https://google.com/maps", "https://google.com/maps")
+        ProviderEntry(
+            "Google", ANDROID,
+            "https://google.com/maps", "https://google.com/maps"
+        ),
+        ProviderEntry(
+            "Google", ACCUWEATHER,
+            /* Uses AndroidLocationProvider | accuweather is used for locationid only */
+            "https://google.com/maps", "https://google.com/maps"
+        ),
+        ProviderEntry(
+            "OpenWeatherMap", OPENWEATHERMAP,
+            "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+        )
     )
 }
