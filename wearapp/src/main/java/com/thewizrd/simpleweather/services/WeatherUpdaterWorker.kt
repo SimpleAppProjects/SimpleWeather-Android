@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.services
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.location.Location
@@ -10,13 +9,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.work.*
 import com.google.android.gms.location.*
-import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -31,9 +26,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
-import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
@@ -74,9 +68,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
-                if (App.instance.appState != AppState.FOREGROUND) {
-                    setInitialDelay(60, TimeUnit.SECONDS)
-                }
                 setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             }
 
@@ -109,7 +100,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 TimeUnit.MINUTES
             )
                 .setConstraints(constraints)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG)
                 .build()
 
@@ -137,22 +127,11 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
             return true
         }
-
-        @RequiresApi(Build.VERSION_CODES.O)
-        private fun getForegroundNotification(context: Context): Notification {
-            initChannel(context)
-            val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_logo_stroke)
-                .setContentTitle(context.getString(R.string.not_title_weather_update))
-                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                .setOnlyAlertOnce(true)
-                .setNotificationSilent()
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-            return mBuilder.build()
-        }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+        initChannel(applicationContext)
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ForegroundInfo(
                 JOB_ID, getForegroundNotification(applicationContext),
@@ -164,14 +143,18 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     }
 
     override suspend fun doWork(): Result {
-        return withContext(Dispatchers.Default) {
-            Logger.writeLine(Log.INFO, "%s: Work started", TAG)
+        Logger.writeLine(Log.INFO, "%s: Work started", TAG)
 
-            if (!WeatherUpdaterHelper.executeWork(applicationContext))
-                return@withContext Result.failure()
-
-            Result.success()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            runCatching {
+                setForeground(getForegroundInfo())
+            }
         }
+
+        if (!WeatherUpdaterHelper.executeWork(applicationContext))
+            return Result.failure()
+
+        return Result.success()
     }
 
     private object WeatherUpdaterHelper {

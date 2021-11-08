@@ -58,6 +58,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayListPreference
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
+import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder.OnAppSelectedListener
@@ -1072,11 +1073,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
 
         // Trigger widget service to update widget
-        WeatherWidgetService.enqueueWork(appCompatActivity,
-                Intent(appCompatActivity, WeatherWidgetService::class.java)
-                        .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, intArrayOf(mAppWidgetId))
-                        .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.value))
+        WidgetWorker.enqueueRefreshWidget(
+            appCompatActivity,
+            intArrayOf(mAppWidgetId),
+            mWidgetInfo
+        )
 
         // Create return intent
         appCompatActivity.setResult(Activity.RESULT_OK, resultValue)

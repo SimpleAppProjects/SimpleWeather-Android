@@ -1,10 +1,13 @@
 package com.thewizrd.simpleweather.services
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.thewizrd.simpleweather.R
 
 internal object ServiceNotificationHelper {
@@ -31,5 +34,17 @@ internal object ServiceNotificationHelper {
         mChannel.enableLights(false)
         mChannel.enableVibration(false)
         mNotifyMgr.createNotificationChannel(mChannel)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    internal fun getForegroundNotification(context: Context): Notification {
+        return NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_logo_stroke)
+            .setContentTitle(context.getString(R.string.not_title_weather_update))
+            .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+            .setOnlyAlertOnce(true)
+            .setNotificationSilent()
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
     }
 }

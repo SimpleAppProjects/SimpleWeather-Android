@@ -12,7 +12,6 @@ import com.thewizrd.simpleweather.services.*
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -62,15 +61,9 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
         } else if (CommonActions.ACTION_SETTINGS_SENDUPDATE == intent.action) {
             WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
         } else if (CommonActions.ACTION_WIDGET_RESETWIDGETS == intent.action) {
-            WeatherWidgetService.enqueueWork(
-                context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_RESETGPSWIDGETS)
-            )
+            WidgetWorker.enqueueResetGPSWidgets(context)
         } else if (CommonActions.ACTION_WIDGET_REFRESHWIDGETS == intent.action) {
-            WeatherWidgetService.enqueueWork(
-                context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_REFRESHGPSWIDGETS)
-            )
+            WidgetWorker.enqueueRefreshGPSWidgets(context)
         } else if (CommonActions.ACTION_IMAGES_UPDATEWORKER == intent.action) {
             ImageDatabaseWorker.enqueueAction(
                 context,

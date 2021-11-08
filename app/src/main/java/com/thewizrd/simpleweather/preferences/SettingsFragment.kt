@@ -59,12 +59,12 @@ import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
+import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
-import com.thewizrd.simpleweather.widgets.WeatherWidgetService
 import java.util.*
 
 class SettingsFragment : ToolbarPreferenceFragmentCompat(),
@@ -90,7 +90,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var popChanceNotifPref: SwitchPreferenceCompat
 
     // Background ops
-    private lateinit var foregroundPref: SwitchPreferenceCompat
     private lateinit var batteryOptsPref: Preference
     private lateinit var notCategory: PreferenceCategory
     private lateinit var apiCategory: PreferenceCategory
@@ -221,21 +220,42 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 // Log event
                 val bundle = Bundle()
                 bundle.putString("API", settingsManager.getAPI())
-                bundle.putString("API_IsInternalKey", (!settingsManager.usePersonalKey()).toString())
+                bundle.putString(
+                    "API_IsInternalKey",
+                    (!settingsManager.usePersonalKey()).toString()
+                )
                 AnalyticsLogger.logEvent("Update_API", bundle)
 
-                WeatherUpdaterWorker.enqueueAction(appCompatActivity, WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
-            } else if ((WeatherWidgetService::class.java.name == filter.intent.component!!.className)) {
-                WeatherWidgetService.enqueueWork(appCompatActivity, filter.intent)
+                WeatherUpdaterWorker.enqueueAction(
+                    appCompatActivity,
+                    WeatherUpdaterWorker.ACTION_UPDATEWEATHER
+                )
+            } else if ((WidgetWorker::class.java.name == filter.intent.component!!.className)) {
+                when (filter.intent.action) {
+                    WidgetWorker.ACTION_REFRESHGPSWIDGETS -> WidgetWorker.enqueueRefreshGPSWidgets(
+                        appCompatActivity
+                    )
+                    WidgetWorker.ACTION_RESETGPSWIDGETS -> WidgetWorker.enqueueResetGPSWidgets(
+                        appCompatActivity
+                    )
+                }
             } else if ((WeatherUpdaterWorker::class.java.name == filter.intent.component!!.className)) {
-                if ((WeatherUpdaterWorker.ACTION_REQUEUEWORK == filter.intent.action)) {
-                    UpdaterUtils.updateAlarm(appCompatActivity)
-                } else if ((WeatherUpdaterWorker.ACTION_ENQUEUEWORK == filter.intent.action)) {
-                    UpdaterUtils.startAlarm(appCompatActivity)
-                } else if ((WeatherUpdaterWorker.ACTION_CANCELWORK == filter.intent.action)) {
-                    UpdaterUtils.cancelAlarm(appCompatActivity)
-                } else {
-                    WeatherUpdaterWorker.enqueueAction(appCompatActivity, (filter.intent.action)!!)
+                when (filter.intent.action) {
+                    WeatherUpdaterWorker.ACTION_REQUEUEWORK -> {
+                        UpdaterUtils.updateAlarm(appCompatActivity)
+                    }
+                    WeatherUpdaterWorker.ACTION_ENQUEUEWORK -> {
+                        UpdaterUtils.startAlarm(appCompatActivity)
+                    }
+                    WeatherUpdaterWorker.ACTION_CANCELWORK -> {
+                        UpdaterUtils.cancelAlarm(appCompatActivity)
+                    }
+                    else -> {
+                        WeatherUpdaterWorker.enqueueAction(
+                            appCompatActivity,
+                            (filter.intent.action)!!
+                        )
+                    }
                 }
             } else if ((WearableWorker::class.java.name == filter.intent.component!!.className)) {
                 WearableWorker.enqueueAction(appCompatActivity, (filter.intent.action)!!)
@@ -665,7 +685,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             premiumPref = createPremiumPreference()
         }
 
-        foregroundPref = findPreference(PowerUtils.KEY_USE_FOREGROUNDSERVICE)!!
         batteryOptsPref = findPreference(PowerUtils.KEY_REQUESTIGNOREBATOPTS)!!
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
@@ -679,15 +698,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 true
             }
         }
-
-        foregroundPref.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { preference, newValue ->
-                    UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
-                    if (newValue) {
-                        checkBackgroundLocationAccess()
-                    }
-                    true
-                }
 
         dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
         dailyNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
@@ -934,16 +944,26 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
             SettingsManager.KEY_FOLLOWGPS -> {
                 val value = sharedPreferences.getBoolean(key, false)
-                enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
-                enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorkerActions.ACTION_SENDLOCATIONUPDATE))
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER))
-                enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorkerActions.ACTION_SENDWEATHERUPDATE))
-                enqueueIntent(Intent(context, WeatherWidgetService::class.java)
-                        .setAction(if (value) WeatherWidgetService.ACTION_REFRESHGPSWIDGETS else WeatherWidgetService.ACTION_RESETGPSWIDGETS))
+                enqueueIntent(
+                    Intent(context, WearableWorker::class.java)
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
+                )
+                enqueueIntent(
+                    Intent(context, WearableWorker::class.java)
+                        .setAction(WearableWorkerActions.ACTION_SENDLOCATIONUPDATE)
+                )
+                enqueueIntent(
+                    Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
+                )
+                enqueueIntent(
+                    Intent(context, WearableWorker::class.java)
+                        .setAction(WearableWorkerActions.ACTION_SENDWEATHERUPDATE)
+                )
+                enqueueIntent(
+                    Intent(context, WidgetWorker::class.java)
+                        .setAction(if (value) WidgetWorker.ACTION_REFRESHGPSWIDGETS else WidgetWorker.ACTION_RESETGPSWIDGETS)
+                )
             }
             SettingsManager.KEY_REFRESHINTERVAL -> {
                 enqueueIntent(

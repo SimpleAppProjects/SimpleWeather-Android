@@ -11,23 +11,10 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.thewizrd.simpleweather.App
 
 class PowerUtils {
     companion object {
-        const val KEY_USE_FOREGROUNDSERVICE = "key_use_foregroundservice"
         const val KEY_REQUESTIGNOREBATOPTS = "key_request_ignorebatopts"
-
-        var useForegroundService: Boolean
-            get() {
-                return App.instance.preferences.getBoolean(KEY_USE_FOREGROUNDSERVICE, false)
-            }
-            set(value) {
-                App.instance.preferences.edit().also {
-                    it.putBoolean(KEY_USE_FOREGROUNDSERVICE, value)
-                    it.commit()
-                }
-            }
 
         @JvmStatic
         fun checkBackgroundOptimizationPermission(context: Context): Boolean {

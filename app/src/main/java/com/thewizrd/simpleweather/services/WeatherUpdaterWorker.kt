@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
-import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -37,7 +36,6 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
-import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import com.thewizrd.simpleweather.widgets.WidgetUtils
@@ -84,22 +82,21 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         private fun startWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
-            val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
-                if (App.instance.appState != AppState.FOREGROUND) {
-                    setInitialDelay(60, TimeUnit.SECONDS)
-                }
-                setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            }
+            val updateRequest = OneTimeWorkRequestBuilder<WeatherUpdaterWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
 
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest.build())
+                .enqueueUniqueWork(
+                    TAG + "_onBoot",
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    updateRequest
+                )
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
-            if (!PowerUtils.useForegroundService) {
-                // Enqueue periodic task as well
-                enqueueWork(context.applicationContext)
-            }
+            // Enqueue periodic task as well
+            enqueueWork(context.applicationContext)
         }
 
         private fun enqueueWork(context: Context) {
@@ -119,7 +116,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 TimeUnit.MINUTES
             )
                 .setConstraints(constraints)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG)
                 .build()
 
@@ -172,14 +168,18 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     }
 
     override suspend fun doWork(): Result {
-        return withContext(Dispatchers.IO) {
-            Logger.writeLine(Log.INFO, "%s: Work started", TAG)
+        Logger.writeLine(Log.INFO, "%s: Work started", TAG)
 
-            if (!WeatherUpdaterHelper.executeWork(applicationContext))
-                return@withContext Result.failure()
-
-            Result.success()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            runCatching {
+                setForeground(getForegroundInfo())
+            }
         }
+
+        if (!WeatherUpdaterHelper.executeWork(applicationContext))
+            return Result.failure()
+
+        return Result.success()
     }
 
     private object WeatherUpdaterHelper {

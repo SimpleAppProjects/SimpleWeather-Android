@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.services.UpdaterUtils
+import com.thewizrd.simpleweather.services.WidgetWorker
 
 abstract class WeatherWidgetProvider : AppWidgetProvider() {
     companion object {
@@ -35,10 +36,7 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
-                .putExtra(EXTRA_WIDGET_IDS, appWidgetIds)
-                .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
+        WidgetWorker.enqueueRefreshWidget(context, appWidgetIds, info, true)
     }
 
     override fun onEnabled(context: Context) {

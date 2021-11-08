@@ -259,17 +259,6 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
-            android:name=".services.UpdaterTimerService"
-            android:exported="false"
-            android:process=":widget" />
-
-        <service
-            android:name=".services.WeatherUpdaterService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync|location"
-            android:label="@string/pref_title_foreground_service" />
-
-        <service
             android:name=".widgets.WeatherWidgetService"
             android:exported="false" />
 

@@ -1,11 +1,16 @@
 package com.thewizrd.simpleweather.services
 
 import android.content.Context
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import kotlinx.coroutines.Dispatchers
@@ -56,11 +61,16 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         private fun startWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
-            val updateRequest = OneTimeWorkRequest.Builder(WidgetUpdaterWorker::class.java)
-                    .build()
+            val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdaterWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
 
             WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                .enqueueUniqueWork(
+                    TAG + "_onBoot",
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    updateRequest
+                )
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
@@ -104,6 +114,23 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             // Cancel alarm if dependent features are turned off
             WorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
+        }
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        initChannel(applicationContext)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                JOB_ID,
+                getForegroundNotification(applicationContext),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        } else {
+            ForegroundInfo(
+                JOB_ID,
+                getForegroundNotification(applicationContext)
+            )
         }
     }
 

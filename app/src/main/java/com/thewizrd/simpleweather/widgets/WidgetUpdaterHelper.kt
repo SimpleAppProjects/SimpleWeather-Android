@@ -73,20 +73,23 @@ object WidgetUpdaterHelper {
     suspend fun refreshWidgets(context: Context) {
         coroutineScope {
             val appWidgetManager = AppWidgetManager.getInstance(context)
+            val jobs = mutableListOf<Deferred<*>>()
 
             for (widgetType in WidgetType.values()) {
                 val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
 
                 if (info != null) {
-                    launch {
-                        try {
-                            refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
-                        } catch (e: Exception) {
-                            //
+                    jobs.add(
+                        async {
+                            runCatching {
+                                refreshWidget(context, info, appWidgetManager, info.appWidgetIds)
+                            }
                         }
-                    }
+                    )
                 }
             }
+
+            jobs.awaitAll()
         }
     }
 
@@ -116,12 +119,17 @@ object WidgetUpdaterHelper {
     private suspend fun resetGPSWidgets(context: Context, appWidgetIds: List<Int>) {
         coroutineScope {
             val appWidgetManager = AppWidgetManager.getInstance(context)
+            val jobs = mutableListOf<Deferred<*>>()
 
             for (appWidgetId in appWidgetIds) {
-                launch(Dispatchers.Default) {
-                    resetWidget(context, appWidgetId, appWidgetManager)
-                }
+                jobs.add(
+                    async(Dispatchers.Default) {
+                        resetWidget(context, appWidgetId, appWidgetManager)
+                    }
+                )
             }
+
+            jobs.awaitAll()
         }
     }
 
@@ -129,16 +137,21 @@ object WidgetUpdaterHelper {
         coroutineScope {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val appWidgetIds = WidgetUtils.getWidgetIds(location_query)
+            val jobs = mutableListOf<Deferred<*>>()
 
             for (appWidgetId in appWidgetIds) {
-                launch(Dispatchers.Default) {
-                    val widgetType = WidgetUtils.getWidgetTypeFromID(appWidgetId)
-                    val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
-                            ?: return@launch
+                jobs.add(
+                    async(Dispatchers.Default) {
+                        val widgetType = WidgetUtils.getWidgetTypeFromID(appWidgetId)
+                        val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
+                            ?: return@async
 
-                    refreshWidget(context, info, appWidgetManager, IntArray(1) { appWidgetId })
-                }
+                        refreshWidget(context, info, appWidgetManager, IntArray(1) { appWidgetId })
+                    }
+                )
             }
+
+            jobs.awaitAll()
         }
     }
 

@@ -46,6 +46,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayMultiSelectListPreference
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
+import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import kotlinx.coroutines.*
@@ -704,12 +705,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
 
         // Trigger widget service to update widget
-        WeatherWidgetService.enqueueWork(
+        WidgetWorker.enqueueRefreshWidget(
             appCompatActivity,
-            Intent(appCompatActivity, WeatherWidgetService::class.java)
-                .setAction(WeatherWidgetService.ACTION_REFRESHWIDGET)
-                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS, intArrayOf(mAppWidgetId))
-                .putExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, mWidgetType.value)
+            intArrayOf(mAppWidgetId),
+            mWidgetInfo
         )
 
         // Create return intent

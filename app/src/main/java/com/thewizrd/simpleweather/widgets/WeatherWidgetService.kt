@@ -8,13 +8,21 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.createForegroundNotification
 import kotlinx.coroutines.*
 
+/**
+ * Foreground service to update appwidgets
+ *
+ * Should only be invoked in reaction to an allowed situation
+ *
+ * For example: on receiving broadcast: ACTION_BOOT_COMPLETED, ACTION_MY_PACKAGE_REPLACED, ACTION_TIMEZONE_CHANGED or ACTION_TIME_CHANGED
+ *
+ * https://developer.android.com/guide/components/foreground-services#background-start-restrictions
+ */
 class WeatherWidgetService : Service() {
     private lateinit var mAppWidgetManager: AppWidgetManager
 
@@ -26,17 +34,8 @@ class WeatherWidgetService : Service() {
         private const val TAG = "WeatherWidgetService"
 
         // Widget Actions
-        const val ACTION_REFRESHWIDGET = "SimpleWeather.Droid.action.REFRESH_WIDGET"
-        const val ACTION_RESETGPSWIDGETS = "SimpleWeather.Droid.action.RESET_GPSWIDGETS"
-        const val ACTION_REFRESHGPSWIDGETS = "SimpleWeather.Droid.action.REFRESH_GPSWIDGETS"
-        const val ACTION_REFRESHWIDGETS = "SimpleWeather.Droid.action.REFRESH_WIDGETS"
-
         const val ACTION_UPDATECLOCK = "SimpleWeather.Droid.action.UPDATE_CLOCK"
         const val ACTION_UPDATEDATE = "SimpleWeather.Droid.action.UPDATE_DATE"
-
-        // Extras
-        const val EXTRA_LOCATIONNAME = "SimpleWeather.Droid.extra.LOCATION_NAME"
-        const val EXTRA_LOCATIONQUERY = "SimpleWeather.Droid.extra.LOCATION_QUERY"
 
         @JvmStatic
         fun enqueueWork(context: Context, work: Intent) {
@@ -86,48 +85,6 @@ class WeatherWidgetService : Service() {
         when (intent?.action) {
             // Widget update actions
             // Note: should end service if fg option is disabled
-            ACTION_REFRESHWIDGET -> {
-                val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
-                val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))
-
-                scope.launch {
-                    withContext(Dispatchers.Default) {
-                        val info = WidgetUtils.getWidgetProviderInfoFromType(widgetType)
-                            ?: return@withContext
-                        WidgetUpdaterHelper.refreshWidget(
-                            applicationContext,
-                            info,
-                            mAppWidgetManager,
-                            appWidgetIds
-                        )
-                    }
-                }.also { registerJob(it) }
-            }
-            ACTION_RESETGPSWIDGETS -> {
-                scope.launch {
-                    withContext(Dispatchers.Default) {
-                        // GPS feature disabled; reset widget
-                        WidgetUpdaterHelper.resetGPSWidgets(applicationContext);
-                    }
-                }.also { registerJob(it) }
-            }
-            ACTION_REFRESHGPSWIDGETS -> {
-                scope.launch {
-                    withContext(Dispatchers.Default) {
-                        WidgetUpdaterHelper.refreshWidgets(applicationContext, Constants.KEY_GPS);
-                    }
-                }.also { registerJob(it) }
-            }
-            ACTION_REFRESHWIDGETS -> {
-                val locationQuery = intent.getStringExtra(EXTRA_LOCATIONQUERY)
-                scope.launch {
-                    locationQuery?.let {
-                        withContext(Dispatchers.Default) {
-                            WidgetUpdaterHelper.refreshWidgets(applicationContext, it);
-                        }
-                    }
-                }.also { registerJob(it) }
-            }
             ACTION_UPDATECLOCK -> {
                 val appWidgetIds = intent.getIntArrayExtra(WeatherWidgetProvider.EXTRA_WIDGET_IDS)!!
                 val widgetType = WidgetType.valueOf(intent.getIntExtra(WeatherWidgetProvider.EXTRA_WIDGET_TYPE, -1))

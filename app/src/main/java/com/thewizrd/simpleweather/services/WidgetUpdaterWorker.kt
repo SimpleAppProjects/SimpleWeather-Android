@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
-import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,18 +51,21 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         private fun startWork(context: Context) {
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
-            val updateRequest = OneTimeWorkRequest.Builder(WidgetUpdaterWorker::class.java)
-                    .build()
+            val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdaterWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
 
             WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+                .enqueueUniqueWork(
+                    TAG + "_onBoot",
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    updateRequest
+                )
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
-            if (!PowerUtils.useForegroundService) {
-                // Enqueue periodic task as well
-                enqueueWork(context)
-            }
+            // Enqueue periodic task as well
+            enqueueWork(context)
         }
 
         private fun enqueueWork(context: Context) {
@@ -104,7 +106,24 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
     }
 
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ServiceNotificationHelper.initChannel(applicationContext)
+        }
+
+        return ForegroundInfo(
+            ServiceNotificationHelper.JOB_ID,
+            ServiceNotificationHelper.createForegroundNotification(applicationContext)
+        )
+    }
+
     override suspend fun doWork(): Result {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            runCatching {
+                setForeground(getForegroundInfo())
+            }
+        }
+
         WidgetUpdaterWork.executeWork(applicationContext)
         return Result.success()
     }
