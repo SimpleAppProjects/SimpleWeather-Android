@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.view.View
 import android.widget.RemoteViews
@@ -32,6 +33,7 @@ object WeatherNotificationBuilder {
         val context = App.instance.appContext
         val settingsManager = App.instance.settingsManager
         val wim = WeatherIconsManager.getInstance()
+        val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
 
         // Build update
         val updateViews = RemoteViews(
@@ -65,19 +67,6 @@ object WeatherNotificationBuilder {
         )
 
         // Details
-        updateViews.setTextViewText(
-            R.id.condition_hilo,
-            String.format(
-                "%s / %s",
-                if (hiTemp.containsDigits()) "$hiTemp°" else WeatherIcons.PLACEHOLDER,
-                if (loTemp.containsDigits()) "$loTemp°" else WeatherIcons.PLACEHOLDER
-            )
-        )
-        updateViews.setViewVisibility(
-            R.id.condition_hilo_layout,
-            if (viewModel.isShowHiLo) View.VISIBLE else View.GONE
-        )
-
         // Get extras
         var chanceModel: DetailItemViewModel? = null
         var windModel: DetailItemViewModel? = null
@@ -104,16 +93,41 @@ object WeatherNotificationBuilder {
             }
         }
 
-        if (feelsLikeModel != null) {
-            updateViews.setTextViewText(
-                R.id.feelslike_temp,
+        val conditionTempBuilder = SpannableStringBuilder()
+
+        if (viewModel.isShowHiLo) {
+            conditionTempBuilder.append(
                 String.format(
-                    "%s: %s",
-                    context.getString(R.string.label_feelslike),
-                    feelsLikeModel.value.toString()
+                    "%s / %s",
+                    if (hiTemp.containsDigits()) "$hiTemp°" else WeatherIcons.PLACEHOLDER,
+                    if (loTemp.containsDigits()) "$loTemp°" else WeatherIcons.PLACEHOLDER
                 )
             )
-            updateViews.setViewVisibility(R.id.feelslike_temp, View.VISIBLE)
+        }
+
+        if (feelsLikeModel != null) {
+            if (conditionTempBuilder.isNotEmpty()) {
+                conditionTempBuilder.append(" ${WeatherIcons.PLACEHOLDER} ")
+            }
+
+            conditionTempBuilder.append("${feelsLikeModel.label}: ${feelsLikeModel.value}")
+        }
+
+        if (conditionTempBuilder.isNotEmpty()) {
+            updateViews.setTextViewText(R.id.condition_temp, conditionTempBuilder)
+        } else {
+            updateViews.setViewVisibility(R.id.condition_temp, View.GONE)
+        }
+
+        if (chanceModel != null) {
+            updateViews.setImageViewResource(
+                R.id.weather_popicon,
+                wip.getWeatherIconResource(chanceModel.icon)
+            )
+            updateViews.setTextViewText(R.id.weather_pop, chanceModel.value)
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE)
+        } else {
+            updateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE)
         }
 
         // Extras
@@ -122,8 +136,9 @@ object WeatherNotificationBuilder {
         } else {
             updateViews.clone()
         }
+
         if (windModel != null) {
-            val windIconResId = wim.getWeatherIconResource(WeatherIcons.WIND_DIRECTION)
+            val windIconResId = wip.getWeatherIconResource(WeatherIcons.WIND_DIRECTION)
             if (windModel.iconRotation != 0) {
                 bigUpdateViews.setImageViewBitmap(
                     R.id.weather_windicon,
@@ -142,32 +157,25 @@ object WeatherNotificationBuilder {
         } else {
             bigUpdateViews.setViewVisibility(R.id.weather_wind_layout, View.GONE)
         }
+
         if (humidityModel != null) {
             bigUpdateViews.setImageViewResource(
                 R.id.humidity_icon,
-                wim.getWeatherIconResource(humidityModel.icon)
+                wip.getWeatherIconResource(humidityModel.icon)
             )
             bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.value)
             bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE)
         }
+
         if (windGustModel != null) {
             bigUpdateViews.setImageViewResource(
                 R.id.windgust_icon,
-                wim.getWeatherIconResource(windGustModel.icon)
+                wip.getWeatherIconResource(windGustModel.icon)
             )
             bigUpdateViews.setTextViewText(R.id.windgust, windGustModel.value)
             bigUpdateViews.setViewVisibility(R.id.windgust_layout, View.VISIBLE)
         }
-        if (chanceModel != null) {
-            bigUpdateViews.setImageViewResource(
-                R.id.weather_popicon,
-                wim.getWeatherIconResource(chanceModel.icon)
-            )
-            bigUpdateViews.setTextViewText(R.id.weather_pop, chanceModel.value)
-            bigUpdateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE)
-        } else {
-            bigUpdateViews.setViewVisibility(R.id.weather_pop_layout, View.GONE)
-        }
+
         bigUpdateViews.setViewVisibility(
             R.id.extra_layout,
             if (windModel != null || humidityModel != null || windGustModel != null) View.VISIBLE else View.GONE
@@ -187,7 +195,6 @@ object WeatherNotificationBuilder {
                     weatherIconResId
                 } else {
                     // Use default icon pack here; animated icons are not supported here
-                    val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
                     wip.getWeatherIconResource(viewModel.weatherIcon)
                 }
             }
