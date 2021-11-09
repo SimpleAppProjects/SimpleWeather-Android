@@ -90,6 +90,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var popChanceNotifPref: SwitchPreferenceCompat
 
     // Background ops
+    private lateinit var foregroundPref: SwitchPreferenceCompat
     private lateinit var batteryOptsPref: Preference
     private lateinit var notCategory: PreferenceCategory
     private lateinit var apiCategory: PreferenceCategory
@@ -685,29 +686,42 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             premiumPref = createPremiumPreference()
         }
 
+        foregroundPref = findPreference(PowerUtils.KEY_USE_FOREGROUNDSERVICE)!!
         batteryOptsPref = findPreference(PowerUtils.KEY_REQUESTIGNOREBATOPTS)!!
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
             !PowerUtils.checkBackgroundOptimizationPermission(requireContext()) ||
             !PowerUtils.canStartIgnoreBatteryOptActivity(requireContext()) ||
-            PowerUtils.isBackgroundOptimizationDisabled(requireContext())) {
+            PowerUtils.isBackgroundOptimizationDisabled(requireContext())
+        ) {
             batteryOptsPref.isVisible = false
         } else {
-            batteryOptsPref.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference? ->
-                PowerUtils.startIgnoreBatteryOptActivity(requireContext())
-                true
-            }
+            batteryOptsPref.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { preference: Preference? ->
+                    PowerUtils.startIgnoreBatteryOptActivity(requireContext())
+                    true
+                }
         }
 
-        dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
-        dailyNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            if (newValue == true && !areNotificationExtrasEnabled()) {
-                runWithView {
-                    navigateToPremiumFragment()
+        foregroundPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                UpdaterUtils.enableForegroundService(requireContext(), newValue as Boolean)
+                if (newValue) {
+                    checkBackgroundLocationAccess()
                 }
-                return@OnPreferenceChangeListener false
+                true
             }
-            UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
+
+        dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
+        dailyNotifPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                if (newValue == true && !areNotificationExtrasEnabled()) {
+                    runWithView {
+                        navigateToPremiumFragment()
+                    }
+                    return@OnPreferenceChangeListener false
+                }
+                UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
             if (newValue) {
                 checkBackgroundLocationAccess()
             }

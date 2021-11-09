@@ -8,9 +8,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.work.*
+import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.services.ServiceNotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Clock
@@ -32,21 +34,40 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
 
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false)
-                    .build()
+                .setRequiresCharging(false)
+                .build()
             val updateRequest = OneTimeWorkRequestBuilder<DailyWeatherNotificationWorker>()
-                    .setConstraints(constraints)
-                    .setInitialDelay(getWorkerDelayInMinutes(context), TimeUnit.MINUTES)
-                    .build()
+                .setConstraints(constraints)
+                .setInitialDelay(getWorkerDelayInMinutes(context), TimeUnit.MINUTES)
+                .build()
 
-            WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, updateRequest)
+            RemoteWorkManager.getInstance(context.applicationContext)
+                .enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE, updateRequest)
+
+            Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
+        }
+
+        fun sendDailyNotification(context: Context) {
+            Logger.writeLine(Log.INFO, "%s: Requesting to start work immediately", TAG)
+
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build()
+
+            val updateRequest = OneTimeWorkRequestBuilder<DailyWeatherNotificationWorker>()
+                .setConstraints(constraints)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+
+            RemoteWorkManager.getInstance(context.applicationContext)
+                .enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }
 
         fun cancelWork(context: Context) {
-            WorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
+            RemoteWorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
         }
 
@@ -85,6 +106,17 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
             Logger.writeLine(Log.DEBUG, "%s: delay = $delay min", TAG)
             return delay
         }
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ServiceNotificationHelper.initChannel(applicationContext)
+        }
+
+        return ForegroundInfo(
+            ServiceNotificationHelper.JOB_ID,
+            ServiceNotificationHelper.createForegroundNotification(applicationContext)
+        )
     }
 
     override suspend fun doWork(): Result {

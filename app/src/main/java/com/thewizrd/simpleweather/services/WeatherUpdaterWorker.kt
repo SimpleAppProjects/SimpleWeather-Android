@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
+import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -36,6 +37,7 @@ import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.NOT_CHANNEL_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
+import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import com.thewizrd.simpleweather.widgets.WidgetUtils
@@ -86,7 +88,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
-            WorkManager.getInstance(context)
+            RemoteWorkManager.getInstance(context)
                 .enqueueUniqueWork(
                     TAG + "_onBoot",
                     ExistingWorkPolicy.APPEND_OR_REPLACE,
@@ -95,8 +97,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
-            // Enqueue periodic task as well
-            enqueueWork(context.applicationContext)
+            if (!PowerUtils.useForegroundService) {
+                // Enqueue periodic task as well
+                enqueueWork(context.applicationContext)
+            }
         }
 
         private fun enqueueWork(context: Context) {
@@ -119,7 +123,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 .addTag(TAG)
                 .build()
 
-            WorkManager.getInstance(context)
+            RemoteWorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
@@ -138,7 +142,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         private fun cancelWork(context: Context) {
-            WorkManager.getInstance(context).cancelUniqueWork(TAG)
+            RemoteWorkManager.getInstance(context).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
         }
 

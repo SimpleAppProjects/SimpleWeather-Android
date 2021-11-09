@@ -19,6 +19,12 @@
             android:title="@string/pref_title_refreshinterval"
             app:icon="@drawable/ic_access_time_white_24dp" />
 
+        <SwitchPreferenceCompat
+            android:key="key_use_foregroundservice"
+            android:title="@string/pref_title_foreground_service"
+            android:summary="@string/pref_summary_foreground_service"
+            app:icon="@drawable/ic_widgets_24px" />
+
         <Preference
             android:key="key_request_ignorebatopts"
             android:title="@string/pref_title_ignore_batt_opts"

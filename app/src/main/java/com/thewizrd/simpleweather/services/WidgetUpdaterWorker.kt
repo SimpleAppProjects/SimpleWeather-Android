@@ -4,12 +4,14 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.work.*
+import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
+import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,7 +57,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
-            WorkManager.getInstance(context)
+            RemoteWorkManager.getInstance(context)
                 .enqueueUniqueWork(
                     TAG + "_onBoot",
                     ExistingWorkPolicy.APPEND_OR_REPLACE,
@@ -65,7 +67,9 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well
-            enqueueWork(context)
+            if (!PowerUtils.useForegroundService) {
+                enqueueWork(context)
+            }
         }
 
         private fun enqueueWork(context: Context) {
@@ -82,7 +86,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
                 .addTag(TAG)
                 .build()
 
-            WorkManager.getInstance(context)
+            RemoteWorkManager.getInstance(context)
                     .enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.REPLACE, updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: Work enqueued", TAG)
@@ -101,7 +105,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         private fun cancelWork(context: Context) {
-            WorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
+            RemoteWorkManager.getInstance(context.applicationContext).cancelUniqueWork(TAG)
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
         }
     }

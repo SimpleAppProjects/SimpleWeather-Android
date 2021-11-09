@@ -256,8 +256,9 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
 
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
-                .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
-                .build()
+            .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.INFO)
+            .setDefaultProcessName(packageName) // Main process
+            .build()
     }
 
     private fun getProcessNameCompat(): String? {

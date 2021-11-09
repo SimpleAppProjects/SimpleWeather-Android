@@ -27,6 +27,10 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
             // no-op
         }
 
+        fun sendDailyNotification(context: Context) {
+            // no-op
+        }
+
         fun cancelWork(context: Context) {
             // no-op
         }
