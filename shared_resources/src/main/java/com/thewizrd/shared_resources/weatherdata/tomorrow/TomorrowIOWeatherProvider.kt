@@ -367,7 +367,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
              * 1100: Mostly Clear
              */
             1100, 1101 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
             }
 
             /*

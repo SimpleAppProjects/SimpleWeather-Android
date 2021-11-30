@@ -304,6 +304,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
             WeatherIcons.DAY_SUNNY_OVERCAST -> {
                 context.getString(R.string.weather_overcast)
             }
+            WeatherIcons.DAY_PARTLY_CLOUDY,
             WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> {
                 context.getString(R.string.weather_partlycloudy)
             }

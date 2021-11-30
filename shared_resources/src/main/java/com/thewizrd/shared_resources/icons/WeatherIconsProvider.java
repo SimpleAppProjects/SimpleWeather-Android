@@ -97,6 +97,7 @@ public final class WeatherIconsProvider extends WeatherIconProvider {
             case WeatherIcons.DAY_STORM_SHOWERS:
                 weatherIcon = R.drawable.wi_day_storm_showers;
                 break;
+            case WeatherIcons.DAY_PARTLY_CLOUDY:
             case WeatherIcons.DAY_SUNNY_OVERCAST:
                 weatherIcon = R.drawable.wi_day_sunny_overcast;
                 break;

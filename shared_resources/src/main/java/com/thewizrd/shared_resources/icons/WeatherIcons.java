@@ -30,9 +30,11 @@ public final class WeatherIcons {
     public static final String DAY_HOT = "\uf072";
     public static final String DAY_CLOUDY_HIGH = "\uf07d";
     public static final String DAY_LIGHT_WIND = "\uf0c4";
+    public static final String DAY_PARTLY_CLOUDY = "\uf00c-pc";
 
     // NIGHT_ALT
     public static final String NIGHT_CLEAR = "\uf02e";
+    public static final String NIGHT_FOG = "\uf04a";
     public static final String NIGHT_ALT_CLOUDY = "\uf086";
     public static final String NIGHT_ALT_CLOUDY_GUSTS = "\uf022";
     public static final String NIGHT_ALT_CLOUDY_WINDY = "\uf023";
@@ -52,9 +54,6 @@ public final class WeatherIcons {
     public static final String NIGHT_ALT_THUNDERSTORM = "\uf02d";
     public static final String NIGHT_ALT_PARTLY_CLOUDY = "\uf081";
     public static final String NIGHT_ALT_CLOUDY_HIGH = "\uf07e";
-
-    // NIGHT
-    public static final String NIGHT_FOG = "\uf04a";
 
     // NEUTRAL
     public static final String CLOUD = "\uf041";

@@ -40,6 +40,7 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.DAY_CLOUDY_HIGH -> weatherIcon =
                 R.drawable.wui_day_mostlycloudy
 
+            WeatherIcons.DAY_PARTLY_CLOUDY,
             WeatherIcons.DAY_SUNNY_OVERCAST -> weatherIcon =
                 R.drawable.wui_day_partlycloudy
 

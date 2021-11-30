@@ -36,6 +36,7 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.DAY_HAIL -> weatherIcon = R.drawable.wic_hail
             WeatherIcons.DAY_HAZE -> weatherIcon = R.drawable.wic_sun_fog
             WeatherIcons.DAY_LIGHTNING -> weatherIcon = R.drawable.wic_sun_cloud_lightning
+            WeatherIcons.DAY_PARTLY_CLOUDY -> weatherIcon = R.drawable.wic_sun_cloud
             WeatherIcons.DAY_RAIN -> weatherIcon = R.drawable.wic_sun_cloud_rain
             WeatherIcons.DAY_RAIN_MIX -> weatherIcon = R.drawable.wic_sun_cloud_rain
             WeatherIcons.DAY_RAIN_WIND -> weatherIcon = R.drawable.wic_sun_cloud_rain
