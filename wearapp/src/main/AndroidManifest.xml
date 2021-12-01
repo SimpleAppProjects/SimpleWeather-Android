@@ -60,7 +60,7 @@
         <service
             android:name=".wearable.WearableDataListenerService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
 
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
@@ -88,7 +88,7 @@
             android:label="Weather"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherComplicationService"
-            android:exported="false">
+            android:exported="true">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
                 android:value="SHORT_TEXT,LONG_TEXT" />
