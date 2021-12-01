@@ -41,7 +41,7 @@ class CurrentWeatherTileProviderService : WeatherTileProviderService() {
         )
         updateViews.setTextColor(
             R.id.condition_temp,
-            getColorFromTempF(weather.condition.tempF, Colors.WHITE)
+            weather.condition?.tempF?.let { getColorFromTempF(it, Colors.WHITE) } ?: Colors.WHITE
         )
         updateViews.setTextViewText(R.id.condition_hi, viewModel.hiTemp ?: WeatherIcons.PLACEHOLDER)
         updateViews.setTextViewText(R.id.condition_lo, viewModel.loTemp ?: WeatherIcons.PLACEHOLDER)

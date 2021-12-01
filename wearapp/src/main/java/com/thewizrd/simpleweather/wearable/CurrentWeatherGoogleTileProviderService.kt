@@ -40,7 +40,7 @@ class CurrentWeatherGoogleTileProviderService : WeatherTileProviderService() {
         )
         updateViews.setTextColor(
             R.id.condition_temp,
-            getColorFromTempF(weather.condition.tempF, Colors.WHITE)
+            weather.condition?.tempF?.let { getColorFromTempF(it, Colors.WHITE) } ?: Colors.WHITE
         )
         updateViews.setTextViewText(R.id.condition_weather, viewModel.curCondition)
         updateViews.setTextViewText(R.id.location_name, viewModel.location)
