@@ -152,8 +152,8 @@ class WeatherComplicationService : SuspendingComplicationDataSourceService() {
                     if (isFahrenheit) Math.round(weather.condition.tempF) else Math.round(weather.condition.tempC)
                 String.format(LocaleUtils.getLocale(), "%d", temp)
             } else {
-            WeatherIcons.PLACEHOLDER
-        }
+                WeatherIcons.PLACEHOLDER
+            }
 
         val tempUnit = if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
 
@@ -176,7 +176,7 @@ class WeatherComplicationService : SuspendingComplicationDataSourceService() {
             )
         )
 
-        return when (dataType) {
+        when (dataType) {
             ComplicationType.SHORT_TEXT -> {
                 val builder = ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(temp).build(),
