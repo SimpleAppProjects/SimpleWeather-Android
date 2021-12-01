@@ -37,8 +37,7 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) :
                     .setInitialDelay(1, TimeUnit.HOURS)
                     .build()
 
-            WorkManager.getInstance(context.applicationContext)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
+            WorkManager.getInstance(context.applicationContext).enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }

@@ -69,14 +69,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             val updateRequest = OneTimeWorkRequest.Builder(WeatherUpdaterWorker::class.java).apply {
                 setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            }
+            }.build()
 
-            WorkManager.getInstance(context.applicationContext)
-                .enqueueUniqueWork(
-                    TAG + "_onBoot",
-                    ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    updateRequest.build()
-                )
+            WorkManager.getInstance(context.applicationContext).enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 

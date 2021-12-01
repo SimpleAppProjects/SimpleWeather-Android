@@ -57,12 +57,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
-            RemoteWorkManager.getInstance(context)
-                .enqueueUniqueWork(
-                    TAG + "_onBoot",
-                    ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    updateRequest
-                )
+            RemoteWorkManager.getInstance(context).enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 

@@ -8,7 +8,10 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.work.*
+import androidx.work.CoroutineWorker
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -46,8 +49,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
                         .setInitialDelay(1, TimeUnit.MINUTES)
                         .build()
 
-                WorkManager.getInstance(context.applicationContext)
-                        .enqueueUniqueWork(TAG, ExistingWorkPolicy.KEEP, workRequest)
+                WorkManager.getInstance(context.applicationContext).enqueue(workRequest)
             }
         }
 

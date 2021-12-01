@@ -55,12 +55,11 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) : Corouti
                     Data.Builder()
                         .putString(KEY_ACTION, intentAction)
                         .putBoolean(KEY_FORCEREFRESH, forceRefresh)
-                                    .build()
-                    )
-                    .build()
+                        .build()
+                )
+                .build()
 
-            WorkManager.getInstance(context)
-                    .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction), ExistingWorkPolicy.APPEND_OR_REPLACE, updateRequest)
+            WorkManager.getInstance(context).enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }

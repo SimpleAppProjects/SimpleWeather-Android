@@ -50,18 +50,19 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val updateRequest = OneTimeWorkRequest.Builder(WeatherNotificationWorker::class.java)
-                    .setConstraints(Constraints.NONE)
-                    .setInputData(
-                            Data.Builder()
-                                    .putString(KEY_ACTION, intent.action)
-                                    .putBoolean(EXTRA_FORCEREFRESH, intent.getBooleanExtra(EXTRA_FORCEREFRESH, false))
-                                    .build()
-                    )
-                    .build()
+                .setConstraints(Constraints.NONE)
+                .setInputData(
+                    Data.Builder()
+                        .putString(KEY_ACTION, intent.action)
+                        .putBoolean(
+                            EXTRA_FORCEREFRESH,
+                            intent.getBooleanExtra(EXTRA_FORCEREFRESH, false)
+                        )
+                        .build()
+                )
+                .build()
 
-            WorkManager.getInstance(context)
-                    .enqueueUniqueWork(String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intent.action),
-                            ExistingWorkPolicy.REPLACE, updateRequest)
+            WorkManager.getInstance(context).enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }

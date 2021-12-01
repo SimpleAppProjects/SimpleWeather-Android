@@ -48,15 +48,16 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
             Logger.writeLine(Log.INFO, "%s: Requesting to start work", TAG)
 
             val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false)
-                    .build()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresCharging(false)
+                .build()
             val updateRequest = OneTimeWorkRequest.Builder(ImageDatabaseWorker::class.java)
-                    .setConstraints(constraints)
-                    .setInitialDelay(1, TimeUnit.MINUTES)
-                    .build()
-            WorkManager.getInstance(context)
-                    .enqueueUniqueWork(TAG + "_onBoot", ExistingWorkPolicy.REPLACE, updateRequest)
+                .setConstraints(constraints)
+                .setInitialDelay(1, TimeUnit.MINUTES)
+                .build()
+
+            WorkManager.getInstance(context).enqueue(updateRequest)
+
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
 
             // Enqueue periodic task as well

@@ -71,16 +71,12 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
 
             nodeID?.let { data.putString(KEY_NODEID, nodeID) }
 
-            val updateRequest = OneTimeWorkRequest.Builder(WearableWorker::class.java)
+            val updateRequest = OneTimeWorkRequestBuilder<WearableWorker>()
                 .setInputData(data.build())
                 .build()
 
             WorkManager.getInstance(context.applicationContext)
-                .enqueueUniqueWork(
-                    String.format(Locale.ROOT, "%s:%s_oneTime", TAG, intentAction),
-                    ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    updateRequest
-                )
+                .enqueue(updateRequest)
 
             Logger.writeLine(Log.INFO, "%s: One-time work enqueued", TAG)
         }
