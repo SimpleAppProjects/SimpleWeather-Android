@@ -25,11 +25,10 @@
             android:id="@+id/radar_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="20dp"
             android:text="@string/label_radar"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@color/colorTextPrimary"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
             app:layout_constraintBottom_toTopOf="@id/radar_webview_container"
             app:layout_constraintEnd_toStartOf="@id/chevron_right"
             app:layout_constraintStart_toStartOf="parent"
@@ -70,23 +69,12 @@
             android:clickable="false"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/radar_label"
             app:layout_constraintWidth_max="720dp"
             app:layout_constraintWidth_min="wrap" />
-
-        <View
-            android:id="@+id/border"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.2"
-            android:background="@color/colorOnSurface"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/radar_webview_container" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

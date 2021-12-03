@@ -77,7 +77,7 @@
             app:cardCornerRadius="@dimen/shape_corner_radius"
             app:cardUseCompatPadding="false"
             app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
-            tools:layout_height="560dp">
+            tools:layout_height="360dp">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/image_view"
@@ -127,16 +127,15 @@
                     android:id="@+id/weather_temp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="start|center_vertical"
                     android:layout_alignParentStart="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    android:gravity="start|center_vertical"
                     android:padding="4dp"
                     android:scrollbars="none"
                     android:text="@{weatherView.curTemp}"
+                    android:textAppearance="@style/TextAppearance.WeatherNow.Temperature"
                     app:tempTextColor="@{weatherView.curTemp}"
-                    android:textSize="60sp"
-                    app:fontFamily="@font/open_sans_light"
                     tools:text="70°F" />
 
                 <LinearLayout
@@ -164,10 +163,7 @@
                         android:minWidth="60dp"
                         android:scrollbars="none"
                         android:text="@{weatherView.hiTemp}"
-                        android:textColor="@color/colorTextPrimary"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        app:fontFamily="@font/open_sans_light"
+                        android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_up"
@@ -184,10 +180,7 @@
                         android:minWidth="60dp"
                         android:scrollbars="none"
                         android:text="@{weatherView.loTemp}"
-                        android:textColor="@color/colorTextPrimary"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        app:fontFamily="@font/open_sans_light"
+                        android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_down"
@@ -228,9 +221,7 @@
                 android:maxLines="2"
                 android:padding="4dp"
                 android:text="@{weatherView.curCondition}"
-                android:textColor="@color/colorTextPrimary"
-                android:textSize="18sp"
-                app:fontFamily="@font/open_sans_semibold"
+                android:textAppearance="@style/TextAppearance.WeatherNow.ConditionText"
                 tools:text="Sunny" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -247,19 +238,12 @@
                 android:padding="4dp"
                 android:text="@{weatherView.weatherSummary}"
                 android:textSize="12sp"
-                style="?textAppearanceSubtitle1"
+                android:textAppearance="?textAppearanceSubtitle1"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
                 app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />
 
         </LinearLayout>
-
-        <View
-            android:id="@+id/condition_border"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.2"
-            android:background="@color/colorOnSurface" />
 
     </LinearLayout>
 

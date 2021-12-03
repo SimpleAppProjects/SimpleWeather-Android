@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.WeatherNow" parent="TextAppearance.OpenSans">
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="TextAppearance.WeatherNow.ConditionText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="fontFamily">@font/open_sans_semibold</item>
+    </style>
+
+    <style name="TextAppearance.WeatherNow.Temperature">
+        <item name="android:textSize">60sp</item>
+        <item name="android:fontFamily">@font/open_sans_light</item>
+        <item name="fontFamily">@font/open_sans_light</item>
+    </style>
+
+    <style name="TextAppearance.WeatherNow.HiLoTemp">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/open_sans_light</item>
+        <item name="fontFamily">@font/open_sans_light</item>
+    </style>
+
+    <style name="TextAppearance.WeatherNow.SectionLabel">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="fontFamily">@font/open_sans_semibold</item>
+    </style>
+
+</resources>

@@ -32,12 +32,10 @@
             android:id="@+id/moonphase_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="20dp"
             android:text="@string/label_moonphase"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -206,21 +204,10 @@
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@color/colorTextPrimary"
             app:layout_constraintTop_toBottomOf="@id/phase_newmoon"
-            app:layout_constraintBottom_toTopOf="@id/border"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Full Moon" />
-
-        <View
-            android:id="@+id/border"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.2"
-            android:background="@color/colorOnSurface"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_description"
-            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

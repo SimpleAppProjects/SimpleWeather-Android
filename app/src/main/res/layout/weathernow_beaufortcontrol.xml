@@ -25,12 +25,10 @@
             android:id="@+id/beaufort_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="20dp"
             android:text="@string/label_beaufort"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true" />
@@ -87,16 +85,6 @@
             tools:progressTint="#FFFF4500"
             tools:progress="11"
             tools:max="12" />
-
-        <View
-            android:id="@+id/border"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.2"
-            android:background="@color/colorOnSurface"
-            android:layout_below="@id/beaufort_progressBar"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 </layout>

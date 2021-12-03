@@ -24,11 +24,10 @@
             android:id="@+id/details_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="20dp"
             android:text="@string/label_details"
-            android:textAppearance="?android:textAppearanceMediumInverse"
-            android:textColor="@color/colorTextPrimary"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
             app:showIfNotEmpty="@{weatherView.weatherDetails}"
             app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
 
@@ -53,15 +52,6 @@
             tools:layout_height="300dp"
             tools:listitem="@layout/card_weather_detail"
             tools:visibility="visible" />
-
-        <View
-            android:id="@+id/details_border"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.2"
-            android:background="@color/colorOnSurface"
-            app:showIfNotEmpty="@{weatherView.weatherDetails}"
-            app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
 
     </LinearLayout>
 
