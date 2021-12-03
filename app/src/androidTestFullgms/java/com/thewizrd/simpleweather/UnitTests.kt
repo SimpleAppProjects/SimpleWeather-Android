@@ -420,7 +420,8 @@ class UnitTests {
     fun getTomorrowIOWeather() {
         runBlocking(Dispatchers.Default) {
             val provider = WeatherManager.getProvider(WeatherAPI.TOMORROWIO)
-            val weather = getWeather(provider)
+            val weather =
+                getWeather(provider, Coordinate(34.0207305, -118.6919157)) // ~ Los Angeles
             Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }

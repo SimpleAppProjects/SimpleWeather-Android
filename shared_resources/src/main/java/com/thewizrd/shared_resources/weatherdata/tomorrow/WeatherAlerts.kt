@@ -12,7 +12,10 @@ fun createWeatherAlerts(alertRoot: AlertsRootobject?): Collection<WeatherAlert>?
         weatherAlerts = HashSet(alertRoot!!.data.events.size)
 
         for (event in alertRoot.data.events) {
-            weatherAlerts.add(createWeatherAlert(event))
+            // Skip "Active Fire" alerts (not enough info)
+            if (event.eventValues.origin != "VIIRS") {
+                weatherAlerts.add(createWeatherAlert(event))
+            }
         }
     }
 
@@ -36,10 +39,13 @@ fun createWeatherAlert(event: EventsItem): WeatherAlert {
             else -> WeatherAlertType.SPECIALWEATHERALERT
         }
 
-        if (type == WeatherAlertType.SPECIALWEATHERALERT) {
+        if (type == WeatherAlertType.SPECIALWEATHERALERT && !event.eventValues.title.isNullOrBlank()) {
             if (event.eventValues.title.contains("Heat")) {
                 type = WeatherAlertType.HEAT
-            } else if (event.eventValues.title.contains("Cold") || event.eventValues.title.contains("Freeze") || event.eventValues.title.contains("Frost")) {
+            } else if (event.eventValues.title.contains("Cold") ||
+                event.eventValues.title.contains("Freeze") ||
+                event.eventValues.title.contains("Frost")
+            ) {
                 type = WeatherAlertType.WINTERWEATHER
             } else if (event.eventValues.title.contains("Smoke")) {
                 type = WeatherAlertType.DENSESMOKE
@@ -66,13 +72,28 @@ fun createWeatherAlert(event: EventsItem): WeatherAlert {
 
         title = event.eventValues.title
 
-        message = StringBuilder()
-                .appendLine(event.eventValues.headline)
-                .appendLine()
-                .appendLine(event.eventValues.description)
-                .appendLine()
-                .appendLine(event.eventValues.response[0].instruction)
-                .toString()
+        val messageStr = StringBuilder()
+
+        if (!event.eventValues.headline.isNullOrBlank()) {
+            messageStr.appendLine(event.eventValues.headline)
+        }
+
+        if (!event.eventValues.description.isNullOrBlank()) {
+            if (messageStr.isNotEmpty()) {
+                messageStr.appendLine()
+            }
+            messageStr.appendLine(event.eventValues.description)
+        }
+
+        val instruction = event.eventValues.response?.firstOrNull()?.instruction
+        if (!instruction.isNullOrBlank()) {
+            if (messageStr.isNotEmpty()) {
+                messageStr.appendLine()
+            }
+            messageStr.appendLine(instruction)
+        }
+
+        message = messageStr.toString()
 
         attribution = event.eventValues.origin ?: "tomorrow.io"
     }
