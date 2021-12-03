@@ -4,7 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.thewizrd.shared_resources.controls.DetailItemViewModel
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.sequenceEqual
 import com.thewizrd.simpleweather.controls.DetailCard
 import java.util.*
@@ -26,7 +25,6 @@ class DetailsItemGridAdapter : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = convertView as? DetailCard ?: DetailCard(parent.context)
-        view.setStrokeWidth(parent.context.dpToPx(1f))
 
         view.bindModel(mDataset!![position])
 

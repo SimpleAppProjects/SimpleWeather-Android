@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.ImageViewCompat;
 
@@ -18,7 +19,6 @@ import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
-import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.CardWeatherDetailBinding;
@@ -66,20 +66,22 @@ public class DetailCard extends LinearLayout {
         initialize(context);
     }
 
-    private void initialize(Context context) {
+    private void initialize(@NonNull Context context) {
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
         setOrientation(VERTICAL);
 
         LayoutInflater inflater = LayoutInflater.from(context);
         binding = CardWeatherDetailBinding.inflate(inflater, this, true);
+
         bgDrawable = new MaterialShapeDrawable(
                 ShapeAppearanceModel.builder(context, R.style.ShapeAppearance_Material_MediumComponent, 0)
                         .build());
+        bgDrawable.initializeElevationOverlay(context);
+        bgDrawable.setElevation(ContextUtils.dpToPx(context, 2f));
 
         int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_height);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         this.setBackground(bgDrawable);
-        this.setBackgroundColor(0xB3FFFFFF);
 
         Resources.Theme currentTheme = context.getTheme();
         TypedArray array;
@@ -104,13 +106,8 @@ public class DetailCard extends LinearLayout {
     }
 
     private void updateColors() {
-        final int systemNightMode = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        final boolean isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-        setBackgroundColor(isNightMode ? Colors.BLACK : Colors.WHITE);
+        setBackgroundColor(ContextUtils.getAttrColor(getContext(), R.attr.colorSurface));
         ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), R.attr.colorAccent)));
-        setStrokeColor(ColorUtils.setAlphaComponent(isNightMode ? Colors.LIGHTGRAY : Colors.BLACK, 0x40));
-        //setShadowColor(isNightMode ? Colors.BLACK : Colors.GRAY);
     }
 
     @Override
@@ -134,7 +131,7 @@ public class DetailCard extends LinearLayout {
 
     @Override
     public void setBackgroundColor(@ColorInt int color) {
-        bgDrawable.setFillColor(ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 0xB3)));
+        bgDrawable.setFillColor(ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 0xFF)));
     }
 
     public void setStrokeColor(@ColorInt int color) {
