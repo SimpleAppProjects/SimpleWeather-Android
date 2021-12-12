@@ -8,16 +8,31 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.TypedValue
-import androidx.annotation.AnyRes
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
+import androidx.annotation.*
 
 object ContextUtils {
+    @IntDef(
+        value = [
+            TypedValue.COMPLEX_UNIT_PX,
+            TypedValue.COMPLEX_UNIT_DIP,
+            TypedValue.COMPLEX_UNIT_SP,
+            TypedValue.COMPLEX_UNIT_PT,
+            TypedValue.COMPLEX_UNIT_IN,
+            TypedValue.COMPLEX_UNIT_MM
+        ]
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    private annotation class ComplexDimensionUnit
+
+    @JvmStatic
+    fun Context.complexUnitToPx(@ComplexDimensionUnit unit: Int, valueInDp: Float): Float {
+        val metrics = this.resources.displayMetrics
+        return TypedValue.applyDimension(unit, valueInDp, metrics)
+    }
+
     @JvmStatic
     fun Context.dpToPx(valueInDp: Float): Float {
-        val metrics = this.resources.displayMetrics
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics)
+        return complexUnitToPx(TypedValue.COMPLEX_UNIT_DIP, valueInDp)
     }
 
     @JvmStatic

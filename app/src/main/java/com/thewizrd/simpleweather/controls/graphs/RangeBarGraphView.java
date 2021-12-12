@@ -11,17 +11,20 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Animatable;
 import android.os.Build;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
+import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 
@@ -29,9 +32,9 @@ import java.util.ArrayList;
 
 import kotlin.collections.CollectionsKt;
 
-public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
+public class RangeBarGraphView extends FrameLayout implements IGraph {
 
-    private HorizontalScrollView mScrollViewer;
+    private ViewGroup mParentLayout;
     private final RectF visibleRect = new RectF();
     private RangeBarChartGraph graph;
     private OnClickListener onClickListener;
@@ -81,18 +84,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         this.onClickListener = onClickListener;
     }
 
-    /**
-     * Register a callback to be invoked when the scroll X of
-     * this view change.
-     * <p>This version of the method works on all versions of Android, back to API v4.</p>
-     *
-     * @param l The listener to notify when the scroll X position changes.
-     * @see View#getScrollX()
-     */
-    public void setOnScrollChangedListener(@Nullable OnScrollChangeListener l) {
-        mOnScrollChangeListener = l;
-    }
-
     public void setOnSizeChangedListener(@Nullable OnSizeChangedListener l) {
         mOnSizeChangedListener = l;
     }
@@ -107,21 +98,29 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             }
         });
 
-        this.setFillViewport(true);
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
         this.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         this.removeAllViews();
-        this.addView(graph, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER;
+        this.addView(graph, layoutParams);
 
-        mScrollViewer = this;
+        mParentLayout = this;
     }
 
     public void setBottomTextColor(@ColorInt int color) {
         this.graph.BOTTOM_TEXT_COLOR = color;
         if (this.graph.bottomTextPaint != null) {
             this.graph.bottomTextPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
+        }
+    }
+
+    public void setBottomTextSize(@Px float textSize) {
+        this.graph.BOTTOM_TEXT_SIZE = textSize;
+        if (this.graph.bottomTextPaint != null) {
+            this.graph.bottomTextPaint.setTextSize(this.graph.BOTTOM_TEXT_SIZE);
         }
     }
 
@@ -133,8 +132,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         this.graph.drawDataLabels = drawDataLabels;
     }
 
-    public void setCenterGraphView(boolean centerGraph) {
-        this.graph.centerGraphView = centerGraph;
+    public void setGraphMaxWidth(@Px int maxWidth) {
+        this.graph.setMaxWidth(maxWidth);
     }
 
     @Override
@@ -159,14 +158,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         // Invalidate the visible rect
         visibleRect.setEmpty();
-    }
-
-    public int getExtentWidth() {
-        return computeHorizontalScrollRange();
-    }
-
-    public int getViewportWidth() {
-        return getMeasuredWidth();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -202,10 +193,13 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private final float iconHeight;
 
-        private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 2);
+        private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 4);
         private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
 
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
+        private float BOTTOM_TEXT_SIZE = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP, 14, getContext().getResources().getDisplayMetrics()
+        );
 
         private float sideLineLength = 0;
         private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
@@ -213,7 +207,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private boolean drawDataLabels = false;
         private boolean drawIconsLabels = false;
-        private boolean centerGraphView = false;
 
         private final Paint linePaint;
 
@@ -224,17 +217,16 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         RangeBarChartGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
 
-            bottomTextPaint = new Paint();
+            bottomTextPaint = new TextPaint();
             drawDotLists = new ArrayList<>();
 
             resetData(false);
 
             bottomTextPaint.setAntiAlias(true);
-            bottomTextPaint.setTextSize(ContextUtils.dpToPx(getContext(), 12));
+            bottomTextPaint.setTextSize(BOTTOM_TEXT_SIZE);
             bottomTextPaint.setTextAlign(Paint.Align.CENTER);
             bottomTextPaint.setStyle(Paint.Style.FILL);
             bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
-            bottomTextPaint.setShadowLayer(1, 1, 1, ColorsUtils.isSuperLight(BOTTOM_TEXT_COLOR) ? Colors.BLACK : Colors.GRAY);
 
             iconHeight = ContextUtils.dpToPx(getContext(), 30);
 
@@ -274,7 +266,6 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
             if (!isDataEmpty()) {
                 Rect r = new Rect();
                 float longestWidth = 0;
-                String longestStr = "";
 
                 RangeBarGraphDataSet set = mData.getDataSet();
                 for (RangeBarGraphEntry entry : set.getEntryData()) {
@@ -285,8 +276,7 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                             bottomTextHeight = r.height();
                         }
                         if (longestWidth < r.width()) {
-                            longestStr = s;
-                            longestWidth = r.width() + bottomTextPaint.measureText(longestStr, 0, 1) * 2.25f;
+                            longestWidth = r.width();
                         }
                         if (bottomTextDescent < (Math.abs(r.bottom))) {
                             bottomTextDescent = Math.abs(r.bottom);
@@ -297,8 +287,8 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
                 if (longestTextWidth < longestWidth) {
                     longestTextWidth = longestWidth;
                 }
-                if (sideLineLength < longestWidth / 2f) {
-                    sideLineLength = longestWidth / 2f;
+                if (sideLineLength < longestWidth / 1.5f) {
+                    sideLineLength = longestWidth / 1.5f;
                 }
 
                 backgroundGridWidth = longestTextWidth;
@@ -315,29 +305,32 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
 
         private void refreshGridWidth() {
             // Reset the grid width
-            backgroundGridWidth = longestTextWidth * 1.1f;
+            backgroundGridWidth = longestTextWidth;
 
-            if (!centerGraphView && getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
-                int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
-                float additionalSpace = (float) freeSpace / horizontalGridNum;
-                backgroundGridWidth += additionalSpace;
+            final int mParentWidth;
+            if (getMaxWidth() > 0) {
+                mParentWidth = Math.min(mParentLayout.getMeasuredWidth(), getMaxWidth());
+            } else {
+                mParentWidth = mParentLayout.getMeasuredWidth();
             }
-            refreshXCoordinateList();
+
+            if (getGraphExtentWidth() < mParentWidth) {
+                int freeSpace = (int) (mParentWidth - (getGraphExtentWidth()));
+                float additionalSpace = (float) freeSpace / getMaxEntryCount();
+                if (additionalSpace > 0) {
+                    backgroundGridWidth = backgroundGridWidth + additionalSpace;
+                } else {
+                    backgroundGridWidth = longestTextWidth;
+                }
+            }
         }
 
         private void refreshXCoordinateList() {
             xCoordinateList.clear();
             xCoordinateList.ensureCapacity(getMaxEntryCount());
 
-            boolean isWithinViewport = getPreferredWidth() < mScrollViewer.getMeasuredWidth();
-
             for (int i = 0; i < getMaxEntryCount(); i++) {
-                float x;
-                if (centerGraphView && isWithinViewport) {
-                    x = (mScrollViewer.getMeasuredWidth() / ((getMaxEntryCount()) + 1f)) * (i + 1);
-                } else {
-                    x = sideLineLength + backgroundGridWidth * i;
-                }
+                float x = sideLineLength + backgroundGridWidth * i;
                 xCoordinateList.add(x);
             }
         }
@@ -408,10 +401,11 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         @Override
         protected void onDraw(Canvas canvas) {
             if (visibleRect.isEmpty()) {
-                visibleRect.set(mScrollViewer.getScrollX(),
-                        mScrollViewer.getScrollY(),
-                        mScrollViewer.getScrollX() + mScrollViewer.getWidth(),
-                        mScrollViewer.getScrollY() + mScrollViewer.getHeight());
+                visibleRect.set(
+                        mParentLayout.getScrollX(),
+                        mParentLayout.getScrollY(),
+                        mParentLayout.getScrollX() + mParentLayout.getWidth(),
+                        mParentLayout.getScrollY() + mParentLayout.getHeight());
             }
 
             if (mData != null) {
@@ -508,9 +502,25 @@ public class RangeBarGraphView extends HorizontalScrollView implements IGraph {
         }
 
         @Override
+        protected int getGraphExtentWidth() {
+            return Math.round(longestTextWidth * getMaxEntryCount());
+        }
+
+        @Override
+        protected int getPreferredWidth() {
+            if (xCoordinateList.isEmpty())
+                return Math.round(backgroundGridWidth * getMaxEntryCount());
+            else
+                return (int) (CollectionsKt.last(xCoordinateList).intValue() + sideLineLength);
+        }
+
+        @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             refreshGridWidth();
+            refreshXCoordinateList();
+
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
             refreshDrawDotList();
         }
 

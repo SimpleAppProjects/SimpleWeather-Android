@@ -10,6 +10,7 @@ import android.view.View;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 
 import com.thewizrd.shared_resources.utils.ContextUtils;
 
@@ -22,6 +23,8 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
 
     protected int mViewHeight;
     protected int mViewWidth;
+    private int mMaxWidth = -1;
+
     // Containers to check if we're drawing w/in bounds
     protected final RectF drawingRect = new RectF();
 
@@ -132,34 +135,62 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
     }
 
     protected int getPreferredWidth() {
-        return (int) ((backgroundGridWidth * horizontalGridNum) + (sideLineLength * 2));
+        return getGraphExtentWidth();
+    }
+
+    protected int getGraphExtentWidth() {
+        return (int) (backgroundGridWidth * getMaxEntryCount() + (sideLineLength * 2f));
+    }
+
+    @Px
+    public int getMaxWidth() {
+        return mMaxWidth;
+    }
+
+    public void setMaxWidth(@Px int maxWidth) {
+        this.mMaxWidth = maxWidth;
+        requestLayout();
     }
 
     protected final int measureWidth(int measureSpec) {
-        return getMeasurement(measureSpec, getPreferredWidth());
+        return getMeasurement(measureSpec, getPreferredWidth(), getMaxWidth());
     }
 
     protected final int measureHeight(int measureSpec) {
-        int preferred = 0;
-        return getMeasurement(measureSpec, preferred);
+        return getDefaultSize(getSuggestedMinimumHeight(), measureSpec);
     }
 
-    protected final int getMeasurement(int measureSpec, int preferred) {
-        int specSize = MeasureSpec.getSize(measureSpec);
-        int measurement;
-        switch (MeasureSpec.getMode(measureSpec)) {
-            case MeasureSpec.EXACTLY:
-                measurement = specSize;
+    protected final int getMeasurement(int measureSpec, int desiredSize, int maxSize) {
+        int result = desiredSize;
+        final int specMode = MeasureSpec.getMode(measureSpec);
+        final int specSize = MeasureSpec.getSize(measureSpec);
+
+        switch (specMode) {
+            case MeasureSpec.UNSPECIFIED:
+                // Parent says we can be as big as we want. Just don't be larger
+                // than max size imposed on ourselves.
+                result = maxSize > 0 ? Math.min(desiredSize, maxSize) : desiredSize;
                 break;
             case MeasureSpec.AT_MOST:
-                measurement = Math.min(preferred, specSize);
+                // If there is an upper limit, don't exceed maximum width (explicit or implicit)
+                if (maxSize > 0) {
+                    result = Math.min(Math.min(desiredSize, specSize), maxSize);
+                } else {
+                    result = Math.min(desiredSize, specSize);
+                }
                 break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
-                measurement = preferred;
+            case MeasureSpec.EXACTLY:
+                // If an exact width is specified, still don't exceed any specified maximum width
+                if (maxSize > 0) {
+                    result = Math.min(maxSize, result);
+                } else {
+                    // No choice. Do what we are told.
+                    result = specSize;
+                }
                 break;
         }
-        return measurement;
+
+        return result;
     }
 
     /* Drawables */

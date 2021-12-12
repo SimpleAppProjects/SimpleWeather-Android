@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 
-import com.thewizrd.shared_resources.helpers.ColorsUtils;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -285,7 +284,6 @@ public class LineView extends HorizontalScrollView implements IGraph {
             bottomTextPaint.setTextAlign(Paint.Align.CENTER);
             bottomTextPaint.setStyle(Paint.Style.FILL);
             bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
-            bottomTextPaint.setShadowLayer(1, 1, 1, ColorsUtils.isSuperLight(BOTTOM_TEXT_COLOR) ? Colors.BLACK : Colors.GRAY);
 
             iconHeight = ContextUtils.dpToPx(getContext(), 30);
 

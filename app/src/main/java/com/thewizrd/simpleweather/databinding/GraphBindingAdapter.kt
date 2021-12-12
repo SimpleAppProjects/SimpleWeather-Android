@@ -62,7 +62,8 @@ object GraphBindingAdapter {
     @JvmStatic
     @BindingAdapter("forecastData")
     fun updateForecastGraph(view: RangeBarGraphPanel, forecastData: List<Forecast>?) {
-        view.setGraphData(createGraphData(view.context, forecastData))
+        val maxForecasts = view.context.resources.getInteger(R.integer.weathernow_max_forecasts)
+        view.setGraphData(createGraphData(view.context, forecastData?.take(maxForecasts)))
     }
 
     @JvmStatic

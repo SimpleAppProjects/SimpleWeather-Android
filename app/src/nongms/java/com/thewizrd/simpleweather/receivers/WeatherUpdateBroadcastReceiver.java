@@ -3,7 +3,9 @@ package com.thewizrd.simpleweather.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
+import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.simpleweather.services.UpdaterUtils;
 
 public class WeatherUpdateBroadcastReceiver extends BroadcastReceiver {

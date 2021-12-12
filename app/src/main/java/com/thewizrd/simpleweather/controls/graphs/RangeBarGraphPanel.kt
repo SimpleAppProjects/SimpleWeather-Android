@@ -3,16 +3,17 @@ package com.thewizrd.simpleweather.controls.graphs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.complexUnitToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.simpleweather.R
 
 class RangeBarGraphPanel : LinearLayout {
@@ -29,20 +30,21 @@ class RangeBarGraphPanel : LinearLayout {
         this.onClickListener = onClickListener
     }
 
-    constructor(context: Context) : super(context) {
-        initialize(context)
-    }
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
+        context,
+        attrs,
+        defStyleAttr,
+        0
+    )
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        initialize(context)
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        initialize(context)
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
+    constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
         initialize(context)
     }
 
@@ -63,21 +65,22 @@ class RangeBarGraphPanel : LinearLayout {
         barChartView = RangeBarGraphView(context)
 
         val lineViewHeight = context.resources.getDimensionPixelSize(R.dimen.forecast_panel_height)
-        val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight)
         val onTouchListener = OnTouchListener { v: View?, event: MotionEvent ->
             if (event.action == MotionEvent.ACTION_UP) {
-                if (onClickListener != null && v is IGraph) {
-                    onClickListener!!.onClick(v, (v as IGraph).getItemPositionFromPoint(event.x))
+                if (v is IGraph) {
+                    onClickListener?.onClick(v, v.getItemPositionFromPoint(event.x))
                 }
                 return@OnTouchListener true
             }
             false
         }
-        barChartView.layoutParams = layoutParams
+        barChartView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight).apply {
+            gravity = Gravity.CENTER
+        }
         barChartView.setOnTouchListener(onTouchListener)
         barChartView.setDrawDataLabels(true)
         barChartView.setDrawIconLabels(true)
-        barChartView.setCenterGraphView(true)
+        barChartView.setGraphMaxWidth(context.resources.getDimensionPixelSize(R.dimen.graph_max_width))
 
         removeAllViews()
         this.addView(barChartView)
@@ -90,21 +93,16 @@ class RangeBarGraphPanel : LinearLayout {
     }
 
     private fun updateViewColors() {
-        val systemNightMode = currentConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val isNightMode = systemNightMode == Configuration.UI_MODE_NIGHT_YES
-        val bottomTextColor = if (isNightMode) Colors.WHITE else Colors.BLACK
-
-        barChartView.setBottomTextColor(bottomTextColor)
+        barChartView.setBottomTextColor(context.getAttrColor(android.R.attr.textColorPrimary))
+        barChartView.setBottomTextSize(
+            context.complexUnitToPx(TypedValue.COMPLEX_UNIT_SP, 14f)
+        )
     }
 
     private fun resetView() {
         updateViewColors()
-
         barChartView.resetData(false)
-
         updateGraphData()
-
-        barChartView.smoothScrollTo(0, 0)
     }
 
     private fun updateGraphData() {
