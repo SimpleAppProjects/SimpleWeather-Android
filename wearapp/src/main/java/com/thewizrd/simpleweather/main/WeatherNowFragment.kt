@@ -25,6 +25,7 @@ import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.helpers.requestLocationPermission
 import com.thewizrd.shared_resources.location.LocationProvider
@@ -48,7 +49,6 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
 import com.thewizrd.simpleweather.fragments.WearDialogFragment
 import com.thewizrd.simpleweather.fragments.WearDialogParams
-import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker

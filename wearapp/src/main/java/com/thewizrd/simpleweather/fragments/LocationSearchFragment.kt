@@ -25,6 +25,7 @@ import androidx.wear.widget.WearableLinearLayoutManager
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
@@ -42,7 +43,6 @@ import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
 import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
-import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import kotlinx.coroutines.*
 import java.util.*
 

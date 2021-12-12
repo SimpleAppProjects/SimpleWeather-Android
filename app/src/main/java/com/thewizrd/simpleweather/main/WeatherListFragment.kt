@@ -6,7 +6,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -15,8 +14,10 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
@@ -239,9 +240,8 @@ class WeatherListFragment : ToolbarFragment() {
                 WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> {
                     if (binding.recyclerView.itemDecorationCount == 0)
                         binding.recyclerView.addItemDecoration(
-                            DividerItemDecoration(
-                                appCompatActivity,
-                                DividerItemDecoration.VERTICAL
+                            SpacerItemDecoration(
+                                verticalSpace = binding.recyclerView.context.dpToPx(8f).toInt()
                             )
                         )
 

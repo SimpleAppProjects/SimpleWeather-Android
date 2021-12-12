@@ -15,6 +15,7 @@ import androidx.preference.DialogPreference.TargetFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.SwipeDismissFrameLayout
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.WearChipButton
@@ -22,7 +23,6 @@ import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding
 import com.thewizrd.simpleweather.databinding.LayoutWearDialogBinding
 import com.thewizrd.simpleweather.fragments.WearDialogInterface
 import com.thewizrd.simpleweather.fragments.WearDialogParams
-import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 
 abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterface,
     WearDialogInterface.OnClickListener {

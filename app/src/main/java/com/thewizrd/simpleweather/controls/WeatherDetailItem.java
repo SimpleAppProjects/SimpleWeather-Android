@@ -11,9 +11,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
 import com.thewizrd.shared_resources.controls.DetailItemViewModel;
@@ -28,8 +27,15 @@ import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
 
 import java.util.Locale;
 
-public class WeatherDetailItem extends ConstraintLayout {
+public class WeatherDetailItem extends LinearLayout {
+    /**
+     * State indicating the group is expanded.
+     */
+    private static final int[] GROUP_EXPANDED_STATE_SET = {R.attr.state_expanded};
+
     private WeatherDetailPanelBinding binding;
+
+    private boolean expandable = true;
     private boolean expanded = false;
 
     public WeatherDetailItem(Context context) {
@@ -52,20 +58,43 @@ public class WeatherDetailItem extends ConstraintLayout {
 
         binding = WeatherDetailPanelBinding.inflate(inflater, this, true);
 
+        this.setOrientation(LinearLayout.VERTICAL);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        binding.headerCard.setOnClickListener(onClickListener);
+        binding.headerCard.setOnClickListener(v -> toggle());
     }
 
-    private final View.OnClickListener onClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            expanded = !expanded;
-            binding.bodyCard.setVisibility(expanded ? VISIBLE : GONE);
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        if (this.expanded != expanded) {
+            toggle();
         }
-    };
+    }
+
+    public void toggle() {
+        if (isExpandable() && isEnabled()) {
+            expanded = !expanded;
+            binding.bodyCard.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            refreshDrawableState();
+        }
+    }
 
     public void bind(BaseForecastItemViewModel model) {
+        // Reset expanded state
+        setExpandable(true);
+        setExpanded(false);
+
         if (model instanceof ForecastItemViewModel) {
             bindModel((ForecastItemViewModel) model);
         } else if (model instanceof HourlyForecastItemViewModel) {
@@ -75,14 +104,9 @@ public class WeatherDetailItem extends ConstraintLayout {
             binding.forecastIcon.setImageResource(R.drawable.wi_na);
             binding.forecastCondition.setText(R.string.placeholder_text);
             clearForecastExtras();
-            binding.bodyCard.setVisibility(GONE);
-            binding.headerCard.setOnClickListener(null);
+            setExpandable(false);
             binding.bodyTextview.setText("");
         }
-
-        // Reset expanded state
-        expanded = false;
-        binding.bodyCard.setVisibility(GONE);
 
         binding.executePendingBindings();
 
@@ -120,8 +144,6 @@ public class WeatherDetailItem extends ConstraintLayout {
                 forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
         clearForecastExtras();
 
-        binding.bodyCard.setVisibility(GONE);
-
         SpannableStringBuilder sb = new SpannableStringBuilder();
 
         if (!StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
@@ -132,7 +154,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
-            binding.headerCard.setOnClickListener(onClickListener);
+            setExpandable(true);
 
             if (StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
                 TextPaint paint = binding.forecastCondition.getPaint();
@@ -172,7 +194,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
-                if (i < forecastView.getExtras().size())
+                if (i < forecastView.getExtras().size() - 1)
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ContextUtils.getAttrColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -181,9 +203,9 @@ public class WeatherDetailItem extends ConstraintLayout {
             binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
         } else if (sb.length() > 0) {
             binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
-            binding.headerCard.setOnClickListener(onClickListener);
+            setExpandable(true);
         } else {
-            binding.headerCard.setOnClickListener(null);
+            setExpandable(false);
         }
     }
 
@@ -194,10 +216,9 @@ public class WeatherDetailItem extends ConstraintLayout {
                 forecastView.getHiTemp(), forecastView.getCondition()));
         clearForecastExtras();
 
-        binding.bodyCard.setVisibility(GONE);
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
-            binding.headerCard.setOnClickListener(onClickListener);
+            setExpandable(true);
 
             final SpannableStringBuilder sb = new SpannableStringBuilder();
 
@@ -227,7 +248,7 @@ public class WeatherDetailItem extends ConstraintLayout {
 
                 start = sb.length();
                 sb.append(detailItem.getValue());
-                if (i < forecastView.getExtras().size())
+                if (i < forecastView.getExtras().size() - 1)
                     sb.append(StringUtils.lineSeparator());
                 int colorPrimary = ContextUtils.getAttrColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -245,7 +266,7 @@ public class WeatherDetailItem extends ConstraintLayout {
                                 .append(StringUtils.lineSeparator())
                                 .append(StringUtils.lineSeparator());
                     } else if (sb.length() == 0) {
-                        binding.headerCard.setOnClickListener(null);
+                        setExpandable(false);
                         return;
                     }
 
@@ -253,7 +274,18 @@ public class WeatherDetailItem extends ConstraintLayout {
                 }
             });
         } else {
-            binding.headerCard.setOnClickListener(null);
+            setExpandable(false);
         }
+    }
+
+    @Override
+    protected int[] onCreateDrawableState(int extraSpace) {
+        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+
+        if (isExpanded()) {
+            mergeDrawableStates(drawableState, GROUP_EXPANDED_STATE_SET);
+        }
+
+        return drawableState;
     }
 }

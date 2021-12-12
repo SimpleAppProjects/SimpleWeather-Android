@@ -4,32 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
     </data>
 
     <merge
         tools:context=".controls.WeatherDetailItem"
-        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:parentTag="android.widget.LinearLayout"
+        tools:theme="@style/Theme.MaterialComponents.DayNight"
+        android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/header_card"
             android:layout_width="match_parent"
-            android:layout_height="78dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="true"
+            android:stateListAnimator="@animator/weather_detail_item_anim"
             app:cardUseCompatPadding="false"
-            app:layout_constraintBottom_toTopOf="@id/body_card"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="78dp"
+                android:duplicateParentState="true">
 
                 <com.thewizrd.shared_resources.controls.IconControl
                     android:id="@+id/forecast_icon"
@@ -60,7 +57,7 @@
                     android:textSize="@dimen/not_primary_textSize"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/forecast_condition"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/expand_spacer"
                     app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toEndOf="@id/forecast_icon"
                     app:layout_constraintTop_toTopOf="parent"
@@ -79,7 +76,7 @@
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="@dimen/not_primary_textSize"
                     app:layout_constraintBottom_toTopOf="@id/forecast_extra_barrier"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/expand_spacer"
                     app:layout_constraintStart_toEndOf="@id/forecast_icon"
                     app:layout_constraintTop_toBottomOf="@id/forecast_date"
                     app:layout_constraintVertical_chainStyle="spread"
@@ -170,15 +167,36 @@
                     app:weatherIconStart="@{WeatherIcons.STRONG_WIND}"
                     app:drawableTint="?attr/colorSecondary"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/expand_spacer"
                     app:layout_constraintStart_toEndOf="@id/forecast_extra_clouds"
                     app:layout_constraintTop_toBottomOf="@id/forecast_condition"
                     app:layout_constraintHeight_percent="0.3333"
                     tools:text="5 mph, WNW"
                     tools:visibility="visible" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <Space
+                    android:id="@+id/expand_spacer"
+                    android:layout_width="12dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toStartOf="@id/expand_icon" />
 
+                <CheckBox
+                    android:id="@+id/expand_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:button="@drawable/ic_expand_more_white_24dp"
+                    android:duplicateParentState="true"
+                    android:stateListAnimator="@animator/weather_detail_expandicon_anim"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="false"
+                    android:background="@null"
+                    android:focusable="false"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:buttonTint="?colorOnSurface" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
@@ -186,12 +204,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:cardBackgroundColor="@android:color/transparent"
+            android:duplicateParentState="true"
+            app:cardUseCompatPadding="false"
             app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/header_card"
+            app:cardElevation="2dp"
             tools:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -199,11 +215,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingMultiplier="1.25"
-                android:paddingTop="16dp"
-                android:paddingStart="16dp"
-                android:paddingLeft="16dp"
-                android:paddingEnd="16dp"
-                android:paddingRight="16dp"
+                android:padding="16dp"
                 android:letterSpacing="0"
                 android:textAppearance="?attr/textAppearanceBody1"
                 android:textSize="14sp"

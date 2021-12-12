@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import com.thewizrd.shared_resources.BR
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter
@@ -23,7 +24,6 @@ import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
 import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
-import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 
 class WeatherDetailsFragment : SwipeDismissFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()

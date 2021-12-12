@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
+import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.App
@@ -27,7 +28,6 @@ import com.thewizrd.simpleweather.adapters.PreferenceListHeaderAdapter
 import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding
 import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
-import com.thewizrd.simpleweather.helpers.SpacerItemDecoration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
