@@ -7,6 +7,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.thewizrd.shared_resources.utils.StringUtils" />
+
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
@@ -14,8 +16,16 @@
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
 
         <variable
+            name="weatherNowState"
+            type="com.thewizrd.simpleweather.main.WeatherNowFragment.WeatherNowFragmentStateModel" />
+
+        <variable
             name="alertsView"
             type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+
+        <variable
+            name="imageData"
+            type="com.thewizrd.simpleweather.controls.ImageDataViewModel" />
 
     </data>
 
@@ -23,6 +33,56 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/location_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/gps_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="8dp"
+                android:layout_gravity="center_vertical"
+                app:srcCompat="@drawable/ic_place_white_24dp"
+                app:tint="?attr/colorOnSurface"
+                app:showIfTrue="@{weatherNowState.isGPSLocation()}"
+                tools:tint="?attr/colorOnSurface" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/location_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_horizontal"
+                android:maxLines="2"
+                android:text="@{weatherView.location}"
+                android:textAppearance="?textAppearanceHeadline6"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                tools:text="A Really Long String of Text, New York, United States"
+                tools:textColor="@color/colorOnSurface" />
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_updatetime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="@{weatherView.updateDate}"
+            android:textSize="12sp"
+            android:textAppearance="?textAppearanceSubtitle1"
+            tools:text="Updated on 11:12 PM"
+            tools:ignore="MissingConstraints" />
 
         <LinearLayout
             android:id="@+id/alert_button"
@@ -65,43 +125,13 @@
 
         </LinearLayout>
 
-        <androidx.cardview.widget.CardView
+        <FrameLayout
             android:id="@+id/image_view_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:cardCornerRadius="@dimen/shape_corner_radius"
-            app:cardUseCompatPadding="false"
             app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
-            tools:layout_height="360dp">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/image_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                tools:src="#83808080" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/bg_attribution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_gravity="bottom|end"
-                android:gravity="end"
-                android:linksClickable="true"
-                android:padding="4dp"
-                android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                android:textColor="@android:color/white"
-                android:textColorLink="@android:color/white"
-                android:textSize="12sp"
-                app:imageData="@{imageData}"
-                tools:text="Attribution text goes here" />
-
-        </androidx.cardview.widget.CardView>
+            tools:layout_height="360dp" />
 
         <LinearLayout
             android:id="@+id/condition_panel"
@@ -224,8 +254,12 @@
                 android:id="@+id/weather_summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginVertical="4dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
                 android:alpha="0.75"
                 android:padding="4dp"
                 android:text="@{weatherView.weatherSummary}"
@@ -236,19 +270,23 @@
                 tools:text="Rain, some heavy, to affect the area tonight" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/label_updatetime"
+                android:id="@+id/bg_attribution"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"
-                android:alpha="0.75"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_gravity="bottom|end"
+                android:gravity="end"
+                android:linksClickable="true"
                 android:padding="4dp"
-                android:text="@{weatherView.updateDate}"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="@android:color/white"
+                android:textColorLink="@android:color/white"
                 android:textSize="12sp"
-                android:textAppearance="?textAppearanceSubtitle1"
-                tools:text="Updated on 11:12 PM"
-                tools:ignore="MissingConstraints" />
+                app:imageData="@{imageData}"
+                tools:text="Attribution text goes here" />
 
         </LinearLayout>
 

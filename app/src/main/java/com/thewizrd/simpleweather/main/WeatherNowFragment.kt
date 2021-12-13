@@ -86,6 +86,7 @@ import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
 import com.thewizrd.simpleweather.banner.BannerManager
 import com.thewizrd.simpleweather.banner.BannerManagerInterface
+import com.thewizrd.simpleweather.controls.ExpandingGridView
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
@@ -111,6 +112,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.coroutines.coroutineContext
+import kotlin.math.min
 
 class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
     companion object {
@@ -170,11 +172,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         if (weather != null && weather.isValid) {
             weatherView.updateView(weather)
 
-            if (locationData?.locationType == LocationType.GPS) {
-                binding.gpsIcon.visibility = View.VISIBLE
-            } else {
-                binding.gpsIcon.visibility = View.GONE
-            }
+            wNowViewModel.isGPSLocation.postValue(locationData?.locationType == LocationType.GPS)
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                 if (FeatureSettings.isBackgroundImageEnabled()) {
@@ -187,12 +185,20 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                 launch(Dispatchers.Main) {
                     val backgroundUri = imageData.value?.imageURI
-                    if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(conditionPanelBinding.imageView.tag, backgroundUri) || conditionPanelBinding.imageView.getTag(R.id.glide_custom_view_target_tag) == null)) {
-                        loadBackgroundImage(backgroundUri, false)
-                    } else {
-                        binding.refreshLayout.isRefreshing = false
-                        binding.progressBar.hide()
-                        binding.scrollView.visibility = View.VISIBLE
+                    val imageView = conditionPanelBinding.imageView ?: binding.imageView
+
+                    if (imageView != null) {
+                        if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(
+                                imageView.tag,
+                                backgroundUri
+                            ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
+                        ) {
+                            loadBackgroundImage(backgroundUri, false)
+                        } else {
+                            binding.refreshLayout.isRefreshing = false
+                            binding.progressBar.hide()
+                            binding.scrollView.visibility = View.VISIBLE
+                        }
                     }
 
                     radarViewProvider?.updateCoordinates(weatherView.locationCoord, true)
@@ -286,7 +292,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun createBannerManager(): BannerManager {
-        return BannerManager(binding.listLayout)
+        return BannerManager(binding.conditionPanelList)
     }
 
     override fun initBannerManager() {
@@ -380,11 +386,24 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false,
-                dataBindingComponent)
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_weather_now, container, false,
+            dataBindingComponent
+        )
 
+        binding.weatherNowState = wNowViewModel
         binding.weatherView = weatherView
         binding.lifecycleOwner = viewLifecycleOwner
+
+        imageData.observe(viewLifecycleOwner, Observer {
+            binding.imageData = it
+
+            if (it != null) {
+                binding.listLayout.background?.alpha = 217 // 0.85% alpha
+            } else {
+                binding.listLayout.background?.alpha = 255
+            }
+        })
 
         val view = binding.root
         // Request focus away from RecyclerView
@@ -402,12 +421,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             )
         }
 
-        if (binding.toolbar.background is ColorDrawable) {
+        if (binding.appBarLayout.background is ColorDrawable) {
             val materialShapeDrawable = MaterialShapeDrawable()
             materialShapeDrawable.fillColor =
-                ColorStateList.valueOf((binding.toolbar.background as ColorDrawable).color)
-            materialShapeDrawable.initializeElevationOverlay(binding.toolbar.context)
-            ViewCompat.setBackground(binding.toolbar, materialShapeDrawable)
+                ColorStateList.valueOf((binding.appBarLayout.background as ColorDrawable).color)
+            materialShapeDrawable.initializeElevationOverlay(binding.appBarLayout.context)
+            ViewCompat.setBackground(binding.appBarLayout, materialShapeDrawable)
         }
 
         binding.scrollView.setOnScrollChangeListener(object :
@@ -428,6 +447,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     if (mShouldLift != shouldLift) {
                         v.postOnAnimationDelayed(150) { updateWindowColors() }
                         mShouldLift = shouldLift
+                    }
+
+                    if (v.context.isLargeTablet()) {
+                        val locationBottomY = conditionPanelBinding.locationName!!.bottom.toFloat()
+
+                        val adj = min(offset.toFloat(), locationBottomY) / locationBottomY
+
+                        binding.toolbar?.alpha = 1f - adj
+                        binding.locationToolbar?.isVisible = offset > locationBottomY
                     }
                 }
             }
@@ -567,17 +595,25 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        kotlin.run {
+        run {
             // Condition
-            conditionPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_condition_panel, binding.listLayout, false, dataBindingComponent)
+            conditionPanelBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_condition_panel,
+                binding.conditionPanelList,
+                false,
+                dataBindingComponent
+            )
             conditionPanelBinding.alertsView = alertsView
+            conditionPanelBinding.weatherNowState = wNowViewModel
             conditionPanelBinding.weatherView = weatherView
             conditionPanelBinding.lifecycleOwner = viewLifecycleOwner
+
             conditionPanelBinding.bgAttribution.movementMethod = LinkMovementMethod.getInstance()
 
-            imageData.observe(viewLifecycleOwner) {
+            imageData.observe(viewLifecycleOwner, Observer {
                 conditionPanelBinding.imageData = it
-            }
+            })
 
             // Alerts
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -601,9 +637,58 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 }
             }
 
-            binding.listLayout.addView(conditionPanelBinding.root, Math.min(binding.listLayout.childCount - 1, 0))
+            binding.conditionPanelList.addView(
+                conditionPanelBinding.root,
+                Math.min(binding.conditionPanelList.childCount - 1, 0)
+            )
 
-            adjustConditionPanelLayout()
+            conditionPanelBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
+                Log.d("conditionPanelBinding", "onGlobalLayout")
+
+                val context = conditionPanelBinding.root.context
+                val imageLandSize = context.dpToPx(560f).toInt()
+
+                val height = binding.refreshLayout.measuredHeight
+
+                val imageContainerParams =
+                    conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
+                val conditionPanelParams =
+                    conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
+
+                var imageContainerHeight: Int = 0
+
+                if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                    imageContainerHeight = imageLandSize
+                } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
+                    imageContainerHeight =
+                        height - conditionPanelBinding.conditionPanel.measuredHeight - imageContainerParams.bottomMargin - imageContainerParams.topMargin
+                    if (conditionPanelBinding.alertButton.visibility != View.GONE) {
+                        imageContainerHeight -= conditionPanelBinding.alertButton.measuredHeight
+                    }
+                    if (conditionPanelParams.topMargin < 0) {
+                        imageContainerHeight += -conditionPanelParams.topMargin
+                    }
+                    if (context.isLargeTablet()) {
+                        conditionPanelBinding.labelUpdatetime.let { uptime ->
+                            imageContainerHeight -= uptime.measuredHeight
+                            (uptime.layoutParams as? MarginLayoutParams)?.let { lp ->
+                                imageContainerHeight -= (lp.topMargin + lp.bottomMargin)
+                            }
+                        }
+                        conditionPanelBinding.locationLayout?.let { ll ->
+                            imageContainerHeight -= ll.measuredHeight
+                        }
+                    }
+                } else {
+                    imageContainerHeight = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+
+                if (imageContainerParams.height != imageContainerHeight) {
+                    conditionPanelBinding.imageViewContainer.updateLayoutParams {
+                        this.height = imageContainerHeight
+                    }
+                }
+            }
         }
 
         if (FeatureSettings.isForecastEnabled()) {
@@ -751,8 +836,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             detailsContainerBinding!!.detailsContainer.setOnTouchListener { v, event -> true }
 
             binding.listLayout.addView(detailsContainerBinding!!.root, Math.min(binding.listLayout.childCount - 1, 4))
-
-            adjustDetailsLayout()
         }
 
         if (FeatureSettings.isUVEnabled()) {
@@ -899,6 +982,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         adjustConditionPanelLayout()
         adjustDetailsLayout()
+        adjustViewsLayout()
 
         // Set property change listeners
         weatherView.addOnPropertyChangedCallback(object : OnPropertyChangedCallback() {
@@ -1021,6 +1105,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         // Resize necessary views
         adjustConditionPanelLayout()
         adjustDetailsLayout()
+        adjustViewsLayout()
 
         val backgroundUri = imageData.value?.imageURI
         loadBackgroundImage(backgroundUri, true)
@@ -1031,10 +1116,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     private fun loadBackgroundImage(imageURI: String?, skipCache: Boolean) {
         runWithView {
+            val imageView =
+                conditionPanelBinding.imageView ?: binding.imageView ?: return@runWithView
+
             // Reload background image
             if (FeatureSettings.isBackgroundImageEnabled()) {
-                if (!ObjectsCompat.equals(conditionPanelBinding.imageView.tag, imageURI)) {
-                    conditionPanelBinding.imageView.tag = imageURI
+                if (!ObjectsCompat.equals(imageView.tag, imageURI)) {
+                    imageView.tag = imageURI
                     if (!imageURI.isNullOrBlank()) {
                         Glide.with(this@WeatherNowFragment)
                             .asBitmap()
@@ -1073,11 +1161,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                     }
                                     return false
                                 }
-                                })
-                                .into(conditionPanelBinding.imageView)
+                            })
+                            .into(imageView)
                     } else {
-                        Glide.with(this@WeatherNowFragment).clear(conditionPanelBinding.imageView)
-                        conditionPanelBinding.imageView.tag = null
+                        Glide.with(this@WeatherNowFragment).clear(imageView)
+                        imageView.tag = null
                         if (weatherView.isValid) {
                             binding.refreshLayout.isRefreshing = false
                             binding.progressBar.hide()
@@ -1086,8 +1174,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     }
                 }
             } else {
-                Glide.with(this@WeatherNowFragment).clear(conditionPanelBinding.imageView)
-                conditionPanelBinding.imageView.tag = null
+                Glide.with(this@WeatherNowFragment).clear(imageView)
+                imageView.tag = null
                 if (weatherView.isValid) {
                     binding.refreshLayout.isRefreshing = false
                     binding.progressBar.hide()
@@ -1306,77 +1394,102 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
     }
 
-    private fun adjustConditionPanelLayout() {
-        conditionPanelBinding.conditionPanel.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            val imageLandSize = conditionPanelBinding.conditionPanel.context.dpToPx(560f).toInt()
-
-            override fun onPreDraw(): Boolean {
-                conditionPanelBinding.conditionPanel.viewTreeObserver.removeOnPreDrawListener(this)
-
-                runWithView(Dispatchers.Main.immediate) {
-                    val context = conditionPanelBinding.conditionPanel.context
-
-                    val height = binding.refreshLayout.measuredHeight
-
-                    val containerLP = conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
-                    val conditionPLP = conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
-                    if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
-                        containerLP.height = imageLandSize
-                    } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
-                        containerLP.height =
-                            height - conditionPanelBinding.conditionPanel.measuredHeight - containerLP.bottomMargin - containerLP.topMargin
-                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                            containerLP.height -= conditionPanelBinding.alertButton.measuredHeight
-                        }
-                        if (conditionPLP.topMargin < 0) {
-                            containerLP.height += -conditionPLP.topMargin
-                        }
-                    } else {
-                        containerLP.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-
-                    conditionPanelBinding.imageViewContainer.layoutParams = containerLP
+    private fun setMaxWidthForView(view: View) {
+        if (view.context.isLargeTablet()) {
+            val maxWidth = view.context.dpToPx(1080f)
+            if (view.measuredWidth > maxWidth) {
+                view.updateLayoutParams {
+                    width = maxWidth.toInt()
                 }
-
-                return true
+            } else if (view.visibility != View.VISIBLE) {
+                view.doOnNextLayout {
+                    setMaxWidthForView(view)
+                }
             }
-        })
+        }
+    }
+
+    private fun adjustConditionPanelLayout() {
+        binding.conditionPanelList.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
     }
 
     private fun adjustDetailsLayout() {
-        if (binding.scrollView.childCount != 1) return
+        detailsContainerBinding?.detailsContainer?.doOnPreDraw {
+            val view = it as? ExpandingGridView ?: return@doOnPreDraw
+            val context = it.context
+            val parentContainer = it.parent as? ViewGroup ?: return@doOnPreDraw
+            val maxWidth = view.context.dpToPx(1080f)
+            var pxWidth = parentContainer.measuredWidth
 
-        detailsContainerBinding?.detailsContainer?.viewTreeObserver?.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                if (detailsContainerBinding == null) return true
-
-                detailsContainerBinding!!.detailsContainer.viewTreeObserver.removeOnPreDrawListener(this)
-
-                runWithView(Dispatchers.Main.immediate) {
-                    val pxWidth = binding.scrollView.getChildAt(0).measuredWidth
-
-                    val minColumns = if (appCompatActivity!!.isLargeTablet()) 3 else 2
-
-                    // Minimum width for ea. card
-                    val minWidth = appCompatActivity!!.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)
-                    // Available columns based on min card width
-                    val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
-
-                    detailsContainerBinding!!.detailsContainer.numColumns = availColumns
-
-                    val isLandscape =
-                        appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
-
-                    val horizMargin = 16
-                    val marginMultiplier = if (isLandscape) 2 else 3
-                    val itemSpacing = if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
-                    detailsContainerBinding!!.detailsContainer.horizontalSpacing = itemSpacing
-                    detailsContainerBinding!!.detailsContainer.verticalSpacing = itemSpacing
+            if (pxWidth > maxWidth) {
+                pxWidth = maxWidth.toInt()
+                parentContainer.updateLayoutParams {
+                    width = pxWidth
                 }
-
-                return true
             }
-        })
+
+            val minColumns = if (context.isLargeTablet()) 3 else 2
+
+            // Minimum width for ea. card
+            val minWidth = context.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)
+            // Available columns based on min card width
+            val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
+
+            it.numColumns = availColumns
+
+            val isLandscape = context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
+
+            val horizMargin = 16
+            val marginMultiplier = if (isLandscape) 2 else 3
+            val itemSpacing =
+                if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
+            view.horizontalSpacing = itemSpacing
+            view.verticalSpacing = itemSpacing
+        }
+    }
+
+    private fun adjustViewsLayout() {
+        forecastPanelBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        hrForecastPanelBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        precipPanelBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        uvControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        beaufortControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        aqiControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        pollenCountControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        moonphaseControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        sunphaseControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        radarControlBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
     }
 
     override fun updateWindowColors() {
@@ -1392,11 +1505,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
 
         binding.rootView.setBackgroundColor(backgroundColor)
-        if (binding.toolbar.background is MaterialShapeDrawable) {
-            val materialShapeDrawable = binding.toolbar.background as MaterialShapeDrawable
+        if (binding.appBarLayout.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = binding.appBarLayout.background as MaterialShapeDrawable
             materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
         } else {
-            binding.toolbar.setBackgroundColor(navBarColor)
+            binding.appBarLayout.setBackgroundColor(navBarColor)
         }
     }
 
@@ -1532,8 +1645,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     class WeatherNowFragmentStateModel : ViewModel() {
         var scrollViewPosition = 0
-        var imageAlpha = 1.0f
-        var gradientAlpha = 1.0f
+        var isGPSLocation = MutableLiveData(false)
     }
 
     class WeatherFragmentDataBindingComponent(fragment: WeatherNowFragment?) : DataBindingComponent {

@@ -14,8 +14,8 @@
         tools:context=".controls.DetailCard"
         tools:parentTag="android.widget.LinearLayout"
         android:orientation="vertical"
-        tools:layout_height="@dimen/detail_card_height"
-        tools:layout_width="@dimen/detail_card_height">
+        tools:layout_height="@dimen/detail_card_size"
+        tools:layout_width="@dimen/detail_card_size">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/detail_label"

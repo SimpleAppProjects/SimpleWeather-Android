@@ -3,7 +3,8 @@
     <!-- WeatherNow -->
     <dimen name="label_location_size">24sp</dimen>
     <dimen name="label_updatetime_size">16sp</dimen>
-    <dimen name="detail_card_height">150dp</dimen>
+    <dimen name="detail_card_size">150dp</dimen>
+    <dimen name="detail_grid_column_width">185dp</dimen>
     <dimen name="moonphase_text_size">48sp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_panel_height">210dp</dimen>

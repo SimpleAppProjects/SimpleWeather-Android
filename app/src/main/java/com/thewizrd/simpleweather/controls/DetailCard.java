@@ -79,7 +79,7 @@ public class DetailCard extends LinearLayout {
         bgDrawable.initializeElevationOverlay(context);
         bgDrawable.setElevation(ContextUtils.dpToPx(context, 2f));
 
-        int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_height);
+        final int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_size);
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         this.setBackground(bgDrawable);
 
@@ -131,7 +131,7 @@ public class DetailCard extends LinearLayout {
 
     @Override
     public void setBackgroundColor(@ColorInt int color) {
-        bgDrawable.setFillColor(ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 0xFF)));
+        bgDrawable.setFillColor(ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 0xB3)));
     }
 
     public void setStrokeColor(@ColorInt int color) {
