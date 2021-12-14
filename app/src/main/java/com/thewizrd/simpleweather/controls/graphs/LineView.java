@@ -15,7 +15,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
@@ -117,7 +116,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
         this.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         this.removeAllViews();
-        this.addView(graph, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        this.addView(graph, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
         mScrollViewer = this;
     }
@@ -412,12 +411,20 @@ public class LineView extends HorizontalScrollView implements IGraph {
             // Reset the grid width
             backgroundGridWidth = Math.max(longestTextWidth * 1.5f, ContextUtils.dpToPx(getContext(), 45));
 
-            if (getPreferredWidth() < mScrollViewer.getMeasuredWidth()) {
-                int freeSpace = mScrollViewer.getMeasuredWidth() - getPreferredWidth();
-                float additionalSpace = (float) freeSpace / horizontalGridNum;
-                backgroundGridWidth += additionalSpace;
+            final int mParentWidth;
+            if (getMaxWidth() > 0) {
+                mParentWidth = Math.min(mScrollViewer.getMeasuredWidth(), getMaxWidth());
+            } else {
+                mParentWidth = mScrollViewer.getMeasuredWidth();
             }
-            refreshXCoordinateList();
+
+            if (getGraphExtentWidth() < mParentWidth) {
+                int freeSpace = mParentWidth - getGraphExtentWidth();
+                float additionalSpace = (float) freeSpace / horizontalGridNum;
+                if (additionalSpace > 0) {
+                    backgroundGridWidth = backgroundGridWidth + additionalSpace;
+                }
+            }
         }
 
         private void refreshAfterDataChanged() {
@@ -530,10 +537,12 @@ public class LineView extends HorizontalScrollView implements IGraph {
         @Override
         protected void onDraw(Canvas canvas) {
             if (visibleRect.isEmpty()) {
-                visibleRect.set(mScrollViewer.getScrollX(),
+                visibleRect.set(
+                        mScrollViewer.getScrollX(),
                         mScrollViewer.getScrollY(),
                         mScrollViewer.getScrollX() + mScrollViewer.getWidth(),
-                        mScrollViewer.getScrollY() + mScrollViewer.getHeight());
+                        mScrollViewer.getScrollY() + mScrollViewer.getHeight()
+                );
             }
 
             if (!isDataEmpty()) {
@@ -804,9 +813,22 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         @Override
+        protected int getGraphExtentWidth() {
+            return Math.round(longestTextWidth * 1.5f * getMaxEntryCount());
+        }
+
+        @Override
+        protected int getPreferredWidth() {
+            return Math.round(backgroundGridWidth * getMaxEntryCount());
+        }
+
+        @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             refreshGridWidth();
+            refreshXCoordinateList();
+
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
             refreshAfterDataChanged();
         }
 
