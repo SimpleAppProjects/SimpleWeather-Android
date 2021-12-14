@@ -16,10 +16,11 @@
         tools:parentTag="android.widget.RelativeLayout"
         tools:theme="@style/Theme.MaterialComponents.DayNight">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/header_card"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
@@ -31,7 +32,8 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="48dp"
+                android:duplicateParentState="true"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -91,18 +93,21 @@
 
                 <CheckBox
                     android:id="@+id/expand_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:duplicateParentState="true"
                     android:layout_gravity="center_vertical"
-                    android:paddingStart="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingEnd="24dp"
-                    android:paddingRight="24dp"
-                    android:button="@drawable/expand_toggle"
+                    android:stateListAnimator="@animator/weather_detail_expandicon_anim"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="false"
+                    android:background="@null"
+                    android:focusable="false"
+                    android:button="@drawable/ic_expand_more_white_24dp"
                     android:buttonTint="@android:color/white" />
+
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/body_card"

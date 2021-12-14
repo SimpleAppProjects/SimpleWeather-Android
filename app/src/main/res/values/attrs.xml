@@ -13,9 +13,4 @@
         <attr name="nav_nextButtonIcon" format="reference" />
         <attr name="nav_completeButtonIcon" format="reference" />
     </declare-styleable>
-
-    <declare-styleable name="WeatherDetailItem">
-        <!-- State identifier indicating the group is expanded. -->
-        <attr name="state_expanded" format="boolean" />
-    </declare-styleable>
 </resources>
