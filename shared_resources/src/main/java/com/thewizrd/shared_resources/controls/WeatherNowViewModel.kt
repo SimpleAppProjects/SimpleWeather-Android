@@ -263,7 +263,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 notifyPropertyChanged(BR.loTemp)
             }
 
-            this.isShowHiLo = !shouldHideHi || !shouldHideLo
+            this.isShowHiLo = (!shouldHideHi || !shouldHideLo) && hiTemp != loTemp
             notifyPropertyChanged(BR.showHiLo)
         }
 
