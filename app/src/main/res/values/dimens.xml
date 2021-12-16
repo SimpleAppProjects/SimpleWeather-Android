@@ -49,5 +49,6 @@
     <dimen name="not_primary_textSize">14sp</dimen>
 
     <dimen name="graph_max_width">720dp</dimen>
+    <dimen name="details_item_min_width">360dp</dimen>
 
 </resources>

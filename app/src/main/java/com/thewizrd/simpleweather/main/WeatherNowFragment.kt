@@ -23,9 +23,11 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
+import android.widget.GridLayout
 import android.widget.GridView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
@@ -86,11 +88,8 @@ import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
 import com.thewizrd.simpleweather.banner.BannerManager
 import com.thewizrd.simpleweather.banner.BannerManagerInterface
-import com.thewizrd.simpleweather.controls.ExpandingGridView
-import com.thewizrd.simpleweather.controls.ImageDataViewModel
-import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
+import com.thewizrd.simpleweather.controls.*
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
-import com.thewizrd.simpleweather.controls.SunPhaseView
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.*
@@ -292,7 +291,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun createBannerManager(): BannerManager {
-        return BannerManager(binding.conditionPanelList)
+        return BannerManager(binding.listLayout)
     }
 
     override fun initBannerManager() {
@@ -598,11 +597,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         run {
             // Condition
             conditionPanelBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_condition_panel,
-                binding.conditionPanelList,
-                false,
-                dataBindingComponent
+                    inflater,
+                    R.layout.weathernow_condition_panel,
+                    binding.listLayout,
+                    false,
+                    dataBindingComponent
             )
             conditionPanelBinding.alertsView = alertsView
             conditionPanelBinding.weatherNowState = wNowViewModel
@@ -630,17 +629,18 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     v.isEnabled = false
                     // Show Alert Fragment
                     val args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                            .setWeatherListType(WeatherListType.ALERTS)
+                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
+                                    .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                                    .setWeatherListType(WeatherListType.ALERTS)
                     v.findNavController().safeNavigate(args)
                 }
             }
 
-            binding.conditionPanelList.addView(
-                conditionPanelBinding.root,
-                Math.min(binding.conditionPanelList.childCount - 1, 0)
-            )
+            binding.listLayout.addView(conditionPanelBinding.root)
+            conditionPanelBinding.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(0, GridLayout.CENTER)
+            }
 
             conditionPanelBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
                 Log.d("conditionPanelBinding", "onGlobalLayout")
@@ -714,20 +714,21 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                 .setData(
                                     JSONParser.serializer(
                                         locationData,
-                                        LocationData::class.java
+                                            LocationData::class.java
                                     )
                                 )
-                                .setWeatherListType(WeatherListType.FORECAST)
-                                .setPosition(position)
+                                    .setWeatherListType(WeatherListType.FORECAST)
+                                    .setPosition(position)
                         view.findNavController().safeNavigate(args)
                     }
                 }
             })
 
-            binding.listLayout.addView(
-                forecastPanelBinding!!.root,
-                Math.min(binding.listLayout.childCount - 1, 1)
-            )
+            binding.listLayout.addView(forecastPanelBinding!!.root)
+            forecastPanelBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(1, GridLayout.CENTER)
+            }
         }
 
         if (FeatureSettings.isHourlyForecastEnabled()) {
@@ -767,8 +768,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                         LocationData::class.java
                                     )
                                 )
-                                .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                                .setPosition(position)
+                                    .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                                    .setPosition(position)
                         view.findNavController().safeNavigate(args)
                     }
                 }
@@ -776,10 +777,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             hrForecastPanelBinding!!.hourlyForecastList.adapter = hourlyForecastItemAdapter
 
-            binding.listLayout.addView(
-                hrForecastPanelBinding!!.root,
-                Math.min(binding.listLayout.childCount - 1, 2)
-            )
+            binding.listLayout.addView(hrForecastPanelBinding!!.root)
+            hrForecastPanelBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(2, GridLayout.CENTER)
+            }
         }
 
         if (FeatureSettings.isChartsEnabled()) {
@@ -815,10 +817,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             precipPanelBinding!!.minutelyPrecipGraphPanel.setOnClickPositionListener(onClickListener)
             precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener(onClickListener)
 
-            binding.listLayout.addView(
-                precipPanelBinding!!.root,
-                Math.min(binding.listLayout.childCount - 1, 3)
-            )
+            binding.listLayout.addView(precipPanelBinding!!.root)
+            precipPanelBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(3, GridLayout.CENTER)
+            }
         }
 
         if (FeatureSettings.isDetailsEnabled()) {
@@ -835,17 +838,26 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             detailsContainerBinding!!.detailsContainer.isFocusableInTouchMode = false
             detailsContainerBinding!!.detailsContainer.setOnTouchListener { v, event -> true }
 
-            binding.listLayout.addView(detailsContainerBinding!!.root, Math.min(binding.listLayout.childCount - 1, 4))
+            binding.listLayout.addView(detailsContainerBinding!!.root)
+            detailsContainerBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(4, GridLayout.CENTER)
+            }
+        }
+
+        binding.detailsWrapLayout.updateLayoutParams<GridLayout.LayoutParams> {
+            columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+            rowSpec = GridLayout.spec(5, GridLayout.CENTER)
         }
 
         if (FeatureSettings.isUVEnabled()) {
             // UV
             uvControlBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_uvcontrol,
-                binding.listLayout,
-                false,
-                dataBindingComponent
+                    inflater,
+                    R.layout.weathernow_uvcontrol,
+                    binding.detailsWrapLayout as ViewGroup,
+                    true,
+                    dataBindingComponent
             )
             uvControlBinding!!.weatherView = weatherView
             uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
@@ -862,20 +874,23 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 }
             })
 
-            binding.listLayout.addView(
-                uvControlBinding!!.root,
-                Math.min(binding.listLayout.childCount - 1, 5)
-            )
+            val context = uvControlBinding!!.root.context
+            if (context.isLargeTablet()) {
+                uvControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
+                    width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                }
+            }
         }
 
         if (FeatureSettings.isBeaufortEnabled()) {
             // Beaufort
             beaufortControlBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_beaufortcontrol,
-                binding.listLayout,
-                false,
-                dataBindingComponent
+                    inflater,
+                    R.layout.weathernow_beaufortcontrol,
+                    binding.detailsWrapLayout as ViewGroup,
+                    true,
+                    dataBindingComponent
             )
             beaufortControlBinding!!.weatherView = weatherView
             beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
@@ -892,37 +907,59 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 }
             })
 
-            binding.listLayout.addView(
-                beaufortControlBinding!!.root,
-                Math.min(binding.listLayout.childCount - 1, 6)
-            )
+            val context = beaufortControlBinding!!.root.context
+            if (context.isLargeTablet()) {
+                beaufortControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
+                    width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                }
+            }
         }
 
         if (FeatureSettings.isAQIndexEnabled()) {
             // Air Quality
-            aqiControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_aqicontrol, binding.listLayout, false, dataBindingComponent)
+            aqiControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_aqicontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
             aqiControlBinding!!.weatherView = weatherView
             aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(aqiControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 7))
+            val context = aqiControlBinding!!.root.context
+            if (context.isLargeTablet()) {
+                aqiControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
+                    width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                }
+            }
         }
 
+        // TODO: add to FeatureSettings
         run {
             // Pollen
-            pollenCountControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_pollencountcontrol, binding.listLayout, false, dataBindingComponent)
+            pollenCountControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_pollencountcontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
             pollenCountControlBinding!!.weatherView = weatherView
             pollenCountControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(pollenCountControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 8))
+            val context = pollenCountControlBinding!!.root.context
+            if (context.isLargeTablet()) {
+                pollenCountControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
+                    width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                }
+            }
         }
 
         if (FeatureSettings.isMoonPhaseEnabled()) {
             // Moon Phase
-            moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.listLayout, false, dataBindingComponent)
+            moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
             moonphaseControlBinding!!.weatherView = weatherView
             moonphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(moonphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 9))
+            val context = moonphaseControlBinding!!.root.context
+            if (context.isLargeTablet()) {
+                moonphaseControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
+                    width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                }
+            }
         }
 
         if (FeatureSettings.isSunPhaseEnabled()) {
@@ -931,7 +968,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             sunphaseControlBinding!!.weatherView = weatherView
             sunphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(sunphaseControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 10))
+            binding.listLayout.addView(sunphaseControlBinding!!.root)
+            sunphaseControlBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(6, GridLayout.CENTER)
+            }
         }
 
         // Radar
@@ -964,12 +1005,26 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             radarControlBinding!!.weatherView = weatherView
             radarControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            binding.listLayout.addView(radarControlBinding!!.root, Math.min(binding.listLayout.childCount - 1, 11))
+            binding.listLayout.addView(radarControlBinding!!.root)
+            radarControlBinding!!.root.updateLayoutParams<GridLayout.LayoutParams> {
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+                rowSpec = GridLayout.spec(7, GridLayout.CENTER)
+            }
 
             radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), radarControlBinding!!.radarWebviewContainer).apply {
                 enableInteractions(false)
                 onCreateView(savedInstanceState)
             }
+        }
+
+        binding.weatherCredit.updateLayoutParams<GridLayout.LayoutParams> {
+            columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+            rowSpec = GridLayout.spec(8, GridLayout.CENTER)
+        }
+
+        binding.panelOverlay?.updateLayoutParams<GridLayout.LayoutParams> {
+            columnSpec = GridLayout.spec(GridLayout.UNDEFINED, GridLayout.CENTER)
+            rowSpec = GridLayout.spec(1, 8, GridLayout.FILL, 1f)
         }
 
         return view
@@ -1410,7 +1465,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     private fun adjustConditionPanelLayout() {
-        binding.conditionPanelList.doOnPreDraw {
+        conditionPanelBinding.root.doOnPreDraw {
             setMaxWidthForView(it)
         }
     }
@@ -1463,6 +1518,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             setMaxWidthForView(it)
         }
 
+        binding.detailsWrapLayout.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        /* NOTE: are within details wrap layout
         uvControlBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)
         }
@@ -1482,6 +1542,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         moonphaseControlBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)
         }
+        */
 
         sunphaseControlBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)

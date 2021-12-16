@@ -134,41 +134,41 @@
                 tools:visibility="visible">
 
                 <GridLayout
+                    android:id="@+id/list_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:id="@+id/condition_panel_list"
+                    <com.thewizrd.simpleweather.controls.FlowLayout
+                        android:id="@+id/details_wrap_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:gravity="center_horizontal"
-                        android:orientation="vertical" />
+                        app:itemSpacing="8dp"
+                        app:lineSpacing="4dp" />
 
-                    <LinearLayout
-                        android:id="@+id/list_layout"
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/weather_credit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:background="?colorSurface"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical">
+                        android:gravity="top|center_horizontal"
+                        android:padding="12dp"
+                        android:text="@{weatherView.weatherCredit}"
+                        android:textAppearance="?android:textAppearanceSmallInverse"
+                        android:textColor="?android:attr/textColorPrimary"
+                        app:hideIfNullOrWhitespace="@{weatherView.weatherCredit}"
+                        tools:text="Data from WeatherUnderground" />
 
-                        <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/weather_credit"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="top|center_horizontal"
-                            android:padding="12dp"
-                            android:text="@{weatherView.weatherCredit}"
-                            android:textAppearance="?android:textAppearanceSmallInverse"
-                            android:textColor="?android:attr/textColorPrimary"
-                            app:hideIfNullOrWhitespace="@{weatherView.weatherCredit}"
-                            tools:text="Data from WeatherUnderground" />
-
-                    </LinearLayout>
+                    <View
+                        android:id="@+id/panel_overlay"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:alpha="0.85"
+                        android:background="@drawable/light_round_corner_bg"
+                        android:backgroundTint="?colorSurface"
+                        android:elevation="-1dp" />
 
                 </GridLayout>
 

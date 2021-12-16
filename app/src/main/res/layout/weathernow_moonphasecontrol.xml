@@ -38,12 +38,26 @@
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/moon_flow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:flow_wrapMode="chain"
+            app:flow_horizontalGap="4dp"
+            app:flow_horizontalBias="0.5"
+            app:flow_horizontalStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/phase_newmoon" />
+            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
+            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
+            app:constraint_referenced_ids="phase_newmoon,phase_wax_cresent,phase_first_qtr,phase_wax_gibbous,phase_fullmoon,phase_wan_gibbous,phase_last_qtr,phase_wan_crescent" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_newmoon"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.NEWMOON ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -53,17 +67,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_NEW}"
             tools:srcCompat="@drawable/wi_moon_new"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/phase_wax_cresent" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_wax_cresent"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.WAXING_CRESCENT ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -73,16 +81,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_WAXING_CRESCENT_3}"
             tools:srcCompat="@drawable/wi_moon_waxing_crescent_3"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_newmoon"
-            app:layout_constraintEnd_toStartOf="@id/phase_first_qtr" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_first_qtr"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.FIRST_QTR ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -92,16 +95,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_FIRST_QUARTER}"
             tools:srcCompat="@drawable/wi_moon_first_quarter"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_wax_cresent"
-            app:layout_constraintEnd_toStartOf="@id/phase_wax_gibbous" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_wax_gibbous"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.WAXING_GIBBOUS ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -111,16 +109,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_WAXING_GIBBOUS_3}"
             tools:srcCompat="@drawable/wi_moon_waxing_gibbous_3"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_first_qtr"
-            app:layout_constraintEnd_toStartOf="@id/phase_fullmoon" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_fullmoon"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.FULL_MOON ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -130,16 +123,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_FULL}"
             tools:srcCompat="@drawable/wi_moon_full"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_wax_gibbous"
-            app:layout_constraintEnd_toStartOf="@id/phase_wan_gibbous" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_wan_gibbous"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.WANING_GIBBOUS ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -149,16 +137,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_WANING_GIBBOUS_3}"
             tools:srcCompat="@drawable/wi_moon_waning_gibbous_3"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_fullmoon"
-            app:layout_constraintEnd_toStartOf="@id/phase_last_qtr" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_last_qtr"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.LAST_QTR ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -168,16 +151,11 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_THIRD_QUARTER}"
             tools:srcCompat="@drawable/wi_moon_third_quarter"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_wan_gibbous"
-            app:layout_constraintEnd_toStartOf="@id/phase_wan_crescent" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/phase_wan_crescent"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="@{weatherView.moonPhase != null &amp;&amp; weatherView.moonPhase.phaseType == MoonPhaseType.WANING_CRESCENT ? 1.0f : 0.35f}"
             android:gravity="center"
@@ -187,12 +165,7 @@
             android:maxHeight="64dp"
             app:weatherIcon="@{WeatherIcons.MOON_WANING_CRESCENT_3}"
             tools:srcCompat="@drawable/wi_moon_waning_crescent_3"
-            tools:tint="@color/colorTextPrimary"
-            app:layout_constraintTop_toBottomOf="@id/moonphase_label"
-            app:layout_constraintBottom_toTopOf="@id/moonphase_description"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/phase_last_qtr"
-            app:layout_constraintEnd_toEndOf="parent" />
+            tools:tint="@color/colorTextPrimary" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/moonphase_description"

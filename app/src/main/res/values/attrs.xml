@@ -13,4 +13,13 @@
         <attr name="nav_nextButtonIcon" format="reference" />
         <attr name="nav_completeButtonIcon" format="reference" />
     </declare-styleable>
+    <declare-styleable name="FlowLayout">
+        <!-- Horizontal spacing between two items being laid out. -->
+        <attr format="dimension" name="itemSpacing" />
+        <!-- Vertical Spacing between two lines of items being laid out. -->
+        <attr format="dimension" name="lineSpacing" />
+    </declare-styleable>
+    <declare-styleable name="FlowLayout_Layout">
+        <attr name="layout_itemMinWidth" format="dimension" />
+    </declare-styleable>
 </resources>
