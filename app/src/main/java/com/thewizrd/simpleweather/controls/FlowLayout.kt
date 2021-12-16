@@ -1,33 +1,29 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.thewizrd.simpleweather.controls
 
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Size
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import androidx.constraintlayout.helper.widget.Flow
 import androidx.core.view.MarginLayoutParamsCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.forEach
 import com.thewizrd.simpleweather.R
 import kotlin.math.max
+import kotlin.math.min
 
+/**
+ * FlowLayout is similar to [Flow] layout, except it extends the width of its child views to fill
+ * the parent width.
+ *
+ * Attribute <i>layout_itemMinWidth</i> should be set for child views to display properly
+ *
+ * Based on my ExtendingWrapPanel implementation for UWP
+ */
 class FlowLayout : ViewGroup {
     private var lineSpacing = 0
     private var itemSpacing = 0
@@ -99,6 +95,11 @@ class FlowLayout : ViewGroup {
         internal var itemWidth: Int = 0
         internal var itemHeight: Int = 0
 
+        internal var itemLeft: Int = 0
+        internal var itemTop: Int = 0
+        internal var itemRight: Int = 0
+        internal var itemBottom: Int = 0
+
         var itemMinimumWidth: Int = 0
 
         constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -131,74 +132,36 @@ class FlowLayout : ViewGroup {
         val maxWidth =
                 if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.EXACTLY) width else Int.MAX_VALUE
 
-        var childLeft = paddingLeft
-        var childTop = paddingTop
-        var childBottom = childTop
-        var childRight = childLeft
-        var maxChildRight = 0
         val maxRight = maxWidth - paddingRight
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
 
-            if (child.visibility == GONE) {
-                continue
-            }
-
-            val lp = child.layoutParams
-            var leftMargin = 0
-            var rightMargin = 0
-            var desiredWidth = child.measuredWidth
-            if (lp is MarginLayoutParams) {
-                leftMargin += lp.leftMargin
-                rightMargin += lp.rightMargin
-            }
-            if (lp is LayoutParams) {
-                desiredWidth = max(desiredWidth, lp.itemMinimumWidth)
-            }
-
-            val childWidthMeasureSpec = getChildMeasureSpec(
-                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
-                    paddingStart + paddingEnd,
-                    desiredWidth
-            )
-            val childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
-                    paddingTop + paddingBottom, lp.height)
-
-            child.measure(childWidthMeasureSpec, childHeightMeasureSpec)
-
-            childRight = childLeft + leftMargin + desiredWidth
-
-            // If the current child's right bound exceeds Flowlayout's max right bound and flowlayout is
-            // not confined to a single line, move this child to the next line and reset its left bound to
-            // flowlayout's left bound.
-            if (childRight > maxRight) {
-                childLeft = paddingLeft
-                childTop = childBottom + lineSpacing
-            }
-
-            childRight = childLeft + leftMargin + desiredWidth
-            childBottom = childTop + child.measuredHeight
-
-            // Updates Flowlayout's max right bound if current child's right bound exceeds it.
-            if (childRight > maxChildRight) {
-                maxChildRight = childRight
-            }
-
-            childLeft += leftMargin + rightMargin + desiredWidth + itemSpacing
-
-            // For all preceding children, the child's right margin is taken into account in the next
-            // child's left bound (childLeft). However, childLeft is ignored after the last child so the
-            // last child's right margin needs to be explicitly added to Flowlayout's max right bound.
-            if (i == childCount - 1) {
-                maxChildRight += rightMargin
+        forEach {
+            if (it.visibility != View.GONE) {
+                val lp = it.layoutParams as LayoutParams
+                it.measure(
+                        getChildMeasureSpec(
+                                MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
+                                paddingLeft + paddingRight,
+                                if (lp.itemMinimumWidth > 0) {
+                                    lp.itemMinimumWidth
+                                } else if (it.minimumWidth > 0) {
+                                    it.minimumWidth
+                                } else {
+                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                                }
+                        ),
+                        getChildMeasureSpec(
+                                MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST),
+                                paddingTop + paddingBottom,
+                                it.measuredHeight
+                        )
+                )
             }
         }
 
-        maxChildRight += paddingRight
-        childBottom += paddingBottom
+        val requiredSize = updateRows(paddingLeft, maxRight, widthMeasureSpec, heightMeasureSpec)
 
-        val finalWidth = getMeasuredDimension(width, widthMode, maxChildRight)
-        val finalHeight = getMeasuredDimension(height, heightMode, childBottom)
+        val finalWidth = getMeasuredDimension(width, widthMode, requiredSize.width)
+        val finalHeight = getMeasuredDimension(height, heightMode, requiredSize.height)
         setMeasuredDimension(finalWidth, finalHeight)
     }
 
@@ -215,62 +178,77 @@ class FlowLayout : ViewGroup {
         var rowTop: Int = 0
         var rowMaxBottom: Int = 0
 
-        val items = mutableListOf<View>()
+        private val _items = mutableListOf<View>()
 
-        fun reset(positionStart: Int, positionTop: Int) {
-            rowStart = positionStart
-            rowTop = positionTop
-            rowMaxBottom = 0
+        val items: List<View>
+            get() = _items
 
-            items.clear()
+        constructor()
+        constructor(rowStart: Int, rowTop: Int) {
+            this.rowStart = rowStart
+            this.rowTop = rowTop
+        }
+
+        fun add(child: View) {
+            _items.add(child)
         }
     }
 
-    private val mCurrentRow = Row()
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        if (childCount == 0) {
-            // Do not re-layout when there are no children.
-            return
-        }
+    private val mRows = mutableListOf<Row>()
+
+    private fun updateRows(parentStart: Int, parentEnd: Int, parentWidthMeasureSpec: Int, parentHeightMeasureSpec: Int): Size {
+        mRows.clear()
 
         val isRtl = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
         val paddingStart = if (isRtl) paddingRight else paddingLeft
         val paddingEnd = if (isRtl) paddingLeft else paddingRight
-        val maxChildEnd = right - left - paddingEnd
+        val maxChildEnd = parentEnd - parentStart - paddingEnd
 
-        mCurrentRow.reset(paddingStart, paddingTop)
+        val maxChildWidth = maxChildEnd - (parentStart + paddingStart)
+
+        if (childCount == 0) {
+            return Size(paddingStart + paddingEnd, paddingTop + paddingBottom)
+        }
+
+        var mCurrentRow = Row(paddingStart, paddingTop)
+        var finalWidth = 0
+        var finalHeight = 0
 
         fun layoutRowItems() {
-            val initialFreeSpace = maxChildEnd - (itemSpacing * mCurrentRow.items.size) - paddingStart
+            val initialFreeSpace = parentEnd - (itemSpacing * mCurrentRow.items.size) - paddingStart
             var freeSpace = initialFreeSpace
             var expandingItems = mCurrentRow.items.size
+
+            // Reset starting point
+            mCurrentRow.rowStart = paddingStart
 
             if (expandingItems == 1) {
                 val item = mCurrentRow.items.first()
 
-                val lp = item.layoutParams
-                var startMargin = 0
-                var endMargin = 0
-                if (lp is MarginLayoutParams) {
-                    startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
-                    endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
-                }
+                val lp = item.layoutParams as LayoutParams
+                val startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
+                val endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
 
-                // Re-measure children
+                val desiredWidth = (parentEnd - endMargin) - (mCurrentRow.rowStart + startMargin)
+
+                // Measure child
                 val childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
-                        ((maxChildEnd - endMargin) - (mCurrentRow.rowStart + startMargin)), MeasureSpec.EXACTLY
+                        desiredWidth, MeasureSpec.EXACTLY
                 )
-                val childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                        item.measuredHeight, MeasureSpec.AT_MOST
+                val childHeightMeasureSpec = getChildMeasureSpec(
+                        parentHeightMeasureSpec,
+                        paddingTop + paddingBottom,
+                        lp.height
                 )
 
                 item.measure(childWidthMeasureSpec, childHeightMeasureSpec)
 
                 // rtl doesn't matter as its only item in row
-                item.layout(mCurrentRow.rowStart + startMargin, mCurrentRow.rowTop, maxChildEnd - endMargin, mCurrentRow.rowTop + item.measuredHeight)
+                lp.itemLeft = mCurrentRow.rowStart + startMargin
+                lp.itemTop = mCurrentRow.rowTop
+                lp.itemRight = parentEnd - endMargin
+                lp.itemBottom = mCurrentRow.rowTop + item.measuredHeight
             } else {
-                mCurrentRow.rowStart = paddingStart
-
                 var maxWidth = 0
                 mCurrentRow.items.forEach {
                     val desiredWidth = it.measuredWidth
@@ -297,18 +275,10 @@ class FlowLayout : ViewGroup {
                 }
 
                 mCurrentRow.items.forEach {
-                    var desiredWidth = it.measuredWidth
-
-                    val lp = it.layoutParams
-                    var startMargin = 0
-                    var endMargin = 0
-                    if (lp is MarginLayoutParams) {
-                        startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
-                        endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
-                    }
-                    if (lp is LayoutParams) {
-                        desiredWidth = maxOf(desiredWidth, lp.itemWidth, lp.itemMinimumWidth)
-                    }
+                    val lp = it.layoutParams as LayoutParams
+                    val startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
+                    val endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
+                    var desiredWidth = maxOf(it.measuredWidth, lp.itemWidth, lp.itemMinimumWidth)
 
                     if (desiredWidth == 0) {
                         return@forEach
@@ -322,28 +292,32 @@ class FlowLayout : ViewGroup {
                         }
                     }
 
-                    val childEnd = mCurrentRow.rowStart + startMargin + desiredWidth
-                    val childBottom = mCurrentRow.rowTop + it.measuredHeight
-                    val childTop = mCurrentRow.rowTop
-
+                    // Measure child
                     val childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
                             desiredWidth, MeasureSpec.EXACTLY
                     )
-                    val childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                            it.measuredHeight, MeasureSpec.UNSPECIFIED
+                    val childHeightMeasureSpec = getChildMeasureSpec(
+                            parentHeightMeasureSpec,
+                            paddingTop + paddingBottom,
+                            lp.height
                     )
 
                     it.measure(childWidthMeasureSpec, childHeightMeasureSpec)
 
+                    val childEnd = mCurrentRow.rowStart + startMargin + desiredWidth
+                    val childBottom = mCurrentRow.rowTop + it.measuredHeight
+                    val childTop = mCurrentRow.rowTop
+
                     if (isRtl) {
-                        it.layout(
-                                maxChildEnd - childEnd,
-                                mCurrentRow.rowTop,
-                                maxChildEnd - mCurrentRow.rowStart - startMargin,
-                                childBottom
-                        )
+                        lp.itemLeft = maxChildEnd - childEnd
+                        lp.itemTop = childTop
+                        lp.itemRight = maxChildEnd - mCurrentRow.rowStart - startMargin
+                        lp.itemBottom = childBottom
                     } else {
-                        it.layout(mCurrentRow.rowStart + startMargin, mCurrentRow.rowTop, childEnd, childBottom)
+                        lp.itemLeft = mCurrentRow.rowStart + startMargin
+                        lp.itemTop = childTop
+                        lp.itemRight = childEnd
+                        lp.itemBottom = childBottom
                     }
 
                     mCurrentRow.rowStart += (startMargin + endMargin + desiredWidth) + itemSpacing
@@ -356,17 +330,10 @@ class FlowLayout : ViewGroup {
                 return // if an item is collapsed, avoid adding the spacing
             }
 
-            val lp = child.layoutParams
-            var startMargin = 0
-            var endMargin = 0
-            var desiredWidth = child.measuredWidth
-            if (lp is MarginLayoutParams) {
-                startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
-                endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
-            }
-            if (lp is LayoutParams) {
-                desiredWidth = max(desiredWidth, lp.itemMinimumWidth)
-            }
+            val lp = child.layoutParams as LayoutParams
+            val startMargin = MarginLayoutParamsCompat.getMarginStart(lp)
+            val endMargin = MarginLayoutParamsCompat.getMarginEnd(lp)
+            var desiredWidth = min(maxChildWidth, max(child.measuredWidth, lp.itemMinimumWidth))
 
             val childEnd = mCurrentRow.rowStart + startMargin + desiredWidth
 
@@ -374,10 +341,8 @@ class FlowLayout : ViewGroup {
                 layoutRowItems()
 
                 // next row
-                mCurrentRow.reset(paddingStart, mCurrentRow.rowMaxBottom + lineSpacing)
-
-                // clear row items
-                mCurrentRow.items.clear()
+                mRows.add(mCurrentRow)
+                mCurrentRow = Row(paddingStart, mCurrentRow.rowMaxBottom + lineSpacing)
             }
 
             mCurrentRow.rowMaxBottom = max(mCurrentRow.rowMaxBottom, mCurrentRow.rowTop + child.measuredHeight)
@@ -393,19 +358,55 @@ class FlowLayout : ViewGroup {
                     }
                 }
 
-                mCurrentRow.items.add(child)
+                mCurrentRow.add(child)
                 layoutRowItems()
             } else {
-                mCurrentRow.items.add(child)
+                mCurrentRow.add(child)
 
                 // Advance position
                 mCurrentRow.rowStart += (startMargin + endMargin + desiredWidth) + itemSpacing
+                finalWidth = max(finalWidth, mCurrentRow.rowStart)
             }
         }
 
         for (i in 0 until childCount) {
             val child = getChildAt(i)
             layoutChild(child, i == childCount - 1)
+        }
+
+        if (mCurrentRow.items.isNotEmpty()) {
+            mRows.add(mCurrentRow)
+        }
+
+        if (mRows.isEmpty()) {
+            return Size(paddingStart + paddingEnd, paddingTop + paddingBottom)
+        }
+
+        val lastRow = mRows.last()
+        finalHeight = lastRow.rowMaxBottom
+        return Size(finalWidth + paddingEnd, finalHeight + paddingBottom)
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        if (childCount == 0) {
+            // Do not re-layout when there are no children.
+            return
+        }
+
+        if (mRows.isNotEmpty()) {
+            mRows.forEach { row ->
+                row.items.forEach { child ->
+                    if (child.visibility != View.GONE) {
+                        val lp = child.layoutParams as LayoutParams
+                        child.layout(
+                                lp.itemLeft,
+                                lp.itemTop,
+                                lp.itemRight,
+                                lp.itemBottom
+                        )
+                    }
+                }
+            }
         }
     }
 }
