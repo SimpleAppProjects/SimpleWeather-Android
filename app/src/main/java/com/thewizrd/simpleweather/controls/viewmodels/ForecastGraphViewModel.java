@@ -135,6 +135,8 @@ public class ForecastGraphViewModel {
             case PRECIPITATION:
                 if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
                     series.addEntry(new LineGraphEntry(date, new YEntryData(forecast.getExtras().getPop(), forecast.getExtras().getPop() + "%")));
+                } else {
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(0f, "0%")));
                 }
                 break;
             case WIND:

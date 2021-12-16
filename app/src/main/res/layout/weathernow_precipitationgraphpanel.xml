@@ -18,14 +18,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:showIfTrue="@{FeatureSettings.chartsEnabled}"
+        app:showIfNotEmpty1="@{forecastsView.minutelyForecastData}"
+        app:showIfNotEmpty2="@{forecastsView.hourlyForecastData}">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingVertical="8dp"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; (forecastsView.minutelyForecastData != null || forecastsView.hourlyForecastData != null)}">
+            android:paddingVertical="8dp">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/precip_label"
@@ -52,7 +54,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:minForecastData="@{forecastsView.minutelyForecastData}"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.minutelyForecastData != null}"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled}"
+            app:showIfNotEmpty="@{forecastsView.minutelyForecastData}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
         <com.thewizrd.simpleweather.controls.graphs.ForecastGraphPanel
@@ -61,7 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:forecastData="@{forecastsView.hourlyForecastData}"
-            app:showIfTrue="@{FeatureSettings.chartsEnabled &amp;&amp; forecastsView.hourlyForecastData != null}"
+            app:showIfTrue="@{FeatureSettings.chartsEnabled}"
+            app:showIfNotEmpty="@{forecastsView.hourlyForecastData}"
             tools:layout_height="@dimen/forecast_panel_height" />
 
     </LinearLayout>

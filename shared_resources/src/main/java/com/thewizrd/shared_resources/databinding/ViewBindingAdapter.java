@@ -45,6 +45,11 @@ public class ViewBindingAdapter {
         view.setVisibility(show && c != null && !c.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
+    @BindingAdapter(value = {"showIfTrue", "showIfNotEmpty1", "showIfNotEmpty2"}, requireAll = true)
+    public static void showIfTrueArgs(View view, boolean show, Collection c1, Collection c2) {
+        view.setVisibility(show && ((c1 != null && !c1.isEmpty()) || (c2 != null && !c2.isEmpty())) ? View.VISIBLE : View.GONE);
+    }
+
     @BindingAdapter(value = {"showIfTrue", "hideIfNullOrWhitespace"}, requireAll = true)
     public static void hideIfNullOrWhitespace(View view, boolean show, String s) {
         view.setVisibility(show && !StringUtils.isNullOrWhitespace(s) ? View.VISIBLE : View.GONE);
