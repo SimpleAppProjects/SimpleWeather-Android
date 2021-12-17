@@ -38,8 +38,11 @@ public class SunPhaseView extends View {
     private int mViewWidth;
     private float bottomTextHeight = 0;
 
-    private Drawable iconDrawable;
-    private Paint bottomTextPaint;
+    private final Drawable iconDrawable;
+    private final Paint backgroundPaint;
+    private final Paint fullArcPaint;
+    private final Paint pathArcPaint;
+    private final Paint bottomTextPaint;
     private int bottomTextDescent;
 
     private LocalTime sunrise = LocalTime.MIDNIGHT;
@@ -49,7 +52,7 @@ public class SunPhaseView extends View {
     private float sunriseX;
     private float sunsetX;
 
-    private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
+    private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 8);
     private final float DOT_RADIUS = ContextUtils.dpToPx(getContext(), 4);
 
     private float sideLineLength = ContextUtils.dpToPx(getContext(), 45) / 3 * 2;
@@ -67,15 +70,37 @@ public class SunPhaseView extends View {
         super(context, attrs);
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
 
-        iconDrawable = ContextCompat.getDrawable(getContext(), R.drawable.wi_day_sunny).mutate();
+        iconDrawable = ContextCompat.getDrawable(context, R.drawable.ic_full_sun).mutate();
 
         bottomTextPaint = new Paint();
-
         bottomTextPaint.setAntiAlias(true);
         bottomTextPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.forecast_condition_size));
         bottomTextPaint.setTextAlign(Paint.Align.CENTER);
         bottomTextPaint.setStyle(Paint.Style.FILL);
         bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
+
+        backgroundPaint = new Paint();
+        backgroundPaint.setStyle(Paint.Style.FILL);
+        backgroundPaint.setAntiAlias(true);
+        backgroundPaint.setColor(ColorUtils.setAlphaComponent(PAINT_COLOR, 0x50));
+
+        fullArcPaint = new Paint();
+        fullArcPaint.setStyle(Paint.Style.STROKE);
+        fullArcPaint.setAntiAlias(true);
+        fullArcPaint.setColor(ColorUtils.setAlphaComponent(PHASE_ARC_COLOR, 0x40));
+        fullArcPaint.setStrokeWidth(ContextUtils.dpToPx(context, 1));
+
+        final float intervalOn = ContextUtils.dpToPx(context, 8);
+        final float intervalOff = ContextUtils.dpToPx(context, 10);
+
+        PathEffect dashEffect = new DashPathEffect(
+                new float[]{intervalOn, intervalOff, intervalOn, intervalOff}, 1);
+        fullArcPaint.setPathEffect(dashEffect);
+
+        pathArcPaint = new Paint(fullArcPaint);
+        pathArcPaint.setStrokeWidth(ContextUtils.dpToPx(context, 2f));
+        pathArcPaint.setPathEffect(null);
+        pathArcPaint.setColor(PAINT_COLOR);
 
         updateColors();
     }
@@ -100,7 +125,7 @@ public class SunPhaseView extends View {
         }
     }
 
-    public void setTextColor(@ColorInt int color) {
+    private void setTextColor(@ColorInt int color) {
         if (BOTTOM_TEXT_COLOR != color) {
             BOTTOM_TEXT_COLOR = color;
             if (bottomTextPaint != null) {
@@ -110,16 +135,25 @@ public class SunPhaseView extends View {
         }
     }
 
-    public void setPhaseArcColor(@ColorInt int color) {
+    private void setPhaseArcColor(@ColorInt int color) {
         if (PHASE_ARC_COLOR != color) {
             PHASE_ARC_COLOR = color;
+            if (fullArcPaint != null) {
+                fullArcPaint.setColor(ColorUtils.setAlphaComponent(color, 0x40));
+            }
             invalidate();
         }
     }
 
-    public void setPaintColor(@ColorInt int color) {
+    private void setPaintColor(@ColorInt int color) {
         if (PAINT_COLOR != color) {
             PAINT_COLOR = color;
+            if (backgroundPaint != null) {
+                backgroundPaint.setColor(ColorUtils.setAlphaComponent(color, 0x50));
+            }
+            if (pathArcPaint != null) {
+                pathArcPaint.setColor(color);
+            }
             invalidate();
         }
     }
@@ -155,7 +189,7 @@ public class SunPhaseView extends View {
             if (backgroundGridWidth < longestWidth) {
                 backgroundGridWidth = longestWidth + (int) bottomTextPaint.measureText(longestStr, 0, 1);
             }
-            if (sideLineLength < longestWidth / 2) {
+            if (sideLineLength < longestWidth / 2f) {
                 sideLineLength = longestWidth / 2f;
             }
 
@@ -172,8 +206,8 @@ public class SunPhaseView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         drawLabels(canvas);
-        drawDots(canvas);
         drawArc(canvas);
+        drawDots(canvas);
     }
 
     private void drawDots(Canvas canvas) {
@@ -187,19 +221,6 @@ public class SunPhaseView extends View {
     }
 
     private void drawArc(Canvas canvas) {
-        Paint bgPaint = new Paint();
-        bgPaint.setStyle(Paint.Style.FILL);
-        bgPaint.setAntiAlias(true);
-        bgPaint.setColor(ColorUtils.setAlphaComponent(PAINT_COLOR, 0x50));
-
-        Paint arcPaint = new Paint();
-        arcPaint.setStyle(Paint.Style.STROKE);
-        arcPaint.setAntiAlias(true);
-        arcPaint.setColor(PHASE_ARC_COLOR);
-        PathEffect dashEffect = new DashPathEffect(
-                new float[]{10, 5, 10, 5}, 1);
-        arcPaint.setPathEffect(dashEffect);
-
         float radius = getGraphHeight() * 0.9f;
         float trueRadius = (sunsetX - sunriseX) * 0.5f;
 
@@ -267,6 +288,9 @@ public class SunPhaseView extends View {
             lastUsedEndY = endY;
         }
 
+        final RectF oval = new RectF(sunriseX, getGraphHeight() - radius, sunsetX, getGraphHeight() + radius);
+        canvas.drawArc(oval, -180, 180, true, fullArcPaint);
+
         if (firstX != -1) {
             // end / close path
             if (lastUsedEndY != getGraphHeight()) {
@@ -278,12 +302,10 @@ public class SunPhaseView extends View {
                 // dont draw line to same point, otherwise the path is completely broken
                 mPathBackground.lineTo(firstX, firstY);
             }
-            canvas.drawPath(mPathBackground, bgPaint);
-            canvas.drawPath(mPathBackground, arcPaint);
-        }
 
-        final RectF oval = new RectF(sunriseX, getGraphHeight() - radius, sunsetX, getGraphHeight() + radius);
-        canvas.drawArc(oval, -180, 180, true, arcPaint);
+            canvas.drawPath(mPathBackground, backgroundPaint);
+            canvas.drawArc(oval, -180, angle, false, pathArcPaint);
+        }
 
         if (isDay) {
             final float iconSize = ContextUtils.dpToPx(getContext(), 28); // old: 24dp

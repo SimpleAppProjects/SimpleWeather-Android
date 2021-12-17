@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- WeatherNow -->
-    <dimen name="sun_phase_view_height">300dp</dimen>
+    <dimen name="sun_phase_view_height">225dp</dimen>
 
     <!-- Widgets -->
     <dimen name="widget_2x2_pill_size">168dp</dimen>
