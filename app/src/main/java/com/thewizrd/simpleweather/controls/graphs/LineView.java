@@ -279,7 +279,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             resetData(false);
 
             bottomTextPaint.setAntiAlias(true);
-            bottomTextPaint.setTextSize(ContextUtils.dpToPx(getContext(), 12));
+            bottomTextPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.forecast_condition_size));
             bottomTextPaint.setTextAlign(Paint.Align.CENTER);
             bottomTextPaint.setStyle(Paint.Style.FILL);
             bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);

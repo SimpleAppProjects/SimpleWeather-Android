@@ -83,6 +83,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.adapters.DetailsItemAdapter
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
@@ -828,9 +829,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             detailsContainerBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_detailscontainer, binding.listLayout, false, dataBindingComponent)
 
             // Details
-            detailsContainerBinding!!.detailsContainer.adapter = DetailsItemGridAdapter()
             detailsContainerBinding!!.weatherView = weatherView
             detailsContainerBinding!!.lifecycleOwner = viewLifecycleOwner
+
+            detailsContainerBinding!!.detailsContainer.adapter = DetailsItemGridAdapter()
 
             // Disable touch events on container
             // View does not scroll
@@ -1036,7 +1038,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
         adjustConditionPanelLayout()
-        adjustDetailsLayout()
         adjustViewsLayout()
 
         // Set property change listeners
@@ -1045,7 +1046,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 if (propertyId == 0 || propertyId == BR.location) {
                     runWithView {
                         adjustConditionPanelLayout()
-                        adjustDetailsLayout()
                     }
                 } else if (propertyId == BR.locationCoord) {
                     // Restrict control to Kitkat+ for Chromium WebView
@@ -1159,7 +1159,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         // Resize necessary views
         adjustConditionPanelLayout()
-        adjustDetailsLayout()
         adjustViewsLayout()
 
         val backgroundUri = imageData.value?.imageURI
@@ -1451,10 +1450,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     private fun setMaxWidthForView(view: View) {
         if (view.context.isLargeTablet()) {
-            val maxWidth = view.context.dpToPx(1080f)
+            val maxWidth = view.context.resources.getDimensionPixelSize(R.dimen.wnow_max_view_width)
             if (view.measuredWidth > maxWidth) {
                 view.updateLayoutParams {
-                    width = maxWidth.toInt()
+                    width = maxWidth
                 }
             } else if (view.visibility != View.VISIBLE) {
                 view.doOnNextLayout {
@@ -1470,41 +1469,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
     }
 
-    private fun adjustDetailsLayout() {
-        detailsContainerBinding?.detailsContainer?.doOnPreDraw {
-            val view = it as? ExpandingGridView ?: return@doOnPreDraw
-            val context = it.context
-            val parentContainer = it.parent as? ViewGroup ?: return@doOnPreDraw
-            val maxWidth = view.context.dpToPx(1080f)
-            var pxWidth = parentContainer.measuredWidth
-
-            if (pxWidth > maxWidth) {
-                pxWidth = maxWidth.toInt()
-                parentContainer.updateLayoutParams {
-                    width = pxWidth
-                }
-            }
-
-            val minColumns = if (context.isLargeTablet()) 3 else 2
-
-            // Minimum width for ea. card
-            val minWidth = context.resources.getDimensionPixelSize(R.dimen.detail_grid_column_width)
-            // Available columns based on min card width
-            val availColumns = if (pxWidth / minWidth <= 1) minColumns else pxWidth / minWidth
-
-            it.numColumns = availColumns
-
-            val isLandscape = context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
-
-            val horizMargin = 16
-            val marginMultiplier = if (isLandscape) 2 else 3
-            val itemSpacing =
-                if (availColumns < 3) horizMargin * (availColumns - 1) else horizMargin * marginMultiplier
-            view.horizontalSpacing = itemSpacing
-            view.verticalSpacing = itemSpacing
-        }
-    }
-
     private fun adjustViewsLayout() {
         forecastPanelBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)
@@ -1515,6 +1479,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
 
         precipPanelBinding?.root?.doOnPreDraw {
+            setMaxWidthForView(it)
+        }
+
+        detailsContainerBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)
         }
 
@@ -1722,6 +1690,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         fun updateDetailsContainer(view: GridView, models: List<DetailItemViewModel>?) {
             if (view.adapter is DetailsItemGridAdapter) {
                 (view.adapter as DetailsItemGridAdapter).updateItems(models)
+            }
+        }
+
+        @BindingAdapter("details_data")
+        fun updateDetailsContainer(view: RecyclerView, models: List<DetailItemViewModel>?) {
+            if (view.adapter is DetailsItemAdapter) {
+                (view.adapter as DetailsItemAdapter).submitList(models)
             }
         }
 

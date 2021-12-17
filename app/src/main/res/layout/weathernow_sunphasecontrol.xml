@@ -41,7 +41,7 @@
             android:paddingEnd="4dp"
             app:hideIfNull="@{weatherView.sunPhase}"
             app:sunPhase="@{weatherView.sunPhase}"
-            app:layout_constraintWidth_max="560dp"
+            app:layout_constraintWidth_max="640dp"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

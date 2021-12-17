@@ -26,9 +26,17 @@
     <dimen name="label_updatetime_size">12sp</dimen>
     <dimen name="forecast_panel_height">225dp</dimen>
     <dimen name="detail_card_size">100dp</dimen>
-    <dimen name="detail_grid_column_width">125dp</dimen>
+    <dimen name="detail_grid_column_width">110dp</dimen>
     <dimen name="moonphase_text_size">36sp</dimen>
     <dimen name="sun_phase_view_height">200dp</dimen>
+    <dimen name="wnow_max_view_width">1366dp</dimen>
+    <dimen name="hr_forecast_item_width">100dp</dimen>
+    <dimen name="hr_forecast_item_height">150dp</dimen>
+    <dimen name="hr_forecast_item_icon_size">36dp</dimen>
+    <dimen name="hr_forecast_item_temp_size">18sp</dimen>
+    <dimen name="hr_forecast_item_extra_icon_size">24dp</dimen>
+    <!-- Forecast -->
+    <dimen name="forecast_condition_size">12sp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">130dp</dimen>
     <dimen name="location_panel_minwidth">480dp</dimen>

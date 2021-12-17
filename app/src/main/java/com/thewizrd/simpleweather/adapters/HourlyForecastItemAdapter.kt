@@ -17,12 +17,6 @@ class HourlyForecastItemAdapter : ListAdapter<HourlyForecastNowViewModel, Hourly
     var onClickListener: RecyclerOnClickListenerInterface? = null
 
     inner class ViewHolder(private val binding: HourlyForecastItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        init {
-            itemView.setOnClickListener { v ->
-                onClickListener?.onClick(v, adapterPosition)
-            }
-        }
-
         fun bind(model: HourlyForecastNowViewModel) {
             binding.viewModel = model
             binding.executePendingBindings()
@@ -35,5 +29,8 @@ class HourlyForecastItemAdapter : ListAdapter<HourlyForecastNowViewModel, Hourly
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
+        holder.itemView.setOnClickListener {
+            onClickListener?.onClick(it, position)
+        }
     }
 }

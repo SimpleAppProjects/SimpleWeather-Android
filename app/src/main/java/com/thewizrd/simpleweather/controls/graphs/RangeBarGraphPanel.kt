@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -12,7 +11,6 @@ import android.view.View.OnTouchListener
 import android.widget.LinearLayout
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.utils.ContextUtils.complexUnitToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.simpleweather.R
 
@@ -94,9 +92,6 @@ class RangeBarGraphPanel : LinearLayout {
 
     private fun updateViewColors() {
         barChartView.setBottomTextColor(context.getAttrColor(android.R.attr.textColorPrimary))
-        barChartView.setBottomTextSize(
-            context.complexUnitToPx(TypedValue.COMPLEX_UNIT_SP, 14f)
-        )
     }
 
     private fun resetView() {

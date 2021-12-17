@@ -15,9 +15,9 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="100dp"
-        android:layout_height="150dp"
-        android:background="?attr/selectableItemBackground"
+        android:layout_width="@dimen/hr_forecast_item_width"
+        android:layout_height="@dimen/hr_forecast_item_height"
+        android:background="@drawable/rounded_item_background"
         tools:theme="@style/Theme.MaterialComponents.DayNight">
 
         <TextView
@@ -28,17 +28,18 @@
             android:padding="4dp"
             android:text="@{viewModel.date}"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="12sp"
+            android:textSize="@dimen/forecast_condition_size"
+            android:maxLines="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread"
-            tools:text="Fri 2 AM" />
+            tools:text="Fri 12 AM" />
 
         <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_icon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/hr_forecast_item_icon_size"
+            android:layout_height="@dimen/hr_forecast_item_icon_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +55,7 @@
             android:padding="4dp"
             android:text="@{viewModel.temperature}"
             android:textAppearance="?attr/textAppearanceBody1"
-            android:textSize="18sp"
+            android:textSize="@dimen/hr_forecast_item_temp_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -63,8 +64,8 @@
 
         <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_extra_popicon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/hr_forecast_item_extra_icon_size"
+            android:layout_height="@dimen/hr_forecast_item_extra_icon_size"
             app:hideIfNullOrWhitespace="@{viewModel.popChance}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/forecast_hi"
@@ -79,9 +80,10 @@
             android:layout_height="0dp"
             android:gravity="center_vertical"
             android:paddingStart="4dp"
+            android:paddingEnd="0dp"
             android:text="@{viewModel.popChance}"
             android:textAppearance="?attr/textAppearanceSubtitle2"
-            android:textSize="12sp"
+            android:textSize="@dimen/forecast_condition_size"
             app:hideIfNullOrWhitespace="@{viewModel.popChance}"
             android:textColor="@{Colors.SIMPLEBLUELIGHT}"
             app:layout_constraintBottom_toBottomOf="@id/forecast_extra_popicon"
@@ -92,8 +94,8 @@
 
         <com.thewizrd.shared_resources.controls.IconControl
             android:id="@+id/forecast_extra_windicon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/hr_forecast_item_extra_icon_size"
+            android:layout_height="@dimen/hr_forecast_item_extra_icon_size"
             android:rotation="@{viewModel.windDirection}"
             app:hideIfNullOrWhitespace="@{viewModel.windSpeed}"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,9 +111,10 @@
             android:layout_height="0dp"
             android:gravity="center_vertical"
             android:paddingStart="4dp"
+            android:paddingEnd="0dp"
             android:text="@{viewModel.windSpeed}"
             android:textAppearance="?attr/textAppearanceSubtitle2"
-            android:textSize="12sp"
+            android:textSize="@dimen/forecast_condition_size"
             app:hideIfNullOrWhitespace="@{viewModel.windSpeed}"
             app:layout_constraintBottom_toBottomOf="@id/forecast_extra_windicon"
             app:layout_constraintEnd_toEndOf="parent"

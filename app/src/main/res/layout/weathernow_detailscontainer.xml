@@ -40,17 +40,16 @@
             android:columnWidth="@dimen/detail_grid_column_width"
             android:gravity="center"
             android:numColumns="auto_fit"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingStart="16dp"
             android:paddingTop="8dp"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:stretchMode="columnWidth"
-            android:visibility="@{!FeatureSettings.detailsEnabled || weatherView.weatherDetails == null || weatherView.weatherDetails.empty ? View.GONE : View.VISIBLE}"
+            android:verticalSpacing="16dp"
+            app:showIfTrue="@{FeatureSettings.detailsEnabled}"
+            app:showIfNotEmpty="@{weatherView.weatherDetails}"
             app:details_data="@{weatherView.weatherDetails}"
             tools:layout_height="300dp"
-            tools:listitem="@layout/card_weather_detail"
             tools:visibility="visible" />
 
     </LinearLayout>

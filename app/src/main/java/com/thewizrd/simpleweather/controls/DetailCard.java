@@ -79,8 +79,9 @@ public class DetailCard extends LinearLayout {
         bgDrawable.initializeElevationOverlay(context);
         bgDrawable.setElevation(ContextUtils.dpToPx(context, 2f));
 
-        final int height = context.getResources().getDimensionPixelSize(R.dimen.detail_card_size);
-        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        final int size = context.getResources().getDimensionPixelSize(R.dimen.detail_card_size);
+        this.setLayoutParams(new ViewGroup.LayoutParams(size, size));
+
         this.setBackground(bgDrawable);
 
         Resources.Theme currentTheme = context.getTheme();

@@ -14,7 +14,6 @@ import android.os.Build;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import androidx.annotation.RequiresApi;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
+import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 
@@ -197,9 +197,7 @@ public class RangeBarGraphView extends FrameLayout implements IGraph {
         private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
 
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
-        private float BOTTOM_TEXT_SIZE = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP, 14, getContext().getResources().getDisplayMetrics()
-        );
+        private float BOTTOM_TEXT_SIZE = getContext().getResources().getDimensionPixelSize(R.dimen.forecast_condition_size);
 
         private float sideLineLength = 0;
         private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
