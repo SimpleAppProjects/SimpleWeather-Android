@@ -14,6 +14,7 @@ import android.graphics.drawable.Animatable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 
@@ -110,7 +111,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             }
         });
 
-        this.setFillViewport(true);
+        this.setFillViewport(false);
         this.setVerticalScrollBarEnabled(false);
         this.setHorizontalScrollBarEnabled(false);
         this.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -393,7 +394,9 @@ public class LineView extends HorizontalScrollView implements IGraph {
                     sideLineLength = longestWidth / 1.5f;
                 }
 
-                backgroundGridWidth = Math.max(longestTextWidth * 1.5f, ContextUtils.dpToPx(getContext(), 45));
+                // Add adequate spacing between labels
+                longestTextWidth *= 1.5f;
+                backgroundGridWidth = longestTextWidth;
             } else {
                 bottomTextDescent = 0;
                 longestTextWidth = 0;
@@ -409,20 +412,20 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
         private void refreshGridWidth() {
             // Reset the grid width
-            backgroundGridWidth = Math.max(longestTextWidth * 1.5f, ContextUtils.dpToPx(getContext(), 45));
+            backgroundGridWidth = longestTextWidth;
 
             final int mParentWidth;
             if (getMaxWidth() > 0) {
-                mParentWidth = Math.min(mScrollViewer.getMeasuredWidth(), getMaxWidth());
+                mParentWidth = Math.min(/*mScrollViewer.*/getMeasuredWidth(), getMaxWidth());
             } else {
-                mParentWidth = mScrollViewer.getMeasuredWidth();
+                mParentWidth = /*mScrollViewer.*/getMeasuredWidth();
             }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
-                float additionalSpace = (float) freeSpace / horizontalGridNum;
+                float additionalSpace = (float) freeSpace / getMaxEntryCount();
                 if (additionalSpace > 0) {
-                    backgroundGridWidth = backgroundGridWidth + additionalSpace;
+                    backgroundGridWidth += additionalSpace;
                 }
             }
         }
@@ -447,8 +450,8 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
         private void refreshXCoordinateList() {
             xCoordinateList.clear();
-            xCoordinateList.ensureCapacity(horizontalGridNum);
-            for (int i = 0; i < (horizontalGridNum + 1); i++) {
+            xCoordinateList.ensureCapacity(getMaxEntryCount());
+            for (int i = 0; i < (getMaxEntryCount() + 1); i++) {
                 xCoordinateList.add(sideLineLength + backgroundGridWidth * i);
             }
         }
@@ -468,7 +471,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
         }
 
         private void refreshDrawDotList() {
-            if (mData != null && !mData.isEmpty()) {
+            if (!isDataEmpty()) {
                 if (drawDotLists.size() == 0 || drawDotLists.size() != mData.getDataCount()) {
                     drawDotLists.clear();
                     for (int k = 0; k < mData.getDataCount(); k++) {
@@ -814,7 +817,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
         @Override
         protected int getGraphExtentWidth() {
-            return Math.round(longestTextWidth * 1.5f * getMaxEntryCount());
+            return Math.round(longestTextWidth * getMaxEntryCount());
         }
 
         @Override
@@ -828,6 +831,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             refreshXCoordinateList();
 
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            Log.d("LineView", "onMeasure: width = " + mViewWidth);
 
             refreshAfterDataChanged();
         }

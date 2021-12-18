@@ -97,7 +97,7 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
 
     protected void updateHorizontalGridNum() {
         horizontalGridNum = Math.max(horizontalGridNum,
-                Math.max(MIN_HORIZONTAL_GRID_NUM, getMaxEntryCount() - 1));
+                Math.max(MIN_HORIZONTAL_GRID_NUM, getMaxEntryCount()));
     }
 
     @Override

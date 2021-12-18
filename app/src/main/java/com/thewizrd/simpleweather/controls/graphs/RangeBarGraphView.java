@@ -313,7 +313,7 @@ public class RangeBarGraphView extends FrameLayout implements IGraph {
             }
 
             if (getGraphExtentWidth() < mParentWidth) {
-                int freeSpace = (int) (mParentWidth - (getGraphExtentWidth()));
+                int freeSpace = mParentWidth - getGraphExtentWidth();
                 float additionalSpace = (float) freeSpace / getMaxEntryCount();
                 if (additionalSpace > 0) {
                     backgroundGridWidth += additionalSpace;
