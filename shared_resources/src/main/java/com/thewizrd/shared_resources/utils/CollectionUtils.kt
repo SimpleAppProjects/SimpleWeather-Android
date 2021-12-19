@@ -4,7 +4,7 @@ package com.thewizrd.shared_resources.utils
 
 import java.util.*
 
-fun sequenceEqual(iterable1: Iterable<*>, iterable2: Iterable<*>): Boolean {
+fun sequenceEqual(iterable1: Iterable<*>?, iterable2: Iterable<*>?): Boolean {
     if (iterable1 is Collection && iterable2 is Collection) {
         if (iterable1.size != iterable2.size) {
             return false
@@ -22,12 +22,12 @@ fun sequenceEqual(iterable1: Iterable<*>, iterable2: Iterable<*>): Boolean {
         }
     }
 
-    return sequenceEqual(iterable1.iterator(), iterable2.iterator())
+    return sequenceEqual(iterable1?.iterator(), iterable2?.iterator())
 }
 
-fun sequenceEqual(iterator1: Iterator<*>, iterator2: Iterator<*>): Boolean {
-    while (iterator1.hasNext()) {
-        if (!iterator2.hasNext()) {
+fun sequenceEqual(iterator1: Iterator<*>?, iterator2: Iterator<*>?): Boolean {
+    while (iterator1?.hasNext() == true) {
+        if (iterator2?.hasNext() != true) {
             return false
         }
         val o1 = iterator1.next()
@@ -36,5 +36,5 @@ fun sequenceEqual(iterator1: Iterator<*>, iterator2: Iterator<*>): Boolean {
             return false
         }
     }
-    return !iterator2.hasNext()
+    return iterator2?.hasNext() != true
 }

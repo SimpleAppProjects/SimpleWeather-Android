@@ -537,6 +537,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
             weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise))
             weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase!!.sunset))
 
+            moonPhase = MoonPhaseViewModel(weatherData!!.astronomy)
+
             if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.instance.app.appContext)) {
                     if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
@@ -560,13 +562,9 @@ class WeatherNowViewModel() : ObservableViewModel() {
             }
 
             if (weatherData?.astronomy?.moonPhase != null) {
-                if (isPhone) {
-                    moonPhase = MoonPhaseViewModel(weatherData!!.astronomy.moonPhase)
-                } else {
+                if (!isPhone) {
                     weatherDetails.add(DetailItemViewModel(weatherData!!.astronomy.moonPhase.phase))
                 }
-            } else {
-                moonPhase = null
             }
         } else {
             sunPhase = null

@@ -1,14 +1,71 @@
 package com.thewizrd.shared_resources.controls;
 
+import android.text.format.DateFormat;
+
+import androidx.annotation.NonNull;
+
+import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class MoonPhaseViewModel {
     private DetailItemViewModel moonPhase;
     private MoonPhase.MoonPhaseType phaseType;
 
-    public MoonPhaseViewModel(MoonPhase moonPhase) {
-        this.phaseType = moonPhase.getPhase();
-        this.moonPhase = new DetailItemViewModel(moonPhase.getPhase());
+    private LocalTime moonriseTime;
+    private LocalTime moonsetTime;
+
+    private String moonrise;
+    private String moonset;
+    private final DateTimeFormatter formatter;
+
+    public MoonPhaseViewModel(@NonNull Astronomy astronomy) {
+        if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
+            formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
+        } else {
+            formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
+        }
+
+        if (astronomy.getMoonrise() != null && !Objects.equals(astronomy.getMoonrise(), DateTimeUtils.getLocalDateTimeMIN())) {
+            moonriseTime = astronomy.getMoonrise().toLocalTime();
+            moonrise = moonriseTime.format(formatter);
+        }
+
+        if (astronomy.getMoonset() != null && !Objects.equals(astronomy.getMoonset(), DateTimeUtils.getLocalDateTimeMIN())) {
+            moonsetTime = astronomy.getMoonset().toLocalTime();
+            moonset = moonsetTime.format(formatter);
+        }
+
+        if (astronomy.getMoonPhase() != null) {
+            this.phaseType = astronomy.getMoonPhase().getPhase();
+            this.moonPhase = new DetailItemViewModel(astronomy.getMoonPhase().getPhase());
+        }
+    }
+
+    public LocalTime getMoonriseTime() {
+        return moonriseTime;
+    }
+
+    public LocalTime getMoonsetTime() {
+        return moonsetTime;
+    }
+
+    public String getMoonrise() {
+        return moonrise;
+    }
+
+    public String getMoonset() {
+        return moonset;
+    }
+
+    public DateTimeFormatter getFormatter() {
+        return formatter;
     }
 
     public DetailItemViewModel getMoonPhase() {
@@ -34,15 +91,13 @@ public class MoonPhaseViewModel {
 
         MoonPhaseViewModel that = (MoonPhaseViewModel) o;
 
-        if (moonPhase != null ? !moonPhase.equals(that.moonPhase) : that.moonPhase != null)
-            return false;
-        return phaseType == that.phaseType;
+        return phaseType == that.phaseType &&
+                Objects.equals(moonrise, that.moonrise) &&
+                Objects.equals(moonset, that.moonset);
     }
 
     @Override
     public int hashCode() {
-        int result = moonPhase != null ? moonPhase.hashCode() : 0;
-        result = 31 * result + (phaseType != null ? phaseType.hashCode() : 0);
-        return result;
+        return Objects.hash(phaseType, moonrise, moonset);
     }
 }
