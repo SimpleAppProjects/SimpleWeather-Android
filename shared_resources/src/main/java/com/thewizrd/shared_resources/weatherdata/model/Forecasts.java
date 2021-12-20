@@ -19,6 +19,8 @@ public class Forecasts {
     private List<TextForecast> txtForecast;
     @ColumnInfo(name = "minforecastblob")
     private List<MinutelyForecast> minForecast;
+    @ColumnInfo(name = "aqiforecastblob")
+    private List<AirQuality> aqiForecast;
 
     public Forecasts() {
     }
@@ -29,6 +31,7 @@ public class Forecasts {
         this.forecast = weatherData.getForecast();
         this.txtForecast = weatherData.getTxtForecast();
         this.minForecast = weatherData.getMinForecast();
+        this.aqiForecast = weatherData.getAqiForecast();
     }
 
     @NonNull
@@ -62,5 +65,13 @@ public class Forecasts {
 
     public void setMinForecast(List<MinutelyForecast> minForecast) {
         this.minForecast = minForecast;
+    }
+
+    public List<AirQuality> getAqiForecast() {
+        return aqiForecast;
+    }
+
+    public void setAqiForecast(List<AirQuality> aqiForecast) {
+        this.aqiForecast = aqiForecast;
     }
 }

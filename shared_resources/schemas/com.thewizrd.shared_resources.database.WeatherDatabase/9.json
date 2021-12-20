@@ -1,0 +1,191 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 9,
+    "identityHash": "eef817c6551ec46e60ec0d037e8bd4ae",
+    "entities": [
+      {
+        "tableName": "weatherdata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`locationblob` TEXT, `update_time` TEXT, `conditionblob` TEXT, `atmosphereblob` TEXT, `astronomyblob` TEXT, `precipitationblob` TEXT, `ttl` INTEGER NOT NULL, `source` TEXT, `query` TEXT NOT NULL, `locale` TEXT, PRIMARY KEY(`query`))",
+        "fields": [
+          {
+            "fieldPath": "location",
+            "columnName": "locationblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "update_time",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "condition",
+            "columnName": "conditionblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "atmosphere",
+            "columnName": "atmosphereblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "astronomy",
+            "columnName": "astronomyblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "precipitation",
+            "columnName": "precipitationblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ttl",
+            "columnName": "ttl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "query"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "weatheralerts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `weather_alerts` TEXT, PRIMARY KEY(`query`))",
+        "fields": [
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alerts",
+            "columnName": "weather_alerts",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "query"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "forecasts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `forecastblob` TEXT, `txtforecastblob` TEXT, `minforecastblob` TEXT, `aqiforecastblob` TEXT, PRIMARY KEY(`query`))",
+        "fields": [
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "forecast",
+            "columnName": "forecastblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txtForecast",
+            "columnName": "txtforecastblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "minForecast",
+            "columnName": "minforecastblob",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "aqiForecast",
+            "columnName": "aqiforecastblob",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "query"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "hr_forecasts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `dateblob` TEXT NOT NULL, `hrforecastblob` TEXT, PRIMARY KEY(`query`, `dateblob`))",
+        "fields": [
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "dateblob",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hrForecast",
+            "columnName": "hrforecastblob",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "query",
+            "dateblob"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eef817c6551ec46e60ec0d037e8bd4ae')"
+    ]
+  }
+}

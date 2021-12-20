@@ -28,9 +28,21 @@
             android:paddingVertical="20dp"
             android:text="@string/label_airquality"
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/chevron_right"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/chevron_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/colorTextPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/aqi_label"
+            app:layout_constraintBottom_toBottomOf="@id/aqi_label"
+            app:layout_constraintStart_toEndOf="@id/aqi_label" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_index"
@@ -78,9 +90,8 @@
             app:layout_constraintTop_toBottomOf="@id/aqi_level"
             tools:text="@string/aqi_desc_300" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/aqi_progressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -92,15 +103,16 @@
             android:maxHeight="4dp"
             android:minHeight="4dp"
             android:progress="@{weatherView.airQuality != null ? weatherView.airQuality.progress : 0}"
-            android:progressDrawable="@drawable/rounded_progress_horizontal_material"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/aqi_description"
             app:progressColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
+            app:trackCornerRadius="@dimen/shape_corner_radius"
             tools:max="12"
-            tools:progress="11" />
+            tools:progress="11"
+            tools:indicatorColor="#ff660099" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_attribution"

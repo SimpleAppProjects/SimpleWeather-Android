@@ -68,9 +68,8 @@
             app:layout_constraintBottom_toTopOf="@id/beaufort_progressBar"
             tools:text="11, Extreme" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/beaufort_progressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -82,14 +81,14 @@
             android:maxHeight="4dp"
             android:minHeight="4dp"
             android:progress="@{weatherView.beaufort.progress}"
-            android:progressDrawable="@drawable/rounded_progress_horizontal_material"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/beaufort_icon"
             app:progressColor="@{weatherView.beaufort.progressColor}"
+            app:trackCornerRadius="@dimen/shape_corner_radius"
             tools:max="12"
             tools:progress="11"
-            tools:progressTint="#FFFF4500" />
+            tools:indicatorColor="#FFFF4500" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -18,7 +18,7 @@ import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
-import com.thewizrd.shared_resources.weatherdata.model.AirQuality
+import com.thewizrd.shared_resources.weatherdata.model.AirQualityData
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
@@ -268,9 +268,9 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterfa
         }
     }
 
-    override suspend fun getAirQualityData(location: LocationData): AirQuality? =
+    override suspend fun getAirQualityData(location: LocationData): AirQualityData? =
             withContext(Dispatchers.IO) {
-                var aqiData: AirQuality? = null
+                var aqiData: AirQualityData? = null
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
                 val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()

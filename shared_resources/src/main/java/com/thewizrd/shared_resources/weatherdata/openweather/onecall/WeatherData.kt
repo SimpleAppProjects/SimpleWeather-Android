@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.utils.AirQualityUtils.CO_ugm3_TO_ppm
 import com.thewizrd.shared_resources.utils.AirQualityUtils.NO2_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.AirQualityUtils.O3_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.AirQualityUtils.SO2_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.getIndexFromData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.StringUtils
@@ -413,23 +414,27 @@ fun createPrecipitation(current: Current): Precipitation {
     }
 }
 
-fun createAirQuality(response: AirPollutionResponse): AirQuality? {
-    val data = response.list[0]
-
-    // Convert
-    val idx = maxOf(
-        data.components.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() } ?: -1,
-        data.components.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        data.components.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        data.components.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        data.components.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() } ?: -1,
-        data.components.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() } ?: -1,
-    )
-
-    if (idx >= 0)
-        return AirQuality().apply {
-            index = idx
+fun createAirQuality(response: AirPollutionResponse): AirQualityData? {
+    if (!response.list.isNullOrEmpty()) {
+        val aqiForecasts = List(response.list.size) { idx ->
+            val item = response.list[idx]
+            AirQuality().apply {
+                co = item.components.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() }
+                no2 = item.components.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() }
+                o3 = item.components.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() }
+                so2 = item.components.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() }
+                pm25 = item.components.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() }
+                pm10 = item.components.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() }
+                date = Instant.ofEpochSecond(item.dt).atZone(ZoneOffset.UTC).toLocalDate()
+                index = getIndexFromData()
+            }
         }
+
+        return AirQualityData().apply {
+            current = aqiForecasts.firstOrNull()
+            aqiForecast = aqiForecasts
+        }
+    }
 
     return null
 }

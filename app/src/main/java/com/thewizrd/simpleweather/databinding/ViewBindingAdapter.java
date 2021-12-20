@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.databinding;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -12,10 +13,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 import androidx.databinding.BindingAdapter;
 
+import com.google.android.material.progressindicator.BaseProgressIndicator;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
+import com.thewizrd.shared_resources.utils.AirQualityUtils;
+import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.simpleweather.R;
 
 import java.util.Locale;
@@ -30,6 +36,11 @@ public class ViewBindingAdapter {
             drawable.setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
             progressBar.setProgressDrawable(drawable);
         }
+    }
+
+    @BindingAdapter("progressColor")
+    public static void updateProgressColor(@NonNull BaseProgressIndicator<?> progressBar, @ColorInt int progressColor) {
+        progressBar.setIndicatorColor(progressColor);
     }
 
     @BindingAdapter("progressBackgroundColor")
@@ -62,5 +73,40 @@ public class ViewBindingAdapter {
             view.setText("");
             view.setVisibility(View.GONE);
         }
+    }
+
+    @BindingAdapter(value = {"aqiIndex", "fallbackTextColor"}, requireAll = true)
+    public static void setAQIIndexColor(final TextView view, final Integer index, @ColorInt int fallbackColor) {
+        if (index != null) {
+            view.setText(String.format(LocaleUtils.getLocale(), "%s", index));
+            view.setTextColor(AirQualityUtils.getColorFromIndex(index));
+        } else {
+            view.setText(WeatherIcons.EM_DASH);
+            view.setTextColor(fallbackColor);
+        }
+    }
+
+    @BindingAdapter("aqiIndexLevel")
+    public static void setAQIIndexLevel(final TextView view, final Integer index) {
+        final Context context = view.getContext();
+        String level;
+
+        if (index == null) {
+            level = WeatherIcons.EM_DASH;
+        } else if (index < 51) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_0_50);
+        } else if (index < 101) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_51_100);
+        } else if (index < 151) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_101_150);
+        } else if (index < 201) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_151_200);
+        } else if (index < 301) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_201_300);
+        } else {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_300);
+        }
+
+        view.setText(level);
     }
 }

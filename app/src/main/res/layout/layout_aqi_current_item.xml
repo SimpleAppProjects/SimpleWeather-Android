@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.shared_resources.controls.AirQualityViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:theme="@style/Theme.MaterialComponents.DayNight">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/aqi_date_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/time_current"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
+            android:textColor="@color/colorTextPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/aqi_index"
+            android:layout_width="85dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="@{viewModel != null ? viewModel.index + `` : null}"
+            android:textColor="@{viewModel.progressColor}"
+            android:textSize="36sp"
+            app:autoSizeMaxTextSize="36sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aqi_date_label"
+            tools:text="300" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/aqi_level"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="6dp"
+            android:text="@{viewModel.level}"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/aqi_index"
+            app:layout_constraintTop_toBottomOf="@id/aqi_date_label"
+            tools:text="@string/aqi_level_300" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/aqi_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="top"
+            android:padding="6dp"
+            android:text="@{viewModel.description}"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/aqi_index"
+            app:layout_constraintTop_toBottomOf="@id/aqi_level"
+            tools:text="@string/aqi_desc_300" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/aqi_progressBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="12dp"
+            android:max="@{viewModel != null ? viewModel.progressMax : 1}"
+            android:maxHeight="4dp"
+            android:minHeight="4dp"
+            android:progress="@{viewModel.progress}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aqi_description"
+            app:progressColor="@{viewModel.progressColor}"
+            app:trackCornerRadius="@dimen/shape_corner_radius"
+            tools:max="12"
+            tools:progress="11" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/aqi_components_flow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:constraint_referenced_ids="pm25,pm10,o3,co,no2,so2"
+            app:flow_horizontalAlign="start"
+            app:flow_horizontalGap="8dp"
+            app:flow_horizontalStyle="spread_inside"
+            app:flow_maxElementsWrap="3"
+            app:flow_wrapMode="chain"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aqi_progressBar" />
+
+        <TextView
+            android:id="@+id/pm25_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_pm25" />
+
+        <TextView
+            android:id="@+id/pm25_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.pm25Index}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="154" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/pm25"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="pm25_label,pm25_value"
+            app:hideIfNull="@{viewModel.pm25Index}" />
+
+        <TextView
+            android:id="@+id/pm10_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_pm10" />
+
+        <TextView
+            android:id="@+id/pm10_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.pm10Index}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="68" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/pm10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="pm10_label,pm10_value"
+            app:hideIfNull="@{viewModel.pm10Index}" />
+
+        <TextView
+            android:id="@+id/no2_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_no2" />
+
+        <TextView
+            android:id="@+id/no2_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.no2Index}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="32" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/no2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="no2_label,no2_value"
+            app:hideIfNull="@{viewModel.no2Index}" />
+
+        <TextView
+            android:id="@+id/o3_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_o3" />
+
+        <TextView
+            android:id="@+id/o3_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.o3Index}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="9.4" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/o3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="o3_label,o3_value"
+            app:hideIfNull="@{viewModel.o3Index}" />
+
+        <TextView
+            android:id="@+id/co_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_co" />
+
+        <TextView
+            android:id="@+id/co_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.coIndex}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="9.2" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/co"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="co_label,co_value"
+            app:hideIfNull="@{viewModel.coIndex}" />
+
+        <TextView
+            android:id="@+id/so2_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            android:text="@string/units_so2" />
+
+        <TextView
+            android:id="@+id/so2_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="45dp"
+            android:padding="4dp"
+            app:aqiIndex="@{viewModel.so2Index}"
+            app:fallbackTextColor="@{@color/colorOnSurface}"
+            tools:text="5.1" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/so2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="so2_label,so2_value"
+            app:hideIfNull="@{viewModel.so2Index}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.model.Atmosphere;
 import com.thewizrd.shared_resources.weatherdata.model.Condition;
@@ -416,6 +417,75 @@ public class WeatherDBConverters {
 
                 for (WeatherAlert alert : value) {
                     alert.toJson(writer);
+                }
+
+                writer.endArray();
+                writer.close();
+            } catch (IOException ex) {
+                Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
+            }
+
+            return sw.toString();
+        }
+    }
+
+    @TypeConverter
+    public static AirQuality aqiFromJson(String value) {
+        if (value == null)
+            return null;
+        else {
+            AirQuality obj = new AirQuality();
+            obj.fromJson(new JsonReader(new StringReader(value)));
+            return obj;
+        }
+    }
+
+    @TypeConverter
+    public static String aqiToJson(AirQuality value) {
+        return JSONParser.serializer(value, AirQuality.class);
+    }
+
+    @TypeConverter
+    public static List<AirQuality> aqiForecastArrfromJson(String value) {
+        if (value == null)
+            return null;
+        else {
+            StringReader sr = new StringReader(value);
+            JsonReader reader = new JsonReader(sr);
+            List<AirQuality> result = new ArrayList<>(90);
+
+            try {
+                reader.beginArray();
+
+                while (reader.hasNext()) {
+                    AirQuality obj = new AirQuality();
+                    obj.fromJson(reader);
+                    result.add(obj);
+                }
+
+                reader.endArray();
+            } catch (IOException ex) {
+                Logger.writeLine(Log.ERROR, ex, "Error parsing JSON");
+            }
+
+            return result;
+        }
+    }
+
+    @TypeConverter
+    public static String aqiForecastArrtoJson(List<AirQuality> value) {
+        if (value == null)
+            return null;
+        else {
+            StringWriter sw = new StringWriter();
+            JsonWriter writer = new JsonWriter(sw);
+            writer.setSerializeNulls(true);
+
+            try {
+                writer.beginArray();
+
+                for (AirQuality aqi : value) {
+                    aqi.toJson(writer);
                 }
 
                 writer.endArray();

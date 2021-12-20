@@ -51,6 +51,30 @@ public class NumberUtils {
             return defaultValue;
     }
 
+    @Nullable
+    public static Double tryParseDouble(String number) {
+        Double result = null;
+        try {
+            result = Double.parseDouble(number);
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+
+        return result;
+    }
+
+    public static Double tryParseDouble(String number, double defaultValue) {
+        Double result = null;
+        try {
+            result = Double.parseDouble(number);
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+
+        if (result != null)
+            return result;
+        else
+            return defaultValue;
+    }
+
     public static String toString(Float number) {
         if (number == null) {
             return null;
@@ -73,6 +97,13 @@ public class NumberUtils {
     }
 
     public static Float getValueOrDefault(Float number, float defaultValue) {
+        if (number == null)
+            return defaultValue;
+
+        return number;
+    }
+
+    public static Double getValueOrDefault(Double number, double defaultValue) {
         if (number == null)
             return defaultValue;
 

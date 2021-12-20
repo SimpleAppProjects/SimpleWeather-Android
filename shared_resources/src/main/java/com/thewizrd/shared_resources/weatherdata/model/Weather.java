@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(tableName = "weatherdata")
 public class Weather extends CustomJsonObject {
@@ -42,6 +43,8 @@ public class Weather extends CustomJsonObject {
     private List<TextForecast> txtForecast;
     @Ignore
     private List<MinutelyForecast> minForecast;
+    @Ignore
+    private List<AirQuality> aqiForecast;
     @ColumnInfo(name = "conditionblob")
     private Condition condition;
     @ColumnInfo(name = "atmosphereblob")
@@ -112,6 +115,14 @@ public class Weather extends CustomJsonObject {
 
     public void setMinForecast(List<MinutelyForecast> minForecast) {
         this.minForecast = minForecast;
+    }
+
+    public List<AirQuality> getAqiForecast() {
+        return aqiForecast;
+    }
+
+    public void setAqiForecast(List<AirQuality> aqiForecast) {
+        this.aqiForecast = aqiForecast;
     }
 
     public Condition getCondition() {
@@ -304,6 +315,27 @@ public class Weather extends CustomJsonObject {
                             reader.endArray(); // EndArray
 
                         break;
+                    case "aqiForecast":
+                        // Set initial cap to 60
+                        // Minutely forecasts are usually only for an hour
+                        List<AirQuality> aqiForecasts = new ArrayList<>(10);
+
+                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                            reader.beginArray(); // StartArray
+
+                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
+                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                                AirQuality fcast = new AirQuality();
+                                fcast.fromJson(reader);
+                                aqiForecasts.add(fcast);
+                            }
+                        }
+                        this.aqiForecast = aqiForecasts;
+
+                        if (reader.peek() == JsonToken.END_ARRAY)
+                            reader.endArray(); // EndArray
+
+                        break;
                     case "condition":
                         this.condition = new Condition();
                         this.condition.fromJson(reader);
@@ -327,7 +359,8 @@ public class Weather extends CustomJsonObject {
 
                         while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
                             if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
-                                @SuppressLint("RestrictedApi") WeatherAlert alert = new WeatherAlert();
+                                @SuppressLint({"RestrictedApi", "VisibleForTests"})
+                                WeatherAlert alert = new WeatherAlert();
                                 alert.fromJson(reader);
                                 alerts.add(alert);
                             }
@@ -432,6 +465,19 @@ public class Weather extends CustomJsonObject {
                 writer.endArray();
             }
 
+            // "aqiForecast" : ""
+            if (aqiForecast != null) {
+                writer.name("aqiForecast");
+                writer.beginArray();
+                for (AirQuality aqi_cast : aqiForecast) {
+                    if (aqi_cast == null)
+                        writer.nullValue();
+                    else
+                        aqi_cast.toJson(writer);
+                }
+                writer.endArray();
+            }
+
             // "condition" : ""
             writer.name("condition");
             if (condition == null)
@@ -512,32 +558,34 @@ public class Weather extends CustomJsonObject {
 
         Weather weather = (Weather) o;
 
-        if (location != null ? !location.equals(weather.location) : weather.location != null)
+        if (!Objects.equals(location, weather.location))
             return false;
-        if (updateTime != null ? !updateTime.equals(weather.updateTime) : weather.updateTime != null)
+        if (!Objects.equals(updateTime, weather.updateTime))
             return false;
-        if (forecast != null ? !forecast.equals(weather.forecast) : weather.forecast != null)
+        if (!Objects.equals(forecast, weather.forecast))
             return false;
-        if (hrForecast != null ? !hrForecast.equals(weather.hrForecast) : weather.hrForecast != null)
+        if (!Objects.equals(hrForecast, weather.hrForecast))
             return false;
-        if (txtForecast != null ? !txtForecast.equals(weather.txtForecast) : weather.txtForecast != null)
+        if (!Objects.equals(txtForecast, weather.txtForecast))
             return false;
-        if (minForecast != null ? !minForecast.equals(weather.minForecast) : weather.minForecast != null)
+        if (!Objects.equals(minForecast, weather.minForecast))
             return false;
-        if (condition != null ? !condition.equals(weather.condition) : weather.condition != null)
+        if (!Objects.equals(aqiForecast, weather.aqiForecast))
             return false;
-        if (atmosphere != null ? !atmosphere.equals(weather.atmosphere) : weather.atmosphere != null)
+        if (!Objects.equals(condition, weather.condition))
             return false;
-        if (astronomy != null ? !astronomy.equals(weather.astronomy) : weather.astronomy != null)
+        if (!Objects.equals(atmosphere, weather.atmosphere))
             return false;
-        if (precipitation != null ? !precipitation.equals(weather.precipitation) : weather.precipitation != null)
+        if (!Objects.equals(astronomy, weather.astronomy))
             return false;
-        if (weather_alerts != null ? !weather_alerts.equals(weather.weather_alerts) : weather.weather_alerts != null)
+        if (!Objects.equals(precipitation, weather.precipitation))
+            return false;
+        if (!Objects.equals(weather_alerts, weather.weather_alerts))
             return false;
         if (ttl != weather.ttl) return false;
-        if (source != null ? !source.equals(weather.source) : weather.source != null) return false;
+        if (!Objects.equals(source, weather.source)) return false;
         if (!query.equals(weather.query)) return false;
-        return locale != null ? locale.equals(weather.locale) : weather.locale == null;
+        return Objects.equals(locale, weather.locale);
     }
 
     @Override
@@ -548,6 +596,7 @@ public class Weather extends CustomJsonObject {
         result = 31 * result + (hrForecast != null ? hrForecast.hashCode() : 0);
         result = 31 * result + (txtForecast != null ? txtForecast.hashCode() : 0);
         result = 31 * result + (minForecast != null ? minForecast.hashCode() : 0);
+        result = 31 * result + (aqiForecast != null ? aqiForecast.hashCode() : 0);
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (atmosphere != null ? atmosphere.hashCode() : 0);
         result = 31 * result + (astronomy != null ? astronomy.hashCode() : 0);

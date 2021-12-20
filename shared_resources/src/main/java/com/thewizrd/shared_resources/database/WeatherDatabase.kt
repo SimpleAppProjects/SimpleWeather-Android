@@ -19,8 +19,8 @@ import org.json.JSONArray
 import org.json.JSONException
 
 @Database(
-    entities = [Weather::class, WeatherAlerts::class, Forecasts::class, HourlyForecasts::class],
-    version = 8 /* NOTE: Add migration paths if needed */
+        entities = [Weather::class, WeatherAlerts::class, Forecasts::class, HourlyForecasts::class],
+        version = 9 /* NOTE: Add migration paths if needed */
 )
 @TypeConverters(WeatherDBConverters::class)
 abstract class WeatherDatabase : RoomDatabase() {
@@ -220,11 +220,17 @@ abstract class WeatherDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE forecasts ADD COLUMN `minforecastblob` TEXT")
             }
         }
+        private val W_MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE forecasts ADD COLUMN `aqiforecastblob` TEXT")
+            }
+        }
 
         @RestrictTo(RestrictTo.Scope.TESTS)
         internal val W_MIGRATION_SET = arrayOf(
-            W_MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5,
-            W_MIGRATION_5_6, W_MIGRATION_6_7, W_MIGRATION_7_8
+                W_MIGRATION_0_3, W_MIGRATION_3_4, W_MIGRATION_4_5,
+                W_MIGRATION_5_6, W_MIGRATION_6_7, W_MIGRATION_7_8,
+                W_MIGRATION_8_9
         )
     }
 }

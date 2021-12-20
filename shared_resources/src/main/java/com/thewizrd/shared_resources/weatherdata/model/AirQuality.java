@@ -14,6 +14,8 @@ import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class AirQuality extends CustomJsonObject {
 
@@ -22,6 +24,27 @@ public class AirQuality extends CustomJsonObject {
 
     @SerializedName("attribution")
     private String attribution;
+
+    @SerializedName("no2")
+    private Integer no2;
+
+    @SerializedName("o3")
+    private Integer o3;
+
+    @SerializedName("so2")
+    private Integer so2;
+
+    @SerializedName("pm25")
+    private Integer pm25;
+
+    @SerializedName("pm10")
+    private Integer pm10;
+
+    @SerializedName("co")
+    private Integer co;
+
+    @SerializedName("date")
+    private LocalDate date;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
     public AirQuality() {
@@ -42,6 +65,93 @@ public class AirQuality extends CustomJsonObject {
 
     public void setAttribution(String attribution) {
         this.attribution = attribution;
+    }
+
+    public Integer getNo2() {
+        return no2;
+    }
+
+    public void setNo2(Integer no2) {
+        this.no2 = no2;
+    }
+
+    public Integer getO3() {
+        return o3;
+    }
+
+    public void setO3(Integer o3) {
+        this.o3 = o3;
+    }
+
+    public Integer getSo2() {
+        return so2;
+    }
+
+    public void setSo2(Integer so2) {
+        this.so2 = so2;
+    }
+
+    public Integer getPm25() {
+        return pm25;
+    }
+
+    public void setPm25(Integer pm25) {
+        this.pm25 = pm25;
+    }
+
+    public Integer getPm10() {
+        return pm10;
+    }
+
+    public void setPm10(Integer pm10) {
+        this.pm10 = pm10;
+    }
+
+    public Integer getCo() {
+        return co;
+    }
+
+    public void setCo(Integer co) {
+        this.co = co;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AirQuality that = (AirQuality) o;
+        return Objects.equals(index, that.index) &&
+                Objects.equals(attribution, that.attribution) &&
+                Objects.equals(no2, that.no2) &&
+                Objects.equals(o3, that.o3) &&
+                Objects.equals(so2, that.so2) &&
+                Objects.equals(pm25, that.pm25) &&
+                Objects.equals(pm10, that.pm10) &&
+                Objects.equals(co, that.co) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                index,
+                attribution,
+                no2,
+                o3,
+                so2,
+                pm25,
+                pm10,
+                co,
+                date
+        );
     }
 
     @Override
@@ -81,6 +191,27 @@ public class AirQuality extends CustomJsonObject {
                     case "attribution":
                         this.attribution = reader.nextString();
                         break;
+                    case "no2":
+                        this.no2 = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "o3":
+                        this.o3 = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "so2":
+                        this.so2 = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "pm25":
+                        this.pm25 = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "pm10":
+                        this.pm10 = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "co":
+                        this.co = NumberUtils.tryParseInt(reader.nextString());
+                        break;
+                    case "date":
+                        this.date = LocalDate.parse(reader.nextString());
+                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -107,6 +238,36 @@ public class AirQuality extends CustomJsonObject {
             // "attribution" : ""
             writer.name("attribution");
             writer.value(attribution);
+
+            // "no2" : ""
+            writer.name("no2");
+            writer.value(no2);
+
+            // "o3" : ""
+            writer.name("o3");
+            writer.value(o3);
+
+            // "so2" : ""
+            writer.name("so2");
+            writer.value(so2);
+
+            // "pm25" : ""
+            writer.name("pm25");
+            writer.value(pm25);
+
+            // "pm10" : ""
+            writer.name("pm10");
+            writer.value(pm10);
+
+            // "co" : ""
+            writer.name("co");
+            writer.value(co);
+
+            if (date != null) {
+                // "date" : ""
+                writer.name("date");
+                writer.value(date.toString());
+            }
 
             // }
             writer.endObject();

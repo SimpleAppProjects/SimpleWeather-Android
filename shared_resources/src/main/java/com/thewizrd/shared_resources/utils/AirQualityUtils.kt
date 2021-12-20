@@ -1,5 +1,8 @@
 package com.thewizrd.shared_resources.utils
 
+import android.graphics.Color
+import androidx.annotation.ColorInt
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -271,6 +274,44 @@ object AirQualityUtils {
             }
             else -> {
                 throw IllegalArgumentException("value out of range")
+            }
+        }
+    }
+
+    fun AirQuality.getIndexFromData(): Int? {
+        val idx = maxOf(
+                no2 ?: -1,
+                o3 ?: -1,
+                so2 ?: -1,
+                pm25 ?: -1,
+                pm10 ?: -1,
+                co ?: -1
+        )
+
+        return if (idx <= 0) null else idx
+    }
+
+    @JvmStatic
+    @ColorInt
+    fun getColorFromIndex(index: Int): Int {
+        return when {
+            index < 51 -> {
+                Colors.LIMEGREEN
+            }
+            index < 101 -> {
+                Color.rgb(0xff, 0xde, 0x33)
+            }
+            index < 151 -> {
+                Color.rgb(0xff, 0x99, 0x33)
+            }
+            index < 201 -> {
+                Color.rgb(0xcc, 0x00, 0x33)
+            }
+            index < 301 -> {
+                Color.rgb(0xaa, 0x00, 0xff) // 0xff660099
+            }
+            else -> {
+                Color.rgb(0xbd, 0x00, 0x35) // 0xff7e0023
             }
         }
     }

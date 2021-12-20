@@ -13,4 +13,18 @@
     <string name="aqi_desc_151_200">Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects</string>
     <string name="aqi_desc_201_300">Health warnings of emergency conditions. The entire population is more likely to be affected.</string>
     <string name="aqi_desc_300">Health alert: everyone may experience more serious health effects</string>
+
+    <!-- AQI Units -->
+    <!-- Particulate <2.5 microns -->
+    <string name="units_pm25" translatable="false">PM<sub><small>2.5</small></sub></string>
+    <!-- Particulate <10 microns -->
+    <string name="units_pm10" translatable="false">PM<sub><small>10</small></sub></string>
+    <!-- Ozone -->
+    <string name="units_o3" translatable="false">O<sub><small>3</small></sub></string>
+    <!-- Sulfur Dioxide -->
+    <string name="units_so2" translatable="false">SO<sub><small>2</small></sub></string>
+    <!-- Nitrogen Dioxide -->
+    <string name="units_no2" translatable="false">NO<sub><small>2</small></sub></string>
+    <!-- Carbon Monoxide -->
+    <string name="units_co" translatable="false">CO</string>
 </resources>

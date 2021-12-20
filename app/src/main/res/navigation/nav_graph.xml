@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_weatherNowFragment_to_weatherChartsFragment"
             app:destination="@id/weatherChartsFragment" />
+        <action
+            android:id="@+id/action_weatherNowFragment_to_weatherAQIFragment"
+            app:destination="@id/weatherAQIFragment" />
     </fragment>
     <fragment
         android:id="@+id/weatherListFragment"
@@ -167,4 +170,14 @@
         android:id="@+id/devSettingsFragment"
         android:name="com.thewizrd.simpleweather.preferences.DevSettingsFragment"
         android:label="DevSettingsFragment" />
+    <fragment
+        android:id="@+id/weatherAQIFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherAQIFragment"
+        android:label="WeatherAQIFragment">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

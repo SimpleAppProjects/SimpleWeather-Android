@@ -12,6 +12,8 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality;
 
+import java.util.Objects;
+
 public class AirQualityViewModel {
     @NonNull
     private DetailItemViewModel airQuality;
@@ -23,6 +25,13 @@ public class AirQualityViewModel {
     private @ColorInt
     int progressColor;
     private String attribution;
+
+    private Integer no2Index;
+    private Integer o3Index;
+    private Integer so2Index;
+    private Integer pm25Index;
+    private Integer pm10Index;
+    private Integer coIndex;
 
     public AirQualityViewModel(AirQuality aqi) {
         Context context = SimpleLibrary.getInstance().getAppContext();
@@ -57,6 +66,13 @@ public class AirQualityViewModel {
         }
 
         this.attribution = aqi.getAttribution();
+
+        this.no2Index = aqi.getNo2();
+        this.o3Index = aqi.getO3();
+        this.so2Index = aqi.getSo2();
+        this.pm25Index = aqi.getPm25();
+        this.pm10Index = aqi.getPm10();
+        this.coIndex = aqi.getCo();
     }
 
     @NonNull
@@ -124,34 +140,92 @@ public class AirQualityViewModel {
         this.attribution = attribution;
     }
 
+    public Integer getNo2Index() {
+        return no2Index;
+    }
+
+    public void setNo2Index(Integer no2Index) {
+        this.no2Index = no2Index;
+    }
+
+    public Integer getO3Index() {
+        return o3Index;
+    }
+
+    public void setO3Index(Integer o3Index) {
+        this.o3Index = o3Index;
+    }
+
+    public Integer getSo2Index() {
+        return so2Index;
+    }
+
+    public void setSo2Index(Integer so2Index) {
+        this.so2Index = so2Index;
+    }
+
+    public Integer getPm25Index() {
+        return pm25Index;
+    }
+
+    public void setPm25Index(Integer pm25Index) {
+        this.pm25Index = pm25Index;
+    }
+
+    public Integer getPm10Index() {
+        return pm10Index;
+    }
+
+    public void setPm10Index(Integer pm10Index) {
+        this.pm10Index = pm10Index;
+    }
+
+    public Integer getCoIndex() {
+        return coIndex;
+    }
+
+    public void setCoIndex(Integer coIndex) {
+        this.coIndex = coIndex;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         AirQualityViewModel that = (AirQualityViewModel) o;
-
-        if (index != that.index) return false;
-        if (progress != that.progress) return false;
-        if (progressMax != that.progressMax) return false;
-        if (progressColor != that.progressColor) return false;
-        if (!airQuality.equals(that.airQuality)) return false;
-        if (level != null ? !level.equals(that.level) : that.level != null) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null)
-            return false;
-        return attribution != null ? attribution.equals(that.attribution) : that.attribution == null;
+        return index == that.index &&
+                progress == that.progress &&
+                progressMax == that.progressMax &&
+                progressColor == that.progressColor &&
+                airQuality.equals(that.airQuality) &&
+                Objects.equals(level, that.level) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(attribution, that.attribution) &&
+                Objects.equals(no2Index, that.no2Index) &&
+                Objects.equals(o3Index, that.o3Index) &&
+                Objects.equals(so2Index, that.so2Index) &&
+                Objects.equals(pm25Index, that.pm25Index) &&
+                Objects.equals(pm10Index, that.pm10Index) &&
+                Objects.equals(coIndex, that.coIndex);
     }
 
     @Override
     public int hashCode() {
-        int result = airQuality.hashCode();
-        result = 31 * result + index;
-        result = 31 * result + (level != null ? level.hashCode() : 0);
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + progress;
-        result = 31 * result + progressMax;
-        result = 31 * result + progressColor;
-        result = 31 * result + (attribution != null ? attribution.hashCode() : 0);
-        return result;
+        return Objects.hash(
+                airQuality,
+                index,
+                level,
+                description,
+                progress,
+                progressMax,
+                progressColor,
+                attribution,
+                no2Index,
+                o3Index,
+                so2Index,
+                pm25Index,
+                pm10Index,
+                coIndex
+        );
     }
 }

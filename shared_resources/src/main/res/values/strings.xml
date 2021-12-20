@@ -214,5 +214,6 @@
     <string name="label_count_moderate">Moderate</string>
     <string name="label_count_high">High</string>
     <string name="label_count_veryhigh">Very High</string>
+    <string name="time_current">Current</string>
 
 </resources>

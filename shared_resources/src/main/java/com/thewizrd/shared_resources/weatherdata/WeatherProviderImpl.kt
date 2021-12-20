@@ -13,11 +13,9 @@ import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.ambee.AmbeePollenProvider
+import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNData
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
-import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
-import com.thewizrd.shared_resources.weatherdata.model.UV
-import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
+import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -151,11 +149,12 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
         updateWeatherData(location, weather)
 
         // Additional external data
-        if (weather.condition.airQuality == null) {
+        if (weather.condition.airQuality == null && weather.aqiForecast == null) {
             if (!BuildConfig.IS_NONGMS) {
                 updateAQIData(location, weather)
             } else if (this is AirQualityProviderInterface) {
-                weather.condition.airQuality = this.getAirQualityData(location)
+                val aqiData = this.getAirQualityData(location)
+                updateAQIData(location, weather, aqiData)
             }
         }
 
@@ -180,34 +179,42 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
 
     private suspend fun updateAQIData(location: LocationData, weather: Weather) {
         val aqicnData = AQICNProvider().getAirQualityData(location)
-        weather.condition.airQuality = aqicnData?.apply {
-            attribution = SimpleLibrary.instance.appContext.getString(R.string.api_waqi)
-        }
+        updateAQIData(location, weather, aqicnData)
+    }
 
-        try {
-            if (aqicnData?.uviForecast?.isNotEmpty() == true) {
-                for (i in aqicnData.uviForecast.indices) {
-                    val uviData = aqicnData.uviForecast[i]
-                    val date = LocalDate.parse(uviData.day, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
+    private fun updateAQIData(location: LocationData, weather: Weather, aqiData: AirQualityData?) {
+        weather.condition.airQuality = aqiData?.current
 
-                    if (i == 0 && weather.condition.uv == null) {
-                        if (date.isEqual(weather.condition.observationTime.toLocalDate())) {
-                            weather.condition.uv = UV(uviData.avg.toFloat())
+        if (aqiData is AQICNData) {
+            try {
+                if (!aqiData.uviForecast.isNullOrEmpty()) {
+                    for (i in aqiData.uviForecast.indices) {
+                        val uviData = aqiData.uviForecast[i]
+                        val date = LocalDate.parse(uviData.day, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
+
+                        if (i == 0 && weather.condition.uv == null) {
+                            if (date.isEqual(weather.condition.observationTime.toLocalDate())) {
+                                weather.condition.uv = UV(uviData.avg.toFloat())
+                            }
                         }
-                    }
 
-                    val forecastObj = weather.forecast.find { it.date.toLocalDate().isEqual(date) }
-                    if (forecastObj != null && forecastObj.extras?.uvIndex == null) {
-                        if (forecastObj.extras == null) {
-                            forecastObj.extras = ForecastExtras()
+                        val forecastObj = weather.forecast.find { it.date.toLocalDate().isEqual(date) }
+                        if (forecastObj != null && forecastObj.extras?.uvIndex == null) {
+                            if (forecastObj.extras == null) {
+                                forecastObj.extras = ForecastExtras()
+                            }
+                            forecastObj.extras.uvIndex = uviData.max.toFloat()
                         }
-                        forecastObj.extras.uvIndex = uviData.max.toFloat()
                     }
                 }
+            } catch (e: Exception) {
+                Logger.writeLine(Log.ERROR, e, "Error parsing AQI data")
             }
-        } catch (e: Exception) {
-            Logger.writeLine(Log.ERROR, e, "Error parsing AQI data")
+
+            weather.condition.airQuality?.attribution = SimpleLibrary.instance.appContext.getString(R.string.api_waqi)
         }
+
+        weather.aqiForecast = aqiData?.aqiForecast
     }
 
     /**

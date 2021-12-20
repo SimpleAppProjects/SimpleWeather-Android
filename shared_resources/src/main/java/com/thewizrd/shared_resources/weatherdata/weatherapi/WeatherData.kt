@@ -11,6 +11,7 @@ import com.thewizrd.shared_resources.utils.AirQualityUtils.CO_ugm3_TO_ppm
 import com.thewizrd.shared_resources.utils.AirQualityUtils.NO2_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.AirQualityUtils.O3_ugm3_to_ppb
 import com.thewizrd.shared_resources.utils.AirQualityUtils.SO2_ugm3_to_ppb
+import com.thewizrd.shared_resources.utils.AirQualityUtils.getIndexFromData
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -269,20 +270,14 @@ fun createPrecipitation(current: Current): Precipitation {
 fun createAirQuality(airQuality: com.thewizrd.shared_resources.weatherdata.weatherapi.AirQuality?): AirQuality? {
     if (airQuality == null) return null
 
-    // Convert
-    val idx = maxOf(
-        airQuality.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() } ?: -1,
-        airQuality.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        airQuality.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        airQuality.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() } ?: -1,
-        airQuality.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() } ?: -1,
-        airQuality.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() } ?: -1,
-    )
+    return AirQuality().apply {
+        co = airQuality.co?.let { runCatching { AQICO(CO_ugm3_TO_ppm(it)) }.getOrNull() }
+        no2 = airQuality.no2?.let { runCatching { AQINO2(NO2_ugm3_to_ppb(it)) }.getOrNull() }
+        o3 = airQuality.o3?.let { runCatching { AQIO3(O3_ugm3_to_ppb(it)) }.getOrNull() }
+        so2 = airQuality.so2?.let { runCatching { AQISO2(SO2_ugm3_to_ppb(it)) }.getOrNull() }
+        pm25 = airQuality.pm25?.let { runCatching { AQIPM2_5(it) }.getOrNull() }
+        pm10 = airQuality.pm10?.let { runCatching { AQIPM10(it) }.getOrNull() }
 
-    if (idx >= 0)
-        return AirQuality().apply {
-            index = idx
-        }
-
-    return null
+        index = getIndexFromData()
+    }
 }

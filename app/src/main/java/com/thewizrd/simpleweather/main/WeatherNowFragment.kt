@@ -924,6 +924,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             aqiControlBinding!!.weatherView = weatherView
             aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
+            aqiControlBinding!!.root.setOnClickListener { v ->
+                runWithView {
+                    AnalyticsLogger.logEvent("WeatherNowFragment: aqi panel click")
+                    v.isEnabled = false
+                    val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherAQIFragment()
+                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                    view.findNavController().safeNavigate(args)
+                }
+            }
+
             val context = aqiControlBinding!!.root.context
             if (context.isLargeTablet()) {
                 aqiControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
