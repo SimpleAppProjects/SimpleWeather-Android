@@ -14,12 +14,17 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.Units;
+import com.thewizrd.shared_resources.utils.WeatherUtils;
 import com.thewizrd.shared_resources.weatherdata.model.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
 import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
+import com.thewizrd.simpleweather.controls.graphs.BarGraphData;
+import com.thewizrd.simpleweather.controls.graphs.BarGraphDataSet;
+import com.thewizrd.simpleweather.controls.graphs.BarGraphEntry;
+import com.thewizrd.simpleweather.controls.graphs.GraphData;
 import com.thewizrd.simpleweather.controls.graphs.LineDataSeries;
 import com.thewizrd.simpleweather.controls.graphs.LineGraphEntry;
 import com.thewizrd.simpleweather.controls.graphs.LineViewData;
@@ -43,10 +48,11 @@ public class ForecastGraphViewModel {
 
     private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
 
-    private LineViewData graphData;
+    private GraphData<?> graphData;
+
     private ForecastGraphType graphType;
 
-    public LineViewData getGraphData() {
+    public GraphData<?> getGraphData() {
         return graphData;
     }
 
@@ -55,12 +61,22 @@ public class ForecastGraphViewModel {
     }
 
     public void addForecastData(BaseForecast forecast, ForecastGraphType graphType) {
-        if (graphData == null) {
-            LineDataSeries series = createSeriesData(new ArrayList<>(), graphType);
-            addEntryData(forecast, series, graphType);
-            this.graphData = createGraphData(Collections.singletonList(series), graphType);
+        if (graphType != ForecastGraphType.UVINDEX) {
+            if (graphData == null) {
+                LineDataSeries series = createSeriesData(new ArrayList<>(), graphType);
+                addEntryData(forecast, series, graphType);
+                this.graphData = createGraphData(Collections.singletonList(series), graphType);
+            } else {
+                addEntryData(forecast, (LineDataSeries) graphData.getDataSetByIndex(0), graphType);
+            }
         } else {
-            addEntryData(forecast, graphData.getDataSetByIndex(0), graphType);
+            if (graphData == null) {
+                BarGraphDataSet dataSet = createDataSet(new ArrayList<>(), graphType);
+                addEntryData(forecast, dataSet, graphType);
+                this.graphData = createGraphData(dataSet, graphType);
+            } else {
+                addEntryData(forecast, (BarGraphDataSet) graphData.getDataSetByIndex(0), graphType);
+            }
         }
     }
 
@@ -93,33 +109,7 @@ public class ForecastGraphViewModel {
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
 
-        String date;
-        if (forecast instanceof Forecast) {
-            Forecast fcast = (Forecast) forecast;
-            date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
-        } else if (forecast instanceof HourlyForecast) {
-            HourlyForecast fcast = (HourlyForecast) forecast;
-
-            if (DateFormat.is24HourFormat(context)) {
-                String skeleton;
-                if (ContextUtils.isLargeTablet(context)) {
-                    skeleton = DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR;
-                } else {
-                    skeleton = DateTimeConstants.SKELETON_24HR;
-                }
-                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(skeleton)));
-            } else {
-                String pattern;
-                if (ContextUtils.isLargeTablet(context)) {
-                    pattern = DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM;
-                } else {
-                    pattern = DateTimeConstants.ABBREV_12HR_AMPM;
-                }
-                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(pattern));
-            }
-        } else {
-            date = "";
-        }
+        final String date = getDateFromForecast(forecast);
 
         switch (graphType) {
             /*
@@ -304,6 +294,83 @@ public class ForecastGraphViewModel {
 
     @NonNull
     private LineViewData createGraphData(List<LineDataSeries> seriesData, @NonNull ForecastGraphType graphType) {
+        final String graphLabel = getLabelForGraphType(graphType);
+        this.graphType = graphType;
+
+        return new LineViewData(graphLabel, seriesData);
+    }
+
+    @NonNull
+    private BarGraphDataSet createDataSet(List<BarGraphEntry> entryData, @NonNull ForecastGraphType graphType) {
+        final BarGraphDataSet dataSet = new BarGraphDataSet(entryData);
+
+        switch (graphType) {
+            case UVINDEX:
+                dataSet.setMinMax(0f, 12f);
+                break;
+        }
+
+        return dataSet;
+    }
+
+    @NonNull
+    private BarGraphData createGraphData(BarGraphDataSet dataSet, @NonNull ForecastGraphType graphType) {
+        final String graphLabel = getLabelForGraphType(graphType);
+        this.graphType = graphType;
+
+        return new BarGraphData(graphLabel, dataSet);
+    }
+
+    private void addEntryData(BaseForecast forecast, BarGraphDataSet dataSet, ForecastGraphType graphType) {
+        final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
+        df.applyPattern("0.##");
+
+        final String date = getDateFromForecast(forecast);
+
+        if (graphType == ForecastGraphType.UVINDEX) {
+            if (forecast.getExtras() != null && forecast.getExtras().getUvIndex() != null) {
+                final BarGraphEntry entry = new BarGraphEntry(date, new YEntryData(forecast.getExtras().getUvIndex(), String.format(LocaleUtils.getLocale(), "%.1f", forecast.getExtras().getUvIndex())));
+                entry.setFillColor(WeatherUtils.getColorFromUVIndex(forecast.getExtras().getUvIndex()));
+                dataSet.addEntry(entry);
+            }
+        }
+    }
+
+    private String getDateFromForecast(BaseForecast forecast) {
+        Context context = App.getInstance().getAppContext();
+
+        String date;
+        if (forecast instanceof Forecast) {
+            Forecast fcast = (Forecast) forecast;
+            date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
+        } else if (forecast instanceof HourlyForecast) {
+            HourlyForecast fcast = (HourlyForecast) forecast;
+
+            if (DateFormat.is24HourFormat(context)) {
+                String skeleton;
+                if (ContextUtils.isLargeTablet(context)) {
+                    skeleton = DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR;
+                } else {
+                    skeleton = DateTimeConstants.SKELETON_24HR;
+                }
+                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(skeleton)));
+            } else {
+                String pattern;
+                if (ContextUtils.isLargeTablet(context)) {
+                    pattern = DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM;
+                } else {
+                    pattern = DateTimeConstants.ABBREV_12HR_AMPM;
+                }
+                date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(pattern));
+            }
+        } else {
+            date = "";
+        }
+
+        return date;
+    }
+
+    private String getLabelForGraphType(@NonNull ForecastGraphType graphType) {
         Context context = App.getInstance().getAppContext();
 
         String graphLabel;
@@ -335,8 +402,6 @@ public class ForecastGraphViewModel {
                 break;
         }
 
-        this.graphType = graphType;
-
-        return new LineViewData(graphLabel, seriesData);
+        return graphLabel;
     }
 }

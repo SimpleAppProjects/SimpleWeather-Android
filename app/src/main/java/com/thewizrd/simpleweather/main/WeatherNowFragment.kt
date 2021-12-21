@@ -805,15 +805,18 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         val args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
                                 .setData(
-                                    JSONParser.serializer(
-                                        locationData,
-                                        LocationData::class.java
-                                    )
+                                        JSONParser.serializer(
+                                                locationData,
+                                                LocationData::class.java
+                                        )
                                 )
                         view.findNavController().safeNavigate(args)
                     }
                 }
             }
+
+            precipPanelBinding!!.minutelyPrecipGraphPanel.setDrawIconLabels(false)
+            precipPanelBinding!!.precipGraphPanel.setDrawIconLabels(false)
 
             precipPanelBinding!!.minutelyPrecipGraphPanel.setOnClickPositionListener(onClickListener)
             precipPanelBinding!!.precipGraphPanel.setOnClickPositionListener(onClickListener)

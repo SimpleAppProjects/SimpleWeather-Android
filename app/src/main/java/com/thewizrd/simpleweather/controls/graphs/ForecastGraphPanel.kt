@@ -140,4 +140,12 @@ class ForecastGraphPanel : LinearLayout {
         lineView.data = data
         resetView()
     }
+
+    fun setDrawIconLabels(enable: Boolean) {
+        lineView.setDrawIconLabels(enable)
+    }
+
+    fun setDrawDataLabels(enable: Boolean) {
+        lineView.setDrawDataLabels(enable)
+    }
 }

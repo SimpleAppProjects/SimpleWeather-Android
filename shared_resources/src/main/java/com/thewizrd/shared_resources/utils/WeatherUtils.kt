@@ -3,6 +3,7 @@
 
 package com.thewizrd.shared_resources.utils
 
+import android.graphics.Color
 import android.text.format.DateFormat
 import androidx.annotation.ColorInt
 import com.thewizrd.shared_resources.DateTimeConstants
@@ -124,5 +125,28 @@ fun getColorFromTempF(temp_f: Float, @ColorInt defaultColor: Int = Colors.SIMPLE
         Colors.ORANGE
     } else {
         defaultColor
+    }
+}
+
+@ColorInt
+@JvmOverloads
+fun getColorFromUVIndex(index: Float, defaultColor: Int = Colors.ORANGE): Int {
+    return when {
+        index < 3 -> {
+            Colors.LIMEGREEN
+        }
+        index < 6 -> {
+            Colors.YELLOW
+        }
+        index < 8 -> {
+            Colors.ORANGE
+        }
+        index < 11 -> {
+            Color.rgb(0xBD, 0x00, 0x35) // Maroon
+        }
+        index >= 11 -> {
+            Color.rgb(0xAA, 0x00, 0xFF) // Purple
+        }
+        else -> defaultColor
     }
 }

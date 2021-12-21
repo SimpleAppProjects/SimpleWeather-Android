@@ -78,7 +78,6 @@ class BarGraphPanel : LinearLayout {
         barChartView.setOnTouchListener(onTouchListener)
         barChartView.setDrawDataLabels(true)
         barChartView.setDrawIconLabels(true)
-        barChartView.setGraphMaxWidth(context.resources.getDimensionPixelSize(R.dimen.graph_max_width))
 
         removeAllViews()
         this.addView(barChartView)
@@ -108,5 +107,17 @@ class BarGraphPanel : LinearLayout {
         this.graphData = data
         barChartView.data = data
         resetView()
+    }
+
+    fun setMaxWidth(maxWidth: Int) {
+        barChartView.setGraphMaxWidth(maxWidth)
+    }
+
+    fun setDrawIconLabels(enable: Boolean) {
+        barChartView.setDrawIconLabels(enable)
+    }
+
+    fun setDrawDataLabels(enable: Boolean) {
+        barChartView.setDrawDataLabels(enable)
     }
 }

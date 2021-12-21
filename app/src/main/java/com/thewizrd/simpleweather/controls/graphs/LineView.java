@@ -327,6 +327,19 @@ public class LineView extends HorizontalScrollView implements IGraph {
             return bottomTextTopMargin + bottomTextHeight * 2f + bottomTextDescent * 2f;
         }
 
+        private float getGraphBottom() {
+            int graphBottom = mViewHeight;
+
+            graphBottom -= (bottomTextTopMargin + bottomTextHeight + bottomTextDescent);
+
+            if (drawIconsLabels)
+                graphBottom -= (iconHeight + iconBottomMargin);
+            else
+                graphBottom -= (linePaint.getStrokeWidth() + iconBottomMargin);
+
+            return graphBottom;
+        }
+
         @Override
         protected void resetData(boolean invalidate) {
             this.yCoordinateList.clear();
@@ -466,7 +479,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                  * ((value - minValue) / (maxValue - minValue)) * (scaleMax - scaleMin) + scaleMin
                  * minValue = 0; maxValue = verticalGridNum; value = i
                  */
-                yCoordinateList.add(((float) i / (verticalGridNum)) * (getGraphHeight() - getGraphTop()) + getGraphTop());
+                yCoordinateList.add(((float) i / (verticalGridNum)) * (getGraphBottom() - getGraphTop()) + getGraphTop());
             }
         }
 
@@ -482,7 +495,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 final float maxValue = mData.getYMax();
                 final float minValue = mData.getYMin();
 
-                final float graphHeight = getGraphHeight();
+                final float graphBottom = getGraphBottom();
                 final float graphTop = getGraphTop();
 
                 for (int k = 0; k < mData.getDataCount(); k++) {
@@ -499,11 +512,11 @@ public class LineView extends HorizontalScrollView implements IGraph {
                         float y;
                         if (maxValue == minValue) {
                             if (maxValue == 0) {
-                                y = graphHeight;
+                                y = graphBottom;
                             } else if (maxValue == 100) {
                                 y = graphTop;
                             } else {
-                                y = graphHeight / 2f;
+                                y = (graphBottom - graphTop) / 2f;
                             }
                         } else {
                             /*
@@ -512,7 +525,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                              * ((value - minValue) / (maxValue - minValue)) * (scaleMax - scaleMin) + scaleMin
                              * graphTop is scaleMax & graphHeight is scaleMin due to View coordinate system
                              */
-                            y = ((series.getEntryForIndex(i).getYEntryData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphHeight) + graphHeight;
+                            y = ((series.getEntryForIndex(i).getYEntryData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphBottom) + graphBottom;
                         }
 
                         if (i > drawDotSize - 1) {

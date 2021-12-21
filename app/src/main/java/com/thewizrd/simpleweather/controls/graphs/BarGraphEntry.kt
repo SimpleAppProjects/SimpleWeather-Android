@@ -11,6 +11,7 @@ class BarGraphEntry : GraphEntry {
 
     constructor()
 
+    @JvmOverloads
     constructor(
             label: CharSequence,
             entryData: YEntryData,

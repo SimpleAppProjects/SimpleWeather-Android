@@ -21,8 +21,8 @@ import kotlin.math.roundToInt
 object GraphBindingAdapter {
     @JvmStatic
     @BindingAdapter("graphData")
-    fun updateForecastGraph(view: ForecastGraphPanel, graphData: LineViewData?) {
-        view.setGraphData(graphData)
+    fun updateForecastGraph(view: ForecastGraphPanel, graphData: GraphData<*>?) {
+        view.setGraphData(graphData as LineViewData?)
     }
 
     @JvmStatic
@@ -37,7 +37,7 @@ object GraphBindingAdapter {
         if (!forecastData.isNullOrEmpty()) {
             val vm = ForecastGraphViewModel()
             vm.setMinutelyForecastData(forecastData)
-            view.setGraphData(vm.graphData)
+            view.setGraphData(vm.graphData as LineViewData?)
         } else {
             view.setGraphData(null)
         }
@@ -53,7 +53,7 @@ object GraphBindingAdapter {
                     ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
                 )
             }
-            view.setGraphData(vm.graphData)
+            view.setGraphData(vm.graphData as LineViewData?)
         } else {
             view.setGraphData(null)
         }

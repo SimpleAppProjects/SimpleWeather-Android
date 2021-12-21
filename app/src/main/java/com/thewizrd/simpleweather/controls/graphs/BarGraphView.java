@@ -249,6 +249,19 @@ public class BarGraphView extends FrameLayout implements IGraph {
             return graphHeight;
         }
 
+        private float getGraphBottom() {
+            int graphBottom = mViewHeight;
+
+            graphBottom -= (bottomTextTopMargin + bottomTextHeight + bottomTextDescent);
+
+            if (drawIconsLabels)
+                graphBottom -= (iconHeight + iconBottomMargin);
+            else
+                graphBottom -= (linePaint.getStrokeWidth() + iconBottomMargin);
+
+            return graphBottom;
+        }
+
         @Override
         protected void resetData(boolean invalidate) {
             this.drawDotLists.clear();
@@ -311,6 +324,9 @@ public class BarGraphView extends FrameLayout implements IGraph {
                 mParentWidth = Math.max(mParentLayout.getMeasuredWidth(), getMeasuredWidth());
             }
 
+            Log.d("BarGraphView", "refreshGridWidth: parent width = " + mParentLayout.getMeasuredWidth());
+            Log.d("BarGraphView", "refreshGridWidth: measure width = " + getMeasuredWidth());
+
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
                 float additionalSpace = (float) freeSpace / getMaxEntryCount();
@@ -338,7 +354,7 @@ public class BarGraphView extends FrameLayout implements IGraph {
                 float maxValue = mData.getYMax();
                 float minValue = mData.getYMin();
 
-                final float graphHeight = getGraphHeight();
+                final float graphBottom = getGraphBottom();
                 final float graphTop = getGraphTop();
 
                 int drawDotSize = drawDotLists.isEmpty() ? 0 : drawDotLists.size();
@@ -359,7 +375,7 @@ public class BarGraphView extends FrameLayout implements IGraph {
                      * graphTop is scaleMax & graphHeight is scaleMin due to View coordinate system
                      */
                     if (entry.getEntryData() != null) {
-                        y = ((entry.getEntryData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphHeight) + graphHeight;
+                        y = ((entry.getEntryData().getY() - minValue) / (maxValue - minValue)) * (graphTop - graphBottom) + graphBottom;
                     }
 
                     if (i > drawDotSize - 1) {
@@ -447,7 +463,7 @@ public class BarGraphView extends FrameLayout implements IGraph {
                             bar.x - linePaint.getStrokeWidth() / 2f,
                             bar.y - bottomTextHeight - bottomTextDescent,
                             bar.x + drwTextWidth + linePaint.getStrokeWidth() / 2f,
-                            mViewHeight - bottomTextDescent - bottomTextHeight - bottomTextTopMargin * 2f
+                            getGraphBottom()
                     );
 
                     if (RectF.intersects(drawingRect, visibleRect)) {
@@ -478,14 +494,24 @@ public class BarGraphView extends FrameLayout implements IGraph {
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            final int specWidth = MeasureSpec.getSize(widthMeasureSpec);
 
-            mViewWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), getMaxWidth());
+            if (getMaxWidth() > 0) {
+                mViewWidth = Math.min(specWidth, getMaxWidth());
+            } else {
+                mViewWidth = specWidth;
+            }
+
             setMeasuredDimension(mViewWidth, mViewHeight);
 
             refreshGridWidth();
             refreshXCoordinateList();
 
-            mViewWidth = Math.min(getPreferredWidth(), getMaxWidth());
+            if (getMaxWidth() > 0) {
+                mViewWidth = Math.min(Math.min(getPreferredWidth(), getMaxWidth()), specWidth);
+            } else {
+                mViewWidth = Math.min(getPreferredWidth(), specWidth);
+            }
             setMeasuredDimension(mViewWidth, mViewHeight);
 
             Log.d("BarGraphView", "onMeasure: parent width = " + mParentLayout.getMeasuredWidth());
