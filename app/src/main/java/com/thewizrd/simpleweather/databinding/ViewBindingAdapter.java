@@ -109,4 +109,28 @@ public class ViewBindingAdapter {
 
         view.setText(level);
     }
+
+    @BindingAdapter("aqiIndexDescription")
+    public static void setAQIIndexDescription(final TextView view, final Integer index) {
+        final Context context = view.getContext();
+        String level;
+
+        if (index == null) {
+            level = WeatherIcons.EM_DASH;
+        } else if (index < 51) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_0_50);
+        } else if (index < 101) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_51_100);
+        } else if (index < 151) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_101_150);
+        } else if (index < 201) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_151_200);
+        } else if (index < 301) {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_201_300);
+        } else {
+            level = context.getString(com.thewizrd.shared_resources.R.string.aqi_level_300);
+        }
+
+        view.setText(level);
+    }
 }

@@ -36,8 +36,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class WeatherAQIFragment : ToolbarFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()
@@ -142,10 +140,7 @@ class WeatherAQIFragment : ToolbarFragment() {
         })
 
         aqiView.getAQIForecastData().observe(viewLifecycleOwner, {
-            aqiForecastAdapter.submitList(it?.filterNot { item ->
-                item.date.isBefore(LocalDate.now(locationData?.tzOffset
-                        ?: ZoneOffset.systemDefault()))
-            })
+            aqiForecastAdapter.submitList(it)
         })
     }
 

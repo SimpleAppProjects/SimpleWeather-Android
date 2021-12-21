@@ -6,9 +6,11 @@ import android.graphics.Color;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
+import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.Colors;
+import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality;
 
@@ -25,6 +27,7 @@ public class AirQualityViewModel {
     private @ColorInt
     int progressColor;
     private String attribution;
+    private String date;
 
     private Integer no2Index;
     private Integer o3Index;
@@ -73,6 +76,10 @@ public class AirQualityViewModel {
         this.pm25Index = aqi.getPm25();
         this.pm10Index = aqi.getPm10();
         this.coIndex = aqi.getCo();
+
+        if (aqi.getDate() != null && !aqi.getDate().isEqual(DateTimeUtils.getLocalDateTimeMIN().toLocalDate())) {
+            this.date = aqi.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.DAY_OF_THE_WEEK));
+        }
     }
 
     @NonNull
@@ -188,6 +195,14 @@ public class AirQualityViewModel {
         this.coIndex = coIndex;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -206,7 +221,8 @@ public class AirQualityViewModel {
                 Objects.equals(so2Index, that.so2Index) &&
                 Objects.equals(pm25Index, that.pm25Index) &&
                 Objects.equals(pm10Index, that.pm10Index) &&
-                Objects.equals(coIndex, that.coIndex);
+                Objects.equals(coIndex, that.coIndex) &&
+                Objects.equals(date, that.date);
     }
 
     @Override
@@ -225,7 +241,8 @@ public class AirQualityViewModel {
                 so2Index,
                 pm25Index,
                 pm10Index,
-                coIndex
+                coIndex,
+                date
         );
     }
 }

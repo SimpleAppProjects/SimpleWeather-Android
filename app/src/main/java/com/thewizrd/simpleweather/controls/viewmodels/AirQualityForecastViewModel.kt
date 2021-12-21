@@ -1,8 +1,11 @@
 package com.thewizrd.simpleweather.controls.viewmodels
 
 import androidx.annotation.MainThread
+import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
+import androidx.lifecycle.Observer
+import com.thewizrd.shared_resources.controls.AirQualityViewModel
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -12,6 +15,9 @@ import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.util.*
 
 class AirQualityForecastViewModel : ViewModel() {
     private val settingsManager = App.instance.settingsManager
@@ -22,9 +28,9 @@ class AirQualityForecastViewModel : ViewModel() {
 
     private var currentForecastsData: LiveData<Forecasts>? = null
 
-    private var aqiForecastData = MutableLiveData<List<AirQuality>?>()
+    private var aqiForecastData = MutableLiveData<List<AirQualityViewModel>?>()
 
-    fun getAQIForecastData(): LiveData<List<AirQuality>?> {
+    fun getAQIForecastData(): LiveData<List<AirQualityViewModel>?> {
         return aqiForecastData
     }
 
@@ -41,14 +47,32 @@ class AirQualityForecastViewModel : ViewModel() {
                 }
                 currentForecastsData!!.observeForever(forecastObserver)
 
-                aqiForecastData.postValue(currentForecastsData?.value?.aqiForecast)
+                aqiForecastData.postValue(forecastMapper.apply(currentForecastsData?.value?.aqiForecast))
             }
         }
     }
 
     private val forecastObserver = Observer<Forecasts> { forecastData ->
-        this.aqiForecastData.postValue(forecastData?.aqiForecast)
+        this.aqiForecastData.postValue(forecastMapper.apply(forecastData?.aqiForecast))
     }
+
+    private val forecastMapper =
+            Function<List<AirQuality>?, List<AirQualityViewModel>> { input ->
+                if (input != null) {
+                    val today = LocalDate.now(locationData?.tzOffset ?: ZoneOffset.systemDefault())
+                    val models = ArrayList<AirQualityViewModel>(input.size)
+
+                    for (it in input) {
+                        if (!it.date.isBefore(today)) {
+                            models.add(AirQualityViewModel(it))
+                        }
+                    }
+
+                    return@Function models
+                }
+
+                emptyList()
+            }
 
     override fun onCleared() {
         super.onCleared()
