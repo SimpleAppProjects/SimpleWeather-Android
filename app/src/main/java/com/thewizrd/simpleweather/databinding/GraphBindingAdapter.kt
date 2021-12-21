@@ -122,4 +122,10 @@ object GraphBindingAdapter {
             ContextCompat.getDrawable(context, wip.getWeatherIconResource(icon))
         }
     }
+
+    @JvmStatic
+    @BindingAdapter("graphData")
+    fun updateBarGraph(view: BarGraphPanel, graphData: BarGraphData?) {
+        view.setGraphData(graphData)
+    }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="graphData"
+            type="com.thewizrd.simpleweather.controls.graphs.BarGraphData" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/graph_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@{graphData.graphLabel}"
+            android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel" />
+
+        <com.thewizrd.simpleweather.controls.graphs.BarGraphPanel
+            android:id="@+id/bar_graph_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:graphData="@{graphData}"
+            tools:layout_height="@dimen/forecast_panel_height" />
+
+    </LinearLayout>
+
+</layout>

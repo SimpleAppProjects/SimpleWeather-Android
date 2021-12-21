@@ -25,6 +25,7 @@
     <dimen name="label_location_size">18sp</dimen>
     <dimen name="label_updatetime_size">12sp</dimen>
     <dimen name="forecast_panel_height">225dp</dimen>
+    <dimen name="bargraph_panel_height">175dp</dimen>
     <dimen name="detail_card_size">100dp</dimen>
     <dimen name="detail_grid_column_width">110dp</dimen>
     <dimen name="moonphase_text_size">36sp</dimen>
