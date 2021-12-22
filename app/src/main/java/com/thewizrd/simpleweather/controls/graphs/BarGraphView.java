@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
+import com.thewizrd.simpleweather.BuildConfig;
 
 import java.util.ArrayList;
 
@@ -324,8 +325,10 @@ public class BarGraphView extends FrameLayout implements IGraph {
                 mParentWidth = Math.max(mParentLayout.getMeasuredWidth(), getMeasuredWidth());
             }
 
-            Log.d("BarGraphView", "refreshGridWidth: parent width = " + mParentLayout.getMeasuredWidth());
-            Log.d("BarGraphView", "refreshGridWidth: measure width = " + getMeasuredWidth());
+            if (BuildConfig.DEBUG) {
+                Log.d("BarGraphView", "refreshGridWidth: parent width = " + mParentLayout.getMeasuredWidth());
+                Log.d("BarGraphView", "refreshGridWidth: measure width = " + getMeasuredWidth());
+            }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
@@ -513,9 +516,11 @@ public class BarGraphView extends FrameLayout implements IGraph {
             }
             setMeasuredDimension(mViewWidth, mViewHeight);
 
-            Log.d("BarGraphView", "onMeasure: parent width = " + mParentLayout.getMeasuredWidth());
-            Log.d("BarGraphView", "onMeasure: measure width = " + MeasureSpec.getSize(widthMeasureSpec));
-            Log.d("BarGraphView", "onMeasure: width = " + mViewWidth);
+            if (BuildConfig.DEBUG) {
+                Log.d("BarGraphView", "onMeasure: parent width = " + mParentLayout.getMeasuredWidth());
+                Log.d("BarGraphView", "onMeasure: measure width = " + MeasureSpec.getSize(widthMeasureSpec));
+                Log.d("BarGraphView", "onMeasure: width = " + mViewWidth);
+            }
 
             refreshDrawDotList();
         }

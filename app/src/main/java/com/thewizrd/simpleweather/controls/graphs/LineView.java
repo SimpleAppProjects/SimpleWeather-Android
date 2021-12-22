@@ -27,6 +27,7 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
+import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
@@ -844,7 +845,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
             refreshXCoordinateList();
 
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            Log.d("LineView", "onMeasure: width = " + mViewWidth);
+
+            if (BuildConfig.DEBUG) {
+                Log.d("LineView", "onMeasure: width = " + mViewWidth);
+            }
 
             refreshAfterDataChanged();
         }
