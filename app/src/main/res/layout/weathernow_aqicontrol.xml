@@ -57,6 +57,7 @@
             app:layout_constraintTop_toBottomOf="@id/aqi_label"
             app:autoSizeTextType="uniform"
             app:autoSizeMaxTextSize="36sp"
+            app:layout_constraintHeight_min="72dp"
             tools:text="300" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -72,6 +73,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/aqi_index"
             app:layout_constraintTop_toBottomOf="@id/aqi_label"
+            app:layout_constraintBottom_toTopOf="@id/aqi_description"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="@string/aqi_level_300" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -88,7 +91,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/aqi_index"
             app:layout_constraintTop_toBottomOf="@id/aqi_level"
-            tools:text="@string/aqi_desc_300" />
+            app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
+            tools:text="@string/aqi_desc_51_100" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/aqi_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="aqi_index,aqi_description" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/aqi_progressBar"
@@ -107,7 +119,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/aqi_description"
+            app:layout_constraintTop_toBottomOf="@id/aqi_barrier"
             app:progressColor="@{weatherView.airQuality != null ? weatherView.airQuality.progressColor : 0}"
             app:trackCornerRadius="@dimen/shape_corner_radius"
             tools:max="12"
