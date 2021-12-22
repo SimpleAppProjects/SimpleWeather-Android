@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.constraintlayout.helper.widget.Flow
 import androidx.core.view.MarginLayoutParamsCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import kotlin.math.max
 import kotlin.math.min
@@ -129,6 +131,10 @@ class FlowLayout : ViewGroup {
         val height = MeasureSpec.getSize(heightMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
 
+        if (BuildConfig.DEBUG) {
+            Log.d("FlowLayout", "onMeasure: specHeight = $height")
+        }
+
         val maxWidth =
                 if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.EXACTLY) width else Int.MAX_VALUE
 
@@ -149,12 +155,15 @@ class FlowLayout : ViewGroup {
                                     ViewGroup.LayoutParams.WRAP_CONTENT
                                 }
                         ),
-                        getChildMeasureSpec(
-                                MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST),
-                                paddingTop + paddingBottom,
-                                it.measuredHeight
+                        MeasureSpec.makeMeasureSpec(
+                                MeasureSpec.getSize(heightMeasureSpec),
+                                MeasureSpec.UNSPECIFIED
                         )
                 )
+
+                if (BuildConfig.DEBUG) {
+                    Log.d("FlowLayout", "onMeasure: child (id: ${it.id}) width = ${it.measuredWidth}; height = ${it.measuredHeight}")
+                }
             }
         }
 
@@ -163,6 +172,10 @@ class FlowLayout : ViewGroup {
         val finalWidth = getMeasuredDimension(width, widthMode, requiredSize.width)
         val finalHeight = getMeasuredDimension(height, heightMode, requiredSize.height)
         setMeasuredDimension(finalWidth, finalHeight)
+
+        if (BuildConfig.DEBUG) {
+            Log.d("FlowLayout", "onMeasure: width = $finalWidth; height = $finalHeight")
+        }
     }
 
     private fun getMeasuredDimension(size: Int, mode: Int, childrenEdge: Int): Int {
