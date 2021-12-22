@@ -62,7 +62,7 @@ class BarGraphPanel : LinearLayout {
         orientation = VERTICAL
         barChartView = BarGraphView(context)
 
-        val lineViewHeight = context.resources.getDimensionPixelSize(R.dimen.bargraph_panel_height)
+        val graphPanelHeight = context.resources.getDimensionPixelSize(R.dimen.bargraph_panel_height)
         val onTouchListener = OnTouchListener { v: View?, event: MotionEvent ->
             if (event.action == MotionEvent.ACTION_UP) {
                 if (v is IGraph) {
@@ -72,7 +72,7 @@ class BarGraphPanel : LinearLayout {
             }
             false
         }
-        barChartView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight).apply {
+        barChartView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, graphPanelHeight).apply {
             gravity = Gravity.CENTER
         }
         barChartView.setOnTouchListener(onTouchListener)

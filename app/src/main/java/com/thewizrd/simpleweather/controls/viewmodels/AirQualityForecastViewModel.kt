@@ -28,9 +28,9 @@ class AirQualityForecastViewModel : ViewModel() {
 
     private var currentForecastsData: LiveData<Forecasts>? = null
 
-    private var aqiForecastData = MutableLiveData<List<AirQualityViewModel>?>()
+    private var aqiForecastData = MutableLiveData<List<AirQuality>?>()
 
-    fun getAQIForecastData(): LiveData<List<AirQualityViewModel>?> {
+    fun getAQIForecastData(): LiveData<List<AirQuality>?> {
         return aqiForecastData
     }
 
@@ -47,13 +47,13 @@ class AirQualityForecastViewModel : ViewModel() {
                 }
                 currentForecastsData!!.observeForever(forecastObserver)
 
-                aqiForecastData.postValue(forecastMapper.apply(currentForecastsData?.value?.aqiForecast))
+                aqiForecastData.postValue(currentForecastsData?.value?.aqiForecast)
             }
         }
     }
 
     private val forecastObserver = Observer<Forecasts> { forecastData ->
-        this.aqiForecastData.postValue(forecastMapper.apply(forecastData?.aqiForecast))
+        this.aqiForecastData.postValue(forecastData?.aqiForecast)
     }
 
     private val forecastMapper =

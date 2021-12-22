@@ -230,7 +230,7 @@ public class RangeBarGraphView extends FrameLayout implements IGraph {
 
             linePaint = new Paint();
             linePaint.setAntiAlias(true);
-            linePaint.setStrokeWidth(ContextUtils.dpToPx(getContext(), 8));
+            linePaint.setStrokeWidth(ContextUtils.dpToPx(getContext(), 6));
             linePaint.setStrokeCap(Paint.Cap.ROUND);
         }
 
