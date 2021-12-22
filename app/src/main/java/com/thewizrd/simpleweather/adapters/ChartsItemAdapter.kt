@@ -17,6 +17,7 @@ import com.thewizrd.simpleweather.controls.graphs.BarGraphData
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel
 import com.thewizrd.simpleweather.databinding.ChartsBargraphpanelBinding
 import com.thewizrd.simpleweather.databinding.ChartsForecastgraphpanelBinding
+import com.thewizrd.simpleweather.utils.RecyclerViewUtils.containsItemDecoration
 import java.util.*
 
 class ChartsItemAdapter : ListAdapter<ForecastGraphViewModel, RecyclerView.ViewHolder> {
@@ -89,19 +90,35 @@ class ChartsItemAdapter : ListAdapter<ForecastGraphViewModel, RecyclerView.ViewH
         }
     }
 
+    // TODO: maybe move this to fragment instead?
+    private var mItemDecoration: RecyclerView.ItemDecoration? = null
+
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
 
         recyclerView.doOnPreDraw {
             if (recyclerView.context.isLargeTablet()) {
                 val maxWidth = recyclerView.context.resources.getDimensionPixelSize(R.dimen.wnow_max_view_width)
-                if (recyclerView.measuredWidth > maxWidth && recyclerView.itemDecorationCount == 0) {
-                    recyclerView.addItemDecoration(SpacerItemDecoration(
-                            horizontalSpace = (recyclerView.measuredWidth - maxWidth)
-                    ))
+                if (recyclerView.measuredWidth > maxWidth) {
+                    if (mItemDecoration == null || !recyclerView.containsItemDecoration(mItemDecoration!!)) {
+                        recyclerView.addItemDecoration(SpacerItemDecoration(
+                                horizontalSpace = (recyclerView.measuredWidth - maxWidth)
+                        ).also {
+                            mItemDecoration = it
+                        })
+                    }
                 }
             }
         }
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+
+        mItemDecoration?.let {
+            recyclerView.removeItemDecoration(it)
+        }
+        mItemDecoration = null
     }
 
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
