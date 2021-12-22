@@ -5,7 +5,6 @@
     <dimen name="label_updatetime_size">16sp</dimen>
     <dimen name="detail_card_size">150dp</dimen>
     <dimen name="detail_grid_column_width">185dp</dimen>
-    <dimen name="moonphase_text_size">48sp</dimen>
     <dimen name="hr_forecast_item_width">150dp</dimen>
     <dimen name="hr_forecast_item_height">200dp</dimen>
     <dimen name="hr_forecast_item_icon_size">48dp</dimen>

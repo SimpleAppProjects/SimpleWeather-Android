@@ -28,7 +28,8 @@
     <dimen name="bargraph_panel_height">175dp</dimen>
     <dimen name="detail_card_size">100dp</dimen>
     <dimen name="detail_grid_column_width">110dp</dimen>
-    <dimen name="moonphase_text_size">36sp</dimen>
+    <dimen name="moonriseset_text_size">16sp</dimen>
+    <dimen name="moonriseset_image_size">36dp</dimen>
     <dimen name="sun_phase_view_height">200dp</dimen>
     <dimen name="wnow_max_view_width">1366dp</dimen>
     <dimen name="hr_forecast_item_width">100dp</dimen>
