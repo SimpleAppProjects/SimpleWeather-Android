@@ -14,10 +14,8 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.shared_resources.controls.*
 import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
@@ -238,13 +236,6 @@ class WeatherListFragment : ToolbarFragment() {
             // specify an adapter (see also next example)
             when (weatherListType) {
                 WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> {
-                    if (binding.recyclerView.itemDecorationCount == 0)
-                        binding.recyclerView.addItemDecoration(
-                            SpacerItemDecoration(
-                                verticalSpace = binding.recyclerView.context.dpToPx(8f).toInt()
-                            )
-                        )
-
                     if (weatherListType == WeatherListType.FORECAST) {
                         forecastsView.getForecasts()?.removeObservers(this@WeatherListFragment)
                         forecastsView.getForecasts()

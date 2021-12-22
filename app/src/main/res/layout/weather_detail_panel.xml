@@ -26,7 +26,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="78dp"
-                android:duplicateParentState="true">
+                android:duplicateParentState="true"
+                android:layout_marginVertical="4dp">
 
                 <com.thewizrd.shared_resources.controls.IconControl
                     android:id="@+id/forecast_icon"

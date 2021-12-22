@@ -26,6 +26,7 @@ import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class WeatherDetailItem extends LinearLayout {
     /**
@@ -144,17 +145,18 @@ public class WeatherDetailItem extends LinearLayout {
                 forecastView.getHiTemp(), forecastView.getLoTemp(), forecastView.getCondition()));
         clearForecastExtras();
 
+        final String lineSeparator = StringUtils.lineSeparator();
+
         SpannableStringBuilder sb = new SpannableStringBuilder();
 
         if (!StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
             sb.append(forecastView.getConditionLongDesc())
-                    .append(StringUtils.lineSeparator())
-                    .append(StringUtils.lineSeparator());
+                    .append(lineSeparator)
+                    .append(lineSeparator);
         }
 
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
-            Context context = getContext();
-            setExpandable(true);
+            final Context context = getContext();
 
             if (StringUtils.isNullOrWhitespace(forecastView.getConditionLongDesc())) {
                 TextPaint paint = binding.forecastCondition.getPaint();
@@ -195,13 +197,21 @@ public class WeatherDetailItem extends LinearLayout {
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size() - 1)
-                    sb.append(StringUtils.lineSeparator());
+                    sb.append(lineSeparator);
                 int colorPrimary = ContextUtils.getAttrColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
-            binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
-        } else if (sb.length() > 0) {
+            if (sb.length() >= lineSeparator.length()) {
+                final int start = sb.length() - lineSeparator.length();
+                final String lastSeq = sb.subSequence(start, sb.length()).toString();
+                if (Objects.equals(lastSeq, lineSeparator)) {
+                    sb.replace(start, sb.length(), "");
+                }
+            }
+        }
+
+        if (sb.length() > 0) {
             binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE);
             setExpandable(true);
         } else {
@@ -215,6 +225,8 @@ public class WeatherDetailItem extends LinearLayout {
         binding.forecastCondition.setText(String.format(Locale.ROOT, "%s - %s",
                 forecastView.getHiTemp(), forecastView.getCondition()));
         clearForecastExtras();
+
+        final String lineSeparator = StringUtils.lineSeparator();
 
         if (forecastView.getExtras() != null && forecastView.getExtras().size() > 0) {
             Context context = getContext();
@@ -249,9 +261,17 @@ public class WeatherDetailItem extends LinearLayout {
                 start = sb.length();
                 sb.append(detailItem.getValue());
                 if (i < forecastView.getExtras().size() - 1)
-                    sb.append(StringUtils.lineSeparator());
+                    sb.append(lineSeparator);
                 int colorPrimary = ContextUtils.getAttrColor(context, android.R.attr.textColorPrimary);
                 sb.setSpan(new ForegroundColorSpan(colorPrimary), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            if (sb.length() >= lineSeparator.length()) {
+                final int start = sb.length() - lineSeparator.length();
+                final String lastSeq = sb.subSequence(start, sb.length()).toString();
+                if (Objects.equals(lastSeq, lineSeparator)) {
+                    sb.replace(start, sb.length(), "");
+                }
             }
 
             binding.forecastCondition.post(new Runnable() {
