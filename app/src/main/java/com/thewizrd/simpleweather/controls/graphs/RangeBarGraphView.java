@@ -334,6 +334,7 @@ public class RangeBarGraphView extends FrameLayout implements IGraph {
         private void refreshDrawDotList() {
             if (!isDataEmpty()) {
                 drawDotLists.clear();
+
                 float maxValue = mData.getYMax();
                 float minValue = mData.getYMin();
 

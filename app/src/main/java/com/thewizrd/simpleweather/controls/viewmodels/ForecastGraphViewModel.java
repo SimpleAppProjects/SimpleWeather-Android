@@ -78,6 +78,9 @@ public class ForecastGraphViewModel {
                 addEntryData(forecast, (BarGraphDataSet) graphData.getDataSetByIndex(0), graphType);
             }
         }
+
+        // Re-calc min/max
+        this.graphData.notifyDataChanged();
     }
 
     public void setForecastData(List<? extends BaseForecast> forecasts, ForecastGraphType graphType) {
@@ -102,7 +105,7 @@ public class ForecastGraphViewModel {
         this.graphType = ForecastGraphType.PRECIPITATION;
     }
 
-    private void addEntryData(BaseForecast forecast, LineDataSeries series, ForecastGraphType graphType) {
+    private void addEntryData(BaseForecast forecast, LineDataSeries series, @NonNull ForecastGraphType graphType) {
         Context context = App.getInstance().getAppContext();
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
 
@@ -212,7 +215,7 @@ public class ForecastGraphViewModel {
         }
     }
 
-    private void addMinutelyEntryData(MinutelyForecast forecast, LineDataSeries series) {
+    private void addMinutelyEntryData(@NonNull MinutelyForecast forecast, LineDataSeries series) {
         if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
             Context context = App.getInstance().getAppContext();
 

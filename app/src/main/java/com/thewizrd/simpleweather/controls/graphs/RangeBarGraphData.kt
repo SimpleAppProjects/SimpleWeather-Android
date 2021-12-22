@@ -11,6 +11,6 @@ class RangeBarGraphData : GraphData<RangeBarGraphDataSet> {
     }
 
     fun getDataSet(): RangeBarGraphDataSet? {
-        return if (dataSets.size != 0) dataSets[0] else null
+        return if (dataSets.size != 0) dataSets.firstOrNull() else null
     }
 }

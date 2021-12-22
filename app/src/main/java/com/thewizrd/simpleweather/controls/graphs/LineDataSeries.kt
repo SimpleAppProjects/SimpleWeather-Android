@@ -39,12 +39,14 @@ class LineDataSeries : GraphDataSet<LineGraphEntry> {
     }
 
     override fun calcMinMax(entry: LineGraphEntry) {
-        if (seriesMin == null && seriesMax == null) {
-            if (entry.yEntryData.y > yMax) {
-                yMax = entry.yEntryData.y
-            }
+        if (seriesMin == null) {
             if (entry.yEntryData.y < yMin) {
                 yMin = entry.yEntryData.y
+            }
+        }
+        if (seriesMax == null) {
+            if (entry.yEntryData.y > yMax) {
+                yMax = entry.yEntryData.y
             }
         }
     }

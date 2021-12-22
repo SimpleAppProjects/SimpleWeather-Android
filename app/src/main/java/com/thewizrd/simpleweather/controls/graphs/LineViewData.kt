@@ -15,11 +15,19 @@ class LineViewData : GraphData<LineDataSeries> {
                 yMin = set.yMin
             }
         } else {
-            if (set.seriesMax != null && yMax < set.seriesMax!!) {
-                yMax = set.seriesMax!!
+            if (set.seriesMax != null) {
+                if (yMax < set.seriesMax!!) {
+                    yMax = set.seriesMax!!
+                }
+            } else if (yMax < set.yMax) {
+                yMax = set.yMax
             }
-            if (set.seriesMin != null && yMin > set.seriesMin!!) {
-                yMin = set.seriesMin!!
+
+            if (set.seriesMin != null) {
+                if (yMin > set.seriesMin!!)
+                    yMin = set.seriesMin!!
+            } else if (yMin > set.yMin) {
+                yMin = set.yMin
             }
         }
     }

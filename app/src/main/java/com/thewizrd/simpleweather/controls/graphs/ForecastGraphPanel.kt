@@ -17,11 +17,6 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.simpleweather.R
 
 class ForecastGraphPanel : LinearLayout {
-    enum class ForecastGraphType {
-        //TEMPERATURE,
-        PRECIPITATION, WIND, HUMIDITY, UVINDEX, RAIN, SNOW
-    }
-
     private lateinit var lineView: LineView
 
     private var graphData: LineViewData? = null

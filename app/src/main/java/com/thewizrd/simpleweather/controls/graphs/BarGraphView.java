@@ -350,7 +350,6 @@ public class BarGraphView extends FrameLayout implements IGraph {
             if (!isDataEmpty()) {
                 drawDotLists.clear();
 
-                mData.calcMinMax();
                 float maxValue = mData.getYMax();
                 float minValue = mData.getYMin();
 
