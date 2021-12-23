@@ -40,6 +40,7 @@
     <dimen name="hr_forecast_item_extra_icon_size">24dp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_condition_size">12sp</dimen>
+    <dimen name="weather_detail_item_textSize">14sp</dimen>
     <!-- Locations -->
     <dimen name="location_panel_height">130dp</dimen>
     <dimen name="location_panel_minwidth">480dp</dimen>

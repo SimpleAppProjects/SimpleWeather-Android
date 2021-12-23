@@ -38,7 +38,6 @@
                     android:paddingEnd="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/forecast_date"
-                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_weight="1"
@@ -55,7 +54,7 @@
                     android:padding="4dp"
                     android:scrollbars="none"
                     android:textColor="@color/colorTextPrimary"
-                    android:textSize="@dimen/not_primary_textSize"
+                    android:textSize="@dimen/weather_detail_item_textSize"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/forecast_condition"
                     app:layout_constraintEnd_toStartOf="@id/expand_spacer"
@@ -75,7 +74,7 @@
                     android:padding="4dp"
                     android:scrollbars="none"
                     android:textColor="@color/colorTextPrimary"
-                    android:textSize="@dimen/not_primary_textSize"
+                    android:textSize="@dimen/weather_detail_item_textSize"
                     app:layout_constraintBottom_toTopOf="@id/forecast_extra_barrier"
                     app:layout_constraintEnd_toStartOf="@id/expand_spacer"
                     app:layout_constraintStart_toEndOf="@id/forecast_icon"
@@ -106,7 +105,7 @@
                     android:paddingBottom="4dp"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
-                    android:textSize="@dimen/not_primary_textSize"
+                    android:textSize="@dimen/weather_detail_item_textSize"
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
@@ -134,7 +133,7 @@
                     android:paddingBottom="4dp"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
-                    android:textSize="@dimen/not_primary_textSize"
+                    android:textSize="@dimen/weather_detail_item_textSize"
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
@@ -161,7 +160,7 @@
                     android:ellipsize="end"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
-                    android:textSize="@dimen/not_primary_textSize"
+                    android:textSize="@dimen/weather_detail_item_textSize"
                     android:visibility="gone"
                     app:drawableHeight="24dp"
                     app:drawableWidth="24dp"
@@ -219,8 +218,9 @@
                 android:padding="16dp"
                 android:letterSpacing="0"
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:textSize="14sp"
+                android:textSize="@dimen/weather_detail_item_textSize"
                 tools:text="Hello \t\t\t\t\t 50%\nHello" />
+
         </com.google.android.material.card.MaterialCardView>
 
     </merge>
