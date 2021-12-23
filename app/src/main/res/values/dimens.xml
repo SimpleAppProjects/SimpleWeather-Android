@@ -32,6 +32,7 @@
     <dimen name="moonriseset_image_size">36dp</dimen>
     <dimen name="sun_phase_view_height">200dp</dimen>
     <dimen name="wnow_max_view_width">1366dp</dimen>
+    <dimen name="aqi_forecast_textsize">14sp</dimen>
     <dimen name="hr_forecast_item_width">100dp</dimen>
     <dimen name="hr_forecast_item_height">150dp</dimen>
     <dimen name="hr_forecast_item_icon_size">36dp</dimen>

@@ -4,6 +4,7 @@
     <dimen name="sun_phase_view_height">275dp</dimen>
     <dimen name="moonriseset_text_size">18sp</dimen>
     <dimen name="moonriseset_image_size">48dp</dimen>
+    <dimen name="aqi_forecast_textsize">16sp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_condition_size">16sp</dimen>
     <!-- Notification -->

@@ -19,7 +19,8 @@
             android:id="@+id/graph_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="20dp"
             android:text="@{graphData.graphLabel}"
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel" />
 
