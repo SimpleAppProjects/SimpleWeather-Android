@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
@@ -27,6 +28,7 @@ import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import de.twoid.ui.decoration.InsetItemDecoration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -101,7 +103,13 @@ class WeatherChartsFragment : ToolbarFragment() {
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
-        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also {
+            if (requireContext().isLargeTablet()) {
+                val context = requireContext()
+                val maxWidth = context.resources.getDimension(R.dimen.wnow_max_view_width)
+                binding.recyclerView.addItemDecoration(InsetItemDecoration(it, maxWidth))
+            }
+        }
         binding.recyclerView.adapter = ChartsItemAdapter().also {
             adapter = it
         }

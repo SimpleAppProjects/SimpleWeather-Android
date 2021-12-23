@@ -10,21 +10,24 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
+import com.thewizrd.shared_resources.controls.AirQualityViewModel
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.simpleweather.BR
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.adapters.AQIForecastAdapter
 import com.thewizrd.simpleweather.adapters.AQIForecastGraphAdapter
 import com.thewizrd.simpleweather.adapters.CurrentAQIAdapter
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData
@@ -37,6 +40,7 @@ import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import de.twoid.ui.decoration.InsetItemDecoration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -113,7 +117,13 @@ class WeatherAQIFragment : ToolbarFragment() {
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
-        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also {
+            if (requireContext().isLargeTablet()) {
+                val context = requireContext()
+                val maxWidth = context.resources.getDimension(R.dimen.wnow_max_view_width)
+                binding.recyclerView.addItemDecoration(InsetItemDecoration(it, maxWidth))
+            }
+        }
         binding.recyclerView.adapter = ConcatAdapter(
                 CurrentAQIAdapter().also {
                     currentAQIAdapter = it
@@ -122,10 +132,6 @@ class WeatherAQIFragment : ToolbarFragment() {
                     aqiForecastAdapter = it
                 }
         )
-
-        binding.recyclerView.addItemDecoration(SpacerItemDecoration(
-                verticalSpace = requireContext().dpToPx(8f).toInt()
-        ))
 
         return root
     }
