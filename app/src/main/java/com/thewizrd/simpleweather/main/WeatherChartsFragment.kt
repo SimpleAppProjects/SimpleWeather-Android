@@ -273,17 +273,15 @@ class WeatherChartsFragment : ToolbarFragment() {
 
                 if (i == 0) {
                     //tempData = ForecastGraphViewModel()
+                    popData = ForecastGraphViewModel()
 
-                    if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
-                        popData = ForecastGraphViewModel()
-                    }
                     if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
-                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
+                            hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
                     ) {
                         windData = ForecastGraphViewModel()
                     }
                     if (hrfcasts.firstOrNull()?.extras?.qpfRainIn != null && hrfcasts.firstOrNull()?.extras?.qpfRainMm != null ||
-                        hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null
+                            hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null
                     ) {
                         rainData = ForecastGraphViewModel()
                     }
@@ -301,19 +299,15 @@ class WeatherChartsFragment : ToolbarFragment() {
                 }
 
                 //tempData?.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.TEMPERATURE)
-                if (popData != null) {
-                    if (hrfcast.extras?.pop != null) {
-                        popData.addForecastData(
-                            hrfcast,
-                            ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
-                        )
-                    }
-                }
+                popData?.addForecastData(
+                        hrfcast,
+                        ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+                )
                 if (windData != null) {
                     if (hrfcast.windMph != null && hrfcast.windKph != null) {
                         windData.addForecastData(
-                            hrfcast,
-                            ForecastGraphViewModel.ForecastGraphType.WIND
+                                hrfcast,
+                                ForecastGraphViewModel.ForecastGraphType.WIND
                         )
                     }
                 }
