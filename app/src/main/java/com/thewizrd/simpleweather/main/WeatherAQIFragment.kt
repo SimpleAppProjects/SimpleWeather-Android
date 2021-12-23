@@ -159,10 +159,17 @@ class WeatherAQIFragment : ToolbarFragment() {
         })
 
         aqiView.getAQIForecastData().observe(viewLifecycleOwner, {
-            if (aqiForecastAdapter is AQIForecastAdapter) {
-                (aqiForecastAdapter as AQIForecastAdapter).submitList(it?.map { item -> AirQualityViewModel(item) })
-            } else if (aqiForecastAdapter is AQIForecastGraphAdapter) {
-                (aqiForecastAdapter as AQIForecastGraphAdapter).submitList(it?.createGraphData())
+            val forecastList = it?.filterNot { item ->
+                item.date.isBefore(LocalDate.now(locationData?.tzOffset
+                        ?: ZoneOffset.systemDefault()))
+            }
+
+            aqiForecastAdapter.let { adapter ->
+                if (adapter is AQIForecastAdapter) {
+                    adapter.submitList(forecastList?.map { item -> AirQualityViewModel(item) })
+                } else if (adapter is AQIForecastGraphAdapter) {
+                    adapter.submitList(forecastList?.createGraphData())
+                }
             }
         })
     }
@@ -285,11 +292,6 @@ class WeatherAQIFragment : ToolbarFragment() {
     }
 
     private fun List<AirQuality>?.createGraphData(): List<BarGraphData> {
-        val forecastList = this?.filterNot { item ->
-            item.date.isBefore(LocalDate.now(locationData?.tzOffset
-                    ?: ZoneOffset.systemDefault()))
-        }
-
         val graphDataList = mutableListOf<BarGraphData>()
         var aqiIndexData: BarGraphData? = null
         var pm25Data: BarGraphData? = null
@@ -299,7 +301,7 @@ class WeatherAQIFragment : ToolbarFragment() {
         var no2Data: BarGraphData? = null
         var so2Data: BarGraphData? = null
 
-        forecastList?.forEach { aqi ->
+        this?.forEach { aqi ->
             if (aqi.index != null) {
                 if (aqiIndexData == null) {
                     aqiIndexData = BarGraphData().apply {
