@@ -332,7 +332,7 @@ public class ForecastGraphViewModel {
 
         if (graphType == ForecastGraphType.UVINDEX) {
             if (forecast.getExtras() != null && forecast.getExtras().getUvIndex() != null) {
-                final BarGraphEntry entry = new BarGraphEntry(date, new YEntryData(forecast.getExtras().getUvIndex(), String.format(LocaleUtils.getLocale(), "%.1f", forecast.getExtras().getUvIndex())));
+                final BarGraphEntry entry = new BarGraphEntry(date, new YEntryData(forecast.getExtras().getUvIndex(), df.format(forecast.getExtras().getUvIndex())));
                 entry.setFillColor(WeatherUtils.getColorFromUVIndex(forecast.getExtras().getUvIndex()));
                 dataSet.addEntry(entry);
             }
