@@ -1,21 +1,13 @@
 package com.thewizrd.simpleweather.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnNextLayout
-import androidx.core.view.doOnPreDraw
-import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
-import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData
 import com.thewizrd.simpleweather.databinding.ChartsBargraphpanelBinding
-import com.thewizrd.simpleweather.utils.RecyclerViewUtils.containsItemDecoration
 import java.util.*
 
 class AQIForecastGraphAdapter : ListAdapter<BarGraphData, AQIForecastGraphAdapter.ViewHolder> {
@@ -36,6 +28,7 @@ class AQIForecastGraphAdapter : ListAdapter<BarGraphData, AQIForecastGraphAdapte
 
     inner class ViewHolder(private val binding: ChartsBargraphpanelBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
+            binding.barGraphPanel.setScrollingEnabled(false)
             binding.barGraphPanel.setDrawIconLabels(false)
         }
 

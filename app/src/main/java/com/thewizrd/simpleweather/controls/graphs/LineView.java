@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.controls.graphs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -11,16 +10,12 @@ import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
-import android.widget.HorizontalScrollView;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 
 import com.thewizrd.shared_resources.utils.Colors;
@@ -34,189 +29,93 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class LineView extends HorizontalScrollView implements IGraph {
-
-    private HorizontalScrollView mScrollViewer;
-    private final RectF visibleRect = new RectF();
-    private LineViewGraph graph;
-    private OnClickListener onClickListener;
-
-    public interface OnScrollChangeListener {
-        /**
-         * Called when the scroll position of a view changes.
-         *
-         * @param v          The view whose scroll position has changed.
-         * @param scrollX    Current horizontal scroll origin.
-         * @param oldScrollX Previous horizontal scroll origin.
-         */
-        void onScrollChange(LineView v, int scrollX, int oldScrollX);
-    }
-
-    private OnScrollChangeListener mOnScrollChangeListener;
-
-    public interface OnSizeChangedListener {
-        void onSizeChanged(LineView v, int canvasWidth);
-    }
-
-    private OnSizeChangedListener mOnSizeChangedListener;
+public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
+    private static final String TAG = "LineView";
 
     public LineView(Context context) {
         super(context);
-        initialize(context);
     }
 
     public LineView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initialize(context);
     }
 
     public LineView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public LineView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initialize(context);
     }
 
+    @NonNull
     @Override
-    public void setOnClickListener(OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+    public BaseGraphView<?> createGraphView(@NonNull Context context) {
+        return new LineViewGraph(context);
     }
 
-    /**
-     * Register a callback to be invoked when the scroll X of
-     * this view change.
-     * <p>This version of the method works on all versions of Android, back to API v4.</p>
-     *
-     * @param l The listener to notify when the scroll X position changes.
-     * @see android.view.View#getScrollX()
-     */
-    public void setOnScrollChangedListener(@Nullable OnScrollChangeListener l) {
-        mOnScrollChangeListener = l;
-    }
-
-    public void setOnSizeChangedListener(@Nullable OnSizeChangedListener l) {
-        mOnSizeChangedListener = l;
-    }
-
-    private void initialize(Context context) {
-        graph = new LineViewGraph(context);
-        graph.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onClickListener != null)
-                    onClickListener.onClick(v);
-            }
-        });
-
-        this.setFillViewport(false);
-        this.setVerticalScrollBarEnabled(false);
-        this.setHorizontalScrollBarEnabled(false);
-        this.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        this.removeAllViews();
-        this.addView(graph, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-
-        mScrollViewer = this;
+    @NonNull
+    @Override
+    public LineViewGraph getGraph() {
+        return (LineViewGraph) super.getGraph();
     }
 
     public void setDrawGridLines(boolean drawGridLines) {
-        this.graph.drawGridLines = drawGridLines;
+        getGraph().drawGridLines = drawGridLines;
     }
 
     public void setDrawDotLine(boolean drawDotLine) {
-        this.graph.drawDotLine = drawDotLine;
+        getGraph().drawDotLine = drawDotLine;
     }
 
     public void setDrawDotPoints(boolean drawDotPoints) {
-        this.graph.drawDotPoints = drawDotPoints;
+        getGraph().drawDotPoints = drawDotPoints;
     }
 
     public void setDrawGraphBackground(boolean drawGraphBackground) {
-        this.graph.drawGraphBackground = drawGraphBackground;
+        getGraph().drawGraphBackground = drawGraphBackground;
     }
 
     public void setDrawIconLabels(boolean drawIconsLabels) {
-        this.graph.drawIconsLabels = drawIconsLabels;
+        getGraph().drawIconsLabels = drawIconsLabels;
     }
 
     public void setDrawDataLabels(boolean drawDataLabels) {
-        this.graph.drawDataLabels = drawDataLabels;
+        getGraph().drawDataLabels = drawDataLabels;
     }
 
     public void setDrawSeriesLabels(boolean drawSeriesLabels) {
-        this.graph.drawSeriesLabels = drawSeriesLabels;
+        getGraph().drawSeriesLabels = drawSeriesLabels;
     }
 
     public void setBackgroundLineColor(@ColorInt int color) {
-        this.graph.BACKGROUND_LINE_COLOR = color;
-        if (this.graph.bgLinesPaint != null) {
-            this.graph.bgLinesPaint.setColor(this.graph.BACKGROUND_LINE_COLOR);
+        getGraph().BACKGROUND_LINE_COLOR = color;
+        if (getGraph().bgLinesPaint != null) {
+            getGraph().bgLinesPaint.setColor(getGraph().BACKGROUND_LINE_COLOR);
         }
     }
 
     public void setBottomTextColor(@ColorInt int color) {
-        this.graph.BOTTOM_TEXT_COLOR = color;
-        if (this.graph.bottomTextPaint != null) {
-            this.graph.bottomTextPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
+        getGraph().BOTTOM_TEXT_COLOR = color;
+        if (getGraph().bottomTextPaint != null) {
+            getGraph().bottomTextPaint.setColor(getGraph().BOTTOM_TEXT_COLOR);
         }
-    }
-
-    @Override
-    protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY);
-        visibleRect.set(scrollX, scrollY, scrollX + this.getWidth(), scrollY + this.getHeight());
-        if (mOnScrollChangeListener != null) {
-            mOnScrollChangeListener.onScrollChange(this, scrollX, oldScrollX);
-        }
-    }
-
-    @Override
-    public void invalidate() {
-        super.invalidate();
-        visibleRect.setEmpty();
-        this.graph.invalidate();
-    }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        // Invalidate the visible rect
-        visibleRect.setEmpty();
-    }
-
-    public int getExtentWidth() {
-        return computeHorizontalScrollRange();
-    }
-
-    public int getViewportWidth() {
-        return getMeasuredWidth();
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void setOnTouchListener(OnTouchListener l) {
-        this.graph.setOnTouchListener(l);
+        getGraph().setOnTouchListener(l);
     }
 
-    public final int getItemPositionFromPoint(float xCoordinate) {
-        return this.graph.getItemPositionFromPoint(xCoordinate);
-    }
-
+    @Override
     public LineViewData getData() {
-        return this.graph.mData;
+        return getGraph().mData;
     }
 
+    @Override
     public void setData(LineViewData data) {
-        this.graph.setData(data);
-    }
-
-    public void resetData(boolean invalidate) {
-        this.graph.resetData(invalidate);
+        getGraph().setData(data);
     }
 
     /*
@@ -409,7 +308,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
                 }
 
                 // Add adequate spacing between labels
-                longestTextWidth *= 1.5f;
+                longestTextWidth += ContextUtils.dpToPx(getContext(), 16f);
                 backgroundGridWidth = longestTextWidth;
             } else {
                 bottomTextDescent = 0;
@@ -430,9 +329,9 @@ public class LineView extends HorizontalScrollView implements IGraph {
 
             final int mParentWidth;
             if (getMaxWidth() > 0) {
-                mParentWidth = Math.min(/*mScrollViewer.*/getMeasuredWidth(), getMaxWidth());
+                mParentWidth = Math.min(getMeasuredWidth(), getMaxWidth());
             } else {
-                mParentWidth = /*mScrollViewer.*/getMeasuredWidth();
+                mParentWidth = getMeasuredWidth();
             }
 
             if (getGraphExtentWidth() < mParentWidth) {
@@ -555,10 +454,10 @@ public class LineView extends HorizontalScrollView implements IGraph {
         protected void onDraw(Canvas canvas) {
             if (visibleRect.isEmpty()) {
                 visibleRect.set(
-                        mScrollViewer.getScrollX(),
-                        mScrollViewer.getScrollY(),
-                        mScrollViewer.getScrollX() + mScrollViewer.getWidth(),
-                        mScrollViewer.getScrollY() + mScrollViewer.getHeight()
+                        getScrollViewer().getScrollX(),
+                        getScrollViewer().getScrollY(),
+                        getScrollViewer().getScrollX() + getScrollViewer().getWidth(),
+                        getScrollViewer().getScrollY() + getScrollViewer().getHeight()
                 );
             }
 
@@ -847,7 +746,7 @@ public class LineView extends HorizontalScrollView implements IGraph {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
             if (BuildConfig.DEBUG) {
-                Log.d("LineView", "onMeasure: width = " + mViewWidth);
+                Log.d(TAG, "onMeasure: width = " + mViewWidth);
             }
 
             refreshAfterDataChanged();
@@ -860,6 +759,12 @@ public class LineView extends HorizontalScrollView implements IGraph {
             Dot(float x, float y) {
                 this.x = x;
                 this.y = y;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "Dot{" + "x=" + x + ", y=" + y + '}';
             }
         }
 

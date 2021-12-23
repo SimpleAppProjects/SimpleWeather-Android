@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.LinearLayout
+import androidx.annotation.Px
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -119,5 +120,13 @@ class BarGraphPanel : LinearLayout {
 
     fun setDrawDataLabels(enable: Boolean) {
         barChartView.setDrawDataLabels(enable)
+    }
+
+    fun setScrollingEnabled(enable: Boolean) {
+        barChartView.isScrollingEnabled = enable
+    }
+
+    fun setBottomTextSize(@Px textSize: Float) {
+        barChartView.setBottomTextSize(textSize)
     }
 }

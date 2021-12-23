@@ -1,185 +1,88 @@
 package com.thewizrd.simpleweather.controls.graphs;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
-import android.os.Build;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.Px;
-import androidx.annotation.RequiresApi;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.BuildConfig;
+import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 
 import kotlin.collections.CollectionsKt;
 
-public class BarGraphView extends FrameLayout implements IGraph {
-
-    private ViewGroup mParentLayout;
-    private final RectF visibleRect = new RectF();
-    private BarChartGraph graph;
-    private OnClickListener onClickListener;
-
-    public interface OnScrollChangeListener {
-        /**
-         * Called when the scroll position of a view changes.
-         *
-         * @param v          The view whose scroll position has changed.
-         * @param scrollX    Current horizontal scroll origin.
-         * @param oldScrollX Previous horizontal scroll origin.
-         */
-        void onScrollChange(BarGraphView v, int scrollX, int oldScrollX);
-    }
-
-    private OnScrollChangeListener mOnScrollChangeListener;
-
-    public interface OnSizeChangedListener {
-        void onSizeChanged(BarGraphView v, int canvasWidth);
-    }
-
-    private OnSizeChangedListener mOnSizeChangedListener;
+public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
+    private static final String TAG = "BarGraphView";
 
     public BarGraphView(Context context) {
         super(context);
-        initialize(context);
     }
 
     public BarGraphView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initialize(context);
     }
 
     public BarGraphView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public BarGraphView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initialize(context);
     }
 
+    @NonNull
     @Override
-    public void setOnClickListener(OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+    public BaseGraphView<?> createGraphView(@NonNull Context context) {
+        return new BarChartGraph(context);
     }
 
-    public void setOnSizeChangedListener(@Nullable OnSizeChangedListener l) {
-        mOnSizeChangedListener = l;
-    }
-
-    private void initialize(Context context) {
-        graph = new BarChartGraph(context);
-        graph.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onClickListener != null)
-                    onClickListener.onClick(v);
-            }
-        });
-
-        this.setVerticalScrollBarEnabled(false);
-        this.setHorizontalScrollBarEnabled(false);
-        this.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        this.removeAllViews();
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.CENTER;
-        this.addView(graph, layoutParams);
-
-        mParentLayout = this;
+    @NonNull
+    @Override
+    public BarChartGraph getGraph() {
+        return (BarChartGraph) super.getGraph();
     }
 
     public void setBottomTextColor(@ColorInt int color) {
-        this.graph.BOTTOM_TEXT_COLOR = color;
-        if (this.graph.bottomTextPaint != null) {
-            this.graph.bottomTextPaint.setColor(this.graph.BOTTOM_TEXT_COLOR);
+        getGraph().BOTTOM_TEXT_COLOR = color;
+        if (getGraph().bottomTextPaint != null) {
+            getGraph().bottomTextPaint.setColor(getGraph().BOTTOM_TEXT_COLOR);
         }
     }
 
     public void setBottomTextSize(@Px float textSize) {
-        this.graph.BOTTOM_TEXT_SIZE = textSize;
-        if (this.graph.bottomTextPaint != null) {
-            this.graph.bottomTextPaint.setTextSize(this.graph.BOTTOM_TEXT_SIZE);
+        getGraph().BOTTOM_TEXT_SIZE = textSize;
+        if (getGraph().bottomTextPaint != null) {
+            getGraph().bottomTextPaint.setTextSize(getGraph().BOTTOM_TEXT_SIZE);
         }
     }
 
     public void setDrawIconLabels(boolean drawIconsLabels) {
-        this.graph.drawIconsLabels = drawIconsLabels;
+        getGraph().drawIconsLabels = drawIconsLabels;
     }
 
     public void setDrawDataLabels(boolean drawDataLabels) {
-        this.graph.drawDataLabels = drawDataLabels;
-    }
-
-    public void setGraphMaxWidth(@Px int maxWidth) {
-        this.graph.setMaxWidth(maxWidth);
-    }
-
-    @Override
-    protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY);
-        visibleRect.set(scrollX, scrollY, scrollX + this.getWidth(), scrollY + this.getHeight());
-        if (mOnScrollChangeListener != null) {
-            mOnScrollChangeListener.onScrollChange(this, scrollX, oldScrollX);
-        }
-    }
-
-    @Override
-    public void invalidate() {
-        super.invalidate();
-        visibleRect.setEmpty();
-        this.graph.invalidate();
-    }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        // Invalidate the visible rect
-        visibleRect.setEmpty();
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
-    public void setOnTouchListener(OnTouchListener l) {
-        this.graph.setOnTouchListener(l);
-    }
-
-    public final int getItemPositionFromPoint(float xCoordinate) {
-        return this.graph.getItemPositionFromPoint(xCoordinate);
+        getGraph().drawDataLabels = drawDataLabels;
     }
 
     public BarGraphData getData() {
-        return this.graph.mData;
+        return getGraph().mData;
     }
 
     public void setData(BarGraphData data) {
-        this.graph.setData(data);
-    }
-
-    public void resetData(boolean invalidate) {
-        this.graph.resetData(invalidate);
+        getGraph().setData(data);
     }
 
     private class BarChartGraph extends BaseGraphView<BarGraphData> {
@@ -197,7 +100,7 @@ public class BarGraphView extends FrameLayout implements IGraph {
         private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
 
         private int BOTTOM_TEXT_COLOR = Colors.WHITE;
-        private float BOTTOM_TEXT_SIZE = ContextUtils.complexUnitToPx(getContext(), TypedValue.COMPLEX_UNIT_SP, 14);
+        private float BOTTOM_TEXT_SIZE = getContext().getResources().getDimensionPixelSize(R.dimen.forecast_condition_size);
 
         private float sideLineLength = 0;
         private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
@@ -302,6 +205,8 @@ public class BarGraphView extends FrameLayout implements IGraph {
                     sideLineLength = longestWidth / 1.5f;
                 }
 
+                // Add padding
+                longestTextWidth += ContextUtils.dpToPx(getContext(), 8f);
                 backgroundGridWidth = longestTextWidth;
             } else {
                 bottomTextDescent = 0;
@@ -320,14 +225,14 @@ public class BarGraphView extends FrameLayout implements IGraph {
 
             final int mParentWidth;
             if (getMaxWidth() > 0) {
-                mParentWidth = Math.min(Math.max(mParentLayout.getMeasuredWidth(), getMeasuredWidth()), getMaxWidth());
+                mParentWidth = Math.min(getMeasuredWidth(), getMaxWidth());
             } else {
-                mParentWidth = Math.max(mParentLayout.getMeasuredWidth(), getMeasuredWidth());
+                mParentWidth = getMeasuredWidth();
             }
 
             if (BuildConfig.DEBUG) {
-                Log.d("BarGraphView", "refreshGridWidth: parent width = " + mParentLayout.getMeasuredWidth());
-                Log.d("BarGraphView", "refreshGridWidth: measure width = " + getMeasuredWidth());
+                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
+                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
             }
 
             if (getGraphExtentWidth() < mParentWidth) {
@@ -400,13 +305,18 @@ public class BarGraphView extends FrameLayout implements IGraph {
         protected void onDraw(Canvas canvas) {
             if (visibleRect.isEmpty()) {
                 visibleRect.set(
-                        mParentLayout.getScrollX(),
-                        mParentLayout.getScrollY(),
-                        mParentLayout.getScrollX() + mParentLayout.getWidth(),
-                        mParentLayout.getScrollY() + mParentLayout.getHeight());
+                        getScrollViewer().getScrollX(),
+                        getScrollViewer().getScrollY(),
+                        getScrollViewer().getScrollX() + getScrollViewer().getWidth(),
+                        getScrollViewer().getScrollY() + getScrollViewer().getHeight());
+                Log.d(TAG, "onDraw: rect = " + visibleRect);
             }
 
             if (mData != null) {
+                if (!drawDotLists.isEmpty()) {
+                    Log.d(TAG, "onDraw: first x = " + CollectionsKt.first(drawDotLists).toString());
+                    Log.d(TAG, "onDraw: last x = " + CollectionsKt.last(drawDotLists).toString());
+                }
                 drawTextAndIcons(canvas);
                 drawLines(canvas);
             }
@@ -482,7 +392,7 @@ public class BarGraphView extends FrameLayout implements IGraph {
 
         @Override
         protected int getGraphExtentWidth() {
-            return Math.round(longestTextWidth * getMaxEntryCount() + sideLineLength * 2);
+            return Math.round(longestTextWidth * getMaxEntryCount() + sideLineLength);
         }
 
         @Override
@@ -510,16 +420,16 @@ public class BarGraphView extends FrameLayout implements IGraph {
             refreshXCoordinateList();
 
             if (getMaxWidth() > 0) {
-                mViewWidth = Math.min(Math.min(getPreferredWidth(), getMaxWidth()), specWidth);
+                mViewWidth = Math.min(getPreferredWidth(), getMaxWidth());
             } else {
-                mViewWidth = Math.min(getPreferredWidth(), specWidth);
+                mViewWidth = getPreferredWidth();
             }
             setMeasuredDimension(mViewWidth, mViewHeight);
 
             if (BuildConfig.DEBUG) {
-                Log.d("BarGraphView", "onMeasure: parent width = " + mParentLayout.getMeasuredWidth());
-                Log.d("BarGraphView", "onMeasure: measure width = " + MeasureSpec.getSize(widthMeasureSpec));
-                Log.d("BarGraphView", "onMeasure: width = " + mViewWidth);
+                Log.d(TAG, "onMeasure: parent width = " + getScrollViewer().getMeasuredWidth());
+                Log.d(TAG, "onMeasure: measure width = " + specWidth);
+                Log.d(TAG, "onMeasure: width = " + mViewWidth);
             }
 
             refreshDrawDotList();
@@ -528,8 +438,12 @@ public class BarGraphView extends FrameLayout implements IGraph {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            if (mOnSizeChangedListener != null)
-                mOnSizeChangedListener.onSizeChanged(BarGraphView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
+
+            // Invalidate the visible rect
+            visibleRect.setEmpty();
+
+            if (getOnSizeChangedListener() != null)
+                getOnSizeChangedListener().onSizeChanged(BarGraphView.this, xCoordinateList.size() > 0 ? CollectionsKt.last(xCoordinateList).intValue() : 0);
         }
 
         private class Bar {
@@ -539,6 +453,12 @@ public class BarGraphView extends FrameLayout implements IGraph {
             Bar(float x, float y) {
                 this.x = x;
                 this.y = y;
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "Bar{x=" + x + ", y=" + y + '}';
             }
         }
     }
