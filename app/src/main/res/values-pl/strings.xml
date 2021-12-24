@@ -109,4 +109,5 @@
     <!-- Weather Summary or Weather Overview -->
     <!-- Fuzzy -->
     <string name="pref_title_feature_summary">"Przegląd pogody"</string>
+    <string name="prompt_max_locations_allowed">"Maksymalnie pięć dozwolonych lokalizacji"</string>
 </resources>

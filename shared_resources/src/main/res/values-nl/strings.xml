@@ -184,4 +184,16 @@
     <!-- Fuzzy -->
     <string name="label_count_veryhigh">"Zeer hoog"</string>
     <string name="bg_location_permission_rationale_settings">"Om de locatie op de achtergrond te updaten voor meldingen en widgets, stel de locatietoestemming in op '%1$s'"</string>
+    <string name="prompt_location_not_set">"Locatie niet ingesteld. Gelieve een locatie toe te voegen"</string>
+
+    <!-- Background Location Permission -->
+    <!-- Fuzzy -->
+    <string name="title_bg_location_access">"Achtergrond Locatie Toegang"</string>
+
+    <!-- Fuzzy -->
+    <string name="wear_bg_location_permission_rationale">"Doorlopende toegang tot locatie op achtergrond voor tegels en complicaties"</string>
+
+    <!-- Fuzzy -->
+    <string name="wear_bg_location_permission_rationale_settings">"Om de locatie op de achtergrond te updaten voor tiles en complicaties, stel de locatietoestemming in op '%1$s'"</string>
+    <string name="time_current">"Huidige"</string>
 </resources>

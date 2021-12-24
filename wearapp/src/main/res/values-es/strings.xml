@@ -34,4 +34,7 @@
     <string name="pref_category_title_sync">"Sincronización"</string>
     <string name="pref_sync_title">"Sincronización de datos"</string>
     <string name="pref_connectionstatus_title">"Estado de la conexión"</string>
+    <string name="message_disconnected">"Desconectado"</string>
+    <string name="tile_label_currentweather">"Tiempo actual"</string>
+    <string name="tile_label_weather_forecast">"Tiempo + Previsión"</string>
 </resources>

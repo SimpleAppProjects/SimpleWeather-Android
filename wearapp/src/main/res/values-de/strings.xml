@@ -35,4 +35,9 @@
     <string name="pref_category_title_sync">"Synchronisierung"</string>
     <string name="pref_sync_title">"Synchronisierung"</string>
     <string name="pref_connectionstatus_title">"Verbindungszustand"</string>
+
+    <!-- Fuzzy -->
+    <string name="message_disconnected">"Abgeschaltet"</string>
+    <string name="tile_label_currentweather">"Aktuelles Wetter"</string>
+    <string name="tile_label_weather_forecast">"Wetter + Vorhersage"</string>
 </resources>

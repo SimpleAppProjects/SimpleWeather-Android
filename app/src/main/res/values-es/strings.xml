@@ -132,4 +132,5 @@
 
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Resumen del tiempo"</string>
+    <string name="prompt_max_locations_allowed">"Se permite un máximo de cinco ubicaciones"</string>
 </resources>

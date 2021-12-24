@@ -108,4 +108,5 @@
 
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Weeroverzicht"</string>
+    <string name="prompt_max_locations_allowed">"Maximaal vijf locaties toegestaan"</string>
 </resources>

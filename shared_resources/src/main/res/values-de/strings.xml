@@ -226,4 +226,12 @@
 
     <!-- Fuzzy -->
     <string name="bg_location_permission_rationale_settings">"Um den Standort im Hintergrund für Benachrichtigungen und Widgets zu aktualisieren, setzen Sie bitte die Standortberechtigung auf '%1$s'"</string>
+    <string name="prompt_location_not_set">"Ort nicht festgelegt. Bitte fügen Sie einen Ort hinzu"</string>
+
+    <!-- Background Location Permission -->
+    <!-- Fuzzy -->
+    <string name="title_bg_location_access">"Hintergrund Standort Zugang"</string>
+    <string name="wear_bg_location_permission_rationale">"Standortzugriff im Hintergrund für Kacheln und Komplikationen zulassen"</string>
+    <string name="wear_bg_location_permission_rationale_settings">"Um den Standort im Hintergrund für Kacheln und Komplikationen zu aktualisieren, setzen Sie bitte die Standortberechtigung auf '%1$s'"</string>
+    <string name="time_current">"Aktuell"</string>
 </resources>

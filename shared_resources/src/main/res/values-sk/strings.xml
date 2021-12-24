@@ -186,4 +186,12 @@
     <string name="label_count_high">"Vysoká"</string>
     <string name="label_count_veryhigh">"Veľmi vysoká"</string>
     <string name="bg_location_permission_rationale_settings">"Ak chcete aktualizovať polohu na pozadí pre oznámenia a miniaplikácie, nastavte povolenie polohy na '%1$s'"</string>
+    <string name="prompt_location_not_set">"Poloha nie je stanovená. Prosím, pridajte umiestnenie"</string>
+
+    <!-- Background Location Permission -->
+    <!-- Fuzzy -->
+    <string name="title_bg_location_access">"Pozadie Prístup k polohe"</string>
+    <string name="wear_bg_location_permission_rationale">"Povolenie prístupu k umiestneniu dlaždíc a komplikácií na pozadí"</string>
+    <string name="wear_bg_location_permission_rationale_settings">"Ak chcete aktualizovať polohu na pozadí pre dlaždice a komplikácie, nastavte povolenie polohy na '%1$s'"</string>
+    <string name="time_current">"Aktuálne"</string>
 </resources>

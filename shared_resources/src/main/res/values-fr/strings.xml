@@ -183,4 +183,11 @@
     <string name="label_count_high">"Élevé"</string>
     <string name="label_count_veryhigh">"Très élevé"</string>
     <string name="bg_location_permission_rationale_settings">"Pour mettre à jour la localisation en arrière-plan pour les notifications et les widgets, veuillez définir l'autorisation de localisation sur '%1$s'"</string>
+    <string name="prompt_location_not_set">"L'emplacement n'est pas défini. Veuillez ajouter un emplacement"</string>
+
+    <!-- Background Location Permission -->
+    <string name="title_bg_location_access">"Accès à l'emplacement en arrière-plan"</string>
+    <string name="wear_bg_location_permission_rationale">"Autoriser l'accès à la mise à jour de la localisation en arrière-plan pour les tuiles et les complications"</string>
+    <string name="wear_bg_location_permission_rationale_settings">"Pour mettre à jour la localisation en arrière-plan pour les tuiles et les complications, veuillez définir l'autorisation de localisation sur '%1$s'"</string>
+    <string name="time_current">"Actuel"</string>
 </resources>

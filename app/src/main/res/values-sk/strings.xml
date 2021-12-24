@@ -108,4 +108,5 @@
 
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Prehľad počasia"</string>
+    <string name="prompt_max_locations_allowed">"Maximálne päť povolených miest"</string>
 </resources>

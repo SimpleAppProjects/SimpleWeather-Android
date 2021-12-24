@@ -216,4 +216,11 @@
 
     <!-- Fuzzy -->
     <string name="bg_location_permission_rationale_settings">"Para actualizar la ubicación en segundo plano para las notificaciones y los widgets, establezca el permiso de ubicación en '%1$s'"</string>
+    <string name="prompt_location_not_set">"La ubicación no está establecida. Por favor, añada una ubicación"</string>
+
+    <!-- Background Location Permission -->
+    <string name="title_bg_location_access">"Acceso a la ubicación en segundo plano"</string>
+    <string name="wear_bg_location_permission_rationale">"Permitir el acceso a la actualización de la ubicación en segundo plano para los azulejos y las complicaciones"</string>
+    <string name="wear_bg_location_permission_rationale_settings">"Para actualizar la ubicación en segundo plano para los mosaicos y las complicaciones, establezca el permiso de ubicación en '%1$s'"</string>
+    <string name="time_current">"Actual"</string>
 </resources>
