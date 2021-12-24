@@ -8,7 +8,6 @@ import android.view.ViewTreeObserver
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.thewizrd.shared_resources.Constants
@@ -53,7 +52,6 @@ class WeatherListFragment : SwipeDismissFragment() {
     private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
-    private lateinit var itemDecoration: DividerItemDecoration
 
     private var weatherListType: WeatherListType? = null
 
@@ -98,8 +96,6 @@ class WeatherListFragment : SwipeDismissFragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(fragmentActivity)
         binding.recyclerView.requestFocus()
 
-        itemDecoration = DividerItemDecoration(fragmentActivity, DividerItemDecoration.VERTICAL)
-
         val verticalPadding = requireContext().dpToPx(48f).toInt()
         binding.recyclerView.updatePadding(top = verticalPadding, bottom = verticalPadding)
 
@@ -142,10 +138,6 @@ class WeatherListFragment : SwipeDismissFragment() {
             // specify an adapter (see also next example)
             when (weatherListType) {
                 WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> {
-                    if (binding.recyclerView.itemDecorationCount == 0) {
-                        binding.recyclerView.addItemDecoration(itemDecoration)
-                    }
-
                     if (weatherListType == WeatherListType.FORECAST) {
                         forecastsView.getForecasts()?.removeObservers(this@WeatherListFragment)
                         forecastsView.getForecasts()
@@ -166,7 +158,6 @@ class WeatherListFragment : SwipeDismissFragment() {
                     }
                 }
                 WeatherListType.ALERTS -> {
-                    binding.recyclerView.removeItemDecoration(itemDecoration)
                     val alertAdapter = binding.recyclerView.adapter as? WeatherAlertPanelAdapter?
                         ?: WeatherAlertPanelAdapter()
                     if (binding.recyclerView.adapter !== alertAdapter) {
@@ -187,7 +178,6 @@ class WeatherListFragment : SwipeDismissFragment() {
                     })
                 }
                 WeatherListType.PRECIPITATION -> {
-                    binding.recyclerView.removeItemDecoration(itemDecoration)
                     val minForecastAdapter = binding.recyclerView.adapter as? MinutelyItemAdapter?
                         ?: MinutelyItemAdapter()
                     if (binding.recyclerView.adapter !== minForecastAdapter) {
