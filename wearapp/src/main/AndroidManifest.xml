@@ -102,6 +102,24 @@
         </service>
 
         <service
+            android:icon="@drawable/ic_logo_stroke"
+            android:label="Weather Hi/Lo"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:name=".wearable.WeatherHiLoComplicationService"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+
+        <service
             android:icon="@mipmap/ic_launcher_round"
             android:label="@string/tile_label_weather_forecast"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"

@@ -12,27 +12,41 @@ object WeatherComplicationHelper {
     @JvmStatic
     fun requestComplicationUpdate(context: Context, complicationId: Int) {
         Logger.writeLine(
-            Log.INFO,
-            "%s: requesting complication update (complicationId = %s)",
-            TAG,
-            complicationId
+                Log.INFO,
+                "%s: requesting complication update (complicationId = %s)",
+                TAG,
+                complicationId
         )
 
-        val updateRequester = ComplicationDataSourceUpdateRequester.create(
-            context.applicationContext,
-            ComponentName(context.applicationContext, WeatherComplicationService::class.java)
-        )
-        updateRequester.requestUpdate(complicationId)
+        ComplicationDataSourceUpdateRequester.create(
+                context.applicationContext,
+                ComponentName(context.applicationContext, WeatherComplicationService::class.java)
+        ).run {
+            requestUpdate(complicationId)
+        }
+        ComplicationDataSourceUpdateRequester.create(
+                context.applicationContext,
+                ComponentName(context.applicationContext, WeatherHiLoComplicationService::class.java)
+        ).run {
+            requestUpdate(complicationId)
+        }
     }
 
     @JvmStatic
     fun requestComplicationUpdateAll(context: Context) {
         Logger.writeLine(Log.INFO, "%s: requesting complication update all", TAG)
 
-        val updateRequester = ComplicationDataSourceUpdateRequester.create(
-            context.applicationContext,
-            ComponentName(context.applicationContext, WeatherComplicationService::class.java)
-        )
-        updateRequester.requestUpdateAll()
+        ComplicationDataSourceUpdateRequester.create(
+                context.applicationContext,
+                ComponentName(context.applicationContext, WeatherComplicationService::class.java)
+        ).run {
+            requestUpdateAll()
+        }
+        ComplicationDataSourceUpdateRequester.create(
+                context.applicationContext,
+                ComponentName(context.applicationContext, WeatherHiLoComplicationService::class.java)
+        ).run {
+            requestUpdateAll()
+        }
     }
 }
