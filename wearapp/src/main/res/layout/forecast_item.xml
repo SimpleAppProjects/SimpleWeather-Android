@@ -17,7 +17,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:layout_gravity="center"
-        android:background="?selectableItemBackground">
+        android:background="@drawable/rounded_item_background">
 
         <TextView
             android:id="@+id/forecast_date"

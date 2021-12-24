@@ -21,7 +21,7 @@
         android:gravity="center"
         android:minHeight="48dp"
         android:orientation="horizontal"
-        android:background="?selectableItemBackground">
+        android:background="@drawable/rounded_item_background">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/hrforecast_date"
