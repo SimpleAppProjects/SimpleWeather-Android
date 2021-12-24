@@ -129,24 +129,24 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
 
     implementation 'androidx.arch.core:core-runtime:2.1.0'
-    implementation 'androidx.room:room-runtime:2.3.0'
-    kapt 'androidx.room:room-compiler:2.3.0'
+    implementation 'androidx.room:room-runtime:2.4.0'
+    kapt 'androidx.room:room-compiler:2.4.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
     implementation 'com.google.android.material:material:1.4.0'
 
-    implementation 'com.google.android.gms:play-services-base:17.6.0'
-    implementation 'com.google.android.gms:play-services-location:18.0.0'
+    implementation 'com.google.android.gms:play-services-base:18.0.1'
+    implementation 'com.google.android.gms:play-services-location:19.0.0'
 
     // WearOS
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
 
     implementation 'androidx.wear:wear:1.2.0'
-    implementation 'androidx.wear:wear-phone-interactions:1.0.0'
+    implementation 'androidx.wear:wear-phone-interactions:1.0.1'
     implementation 'androidx.wear:wear-remote-interactions:1.0.0'
-    implementation 'androidx.wear.watchface:watchface-complications-data:1.0.0-rc01'
-    implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.0.0-rc01'
+    implementation 'androidx.wear.watchface:watchface-complications-data:1.0.0'
+    implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.0.0'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
