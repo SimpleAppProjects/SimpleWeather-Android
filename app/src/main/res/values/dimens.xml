@@ -38,6 +38,7 @@
     <dimen name="hr_forecast_item_icon_size">36dp</dimen>
     <dimen name="hr_forecast_item_temp_size">18sp</dimen>
     <dimen name="hr_forecast_item_extra_icon_size">24dp</dimen>
+    <dimen name="weather_summary_text_size">12sp</dimen>
     <!-- Forecast -->
     <dimen name="forecast_condition_size">12sp</dimen>
     <dimen name="weather_detail_item_textSize">14sp</dimen>

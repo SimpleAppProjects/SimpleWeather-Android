@@ -263,7 +263,7 @@
                 android:alpha="0.75"
                 android:padding="4dp"
                 android:text="@{weatherView.weatherSummary}"
-                android:textSize="12sp"
+                android:textSize="@dimen/weather_summary_text_size"
                 android:textAppearance="?textAppearanceSubtitle1"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
                 app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
