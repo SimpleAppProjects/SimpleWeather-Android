@@ -170,7 +170,7 @@ dependencies {
     }
 
     // Firebase
-    fullgmsImplementation platform('com.google.firebase:firebase-bom:29.0.0')
+    fullgmsImplementation platform('com.google.firebase:firebase-bom:29.0.3')
     fullgmsImplementation 'com.google.firebase:firebase-analytics'
     fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
     fullgmsImplementation 'com.google.firebase:firebase-auth'
