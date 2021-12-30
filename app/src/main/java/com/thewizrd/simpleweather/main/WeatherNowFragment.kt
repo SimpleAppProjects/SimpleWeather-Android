@@ -1740,7 +1740,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 view.setOnClickListener {
                     val i = Intent(Intent.ACTION_VIEW, Uri.parse(imageData.originalLink))
                     if (i.resolveActivity(view.context.packageManager) != null) {
-                        view.context.startActivity(i)
+                        runCatching {
+                            view.context.startActivity(i)
+                        }.onFailure {
+                            // NOTE: possible exceptions: SecurityException, ActivityNotFoundException
+                            Logger.writeLine(Log.ERROR, it, "Error opening attribution link")
+                        }
                     }
                 }
             } else {
