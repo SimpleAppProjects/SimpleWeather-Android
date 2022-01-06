@@ -9,20 +9,20 @@ import com.thewizrd.shared_resources.SimpleLibrary;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SunPhaseViewModel {
-    private final LocalTime sunriseTime;
-    private final LocalTime sunsetTime;
+    private final LocalDateTime sunriseTime;
+    private final LocalDateTime sunsetTime;
 
     private final String sunrise;
     private final String sunset;
     private final DateTimeFormatter formatter;
 
     public SunPhaseViewModel(@NonNull Astronomy astronomy) {
-        sunriseTime = astronomy.getSunrise().toLocalTime();
-        sunsetTime = astronomy.getSunset().toLocalTime();
+        sunriseTime = astronomy.getSunrise();
+        sunsetTime = astronomy.getSunset();
 
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
             formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
@@ -33,11 +33,11 @@ public class SunPhaseViewModel {
         sunset = sunsetTime.format(formatter);
     }
 
-    public LocalTime getSunriseTime() {
+    public LocalDateTime getSunriseTime() {
         return sunriseTime;
     }
 
-    public LocalTime getSunsetTime() {
+    public LocalDateTime getSunsetTime() {
         return sunsetTime;
     }
 

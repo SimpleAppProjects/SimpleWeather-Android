@@ -26,8 +26,9 @@ import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.simpleweather.R;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
@@ -43,10 +44,11 @@ public class SunPhaseView extends View {
     private final Paint fullArcPaint;
     private final Paint pathArcPaint;
     private final Paint bottomTextPaint;
+    private final Paint bigCirPaint;
     private int bottomTextDescent;
 
-    private LocalTime sunrise = LocalTime.MIDNIGHT;
-    private LocalTime sunset = LocalTime.MIDNIGHT;
+    private LocalDateTime sunrise;
+    private LocalDateTime sunset;
     private ZoneOffset offset = ZoneOffset.UTC;
 
     private float sunriseX;
@@ -69,6 +71,10 @@ public class SunPhaseView extends View {
     public SunPhaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
+
+        final LocalDate date = LocalDate.now();
+        sunrise = date.atTime(LocalTime.MIDNIGHT);
+        sunset = date.atTime(LocalTime.MIDNIGHT);
 
         iconDrawable = ContextCompat.getDrawable(context, R.drawable.ic_full_sun).mutate();
 
@@ -101,6 +107,11 @@ public class SunPhaseView extends View {
         pathArcPaint.setStrokeWidth(ContextUtils.dpToPx(context, 2f));
         pathArcPaint.setPathEffect(null);
         pathArcPaint.setColor(PAINT_COLOR);
+
+        bigCirPaint = new Paint();
+        bigCirPaint.setStyle(Paint.Style.FILL);
+        bigCirPaint.setAntiAlias(true);
+        bigCirPaint.setColor(PAINT_COLOR);
 
         updateColors();
     }
@@ -154,6 +165,9 @@ public class SunPhaseView extends View {
             if (pathArcPaint != null) {
                 pathArcPaint.setColor(color);
             }
+            if (bigCirPaint != null) {
+                bigCirPaint.setColor(color);
+            }
             invalidate();
         }
     }
@@ -163,6 +177,15 @@ public class SunPhaseView extends View {
     }
 
     public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset, ZoneOffset offset) {
+        LocalDate date = LocalDate.now(offset);
+        setSunriseSetTimes(sunrise.atDate(date), sunset.atDate(date), offset);
+    }
+
+    public void setSunriseSetTimes(LocalDateTime sunrise, LocalDateTime sunset) {
+        setSunriseSetTimes(sunrise, sunset, ZoneOffset.UTC);
+    }
+
+    public void setSunriseSetTimes(LocalDateTime sunrise, LocalDateTime sunset, ZoneOffset offset) {
         if (!ObjectsCompat.equals(this.sunrise, sunrise) || !ObjectsCompat.equals(this.sunset, sunset) || !ObjectsCompat.equals(this.offset, offset)) {
             this.sunrise = sunrise;
             this.sunset = sunset;
@@ -211,11 +234,6 @@ public class SunPhaseView extends View {
     }
 
     private void drawDots(Canvas canvas) {
-        Paint bigCirPaint = new Paint();
-        bigCirPaint.setStyle(Paint.Style.FILL);
-        bigCirPaint.setAntiAlias(true);
-        bigCirPaint.setColor(PAINT_COLOR);
-
         canvas.drawCircle(sunriseX, getGraphHeight(), DOT_RADIUS, bigCirPaint);
         canvas.drawCircle(sunsetX, getGraphHeight(), DOT_RADIUS, bigCirPaint);
     }
@@ -242,7 +260,7 @@ public class SunPhaseView extends View {
         int angle = 0;
 
         {
-            LocalTime now = OffsetTime.now(offset).toLocalTime();
+            LocalDateTime now = LocalDateTime.now(offset);
 
             if (now.isBefore(sunrise)) {
                 angle = 0;
@@ -251,8 +269,8 @@ public class SunPhaseView extends View {
                 angle = 180;
                 isDay = false;
             } else if (now.isAfter(sunrise)) {
-                int sunUpDuration = (sunset.toSecondOfDay() - sunrise.toSecondOfDay()) / 60;
-                int minAfterSunrise = (now.toSecondOfDay() / 60) - (sunrise.toSecondOfDay() / 60);
+                long sunUpDuration = (sunset.toEpochSecond(offset) - sunrise.toEpochSecond(offset)) / 60;
+                long minAfterSunrise = (now.toEpochSecond(offset) / 60) - (sunrise.toEpochSecond(offset) / 60);
 
                 angle = (int) (((float) minAfterSunrise / sunUpDuration) * 180);
                 isDay = true;

@@ -220,7 +220,13 @@ fun createAstronomy(astro: Astro): Astronomy {
         }
 
         runCatching {
-            sunset = LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            sunset =
+                LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            if (sunrise != null && sunset.isBefore(sunrise)) {
+                // Is next day
+                sunset = LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
+                    .atDate(now.plusDays(1))
+            }
         }
 
         runCatching {
