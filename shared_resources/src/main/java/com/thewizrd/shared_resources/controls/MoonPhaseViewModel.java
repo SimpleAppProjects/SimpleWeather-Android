@@ -27,9 +27,9 @@ public class MoonPhaseViewModel {
 
     public MoonPhaseViewModel(@NonNull Astronomy astronomy) {
         if (DateFormat.is24HourFormat(SimpleLibrary.getInstance().getApp().getAppContext())) {
-            formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
+            formatter = DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
         } else {
-            formatter = DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
+            formatter = DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
         }
 
         if (astronomy.getMoonrise() != null && !Objects.equals(astronomy.getMoonrise(), DateTimeUtils.getLocalDateTimeMIN())) {

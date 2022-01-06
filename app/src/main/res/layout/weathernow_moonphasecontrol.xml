@@ -248,6 +248,7 @@
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/moonphase_description"
+            app:hideIfNullOrWhitespace="@{weatherView.moonPhase.moonrise}"
             app:weatherIconStart="@{WeatherIcons.MOONRISE}"
             tools:drawableStart="@drawable/wi_moonrise"
             tools:text="4:01 PM" />
@@ -270,6 +271,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/moonrise"
             app:layout_constraintTop_toBottomOf="@id/moonphase_description"
+            app:hideIfNullOrWhitespace="@{weatherView.moonPhase.moonset}"
             app:weatherIconStart="@{WeatherIcons.MOONSET}"
             tools:drawableStart="@drawable/wi_moonset"
             tools:text="6:50 AM" />
