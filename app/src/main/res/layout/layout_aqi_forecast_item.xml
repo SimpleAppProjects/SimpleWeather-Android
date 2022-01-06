@@ -119,7 +119,7 @@
             android:gravity="center"
             android:minWidth="45dp"
             android:padding="4dp"
-            android:text="@string/units_pm25"
+            android:text="@string/units_pm25_formatted"
             android:textColor="@color/colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
@@ -151,7 +151,7 @@
             android:gravity="center"
             android:minWidth="45dp"
             android:padding="4dp"
-            android:text="@string/units_pm10"
+            android:text="@string/units_pm10_formatted"
             android:textColor="@color/colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
@@ -183,7 +183,7 @@
             android:gravity="center"
             android:minWidth="45dp"
             android:padding="4dp"
-            android:text="@string/units_no2"
+            android:text="@string/units_no2_formatted"
             android:textColor="@color/colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
@@ -215,7 +215,7 @@
             android:gravity="center"
             android:minWidth="45dp"
             android:padding="4dp"
-            android:text="@string/units_o3"
+            android:text="@string/units_o3_formatted"
             android:textColor="@color/colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
@@ -279,7 +279,7 @@
             android:gravity="center"
             android:minWidth="45dp"
             android:padding="4dp"
-            android:text="@string/units_so2"
+            android:text="@string/units_so2_formatted"
             android:textColor="@color/colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />

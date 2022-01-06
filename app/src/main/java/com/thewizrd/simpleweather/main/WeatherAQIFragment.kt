@@ -325,7 +325,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (aqi.pm25 != null) {
                 if (pm25Data == null) {
                     pm25Data = BarGraphData().apply {
-                        graphLabel = requireContext().getString(R.string.units_pm25)
+                        graphLabel = requireContext().getString(R.string.units_pm25_formatted)
                     }
                 }
 
@@ -345,7 +345,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (aqi.pm10 != null) {
                 if (pm10Data == null) {
                     pm10Data = BarGraphData().apply {
-                        graphLabel = requireContext().getString(R.string.units_pm10)
+                        graphLabel = requireContext().getString(R.string.units_pm10_formatted)
                     }
                 }
 
@@ -365,7 +365,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (aqi.o3 != null) {
                 if (o3Data == null) {
                     o3Data = BarGraphData().apply {
-                        graphLabel = requireContext().getString(R.string.units_o3)
+                        graphLabel = requireContext().getString(R.string.units_o3_formatted)
                     }
                 }
 
@@ -405,7 +405,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (aqi.no2 != null) {
                 if (no2Data == null) {
                     no2Data = BarGraphData().apply {
-                        graphLabel = requireContext().getString(R.string.units_no2)
+                        graphLabel = requireContext().getString(R.string.units_no2_formatted)
                     }
                 }
 
@@ -425,7 +425,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (aqi.so2 != null) {
                 if (so2Data == null) {
                     so2Data = BarGraphData().apply {
-                        graphLabel = requireContext().getString(R.string.units_so2)
+                        graphLabel = requireContext().getString(R.string.units_so2_formatted)
                     }
                 }
 

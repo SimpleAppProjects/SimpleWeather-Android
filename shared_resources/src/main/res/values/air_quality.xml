@@ -16,15 +16,20 @@
 
     <!-- AQI Units -->
     <!-- Particulate <2.5 microns -->
-    <string name="units_pm25" translatable="false">PM<sub><small>2.5</small></sub></string>
+    <string name="units_pm25" translatable="false">PM2.5</string>
+    <string name="units_pm25_formatted" translatable="false">PM<sub><small>2.5</small></sub></string>
     <!-- Particulate <10 microns -->
-    <string name="units_pm10" translatable="false">PM<sub><small>10</small></sub></string>
+    <string name="units_pm10" translatable="false">PM10</string>
+    <string name="units_pm10_formatted" translatable="false">PM<sub><small>10</small></sub></string>
     <!-- Ozone -->
-    <string name="units_o3" translatable="false">O<sub><small>3</small></sub></string>
+    <string name="units_o3" translatable="false">O3</string>
+    <string name="units_o3_formatted" translatable="false">O<sub><small>3</small></sub></string>
     <!-- Sulfur Dioxide -->
-    <string name="units_so2" translatable="false">SO<sub><small>2</small></sub></string>
+    <string name="units_so2" translatable="false">SO2</string>
+    <string name="units_so2_formatted" translatable="false">SO<sub><small>2</small></sub></string>
     <!-- Nitrogen Dioxide -->
-    <string name="units_no2" translatable="false">NO<sub><small>2</small></sub></string>
+    <string name="units_no2" translatable="false">NO2</string>
+    <string name="units_no2_formatted" translatable="false">NO<sub><small>2</small></sub></string>
     <!-- Carbon Monoxide -->
     <string name="units_co" translatable="false">CO</string>
 </resources>
