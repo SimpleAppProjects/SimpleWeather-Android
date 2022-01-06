@@ -1,18 +1,25 @@
 package com.thewizrd.simpleweather.controls.graphs;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
+import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
+import com.thewizrd.simpleweather.BuildConfig;
+import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -33,8 +40,23 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
     protected int verticalGridNum;
     protected final int MIN_HORIZONTAL_GRID_NUM = 1;
 
+    protected final Paint bottomTextPaint;
+    protected float bottomTextHeight = 0;
+    protected int bottomTextDescent;
+
+    protected final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 2);
+    protected final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
+
     protected float sideLineLength = 0;
     protected float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
+    protected float longestTextWidth;
+
+    protected final float iconHeight;
+
+    private boolean drawDataLabels = false;
+    private boolean drawIconsLabels = false;
+
+    private boolean mFillParentWidth = false;
 
     public BaseGraphView(Context context) {
         this(context, null);
@@ -45,6 +67,39 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
         setWillNotDraw(false);
 
         xCoordinateList = new ArrayList<>();
+
+        bottomTextPaint = new Paint();
+        bottomTextPaint.setAntiAlias(true);
+        bottomTextPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.forecast_condition_size));
+        bottomTextPaint.setTextAlign(Paint.Align.CENTER);
+        bottomTextPaint.setStyle(Paint.Style.FILL);
+        bottomTextPaint.setColor(Colors.WHITE);
+
+        iconHeight = ContextUtils.dpToPx(getContext(), 30);
+    }
+
+    public boolean isDrawDataLabels() {
+        return drawDataLabels;
+    }
+
+    public void setDrawDataLabels(boolean drawDataLabels) {
+        this.drawDataLabels = drawDataLabels;
+    }
+
+    public boolean isDrawIconsLabels() {
+        return drawIconsLabels;
+    }
+
+    public void setDrawIconsLabels(boolean drawIconsLabels) {
+        this.drawIconsLabels = drawIconsLabels;
+    }
+
+    public void setBottomTextColor(@ColorInt int color) {
+        bottomTextPaint.setColor(color);
+    }
+
+    public void setBottomTextSize(@Px float textSize) {
+        bottomTextPaint.setTextSize(textSize);
     }
 
     public final void setData(T data) {
@@ -126,12 +181,31 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
         return 0;
     }
 
+    public final boolean isFillParentWidth() {
+        return mFillParentWidth;
+    }
+
+    public final void setFillParentWidth(boolean fillParentWidth) {
+        if (mFillParentWidth != fillParentWidth) {
+            mFillParentWidth = fillParentWidth;
+            requestLayout();
+        }
+    }
+
     @Override
-    @CallSuper
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (BuildConfig.DEBUG) {
+            Log.d("BaseGraphView", "onMeasure: measuredWidth = " + getMeasuredWidth());
+            if (getParent() instanceof ViewGroup) {
+                Log.d("BaseGraphView", "onMeasure: parentWidth = " + ((ViewGroup) getParent()).getMeasuredWidth());
+            }
+        }
+
+        onPreMeasure();
         mViewWidth = measureWidth(widthMeasureSpec);
         mViewHeight = measureHeight(heightMeasureSpec);
         setMeasuredDimension(mViewWidth, mViewHeight);
+        onPostMeasure();
     }
 
     protected int getPreferredWidth() {
@@ -161,11 +235,12 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
     }
 
     protected final int getMeasurement(int measureSpec, int desiredSize, int maxSize) {
-        int result = desiredSize;
+        int result;
         final int specMode = MeasureSpec.getMode(measureSpec);
         final int specSize = MeasureSpec.getSize(measureSpec);
 
         switch (specMode) {
+            default:
             case MeasureSpec.UNSPECIFIED:
                 // Parent says we can be as big as we want. Just don't be larger
                 // than max size imposed on ourselves.
@@ -182,7 +257,7 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
             case MeasureSpec.EXACTLY:
                 // If an exact width is specified, still don't exceed any specified maximum width
                 if (maxSize > 0) {
-                    result = Math.min(maxSize, result);
+                    result = Math.min(maxSize, specSize);
                 } else {
                     // No choice. Do what we are told.
                     result = specSize;
@@ -191,6 +266,12 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
         }
 
         return result;
+    }
+
+    protected void onPreMeasure() {
+    }
+
+    protected void onPostMeasure() {
     }
 
     /* Drawables */

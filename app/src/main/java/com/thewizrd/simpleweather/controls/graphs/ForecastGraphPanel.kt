@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
@@ -73,7 +74,9 @@ class ForecastGraphPanel : LinearLayout {
         lineView = LineView(context)
 
         val lineViewHeight = context.resources.getDimensionPixelSize(R.dimen.forecast_panel_height)
-        val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight)
+        val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, lineViewHeight).apply {
+            gravity = Gravity.CENTER
+        }
         val onTouchListener = OnTouchListener { v: View?, event: MotionEvent ->
             if (event.action == MotionEvent.ACTION_UP) {
                 if (onClickListener != null && v is IGraph) {
@@ -91,6 +94,7 @@ class ForecastGraphPanel : LinearLayout {
         lineView.setDrawIconLabels(true)
         lineView.setDrawGraphBackground(true)
         lineView.setDrawDotPoints(false)
+        lineView.setFillParentWidth(true)
 
         removeAllViews()
         this.addView(lineView)

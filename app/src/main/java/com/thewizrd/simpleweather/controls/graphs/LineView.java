@@ -77,11 +77,11 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
     }
 
     public void setDrawIconLabels(boolean drawIconsLabels) {
-        getGraph().drawIconsLabels = drawIconsLabels;
+        getGraph().setDrawIconsLabels(drawIconsLabels);
     }
 
     public void setDrawDataLabels(boolean drawDataLabels) {
-        getGraph().drawDataLabels = drawDataLabels;
+        getGraph().setDrawDataLabels(drawDataLabels);
     }
 
     public void setDrawSeriesLabels(boolean drawSeriesLabels) {
@@ -96,10 +96,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
     }
 
     public void setBottomTextColor(@ColorInt int color) {
-        getGraph().BOTTOM_TEXT_COLOR = color;
-        if (getGraph().bottomTextPaint != null) {
-            getGraph().bottomTextPaint.setColor(getGraph().BOTTOM_TEXT_COLOR);
-        }
+        getGraph().setBottomTextColor(color);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -126,34 +123,21 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
     private class LineViewGraph extends BaseGraphView<LineViewData> {
         private float drwTextWidth;
         private int dataOfAGird = 10;
-        private float bottomTextHeight = 0;
 
         private final ArrayList<Float> yCoordinateList;
 
         private final List<ArrayList<Dot>> drawDotLists;
 
-        private final Paint bottomTextPaint;
-        private int bottomTextDescent;
-
-        private final float iconHeight;
-
-        private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 2);
-        private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
         private final float DOT_INNER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 2);
         private final float DOT_OUTER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 5);
         private final int MIN_VERTICAL_GRID_NUM = 4;
 
         private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
-        private int BOTTOM_TEXT_COLOR = Colors.WHITE;
-
-        private float longestTextWidth;
 
         private boolean drawGridLines = false;
         private boolean drawDotLine = false;
         private boolean drawDotPoints = false;
         private boolean drawGraphBackground = false;
-        private boolean drawDataLabels = false;
-        private boolean drawIconsLabels = false;
         private boolean drawSeriesLabels = false;
 
         private final Paint bigCirPaint;
@@ -172,20 +156,11 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         LineViewGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
 
-            bottomTextPaint = new Paint();
             bigCirPaint = new Paint();
             yCoordinateList = new ArrayList<>();
             drawDotLists = new ArrayList<>();
 
             resetData(false);
-
-            bottomTextPaint.setAntiAlias(true);
-            bottomTextPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.forecast_condition_size));
-            bottomTextPaint.setTextAlign(Paint.Align.CENTER);
-            bottomTextPaint.setStyle(Paint.Style.FILL);
-            bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
-
-            iconHeight = ContextUtils.dpToPx(getContext(), 30);
 
             bigCirPaint.setAntiAlias(true);
             smallCirPaint = new Paint(bigCirPaint);
@@ -218,7 +193,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
         private float getGraphHeight() {
             float graphHeight = mViewHeight - bottomTextTopMargin - bottomTextHeight - bottomTextDescent;
-            if (drawIconsLabels) graphHeight -= iconHeight;
+            if (isDrawIconsLabels()) graphHeight -= iconHeight;
 
             return graphHeight;
         }
@@ -232,7 +207,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
             graphBottom -= (bottomTextTopMargin + bottomTextHeight + bottomTextDescent);
 
-            if (drawIconsLabels)
+            if (isDrawIconsLabels())
                 graphBottom -= (iconHeight + iconBottomMargin);
             else
                 graphBottom -= (linePaint.getStrokeWidth() + iconBottomMargin);
@@ -313,7 +288,6 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
             } else {
                 bottomTextDescent = 0;
                 longestTextWidth = 0;
-                longestTextWidth = 0;
                 verticalGridNum = MIN_VERTICAL_GRID_NUM;
             }
 
@@ -327,18 +301,21 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
 
-            final int mParentWidth;
-            if (getMaxWidth() > 0) {
-                mParentWidth = Math.min(getMeasuredWidth(), getMaxWidth());
-            } else {
-                mParentWidth = getMeasuredWidth();
+            final int mParentWidth = getScrollViewer().getMeasuredWidth();
+
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
+                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
             }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
                 float additionalSpace = (float) freeSpace / getMaxEntryCount();
-                if (additionalSpace > 0) {
-                    backgroundGridWidth += additionalSpace;
+
+                if (isFillParentWidth()) {
+                    if (additionalSpace > 0) {
+                        backgroundGridWidth += additionalSpace;
+                    }
                 }
             }
         }
@@ -529,7 +506,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         if (RectF.intersects(drawingRect, visibleRect))
                             canvas.drawLine(dot.x, dot.y, nextDot.x, nextDot.y, linePaint);
 
-                        if (drawDataLabels) {
+                        if (isDrawDataLabels()) {
                             // Draw top label
                             drwTextWidth = bottomTextPaint.measureText(entry.getLabel().toString());
                             drawingRect.set(dot.x, dot.y, dot.x + drwTextWidth, dot.y + bottomTextHeight);
@@ -551,7 +528,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
                         // Draw last items
                         if (i + 1 == drawDotLists.get(k).size() - 1) {
-                            if (drawDataLabels) {
+                            if (isDrawDataLabels()) {
                                 // Draw top label
                                 drwTextWidth = bottomTextPaint.measureText(nextEntry.getLabel().toString());
                                 drawingRect.set(nextDot.x, nextDot.y, nextDot.x + drwTextWidth, nextDot.y + bottomTextHeight);
@@ -586,7 +563,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         canvas.drawPath(mPathBackground, mPaintBackground);
                     }
 
-                    if (drawDataLabels) {
+                    if (isDrawDataLabels()) {
                         for (TextEntry entry : textEntries) {
                             canvas.drawText(entry.text, entry.x, entry.y, bottomTextPaint);
                         }
@@ -596,16 +573,16 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         }
 
         private void drawBackgroundLines(Canvas canvas) {
-            if (drawGridLines && !xCoordinateList.isEmpty()) {
+            if (drawGridLines) {
                 // draw vertical lines
                 for (int i = 0; i < xCoordinateList.size(); i++) {
-                    drawingRect.set(xCoordinateList.get(i), getGraphTop(), xCoordinateList.get(i), getGraphHeight());
+                    drawingRect.set(xCoordinateList.get(i), getGraphTop(), xCoordinateList.get(i), getGraphBottom());
 
                     if (RectF.intersects(drawingRect, visibleRect)) {
                         canvas.drawLine(xCoordinateList.get(i),
                                 getGraphTop(),
                                 xCoordinateList.get(i),
-                                getGraphHeight(),
+                                getGraphBottom(),
                                 bgLinesPaint);
                     }
                 }
@@ -615,10 +592,12 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
                 // draw horizontal lines
                 for (int i = 0; i < yCoordinateList.size(); i++) {
-                    drawingRect.set(visibleRect.left, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i));
+                    if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0) {
+                        final float y = yCoordinateList.get(i);
 
-                    if ((yCoordinateList.size() - 1 - i) % dataOfAGird == 0 && RectF.intersects(drawingRect, visibleRect)) {
-                        canvas.drawLine(visibleRect.left, yCoordinateList.get(i), visibleRect.right, yCoordinateList.get(i), bgLinesPaint);
+                        if (y <= visibleRect.bottom && y >= visibleRect.top) {
+                            canvas.drawLine(visibleRect.left, y, visibleRect.right, y, bgLinesPaint);
+                        }
                     }
                 }
             }
@@ -641,7 +620,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                             canvas.drawText(entry.getXLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && entry.getXIcon() != null) {
+                    if (isDrawIconsLabels() && entry.getXIcon() != null) {
                         final int rotation = entry.getXIconRotation();
 
                         final Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
@@ -739,16 +718,13 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         }
 
         @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        protected void onPreMeasure() {
             refreshGridWidth();
             refreshXCoordinateList();
+        }
 
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onMeasure: width = " + mViewWidth);
-            }
-
+        @Override
+        protected void onPostMeasure() {
             refreshAfterDataChanged();
         }
 

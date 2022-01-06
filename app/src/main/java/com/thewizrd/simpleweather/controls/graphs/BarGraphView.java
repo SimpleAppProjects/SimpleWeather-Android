@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,8 +16,6 @@ import androidx.annotation.Px;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
-import com.thewizrd.simpleweather.BuildConfig;
-import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
 
@@ -56,25 +53,19 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
     }
 
     public void setBottomTextColor(@ColorInt int color) {
-        getGraph().BOTTOM_TEXT_COLOR = color;
-        if (getGraph().bottomTextPaint != null) {
-            getGraph().bottomTextPaint.setColor(getGraph().BOTTOM_TEXT_COLOR);
-        }
+        getGraph().setBottomTextColor(color);
     }
 
     public void setBottomTextSize(@Px float textSize) {
-        getGraph().BOTTOM_TEXT_SIZE = textSize;
-        if (getGraph().bottomTextPaint != null) {
-            getGraph().bottomTextPaint.setTextSize(getGraph().BOTTOM_TEXT_SIZE);
-        }
+        getGraph().setBottomTextSize(textSize);
     }
 
     public void setDrawIconLabels(boolean drawIconsLabels) {
-        getGraph().drawIconsLabels = drawIconsLabels;
+        getGraph().setDrawIconsLabels(drawIconsLabels);
     }
 
     public void setDrawDataLabels(boolean drawDataLabels) {
-        getGraph().drawDataLabels = drawDataLabels;
+        getGraph().setDrawDataLabels(drawDataLabels);
     }
 
     public BarGraphData getData() {
@@ -86,28 +77,7 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
     }
 
     private class BarChartGraph extends BaseGraphView<BarGraphData> {
-        private float drwTextWidth;
-        private float bottomTextHeight = 0;
-
         private final ArrayList<Bar> drawDotLists;
-
-        private final Paint bottomTextPaint;
-        private int bottomTextDescent;
-
-        private final float iconHeight;
-
-        private final float iconBottomMargin = ContextUtils.dpToPx(getContext(), 4);
-        private final float bottomTextTopMargin = ContextUtils.dpToPx(getContext(), 6);
-
-        private int BOTTOM_TEXT_COLOR = Colors.WHITE;
-        private float BOTTOM_TEXT_SIZE = getContext().getResources().getDimensionPixelSize(R.dimen.forecast_condition_size);
-
-        private float sideLineLength = 0;
-        private float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
-        private float longestTextWidth;
-
-        private boolean drawDataLabels = false;
-        private boolean drawIconsLabels = false;
 
         private final Paint linePaint;
 
@@ -118,18 +88,9 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
         BarChartGraph(Context context, AttributeSet attrs) {
             super(context, attrs);
 
-            bottomTextPaint = new TextPaint();
             drawDotLists = new ArrayList<>();
 
             resetData(false);
-
-            bottomTextPaint.setAntiAlias(true);
-            bottomTextPaint.setTextSize(BOTTOM_TEXT_SIZE);
-            bottomTextPaint.setTextAlign(Paint.Align.CENTER);
-            bottomTextPaint.setStyle(Paint.Style.FILL);
-            bottomTextPaint.setColor(BOTTOM_TEXT_COLOR);
-
-            iconHeight = ContextUtils.dpToPx(getContext(), 30);
 
             linePaint = new Paint();
             linePaint.setAntiAlias(true);
@@ -146,8 +107,8 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
 
         private float getGraphHeight() {
             float graphHeight = mViewHeight - bottomTextTopMargin - bottomTextHeight - bottomTextDescent - linePaint.getStrokeWidth();
-            if (drawIconsLabels) graphHeight = graphHeight - iconHeight - iconBottomMargin;
-            if (drawDataLabels)
+            if (isDrawIconsLabels()) graphHeight = graphHeight - iconHeight - iconBottomMargin;
+            if (isDrawDataLabels())
                 graphHeight = graphHeight - bottomTextTopMargin - linePaint.getStrokeWidth();
 
             return graphHeight;
@@ -158,7 +119,7 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
 
             graphBottom -= (bottomTextTopMargin + bottomTextHeight + bottomTextDescent);
 
-            if (drawIconsLabels)
+            if (isDrawIconsLabels())
                 graphBottom -= (iconHeight + iconBottomMargin);
             else
                 graphBottom -= (linePaint.getStrokeWidth() + iconBottomMargin);
@@ -223,23 +184,16 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
 
-            final int mParentWidth;
-            if (getMaxWidth() > 0) {
-                mParentWidth = Math.min(getMeasuredWidth(), getMaxWidth());
-            } else {
-                mParentWidth = getMeasuredWidth();
-            }
-
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
-                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
-            }
+            final int mParentWidth = getScrollViewer().getMeasuredWidth();
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
                 float additionalSpace = (float) freeSpace / getMaxEntryCount();
-                if (additionalSpace > 0) {
-                    backgroundGridWidth += additionalSpace;
+
+                if (isFillParentWidth()) {
+                    if (additionalSpace > 0) {
+                        backgroundGridWidth += additionalSpace;
+                    }
                 }
             }
         }
@@ -332,14 +286,14 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
                     BarGraphEntry entry = set.getEntryForIndex(i);
 
                     if (entry.getXLabel() != null && !TextUtils.isEmpty(entry.getXLabel())) {
-                        drwTextWidth = bottomTextPaint.measureText(entry.getXLabel().toString());
+                        float drwTextWidth = bottomTextPaint.measureText(entry.getXLabel().toString());
                         drawingRect.set(x, y, x + drwTextWidth, y + bottomTextHeight);
 
                         if (RectF.intersects(drawingRect, visibleRect))
                             canvas.drawText(entry.getXLabel().toString(), x, y, bottomTextPaint);
                     }
 
-                    if (drawIconsLabels && entry.getXIcon() != null) {
+                    if (isDrawIconsLabels() && entry.getXIcon() != null) {
                         final int rotation = entry.getXIconRotation();
 
                         Rect bounds = new Rect(0, 0, (int) iconHeight, (int) iconHeight);
@@ -374,14 +328,14 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
                     drawingRect.set(
                             bar.x - linePaint.getStrokeWidth() / 2f,
                             bar.y - bottomTextHeight - bottomTextDescent,
-                            bar.x + drwTextWidth + linePaint.getStrokeWidth() / 2f,
+                            bar.x + linePaint.getStrokeWidth() / 2f,
                             getGraphBottom()
                     );
 
                     if (RectF.intersects(drawingRect, visibleRect)) {
                         canvas.drawLine(bar.x, drawingRect.bottom, bar.x, bar.y, linePaint);
 
-                        if (drawDataLabels) {
+                        if (isDrawDataLabels()) {
                             if (entry.getEntryData() != null)
                                 canvas.drawText(entry.getEntryData().getLabel().toString(), bar.x, bar.y - bottomTextHeight - bottomTextDescent, bottomTextPaint);
                         }
@@ -404,34 +358,13 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
         }
 
         @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            final int specWidth = MeasureSpec.getSize(widthMeasureSpec);
-
-            if (getMaxWidth() > 0) {
-                mViewWidth = Math.min(specWidth, getMaxWidth());
-            } else {
-                mViewWidth = specWidth;
-            }
-
-            setMeasuredDimension(mViewWidth, mViewHeight);
-
+        protected void onPreMeasure() {
             refreshGridWidth();
             refreshXCoordinateList();
+        }
 
-            if (getMaxWidth() > 0) {
-                mViewWidth = Math.min(getPreferredWidth(), getMaxWidth());
-            } else {
-                mViewWidth = getPreferredWidth();
-            }
-            setMeasuredDimension(mViewWidth, mViewHeight);
-
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onMeasure: parent width = " + getScrollViewer().getMeasuredWidth());
-                Log.d(TAG, "onMeasure: measure width = " + specWidth);
-                Log.d(TAG, "onMeasure: width = " + mViewWidth);
-            }
-
+        @Override
+        protected void onPostMeasure() {
             refreshDrawDotList();
         }
 

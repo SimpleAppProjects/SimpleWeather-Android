@@ -6,16 +6,21 @@ import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
+
+import com.thewizrd.simpleweather.BuildConfig;
 
 public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extends GraphDataSet<? extends GraphEntry>>> extends HorizontalScrollView implements IGraph {
     private HorizontalScrollView mScrollViewer;
@@ -80,13 +85,28 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
         this.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         this.removeAllViews();
-        final ViewGroup innerLayout = new LinearLayout(getContext());
+
+        // FrameLayout added to ScrollViewer
+        final ViewGroup innerLayout = new FrameLayout(getContext());
         LayoutParams innerParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         this.addView(innerLayout, innerParams);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        innerLayout.addView(graph, layoutParams);
+
+        // Graph wrapped in FrameLayout
+        innerLayout.addView(graph, generateGraphLayoutParams());
 
         mScrollViewer = this;
+    }
+
+    /**
+     * Returns a set of layout parameters with a width of
+     * {@link android.view.ViewGroup.LayoutParams#MATCH_PARENT},
+     * and a height of {@link android.view.ViewGroup.LayoutParams#MATCH_PARENT}.
+     */
+    @CallSuper
+    protected LayoutParams generateGraphLayoutParams() {
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+        return layoutParams;
     }
 
     @NonNull
@@ -140,6 +160,10 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
 
     public final void setGraphMaxWidth(@Px int maxWidth) {
         this.graph.setMaxWidth(maxWidth);
+    }
+
+    public final void setFillParentWidth(boolean fillParentWidth) {
+        this.graph.setFillParentWidth(fillParentWidth);
     }
 
     @Override
@@ -215,6 +239,53 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
 
     public final void resetData(boolean invalidate) {
         getGraph().resetData(invalidate);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        if (widthMode == MeasureSpec.UNSPECIFIED) {
+            return;
+        }
+
+        if (getChildCount() > 0) {
+            final View child = getChildAt(0);
+            final int widthPadding;
+            final int heightPadding;
+            final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final int targetSdkVersion = getContext().getApplicationInfo().targetSdkVersion;
+            if (targetSdkVersion >= Build.VERSION_CODES.M) {
+                widthPadding = getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin;
+                heightPadding = getPaddingTop() + getPaddingBottom() + lp.topMargin + lp.bottomMargin;
+            } else {
+                widthPadding = getPaddingLeft() + getPaddingRight();
+                heightPadding = getPaddingTop() + getPaddingBottom();
+            }
+
+            int desiredWidth = getMeasuredWidth() - widthPadding;
+
+            if (BuildConfig.DEBUG) {
+                Log.d("BaseGraphScrollView", "onMeasure: desiredWidth = " + desiredWidth);
+                Log.d("BaseGraphScrollView", "onMeasure: child width = " + child.getMeasuredWidth());
+            }
+
+            if (child.getMeasuredWidth() < desiredWidth) {
+                final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                        desiredWidth, MeasureSpec.UNSPECIFIED);
+                final int childHeightMeasureSpec = getChildMeasureSpec(
+                        heightMeasureSpec, heightPadding, lp.height);
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+            } else {
+                final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                        child.getMeasuredWidth(), MeasureSpec.AT_MOST);
+                final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                        child.getMeasuredHeight(), MeasureSpec.EXACTLY);
+
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+            }
+        }
     }
 
     @Override
