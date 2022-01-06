@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNData
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
+import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -190,15 +191,42 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
                 if (!aqiData.uviForecast.isNullOrEmpty()) {
                     for (i in aqiData.uviForecast.indices) {
                         val uviData = aqiData.uviForecast[i]
-                        val date = LocalDate.parse(uviData.day, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
+                        val date = LocalDate.parse(
+                            uviData.day,
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT)
+                        )
 
-                        if (i == 0 && weather.condition.uv == null) {
-                            if (date.isEqual(weather.condition.observationTime.toLocalDate())) {
-                                weather.condition.uv = UV(uviData.avg.toFloat())
+                        if (i == 0 && weather.condition.uv == null && date.isEqual(weather.condition.observationTime.toLocalDate())) {
+                            if (weather.astronomy.sunrise != null && weather.astronomy.sunset != null) {
+                                val obsLocalTime = weather.condition.observationTime.toLocalTime()
+                                // if before sunrise or after sunset, uv min
+                                if (obsLocalTime.isBefore(weather.astronomy.sunrise.toLocalTime()) || obsLocalTime.isAfter(
+                                        weather.astronomy.sunset.toLocalTime()
+                                    )
+                                ) {
+                                    weather.condition.uv = UV(uviData.min.toFloat())
+                                } else {
+                                    val totalSunlightTime =
+                                        weather.astronomy.sunset.toEpochSecond(location.tzOffset) - weather.astronomy.sunrise.toEpochSecond(
+                                            location.tzOffset
+                                        )
+                                    val solarNoon =
+                                        weather.astronomy.sunrise.plusSeconds(totalSunlightTime)
+
+                                    // If +/- 2hrs within solar noon, UV max
+                                    if (Duration.between(solarNoon.toLocalTime(), obsLocalTime)
+                                            .abs().toHours() <= 2
+                                    ) {
+                                        weather.condition.uv = UV(uviData.max.toFloat())
+                                    } else { // else uv avg
+                                        weather.condition.uv = UV(uviData.avg.toFloat())
+                                    }
+                                }
                             }
                         }
 
-                        val forecastObj = weather.forecast.find { it.date.toLocalDate().isEqual(date) }
+                        val forecastObj =
+                            weather.forecast.find { it.date.toLocalDate().isEqual(date) }
                         if (forecastObj != null && forecastObj.extras?.uvIndex == null) {
                             if (forecastObj.extras == null) {
                                 forecastObj.extras = ForecastExtras()
