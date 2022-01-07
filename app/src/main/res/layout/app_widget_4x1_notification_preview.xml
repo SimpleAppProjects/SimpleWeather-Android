@@ -199,16 +199,4 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="center_vertical"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="?android:attr/textColorPrimary" />
-
 </RelativeLayout>

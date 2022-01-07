@@ -29,19 +29,6 @@
         android:theme="@style/AppWidgetTheme.AppWidgetContainer"
         android:background="@color/colorSurface" />
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:alpha="0.7"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="?android:attr/textColorPrimary" />
-
     <LinearLayout
         android:id="@+id/layout_container"
         android:layout_width="match_parent"
