@@ -216,4 +216,6 @@
     <string name="label_count_veryhigh">Very High</string>
     <string name="time_current">Current</string>
 
+    <string name="action_refresh">Refresh</string>
+
 </resources>

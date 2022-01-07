@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -11,6 +12,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -64,6 +66,21 @@ public class WeatherRadarFragment extends ToolbarFragment {
         // Setup Actionbar
         getToolbar().setNavigationIcon(ContextUtils.getAttrResourceId(getToolbar().getContext(), R.attr.homeAsUpIndicator));
         getToolbar().setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+
+        getToolbar().inflateMenu(R.menu.radar);
+        getToolbar().setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_refresh:
+                        if (radarViewProvider != null && weatherView.getLocationCoord() != null) {
+                            radarViewProvider.updateCoordinates(weatherView.getLocationCoord(), true);
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
 
         radarViewProvider = RadarProvider.getRadarViewProvider(requireContext(), binding.radarWebviewContainer);
         radarViewProvider.enableInteractions(true);
@@ -160,6 +177,8 @@ public class WeatherRadarFragment extends ToolbarFragment {
     // Initialize views here
     @CallSuper
     protected void initialize() {
-        radarViewProvider.updateRadarView();
+        if (radarViewProvider != null) {
+            radarViewProvider.updateRadarView();
+        }
     }
 }
