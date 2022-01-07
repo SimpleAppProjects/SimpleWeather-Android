@@ -157,8 +157,7 @@ public class RangeBarGraphView extends BaseGraphHorizontalScrollView<RangeBarGra
                 }
 
                 // Add padding
-                longestTextWidth += ContextUtils.dpToPx(getContext(), 8f);
-                backgroundGridWidth = longestTextWidth;
+                backgroundGridWidth = longestTextWidth + ContextUtils.dpToPx(getContext(), 8f);
             } else {
                 bottomTextDescent = 0;
                 longestTextWidth = 0;
@@ -173,9 +172,9 @@ public class RangeBarGraphView extends BaseGraphHorizontalScrollView<RangeBarGra
         private void refreshGridWidth() {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
+            final float defaultPadding = ContextUtils.dpToPx(getContext(), 8f);
 
             final int mParentWidth = getScrollViewer().getMeasuredWidth();
-
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
                 Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
@@ -183,13 +182,24 @@ public class RangeBarGraphView extends BaseGraphHorizontalScrollView<RangeBarGra
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
-                float additionalSpace = (float) freeSpace / getMaxEntryCount();
+                float availableAdditionalSpace = (float) freeSpace / getMaxEntryCount();
 
                 if (isFillParentWidth()) {
-                    if (additionalSpace > 0) {
-                        backgroundGridWidth += additionalSpace;
+                    if (availableAdditionalSpace > 0) {
+                        backgroundGridWidth += availableAdditionalSpace;
+                    } else {
+                        backgroundGridWidth += defaultPadding;
+                    }
+                } else {
+                    final float requestedPadding = ContextUtils.dpToPx(getContext(), 48f);
+                    if (availableAdditionalSpace > 0 && requestedPadding < availableAdditionalSpace) {
+                        backgroundGridWidth += requestedPadding;
+                    } else {
+                        backgroundGridWidth += defaultPadding;
                     }
                 }
+            } else {
+                backgroundGridWidth += defaultPadding;
             }
         }
 

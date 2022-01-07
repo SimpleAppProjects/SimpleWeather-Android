@@ -16,6 +16,7 @@ import androidx.annotation.Px;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
+import com.thewizrd.simpleweather.BuildConfig;
 
 import java.util.ArrayList;
 
@@ -167,8 +168,7 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
                 }
 
                 // Add padding
-                longestTextWidth += ContextUtils.dpToPx(getContext(), 8f);
-                backgroundGridWidth = longestTextWidth;
+                backgroundGridWidth = longestTextWidth + ContextUtils.dpToPx(getContext(), 8f);
             } else {
                 bottomTextDescent = 0;
                 longestTextWidth = 0;
@@ -183,18 +183,34 @@ public class BarGraphView extends BaseGraphHorizontalScrollView<BarGraphData> {
         private void refreshGridWidth() {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
+            final float defaultPadding = ContextUtils.dpToPx(getContext(), 8f);
 
             final int mParentWidth = getScrollViewer().getMeasuredWidth();
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
+                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
+            }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();
-                float additionalSpace = (float) freeSpace / getMaxEntryCount();
+                float availableAdditionalSpace = (float) freeSpace / getMaxEntryCount();
 
                 if (isFillParentWidth()) {
-                    if (additionalSpace > 0) {
-                        backgroundGridWidth += additionalSpace;
+                    if (availableAdditionalSpace > 0) {
+                        backgroundGridWidth += availableAdditionalSpace;
+                    } else {
+                        backgroundGridWidth += defaultPadding;
+                    }
+                } else {
+                    final float requestedPadding = ContextUtils.dpToPx(getContext(), 48f);
+                    if (availableAdditionalSpace > 0 && requestedPadding < availableAdditionalSpace) {
+                        backgroundGridWidth += requestedPadding;
+                    } else {
+                        backgroundGridWidth += defaultPadding;
                     }
                 }
+            } else {
+                backgroundGridWidth += defaultPadding;
             }
         }
 
