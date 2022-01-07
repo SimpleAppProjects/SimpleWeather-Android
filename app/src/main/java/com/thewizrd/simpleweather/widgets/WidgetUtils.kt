@@ -743,6 +743,10 @@ object WidgetUtils {
         return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock
     }
 
+    fun isSettingsButtonOptional(widgetType: WidgetType): Boolean {
+        return widgetType != WidgetType.Widget2x2MaterialYou && widgetType != WidgetType.Widget2x2PillMaterialYou && widgetType != WidgetType.Widget4x2MaterialYou && widgetType != WidgetType.Widget4x4MaterialYou
+    }
+
     @ColorInt
     fun getTextColor(appWidgetId: Int, background: WidgetBackground): Int {
         return if (background == WidgetBackground.CUSTOM) {

@@ -420,7 +420,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideSettingsBtnPref.isChecked = WidgetUtils.isSettingsButtonHidden(mAppWidgetId)
 
-        if (mWidgetType == WidgetType.Widget2x2MaterialYou || mWidgetType == WidgetType.Widget4x2MaterialYou || mWidgetType == WidgetType.Widget4x4MaterialYou) {
+        if (!WidgetUtils.isSettingsButtonOptional(mWidgetType)) {
             hideSettingsBtnPref.isVisible = false
         }
 
