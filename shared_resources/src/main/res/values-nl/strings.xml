@@ -153,6 +153,7 @@
     <string name="userthememode_black">"Donker (AMOLED)"</string>
     <string name="userthememode_light">"Licht"</string>
     <string name="summary_default">"Standaard"</string>
+    <string name="action_refresh">"Vernieuwen"</string>
     <string name="label_windgust">"Windstoten"</string>
     <string name="pref_title_language">"Taal"</string>
 

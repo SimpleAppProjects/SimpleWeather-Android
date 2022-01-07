@@ -155,6 +155,7 @@
     <string name="userthememode_black">"Foncé (AMOLED)"</string>
     <string name="userthememode_light">"Clair"</string>
     <string name="summary_default">"Défaut"</string>
+    <string name="action_refresh">"Rafraîchir"</string>
     <string name="label_windgust">"Rafale de vent"</string>
     <string name="pref_title_language">"Langue"</string>
 

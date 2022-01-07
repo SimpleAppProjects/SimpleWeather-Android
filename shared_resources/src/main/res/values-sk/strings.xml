@@ -153,6 +153,7 @@
     <string name="userthememode_black">"Tmavý (AMOLED)"</string>
     <string name="userthememode_light">"Svetlý"</string>
     <string name="summary_default">"Predvolené"</string>
+    <string name="action_refresh">"Obnoviť"</string>
     <string name="label_windgust">"Nárazy vetra"</string>
     <string name="pref_title_language">"Jazyk"</string>
 

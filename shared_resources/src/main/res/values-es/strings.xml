@@ -173,6 +173,7 @@
 
     <!-- Fuzzy -->
     <string name="summary_default">"Por defecto"</string>
+    <string name="action_refresh">"Actualizar"</string>
     <string name="label_windgust">"Ráfaga de viento"</string>
     <string name="pref_title_language">"Idioma"</string>
 
