@@ -26,7 +26,7 @@ class WeatherWidgetProvider4x2 : WeatherWidgetProvider() {
             val views = RemoteViews(context.packageName, info.widgetLayoutId)
             views.showNext(R.id.forecast_layout)
             val appWidgetId = intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
         } else {
             super.onReceive(context, intent)
         }

@@ -11,16 +11,15 @@ class WeatherWidgetProvider4x1 : WeatherWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
-        if (intent != null) {
-            if (ACTION_SHOWNEXTFORECAST == action) {
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val views = RemoteViews(context.packageName, info.widgetLayoutId)
-                views.showNext(R.id.forecast_layout)
-                val appWidgetId = intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            } else {
-                super.onReceive(context, intent)
-            }
+        if (ACTION_SHOWNEXTFORECAST == action) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val views = RemoteViews(context.packageName, info.widgetLayoutId)
+            views.showNext(R.id.forecast_layout)
+            val appWidgetId =
+                intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
+        } else {
+            super.onReceive(context, intent)
         }
     }
 
