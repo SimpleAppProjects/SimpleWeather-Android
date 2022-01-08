@@ -185,6 +185,7 @@
         android:layout_alignParentBottom="true"
         android:autoStart="true"
         android:flipInterval="10000"
-        android:loopViews="true" />
+        android:inAnimation="@anim/widget_fade_in"
+        android:outAnimation="@anim/widget_fade_out" />
 
 </RelativeLayout>

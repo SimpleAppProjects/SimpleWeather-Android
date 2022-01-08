@@ -947,4 +947,15 @@ object WidgetUtils {
             putString(KEY_LOCATIONS, locations?.joinToString(separator = ";separator;") { it })
         }
     }
+
+    fun getDisplayedChild(appWidgetId: Int): Int {
+        val prefs = getPreferences(appWidgetId)
+        return prefs.getInt("setDisplayedChild", 0)
+    }
+
+    fun setDisplayedChild(appWidgetId: Int, index: Int) {
+        getPreferences(appWidgetId).edit(false) {
+            putInt("setDisplayedChild", index)
+        }
+    }
 }

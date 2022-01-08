@@ -7,15 +7,23 @@ import android.widget.RemoteViews
 import com.thewizrd.simpleweather.R
 
 class WeatherWidgetProvider4x2 : WeatherWidgetProvider() {
+    companion object {
+        private fun getNextIndex(index: Int): Int {
+            return (index + 1) % 2
+        }
+    }
+
     override val info: WidgetProviderInfo by lazy { Info.getInstance() }
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
         if (Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action) {
-            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
+            WeatherWidgetService.enqueueWork(
+                context, Intent(context, WeatherWidgetService::class.java)
                     .setAction(WeatherWidgetService.ACTION_UPDATECLOCK)
                     .putExtra(EXTRA_WIDGET_IDS, info.appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
+                    .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value)
+            )
 
             WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
                     .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
@@ -23,9 +31,14 @@ class WeatherWidgetProvider4x2 : WeatherWidgetProvider() {
                     .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
         } else if (ACTION_SHOWNEXTFORECAST == action) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
+            val appWidgetId =
+                intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+
+            // Note: workaround; possibly temporary?
             val views = RemoteViews(context.packageName, info.widgetLayoutId)
-            views.showNext(R.id.forecast_layout)
-            val appWidgetId = intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            val index = getNextIndex(WidgetUtils.getDisplayedChild(appWidgetId))
+            views.setInt(R.id.forecast_layout, "setDisplayedChild", index)
+            WidgetUtils.setDisplayedChild(appWidgetId, index)
             appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
         } else {
             super.onReceive(context, intent)
