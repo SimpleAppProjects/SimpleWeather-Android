@@ -1660,14 +1660,15 @@ object WidgetUpdaterHelper {
         if (WidgetUtils.isClockWidget(widgetType)) {
             val mAppWidgetManager = AppWidgetManager.getInstance(context)
 
-            val views = RemoteViews(context.packageName, info.widgetLayoutId)
             for (appWidgetId in appWidgetIds) {
                 if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
                 val locationData = getLocation(context, appWidgetId)
 
                 // Widget dimensions
+                val views = RemoteViews(context.packageName, info.widgetLayoutId)
                 val newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId)
                 buildClock(context, info, locationData, views, appWidgetId, newOptions)
+                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
             }
         }
     }
@@ -1742,15 +1743,16 @@ object WidgetUpdaterHelper {
 
         if (WidgetUtils.isDateWidget(widgetType)) {
             val mAppWidgetManager = AppWidgetManager.getInstance(context)
-            val views = RemoteViews(context.packageName, info.widgetLayoutId)
 
             for (appWidgetId in appWidgetIds) {
                 if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
                 val locationData = getLocation(context, appWidgetId)
 
                 // Widget dimensions
+                val views = RemoteViews(context.packageName, info.widgetLayoutId)
                 val newOptions = mAppWidgetManager.getAppWidgetOptions(appWidgetId)
                 buildDate(context, info, locationData, views, appWidgetId, newOptions)
+                mAppWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
             }
         }
     }
