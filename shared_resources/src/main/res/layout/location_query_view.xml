@@ -14,7 +14,7 @@
             type="com.thewizrd.shared_resources.controls.LocationQueryViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/list_horizontal_padding"
@@ -22,7 +22,18 @@
         android:paddingEnd="@dimen/list_horizontal_padding"
         android:paddingRight="@dimen/list_horizontal_padding"
         android:paddingTop="@dimen/list_vertical_padding"
-        android:paddingBottom="@dimen/list_vertical_padding">
+        android:paddingBottom="@dimen/list_vertical_padding"
+        tools:theme="@style/Theme.Material3.DayNight.NoActionBar">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/pin"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:visibility="@{StringUtils.isNullOrWhitespace(viewModel.locationQuery) &amp;&amp; StringUtils.isNullOrWhitespace(viewModel.locationCountry) ? View.GONE : View.VISIBLE}"
+            app:srcCompat="@drawable/ic_place_white_24dp"
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/location_name"
@@ -33,12 +44,8 @@
             android:text="@{viewModel.locationName}"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="@dimen/list_text_size"
-            app:layout_constraintBottom_toTopOf="@id/location_country"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/pin"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toEndOf="@id/pin"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_toEndOf="@id/pin"
+            android:layout_alignParentEnd="true"
             tools:text="London, United Kingdom" />
 
         <TextView
@@ -50,24 +57,10 @@
             android:text='@{StringUtils.isNullOrWhitespace(viewModel.locationRegion) ? viewModel.locationCountry : viewModel.locationRegion + `, ` + viewModel.locationCountry}'
             android:textColor="?android:attr/textColorSecondaryNoDisable"
             android:textSize="@dimen/list_secondary_text_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/pin"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toEndOf="@id/pin"
-            app:layout_constraintTop_toBottomOf="@id/location_name"
+            android:layout_toEndOf="@id/pin"
+            android:layout_below="@id/location_name"
+            android:layout_alignParentEnd="true"
             tools:text="City of London, Greater London, United Kingdom" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/pin"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_place_white_24dp"
-            app:tint="?attr/colorPrimary"
-            android:visibility="@{StringUtils.isNullOrWhitespace(viewModel.locationQuery) &amp;&amp; StringUtils.isNullOrWhitespace(viewModel.locationCountry) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 </layout>

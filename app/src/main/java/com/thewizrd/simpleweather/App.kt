@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.work.Configuration
+import com.google.android.material.color.DynamicColors
 import com.thewizrd.shared_resources.AppState
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.SimpleLibrary
@@ -185,6 +186,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
             }
 
             registerAppSharedPreferenceListener()
+
+            DynamicColors.applyToActivitiesIfAvailable(this)
         }
     }
 

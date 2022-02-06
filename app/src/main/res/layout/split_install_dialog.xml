@@ -29,17 +29,13 @@
         android:paddingEnd="24dp"
         android:paddingBottom="18dp">
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progress"
-            style="?android:attr/progressBarStyle"
+            style="@style/Widget.Material3.CircularProgressIndicator.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:max="10000"
-            android:layout_marginEnd="24dp"
-            android:indeterminateTint="@color/invButtonColorText"
-            android:indeterminateTintMode="src_in"
-            android:progressTint="@color/invButtonColorText"
-            android:progressTintMode="src_in" />
+            android:indeterminate="true"
+            android:layout_marginEnd="24dp" />
 
         <TextView
             android:id="@+id/message"

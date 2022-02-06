@@ -4,17 +4,16 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/search_view_container"
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="@dimen/searchview_height_region_search"
-        style="@style/Widget.MaterialComponents.CardView"
-        android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
         android:clickable="true"
         android:orientation="horizontal"
-        app:cardElevation="@dimen/appbar_elevation"
-        app:cardBackgroundColor="?attr/colorSurface">
+        app:cardBackgroundColor="?colorSecondaryContainer">
 
         <LinearLayout
             android:id="@+id/search_box_collapsed"
@@ -31,7 +30,7 @@
                 android:importantForAccessibility="no"
                 android:padding="4dp"
                 app:srcCompat="@drawable/ic_search_white_24dp"
-                app:tint="@color/invButtonColorText" />
+                app:tint="?colorOnSecondaryContainer" />
 
             <TextView
                 android:id="@+id/search_box_start_search"
@@ -39,12 +38,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="22dp"
                 android:layout_weight="1"
-                android:fontFamily="sans-serif"
                 android:gravity="center_vertical"
                 android:hint="@string/setup_location_prompt"
-                android:textColorHint="@color/invButtonColorText"
-                android:textColor="@color/invButtonColorText"
-                android:textSize="14sp" />
+                android:textAppearance="?textAppearanceLabelLarge"
+                android:textColor="?colorOnSecondaryContainer"
+                android:textColorHint="?colorOnSecondaryContainer" />
         </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
+
 </layout>

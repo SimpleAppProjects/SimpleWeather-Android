@@ -230,7 +230,7 @@
                 android:padding="4dp"
                 android:text="@{weatherView.weatherSummary}"
                 android:textSize="@dimen/weather_summary_text_size"
-                android:textAppearance="?textAppearanceSubtitle1"
+                android:textAppearance="?textAppearanceTitleMedium"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
                 app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />
@@ -246,7 +246,7 @@
                 android:padding="4dp"
                 android:text="@{weatherView.updateDate}"
                 android:textSize="12sp"
-                android:textAppearance="?textAppearanceSubtitle1"
+                android:textAppearance="?textAppearanceTitleMedium"
                 tools:text="Updated on 11:12 PM"
                 tools:ignore="MissingConstraints" />
 

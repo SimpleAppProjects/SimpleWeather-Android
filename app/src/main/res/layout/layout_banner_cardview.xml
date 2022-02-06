@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/Widget.MaterialComponents.CardView"
-    tools:theme="@style/Theme.MaterialComponents.DayNight">
+    style="@style/Widget.Material3.CardView.Elevated"
+    tools:theme="@style/Theme.Material3.DayNight">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:textAppearance="?attr/textAppearanceBody2"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             app:layout_constraintStart_toEndOf="@id/banner_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/banner_icon"
@@ -63,7 +63,7 @@
             android:id="@+id/primary_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/secondary_btn"
             app:layout_constraintStart_toStartOf="parent"
@@ -78,7 +78,7 @@
             android:id="@+id/secondary_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintHorizontal_bias="1"

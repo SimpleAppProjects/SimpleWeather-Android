@@ -64,4 +64,9 @@
     <dimen name="graph_max_width">720dp</dimen>
     <dimen name="details_item_min_width">360dp</dimen>
 
+    <!-- Splash Screen -->
+    <dimen name="splashscreen_icon_size" tools:override="true">144dp</dimen>
+    <dimen name="splashscreen_icon_size_no_background" tools:override="true">144dp</dimen>
+    <dimen name="splashscreen_icon_size_with_background" tools:override="true">144dp</dimen>
+
 </resources>

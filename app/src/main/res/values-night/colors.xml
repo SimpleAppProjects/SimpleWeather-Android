@@ -13,6 +13,8 @@
     <color name="sun_color">#FFFFFF00</color>
     <color name="beaufort_color">#FF1E90FF</color>
 
-    <color name="widget_innerview_background_color">#06509e</color>
+    <color name="widget_innerview_background_color">@color/md_theme_dark_secondaryContainer</color>
+    <color name="widget_m3_pill_background_color">@color/md_theme_dark_secondaryContainer</color>
+    <color name="widget_m3_pill_foreground_color">@color/md_theme_dark_onSecondaryContainer</color>
 
 </resources>

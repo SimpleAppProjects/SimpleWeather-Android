@@ -43,7 +43,7 @@
             android:maxLines="2"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
-            android:textAppearance="?attr/textAppearanceBody2"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:text="@{appViewModel.appLabel}"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"

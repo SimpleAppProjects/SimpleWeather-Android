@@ -30,9 +30,7 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
             android:fitsSystemWindows="true"
-            android:stateListAnimator="@animator/design_appbar_state_list_animator"
             app:liftOnScroll="true"
             app:liftOnScrollTargetViewId="@id/recycler_view"
             tools:stateListAnimator="@null">
@@ -41,16 +39,20 @@
                 android:id="@+id/search_bar"
                 layout="@layout/search_action_bar" />
 
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3.MaterialDivider" />
+
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
             android:clipToPadding="false"
-            android:visibility="invisible"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            tools:listitem="@layout/location_query_view" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

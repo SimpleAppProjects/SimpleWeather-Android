@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:textAppearance="?attr/textAppearanceButton"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
         android:textColor="?android:attr/textColorPrimary"
         app:textAllCaps="false"
         tools:text="@string/label_favoritelocations" />

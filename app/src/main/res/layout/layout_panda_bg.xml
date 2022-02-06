@@ -5,4 +5,4 @@
     android:layout_height="match_parent"
     android:adjustViewBounds="true"
     android:scaleType="fitXY"
-    android:src="@color/colorOnPrimary" />
+    android:src="@color/colorSurface" />

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorBackground">@color/m3_sys_color_dynamic_dark_background</color>
+    <color name="colorSurface">@color/m3_sys_color_dynamic_dark_surface</color>
+    <color name="colorError">@color/m3_sys_color_dark_error</color>
+
+    <color name="colorOnPrimary">@color/m3_sys_color_dynamic_dark_on_primary</color>
+    <color name="colorOnBackground">@color/m3_sys_color_dynamic_dark_on_background</color>
+    <color name="colorOnSurface">@color/m3_sys_color_dynamic_dark_on_surface</color>
+    <color name="colorOnError">@color/m3_sys_color_dark_on_error</color>
+</resources>

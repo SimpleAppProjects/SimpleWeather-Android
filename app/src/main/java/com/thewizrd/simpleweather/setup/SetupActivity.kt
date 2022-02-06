@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -20,6 +19,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.App
@@ -63,7 +63,7 @@ class SetupActivity : UserLocaleActivity() {
             insets
         }
 
-        val color = ContextCompat.getColor(this@SetupActivity, R.color.colorPrimaryBackground)
+        val color = getAttrColor(R.attr.colorPrimarySurface)
         window.setTransparentWindow(color)
 
         lifecycleScope.launch {

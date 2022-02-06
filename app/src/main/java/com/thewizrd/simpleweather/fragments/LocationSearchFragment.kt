@@ -6,20 +6,16 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.View.OnFocusChangeListener
-import android.view.View.OnTouchListener
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewGroupCompat
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,7 +30,7 @@ import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -57,7 +53,9 @@ class LocationSearchFragment : WindowColorFragment() {
 
     private lateinit var binding: FragmentLocationSearchBinding
     private lateinit var searchBarBinding: SearchActionBarBinding
-    private lateinit var mAdapter: LocationQueryAdapter
+    private lateinit var mAdapter: ConcatAdapter
+    private lateinit var mLocationAdapter: LocationQueryAdapter
+    private lateinit var mFooterAdapter: LocationQueryFooterAdapter
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
     private val wm = WeatherManager.instance
 
@@ -300,15 +298,20 @@ class LocationSearchFragment : WindowColorFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         searchBarBinding = binding.searchBar
         searchBarBinding.lifecycleOwner = viewLifecycleOwner
-        val view = binding.root
 
-        ViewCompat.setTransitionName(view, Constants.SHARED_ELEMENT)
-        ViewGroupCompat.setTransitionGroup((view as ViewGroup), true)
+        ViewCompat.setTransitionName(binding.root, Constants.SHARED_ELEMENT)
+        ViewGroupCompat.setTransitionGroup((binding.root as ViewGroup), true)
 
         // Initialize
-        view.setOnClickListener { v -> v.findNavController().navigateUp() }
-        searchBarBinding.searchBackButton.setOnClickListener { v -> v.findNavController().navigateUp() }
-        searchBarBinding.searchCloseButton.setOnClickListener { searchBarBinding.searchView.setText("") }
+        //binding.recyclerView.setOnClickListener { v -> v.findNavController().navigateUp() }
+        searchBarBinding.searchBackButton.setOnClickListener { v ->
+            v.findNavController().navigateUp()
+        }
+        searchBarBinding.searchCloseButton.setOnClickListener {
+            searchBarBinding.searchView.setText(
+                ""
+            )
+        }
         searchBarBinding.searchCloseButton.visibility = View.GONE
 
         searchBarBinding.searchView.addTextChangedListener(object : TextWatcher {
@@ -346,9 +349,6 @@ class LocationSearchFragment : WindowColorFragment() {
                         searchBarBinding.searchCloseButton.visibility =
                             if (newText.isEmpty()) View.GONE else View.VISIBLE
                         fetchLocations(newText)
-
-                        binding.recyclerView.visibility =
-                            if (newText.isNotEmpty()) View.VISIBLE else View.INVISIBLE
                     }
                 }
             }
@@ -375,47 +375,97 @@ class LocationSearchFragment : WindowColorFragment() {
            Hide the keyboard if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
            Leave the keyboard up if we're scrolling to the top (items at the top are already visible)
         */
-        binding.recyclerView.setOnTouchListener(object : OnTouchListener {
-            private var mY = 0
-            private var shouldCloseKeyboard = false
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> mY = event.y.toInt()
-                    MotionEvent.ACTION_UP -> {
-                        mY = event.y.toInt()
-                        if (shouldCloseKeyboard) {
-                            hideInputMethod(v)
-                            shouldCloseKeyboard = false
-                        }
+        val gestureDetector = GestureDetectorCompat(
+            requireContext(),
+            object : GestureDetector.SimpleOnGestureListener() {
+                private val v = binding.recyclerView
+                private var mY = 0
+                private var shouldCloseKeyboard = false
+
+                override fun onDown(e: MotionEvent?): Boolean {
+                    e?.run {
+                        mY = y.toInt()
                     }
-                    MotionEvent.ACTION_MOVE -> {
-                        val newY = event.y.toInt()
+                    return super.onDown(e)
+                }
+
+                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                    findNavController().navigateUp()
+                    return super.onSingleTapConfirmed(e)
+                }
+
+                override fun onScroll(
+                    e1: MotionEvent?,
+                    e2: MotionEvent?,
+                    distanceX: Float,
+                    distanceY: Float
+                ): Boolean {
+                    e2?.run {
+                        val newY = y.toInt()
                         val dY = mY - newY
                         mY = newY
                         // Set flag to hide the keyboard if we're scrolling down
                         // So we can see what's behind the keyboard
                         shouldCloseKeyboard = dY > 0
                     }
+
+                    if (shouldCloseKeyboard) {
+                        hideInputMethod(v)
+                        shouldCloseKeyboard = false
+                    }
+
+                    return super.onScroll(e1, e2, distanceX, distanceY)
                 }
-                return false
-            }
-        })
+
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent?,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    e2?.run {
+                        val newY = y.toInt()
+                        val dY = mY - newY
+                        mY = newY
+                        // Set flag to hide the keyboard if we're scrolling down
+                        // So we can see what's behind the keyboard
+                        shouldCloseKeyboard = dY > 0
+                    }
+
+                    if (shouldCloseKeyboard) {
+                        hideInputMethod(v)
+                        shouldCloseKeyboard = false
+                    }
+
+                    return super.onFling(e1, e2, velocityX, velocityY)
+                }
+            })
+
+        binding.recyclerView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView) { v, i ->
+            val insets = i.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom
+            }
+
+            i
+        }
 
         // use a linear layout manager
         mLayoutManager = LinearLayoutManager(appCompatActivity)
         binding.recyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
-        mAdapter = LocationQueryAdapter()
-        mAdapter.setOnClickListener(recyclerClickListener)
-        binding.recyclerView.adapter = ConcatAdapter(
-            mAdapter,
-            LocationQueryFooterAdapter()
-        )
+        mLocationAdapter = LocationQueryAdapter()
+        mLocationAdapter.setOnClickListener(recyclerClickListener)
+        binding.recyclerView.adapter = ConcatAdapter(mLocationAdapter).also { mAdapter = it }
+        mFooterAdapter = LocationQueryFooterAdapter()
 
         if (savedInstanceState != null) {
             val text = savedInstanceState.getString(KEY_SEARCHTEXT)
@@ -424,7 +474,7 @@ class LocationSearchFragment : WindowColorFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -467,15 +517,19 @@ class LocationSearchFragment : WindowColorFragment() {
                     }
 
                     launch(Dispatchers.Main.immediate) {
-                        mAdapter.submitList(results.toList())
+                        mLocationAdapter.submitList(results.toList())
+                        mAdapter.addAdapter(mFooterAdapter)
                     }
                 } catch (e: Exception) {
                     launch(Dispatchers.Main.immediate) {
                         if (e is WeatherException) {
-                            showSnackbar(Snackbar.make(e.message, Snackbar.Duration.SHORT),
-                                    SnackbarWindowAdjustCallback(appCompatActivity!!))
+                            showSnackbar(
+                                Snackbar.make(e.message, Snackbar.Duration.SHORT),
+                                SnackbarWindowAdjustCallback(appCompatActivity!!)
+                            )
                         }
-                        mAdapter.submitList(listOf(LocationQueryViewModel()))
+                        mLocationAdapter.submitList(listOf(LocationQueryViewModel()))
+                        mAdapter.addAdapter(mFooterAdapter)
                     }
                 }
             }
@@ -483,7 +537,8 @@ class LocationSearchFragment : WindowColorFragment() {
             // Cancel pending searches
             job?.cancel()
             // Hide flyout if query is empty or null
-            mAdapter.submitList(emptyList())
+            mLocationAdapter.submitList(emptyList())
+            mAdapter.removeAdapter(mFooterAdapter)
         }
     }
 

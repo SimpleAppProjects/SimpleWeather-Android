@@ -10,8 +10,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         tools:context=".setup.SetupLocationFragment"
-        tools:background="@color/colorPrimaryBackground"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:background="?colorPrimarySurface"
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/main_logo"
@@ -23,7 +23,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_place_white_24dp"
-            app:tint="@android:color/white"
+            app:tint="?colorOnPrimarySurface"
             app:layout_constraintBottom_toTopOf="@+id/divider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_max="72dp"
@@ -61,12 +61,9 @@
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:text="@string/label_gpsfollow"
-            android:textColor="@color/invButtonColorText"
-            style="@style/Widget.MaterialComponents.Button"
-            app:backgroundTint="?attr/colorSurface"
+            style="@style/Widget.Material3.Button.TonalButton"
             app:icon="@drawable/ic_my_location_white_24dp"
             app:iconPadding="8dp"
-            app:iconTint="@color/invButtonColorText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_bar" />

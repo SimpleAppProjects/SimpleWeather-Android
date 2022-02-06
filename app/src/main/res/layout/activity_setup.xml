@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/colorPrimaryBackground"
+        android:background="?colorPrimarySurface"
         android:focusable="true"
         android:focusableInTouchMode="true">
 
@@ -22,9 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="invisible"
-            app:nav_backgroundColor="@color/colorPrimaryBackground"
+            app:nav_backgroundColor="?colorPrimarySurface"
             app:nav_startButtonText="@string/label_getstarted"
-            app:nav_foregroundColor="@android:color/white"
+            app:nav_foregroundColor="?colorOnPrimarySurface"
             tools:context=".setup.SetupActivity" />
 
     </LinearLayout>

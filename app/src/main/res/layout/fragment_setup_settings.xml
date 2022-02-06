@@ -9,7 +9,8 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         tools:context=".setup.SetupActivity"
-        tools:background="@color/colorPrimaryBackground">
+        tools:background="?colorPrimarySurface"
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -26,7 +27,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:paddingTop="75dp"
                 app:srcCompat="@drawable/ic_settings_black_24dp"
-                app:tint="@android:color/white"
+                app:tint="?colorOnPrimarySurface"
                 app:layout_constraintBottom_toTopOf="@+id/welcome_subtext"
                 app:layout_constraintWidth_max="75dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -41,9 +42,8 @@
                 android:gravity="center"
                 android:padding="8dp"
                 android:text="@string/setup_preferences_prompt"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?colorOnPrimarySurface"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -53,12 +53,13 @@
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/colorBackground"
+                android:background="?colorSurfaceVariant"
                 app:layout_constraintVertical_bias="0"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/welcome_subtext" />
+                app:layout_constraintTop_toBottomOf="@id/welcome_subtext"
+                tools:layout_height="100dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -18,7 +18,7 @@
         android:layout_width="@dimen/hr_forecast_item_width"
         android:layout_height="@dimen/hr_forecast_item_height"
         android:background="@drawable/rounded_item_background"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <TextView
             android:id="@+id/forecast_date"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="@{viewModel.temperature}"
-            android:textAppearance="?attr/textAppearanceBody1"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textSize="@dimen/hr_forecast_item_temp_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -82,7 +82,7 @@
             android:paddingStart="4dp"
             android:paddingEnd="0dp"
             android:text="@{viewModel.popChance}"
-            android:textAppearance="?attr/textAppearanceSubtitle2"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:textSize="@dimen/forecast_condition_size"
             app:hideIfNullOrWhitespace="@{viewModel.popChance}"
             android:textColor="@{Colors.SIMPLEBLUELIGHT}"
@@ -113,7 +113,7 @@
             android:paddingStart="4dp"
             android:paddingEnd="0dp"
             android:text="@{viewModel.windSpeed}"
-            android:textAppearance="?attr/textAppearanceSubtitle2"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:textSize="@dimen/forecast_condition_size"
             app:hideIfNullOrWhitespace="@{viewModel.windSpeed}"
             app:layout_constraintBottom_toBottomOf="@id/forecast_extra_windicon"

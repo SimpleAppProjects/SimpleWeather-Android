@@ -12,12 +12,10 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
         android:fitsSystemWindows="true"
-        android:stateListAnimator="@animator/design_appbar_state_list_animator"
         app:liftOnScroll="true"
         tools:stateListAnimator="@null"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"

@@ -76,7 +76,9 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -89,8 +91,11 @@ import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
 import com.thewizrd.simpleweather.banner.BannerManager
 import com.thewizrd.simpleweather.banner.BannerManagerInterface
-import com.thewizrd.simpleweather.controls.*
+import com.thewizrd.simpleweather.controls.FlowLayout
+import com.thewizrd.simpleweather.controls.ImageDataViewModel
+import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
+import com.thewizrd.simpleweather.controls.SunPhaseView
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.*
@@ -576,12 +581,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         // SwipeRefresh
         binding.progressBar.show()
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
-            ContextCompat.getColor(
-                appCompatActivity!!,
-                R.color.invButtonColor
+            appCompatActivity!!.getAttrColor(
+                R.attr.colorSurface
             )
         )
-        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorPrimary))
+        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorAccent))
         binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
@@ -1163,12 +1167,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         weatherView.notifyChange()
 
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
-            ContextCompat.getColor(
-                appCompatActivity!!,
-                R.color.invButtonColor
+            appCompatActivity!!.getAttrColor(
+                R.attr.colorSurface
             )
         )
-        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorPrimary))
+        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorAccent))
 
         // Resize necessary views
         adjustConditionPanelLayout()

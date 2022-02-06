@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="TextAppearance.WeatherNow" parent="TextAppearance.OpenSans">
-        <item name="android:textColor">@color/colorTextPrimary</item>
-    </style>
+    <style name="TextAppearance.WeatherNow" parent="TextAppearance.OpenSans.BodyMedium"></style>
 
     <style name="TextAppearance.WeatherNow.ConditionText">
         <item name="android:textSize">18sp</item>

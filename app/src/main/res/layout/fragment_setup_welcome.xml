@@ -26,9 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/setup_welcome_prompt"
-        android:textAppearance="?attr/titleTextAppearance"
+        android:textAppearance="?textAppearanceTitleLarge"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
@@ -40,9 +39,8 @@
         android:gravity="bottom"
         android:lines="2"
         android:text="@string/setup_welcome_tagline_prompt"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:textAppearance="?textAppearanceBodyMedium"
         android:textColor="@color/colorTextHint"
-        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_text" />

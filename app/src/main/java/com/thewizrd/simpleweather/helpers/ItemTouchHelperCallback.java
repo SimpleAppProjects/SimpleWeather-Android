@@ -8,13 +8,14 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
+import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.Logger;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
 
@@ -24,15 +25,25 @@ import java.util.List;
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private boolean swipeEnabled = true;
 
-    private ItemTouchHelperAdapterInterface mAdapter;
+    private final ItemTouchHelperAdapterInterface mAdapter;
 
-    private Drawable deleteIcon;
-    private Drawable deleteBackground;
-    private int iconMargin;
-    private int cornerRadius;
+    private final Drawable deleteIcon;
+    private final Drawable deleteBackground;
+    private final int iconMargin;
 
     /* Callback Listener */
-    private List<ItemTouchCallbackListener> mCallbacks;
+    private final List<ItemTouchCallbackListener> mCallbacks;
+
+    public ItemTouchHelperCallback(@NonNull Context context, @NonNull ItemTouchHelperAdapterInterface adapter) {
+        mCallbacks = new ArrayList<>();
+
+        mAdapter = adapter;
+        Drawable deleteIcoDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete_outline_24dp);
+        deleteIcon = DrawableCompat.wrap(deleteIcoDrawable);
+        DrawableCompat.setTint(deleteIcon, ContextUtils.getAttrColor(context, R.attr.colorOnError));
+        deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
+        iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
+    }
 
     public void addItemTouchHelperCallbackListener(@NonNull ItemTouchCallbackListener listener) {
         mCallbacks.add(listener);
@@ -70,17 +81,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean isItemViewSwipeEnabled() {
         return swipeEnabled;
-    }
-
-    public ItemTouchHelperCallback(ItemTouchHelperAdapterInterface adapter) {
-        Context context = App.getInstance().getAppContext();
-        mCallbacks = new ArrayList<>();
-
-        mAdapter = adapter;
-        deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_outline_24dp);
-        deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
-        iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
-        cornerRadius = context.getResources().getDimensionPixelSize(R.dimen.shape_corner_radius);
     }
 
     @Override

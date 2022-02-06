@@ -15,7 +15,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
@@ -26,7 +29,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.*
+import androidx.core.view.MenuItemCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -51,7 +56,9 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -412,7 +419,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             binding.recyclerView.adapter = this
             mAdapter = this
         }
-        mITHCallback = ItemTouchHelperCallback(mAdapter)
+        mITHCallback = ItemTouchHelperCallback(requireContext(), mAdapter)
         mItemTouchHelper = ItemTouchHelper(mITHCallback)
         mItemTouchHelper.attachToRecyclerView(binding.recyclerView)
         mITHCallback.addItemTouchHelperCallbackListener(object : ItemTouchCallbackListener {

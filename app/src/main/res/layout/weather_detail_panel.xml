@@ -10,13 +10,14 @@
     <merge
         tools:context=".controls.WeatherDetailItem"
         tools:parentTag="android.widget.LinearLayout"
-        tools:theme="@style/Theme.MaterialComponents.DayNight"
+        tools:theme="@style/Theme.Material3.DayNight"
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/header_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Widget.Material3.CardView.Elevated"
             android:duplicateParentState="true"
             android:stateListAnimator="@animator/weather_detail_item_anim"
             app:cardUseCompatPadding="false"
@@ -53,7 +54,6 @@
                     android:maxLines="1"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:textColor="@color/colorTextPrimary"
                     android:textSize="@dimen/weather_detail_item_textSize"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/forecast_condition"
@@ -73,7 +73,6 @@
                     android:maxLines="1"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:textColor="@color/colorTextPrimary"
                     android:textSize="@dimen/weather_detail_item_textSize"
                     app:layout_constraintBottom_toTopOf="@id/forecast_extra_barrier"
                     app:layout_constraintEnd_toStartOf="@id/expand_spacer"
@@ -203,11 +202,11 @@
             android:id="@+id/body_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Widget.Material3.CardView.Filled"
             android:visibility="gone"
             android:duplicateParentState="true"
             app:cardUseCompatPadding="false"
             app:cardCornerRadius="0dp"
-            app:cardElevation="2dp"
             tools:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -217,7 +216,7 @@
                 android:lineSpacingMultiplier="1.25"
                 android:padding="16dp"
                 android:letterSpacing="0"
-                android:textAppearance="?attr/textAppearanceBody1"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textSize="@dimen/weather_detail_item_textSize"
                 tools:text="Hello \t\t\t\t\t 50%\nHello" />
 

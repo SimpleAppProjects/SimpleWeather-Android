@@ -12,10 +12,9 @@
         android:id="@+id/nav_backbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Material3.Button.TextButton"
         app:icon="@drawable/ic_chevron_left"
         app:iconGravity="start"
         tools:text="@string/label_back" />
@@ -35,10 +34,9 @@
         android:id="@+id/nav_nextbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Material3.Button.TextButton"
         app:icon="@drawable/ic_chevron_right"
         app:iconGravity="end"
         tools:text="@string/label_getstarted" />

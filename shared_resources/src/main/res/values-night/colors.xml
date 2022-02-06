@@ -1,28 +1,17 @@
 <resources>
     <color name="colorPrimaryBackground">@color/colorPrimaryDark</color>
 
-    <!--colorBackground appears behind scrollable content and is used for the default window-->
-    <!--background. colorSurface is mapped to the surface of components such as cards, sheets-->
-    <!--and menus. colorError is used to indicate an error state for components such as-->
-    <!--text fields.-->
-    <color name="colorBackground">#121212</color>
-    <color name="colorSurface">#121212</color>
-    <color name="colorError">#cf6679</color>
+    <color name="colorBackground">@color/md_theme_dark_background</color>
+    <color name="colorSurface">@color/md_theme_dark_surface</color>
+    <color name="colorError">@color/md_theme_dark_error</color>
 
-    <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
-    <!--on which they appear.-->
-    <color name="colorOnPrimary">#000000</color>
-    <color name="colorOnSecondary">#000000</color>
-    <color name="colorOnBackground">#ffffff</color>
-    <color name="colorOnSurface">#ffffff</color>
-    <color name="colorOnError">#000000</color>
+    <color name="colorOnPrimary">@color/md_theme_dark_onPrimary</color>
+    <color name="colorOnSecondary">@color/md_theme_dark_onSecondary</color>
+    <color name="colorOnBackground">@color/md_theme_dark_onBackground</color>
+    <color name="colorOnSurface">@color/md_theme_dark_onSurface</color>
+    <color name="colorOnError">@color/md_theme_dark_onError</color>
 
     <color name="colorTextPrimary">@color/abc_primary_text_material_dark</color>
     <color name="colorTextSecondary">@color/abc_secondary_text_material_dark</color>
-    <color name="invColorText">@android:color/white</color>
-    <color name="invButtonColor">@color/cardview_dark_background</color>
-    <color name="invButtonColorText">@android:color/white</color>
-    <color name="invButtonColorTextHint">@color/colorTextHint</color>
-
     <color name="colorTextShadow">#888888</color>
 </resources>

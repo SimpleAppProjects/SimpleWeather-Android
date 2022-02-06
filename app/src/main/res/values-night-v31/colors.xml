@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_innerview_background_color">@android:color/system_accent1_600</color>
-    <color name="widget_m3_pill_background_color">@android:color/system_accent1_900</color>
-    <color name="widget_m3_pill_foreground_color">@android:color/system_accent1_50</color>
+    <color name="widget_innerview_background_color">
+        @color/m3_sys_color_dynamic_dark_secondary_container
+    </color>
+    <color name="widget_m3_pill_background_color">
+        @color/m3_sys_color_dynamic_dark_secondary_container
+    </color>
+    <color name="widget_m3_pill_foreground_color">
+        @color/m3_sys_color_dynamic_dark_on_secondary_container
+    </color>
 </resources>

@@ -9,7 +9,7 @@
         tools:context=".main.LocationsFragment"
         tools:layout_height="match_parent"
         tools:layout_width="match_parent"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:padding="4dp"
             android:text="@string/prompt_location_not_set"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textAppearance="?textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
             android:visibility="gone"
             app:drawableTopCompat="@drawable/ic_add_location_white_24dp"
@@ -42,7 +42,6 @@
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
-            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"

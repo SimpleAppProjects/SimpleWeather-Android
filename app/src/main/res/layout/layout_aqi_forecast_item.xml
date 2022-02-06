@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:theme="@style/Theme.MaterialComponents.DayNight">
+        tools:theme="@style/Theme.Material3.DayNight">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/aqi_date_label"
@@ -22,7 +22,6 @@
             android:padding="12dp"
             android:text="@{viewModel.date}"
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-            android:textColor="@color/colorTextPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,9 +50,7 @@
             android:gravity="center_vertical"
             android:padding="6dp"
             android:text="@{viewModel.level}"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="16sp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/aqi_index"
             app:layout_constraintTop_toBottomOf="@id/aqi_date_label"
@@ -67,8 +64,7 @@
             android:gravity="top"
             android:padding="6dp"
             android:text="@{viewModel.description}"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@color/colorTextPrimary"
+            android:textAppearance="?attr/textAppearanceBodySmall"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/aqi_index"
@@ -120,7 +116,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_pm25_formatted"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
@@ -152,7 +148,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_pm10_formatted"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
@@ -184,7 +180,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_no2_formatted"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
@@ -216,7 +212,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_o3_formatted"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
@@ -248,7 +244,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_co"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
@@ -280,7 +276,7 @@
             android:minWidth="45dp"
             android:padding="4dp"
             android:text="@string/units_so2_formatted"
-            android:textColor="@color/colorOnSurface"
+            android:textColor="?colorOnSurface"
             android:textSize="@dimen/aqi_forecast_textsize"
             android:textStyle="bold" />
 
