@@ -100,31 +100,30 @@ dependencies {
     androidTestImplementation 'com.google.truth:truth:1.1.3'
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
 
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.annotation:annotation:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.1.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
-    implementation 'androidx.room:room-runtime:2.4.0'
-    kapt 'androidx.room:room-compiler:2.4.0'
-    implementation 'androidx.room:room-ktx:2.4.0'
+    implementation 'androidx.room:room-runtime:2.4.1'
+    kapt 'androidx.room:room-compiler:2.4.1'
+    implementation 'androidx.room:room-ktx:2.4.1'
     // Room migration testing
-    androidTestImplementation 'androidx.room:room-testing:2.4.0'
+    androidTestImplementation 'androidx.room:room-testing:2.4.1'
 
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.github.bumptech.glide:glide:4.12.0'
@@ -139,16 +138,16 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations-java5"
     }
 
-    fullgmsImplementation 'com.google.android.gms:play-services-auth:20.0.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-auth:20.1.0'
     fullgmsImplementation 'com.google.android.gms:play-services-base:18.0.1'
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.1'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation 'com.google.android.libraries.places:places:2.5.0'
     fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^
-    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2'
+    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
 
     // Firebase
-    fullgmsImplementation platform('com.google.firebase:firebase-bom:29.0.3')
+    fullgmsImplementation platform("com.google.firebase:firebase-bom:$firebase_version")
     fullgmsImplementation 'com.google.firebase:firebase-analytics'
     fullgmsImplementation 'com.google.firebase:firebase-crashlytics'
     fullgmsImplementation 'com.google.firebase:firebase-auth'

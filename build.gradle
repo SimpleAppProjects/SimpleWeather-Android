@@ -6,14 +6,15 @@ buildscript {
         google()
     }
 
-    ext.kotlin_version = '1.5.31'
+    ext.kotlin_version = '1.6.10'
+    ext.firebase_version = '29.0.4'
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
-        classpath 'com.google.firebase:perf-plugin:1.4.0'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5"
+        classpath 'com.google.firebase:perf-plugin:1.4.1'
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.0-alpha01" // 2.5.0-alpha01 needed for Gradle 7.1
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
