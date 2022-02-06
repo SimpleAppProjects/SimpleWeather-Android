@@ -15,7 +15,8 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.*
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
@@ -24,7 +25,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.*
+import androidx.preference.Preference
+import androidx.preference.SwitchPreference
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -54,7 +56,6 @@ import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
-import kotlin.collections.LinkedHashSet
 import kotlin.coroutines.coroutineContext
 
 class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
@@ -371,7 +372,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             WidgetUtils.isClockWidget(mWidgetType) || WidgetUtils.isDateWidget(mWidgetType)
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
+    override fun onDisplayPreferenceDialog(preference: Preference) {
         if (preference is ArrayMultiSelectListPreference && preference.key == KEY_LOCATION) {
             val DIALOG_FRAGMENT_TAG =
                 "${MultiLocationPreferenceDialogFragment::class.java.name}.DIALOG"

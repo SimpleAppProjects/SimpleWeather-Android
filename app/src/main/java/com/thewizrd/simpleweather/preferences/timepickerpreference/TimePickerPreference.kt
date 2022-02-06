@@ -18,12 +18,25 @@ class TimePickerPreference : DialogPreference {
         private set
     private var mValueSet: Boolean = false
 
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
 
-    fun setTime(@IntRange(from = 0, to = 23) hourOfDay: Int, @IntRange(from = 0, to = 59) minute: Int) {
+    constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
+
+    fun setTime(
+        @IntRange(from = 0, to = 23) hourOfDay: Int,
+        @IntRange(from = 0, to = 59) minute: Int
+    ) {
         this.hourOfDay = hourOfDay
         this.minute = minute
         updateSummary()

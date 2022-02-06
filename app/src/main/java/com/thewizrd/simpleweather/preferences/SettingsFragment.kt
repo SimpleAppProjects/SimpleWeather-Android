@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.preferences
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FilterComparison
@@ -770,11 +769,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             dailyNotifPref.isVisible = false
             dailyNotifTimePref.isVisible = false
             popChanceNotifPref.isVisible = false
-        } else if (premiumPref != null && aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
-            aboutCategory.addPreference(premiumPref)
-            dailyNotifPref.isVisible = true
-            dailyNotifTimePref.isVisible = true
-            popChanceNotifPref.isVisible = true
+        } else if (aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
+            premiumPref?.let {
+                aboutCategory.addPreference(it)
+                dailyNotifPref.isVisible = true
+                dailyNotifTimePref.isVisible = true
+                popChanceNotifPref.isVisible = true
+            }
         }
 
         tintIcons(preferenceScreen, appCompatActivity.getAttrColor(R.attr.colorPrimary))
@@ -857,11 +858,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    private fun updateKeySummary(providerAPI: CharSequence = providerPref.entry) {
+    private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
         if (!settingsManager.getAPIKEY().isNullOrBlank()) {
             val keyVerified = settingsManager.isKeyVerified()
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
-            val summary = SpannableString(if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid))
+            val summary = SpannableString(
+                if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)
+            )
             summary.setSpan(colorSpan, 0, summary.length, 0)
             keyEntry.summary = summary
         } else {
@@ -1191,14 +1194,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             setupReviewPreference(findPreference(KEY_RATEREVIEW)!!)
 
             findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-                if (preference.intent != null) {
-                    try {
-                        startActivity(preference.intent)
-                    } catch (e: ActivityNotFoundException) {
-                        val i: Intent = preference.intent
-
-                        if (i.resolveActivity(appCompatActivity.packageManager) != null) {
-                            startActivity(i)
+                preference.intent?.let {
+                    runCatching {
+                        if (it.resolveActivity(appCompatActivity.packageManager) != null) {
+                            startActivity(it)
                         }
                     }
                 }
@@ -1215,7 +1214,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             devSettingsController.onCreatePreferences(preferenceScreen)
         }
 
-        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
             if (devSettingsController.onPreferenceTreeClick(preference)) {
                 return true
             }
@@ -1253,14 +1252,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
 
         override fun onPreferenceTreeClick(preference: Preference): Boolean {
-            if (preference.intent != null) {
-                try {
-                    startActivity(preference.intent)
-                } catch (e: ActivityNotFoundException) {
-                    val i = preference.intent
-
-                    if (i.resolveActivity(appCompatActivity.packageManager) != null) {
-                        startActivity(i)
+            preference.intent?.let {
+                runCatching {
+                    if (it.resolveActivity(appCompatActivity.packageManager) != null) {
+                        startActivity(it)
                     }
                 }
 

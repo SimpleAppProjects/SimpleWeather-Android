@@ -250,7 +250,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         }
     }
 
-    private fun updateKeySummary(providerAPI: CharSequence = providerPref.entry) {
+    private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
         if (!settingsManager.getAPIKEY().isNullOrBlank()) {
             val keyVerified = settingsManager.isKeyVerified()
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)

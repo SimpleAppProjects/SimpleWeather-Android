@@ -15,6 +15,8 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        val context = requireContext()
+
         preferenceScreen = preferenceManager.createPreferenceScreen(context)
 
         val apiKeyCategory: PreferenceCategory
