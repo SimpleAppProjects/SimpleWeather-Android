@@ -1,6 +1,10 @@
 package com.thewizrd.simpleweather.widgets
 
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.os.Bundle
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.services.WidgetWorker
 
 class WeatherWidgetProvider2x2PillMaterialYou : WeatherWidgetProvider() {
     override val info: WidgetProviderInfo by lazy { Info.getInstance() }
@@ -24,5 +28,15 @@ class WeatherWidgetProvider2x2PillMaterialYou : WeatherWidgetProvider() {
                 return _instance!!
             }
         }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        // Note: Needed for responsive widget layout
+        WidgetWorker.enqueueRefreshWidget(context, intArrayOf(appWidgetId), info, true)
     }
 }

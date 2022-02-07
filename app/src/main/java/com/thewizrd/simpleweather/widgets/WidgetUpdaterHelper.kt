@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.AlarmClock
@@ -13,6 +14,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import android.util.Log
+import android.util.SizeF
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
@@ -34,7 +36,9 @@ import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.TextUtils.getTextBounds
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -48,7 +52,6 @@ import kotlinx.coroutines.*
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.coroutines.resume
 import kotlin.math.max
 import kotlin.math.min
@@ -211,13 +214,42 @@ object WidgetUpdaterHelper {
                         val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
 
                         // Build the widget update for provider
-                        val views =
-                            buildUpdate(context, info, appWidgetId, locData, viewModel, newOptions)
+                        if (info.widgetType == WidgetType.Widget2x2PillMaterialYou) {
+                            val views = buildUpdate2x2PillMaterialYou(
+                                context,
+                                info,
+                                appWidgetId,
+                                locData,
+                                viewModel,
+                                newOptions
+                            )
 
-                        buildExtras(context, info, locData, weather, views, appWidgetId, newOptions)
+                            // Push update for this widget to the home screen
+                            appWidgetManager.updateAppWidget(appWidgetId, views)
+                        } else {
+                            val views =
+                                buildUpdate(
+                                    context,
+                                    info,
+                                    appWidgetId,
+                                    locData,
+                                    viewModel,
+                                    newOptions
+                                )
 
-                        // Push update for this widget to the home screen
-                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                            buildExtras(
+                                context,
+                                info,
+                                locData,
+                                weather,
+                                views,
+                                appWidgetId,
+                                newOptions
+                            )
+
+                            // Push update for this widget to the home screen
+                            appWidgetManager.updateAppWidget(appWidgetId, views)
+                        }
                     }
                 } else {
                     Logger.writeLine(
@@ -230,6 +262,85 @@ object WidgetUpdaterHelper {
                     resetWidget(context, appWidgetId, appWidgetManager)
                 }
             }
+        }
+    }
+
+    private suspend fun buildUpdate2x2PillMaterialYou(
+        context: Context,
+        info: WidgetProviderInfo,
+        appWidgetId: Int,
+        location: LocationData,
+        weather: WeatherNowViewModel,
+        newOptions: Bundle
+    ): RemoteViews {
+        // Widget dimensions
+        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+        val cellHeight = WidgetUtils.getCellsForSize(minHeight)
+        val cellWidth = WidgetUtils.getCellsForSize(minWidth)
+
+        val normalViews = RemoteViews(context.packageName, R.layout.app_widget_2x2_pill_materialu)
+        val wideViews =
+            RemoteViews(context.packageName, R.layout.app_widget_2x2_pill_materialu_small)
+
+        // WeatherIcon
+        val wim = WeatherIconsManager.getInstance()
+        val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
+
+        normalViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
+        wideViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
+
+        if (!wim.isFontIcon) {
+            // Remove tint
+            normalViews.setInt(R.id.weather_icon, "setColorFilter", 0x0)
+            wideViews.setInt(R.id.weather_icon, "setColorFilter", 0x0)
+        }
+
+        // Temp
+        val temp = weather.curTemp?.removeNonDigitChars()
+        val tempStr = if (temp.isNullOrBlank()) {
+            WeatherIcons.PLACEHOLDER
+        } else {
+            "$temp°"
+        }
+
+        normalViews.setTextViewText(R.id.condition_temp, tempStr)
+        wideViews.setTextViewText(R.id.condition_temp, tempStr)
+
+        wideViews.setTextViewText(
+            R.id.condition_hi,
+            if (weather.hiTemp?.isNotBlank() == true) weather.hiTemp else WeatherIcons.PLACEHOLDER
+        )
+        wideViews.setTextViewText(
+            R.id.condition_lo,
+            if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER
+        )
+
+        wideViews.setViewVisibility(
+            R.id.condition_hilo_layout,
+            if (weather.isShowHiLo && cellHeight >= 2) View.VISIBLE else View.GONE
+        )
+
+        setOnClickIntent(context, location, normalViews)
+        setOnClickIntent(context, location, wideViews)
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val sizes =
+                newOptions?.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+
+            if (!sizes.isNullOrEmpty()) {
+                RemoteViews(sizes.associateWith { size ->
+                    if (size.width in 110f..250f && size.height >= 110f) {
+                        normalViews
+                    } else {
+                        wideViews
+                    }
+                })
+            } else {
+                normalViews
+            }
+        } else {
+            normalViews
         }
     }
 
@@ -1642,6 +1753,8 @@ object WidgetUpdaterHelper {
                      appWidgetManager: AppWidgetManager, appWidgetId: Int,
                      newOptions: Bundle) {
         if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+
+        if (info.widgetType == WidgetType.Widget2x2PillMaterialYou) return
 
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
 

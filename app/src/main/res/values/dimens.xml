@@ -69,4 +69,11 @@
     <dimen name="splashscreen_icon_size_no_background" tools:override="true">144dp</dimen>
     <dimen name="splashscreen_icon_size_with_background" tools:override="true">144dp</dimen>
 
+    <!-- Widget Sizes -->
+    <dimen name="appwidget_cells_1">40dp</dimen>
+    <dimen name="appwidget_cells_2">110dp</dimen>
+    <dimen name="appwidget_cells_3">180dp</dimen>
+    <dimen name="appwidget_cells_4">250dp</dimen>
+    <dimen name="appwidget_cells_5">320dp</dimen>
+
 </resources>
