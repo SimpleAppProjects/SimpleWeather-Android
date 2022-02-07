@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Base.AppWidgetTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Base.AppWidgetTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -34,7 +34,7 @@
 
     <style name="AppWidgetTheme" parent="Base.AppWidgetTheme" />
 
-    <style name="AppWidgetTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault.Light">
+    <style name="AppWidgetTheme.AppWidgetContainerParent">
         <!-- Radius of the outer bound of widgets to make the rounded corners -->
         <item name="appWidgetRadius">16dp</item>
         <!--
