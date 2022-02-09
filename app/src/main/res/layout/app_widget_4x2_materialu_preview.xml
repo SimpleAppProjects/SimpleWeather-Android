@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
-    android:orientation="vertical"
+    style="@style/Widget.AppWidget.AppWidget.Container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/Widget.AppWidget.AppWidget.Container"
+    android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText"
     tools:layout_height="192dp"
     tools:layout_width="384dp"
-    tools:viewBindingIgnore="true"
-    tools:ignore="HardcodedText">
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,34 +26,35 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
             android:layout_gravity="end|center_vertical"
-            android:gravity="end">
+            android:layout_weight="1"
+            android:gravity="end"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/location_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:padding="4dp"
-                android:text="London"
                 android:ellipsize="end"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:maxLines="1"
+                android:paddingVertical="2dp"
+                android:paddingHorizontal="4dp"
+                android:textColor="@color/widget_m3_pill_foreground_color"
+                android:textSize="16sp"
+                tools:text="London" />
 
             <TextView
                 android:id="@+id/condition_weather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:padding="4dp"
-                android:text="Mostly Cloudy"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="16sp"
                 android:ellipsize="end"
-                android:textStyle="bold" />
+                android:maxLines="1"
+                android:paddingVertical="2dp"
+                android:paddingHorizontal="4dp"
+                android:textFontWeight="500"
+                android:textColor="@color/widget_m3_pill_foreground_color"
+                android:textSize="18sp"
+                tools:text="Mostly Cloudy" />
 
         </LinearLayout>
 
@@ -62,11 +63,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
         android:layout_gravity="bottom"
-        android:gravity="bottom">
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:gravity="bottom"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -77,10 +78,11 @@
                 android:id="@+id/condition_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="14°"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="36sp" />
+                android:includeFontPadding="false"
+                android:textColor="@color/widget_m3_pill_foreground_color"
+                android:textFontWeight="500"
+                android:textSize="48sp"
+                tools:text="14°" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -91,21 +93,20 @@
                     android:id="@+id/condition_hi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:text="16°" />
+                    android:layout_marginEnd="4dp"
+                    android:textColor="@color/widget_m3_pill_foreground_color"
+                    android:textSize="18sp"
+                    tools:text="16°" />
 
                 <TextView
                     android:id="@+id/condition_lo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:text="11°" />
+                    android:layout_marginStart="4dp"
+                    android:alpha="0.5"
+                    android:textColor="?colorOnSurface"
+                    android:textSize="18sp"
+                    tools:text="11°" />
 
             </LinearLayout>
 
@@ -115,13 +116,11 @@
             android:id="@+id/hrforecast_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="2dp"
             android:layout_weight="1"
             android:gravity="bottom"
-            android:layout_gravity="bottom">
-
-            <include layout="@layout/app_widget_hrforecast_layout_container_material_preview" />
-        </LinearLayout>
+            android:orientation="horizontal" />
 
     </LinearLayout>
 

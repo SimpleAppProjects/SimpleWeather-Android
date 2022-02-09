@@ -10,6 +10,6 @@
         @color/m3_sys_color_dynamic_light_secondary_container
     </color>
     <color name="widget_m3_pill_foreground_color">
-        @color/m3_sys_color_dynamic_light_on_secondary_container
+        @color/m3_sys_color_dynamic_light_primary
     </color>
 </resources>

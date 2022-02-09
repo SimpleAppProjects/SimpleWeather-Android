@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:viewBindingIgnore="true"
     android:baselineAligned="false"
     android:gravity="center_vertical"
-    android:theme="@style/AppWidgetTheme.AppWidgetContainer">
+    android:orientation="vertical"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@+id/forecast1"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast1_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -56,29 +56,30 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/forecast2"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast2_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -111,29 +112,30 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/forecast3"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast3_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -166,29 +168,30 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/forecast4"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast4_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -221,29 +224,30 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/forecast5"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast5_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -276,29 +280,30 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/forecast6"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/forecast6_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="@color/widget_innerview_foreground_color"
             tools:text="Tuesday" />
@@ -331,10 +336,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
+            android:alpha="0.5"
             android:gravity="center_horizontal"
             android:minWidth="20dp"
             android:textAppearance="?textAppearanceBodyLarge"
-            android:textColor="?colorOnSurfaceVariant"
+            android:textColor="@color/widget_innerview_foreground_color"
             tools:text="11°" />
 
     </LinearLayout>

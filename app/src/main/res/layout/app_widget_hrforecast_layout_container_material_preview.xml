@@ -49,7 +49,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="4pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -72,7 +72,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="70°"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
         <ImageView
@@ -94,7 +94,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="5pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -117,7 +117,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="70°"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
         <ImageView
@@ -139,7 +139,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="6pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -162,7 +162,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="70°"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
         <ImageView
@@ -184,7 +184,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="7pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -207,7 +207,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="70°"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
         <ImageView
@@ -229,7 +229,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="8pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -252,7 +252,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="70°"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
         <ImageView
@@ -274,7 +274,7 @@
             android:maxLines="1"
             android:padding="2dp"
             android:text="9pm"
-            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textColor="?colorOnSurface"
             android:textSize="14sp" />
 
     </LinearLayout>
