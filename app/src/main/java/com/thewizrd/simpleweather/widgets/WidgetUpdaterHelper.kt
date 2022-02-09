@@ -18,6 +18,7 @@ import android.util.SizeF
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.RequiresApi
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.GlideException
@@ -214,13 +215,43 @@ object WidgetUpdaterHelper {
                         val newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
 
                         // Build the widget update for provider
-                        if (info.widgetType == WidgetType.Widget2x2PillMaterialYou) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            info.widgetType == WidgetType.Widget2x2PillMaterialYou
+                        ) {
                             val views = buildUpdate2x2PillMaterialYou(
                                 context,
                                 info,
                                 appWidgetId,
                                 locData,
                                 viewModel,
+                                newOptions
+                            )
+
+                            // Push update for this widget to the home screen
+                            appWidgetManager.updateAppWidget(appWidgetId, views)
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            info.widgetType == WidgetType.Widget4x4MaterialYou
+                        ) {
+                            val views = buildUpdate4x4MaterialYou(
+                                context,
+                                info,
+                                appWidgetId,
+                                locData,
+                                weather,
+                                newOptions
+                            )
+
+                            // Push update for this widget to the home screen
+                            appWidgetManager.updateAppWidget(appWidgetId, views)
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            info.widgetType == WidgetType.Widget4x2MaterialYou
+                        ) {
+                            val views = buildUpdate4x2MaterialYou(
+                                context,
+                                info,
+                                appWidgetId,
+                                locData,
+                                weather,
                                 newOptions
                             )
 
@@ -265,6 +296,7 @@ object WidgetUpdaterHelper {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private suspend fun buildUpdate2x2PillMaterialYou(
         context: Context,
         info: WidgetProviderInfo,
@@ -324,24 +356,95 @@ object WidgetUpdaterHelper {
         setOnClickIntent(context, location, normalViews)
         setOnClickIntent(context, location, wideViews)
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val sizes =
-                newOptions?.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+        val sizes =
+            newOptions?.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
 
-            if (!sizes.isNullOrEmpty()) {
-                RemoteViews(sizes.associateWith { size ->
-                    if (size.width in 110f..250f && size.height >= 110f) {
-                        normalViews
-                    } else {
-                        wideViews
-                    }
-                })
-            } else {
-                normalViews
-            }
+        return if (!sizes.isNullOrEmpty()) {
+            RemoteViews(sizes.associateWith { size ->
+                if (size.width in 110f..250f && size.height >= 110f) {
+                    normalViews
+                } else {
+                    wideViews
+                }
+            })
         } else {
             normalViews
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private suspend fun buildUpdate4x4MaterialYou(
+        context: Context,
+        info: WidgetProviderInfo,
+        appWidgetId: Int,
+        location: LocationData,
+        weather: Weather,
+        newOptions: Bundle
+    ): RemoteViews {
+        val viewModel = WeatherNowViewModel(weather)
+
+        val views4x4 =
+            buildUpdate(context, info, appWidgetId, location, viewModel, newOptions).apply {
+                buildExtras(context, info, location, weather, this, appWidgetId, newOptions)
+            }
+        val views4x2 = buildUpdate(
+            context,
+            WeatherWidgetProvider4x2MaterialYou.Info.getInstance(),
+            appWidgetId,
+            location,
+            viewModel,
+            newOptions
+        ).apply {
+            buildExtras(context, info, location, weather, this, appWidgetId, newOptions)
+        }
+        val views3x1 = buildUpdate(
+            context,
+            WeatherWidgetProvider3x1MaterialYou.Info.getInstance(),
+            appWidgetId,
+            location,
+            viewModel,
+            newOptions
+        )
+
+        return RemoteViews(
+            mapOf(
+                SizeF(110f, 40f) to views3x1,
+                SizeF(180f, 110f) to views4x2,
+                SizeF(250f, 250f) to views4x4
+            )
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private suspend fun buildUpdate4x2MaterialYou(
+        context: Context,
+        info: WidgetProviderInfo,
+        appWidgetId: Int,
+        location: LocationData,
+        weather: Weather,
+        newOptions: Bundle
+    ): RemoteViews {
+        val viewModel = WeatherNowViewModel(weather)
+
+        val views4x2 =
+            buildUpdate(context, info, appWidgetId, location, viewModel, newOptions).apply {
+                buildExtras(context, info, location, weather, this, appWidgetId, newOptions)
+            }
+        val views3x1 = buildUpdate(
+            context,
+            WeatherWidgetProvider3x1MaterialYou.Info.getInstance(),
+            appWidgetId,
+            location,
+            viewModel,
+            newOptions
+        )
+
+        return RemoteViews(
+            mapOf(
+                SizeF(110f, 40f) to views3x1,
+                SizeF(180f, 110f) to views4x2
+            )
+        )
     }
 
     internal suspend fun buildUpdate(
@@ -752,7 +855,7 @@ object WidgetUpdaterHelper {
                 R.id.condition_hilo,
                 if (weather.isShowHiLo) View.VISIBLE else View.GONE
             )
-        } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget2x2PillMaterialYou || info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
+        } else if (WidgetUtils.isMaterialYouWidget(info.widgetType)) {
             if (info.widgetType != WidgetType.Widget2x2PillMaterialYou) {
                 updateViews.setTextViewText(
                     R.id.condition_hi,
@@ -762,9 +865,18 @@ object WidgetUpdaterHelper {
                     R.id.condition_lo,
                     if (weather.loTemp?.isNotBlank() == true) weather.loTemp else WeatherIcons.PLACEHOLDER
                 )
+
+                if (info.widgetType == WidgetType.Widget3x1MaterialYou) {
+                    updateViews.setViewVisibility(
+                        R.id.condition_hilo_layout,
+                        if (weather.isShowHiLo) View.VISIBLE else View.GONE
+                    )
+                }
             }
 
-            if (info.widgetType != WidgetType.Widget2x2MaterialYou && info.widgetType != WidgetType.Widget2x2PillMaterialYou) {
+            if (info.widgetType == WidgetType.Widget4x2MaterialYou ||
+                info.widgetType == WidgetType.Widget4x4MaterialYou
+            ) {
                 updateViews.setTextViewText(R.id.condition_weather, weather.curCondition)
             }
 
@@ -781,10 +893,7 @@ object WidgetUpdaterHelper {
 
         if (info.widgetType != WidgetType.Widget2x2 &&
             info.widgetType != WidgetType.Widget4x1Notification &&
-            info.widgetType != WidgetType.Widget2x2MaterialYou &&
-            info.widgetType != WidgetType.Widget2x2PillMaterialYou &&
-            info.widgetType != WidgetType.Widget4x2MaterialYou &&
-            info.widgetType != WidgetType.Widget4x4MaterialYou
+            !WidgetUtils.isMaterialYouWidget(info.widgetType)
         ) {
             updateViews.setTextViewText(R.id.condition_temp, weather.curTemp)
         }
@@ -1130,7 +1239,7 @@ object WidgetUpdaterHelper {
 
             views.setViewVisibility(
                 R.id.hrforecast_layout,
-                if (cellWidth > 2) View.VISIBLE else View.GONE
+                if (cellWidth > 3) View.VISIBLE else View.GONE
             )
 
             val forecastLength = if (cellHeight >= 2) {
@@ -1391,9 +1500,7 @@ object WidgetUpdaterHelper {
                         )
                     }
                 }
-            } else if (info.widgetType == WidgetType.Widget2x2MaterialYou || info.widgetType == WidgetType.Widget2x2PillMaterialYou ||
-                info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou
-            ) {
+            } else if (WidgetUtils.isMaterialYouWidget(info.widgetType)) {
                 updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
                 if (!wim.isFontIcon) {
                     // Remove tint
@@ -1752,9 +1859,14 @@ object WidgetUpdaterHelper {
     fun resizeWidget(context: Context, info: WidgetProviderInfo,
                      appWidgetManager: AppWidgetManager, appWidgetId: Int,
                      newOptions: Bundle) {
-        if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
+        // Responsive widget layouts handled by RemoteViews directly for S+
+        val isS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (isS && (info.widgetType == WidgetType.Widget2x2PillMaterialYou ||
+                    info.widgetType == WidgetType.Widget4x2MaterialYou ||
+                    info.widgetType == WidgetType.Widget4x4MaterialYou)
+        ) return
 
-        if (info.widgetType == WidgetType.Widget2x2PillMaterialYou) return
+        if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
 
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
 

@@ -133,11 +133,11 @@
         style="@style/Widget.AppWidget.AppWidget.InnerView"
         android:theme="@style/AppWidgetTheme.AppWidgetContainer">
 
-        <include layout="@layout/app_widget_forecast_item_material" />
+        <include layout="@layout/app_widget_forecast_item_material_preview" />
 
-        <include layout="@layout/app_widget_forecast_item_material" />
+        <include layout="@layout/app_widget_forecast_item_material_preview" />
 
-        <include layout="@layout/app_widget_forecast_item_material" />
+        <include layout="@layout/app_widget_forecast_item_material_preview" />
     </LinearLayout>
 
 </LinearLayout>

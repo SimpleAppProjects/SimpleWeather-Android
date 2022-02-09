@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.widgets
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.WidgetWorker
@@ -36,7 +37,11 @@ class WeatherWidgetProvider2x2PillMaterialYou : WeatherWidgetProvider() {
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        // Note: Needed for responsive widget layout
-        WidgetWorker.enqueueRefreshWidget(context, intArrayOf(appWidgetId), info, true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Note: Needed for responsive widget layout
+            WidgetWorker.enqueueRefreshWidget(context, intArrayOf(appWidgetId), info, true)
+        } else {
+            super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        }
     }
 }

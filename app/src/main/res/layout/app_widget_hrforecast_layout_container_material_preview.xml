@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:viewBindingIgnore="true"
     android:baselineAligned="false"
-    android:gravity="center_vertical"
+    android:gravity="center_vertical|end"
+    android:orientation="horizontal"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:ignore="HardcodedText">
+    tools:ignore="HardcodedText"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@+id/hrforecast1"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast1_hi"
@@ -28,9 +26,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="?colorOnSurface"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast1_icon"
@@ -50,22 +48,21 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="4pm" />
+            android:text="4pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/hrforecast2"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast2_hi"
@@ -74,9 +71,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast2_icon"
@@ -96,22 +93,21 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="5pm" />
+            android:text="5pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/hrforecast3"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast3_hi"
@@ -120,9 +116,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast3_icon"
@@ -142,22 +138,21 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="6pm" />
+            android:text="6pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/hrforecast4"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="visible"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast4_hi"
@@ -166,9 +161,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast4_icon"
@@ -188,22 +183,21 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="7pm" />
+            android:text="7pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/hrforecast5"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast5_hi"
@@ -212,9 +206,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast5_icon"
@@ -234,22 +228,21 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="8pm" />
+            android:text="8pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/hrforecast6"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@null"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:layout_height="wrap_content"
-        tools:layout_width="144dp">
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/hrforecast6_hi"
@@ -258,9 +251,9 @@
             android:layout_gravity="center_horizontal"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="70°" />
+            android:text="70°"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/hrforecast6_icon"
@@ -280,9 +273,9 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:padding="2dp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:text="9pm" />
+            android:text="9pm"
+            android:textColor="@color/widget_m3_pill_foreground_color"
+            android:textSize="14sp" />
 
     </LinearLayout>
 

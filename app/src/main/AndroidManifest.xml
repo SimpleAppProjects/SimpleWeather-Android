@@ -59,7 +59,7 @@
             android:label="@string/title_activity_widget_config"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -232,6 +232,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_4x3_locations_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.WeatherWidgetProvider3x1MaterialYou"
+            android:label="Weather (3x1)"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_3x1_materialu_info" />
         </receiver>
         <receiver
             android:name=".notifications.WeatherAlertNotificationBroadcastReceiver"

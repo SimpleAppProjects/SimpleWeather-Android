@@ -9,6 +9,7 @@ public final class DateTimeConstants {
     public static final String ABBREV_DAYOFWEEK_AND_12HR_AMPM = "eee h a";
     public static final String ABBREV_DAYOFWEEK_AND_12HR_MIN_AMPM = "eee h:mm a";
     public static final String ABBREV_12HR_AMPM = "h a";
+    public static final String ABBREV_12HR_AMPM_SHORT = "ha";
     public static final String DAY_OF_THE_WEEK = "eeee";
 
     /**

@@ -4,9 +4,13 @@
     android:initialLayout="@layout/app_widget_4x4_materialu"
     android:minWidth="@dimen/appwidget_cells_4"
     android:minHeight="@dimen/appwidget_cells_4"
-    android:minResizeHeight="@dimen/appwidget_cells_3"
-    android:minResizeWidth="@dimen/appwidget_cells_4"
+    android:minResizeWidth="@dimen/appwidget_cells_2"
+    android:minResizeHeight="@dimen/appwidget_cells_1"
     android:previewImage="@drawable/appwidget_preview_4x4_materialu"
+    android:previewLayout="@layout/app_widget_4x4_materialu_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen" />
+    android:widgetCategory="home_screen"
+    android:targetCellWidth="4"
+    android:targetCellHeight="4"
+    android:widgetFeatures="reconfigurable" />

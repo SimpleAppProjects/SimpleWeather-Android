@@ -52,7 +52,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             shortDate = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(DateTimeConstants.SKELETON_24HR)));
         } else {
             date = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM));
-            shortDate = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_12HR_AMPM));
+            shortDate = forecast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.ABBREV_12HR_AMPM_SHORT));
         }
         longDate = date;
 

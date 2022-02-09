@@ -616,28 +616,29 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         val savedStateHandle = view.findNavController().currentBackStackEntry?.savedStateHandle
         savedStateHandle?.getLiveData<String>(Constants.KEY_DATA)
-                ?.observe(viewLifecycleOwner, { result ->
-                    // Do something with the result.
-                    if (result != null) {
-                        // Save data
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            val data = withContext(Dispatchers.IO) {
-                                JSONParser.deserializer(result, LocationData::class.java)
+            ?.observe(viewLifecycleOwner) { result ->
+                // Do something with the result.
+                if (result != null) {
+                    // Save data
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val data = withContext(Dispatchers.IO) {
+                            JSONParser.deserializer(result, LocationData::class.java)
+                        }
+
+                        if (data != null) {
+                            query_vm = LocationQueryViewModel(data)
+                            val item =
+                                ComboBoxItem(query_vm!!.locationName, query_vm!!.locationQuery)
+                            val idx = locationPref.entryCount - 1
+
+                            locationPref.insertEntry(idx, item.display, item.value)
+                            locationPref.setValueIndex(idx)
+
+                            if (locationPref.entryCount > MAX_LOCATIONS) {
+                                locationPref.removeEntry(locationPref.entryCount - 1)
                             }
 
-                            if (data != null) {
-                                query_vm = LocationQueryViewModel(data)
-                                val item = ComboBoxItem(query_vm!!.locationName, query_vm!!.locationQuery)
-                                val idx = locationPref.entryCount - 1
-
-                                locationPref.insertEntry(idx, item.display, item.value)
-                                locationPref.setValueIndex(idx)
-
-                                if (locationPref.entryCount > MAX_LOCATIONS) {
-                                    locationPref.removeEntry(locationPref.entryCount - 1)
-                                }
-
-                                locationPref.callChangeListener(item.value)
+                            locationPref.callChangeListener(item.value)
 
                                 savedStateHandle.remove(Constants.KEY_DATA)
                             } else {
@@ -645,7 +646,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                             }
                         }
                     }
-                })
+            }
 
         initializeWidget()
 
@@ -737,6 +738,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x2MaterialYou -> 2
                         WidgetType.Widget4x4MaterialYou -> 4
                         WidgetType.Widget4x3Locations -> 3
+                        WidgetType.Widget3x1MaterialYou -> 1
                     }.toFloat()
                 ).toInt()
                 width = mWidgetViewCtx.dpToPx(
@@ -755,6 +757,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x2MaterialYou -> 4
                         WidgetType.Widget4x4MaterialYou -> 4
                         WidgetType.Widget4x3Locations -> 4
+                        WidgetType.Widget3x1MaterialYou -> 3
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER

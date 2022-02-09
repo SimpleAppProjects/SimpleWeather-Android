@@ -2,24 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     android:gravity="center"
-    tools:layout_height="192dp"
-    tools:layout_width="288dp"
+    tools:layout_height="96dp"
+    tools:layout_width="192dp"
     tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/pill"
-        android:layout_width="wrap_content"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:layout_centerInParent="true"
         android:importantForAccessibility="no"
         android:scaleType="fitXY"
-        android:src="@drawable/weather_pill_materialu_wide"
+        android:src="@drawable/appwidget_3x1_background"
         android:tint="@color/widget_m3_pill_background_color"
         android:tintMode="src_in"
         tools:ignore="UseAppTint" />
@@ -35,9 +34,8 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:layout_gravity="center_vertical"
             android:adjustViewBounds="true"
             android:paddingStart="16dp"
@@ -49,42 +47,35 @@
             tools:ignore="UseAppTint" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1.75"
             android:layout_gravity="center_vertical"
-            android:paddingStart="4dp"
-            android:paddingEnd="16dp"
             android:orientation="vertical"
-            android:layout_marginVertical="16dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="16dp">
 
             <TextView
                 android:id="@+id/condition_temp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="3"
-                android:autoSizeMaxTextSize="96sp"
+                android:layout_weight="2"
+                android:autoSizeMaxTextSize="36sp"
                 android:autoSizeTextType="uniform"
-                android:gravity="center_horizontal|bottom"
+                android:gravity="start|bottom"
                 android:maxLines="1"
                 android:text="72°"
                 android:textColor="@color/widget_m3_pill_foreground_color"
                 android:textFontWeight="500"
-                android:textSize="96sp" />
+                android:textSize="36sp"
+                tools:text="770°" />
 
             <LinearLayout
                 android:id="@+id/condition_hilo_layout"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:minHeight="36dp"
-                android:layout_gravity="center_horizontal|top"
-                android:gravity="center_horizontal|top"
-                android:paddingBottom="4dp"
-                android:layout_marginHorizontal="16dp"
-                android:visibility="visible"
-                tools:visibility="gone">
+                android:layout_gravity="start"
+                android:gravity="start">
 
                 <TextView
                     android:id="@+id/condition_hi"
@@ -97,10 +88,10 @@
                     android:text="72°"
                     android:textAppearance="?textAppearanceBodyMedium"
                     android:textColor="@color/widget_m3_pill_foreground_color"
-                    android:textSize="24sp" />
+                    android:textSize="14sp" />
 
                 <TextView
-                    android:layout_width="8dp"
+                    android:layout_width="6dp"
                     android:layout_height="wrap_content" />
 
                 <TextView
@@ -115,7 +106,7 @@
                     android:textAppearance="?textAppearanceBodyMedium"
                     android:alpha="0.5"
                     android:textColor="?colorOnSurface"
-                    android:textSize="24sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 

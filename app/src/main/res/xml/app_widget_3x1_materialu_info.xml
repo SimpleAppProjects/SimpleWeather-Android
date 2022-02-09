@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.thewizrd.simpleweather.widgets.WeatherWidgetConfigActivity"
+    android:initialLayout="@layout/app_widget_3x1_materialu"
+    android:minWidth="@dimen/appwidget_cells_3"
+    android:minHeight="@dimen/appwidget_cells_1"
+    android:minResizeWidth="@dimen/appwidget_cells_2"
+    android:minResizeHeight="@dimen/appwidget_cells_1"
+    android:previewImage="@drawable/appwidget_preview_3x1_materialu"
+    android:previewLayout="@layout/app_widget_3x1_materialu"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:targetCellWidth="3"
+    android:targetCellHeight="1"
+    android:widgetFeatures="reconfigurable" />

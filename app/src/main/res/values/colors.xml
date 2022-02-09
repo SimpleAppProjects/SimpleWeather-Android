@@ -13,6 +13,8 @@
     <color name="beaufort_color">#FF800080</color>
 
     <color name="widget_innerview_background_color">@color/md_theme_light_secondaryContainer</color>
+    <color name="widget_innerview_foreground_color">@color/md_theme_light_onSecondaryContainer
+    </color>
     <color name="widget_m3_pill_background_color">@color/md_theme_light_secondaryContainer</color>
     <color name="widget_m3_pill_foreground_color">@color/md_theme_light_onSecondaryContainer</color>
 

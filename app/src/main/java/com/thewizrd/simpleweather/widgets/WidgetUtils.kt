@@ -239,6 +239,9 @@ object WidgetUtils {
             WidgetType.Widget4x3Locations -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x3Locations.Info.getInstance().componentName
             )
+            WidgetType.Widget3x1MaterialYou -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider3x1MaterialYou.Info.getInstance().componentName
+            )
         }
     }
 
@@ -258,6 +261,7 @@ object WidgetUtils {
             WidgetType.Widget4x2MaterialYou -> WeatherWidgetProvider4x2MaterialYou.Info.getInstance()
             WidgetType.Widget4x4MaterialYou -> WeatherWidgetProvider4x4MaterialYou.Info.getInstance()
             WidgetType.Widget4x3Locations -> WeatherWidgetProvider4x3Locations.Info.getInstance()
+            WidgetType.Widget3x1MaterialYou -> WeatherWidgetProvider3x1MaterialYou.Info.getInstance()
         }
     }
 
@@ -569,6 +573,7 @@ object WidgetUtils {
             WidgetType.Widget4x4MaterialYou -> 96 * 4
             WidgetType.Widget2x2PillMaterialYou -> 96 * 2
             WidgetType.Widget4x3Locations -> 96 * 4
+            WidgetType.Widget3x1MaterialYou -> 96 * 3
         }
 
         val widgetHeight = when (widgetType) {
@@ -586,6 +591,7 @@ object WidgetUtils {
             WidgetType.Widget4x4MaterialYou -> 96 * 4
             WidgetType.Widget2x2PillMaterialYou -> 96 * 2
             WidgetType.Widget4x3Locations -> 96 * 3
+            WidgetType.Widget3x1MaterialYou -> 96 * 1
         }
 
         if (!options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)) {
@@ -687,6 +693,9 @@ object WidgetUtils {
                 WeatherWidgetProvider4x3Locations.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget4x3Locations
                 }
+                WeatherWidgetProvider3x1MaterialYou.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget3x1MaterialYou
+                }
             }
         }
 
@@ -745,6 +754,17 @@ object WidgetUtils {
 
     fun isSettingsButtonOptional(widgetType: WidgetType): Boolean {
         return widgetType != WidgetType.Widget2x2MaterialYou && widgetType != WidgetType.Widget2x2PillMaterialYou && widgetType != WidgetType.Widget4x2MaterialYou && widgetType != WidgetType.Widget4x4MaterialYou
+    }
+
+    fun isMaterialYouWidget(widgetType: WidgetType): Boolean {
+        return when (widgetType) {
+            WidgetType.Widget2x2MaterialYou,
+            WidgetType.Widget4x2MaterialYou,
+            WidgetType.Widget4x4MaterialYou,
+            WidgetType.Widget2x2PillMaterialYou,
+            WidgetType.Widget3x1MaterialYou -> true
+            else -> false
+        }
     }
 
     @ColorInt
