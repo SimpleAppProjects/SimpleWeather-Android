@@ -18,14 +18,15 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/header_card"
+            style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:duplicateParentState="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:duplicateParentState="true"
             app:cardBackgroundColor="@{viewModel.alertSeverityColor}"
             app:cardCornerRadius="0dp"
             tools:cardBackgroundColor="@color/colorError">
@@ -42,10 +43,10 @@
                     android:layout_height="25dp"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
-                    android:paddingEnd="8dp"
-                    android:paddingLeft="24dp"
-                    android:paddingRight="8dp"
                     android:paddingStart="24dp"
+                    android:paddingLeft="24dp"
+                    android:paddingEnd="8dp"
+                    android:paddingRight="8dp"
                     app:srcCompat="@{viewModel.alertDrawable}"
                     app:tint="@android:color/white"
                     tools:src="@drawable/ic_error_white" />
@@ -57,10 +58,10 @@
                     android:layout_weight="1"
                     android:ellipsize="marquee"
                     android:gravity="center_vertical"
-                    android:paddingEnd="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:paddingStart="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingRight="8dp"
                     android:singleLine="true"
                     android:text="@{viewModel.title}"
                     android:textAppearance="?attr/textAppearanceListItemSmall"
@@ -77,10 +78,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:paddingEnd="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:paddingStart="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingRight="8dp"
                     android:singleLine="true"
                     android:text="@{viewModel.postDate}"
                     android:textAppearance="?attr/textAppearanceListItemSmall"
@@ -95,22 +96,23 @@
                     android:id="@+id/expand_icon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:duplicateParentState="true"
                     android:layout_gravity="center_vertical"
-                    android:stateListAnimator="@animator/weather_detail_expandicon_anim"
                     android:layout_marginEnd="12dp"
-                    android:clickable="false"
                     android:background="@null"
-                    android:focusable="false"
                     android:button="@drawable/ic_expand_more_white_24dp"
-                    android:buttonTint="@android:color/white" />
+                    android:buttonTint="@android:color/white"
+                    android:clickable="false"
+                    android:duplicateParentState="true"
+                    android:focusable="false"
+                    android:stateListAnimator="@animator/weather_detail_expandicon_anim" />
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/body_card"
+            style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/header_card"
@@ -128,6 +130,6 @@
                 android:textSize="14sp"
                 tools:text="TextView" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </merge>
 </layout>
