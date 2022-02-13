@@ -53,6 +53,12 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://www.weatherapi.com/" />
         </Preference>
+        <Preference android:title="@string/api_tomorrowio" />
+        <Preference android:layout="@layout/credit_tomorrowio">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://tomorrow.io/" />
+        </Preference>
 
     </PreferenceCategory>
 

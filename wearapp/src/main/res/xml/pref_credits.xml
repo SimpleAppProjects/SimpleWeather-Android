@@ -38,6 +38,10 @@
         <Preference android:layout="@layout/credit_weatherapi">
             <intent android:data="https://www.weatherapi.com/" />
         </Preference>
+        <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_tomorrowio" />
+        <Preference android:layout="@layout/credit_tomorrowio">
+            <intent android:data="https://tomorrow.io" />
+        </Preference>
 
     </com.thewizrd.simpleweather.preferences.WearPreferenceCategory>
 
