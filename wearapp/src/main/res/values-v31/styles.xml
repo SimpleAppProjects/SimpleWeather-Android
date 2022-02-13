@@ -2,7 +2,7 @@
 <resources>
 
     <style name="WearAppTheme.Launcher" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_simpleblue_anim</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_v4_anim</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="windowSplashScreenBackground">@android:color/black</item>
         <item name="postSplashScreenTheme">@style/WearAppTheme</item>

@@ -24,9 +24,8 @@
         <item name="wearChipButtonStyle">@style/Widget.Wear.WearChipButton</item>
     </style>
 
-    <style name="WearAppTheme.Launcher" parent="Theme.SplashScreen.IconBackground">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_splash</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+    <style name="WearAppTheme.Launcher" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
         <item name="windowSplashScreenBackground">@android:color/black</item>
         <item name="postSplashScreenTheme">@style/WearAppTheme</item>
         <item name="splashScreenIconSize">48dp</item>

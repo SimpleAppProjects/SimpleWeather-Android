@@ -1,5 +1,6 @@
 <resources>
     <color name="colorPrimaryBackground">@color/colorPrimaryDark</color>
+    <color name="colorPrimarySurface">@color/colorSurface</color>
 
     <color name="colorBackground">@color/md_theme_dark_background</color>
     <color name="colorSurface">@color/md_theme_dark_surface</color>

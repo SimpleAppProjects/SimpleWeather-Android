@@ -3,6 +3,7 @@
     <color name="colorPrimaryDark">#00458e</color>
     <color name="colorPrimaryLight">#589df2</color>
     <color name="colorPrimaryBackground">@color/colorPrimary</color>
+    <color name="colorPrimarySurface">@color/colorPrimary</color>
 
     <color name="colorSecondary">#91cfff</color>
     <color name="colorSecondaryLight">#c5ffff</color>

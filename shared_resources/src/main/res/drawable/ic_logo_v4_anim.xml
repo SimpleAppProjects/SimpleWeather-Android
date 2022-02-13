@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_logo_v4">
+    <target android:name="sun_rays">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="rotation"
+                android:duration="1000"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:valueFrom="-45"
+                android:valueTo="0" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="cloud">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="translateX"
+                android:duration="1000"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:valueFrom="24"
+                android:valueTo="0" />
+        </aapt:attr>
+    </target>
+
+</animated-vector>
