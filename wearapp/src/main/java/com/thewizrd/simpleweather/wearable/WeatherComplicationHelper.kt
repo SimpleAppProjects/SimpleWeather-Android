@@ -10,23 +10,21 @@ object WeatherComplicationHelper {
     private const val TAG = "WeatherComplicationHelper"
 
     @JvmStatic
-    fun requestComplicationUpdate(context: Context, complicationId: Int) {
+    fun requestComplicationUpdate(
+        context: Context,
+        serviceClass: Class<*>,
+        complicationId: Int
+    ) {
         Logger.writeLine(
-                Log.INFO,
-                "%s: requesting complication update (complicationId = %s)",
-                TAG,
-                complicationId
+            Log.INFO,
+            "%s: requesting complication update (complicationId = %s)",
+            TAG,
+            complicationId
         )
 
         ComplicationDataSourceUpdateRequester.create(
-                context.applicationContext,
-                ComponentName(context.applicationContext, WeatherComplicationService::class.java)
-        ).run {
-            requestUpdate(complicationId)
-        }
-        ComplicationDataSourceUpdateRequester.create(
-                context.applicationContext,
-                ComponentName(context.applicationContext, WeatherHiLoComplicationService::class.java)
+            context.applicationContext,
+            ComponentName(context.applicationContext, serviceClass)
         ).run {
             requestUpdate(complicationId)
         }
@@ -36,17 +34,25 @@ object WeatherComplicationHelper {
     fun requestComplicationUpdateAll(context: Context) {
         Logger.writeLine(Log.INFO, "%s: requesting complication update all", TAG)
 
-        ComplicationDataSourceUpdateRequester.create(
+        val complicationServices = setOf(
+            WeatherComplicationService::class.java,
+            WeatherHiLoComplicationService::class.java,
+            PrecipitationComplicationService::class.java,
+            UVComplicationService::class.java,
+            AQIComplicationService::class.java,
+            BeaufortComplicationService::class.java,
+            HumidityComplicationService::class.java,
+            WindComplicationService::class.java,
+            FeelsLikeComplicationService::class.java
+        )
+
+        complicationServices.forEach {
+            ComplicationDataSourceUpdateRequester.create(
                 context.applicationContext,
-                ComponentName(context.applicationContext, WeatherComplicationService::class.java)
-        ).run {
-            requestUpdateAll()
-        }
-        ComplicationDataSourceUpdateRequester.create(
-                context.applicationContext,
-                ComponentName(context.applicationContext, WeatherHiLoComplicationService::class.java)
-        ).run {
-            requestUpdateAll()
+                ComponentName(context.applicationContext, it)
+            ).run {
+                requestUpdateAll()
+            }
         }
     }
 }

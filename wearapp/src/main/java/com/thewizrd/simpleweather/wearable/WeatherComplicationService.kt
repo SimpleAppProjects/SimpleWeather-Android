@@ -1,13 +1,7 @@
 package com.thewizrd.simpleweather.wearable
 
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import androidx.wear.watchface.complications.datasource.ComplicationRequest
-import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
-import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
@@ -16,84 +10,21 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
-import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
-import kotlinx.coroutines.*
-import timber.log.Timber
 
-class WeatherComplicationService : SuspendingComplicationDataSourceService() {
+class WeatherComplicationService : WeatherForecastComplicationService() {
     companion object {
         private const val TAG = "WeatherComplicationService"
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val settingsMgr = App.instance.settingsManager
-
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
-    }
-
-    override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
-        super.onComplicationActivated(complicationInstanceId, type)
-
-        // Enqueue work if not already
-        WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
-        WeatherUpdaterWorker.enqueueAction(this, WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
-
-        // Request complication update
-        WeatherComplicationHelper.requestComplicationUpdate(this, complicationInstanceId)
-    }
-
-    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
-        if (request.complicationType != ComplicationType.SHORT_TEXT && request.complicationType != ComplicationType.LONG_TEXT) {
-            Timber.tag(TAG).d("Complication %d no update required", request.complicationInstanceId)
-            return NoDataComplicationData()
-        }
-
-        return scope.async {
-            var complicationData: ComplicationData? = null
-
-            if (settingsMgr.isWeatherLoaded()) {
-                val weather = withContext(Dispatchers.IO) {
-                    try {
-                        val locData = settingsMgr.getHomeData() ?: return@withContext null
-                        WeatherDataLoader(locData)
-                            .loadWeatherData(
-                                WeatherRequest.Builder()
-                                    .forceLoadSavedData()
-                                    .build()
-                            )
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-
-                complicationData = buildUpdate(request.complicationType, weather)
-            }
-
-            if (complicationData != null) {
-                Timber.tag(TAG).d("Complication %d updated", request.complicationInstanceId)
-                return@async complicationData
-            } else {
-                // If no data is sent, we still need to inform the ComplicationManager, so
-                // the update job can finish and the wake lock isn't held any longer.
-                Timber.tag(TAG)
-                    .d("Complication %d no update required", request.complicationInstanceId)
-                return@async NoDataComplicationData()
-            }
-        }.await()
-    }
+    override val supportedComplicationTypes =
+        setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
-        if (type != ComplicationType.SHORT_TEXT && type != ComplicationType.LONG_TEXT) {
+        if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
 
@@ -132,14 +63,12 @@ class WeatherComplicationService : SuspendingComplicationDataSourceService() {
         }
     }
 
-    private fun getTapIntent(context: Context): PendingIntent {
-        val onClickIntent = Intent(context.applicationContext, LaunchActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        return PendingIntent.getActivity(context, 0, onClickIntent, 0.toImmutableCompatFlag())
-    }
-
-    private fun buildUpdate(dataType: ComplicationType, weather: Weather?): ComplicationData? {
-        if (weather == null || !weather.isValid || dataType != ComplicationType.SHORT_TEXT && dataType != ComplicationType.LONG_TEXT) {
+    override fun buildUpdate(
+        dataType: ComplicationType,
+        weather: Weather?,
+        forecast: Forecast?
+    ): ComplicationData? {
+        if (weather == null || !weather.isValid || !supportedComplicationTypes.contains(dataType)) {
             return null
         }
 

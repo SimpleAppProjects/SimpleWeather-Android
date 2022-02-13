@@ -84,8 +84,8 @@
         </receiver>
 
         <service
-            android:icon="@drawable/ic_logo_stroke"
-            android:label="Weather"
+            android:icon="@drawable/wi_day_sunny"
+            android:label="@string/label_nav_weathernow"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherComplicationService"
             android:exported="true">
@@ -102,10 +102,129 @@
         </service>
 
         <service
-            android:icon="@drawable/ic_logo_stroke"
-            android:label="Weather Hi/Lo"
+            android:icon="@drawable/wi_day_sunny"
+            android:label="Weather (Hi + Lo)"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherHiLoComplicationService"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.PrecipitationComplicationService"
+            android:icon="@drawable/wi_umbrella"
+            android:label="@string/label_chance"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.UVComplicationService"
+            android:icon="@drawable/wi_day_sunny"
+            android:label="@string/label_uv"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.AQIComplicationService"
+            android:icon="@drawable/wi_cloud"
+            android:label="@string/label_airquality_short"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.BeaufortComplicationService"
+            android:icon="@drawable/wi_strong_wind"
+            android:label="@string/label_beaufort"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.HumidityComplicationService"
+            android:icon="@drawable/wi_humidity"
+            android:label="@string/label_humidity"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.WindComplicationService"
+            android:icon="@drawable/wi_wind_direction"
+            android:label="@string/label_wind"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".wearable.FeelsLikeComplicationService"
+            android:icon="@drawable/wi_thermometer"
+            android:label="@string/label_feelslike"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
