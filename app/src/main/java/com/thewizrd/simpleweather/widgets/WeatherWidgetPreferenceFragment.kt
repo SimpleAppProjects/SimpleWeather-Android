@@ -66,6 +66,7 @@ import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackgroundStyle
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
@@ -123,6 +124,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
     private lateinit var fcastOptPref: ListPreference
     private lateinit var tap2switchPref: SwitchPreference
+    private lateinit var graphTypePref: ListPreference
 
     companion object {
         private val MAX_LOCATIONS = App.instance.settingsManager.getMaxLocations()
@@ -150,6 +152,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         private const val KEY_FORECAST = "key_forecast"
         private const val KEY_FORECASTOPTION = "key_fcastoption"
         private const val KEY_TAP2SWITCH = "key_tap2switch"
+        private const val KEY_GRAPHTYPEOPTION = "key_graphtypeoption"
 
         fun newInstance(args: Bundle): WeatherWidgetPreferenceFragment {
             val fragment = WeatherWidgetPreferenceFragment()
@@ -565,6 +568,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             txtColorPref.callChangeListener(txtColorPref.color)
 
             findPreference<Preference>(KEY_BACKGROUND)!!.isVisible = true
+            if (WidgetUtils.isBackgroundCustomOnlyWidget(mWidgetType)) {
+                bgChoicePref.isVisible = false
+                bgStylePref.isVisible = false
+            }
         } else {
             bgChoicePref.setValueIndex(WidgetBackground.TRANSPARENT.value)
             findPreference<Preference>(KEY_BACKGROUND)!!.isVisible = false
@@ -583,16 +590,34 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         tap2switchPref = findPreference(KEY_TAP2SWITCH)!!
-        tap2switchPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setTap2Switch(mAppWidgetId, newValue as Boolean)
-            true
-        }
+        tap2switchPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setTap2Switch(mAppWidgetId, newValue as Boolean)
+                true
+            }
 
         if (WidgetUtils.isForecastWidget(mWidgetType) && mWidgetType != WidgetType.Widget4x2MaterialYou && mWidgetType != WidgetType.Widget4x4MaterialYou) {
             fcastOptPref.setValueIndex(WidgetUtils.getForecastOption(mAppWidgetId).value)
             fcastOptPref.callChangeListener(fcastOptPref.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = true
             tap2switchPref.isChecked = WidgetUtils.isTap2Switch(mAppWidgetId)
+        } else if (mWidgetType == WidgetType.Widget4x2Graph) {
+            findPreference<Preference>(KEY_FORECAST)!!.isVisible = true
+            fcastOptPref.isVisible = false
+            tap2switchPref.isVisible = false
+
+            graphTypePref = findPreference(KEY_GRAPHTYPEOPTION)!!
+            graphTypePref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { _, newValue ->
+                    WidgetUtils.setWidgetGraphType(mAppWidgetId, newValue.toString().toInt())
+                    updateWidgetView()
+                    true
+                }
+            graphTypePref.isVisible = true
+
+            val graphType = WidgetUtils.getWidgetGraphType(mAppWidgetId)
+            graphTypePref.setValueIndex(graphType.value)
+            graphTypePref.callChangeListener(graphTypePref.value)
         } else {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = false
@@ -739,6 +764,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x4MaterialYou -> 4
                         WidgetType.Widget4x3Locations -> 3
                         WidgetType.Widget3x1MaterialYou -> 1
+                        WidgetType.Widget4x2Graph -> 2
                     }.toFloat()
                 ).toInt()
                 width = mWidgetViewCtx.dpToPx(
@@ -758,6 +784,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x4MaterialYou -> 4
                         WidgetType.Widget4x3Locations -> 4
                         WidgetType.Widget3x1MaterialYou -> 3
+                        WidgetType.Widget4x2Graph -> 4
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER
@@ -1074,6 +1101,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         WidgetUtils.setForecastOption(mAppWidgetId, fcastOptPref.value.toInt())
         WidgetUtils.setTap2Switch(mAppWidgetId, tap2switchPref.isChecked)
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
+        if (mWidgetType == WidgetType.Widget4x2Graph) {
+            WidgetUtils.setWidgetGraphType(mAppWidgetId, graphTypePref.value.toInt())
+        }
 
         // Trigger widget service to update widget
         WidgetWorker.enqueueRefreshWidget(
@@ -1224,23 +1254,75 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 forecast = List(6) { index ->
                     Forecast().apply {
                         date = LocalDateTime.now().plusDays(index.toLong())
-                        highF = 75f
-                        highC = 23f
-                        lowF = 60f
-                        lowC = 15f
+                        highF = 70f + index
+                        highC = 23f + index / 2f
+                        lowF = 60f - index
+                        lowC = 17f - index / 2f
                         condition = getString(R.string.weather_sunny)
                         icon = WeatherIcons.DAY_SUNNY
+                        extras = ForecastExtras().apply {
+                            feelslikeF = 80f
+                            feelslikeC = 26f
+                            humidity = 50
+                            dewpointF = 30f
+                            dewpointC = -1f
+                            uvIndex = 5f
+                            pop = 35
+                            cloudiness = 25
+                            qpfRainIn = 0.05f
+                            qpfRainMm = 1.27f
+                            qpfSnowIn = 0f
+                            qpfSnowCm = 0f
+                            pressureIn = 30.05f
+                            pressureMb = 1018f
+                            windDegrees = 180
+                            windMph = 4f
+                            windKph = 6.43f
+                            windGustKph = 9f
+                            windGustKph = 14.5f
+                            visibilityMi = 10f
+                            visibilityKm = 16.1f
+                        }
                     }
                 }
                 hrForecast = List(6) { index ->
                     HourlyForecast().apply {
                         date = ZonedDateTime.now().plusHours(index.toLong())
-                        highF = 70f
-                        highC = 21f
+                        highF = 70f + index
+                        highC = 23f + index / 2f
                         condition = getString(R.string.weather_sunny)
                         icon = WeatherIcons.DAY_SUNNY
                         windMph = 5f
                         windKph = 8f
+                        extras = ForecastExtras().apply {
+                            feelslikeF = 80f
+                            feelslikeC = 26f
+                            humidity = 50
+                            dewpointF = 30f
+                            dewpointC = -1f
+                            uvIndex = 5f
+                            pop = 35
+                            cloudiness = 25
+                            qpfRainIn = 0.05f
+                            qpfRainMm = 1.27f
+                            qpfSnowIn = 0f
+                            qpfSnowCm = 0f
+                            pressureIn = 30.05f
+                            pressureMb = 1018f
+                            windDegrees = 180
+                            windMph = 4f
+                            windKph = 6.43f
+                            windGustKph = 9f
+                            windGustKph = 14.5f
+                            visibilityMi = 10f
+                            visibilityKm = 16.1f
+                        }
+                    }
+                }
+                aqiForecast = List(6) {
+                    AirQuality().apply {
+                        date = LocalDate.now().plusDays(it.toLong())
+                        index = 10 * (it)
                     }
                 }
                 condition = Condition().apply {
@@ -1258,6 +1340,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 atmosphere = Atmosphere()
                 precipitation = Precipitation().apply {
                     pop = 15
+                    cloudiness = 25
+                    qpfRainIn = 0.05f
+                    qpfRainMm = 1.27f
+                    qpfSnowIn = 0f
+                    qpfSnowCm = 0f
                 }
                 source = wm.getWeatherAPI()
                 query = locationPref.value

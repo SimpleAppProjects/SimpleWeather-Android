@@ -132,6 +132,17 @@
             android:title="@string/pref_title_tap2switch"
             app:iconSpaceReserved="false" />
 
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/widgetgraphtype_entries"
+            android:entryValues="@array/widgetgraphtype_values"
+            android:key="key_graphtypeoption"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_widgetgraphtype"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

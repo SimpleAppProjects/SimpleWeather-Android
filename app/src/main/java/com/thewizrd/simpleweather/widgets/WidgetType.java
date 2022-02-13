@@ -17,7 +17,8 @@ public enum WidgetType {
     Widget4x4MaterialYou(10),
     Widget2x2PillMaterialYou(11),
     Widget4x3Locations(12),
-    Widget3x1MaterialYou(13);
+    Widget3x1MaterialYou(13),
+    Widget4x2Graph(14);
 
     private final int value;
 

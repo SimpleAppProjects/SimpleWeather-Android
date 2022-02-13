@@ -18,7 +18,9 @@ import android.util.SizeF
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.core.view.drawToBitmap
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.GlideException
@@ -48,8 +50,13 @@ import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.controls.getImageData
+import com.thewizrd.simpleweather.controls.graphs.*
+import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel
+import com.thewizrd.simpleweather.controls.viewmodels.RangeBarGraphMapper.createGraphData
+import com.thewizrd.simpleweather.controls.viewmodels.createAQIGraphData
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.*
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -670,6 +677,11 @@ object WidgetUpdaterHelper {
                 context, info, views, appWidgetId,
                 locData, weather, newOptions
             )
+        } else if (info.widgetType == WidgetType.Widget4x2Graph) {
+            buildForecastGraph(
+                context, info, views, appWidgetId,
+                locData, weather, newOptions
+            )
         }
 
         if (WidgetUtils.isDateWidget(info.widgetType)) {
@@ -917,6 +929,207 @@ object WidgetUpdaterHelper {
             context, info, updateViews, appWidgetId,
             locData, weather, newOptions
         )
+    }
+
+    private suspend fun buildForecastGraph(
+        context: Context,
+        info: WidgetProviderInfo,
+        updateViews: RemoteViews,
+        appWidgetId: Int,
+        locData: LocationData,
+        weather: Weather?,
+        newOptions: Bundle
+    ) {
+        // Widget dimensions
+        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+        val width = context.dpToPx(350f).toInt().coerceAtLeast(maxWidth * 2)
+        val height = context.dpToPx(175f).toInt().coerceAtLeast(maxHeight * 2)
+
+        val background = WidgetUtils.getWidgetBackground(appWidgetId)
+        val textColor = WidgetUtils.getTextColor(appWidgetId, background)
+
+        val graphType = WidgetUtils.getWidgetGraphType(appWidgetId)
+        val graphView =
+            buildGraphView(context, appWidgetId, locData, weather, graphType, background, textColor)
+
+        if (graphView != null) {
+            val specWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+            val specHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+            graphView.measure(specWidth, specHeight)
+            graphView.layout(0, 0, graphView.measuredWidth, graphView.measuredHeight)
+
+            val bitmap = graphView.drawToBitmap()
+            updateViews.setImageViewBitmap(R.id.graph_view, bitmap)
+
+            var showLabel = true
+            when (graphType) {
+                WidgetGraphType.Forecast -> {
+                    showLabel = false
+                }
+                WidgetGraphType.HourlyForecast -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_hourlyforecast)
+                    )
+                }
+                WidgetGraphType.Precipitation -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_precipitation)
+                    )
+                }
+                WidgetGraphType.Wind -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_wind)
+                    )
+                }
+                WidgetGraphType.Humidity -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_humidity)
+                    )
+                }
+                WidgetGraphType.UVIndex -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_uv)
+                    )
+                }
+                WidgetGraphType.AirQuality -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_airquality_short)
+                    )
+                }
+            }
+
+            updateViews.setViewVisibility(R.id.graph_view, View.VISIBLE)
+            updateViews.setViewVisibility(
+                R.id.graph_label,
+                if (showLabel) View.VISIBLE else View.GONE
+            )
+            updateViews.setViewVisibility(R.id.no_data_view, View.GONE)
+
+            if (showLabel) {
+                updateViews.setTextColor(R.id.graph_label, textColor)
+            }
+        } else {
+            updateViews.setViewVisibility(R.id.graph_view, View.GONE)
+            updateViews.setViewVisibility(R.id.no_data_view, View.VISIBLE)
+            updateViews.setViewVisibility(R.id.graph_label, View.GONE)
+        }
+    }
+
+    private suspend fun buildGraphView(
+        context: Context,
+        appWidgetId: Int,
+        locData: LocationData,
+        weather: Weather?,
+        graphType: WidgetGraphType,
+        background: WidgetUtils.WidgetBackground,
+        @ColorInt textColor: Int
+    ): View? {
+        val backgroundColor =
+            if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+                WidgetUtils.getBackgroundColor(appWidgetId)
+            } else {
+                Colors.BLACK
+            }
+        val viewCtx = context.getThemeContextOverride(
+            ColorsUtils.isSuperLight(backgroundColor)
+        )
+
+        if (graphType == WidgetGraphType.Forecast) {
+            val fcastData = (weather?.forecast
+                ?: settingsManager.getWeatherForecastData(locData.query)?.forecast)?.take(
+                MAX_FORECASTS
+            )
+
+            return fcastData?.let {
+                RangeBarGraphView(viewCtx).apply {
+                    setDrawDataLabels(true)
+                    setDrawIconLabels(true)
+                    setBottomTextColor(textColor)
+                    setFillParentWidth(true)
+                    data = createGraphData(viewCtx, it)
+                }
+            }
+        } else if (graphType == WidgetGraphType.AirQuality) {
+            val now = LocalDate.now(locData.tzOffset)
+
+            val aqiFcastData = (weather?.aqiForecast
+                ?: settingsManager.getWeatherForecastData(locData.query)?.aqiForecast)?.take(
+                MAX_FORECASTS + 1
+            )?.filterNot { item ->
+                item.date.isBefore(now)
+            }
+
+            return aqiFcastData?.let {
+                BarGraphView(viewCtx).apply {
+                    setDrawDataLabels(true)
+                    setDrawIconLabels(false)
+                    setBottomTextColor(textColor)
+                    setFillParentWidth(true)
+                    data = it.createAQIGraphData(viewCtx)
+                }
+            }
+        } else {
+            val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
+            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+            val hrfcastData = (
+                    weather?.hrForecast?.take(12)
+                        ?: settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                            locData.query, 12,
+                            now.minusHours((hrInterval * 0.5).toLong())
+                                .truncatedTo(ChronoUnit.HOURS)
+                        )
+                    )
+
+            if (hrfcastData.isNullOrEmpty()) {
+                return null
+            }
+
+            val forecastGraphType = when (graphType) {
+                WidgetGraphType.Precipitation -> ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+                WidgetGraphType.Wind -> ForecastGraphViewModel.ForecastGraphType.WIND
+                WidgetGraphType.Humidity -> ForecastGraphViewModel.ForecastGraphType.HUMIDITY
+                WidgetGraphType.UVIndex -> ForecastGraphViewModel.ForecastGraphType.UVINDEX
+                else -> ForecastGraphViewModel.ForecastGraphType.TEMPERATURE
+            }
+
+            val graphData = ForecastGraphViewModel().apply {
+                setForecastData(hrfcastData, forecastGraphType)
+            }.graphData
+
+            return if (!graphData.isEmpty && !graphData.getDataSetByIndex(0).isNullOrEmpty()) {
+                if (graphData is LineViewData) {
+                    LineView(viewCtx).apply {
+                        setDrawGridLines(false)
+                        setDrawDotLine(false)
+                        setDrawDataLabels(true)
+                        setDrawIconLabels(false)
+                        setDrawGraphBackground(true)
+                        setDrawDotPoints(false)
+                        setFillParentWidth(true)
+                        setBottomTextColor(textColor)
+                        data = graphData
+                    }
+                } else if (graphData is BarGraphData) {
+                    BarGraphView(viewCtx).apply {
+                        setDrawDataLabels(true)
+                        setDrawIconLabels(false)
+                        setBottomTextColor(textColor)
+                        data = graphData
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
     }
 
     private suspend fun buildForecastPanel(

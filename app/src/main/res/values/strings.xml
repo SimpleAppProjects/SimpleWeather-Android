@@ -48,6 +48,9 @@
     <string name="pref_title_tap2switch">Tap Action</string>
     <string name="pref_tap2switch_summaryOn">Tap to switch forecast</string>
     <string name="pref_tap2switch_summaryOff">Open app</string>
+    <!-- Forecast Graphs -->
+    <string name="label_nodata">NO DATA</string>
+    <string name="pref_title_widgetgraphtype">Forecast Type</string>
 
     <string name="pref_category_timeanddate">Time and Date</string>
     <string name="pref_title_timezone">Time zone</string>

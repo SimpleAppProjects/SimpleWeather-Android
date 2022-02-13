@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText"
+    tools:layout_height="192dp"
+    tools:layout_width="384dp"
+    tools:viewBindingIgnore="true">
+
+    <ImageView
+        android:id="@+id/widgetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:src="?android:attr/colorBackground" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:id="@+id/location_name"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:shadowColor="#000000"
+                android:textColor="?colorOnSurface"
+                android:textSize="14sp"
+                android:textFontWeight="500"
+                tools:text="New York, NY" />
+
+            <ImageView
+                android:id="@+id/settings_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/action_settings"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:tint="?colorOnSurface" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/graph_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:contentDescription="Graph"
+            tools:src="@drawable/ic_settings_black_24dp" />
+
+        <TextView
+            android:id="@+id/no_data_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/label_nodata"
+            android:textAllCaps="true"
+            android:textAppearance="?textAppearanceTitleLarge"
+            android:textColor="?colorOnSurface"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/graph_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:paddingTop="4dp"
+            android:textAppearance="?textAppearanceBodyMedium"
+            android:textColor="?colorOnSurface"
+            tools:text="Precipitation" />
+
+    </LinearLayout>
+
+</FrameLayout>

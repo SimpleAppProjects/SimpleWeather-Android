@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -47,6 +46,7 @@ object WidgetUtils {
     private const val KEY_CALENDARAPP = "key_calendarapp"
     private const val KEY_FORECASTOPTION = "key_fcastoption"
     private const val KEY_TAP2SWITCH = "key_tap2switch"
+    private const val KEY_GRAPHTYPEOPTION = "key_graphtypeoption"
     private const val KEY_USETIMEZONE = "key_usetimezone"
     private const val KEY_BGCOLORCODE = "key_bgcolorcode"
     private const val KEY_TXTCOLORCODE = "key_txtcolorcode"
@@ -76,7 +76,7 @@ object WidgetUtils {
             }
 
             fun valueOf(value: Int): WidgetBackground {
-                return map[value]
+                return map[value, TRANSPARENT]
             }
         }
     }
@@ -117,7 +117,7 @@ object WidgetUtils {
             }
 
             fun valueOf(value: Int): ForecastOption {
-                return map[value]
+                return map[value, FULL]
             }
         }
     }
@@ -242,6 +242,9 @@ object WidgetUtils {
             WidgetType.Widget3x1MaterialYou -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider3x1MaterialYou.Info.getInstance().componentName
             )
+            WidgetType.Widget4x2Graph -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider4x2ForecastGraph.Info.getInstance().componentName
+            )
         }
     }
 
@@ -262,6 +265,7 @@ object WidgetUtils {
             WidgetType.Widget4x4MaterialYou -> WeatherWidgetProvider4x4MaterialYou.Info.getInstance()
             WidgetType.Widget4x3Locations -> WeatherWidgetProvider4x3Locations.Info.getInstance()
             WidgetType.Widget3x1MaterialYou -> WeatherWidgetProvider3x1MaterialYou.Info.getInstance()
+            WidgetType.Widget4x2Graph -> WeatherWidgetProvider4x2ForecastGraph.Info.getInstance()
         }
     }
 
@@ -574,6 +578,7 @@ object WidgetUtils {
             WidgetType.Widget2x2PillMaterialYou -> 96 * 2
             WidgetType.Widget4x3Locations -> 96 * 4
             WidgetType.Widget3x1MaterialYou -> 96 * 3
+            WidgetType.Widget4x2Graph -> 96 * 4
         }
 
         val widgetHeight = when (widgetType) {
@@ -592,6 +597,7 @@ object WidgetUtils {
             WidgetType.Widget2x2PillMaterialYou -> 96 * 2
             WidgetType.Widget4x3Locations -> 96 * 3
             WidgetType.Widget3x1MaterialYou -> 96 * 1
+            WidgetType.Widget4x2Graph -> 96 * 2
         }
 
         if (!options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)) {
@@ -696,6 +702,9 @@ object WidgetUtils {
                 WeatherWidgetProvider3x1MaterialYou.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget3x1MaterialYou
                 }
+                WeatherWidgetProvider4x2ForecastGraph.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget4x2Graph
+                }
             }
         }
 
@@ -705,8 +714,17 @@ object WidgetUtils {
     fun getWidgetBackground(widgetId: Int): WidgetBackground {
         val prefs = getPreferences(widgetId)
 
-        var value = prefs.getString(KEY_WIDGETBACKGROUND, "1")
-        if (value.isNullOrBlank()) value = "1"
+        var value = prefs.getString(KEY_WIDGETBACKGROUND, null)
+
+        if (value.isNullOrBlank()) {
+            val widgetType = getWidgetTypeFromID(widgetId)
+
+            value = if (widgetType == WidgetType.Widget4x2Graph) {
+                "2"
+            } else {
+                "1"
+            }
+        }
 
         return WidgetBackground.valueOf(value.toInt())
     }
@@ -745,15 +763,19 @@ object WidgetUtils {
     }
 
     fun isBackgroundOptionalWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Graph
+    }
+
+    fun isBackgroundCustomOnlyWidget(widgetType: WidgetType): Boolean {
+        return widgetType == WidgetType.Widget4x2Graph
     }
 
     fun isLocationNameOptionalWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock
+        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Graph
     }
 
     fun isSettingsButtonOptional(widgetType: WidgetType): Boolean {
-        return widgetType != WidgetType.Widget2x2MaterialYou && widgetType != WidgetType.Widget2x2PillMaterialYou && widgetType != WidgetType.Widget4x2MaterialYou && widgetType != WidgetType.Widget4x4MaterialYou
+        return widgetType != WidgetType.Widget2x2MaterialYou && widgetType != WidgetType.Widget2x2PillMaterialYou && widgetType != WidgetType.Widget4x2MaterialYou && widgetType != WidgetType.Widget4x4MaterialYou && widgetType != WidgetType.Widget3x1MaterialYou
     }
 
     fun isMaterialYouWidget(widgetType: WidgetType): Boolean {
@@ -803,7 +825,18 @@ object WidgetUtils {
     @ColorInt
     fun getBackgroundColor(widgetId: Int): Int {
         val prefs = getPreferences(widgetId)
-        return prefs.getInt(KEY_BGCOLORCODE, Color.TRANSPARENT)
+        val value = prefs.getInt(KEY_BGCOLORCODE, Int.MAX_VALUE)
+
+        return if (value != Int.MAX_VALUE) {
+            value
+        } else {
+            val widgetType = getWidgetTypeFromID(widgetId)
+            if (widgetType == WidgetType.Widget4x2Graph) {
+                Colors.WHITE
+            } else {
+                Colors.TRANSPARENT
+            }
+        }
     }
 
     fun setBackgroundColor(widgetId: Int, @ColorInt value: Int) {
@@ -815,7 +848,18 @@ object WidgetUtils {
     @ColorInt
     fun getTextColor(widgetId: Int): Int {
         val prefs = getPreferences(widgetId)
-        return prefs.getInt(KEY_TXTCOLORCODE, Color.WHITE)
+        val value = prefs.getInt(KEY_TXTCOLORCODE, Int.MAX_VALUE)
+
+        return if (value != Int.MAX_VALUE) {
+            value
+        } else {
+            val widgetType = getWidgetTypeFromID(widgetId)
+            if (widgetType == WidgetType.Widget4x2Graph) {
+                Colors.BLACK
+            } else {
+                Colors.WHITE
+            }
+        }
     }
 
     fun setTextColor(widgetId: Int, @ColorInt value: Int) {
@@ -976,6 +1020,20 @@ object WidgetUtils {
     fun setDisplayedChild(appWidgetId: Int, index: Int) {
         getPreferences(appWidgetId).edit(false) {
             putInt("setDisplayedChild", index)
+        }
+    }
+
+    fun getWidgetGraphType(widgetId: Int): WidgetGraphType {
+        val prefs = getPreferences(widgetId)
+
+        val value = prefs.getInt(KEY_GRAPHTYPEOPTION, 0)
+
+        return WidgetGraphType.valueOf(value)
+    }
+
+    fun setWidgetGraphType(widgetId: Int, value: Int) {
+        getPreferences(widgetId).edit(true) {
+            putInt(KEY_GRAPHTYPEOPTION, value)
         }
     }
 }

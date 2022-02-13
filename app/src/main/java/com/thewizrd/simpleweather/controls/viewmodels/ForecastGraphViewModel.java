@@ -37,7 +37,7 @@ import java.util.List;
 
 public class ForecastGraphViewModel {
     public enum ForecastGraphType {
-        //TEMPERATURE,
+        TEMPERATURE,
         PRECIPITATION,
         WIND,
         HUMIDITY,
@@ -115,15 +115,13 @@ public class ForecastGraphViewModel {
         final String date = getDateFromForecast(forecast);
 
         switch (graphType) {
-            /*
             case TEMPERATURE:
                 if (forecast.getHighF() != null && forecast.getHighC() != null) {
                     int value = isFahrenheit ? Math.round(forecast.getHighF()) : Math.round(forecast.getHighC());
                     String hiTemp = String.format(LocaleUtils.getLocale(), "%d°", value);
-                    yData.add(new YEntryData(value, hiTemp));
+                    series.addEntry(new LineGraphEntry(date, new YEntryData(value, hiTemp)));
                 }
                 break;
-             */
             default:
             case PRECIPITATION:
                 if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0) {
@@ -256,12 +254,10 @@ public class ForecastGraphViewModel {
         LineDataSeries series;
 
         switch (graphType) {
-            /*
             case TEMPERATURE:
                 series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.ORANGERED);
                 break;
-             */
             default:
             case PRECIPITATION:
                 series = new LineDataSeries(entryData);
@@ -379,11 +375,9 @@ public class ForecastGraphViewModel {
         String graphLabel;
 
         switch (graphType) {
-            /*
             case TEMPERATURE:
                 graphLabel = context.getString(R.string.label_temperature);
                 break;
-             */
             default:
             case PRECIPITATION:
                 graphLabel = context.getString(R.string.label_precipitation);
