@@ -69,9 +69,10 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
     }
 
     @SuppressLint("RestrictedApi")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = ActivitySettingsBinding.inflate(inflater, container, false)
         val inflatedView = super.onCreateView(inflater, container, savedInstanceState)
 
@@ -132,12 +133,12 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreateRecyclerView(
-        inflater: LayoutInflater?,
-        parent: ViewGroup?,
+        inflater: LayoutInflater,
+        parent: ViewGroup,
         savedInstanceState: Bundle?
     ): RecyclerView {
         val recyclerView =
-            inflater?.inflate(R.layout.preference_recyclerview, parent, false) as RecyclerView
+            inflater.inflate(R.layout.preference_recyclerview, parent, false) as RecyclerView
 
         recyclerView.setHasFixedSize(true)
         recyclerView.addItemDecoration(
@@ -160,7 +161,7 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
         return WearableLinearLayoutManager(context, CustomScrollingLayoutCallback())
     }
 
-    override fun onCreateAdapter(preferenceScreen: PreferenceScreen?): RecyclerView.Adapter<*> {
+    override fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
         return ConcatAdapter(
             PreferenceListHeaderAdapter(requireContext().getString(getTitle())),
             super.onCreateAdapter(preferenceScreen),
@@ -168,7 +169,7 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
         )
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
+    override fun onDisplayPreferenceDialog(preference: Preference) {
         // check if dialog is already showing
         if (parentFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
             return

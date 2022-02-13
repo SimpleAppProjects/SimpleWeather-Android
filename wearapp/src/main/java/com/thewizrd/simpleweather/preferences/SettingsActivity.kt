@@ -208,8 +208,7 @@ class SettingsActivity : WearableListenerActivity() {
                 // Fallback to supported weather provider
                 val API = RemoteConfig.getDefaultWeatherProvider()
                 providerPref.value = API
-                providerPref.onPreferenceChangeListener
-                        .onPreferenceChange(providerPref, API)
+                providerPref.onPreferenceChangeListener?.onPreferenceChange(providerPref, API)
                 settingsManager.setAPI(API)
                 WeatherManager.instance.updateAPI()
 
@@ -570,7 +569,7 @@ class SettingsActivity : WearableListenerActivity() {
             connStatusPref = findPreference(KEY_CONNSTATUS)!!
         }
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
+        override fun onDisplayPreferenceDialog(preference: Preference) {
             if (preference is WearEditTextPreference && (SettingsManager.KEY_APIKEY == preference.getKey())) {
                 val TAG = KeyEntryPreferenceDialogFragment::class.java.name
 
@@ -922,12 +921,12 @@ class SettingsActivity : WearableListenerActivity() {
             setPreferencesFromResource(R.xml.pref_credits, rootKey)
         }
 
-        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-            if (preference?.intent != null) {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
+            if (preference.intent != null) {
                 runWithView {
                     runCatching {
                         remoteActivityHelper.startRemoteActivity(
-                            preference.intent
+                            preference.intent!!
                                 .setAction(Intent.ACTION_VIEW)
                                 .addCategory(Intent.CATEGORY_BROWSABLE)
                         )
