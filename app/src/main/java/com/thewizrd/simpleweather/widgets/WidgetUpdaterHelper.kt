@@ -959,7 +959,9 @@ object WidgetUpdaterHelper {
             graphView.measure(specWidth, specHeight)
             graphView.layout(0, 0, graphView.measuredWidth, graphView.measuredHeight)
 
-            val bitmap = graphView.drawToBitmap()
+            val bitmap = withContext(Dispatchers.Main.immediate) {
+                graphView.drawToBitmap()
+            }
             updateViews.setImageViewBitmap(R.id.graph_view, bitmap)
 
             var showLabel = true
