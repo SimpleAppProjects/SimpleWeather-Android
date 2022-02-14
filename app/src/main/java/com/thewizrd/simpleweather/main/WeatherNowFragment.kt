@@ -504,7 +504,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
-                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
+                if (appCompatActivity == null || appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
                     return
 
                 runWithView {

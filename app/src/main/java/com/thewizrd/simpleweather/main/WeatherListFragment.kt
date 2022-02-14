@@ -1,7 +1,9 @@
 package com.thewizrd.simpleweather.main
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -228,8 +230,10 @@ class WeatherListFragment : ToolbarFragment() {
                     }
                 }
             } else {
-                forecastsView.updateForecasts(locationData!!)
-                alertsView.updateAlerts(locationData!!)
+                locationData?.let {
+                    forecastsView.updateForecasts(it)
+                    alertsView.updateAlerts(it)
+                }
                 headerBinding.locationName.text = weatherView.location
             }
 
