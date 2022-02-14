@@ -29,7 +29,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -163,17 +163,17 @@ class SetupLocationFragment : CustomFragment() {
 
         val navController = view.findNavController()
         navController.currentBackStackEntry?.savedStateHandle
-                ?.getLiveData<String>(Constants.KEY_DATA)
-                ?.observe(viewLifecycleOwner, { result ->
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        // Do something with the result.
-                        enableControls(false)
+            ?.getLiveData<String>(Constants.KEY_DATA)
+            ?.observe(viewLifecycleOwner) { result ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // Do something with the result.
+                    enableControls(false)
 
-                        if (result != null) {
-                            // Save data
-                            val data = withContext(Dispatchers.Default) {
-                                JSONParser.deserializer(result, LocationData::class.java)
-                            }
+                    if (result != null) {
+                        // Save data
+                        val data = withContext(Dispatchers.Default) {
+                            JSONParser.deserializer(result, LocationData::class.java)
+                        }
 
                             if (data != null) {
                                 // Setup complete
@@ -186,7 +186,7 @@ class SetupLocationFragment : CustomFragment() {
                         }
                         enableControls(true)
                     }
-                })
+            }
     }
 
     override fun onDestroyView() {
@@ -241,6 +241,7 @@ class SetupLocationFragment : CustomFragment() {
             // Show loading bar
             binding.gpsFollow.isEnabled = false
             binding.progressBar.visibility = View.VISIBLE
+            val navController = binding.root.findNavController()
 
             if (mLocation == null) {
                 // Cancel other tasks
@@ -372,10 +373,9 @@ class SetupLocationFragment : CustomFragment() {
                                 if (data.isValid) {
                                     // Setup complete
                                     viewModel.locationData = data
-                                    binding.root.findNavController()
-                                        .safeNavigate(
-                                            SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
-                                        )
+                                    navController.safeNavigate(
+                                        SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+                                    )
                                 } else {
                                     enableControls(true)
                                     getSettingsManager().setFollowGPS(false)

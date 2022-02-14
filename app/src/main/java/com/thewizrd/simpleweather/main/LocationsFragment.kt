@@ -214,6 +214,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         object : ListAdapterOnClickInterface<LocationPanelViewModel> {
             override fun onClick(view: View, item: LocationPanelViewModel) {
                 AnalyticsLogger.logEvent("LocationsFragment: recycler click")
+                val navController = binding.root.findNavController()
 
                 if (view.isEnabled && view.tag is LocationData) {
                     runWithView {
@@ -230,7 +231,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .setBackground(item.imageData?.imageURI)
                                 .setHome(isHome)
 
-                        binding.root.findNavController().safeNavigate(args)
+                        navController.safeNavigate(args)
                     }
                 }
             }
