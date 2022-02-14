@@ -41,7 +41,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
     private var overlayDrawable: Drawable? = null
     private lateinit var mGlide: RequestManager
 
-    private lateinit var job: Job
+    private var job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
@@ -59,6 +59,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        job.cancel()
         job = Job()
     }
 
