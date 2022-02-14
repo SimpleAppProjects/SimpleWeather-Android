@@ -91,7 +91,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 val temp =
                     if (isFahrenheit) Math.round(weather.condition.highF) else Math.round(weather.condition.highC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
-            } else if (forecast != null) {
+            } else if (forecast?.highF != null && forecast.highF != forecast.highC) {
                 val temp =
                     if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
@@ -104,7 +104,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 val temp =
                     if (isFahrenheit) Math.round(weather.condition.lowF) else Math.round(weather.condition.lowC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
-            } else if (forecast != null) {
+            } else if (forecast?.lowF != null && forecast.lowF != forecast.lowC) {
                 val temp =
                     if (isFahrenheit) Math.round(forecast.lowF) else Math.round(forecast.lowC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
