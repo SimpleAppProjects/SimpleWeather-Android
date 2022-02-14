@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.services
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
@@ -141,17 +140,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             Logger.writeLine(Log.INFO, "%s: Canceled work", TAG)
         }
 
-        @TargetApi(Build.VERSION_CODES.O)
         private fun getForegroundNotification(context: Context): Notification {
-            initChannel(context)
-            val mBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                initChannel(context)
+            }
+
+            return NotificationCompat.Builder(context, NOT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo_stroke)
                 .setContentTitle(context.getString(R.string.not_title_weather_update))
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setOnlyAlertOnce(true)
                 .setNotificationSilent()
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-            return mBuilder.build()
+                .build()
         }
     }
 
