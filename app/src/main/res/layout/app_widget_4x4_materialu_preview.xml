@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText"
     tools:layout_height="wrap_content"
     tools:layout_width="384dp"
     tools:viewBindingIgnore="true">
@@ -20,7 +21,11 @@
             android:id="@+id/weather_icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/wi_day_sunny" />
+            android:contentDescription="Sunny"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in"
+            android:src="@drawable/wi_day_sunny"
+            tools:ignore="UseAppTint" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -40,7 +45,7 @@
                 android:paddingHorizontal="4dp"
                 android:textColor="@color/widget_m3_pill_foreground_color"
                 android:textSize="16sp"
-                tools:text="London" />
+                android:text="London" />
 
             <TextView
                 android:id="@+id/condition_weather"
@@ -53,7 +58,8 @@
                 android:textFontWeight="500"
                 android:textColor="@color/widget_m3_pill_foreground_color"
                 android:textSize="18sp"
-                tools:text="Mostly Cloudy" />
+                android:text="Mostly Cloudy"
+                tools:ignore="UnusedAttribute" />
 
         </LinearLayout>
 
@@ -81,7 +87,8 @@
                 android:textColor="@color/widget_m3_pill_foreground_color"
                 android:textFontWeight="500"
                 android:textSize="48sp"
-                tools:text="14°" />
+                android:text="14°"
+                tools:ignore="UnusedAttribute" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -92,20 +99,24 @@
                     android:id="@+id/condition_hi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center_horizontal"
+                    android:minWidth="36dp"
                     android:textColor="@color/widget_m3_pill_foreground_color"
                     android:textSize="18sp"
-                    tools:text="16°" />
+                    android:text="16°" />
 
                 <TextView
                     android:id="@+id/condition_lo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="2dp"
                     android:alpha="0.5"
+                    android:gravity="center_horizontal"
+                    android:minWidth="36dp"
                     android:textColor="?colorOnSurface"
                     android:textSize="18sp"
-                    tools:text="11°" />
+                    android:text="11°" />
 
             </LinearLayout>
 
@@ -122,6 +133,7 @@
             android:orientation="horizontal">
 
             <include layout="@layout/app_widget_hrforecast_layout_container_material_preview" />
+
         </LinearLayout>
 
     </LinearLayout>

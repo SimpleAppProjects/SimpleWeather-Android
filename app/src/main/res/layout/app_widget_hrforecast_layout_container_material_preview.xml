@@ -7,7 +7,7 @@
     android:gravity="center_vertical|end"
     android:orientation="horizontal"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:ignore="HardcodedText"
+    tools:ignore="ContentDescription,HardcodedText,UseAppTint"
     tools:viewBindingIgnore="true">
 
     <LinearLayout
@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <TextView
@@ -39,7 +39,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast1_date"
@@ -61,7 +63,7 @@
         android:background="@null"
         android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <TextView
@@ -84,7 +86,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast2_date"
@@ -106,7 +110,7 @@
         android:background="@null"
         android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <TextView
@@ -129,7 +133,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast3_date"
@@ -151,7 +157,7 @@
         android:background="@null"
         android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <TextView
@@ -174,7 +180,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast4_date"
@@ -219,7 +227,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast5_date"
@@ -264,7 +274,9 @@
             android:adjustViewBounds="true"
             android:padding="4dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/wi_day_thunderstorm" />
+            android:src="@drawable/wi_day_thunderstorm"
+            android:tint="@color/widget_m3_pill_foreground_color"
+            android:tintMode="src_in" />
 
         <TextView
             android:id="@+id/hrforecast6_date"

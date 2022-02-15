@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="ContentDescription,UnusedAttribute,UseAppTint"
     tools:layout_height="wrap_content"
     tools:layout_width="384dp"
     tools:viewBindingIgnore="true">
@@ -94,7 +95,9 @@
                     android:id="@+id/condition_hi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center_horizontal"
+                    android:minWidth="36dp"
                     android:textColor="@color/widget_m3_pill_foreground_color"
                     android:textSize="18sp"
                     tools:text="16°" />
@@ -103,8 +106,10 @@
                     android:id="@+id/condition_lo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="2dp"
                     android:alpha="0.5"
+                    android:gravity="center_horizontal"
+                    android:minWidth="36dp"
                     android:textColor="?colorOnSurface"
                     android:textSize="18sp"
                     tools:text="11°" />

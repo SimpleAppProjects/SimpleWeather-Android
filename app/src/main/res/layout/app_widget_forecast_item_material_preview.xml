@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp"
     android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="4dp"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:ignore="HardcodedText"
+    tools:ignore="ContentDescription,HardcodedText,UseAppTint"
     tools:viewBindingIgnore="true">
 
     <TextView
@@ -15,6 +15,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="Tuesday"
         android:textAppearance="?textAppearanceBodyLarge"
         android:textColor="@color/widget_innerview_foreground_color" />
@@ -25,7 +27,9 @@
         android:layout_height="36dp"
         android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
-        android:src="@drawable/wi_day_sunny" />
+        android:src="@drawable/wi_day_sunny"
+        android:tint="@color/widget_innerview_foreground_color"
+        android:tintMode="src_in" />
 
     <TextView
         android:id="@+id/forecast_hi"
@@ -33,6 +37,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
+        android:gravity="center_horizontal"
+        android:minWidth="36dp"
         android:text="15°"
         android:textAppearance="?textAppearanceBodyLarge"
         android:textColor="@color/widget_innerview_foreground_color" />
@@ -43,9 +49,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
+        android:alpha="0.5"
+        android:gravity="center_horizontal"
+        android:minWidth="36dp"
         android:text="11°"
         android:textAppearance="?textAppearanceBodyLarge"
-        android:alpha="0.75"
         android:textColor="@color/widget_innerview_foreground_color" />
 
 </LinearLayout>
