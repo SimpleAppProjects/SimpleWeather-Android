@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.edit
 import androidx.core.util.ObjectsCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.common.api.ApiException
@@ -21,6 +22,7 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker.Companion.requestWidgetUpdate
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -40,6 +42,8 @@ object DataSyncManager {
             val localBroadcastMgr = LocalBroadcastManager.getInstance(appContext)
 
             val updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME)
+
+            if (!isActive) return@withContext
 
             if (updateTimeMillis != getSettingsUpdateTime(appContext)) {
                 val API = dataMap.getString(WearableSettings.KEY_API, "")
@@ -123,6 +127,8 @@ object DataSyncManager {
         val appContext = context.applicationContext
         val settingsMgr = SettingsManager(appContext)
 
+        if (!isActive) return@withContext
+
         if (dataMap != null && !dataMap.isEmpty) {
             val locationJSON = dataMap.getString(WearableSettings.KEY_LOCATIONDATA, "")
             if (!locationJSON.isNullOrBlank()) {
@@ -152,6 +158,8 @@ object DataSyncManager {
         val appContext = context.applicationContext
         val settingsMgr = SettingsManager(appContext)
         val weatherDAO = WeatherDatabase.getWeatherDAO(appContext)
+
+        if (!isActive) return@withContext
 
         if (dataMap != null && !dataMap.isEmpty) {
             val updateTimeMillis = dataMap.getLong(WearableSettings.KEY_UPDATETIME)
@@ -226,17 +234,26 @@ object DataSyncManager {
     }
 
     private fun setSettingsUpdateTime(context: Context, value: Long) {
-        val prefs = context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
-        prefs.edit().putLong("settings_updatetime", value).apply()
+        val prefs =
+            context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
+        prefs.edit {
+            putLong("settings_updatetime", value)
+        }
     }
 
     private fun setLocationDataUpdateTime(context: Context, value: Long) {
-        val prefs = context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
-        prefs.edit().putLong("location_updatetime", value).apply()
+        val prefs =
+            context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
+        prefs.edit {
+            putLong("location_updatetime", value)
+        }
     }
 
     private fun setWeatherUpdateTime(context: Context, value: Long) {
-        val prefs = context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
-        prefs.edit().putLong("weather_updatetime", value).apply()
+        val prefs =
+            context.applicationContext.getSharedPreferences("datasync", Context.MODE_PRIVATE)
+        prefs.edit {
+            putLong("weather_updatetime", value)
+        }
     }
 }

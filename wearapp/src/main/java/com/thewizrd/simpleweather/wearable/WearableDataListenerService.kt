@@ -1,12 +1,12 @@
 package com.thewizrd.simpleweather.wearable
 
+import android.util.Log
 import com.google.android.gms.wearable.*
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class WearableDataListenerService : WearableListenerService() {
     private lateinit var settingsMgr: SettingsManager
@@ -40,19 +40,52 @@ class WearableDataListenerService : WearableListenerService() {
                         WearableHelper.SettingsPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
-                                DataSyncManager.updateSettings(applicationContext, dataMap)
+                                runCatching {
+                                    supervisorScope {
+                                        withTimeout(15000) {
+                                            DataSyncManager.updateSettings(
+                                                applicationContext,
+                                                dataMap
+                                            )
+                                        }
+                                    }
+                                }.onFailure {
+                                    Logger.writeLine(Log.ERROR, "DataSync: settings error", it)
+                                }
                             }
                         }
                         WearableHelper.LocationPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
-                                DataSyncManager.updateLocation(applicationContext, dataMap)
+                                runCatching {
+                                    supervisorScope {
+                                        withTimeout(15000) {
+                                            DataSyncManager.updateLocation(
+                                                applicationContext,
+                                                dataMap
+                                            )
+                                        }
+                                    }
+                                }.onFailure {
+                                    Logger.writeLine(Log.ERROR, "DataSync: location error", it)
+                                }
                             }
                         }
                         WearableHelper.WeatherPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
                             GlobalScope.launch(Dispatchers.Default) {
-                                DataSyncManager.updateWeather(applicationContext, dataMap)
+                                runCatching {
+                                    supervisorScope {
+                                        withTimeout(15000) {
+                                            DataSyncManager.updateWeather(
+                                                applicationContext,
+                                                dataMap
+                                            )
+                                        }
+                                    }
+                                }.onFailure {
+                                    Logger.writeLine(Log.ERROR, "DataSync: weather error", it)
+                                }
                             }
                         }
                     }
