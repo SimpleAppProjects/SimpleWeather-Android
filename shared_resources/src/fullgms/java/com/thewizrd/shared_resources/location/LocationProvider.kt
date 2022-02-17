@@ -74,7 +74,7 @@ class LocationProvider {
                 numUpdates = 1
                 interval = 10000
                 fastestInterval = 1000
-                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
             }
 
             locationCallback = object : LocationCallback() {
