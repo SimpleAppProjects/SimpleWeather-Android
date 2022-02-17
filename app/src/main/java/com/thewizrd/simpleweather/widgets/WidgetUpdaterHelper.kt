@@ -227,8 +227,6 @@ object WidgetUpdaterHelper {
                         ) {
                             val views = buildUpdate2x2PillMaterialYou(
                                 context,
-                                info,
-                                appWidgetId,
                                 locData,
                                 viewModel,
                                 newOptions
@@ -306,8 +304,6 @@ object WidgetUpdaterHelper {
     @RequiresApi(Build.VERSION_CODES.S)
     private suspend fun buildUpdate2x2PillMaterialYou(
         context: Context,
-        info: WidgetProviderInfo,
-        appWidgetId: Int,
         location: LocationData,
         weather: WeatherNowViewModel,
         newOptions: Bundle
@@ -364,7 +360,7 @@ object WidgetUpdaterHelper {
         setOnClickIntent(context, location, wideViews)
 
         val sizes =
-            newOptions?.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+            newOptions.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
 
         return if (!sizes.isNullOrEmpty()) {
             RemoteViews(sizes.associateWith { size ->
@@ -679,8 +675,8 @@ object WidgetUpdaterHelper {
             )
         } else if (info.widgetType == WidgetType.Widget4x2Graph) {
             buildForecastGraph(
-                context, info, views, appWidgetId,
-                locData, weather, newOptions
+                context, views, appWidgetId, locData,
+                weather, newOptions
             )
         }
 
@@ -933,7 +929,6 @@ object WidgetUpdaterHelper {
 
     private suspend fun buildForecastGraph(
         context: Context,
-        info: WidgetProviderInfo,
         updateViews: RemoteViews,
         appWidgetId: Int,
         locData: LocationData,
@@ -943,8 +938,8 @@ object WidgetUpdaterHelper {
         // Widget dimensions
         val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
         val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-        val width = context.dpToPx(350f).toInt().coerceAtLeast(maxWidth * 2)
-        val height = context.dpToPx(175f).toInt().coerceAtLeast(maxHeight * 2)
+        val width = context.dpToPx(360f).toInt().coerceAtLeast(maxWidth * 2)
+        val height = context.dpToPx(180f).toInt().coerceAtLeast(maxHeight * 2)
 
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         val textColor = WidgetUtils.getTextColor(appWidgetId, background)
