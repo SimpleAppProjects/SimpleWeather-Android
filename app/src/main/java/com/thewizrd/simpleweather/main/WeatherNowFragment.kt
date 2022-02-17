@@ -366,22 +366,22 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         alertsView.getAlerts()?.observe(this, alertsObserver)
 
-        lifecycle.addObserver(object : LifecycleObserver {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
             private var wasStarted = false
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private fun onStart() {
+            override fun onStart(owner: LifecycleOwner) {
+                super.onStart(owner)
                 resume()
                 wasStarted = true
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            private fun onResume() {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
                 if (!wasStarted) onStart()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            private fun onPause() {
+            override fun onPause(owner: LifecycleOwner) {
+                super.onPause(owner)
                 wasStarted = false
             }
         })

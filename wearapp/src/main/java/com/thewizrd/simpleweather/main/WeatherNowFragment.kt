@@ -14,13 +14,15 @@ import android.view.View.OnGenericMotionListener
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.*
+import androidx.core.view.InputDeviceCompat
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.ViewConfigurationCompat
+import androidx.core.view.postOnAnimationDelayed
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.location.*
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.*
@@ -37,7 +39,9 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.wearable.WearableHelper
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -62,11 +66,14 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.coroutines.coroutineContext
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, WeatherErrorListener {
     companion object {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
+        private const val TAG_SYNCRECEIVER = "SyncDataReceiver"
     }
 
     private val wm = WeatherManager.instance
@@ -245,13 +252,13 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                             locationDataReceived = true
                         }
 
-                        Timber.tag("SyncDataReceiver").d("Action: %s", intent.action)
+                        Timber.tag(TAG_SYNCRECEIVER).d("Action: %s", intent.action)
 
                         if (locationDataReceived && weatherDataReceived && locationData != null) {
                             if (syncTimerEnabled)
                                 cancelTimer()
 
-                            Timber.tag("SyncDataReceiver").d("Loading data...")
+                            Timber.tag(TAG_SYNCRECEIVER).d("Loading data...")
 
                             // We got all our data; now load the weather
                             if (!binding.swipeRefreshLayout.isRefreshing) {
@@ -289,11 +296,11 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         weatherLiveData.observe(this, weatherObserver)
         alertsView.getAlerts()?.observe(this, alertsObserver)
 
-        lifecycle.addObserver(object : LifecycleObserver {
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
             private var wasStarted = false
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            private fun onStart() {
+            override fun onStart(owner: LifecycleOwner) {
+                super.onStart(owner)
                 // Use normal if sync is off
                 if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                     resume()
@@ -303,13 +310,13 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 wasStarted = true
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            private fun onResume() {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
                 if (!wasStarted) onStart()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            private fun onPause() {
+            override fun onPause(owner: LifecycleOwner) {
+                super.onPause(owner)
                 wasStarted = false
             }
         })
@@ -357,7 +364,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         )
 
                 // Swap these axes if you want to do horizontal scrolling instead
-                v.scrollBy(0, Math.round(delta))
+                v.scrollBy(0, delta.roundToInt())
 
                 return@OnGenericMotionListener true
             }
@@ -377,7 +384,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             binding.hourlyForecastContainer.adapter = it
         }
 
-        binding.alertButton.setOnClickListener { v ->
+        binding.alertButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .add(
                     R.id.fragment_container,
@@ -465,7 +472,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 .commit()
         }
 
-        binding.noLocationsPrompt.setOnClickListener { v ->
+        binding.noLocationsPrompt.setOnClickListener {
             // Go to setup
             startActivity(Intent(requireContext(), SetupActivity::class.java))
         }
@@ -594,6 +601,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun restore() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             supervisorScope {
@@ -751,8 +759,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 }
 
                 if (lastGPSLocData?.query != null &&
-                        Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude,
-                                location.latitude, location.longitude)) < 1600) {
+                    abs(
+                        ConversionMethods.calculateHaversine(
+                            lastGPSLocData.latitude, lastGPSLocData.longitude,
+                            location.latitude, location.longitude
+                        )
+                    ) < 1600) {
                     return false
                 }
 
