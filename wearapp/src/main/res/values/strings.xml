@@ -34,7 +34,13 @@
     <string name="pref_sync_deviceonly">Sync from device only</string>
     <string name="pref_sync_whenavailable">Sync from device (when available)</string>
     <string name="message_disconnected">Disconnected</string>
+
+    <!-- Tile Labels -->
     <string name="tile_label_currentweather">Current Weather</string>
     <string name="tile_label_weather_forecast">Weather + Forecast</string>
+
+    <!-- Complication Labels -->
+    <!-- Weather (High/Low) -->
+    <string name="complication_label_weather_hilo">Weather (Hi / Lo)</string>
 
 </resources>

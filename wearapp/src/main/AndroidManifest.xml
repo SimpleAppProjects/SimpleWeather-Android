@@ -103,7 +103,7 @@
 
         <service
             android:icon="@drawable/wi_day_sunny"
-            android:label="Weather (Hi + Lo)"
+            android:label="@string/complication_label_weather_hilo"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherHiLoComplicationService"
             android:exported="true">

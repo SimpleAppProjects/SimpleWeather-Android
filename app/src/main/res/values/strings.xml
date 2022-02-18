@@ -109,4 +109,17 @@
     <string name="precipitation_text_format">%1$d%% chance of rain in %2$s</string>
     <string name="precipitation_nexthour_text_format">%1$d%% chance of rain in the next hour</string>
 
+    <!-- Widget Labels -->
+    <string name="label_widget_weather_1x1">Weather (1x1)</string>
+    <string name="label_widget_weather_clock_2x2">Weather + Clock (2x2)</string>
+    <string name="label_widget_weather_4x1">Weather (4x1)</string>
+    <string name="label_widget_weather_clock_4x2">Weather + Clock (4x2)</string>
+    <string name="label_widget_weather_date_4x1">Weather + Date (4x1)</string>
+    <string name="label_widget_weather_2x2">Weather (2x2)</string>
+    <string name="label_widget_weather_4x2">Weather (4x2)</string>
+    <string name="label_widget_weather_4x4">Weather (4x4)</string>
+    <string name="label_widget_weather_clock_4x3">Weather + Clock (4x3)</string>
+    <string name="label_widget_weather_3x1">Weather (3x1)</string>
+    <string name="label_widget_weather_forecast_4x2">Weather Forecast (4x2)</string>
+
 </resources>

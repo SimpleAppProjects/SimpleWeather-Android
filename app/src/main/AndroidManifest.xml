@@ -67,7 +67,7 @@
 
         <receiver
             android:name=".widgets.WeatherWidgetProvider1x1"
-            android:label="Weather (1x1)"
+            android:label="@string/label_widget_weather_1x1"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -79,7 +79,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2"
-            android:label="Weather + Clock (2x2)"
+            android:label="@string/label_widget_weather_clock_2x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -93,7 +93,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1"
-            android:label="Weather (4x1)"
+            android:label="@string/label_widget_weather_4x1"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -105,7 +105,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2"
-            android:label="Weather + Clock (4x2)"
+            android:label="@string/label_widget_weather_clock_2x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -119,7 +119,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1Google"
-            android:label="Weather + Date (4x1)"
+            android:label="@string/label_widget_weather_date_4x1"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -133,7 +133,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x1Notification"
-            android:label="Weather (4x1)"
+            android:label="@string/label_widget_weather_4x1"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -145,7 +145,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2Clock"
-            android:label="Clock + Weather (4x2)"
+            android:label="@string/label_widget_weather_clock_4x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -159,7 +159,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2Huawei"
-            android:label="Clock + Weather (4x2)"
+            android:label="@string/label_widget_weather_clock_4x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -173,7 +173,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2MaterialYou"
-            android:label="Weather (2x2)"
+            android:label="@string/label_widget_weather_2x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -185,7 +185,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider2x2PillMaterialYou"
-            android:label="Weather (2x2)"
+            android:label="@string/label_widget_weather_2x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -197,7 +197,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2MaterialYou"
-            android:label="Weather (4x2)"
+            android:label="@string/label_widget_weather_4x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -209,7 +209,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x4MaterialYou"
-            android:label="Weather (4x4)"
+            android:label="@string/label_widget_weather_4x4"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -221,7 +221,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x3Locations"
-            android:label="Clock + Weather (4x3)"
+            android:label="@string/label_widget_weather_clock_4x3"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -235,7 +235,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider3x1MaterialYou"
-            android:label="Weather (3x1)"
+            android:label="@string/label_widget_weather_3x1"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -247,7 +247,7 @@
         </receiver>
         <receiver
             android:name=".widgets.WeatherWidgetProvider4x2ForecastGraph"
-            android:label="Forecast (4x2)"
+            android:label="@string/label_widget_weather_forecast_4x2"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
