@@ -28,10 +28,14 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.utils.Units.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.StringReader
 import java.time.Instant
@@ -59,7 +63,7 @@ class SettingsManager(context: Context) {
         private const val CACHE_LIMIT = 25
         private const val MAX_LOCATIONS = 10
 
-        const val DEFAULTINTERVAL = 180
+        const val DEFAULT_INTERVAL = 180
 
         const val CONNECTION_TIMEOUT = 10000 // 10s
         const val READ_TIMEOUT = 10000 // 10s
@@ -197,7 +201,9 @@ class SettingsManager(context: Context) {
                         val dataSync = WearableDataSync.valueOf(sharedPreferences.getString(KEY_DATASYNC, "0")!!.toInt())
                         settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
                         // Reset interval if setting is off
-                        if (dataSync == WearableDataSync.OFF) settingsMgr.setRefreshInterval(DEFAULTINTERVAL)
+                        if (dataSync == WearableDataSync.OFF) settingsMgr.setRefreshInterval(
+                            DEFAULT_INTERVAL
+                        )
                     }
                 }
                 KEY_ICONSSOURCE -> {
@@ -644,7 +650,7 @@ class SettingsManager(context: Context) {
     }
 
     fun getRefreshInterval(): Int {
-        return preferences.getString(KEY_REFRESHINTERVAL, DEFAULTINTERVAL.toString())!!.toInt()
+        return preferences.getString(KEY_REFRESHINTERVAL, DEFAULT_INTERVAL.toString())!!.toInt()
     }
 
     fun setRefreshInterval(value: Int) {

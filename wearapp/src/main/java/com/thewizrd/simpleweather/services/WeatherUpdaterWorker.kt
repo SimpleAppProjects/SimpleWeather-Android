@@ -89,7 +89,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             val updateRequest = PeriodicWorkRequest.Builder(
                 WeatherUpdaterWorker::class.java,
-                SettingsManager.DEFAULTINTERVAL.toLong(),
+                SettingsManager.DEFAULT_INTERVAL.toLong(),
                 TimeUnit.MINUTES,
                 5,
                 TimeUnit.MINUTES

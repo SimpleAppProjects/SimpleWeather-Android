@@ -32,7 +32,7 @@ class UpdaterTimerService : Service() {
     private var mReceiverRegistered = false
     private var mLastWeatherUpdateTime: Long = -1
     private var mLastWidgetUpdateTime: Long = -1
-    private var mUpdateInterval: Int = SettingsManager.DEFAULTINTERVAL
+    private var mUpdateInterval: Int = SettingsManager.DEFAULT_INTERVAL
 
     private var mTodayForecastTime: String? = SettingsManager.DEFAULT_DAILYNOTIFICATION_TIME
     private var mLastTodayForecastTime: Long = -1
@@ -110,12 +110,12 @@ class UpdaterTimerService : Service() {
                 startAlarmIfNeeded(
                     intent.getIntExtra(
                         EXTRA_INTERVAL,
-                        SettingsManager.DEFAULTINTERVAL
+                        SettingsManager.DEFAULT_INTERVAL
                     )
                 )
             }
             ACTION_UPDATEALARM -> {
-                updateAlarm(intent.getIntExtra(EXTRA_INTERVAL, SettingsManager.DEFAULTINTERVAL))
+                updateAlarm(intent.getIntExtra(EXTRA_INTERVAL, SettingsManager.DEFAULT_INTERVAL))
             }
             ACTION_CANCELALARM -> {
                 cancelAlarm()
@@ -269,7 +269,7 @@ class UpdaterTimerService : Service() {
                     startAlarmIfNeeded(
                         intent.getIntExtra(
                             EXTRA_INTERVAL,
-                            SettingsManager.DEFAULTINTERVAL
+                            SettingsManager.DEFAULT_INTERVAL
                         )
                     )
                 }
@@ -277,7 +277,12 @@ class UpdaterTimerService : Service() {
                     cancelAlarm()
                 }
                 ACTION_UPDATEALARM -> {
-                    updateAlarm(intent.getIntExtra(EXTRA_INTERVAL, SettingsManager.DEFAULTINTERVAL))
+                    updateAlarm(
+                        intent.getIntExtra(
+                            EXTRA_INTERVAL,
+                            SettingsManager.DEFAULT_INTERVAL
+                        )
+                    )
                 }
                 DailyWeatherNotificationWorkerActions.ACTION_UPDATENOTIFICATIONTIME -> {
                     updateDailyNotificationTime(

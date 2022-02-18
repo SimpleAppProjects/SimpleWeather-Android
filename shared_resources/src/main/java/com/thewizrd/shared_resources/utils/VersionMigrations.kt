@@ -43,7 +43,7 @@ internal object VersionMigrations {
                     settingsMgr.setDefaultUnits(Units.FAHRENHEIT)
                 }
                 if (!SimpleLibrary.instance.app.isPhone) {
-                    settingsMgr.setRefreshInterval(SettingsManager.DEFAULTINTERVAL)
+                    settingsMgr.setRefreshInterval(SettingsManager.DEFAULT_INTERVAL)
                 }
             }
 

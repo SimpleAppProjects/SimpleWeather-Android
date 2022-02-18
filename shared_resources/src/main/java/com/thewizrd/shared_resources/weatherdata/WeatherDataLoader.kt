@@ -17,8 +17,8 @@ import java.time.Duration
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 import kotlin.coroutines.coroutineContext
+import kotlin.math.max
 
 class WeatherDataLoader(private val location: LocationData) {
     companion object {
@@ -442,7 +442,7 @@ class WeatherDataLoader(private val location: LocationData) {
         val ttl = if (WeatherAPI.HERE == wm.getWeatherAPI()) {
             settingsMgr.getRefreshInterval()
         } else {
-            Math.max(weather!!.ttl, settingsMgr.getRefreshInterval())
+            max(weather!!.ttl, settingsMgr.getRefreshInterval())
         }
 
         // Check file age

@@ -16,7 +16,7 @@ public enum WearableDataSync {
         this.value = value;
     }
 
-    private static SparseArray<WearableDataSync> map = new SparseArray<>();
+    private static final SparseArray<WearableDataSync> map = new SparseArray<>();
 
     static {
         for (WearableDataSync dataSync : values()) {

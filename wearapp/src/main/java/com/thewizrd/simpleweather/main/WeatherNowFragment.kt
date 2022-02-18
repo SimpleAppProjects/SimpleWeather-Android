@@ -135,7 +135,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(),
                 settingsManager.getUpdateTime()
             )
-            if (settingsManager.getDataSync() != WearableDataSync.OFF && span.toMinutes() > SettingsManager.DEFAULTINTERVAL) {
+            if (settingsManager.getDataSync() != WearableDataSync.OFF && span.toMinutes() > SettingsManager.DEFAULT_INTERVAL) {
                 WeatherUpdaterWorker.enqueueAction(
                     context,
                     WeatherUpdaterWorker.ACTION_UPDATEWEATHER
