@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_0">"无风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_1">"软风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_2">"轻风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_3">"微风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_4">"和风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_5">"清风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_6">"强风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_7">"劲风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_8">"大风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_9">"烈风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_10">"狂风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_11">"暴风"</string>
+
+    <!-- Fuzzy -->
+    <string name="beaufort_12">"飓风"</string>
+</resources>

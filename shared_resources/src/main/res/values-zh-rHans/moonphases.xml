@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"新月"</string>
+    <string name="moonphase_waxcrescent">"娥眉月"</string>
+    <string name="moonphase_firstqtr">"上弦月"</string>
+    <string name="moonphase_waxgibbous">"盈凸"</string>
+    <string name="moonphase_full">"满月"</string>
+    <string name="moonphase_wangibbous">"亏凸"</string>
+    <string name="moonphase_lastqtr">"下弦月"</string>
+    <string name="moonphase_wancrescent">"残月"</string>
+</resources>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Setup -->
+    <string name="location_search_hint">"输入地址"</string>
+    <string name="api_label">"天气信息源"</string>
+    <string name="key_hint">"输入密钥"</string>
+    <string name="label_gpsfollow">"当前位置"</string>
+    <string name="label_getstarted">"开始"</string>
+    <string name="setup_welcome_prompt">"欢迎使用 SimpleWeather"</string>
+    <string name="setup_welcome_tagline_prompt">"一个简单的天气 App 而已"</string>
+    <string name="setup_location_prompt">"从添加一个地址开始"</string>
+    <string name="setup_preferences_prompt">"在下方自定义您的设置"</string>
+    <string name="label_next">"下一步"</string>
+    <string name="label_back">"返回"</string>
+
+    <!-- MainActivity -->
+    <string name="title_activity_weather_now">"天气"</string>
+    <string name="action_settings">"设置"</string>
+    <string name="action_retry">"重试"</string>
+
+    <!-- Weather Details -->
+    <string name="label_details">"详情"</string>
+    <string name="label_humidity">"湿度"</string>
+    <string name="label_pressure">"压力"</string>
+    <string name="label_visibility">"可视度"</string>
+    <string name="label_feelslike">"体感温度"</string>
+    <string name="label_wind">"风力"</string>
+    <string name="label_forecast">"预测"</string>
+    <string name="label_condition">"状态"</string>
+    <string name="label_sunriseset">"日出 / 日落"</string>
+    <string name="label_sunrise">"日出"</string>
+    <string name="label_sunset">"日落"</string>
+    <string name="label_hourlyforecast">"小时概览"</string>
+    <string name="label_precipitation">"降水"</string>
+    <string name="label_chance">"概率"</string>
+    <string name="label_cloudiness">"云量"</string>
+    <string name="label_qpf_rain">"降雨量"</string>
+    <string name="label_qpf_snow">"降雪量"</string>
+    <string name="credit_prefix">"数据来自"</string>
+    <string name="attrib_prefix">"图片来自"</string>
+    <string name="label_high">"高"</string>
+    <string name="label_low">"低"</string>
+    <string name="label_dewpoint">"露点"</string>
+    <string name="label_moonrise">"月出"</string>
+    <string name="label_moonset">"月落"</string>
+    <string name="label_moonphase">"月相"</string>
+    <string name="label_beaufort">"风级"</string>
+    <string name="label_uv">"紫外线强度"</string>
+    <string name="label_airquality">"空气质量指数"</string>
+    <string name="label_airquality_short">"空气质量"</string>
+    <string name="label_radar">"雷达"</string>
+    <string name="label_afternoon">"下午"</string>
+    <string name="label_eve">"傍晚"</string>
+    <string name="label_morning">"早上"</string>
+    <string name="label_night">"晚上"</string>
+    <string name="label_temp">"温度"</string>
+
+    <!-- NavBar -->
+    <string name="label_nav_weathernow">"天气"</string>
+    <string name="label_nav_alerts">"预警"</string>
+    <string name="label_nav_locations">"地址"</string>
+    <string name="title_activity_settings">"设置"</string>
+    <string name="title_fragment_alerts">"恶劣天气预警"</string>
+
+    <!-- Settings -->
+    <string name="pref_title_general">"总体"</string>
+    <string name="pref_category_version">"版本"</string>
+    <string name="pref_title_units">"单位"</string>
+    <string name="pref_summary_fahrenheit">"使用华氏度体系单位"</string>
+    <string name="pref_summary_celsius">"使用摄氏度体系单位"</string>
+    <string name="pref_title_about">"关于"</string>
+    <string name="pref_title_about_app">"关于 SimpleWeather"</string>
+    <string name="pref_title_credits">"许可"</string>
+    <string name="pref_title_oslibs">"开源库"</string>
+    <string name="pref_category_providers">"数据提供商"</string>
+    <string name="pref_summary_currentlocation">"允许通过 GPS 获取当前位置"</string>
+    <string name="pref_summary_apikey">"输入 %1$s 所需的密钥"</string>
+    <string name="message_enter_apikey">"请输入密钥"</string>
+    <string name="message_keyverified">"密钥验证成功"</string>
+    <string name="message_keyinvalid">"密钥错误"</string>
+    <string name="pref_title_onnotification">"天气通知"</string>
+    <string name="pref_summary_notification">"持续显示当前天气的通知"</string>
+    <string name="pref_title_api">"天气提供商"</string>
+    <string name="pref_category_notification">"通知"</string>
+    <string name="pref_title_notificationicon">"通知图标"</string>
+    <string name="pref_title_alerts">"天气预警"</string>
+    <string name="pref_summary_alerts">"为天气预警显示通知"</string>
+    <string name="pref_summary_alerts_disabled">"此数据提供商不支持天气预警"</string>
+    <string name="pref_title_apiregister">"创建账户"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_apiregister">"创建一个帐户以注册提供者密钥"</string>
+
+    <!-- Fuzzy -->
+    <string name="error_message_weather_region_unsupported">"这个国家不被这个天气供应商所支持"</string>
+
+    <!-- Locations -->
+    <string name="label_btn_add_location">"添加地址"</string>
+    <string name="action_editmode">"编辑"</string>
+    <string name="label_currentlocation">"当前地址"</string>
+    <string name="label_favoritelocations">"收藏地址"</string>
+    <string name="error_location_denied">"无位置获取权限"</string>
+    <string name="error_retrieve_location">"无法获取位置"</string>
+    <string name="error_enable_location_services">"位置服务被禁用，请在设置中启用"</string>
+    <string name="error_noresults">"无结果"</string>
+    <string name="label_fab_add_location">"添加一个地址"</string>
+    <string name="message_locationremoved">"地址已删除"</string>
+    <string name="message_needfavorite">"必须至少有一个收藏地址"</string>
+    <string name="undo">"撤销"</string>
+    <string name="delete">"删除"</string>
+
+    <!-- Background Location Permission -->
+    <string name="bg_location_permission_rationale">"允许在后台更新位置以获取通知和小部件"</string>
+
+    <!-- Weather Exceptions -->
+    <string name="werror_noweather">"无法加载天气数据"</string>
+    <string name="werror_networkerror">"网络错误"</string>
+    <string name="werror_invalidkey">"无效的密钥"</string>
+    <string name="werror_querynotfound">"没有城市与您的搜索匹配"</string>
+    <string name="werror_unknown">"未知错误"</string>
+
+    <!-- Refresh Intervals -->
+    <string name="pref_title_refreshinterval">"更新间隔"</string>
+    <string name="refresh_60min">"1 小时"</string>
+    <string name="refresh_2hrs">"2 小时"</string>
+    <string name="refresh_3hrs">"3 小时"</string>
+    <string name="refresh_6hrs">"6 小时"</string>
+    <string name="refresh_12hrs">"12 小时"</string>
+    <string name="update_prefix">"更新于"</string>
+    <string name="update_prefix_day">"更新于"</string>
+
+    <!-- Notification -->
+    <string name="notificationicon_temperature">"温度"</string>
+    <string name="notificationicon_condition">"天气情况"</string>
+    <string name="not_channel_name_weather">"天气通知"</string>
+    <string name="not_channel_desc_weather">"天气通知"</string>
+    <string name="not_channel_name_alerts">"天气预警"</string>
+    <string name="not_channel_desc_alerts">"天气预警通知"</string>
+    <string name="not_channel_name_general">"通知服务"</string>
+
+    <!-- Alerts -->
+    <string name="datetime_day_ago">"%1$dd 前"</string>
+    <string name="datetime_hr_ago">"%1$dh 前"</string>
+    <string name="datetime_min_ago">"%1$dm 前"</string>
+    <string name="datetime_sec_ago">"%1$ds 前"</string>
+
+    <!-- Fuzzy -->
+    <string name="datetime_validuntil">"有效期至"</string>
+
+    <!-- HERE API -->
+    <string name="pref_title_personalkey">"个人密钥"</string>
+    <string name="pref_summary_personalkey">"使用个人密钥"</string>
+
+    <!-- Dark Theme -->
+    <string name="pref_title_userthememode">"主题"</string>
+    <string name="userthememode_default">"系统默认"</string>
+    <string name="userthememode_dark">"深色"</string>
+    <string name="userthememode_black">"深色 (AMOLED)"</string>
+    <string name="userthememode_light">"亮色"</string>
+    <string name="summary_default">"默认"</string>
+    <string name="action_refresh">"刷新"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_windgust">"阵风"</string>
+    <string name="pref_title_language">"语言"</string>
+
+    <!-- Units -->
+    <string name="label_temperature">"温度"</string>
+    <string name="label_speed">"速度"</string>
+    <string name="label_distance">"距离"</string>
+    <string name="pref_title_resetunits">"重置单位到默认值"</string>
+    <string name="not_title_weather_update">"更新天气中…"</string>
+
+    <!-- Icons -->
+    <!-- Fuzzy -->
+    <string name="pref_title_icons">"图标"</string>
+
+    <!-- Fuzzy -->
+    <string name="refresh_30min">"30分钟"</string>
+    <string name="label_day">"天"</string>
+
+    <!-- Pollen -->
+    <string name="label_pollen_count">"花粉数"</string>
+    <string name="label_pollen_tree">"树"</string>
+    <string name="label_tree_pollen">"树花粉"</string>
+    <string name="label_pollen_grass">"草"</string>
+    <string name="label_grass_pollen">"草花粉"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_pollen_ragweed">"豚草"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_ragweed_pollen">"豚草花粉"</string>
+    <string name="label_count_low">"低"</string>
+    <string name="label_count_moderate">"中"</string>
+    <string name="label_count_high">"高"</string>
+    <string name="label_count_veryhigh">"很高"</string>
+
+    <!-- Fuzzy -->
+    <string name="bg_location_permission_rationale_settings">"要在后台更新通知和小部件的位置，请将位置权限设置为'%1$s'"</string>
+
+    <!-- Fuzzy -->
+    <string name="prompt_location_not_set">"未设置位置。 请添加位置"</string>
+
+    <!-- Background Location Permission -->
+    <!-- Fuzzy -->
+    <string name="title_bg_location_access">"背景位置访问"</string>
+
+    <!-- Fuzzy -->
+    <string name="wear_bg_location_permission_rationale">"允许在后台更新瓷砖和并发症的位置"</string>
+
+    <!-- Fuzzy -->
+    <string name="wear_bg_location_permission_rationale_settings">"要在后台更新瓷砖和并发症的位置，请将位置权限设置为 '%1$s'"</string>
+
+    <!-- Fuzzy -->
+    <string name="time_current">"当前时间"</string>
+</resources>

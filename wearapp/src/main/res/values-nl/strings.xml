@@ -35,6 +35,12 @@
     <string name="pref_sync_title">"Datasynchronisatie"</string>
     <string name="pref_connectionstatus_title">"Verbindingsstatus"</string>
     <string name="message_disconnected">"Afgesloten"</string>
+
+    <!-- Tile Labels -->
     <string name="tile_label_currentweather">"Huidig Weer"</string>
     <string name="tile_label_weather_forecast">"Weer + Voorspelling"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <string name="complication_label_weather_hilo">"Weer (Max / Min)"</string>
 </resources>

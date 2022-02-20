@@ -38,6 +38,12 @@
 
     <!-- Fuzzy -->
     <string name="message_disconnected">"Abgeschaltet"</string>
+
+    <!-- Tile Labels -->
     <string name="tile_label_currentweather">"Aktuelles Wetter"</string>
     <string name="tile_label_weather_forecast">"Wetter + Vorhersage"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <string name="complication_label_weather_hilo">"Wetter (hoch / niedrig)"</string>
 </resources>

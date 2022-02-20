@@ -109,4 +109,21 @@
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Prehľad počasia"</string>
     <string name="prompt_max_locations_allowed">"Maximálne päť povolených miest"</string>
+
+    <!-- Forecast Graphs -->
+    <string name="label_nodata">"ŽIADNE ÚDAJE"</string>
+    <string name="pref_title_widgetgraphtype">"Typ predpovede"</string>
+
+    <!-- Widget Labels -->
+    <string name="label_widget_weather_1x1">"Počasie (1x1)"</string>
+    <string name="label_widget_weather_clock_2x2">"Počasie a hodiny (2x2)"</string>
+    <string name="label_widget_weather_4x1">"Počasie (4x1)"</string>
+    <string name="label_widget_weather_clock_4x2">"Počasie a hodiny (4x2)"</string>
+    <string name="label_widget_weather_date_4x1">"Počasie a dátum (4x1)"</string>
+    <string name="label_widget_weather_2x2">"Počasie (2x2)"</string>
+    <string name="label_widget_weather_4x2">"Počasie (4x2)"</string>
+    <string name="label_widget_weather_4x4">"Počasie (4x4)"</string>
+    <string name="label_widget_weather_clock_4x3">"Počasie a hodiny (4x3)"</string>
+    <string name="label_widget_weather_3x1">"Počasie (3x1)"</string>
+    <string name="label_widget_weather_forecast_4x2">"Predpoveď počasia (4x2)"</string>
 </resources>

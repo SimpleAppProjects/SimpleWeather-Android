@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- https://aqicn.org/scale -->
+    <string name="aqi_level_0_50">"优"</string>
+    <string name="aqi_level_51_100">"良"</string>
+    <string name="aqi_level_101_150">"轻度污染"</string>
+    <string name="aqi_level_151_200">"中度污染"</string>
+    <string name="aqi_level_201_300">"重度污染"</string>
+    <string name="aqi_level_300">"严重污染"</string>
+    <string name="aqi_desc_0_50">"空气质量令人满意，空气污染造成的风险很小或没有"</string>
+    <string name="aqi_desc_51_100">"空气质量是可接受的"</string>
+    <string name="aqi_desc_101_150">"敏感群体的健康可能受到影响，一般公众一般不受影响"</string>
+    <string name="aqi_desc_151_200">"每个人的健康都受到影响，敏感群体所受影响可能更为严重"</string>
+    <string name="aqi_desc_201_300">"很不健康，所有人的健康都可能受到影响"</string>
+    <string name="aqi_desc_300">"非常不健康，所有人的健康都可能受到更为严重的影响"</string>
+</resources>

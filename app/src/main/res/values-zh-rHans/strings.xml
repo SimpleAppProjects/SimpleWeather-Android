@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Feature Settings -->
+    <string name="pref_title_features">"功能"</string>
+    <string name="pref_summary_features">"启用 / 禁用功能"</string>
+    <string name="pref_title_feature_bgimage">"背景图片"</string>
+    <string name="pref_title_feature_forecast">"预报"</string>
+    <string name="pref_title_feature_hrforecast">"小时预测"</string>
+    <string name="pref_title_feature_details">"天气详情"</string>
+    <string name="pref_title_feature_uv">"紫外线"</string>
+    <string name="pref_title_feature_beaufort">"风级"</string>
+    <string name="pref_title_feature_aqindex">"空气质量指数"</string>
+    <string name="pref_title_feature_moonphase">"月相"</string>
+    <string name="pref_title_feature_sunphase">"日相"</string>
+    <string name="pref_title_feature_radar">"天气雷达"</string>
+    <string name="pref_title_feature_locpanelimg">"位置面板图像"</string>
+
+    <!-- Widget -->
+    <string name="widget_configure_prompt">"自定义小部件"</string>
+    <string name="title_activity_widget_config">"小部件选项"</string>
+    <string name="pref_title_bgcolor">"背景颜色"</string>
+    <string name="label_color_transparent">"透明度"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_bgstyle">"背景风格"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_style_fullbg">"完整背景"</string>
+    <string name="label_style_panda">"默认"</string>
+
+    <!-- Can be shortened to 'Color' -->
+    <string name="label_style_pendingcolor">"天气颜色"</string>
+    <string name="label_style_light">"亮色"</string>
+    <string name="label_style_dark">"暗色"</string>
+
+    <!-- Fuzzy -->
+    <string name="locname_pref_title">"地址名称"</string>
+
+    <!-- Fuzzy -->
+    <string name="locname_pref_summary">"从小部件中隐藏地址名称"</string>
+    <string name="settingsbtn_pref_title">"设置按钮"</string>
+    <string name="settingsbtn_pref_summary">"从小组件隐藏设置按钮"</string>
+    <string name="clock_pref_title">"时钟"</string>
+    <string name="calendar_pref_title">"日历"</string>
+    <string name="pref_title_fcastoption">"预测"</string>
+    <string name="label_fcast_full">"每日预测和每小时预测 (若支持)"</string>
+    <string name="label_fcast_daily">"每日预测"</string>
+    <string name="label_fcast_hourly">"每小时预测 (若支持)"</string>
+    <string name="pref_category_timeanddate">"时间和日期"</string>
+    <string name="pref_title_timezone">"时区"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_timezone_summaryoff">"使用系统时区作为时间和日期"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_timezone_summaryon">"使用位置时区作为时间和日期"</string>
+    <string name="pref_location">"位置"</string>
+    <string name="pref_item_gpslocation">"当前 GPS 位置"</string>
+    <string name="prompt_setup_app_first">"请先初始化应用"</string>
+
+    <!-- LineView -->
+    <string name="label_series">"系列"</string>
+
+    <!-- In-App Updates -->
+    <string name="not_channel_update_title">"软件更新"</string>
+    <string name="prompt_update_title">"更新 SimpleWeather"</string>
+    <string name="prompt_update_available">"有可用更新，点击以安装"</string>
+
+    <!-- Support -->
+    <string name="pref_category_support">"支持"</string>
+
+    <!-- Feedback -->
+    <string name="pref_title_feedback">"反馈"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_feedback">"报告任何错误或建议以改进应用程序"</string>
+
+    <!-- Rate / Review -->
+    <!-- Fuzzy -->
+    <string name="pref_title_rateandreview">"打分和评论"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_rateandreview">"喜欢这个应用程序吗？通过提供评论来帮助支持"</string>
+
+    <!-- Translate -->
+    <string name="pref_title_translate">"翻译"</string>
+    <string name="pref_summary_translate">"帮助翻译这个软件"</string>
+
+    <!-- Custom Color -->
+    <string name="label_color_custom">"自定义"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_bgcolorcode">"背景颜色"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_txtcolorcode">"文字颜色"</string>
+
+    <!-- SplitInstall Prompts -->
+    <!-- Fuzzy -->
+    <string name="splitlang_start_install">"开始安装语言包…"</string>
+    <string name="splitlang_installing">"安装语言包中…"</string>
+    <string name="splitlang_downloading">"下载语言包中…"</string>
+    <string name="splitlang_failure">"下载语言包失败"</string>
+    <string name="pref_title_feature_charts">"图标"</string>
+
+    <!-- Widget Service -->
+    <!-- Fuzzy -->
+    <string name="message_widgetservice_running">"小部件更新服务正在运行"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_foreground_service">"小部件更新服务"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_foreground_service">"启用服务以更新天气小部件和通知"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_ignore_batt_opts">"忽略电池优化"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_summary_ignore_batt_opts">"如果小部件和通知未更新，则禁用后台服务限制"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_tap2switch">"点选动作"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_tap2switch_summaryOn">"点按即可切换预测"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_tap2switch_summaryOff">"打开应用程序"</string>
+
+    <!-- Daily Notification -->
+    <!-- Fuzzy -->
+    <string name="not_channel_name_dailynotification">"每日通知"</string>
+    <string name="pref_title_time">"世界"</string>
+    <string name="pref_summary_off">"关"</string>
+    <string name="pref_summary_on">"开"</string>
+
+    <!-- Precipitation Notification -->
+    <!-- Fuzzy -->
+    <string name="not_channel_name_precipnotification">"降水通知"</string>
+
+    <!-- Example: 80% chance of rain in 2 hours
+(%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
+    <string name="precipitation_text_format">"%2$s内有%1$d%%的机会下雨"</string>
+    <string name="precipitation_nexthour_text_format">"未来一小时内有%1$d%%的机会下雨"</string>
+
+    <!-- Weather Summary or Weather Overview -->
+    <!-- Fuzzy -->
+    <string name="pref_title_feature_summary">"天气摘要"</string>
+
+    <!-- Fuzzy -->
+    <string name="prompt_max_locations_allowed">"最多允许五个位置"</string>
+
+    <!-- Forecast Graphs -->
+    <!-- Fuzzy -->
+    <string name="label_nodata">"没有数据"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_title_widgetgraphtype">"预测类型"</string>
+
+    <!-- Widget Labels -->
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_1x1">"天气 (1x1)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_clock_2x2">"天气和时钟 (2x2)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_4x1">"天气 (4x1)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_clock_4x2">"天气和时钟 (4x2)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_date_4x1">"天气和日期 (4x1)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_2x2">"天气 (2x2)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_4x2">"天气 (4x2)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_4x4">"天气 (4x4)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_clock_4x3">"天气和时钟 (4x3)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_3x1">"天气 (3x1)"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_widget_weather_forecast_4x2">"天气预报 (4x2)"</string>
+</resources>

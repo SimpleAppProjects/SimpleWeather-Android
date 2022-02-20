@@ -109,4 +109,21 @@
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Weeroverzicht"</string>
     <string name="prompt_max_locations_allowed">"Maximaal vijf locaties toegestaan"</string>
+
+    <!-- Forecast Graphs -->
+    <string name="label_nodata">"GEEN GEGEVENS"</string>
+    <string name="pref_title_widgetgraphtype">"Voorspelling Type"</string>
+
+    <!-- Widget Labels -->
+    <string name="label_widget_weather_1x1">"Weer (1x1)"</string>
+    <string name="label_widget_weather_clock_2x2">"Weer en Klok (2x2)"</string>
+    <string name="label_widget_weather_4x1">"Weer (4x1)"</string>
+    <string name="label_widget_weather_clock_4x2">"Weer en Klok (4x2)"</string>
+    <string name="label_widget_weather_date_4x1">"Weer en datum (4x1)"</string>
+    <string name="label_widget_weather_2x2">"Weer (2x2)"</string>
+    <string name="label_widget_weather_4x2">"Weer (4x2)"</string>
+    <string name="label_widget_weather_4x4">"Weer (4x4)"</string>
+    <string name="label_widget_weather_clock_4x3">"Weer en Klok (4x3)"</string>
+    <string name="label_widget_weather_3x1">"Weer (3x1)"</string>
+    <string name="label_widget_weather_forecast_4x2">"Weersvoorspelling (4x2)"</string>
 </resources>

@@ -35,6 +35,13 @@
     <string name="pref_sync_title">"Synchronizácia údajov"</string>
     <string name="pref_connectionstatus_title">"Stav pripojenia"</string>
     <string name="message_disconnected">"Odpojené"</string>
+
+    <!-- Tile Labels -->
     <string name="tile_label_currentweather">"Aktuálne počasie"</string>
     <string name="tile_label_weather_forecast">"Počasie + predpoveď"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <!-- Fuzzy -->
+    <string name="complication_label_weather_hilo">"Počasie (V. / N.)"</string>
 </resources>

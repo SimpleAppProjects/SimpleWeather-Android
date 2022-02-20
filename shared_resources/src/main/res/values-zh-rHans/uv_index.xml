@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="uv_0">"低"</string>
+    <string name="uv_3">"中"</string>
+    <string name="uv_6">"强"</string>
+    <string name="uv_8">"很强"</string>
+    <string name="uv_11">"极强"</string>
+</resources>

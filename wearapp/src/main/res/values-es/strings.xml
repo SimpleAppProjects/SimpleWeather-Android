@@ -35,6 +35,12 @@
     <string name="pref_sync_title">"Sincronización de datos"</string>
     <string name="pref_connectionstatus_title">"Estado de la conexión"</string>
     <string name="message_disconnected">"Desconectado"</string>
+
+    <!-- Tile Labels -->
     <string name="tile_label_currentweather">"Tiempo actual"</string>
     <string name="tile_label_weather_forecast">"Tiempo + Previsión"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <string name="complication_label_weather_hilo">"Tiempo (Máx / Mín)"</string>
 </resources>

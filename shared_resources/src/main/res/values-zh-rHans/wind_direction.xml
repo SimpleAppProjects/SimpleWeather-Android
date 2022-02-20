@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- North -->
+    <string name="wind_dir_n">"北"</string>
+
+    <!-- North-North East -->
+    <string name="wind_dir_nne">"北偏东"</string>
+
+    <!-- North-East -->
+    <string name="wind_dir_ne">"东北"</string>
+
+    <!-- East North-East -->
+    <string name="wind_dir_ene">"东偏北"</string>
+
+    <!-- East -->
+    <string name="wind_dir_e">"东"</string>
+
+    <!-- East South-East -->
+    <string name="wind_dir_ese">"东偏南"</string>
+
+    <!-- South-East -->
+    <string name="wind_dir_se">"东南"</string>
+
+    <!-- South South-East -->
+    <string name="wind_dir_sse">"南偏东"</string>
+
+    <!-- South -->
+    <string name="wind_dir_s">"南"</string>
+
+    <!-- South South-West -->
+    <string name="wind_dir_ssw">"南偏西"</string>
+
+    <!-- South-West -->
+    <string name="wind_dir_sw">"西南"</string>
+
+    <!-- West South-West -->
+    <string name="wind_dir_wsw">"西偏南"</string>
+
+    <!-- West -->
+    <string name="wind_dir_w">"西"</string>
+
+    <!-- West North-West -->
+    <string name="wind_dir_wnw">"西偏北"</string>
+
+    <!-- North-West -->
+    <string name="wind_dir_nw">"西北"</string>
+
+    <!-- North North-West -->
+    <string name="wind_dir_nnw">"北偏西"</string>
+</resources>

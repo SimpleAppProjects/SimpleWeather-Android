@@ -133,4 +133,21 @@
     <!-- Weather Summary or Weather Overview -->
     <string name="pref_title_feature_summary">"Resumen del tiempo"</string>
     <string name="prompt_max_locations_allowed">"Se permite un máximo de cinco ubicaciones"</string>
+
+    <!-- Forecast Graphs -->
+    <string name="label_nodata">"SIN DATOS"</string>
+    <string name="pref_title_widgetgraphtype">"Tipo de previsión"</string>
+
+    <!-- Widget Labels -->
+    <string name="label_widget_weather_1x1">"Tiempo (1x1)"</string>
+    <string name="label_widget_weather_clock_2x2">"Tiempo y reloj (2x2)"</string>
+    <string name="label_widget_weather_4x1">"Tiempo (4x1)"</string>
+    <string name="label_widget_weather_clock_4x2">"Tiempo y reloj (4x2)"</string>
+    <string name="label_widget_weather_date_4x1">"Tiempo y fecha (4x1)"</string>
+    <string name="label_widget_weather_2x2">"Tiempo (2x2)"</string>
+    <string name="label_widget_weather_4x2">"Tiempo (4x2)"</string>
+    <string name="label_widget_weather_4x4">"Tiempo (4x4)"</string>
+    <string name="label_widget_weather_clock_4x3">"Tiempo y reloj (4x3)"</string>
+    <string name="label_widget_weather_3x1">"Tiempo (3x1)"</string>
+    <string name="label_widget_weather_forecast_4x2">"Previsión del tiempo (4x2)"</string>
 </resources>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Conditions -->
+    <!-- Fuzzy -->
+    <string name="weather_tornado">"龙卷风"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_tropicalstorm">"热带风暴"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_hurricane">"飓风"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_severetstorms">"严重的雷暴"</string>
+    <string name="weather_tstorms">"雷暴"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandsnow">"雨和雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandsleet">"雨和雨夹雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snowandsleet">"雪和雨夹雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_freezingrain">"冻雨"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snowflurries">"雪花飞舞"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightsnowshowers">"小雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_blowingsnow">"吹雪"</string>
+    <string name="weather_snow">"雪"</string>
+    <string name="weather_hail">"冰雹"</string>
+    <string name="weather_sleet">"霰"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_dust">"灰尘"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_foggy">"有雾的"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_haze">"雾霾"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_smoky">"烟雾缭绕"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_windy">"风大"</string>
+    <string name="weather_cold">"冷"</string>
+    <string name="weather_cloudy">"多云"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_mostlycloudy">"多云"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_partlycloudy">"部分多云"</string>
+    <string name="weather_clear">"无云"</string>
+    <string name="weather_sunny">"阳光明媚"</string>
+    <string name="weather_fair">"晴朗"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainandhail">"雨和冰雹"</string>
+    <string name="weather_hot">"热"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_isotstorms">"孤立的雷暴"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_scatteredtstorms">"分散的雷暴"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_scatteredshowers">"零星阵雨"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_heavysnow">"暴雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_fog">"雾"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightrain">"小雨"</string>
+    <string name="weather_rain">"雨"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_rainshowers">"阵雨"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_blizzard">"暴风雪"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_overcast">"阴天"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_sleet_tstorms">"雨夹雪和雷电"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_snow_tstorms">"雷雪交加"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_clearsky">"晴朗的天空"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_heavyrain">"大雨"</string>
+</resources>

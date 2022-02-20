@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"从电话中设置"</string>
+    <string name="action_changelocation">"更改位置"</string>
+    <string name="action_openonphone">"在电话中打开"</string>
+
+    <!-- Fuzzy -->
+    <string name="message_openedonphone">"在电话上打开…"</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"设备未连接"</string>
+    <string name="status_connecting">"连接中…"</string>
+
+    <!-- Fuzzy -->
+    <string name="status_notinstalled">"设备上未安装应用程序"</string>
+    <string name="status_connected">"已连接"</string>
+    <string name="status_node_unavailable">"设备未连接或设备上未安装应用程序…"</string>
+    <string name="status_node_notsupported">"不支持已连接的设备"</string>
+
+    <!-- Setup -->
+    <!-- Fuzzy -->
+    <string name="prompt_confirmsetup">"您想从您的手机/连接的设备设置和同步数据吗？"</string>
+    <string name="message_gettingstatus">"获取连接状态…"</string>
+
+    <!-- Fuzzy -->
+    <string name="error_notinstalled">"在设备上安装应用程序并重试"</string>
+
+    <!-- Fuzzy -->
+    <string name="message_continueondevice">"继续在连接的设备上进行设置"</string>
+
+    <!-- Fuzzy -->
+    <string name="message_retrievingdata">"从连接的设备中检索数据…"</string>
+    <string name="error_syncing">"无法同步数据"</string>
+    <string name="message_settingsretrieved">"接收设置数据中…"</string>
+    <string name="message_locationretrieved">"接收位置数据中…"</string>
+    <string name="message_weatherretrieved">"收到的天气数据…"</string>
+    <string name="message_synccompleted">"数据同步成功！"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"关"</string>
+    <string name="pref_sync_deviceonly">"只从设备同步"</string>
+    <string name="pref_sync_whenavailable">"从设备同步 (若可用)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"同步"</string>
+
+    <!-- Fuzzy -->
+    <string name="pref_sync_title">"数据同步"</string>
+    <string name="pref_connectionstatus_title">"连接状态"</string>
+    <string name="message_disconnected">"无连接"</string>
+
+    <!-- Tile Labels -->
+    <!-- Fuzzy -->
+    <string name="tile_label_currentweather">"当前天气"</string>
+
+    <!-- Fuzzy -->
+    <string name="tile_label_weather_forecast">"天气和预测"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <!-- Fuzzy -->
+    <string name="complication_label_weather_hilo">"天气 (高溫 / 低溫)"</string>
+</resources>

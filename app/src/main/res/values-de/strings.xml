@@ -125,4 +125,21 @@
 
     <!-- Fuzzy -->
     <string name="prompt_max_locations_allowed">"Maximal fünf Standorte erlaubt"</string>
+
+    <!-- Forecast Graphs -->
+    <string name="label_nodata">"KEINE DATEN"</string>
+    <string name="pref_title_widgetgraphtype">"Vorhersage-Typ"</string>
+
+    <!-- Widget Labels -->
+    <string name="label_widget_weather_1x1">"Wetter (1x1)"</string>
+    <string name="label_widget_weather_clock_2x2">"Wetter und Uhr (2x2)"</string>
+    <string name="label_widget_weather_4x1">"Wetter (4x1)"</string>
+    <string name="label_widget_weather_clock_4x2">"Wetter und Uhr (4x2)"</string>
+    <string name="label_widget_weather_date_4x1">"Wetter und Datum (4x1)"</string>
+    <string name="label_widget_weather_2x2">"Wetter (2x2)"</string>
+    <string name="label_widget_weather_4x2">"Wetter (4x2)"</string>
+    <string name="label_widget_weather_4x4">"Wetter (4x4)"</string>
+    <string name="label_widget_weather_clock_4x3">"Wetter und Uhr (4x3)"</string>
+    <string name="label_widget_weather_3x1">"Wetter (3x1)"</string>
+    <string name="label_widget_weather_forecast_4x2">"Wettervorhersage (4x2)"</string>
 </resources>
