@@ -39,6 +39,7 @@
         <item>nl</item>
         <item>pl</item>
         <item>sk</item>
+        <item>zh-CN</item>
     </string-array>
     <string-array name="default_units">
         <item>@string/default_units_imperial</item>
