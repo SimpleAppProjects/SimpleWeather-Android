@@ -14,7 +14,7 @@ buildscript {
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         classpath 'com.google.firebase:perf-plugin:1.4.1'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.0-alpha01" // 2.5.0-alpha01 needed for Gradle 7.1
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.0-alpha02" // 2.5.0-alpha01 needed for Gradle 7.1
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong

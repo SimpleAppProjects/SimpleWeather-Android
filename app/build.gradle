@@ -145,10 +145,12 @@ dependencies {
     implementation 'androidx.work:work-multiprocess:2.7.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
 
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha01' // 2.5.0-alpha01 needed for Gradle 7.1
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha01' // 2.5.0-alpha01 needed for Gradle 7.1
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha02'
+    // 2.5.0-alpha01 needed for Gradle 7.1
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha02'
+    // 2.5.0-alpha01 needed for Gradle 7.1
 
     implementation 'androidx.room:room-runtime:2.4.1'
     kapt 'androidx.room:room-compiler:2.4.1'
