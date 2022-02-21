@@ -53,7 +53,6 @@ import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
-import java.util.*
 
 class SettingsActivity : WearableListenerActivity() {
     companion object {
@@ -358,7 +357,7 @@ class SettingsActivity : WearableListenerActivity() {
                     langEntries[i] = getString(R.string.summary_default)
                 } else {
                     val localeCode = code.toString()
-                    val locale = Locale(localeCode)
+                    val locale = LocaleUtils.getLocaleForTag(localeCode)
                     langEntries[i] = locale.getDisplayName(locale)
                 }
             }

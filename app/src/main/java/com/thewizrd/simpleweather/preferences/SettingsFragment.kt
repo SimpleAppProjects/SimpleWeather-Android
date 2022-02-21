@@ -659,7 +659,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 langEntries[i] = requireContext().getString(R.string.summary_default)
             } else {
                 val localeCode = code.toString()
-                val locale = Locale(localeCode)
+                val locale = LocaleUtils.getLocaleForTag(localeCode)
                 langEntries[i] = locale.getDisplayName(locale)
             }
         }
