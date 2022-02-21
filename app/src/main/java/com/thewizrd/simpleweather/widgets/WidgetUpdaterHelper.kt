@@ -36,7 +36,9 @@ import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
+import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.TextUtils.getTextBounds
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
@@ -936,10 +938,14 @@ object WidgetUpdaterHelper {
         newOptions: Bundle
     ) {
         // Widget dimensions
-        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-        val width = context.dpToPx(360f).toInt().coerceAtLeast(maxWidth * 2)
-        val height = context.dpToPx(180f).toInt().coerceAtLeast(maxHeight * 2)
+        val width = if (context.isLargeTablet()) {
+            min(context.resources.displayMetrics.widthPixels, context.dpToPx(600f).toInt())
+        } else if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            min(context.resources.displayMetrics.heightPixels, context.dpToPx(560f).toInt())
+        } else {
+            context.resources.displayMetrics.widthPixels
+        }
+        val height = width / 2
 
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         val textColor = WidgetUtils.getTextColor(appWidgetId, background)
