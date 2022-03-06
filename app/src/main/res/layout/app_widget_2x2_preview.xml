@@ -66,8 +66,10 @@
     <FrameLayout
         android:id="@+id/weather_notif_layout"
         android:layout_width="match_parent"
-        android:layout_height="66dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content"
+        android:minHeight="66dp"
+        android:layout_alignParentBottom="true"
+        android:padding="8dp">
 
         <include layout="@layout/app_widget_2x2_notif_layout_themed_preview" />
     </FrameLayout>

@@ -143,7 +143,7 @@
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/CustomPreferenceThemeOverlay</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
@@ -154,8 +154,12 @@
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
+    <style name="CustomPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="sliderPreferenceStyle">@style/Preference.SliderPreference.Material</item>
+    </style>
+
     <style name="SetupTheme" parent="AppTheme">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/CustomPreferenceThemeOverlay</item>
     </style>
 
     <style name="ActionButton" parent="Widget.AppCompat.ActionButton">

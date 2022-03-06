@@ -6,9 +6,12 @@ import android.os.Build
 import androidx.work.*
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider.Companion.EXTRA_WIDGET_IDS
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider.Companion.EXTRA_WIDGET_TYPE
+import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
+import com.thewizrd.simpleweather.widgets.WidgetType
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import com.thewizrd.simpleweather.widgets.WidgetUtils
 
 class WidgetWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {

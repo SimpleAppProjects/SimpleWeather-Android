@@ -16,7 +16,7 @@
             android:title="@string/label_nav_locations" />
         <item
             android:id="@id/settingsFragment"
-            android:icon="@drawable/ic_settings_black_24dp"
+            android:icon="@drawable/ic_outline_settings_24"
             android:title="@string/action_settings" />
     </group>
 

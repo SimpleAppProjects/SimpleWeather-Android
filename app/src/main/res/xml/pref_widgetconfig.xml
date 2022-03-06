@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     app:iconSpaceReserved="false">
 
     <PreferenceCategory
@@ -30,6 +31,14 @@
             android:persistent="false"
             android:summary="@string/settingsbtn_pref_summary"
             android:title="@string/settingsbtn_pref_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_hiderefreshbtn"
+            android:persistent="false"
+            android:summary="@string/refreshbtn_pref_summary"
+            android:title="@string/refreshbtn_pref_title"
             app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
@@ -83,14 +92,14 @@
             android:title="@string/pref_title_bgcolor"
             app:iconSpaceReserved="false" />
 
-        <com.thewizrd.simpleweather.widgets.ColorPreference
+        <com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
             android:defaultValue="#00000000"
             android:key="key_bgcolorcode"
             android:persistent="false"
             android:title="@string/pref_title_bgcolorcode"
             app:iconSpaceReserved="false" />
 
-        <com.thewizrd.simpleweather.widgets.ColorPreference
+        <com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
             android:defaultValue="#FFFFFFFF"
             android:key="key_txtcolorcode"
             android:persistent="false"
@@ -105,6 +114,37 @@
             android:title="@string/pref_title_bgstyle"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="key_custom_size"
+        android:title="Icon and Text Size"
+        app:iconSpaceReserved="false"
+        app:isPreferenceVisible="false"
+        tools:isPreferenceVisible="true">
+
+        <com.thewizrd.shared_resources.preferences.SliderPreference
+            android:defaultValue="1"
+            android:key="key_textsize"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="Text Size"
+            app:sliderMin="0.5"
+            app:sliderMax="1.5"
+            app:sliderStepSize="0.125"
+            app:iconSpaceReserved="false" />
+
+        <com.thewizrd.shared_resources.preferences.SliderPreference
+            android:defaultValue="1"
+            android:key="key_iconsize"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="Icon Size"
+            app:sliderMin="0.5"
+            app:sliderMax="1.5"
+            app:sliderStepSize="0.125"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 

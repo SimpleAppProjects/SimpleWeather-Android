@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_gravity="center_vertical"
     tools:layout_height="72dp"
-    tools:viewBindingIgnore="true">
+    tools:viewBindingIgnore="true"
+    tools:ignore="UnusedAttribute">
 
     <ImageView
         android:id="@+id/weather_icon"
-        android:layout_width="@dimen/not_weather_icon_size"
-        android:layout_height="@dimen/not_weather_icon_size"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/not_weather_icon_marginStart"
         android:layout_marginEnd="6dp"
+        android:layout_gravity="center_vertical"
         android:adjustViewBounds="true"
         android:padding="4dp"
         android:scaleType="fitCenter"
+        android:maxHeight="@dimen/not_weather_icon_size"
+        android:maxWidth="@dimen/not_weather_icon_size"
         tools:src="@drawable/wi_day_sunny" />
 
     <LinearLayout
         android:id="@+id/condition_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_toEndOf="@id/weather_icon"
-        android:layout_toStartOf="@id/extra_layout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/location_name"
@@ -38,6 +42,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="4dp"
+            android:paddingEnd="0dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -51,8 +56,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="center_vertical"
+            android:maxLines="1"
             android:paddingStart="4dp"
-            android:singleLine="true"
+            android:paddingEnd="0dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="13sp"
@@ -70,7 +76,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingStart="4dp"
+                android:paddingEnd="0dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="13sp"
@@ -85,6 +93,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_toEndOf="@id/condition_hi"
                 android:adjustViewBounds="true"
+                android:contentDescription="@string/label_high"
                 android:maxWidth="16dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/wi_direction_up" />
@@ -101,16 +110,18 @@
                 android:shadowColor="#000000"
                 android:text="|"
                 android:textColor="@android:color/white"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/condition_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:layout_toEndOf="@id/divider"
                 android:layout_marginStart="2dp"
+                android:layout_toEndOf="@id/divider"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="13sp"
@@ -121,6 +132,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
+                android:contentDescription="@string/label_low"
                 android:scaleType="fitCenter"
                 android:maxWidth="16dp"
                 android:layout_gravity="center_vertical"
@@ -137,28 +149,30 @@
         android:id="@+id/extra_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/weather_icon"
-        android:layout_alignBottom="@id/weather_icon"
         android:layout_marginEnd="@dimen/not_weather_icon_marginStart"
+        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:visibility="gone"
         tools:visibility="visible">
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/weather_pop_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/weather_popicon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:adjustViewBounds="true"
+                android:maxWidth="24dp"
                 android:padding="2dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/wi_cloudy" />
 
             <TextView
@@ -167,29 +181,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="24dp"
+                android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
                 android:paddingStart="4dp"
-                android:layout_toEndOf="@id/weather_popicon"
+                android:paddingEnd="0dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="60%" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/weather_wind_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/weather_windicon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:adjustViewBounds="true"
+                android:maxWidth="24dp"
                 android:padding="2dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/wi_direction_up" />
 
             <TextView
@@ -198,17 +217,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="24dp"
+                android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
                 android:ellipsize="end"
                 android:paddingStart="4dp"
-                android:layout_toEndOf="@id/weather_windicon"
+                android:paddingEnd="0dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 tools:text="10 mph" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

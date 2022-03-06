@@ -4,20 +4,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:layout_height="96dp"
-    tools:layout_width="96dp"
+    tools:ignore="UseAppTint"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_gravity="top|end"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white"
-        tools:visibility="visible" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/settings_button"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/action_refresh"
+            android:padding="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_refresh"
+            android:tint="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/action_settings"
+            android:layout_gravity="center_vertical"
+            android:padding="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/ic_outline_settings_24"
+            android:tint="@android:color/white" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,12 +54,12 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:adjustViewBounds="true"
-            android:maxWidth="36dp"
-            tools:src="@drawable/wi_day_sunny" />
+            tools:src="@drawable/wi_day_sunny"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/condition_temp"

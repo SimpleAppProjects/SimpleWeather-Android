@@ -4,6 +4,7 @@
     <style name="WearPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
         <item name="android:scrollbars">vertical</item>
         <item name="alertDialogStyle">@style/WearAlertDialogStyle</item>
+        <item name="sliderPreferenceStyle">@style/Preference.SliderPreference.Material</item>
     </style>
 
     <style name="WearAlertDialogStyle" parent="@style/AlertDialog.AppCompat">

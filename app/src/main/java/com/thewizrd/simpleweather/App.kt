@@ -272,6 +272,8 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
             val activityThread = Class.forName("android.app.ActivityThread")
 
             val methodName = "currentProcessName"
+
+            @SuppressLint("DiscouragedPrivateApi")
             val getProcessName: Method = activityThread.getDeclaredMethod(methodName)
             getProcessName.invoke(null) as String?
         } catch (e: Exception) {

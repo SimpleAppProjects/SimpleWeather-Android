@@ -4,4 +4,18 @@
         <!-- State identifier indicating the group is expanded. -->
         <attr name="state_expanded" format="boolean" />
     </declare-styleable>
+
+    <!-- Default style for slider preferences. -->
+    <attr name="sliderPreferenceStyle" format="reference" />
+
+    <declare-styleable name="SliderPreference">
+        <attr format="float" name="sliderMin" />
+        <attr format="float" name="sliderMax" />
+        <attr format="float" name="sliderStepSize" />
+        <attr name="android:layout" />
+        <attr format="boolean" name="adjustable" />
+        <attr format="boolean" name="showSliderValue" />
+        <attr format="boolean" name="updatesContinuously" />
+        <attr format="boolean" name="showSummary" />
+    </declare-styleable>
 </resources>

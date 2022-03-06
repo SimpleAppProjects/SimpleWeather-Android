@@ -51,7 +51,7 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
     protected float backgroundGridWidth = ContextUtils.dpToPx(getContext(), 45);
     protected float longestTextWidth;
 
-    protected final float iconHeight;
+    protected float iconHeight = ContextUtils.dpToPx(getContext(), 30);
 
     private boolean drawDataLabels = false;
     private boolean drawIconsLabels = false;
@@ -74,8 +74,6 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
         bottomTextPaint.setTextAlign(Paint.Align.CENTER);
         bottomTextPaint.setStyle(Paint.Style.FILL);
         bottomTextPaint.setColor(Colors.WHITE);
-
-        iconHeight = ContextUtils.dpToPx(getContext(), 30);
     }
 
     public boolean isDrawDataLabels() {
@@ -100,6 +98,10 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
 
     public void setBottomTextSize(@Px float textSize) {
         bottomTextPaint.setTextSize(textSize);
+    }
+
+    public void setIconSize(@Px float iconSize) {
+        this.iconHeight = iconSize;
     }
 
     public final void setData(T data) {

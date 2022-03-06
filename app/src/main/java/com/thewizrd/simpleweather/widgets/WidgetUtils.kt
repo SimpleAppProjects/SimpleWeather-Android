@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.widgets.remoteviews.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ object WidgetUtils {
     private const val CurrentPrefsVersion = 5
 
     // Keys
+    // TODO: Move preference keys to another class
     private const val KEY_VERSION = "key_version"
     private const val KEY_LOCATIONDATA = "key_locationdata"
     private const val KEY_LOCATIONS = "key_locations"
@@ -42,6 +44,7 @@ object WidgetUtils {
     private const val KEY_WIDGETBACKGROUNDSTYLE = "key_widgetbackgroundstyle"
     private const val KEY_HIDELOCATIONNAME = "key_hidelocationname"
     private const val KEY_HIDESETTINGSBUTTON = "key_hidesettingsbutton"
+    private const val KEY_HIDEREFRESHBUTTON = "key_hiderefreshbutton"
     private const val KEY_CLOCKAPP = "key_clockapp"
     private const val KEY_CALENDARAPP = "key_calendarapp"
     private const val KEY_FORECASTOPTION = "key_fcastoption"
@@ -52,6 +55,8 @@ object WidgetUtils {
     private const val KEY_TXTCOLORCODE = "key_txtcolorcode"
     private const val KEY_MAXFORECAST_LENGTH = "key_forecastlengthset"
     private const val KEY_MAXHRFORECAST_LENGTH = "key_hrforecastlengthset"
+    private const val KEY_CUSTOMTXTMULTIPLIER = "key_customtxtmultiplier"
+    private const val KEY_CUSTOMICONMULTIPLIER = "key_customiconmultiplier"
 
     private const val FORECAST_LENGTH = 3 // 3-day
     private const val MEDIUM_FORECAST_LENGTH = 4 // 4-day
@@ -711,6 +716,27 @@ object WidgetUtils {
         return WidgetType.Unknown
     }
 
+    fun getRemoteViewCreator(context: Context, appWidgetId: Int): AbstractWidgetRemoteViewCreator {
+        return when (getWidgetTypeFromID(appWidgetId)) {
+            WidgetType.Unknown -> throw IllegalArgumentException("Unknown widget type")
+            WidgetType.Widget1x1 -> WeatherWidget1x1Creator(context)
+            WidgetType.Widget2x2 -> WeatherWidget2x2Creator(context)
+            WidgetType.Widget4x1 -> WeatherWidget4x1Creator(context)
+            WidgetType.Widget4x2 -> WeatherWidget4x2Creator(context)
+            WidgetType.Widget4x1Google -> WeatherWidget4x1GoogleCreator(context)
+            WidgetType.Widget4x1Notification -> WeatherWidget4x1NotificationCreator(context)
+            WidgetType.Widget4x2Clock -> WeatherWidget4x2ClockCreator(context)
+            WidgetType.Widget4x2Huawei -> WeatherWidget4x2HuaweiCreator(context)
+            WidgetType.Widget2x2MaterialYou -> WeatherWidget2x2MaterialYouCreator(context)
+            WidgetType.Widget4x2MaterialYou -> WeatherWidget4x2MaterialYouCreator(context)
+            WidgetType.Widget4x4MaterialYou -> WeatherWidget4x4MaterialYouCreator(context)
+            WidgetType.Widget2x2PillMaterialYou -> WeatherWidget2x2PillMaterialYouCreator(context)
+            WidgetType.Widget4x3Locations -> WeatherWidget4x3LocationsCreator(context)
+            WidgetType.Widget3x1MaterialYou -> WeatherWidget3x1MaterialYouCreator(context)
+            WidgetType.Widget4x2Graph -> WeatherWidget4x2GraphCreator(context)
+        }
+    }
+
     fun getWidgetBackground(widgetId: Int): WidgetBackground {
         val prefs = getPreferences(widgetId)
 
@@ -775,7 +801,7 @@ object WidgetUtils {
     }
 
     fun isSettingsButtonOptional(widgetType: WidgetType): Boolean {
-        return widgetType != WidgetType.Widget2x2MaterialYou && widgetType != WidgetType.Widget2x2PillMaterialYou && widgetType != WidgetType.Widget4x2MaterialYou && widgetType != WidgetType.Widget4x4MaterialYou && widgetType != WidgetType.Widget3x1MaterialYou
+        return !isMaterialYouWidget(widgetType)
     }
 
     fun isMaterialYouWidget(widgetType: WidgetType): Boolean {
@@ -787,6 +813,10 @@ object WidgetUtils {
             WidgetType.Widget3x1MaterialYou -> true
             else -> false
         }
+    }
+
+    fun isCustomSizeWidget(widgetType: WidgetType): Boolean {
+        return !isMaterialYouWidget(widgetType) && widgetType != WidgetType.Unknown
     }
 
     @ColorInt
@@ -890,6 +920,17 @@ object WidgetUtils {
     fun setSettingsButtonHidden(widgetId: Int, value: Boolean) {
         getPreferences(widgetId).edit(true) {
             putBoolean(KEY_HIDESETTINGSBUTTON, value)
+        }
+    }
+
+    fun isRefreshButtonHidden(widgetId: Int): Boolean {
+        val prefs = getPreferences(widgetId)
+        return prefs.getBoolean(KEY_HIDEREFRESHBUTTON, true)
+    }
+
+    fun setRefreshButtonHidden(widgetId: Int, value: Boolean) {
+        getPreferences(widgetId).edit(true) {
+            putBoolean(KEY_HIDEREFRESHBUTTON, value)
         }
     }
 
@@ -1034,6 +1075,28 @@ object WidgetUtils {
     fun setWidgetGraphType(widgetId: Int, value: Int) {
         getPreferences(widgetId).edit(true) {
             putInt(KEY_GRAPHTYPEOPTION, value)
+        }
+    }
+
+    fun getCustomTextSizeMultiplier(widgetId: Int): Float {
+        val prefs = getPreferences(widgetId)
+        return prefs.getFloat(KEY_CUSTOMTXTMULTIPLIER, 1f)
+    }
+
+    fun setCustomTextSizeMultiplier(widgetId: Int, value: Float) {
+        getPreferences(widgetId).edit(true) {
+            putFloat(KEY_CUSTOMTXTMULTIPLIER, value)
+        }
+    }
+
+    fun getCustomIconSizeMultiplier(widgetId: Int): Float {
+        val prefs = getPreferences(widgetId)
+        return prefs.getFloat(KEY_CUSTOMICONMULTIPLIER, 1f)
+    }
+
+    fun setCustomIconSizeMultiplier(widgetId: Int, value: Float) {
+        getPreferences(widgetId).edit(true) {
+            putFloat(KEY_CUSTOMICONMULTIPLIER, value)
         }
     }
 }

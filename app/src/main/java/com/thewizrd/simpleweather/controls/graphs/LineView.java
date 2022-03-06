@@ -76,14 +76,6 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         getGraph().drawGraphBackground = drawGraphBackground;
     }
 
-    public void setDrawIconLabels(boolean drawIconsLabels) {
-        getGraph().setDrawIconsLabels(drawIconsLabels);
-    }
-
-    public void setDrawDataLabels(boolean drawDataLabels) {
-        getGraph().setDrawDataLabels(drawDataLabels);
-    }
-
     public void setDrawSeriesLabels(boolean drawSeriesLabels) {
         getGraph().drawSeriesLabels = drawSeriesLabels;
     }
@@ -93,10 +85,6 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         if (getGraph().bgLinesPaint != null) {
             getGraph().bgLinesPaint.setColor(getGraph().BACKGROUND_LINE_COLOR);
         }
-    }
-
-    public void setBottomTextColor(@ColorInt int color) {
-        getGraph().setBottomTextColor(color);
     }
 
     @SuppressLint("ClickableViewAccessibility")

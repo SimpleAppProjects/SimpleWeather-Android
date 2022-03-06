@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
@@ -164,6 +165,26 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
 
     public final void setFillParentWidth(boolean fillParentWidth) {
         this.graph.setFillParentWidth(fillParentWidth);
+    }
+
+    public void setBottomTextColor(@ColorInt int color) {
+        getGraph().setBottomTextColor(color);
+    }
+
+    public void setBottomTextSize(@Px float textSize) {
+        getGraph().setBottomTextSize(textSize);
+    }
+
+    public void setIconSize(@Px float iconSize) {
+        getGraph().setIconSize(iconSize);
+    }
+
+    public void setDrawIconLabels(boolean drawIconsLabels) {
+        getGraph().setDrawIconsLabels(drawIconsLabels);
+    }
+
+    public void setDrawDataLabels(boolean drawDataLabels) {
+        getGraph().setDrawDataLabels(drawDataLabels);
     }
 
     @Override

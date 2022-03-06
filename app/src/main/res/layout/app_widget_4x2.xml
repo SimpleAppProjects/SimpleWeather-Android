@@ -8,7 +8,8 @@
     tools:layout_height="180dp"
     tools:layout_width="match_parent"
     tools:targetApi="JELLY_BEAN_MR1"
-    tools:viewBindingIgnore="true">
+    tools:viewBindingIgnore="true"
+    tools:ignore="UseAppTint">
 
     <ImageView
         android:id="@+id/widgetBackground"
@@ -29,17 +30,42 @@
         tools:background="@color/colorOnPrimary" />
 
     <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentTop="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_toStartOf="@id/settings_button"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/action_refresh"
+        android:maxWidth="16dp"
+        android:maxHeight="16dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_refresh"
+        android:tint="@android:color/white"
+        tools:tint="?android:textColorPrimary" />
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:alpha="0.7"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white" />
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_vertical"
+        android:layout_alignWithParentIfMissing="true"
+        android:contentDescription="@string/action_settings"
+        android:adjustViewBounds="true"
+        android:maxWidth="16dp"
+        android:maxHeight="16dp"
+        android:scaleType="fitCenter"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_outline_settings_24"
+        android:tint="@android:color/white"
+        tools:tint="?android:textColorPrimary" />
 
     <LinearLayout
         android:id="@+id/layout_container"
@@ -70,7 +96,8 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
                 android:textFontWeight="500"
-                tools:text="New York, NY" />
+                tools:text="New York, NY"
+                tools:ignore="UnusedAttribute" />
 
         </LinearLayout>
 
@@ -113,6 +140,8 @@
                     android:baselineAligned="true"
                     android:format12Hour="@string/clock_12_hours_ampm_format"
                     android:format24Hour="@string/clock_24_hours_format"
+                    android:layout_marginStart="-2dp"
+                    android:layout_marginVertical="-2dp"
                     android:layout_gravity="start"
                     android:gravity="start"
                     android:maxLines="1"
@@ -146,14 +175,16 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
                     android:adjustViewBounds="true"
                     android:gravity="center_vertical"
-                    android:padding="4dp"
+                    android:maxWidth="60dp"
+                    android:maxHeight="60dp"
+                    android:scaleType="fitCenter"
                     tools:src="@drawable/wi_thunderstorm" />
 
                 <TextView
@@ -164,12 +195,12 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center_vertical|start"
-                    android:gravity="center_vertical"
                     android:layout_marginStart="2dp"
                     android:layout_toEndOf="@id/weather_icon"
+                    android:gravity="center_vertical"
                     android:shadowColor="#000000"
                     android:textColor="@android:color/white"
-                    android:textSize="36sp"
+                    android:textSize="28sp"
                     tools:text="70°F" />
 
             </RelativeLayout>

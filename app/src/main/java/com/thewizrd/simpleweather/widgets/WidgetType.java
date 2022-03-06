@@ -26,7 +26,7 @@ public enum WidgetType {
         return value;
     }
 
-    private WidgetType(int value) {
+    WidgetType(int value) {
         this.value = value;
     }
 

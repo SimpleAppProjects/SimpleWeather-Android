@@ -45,6 +45,7 @@ import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.preferences.SliderPreference
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -58,6 +59,8 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayListPreference
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
+import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
+import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreferenceDialogFragment
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
@@ -112,6 +115,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var locationPref: ArrayListPreference
     private lateinit var hideLocNamePref: SwitchPreference
     private lateinit var hideSettingsBtnPref: SwitchPreference
+    private lateinit var hideRefreshBtnPref: SwitchPreference
 
     private lateinit var useTimeZonePref: SwitchPreference
     private lateinit var clockPref: Preference
@@ -126,6 +130,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var tap2switchPref: SwitchPreference
     private lateinit var graphTypePref: ListPreference
 
+    private lateinit var textSizePref: SliderPreference
+    private lateinit var iconSizePref: SliderPreference
+
     companion object {
         private val MAX_LOCATIONS = App.instance.settingsManager.getMaxLocations()
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
@@ -133,10 +140,12 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         private const val SETUP_REQUEST_CODE = 10
 
         // Preference Keys
+        // TODO: Move preference keys to another class
         private const val KEY_CATGENERAL = "key_catgeneral"
         private const val KEY_LOCATION = "key_location"
         private const val KEY_HIDELOCNAME = "key_hidelocname"
         private const val KEY_HIDESETTINGSBTN = "key_hidesettingsbtn"
+        private const val KEY_HIDEREFRESHBTN = "key_hiderefreshbtn"
 
         private const val KEY_CATCLOCKDATE = "key_catclockdate"
         private const val KEY_USETIMEZONE = "key_usetimezone"
@@ -153,6 +162,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         private const val KEY_FORECASTOPTION = "key_fcastoption"
         private const val KEY_TAP2SWITCH = "key_tap2switch"
         private const val KEY_GRAPHTYPEOPTION = "key_graphtypeoption"
+
+        private const val KEY_TEXTSIZE = "key_textsize"
+        private const val KEY_ICONSIZE = "key_iconsize"
 
         fun newInstance(args: Bundle): WeatherWidgetPreferenceFragment {
             val fragment = WeatherWidgetPreferenceFragment()
@@ -370,7 +382,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         locationPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
+            Preference.OnPreferenceChangeListener { _, newValue ->
                 job?.cancel()
 
                 val selectedValue = newValue as CharSequence
@@ -398,20 +410,31 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideLocNamePref = findPreference(KEY_HIDELOCNAME)!!
         hideSettingsBtnPref = findPreference(KEY_HIDESETTINGSBTN)!!
+        hideRefreshBtnPref = findPreference(KEY_HIDEREFRESHBTN)!!
 
-        hideLocNamePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setLocationNameHidden(mAppWidgetId, newValue as Boolean)
-            hideLocNamePref.isChecked = newValue
-            updateWidgetView()
-            true
-        }
+        hideLocNamePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setLocationNameHidden(mAppWidgetId, newValue as Boolean)
+                hideLocNamePref.isChecked = newValue
+                updateWidgetView()
+                true
+            }
 
-        hideSettingsBtnPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setSettingsButtonHidden(mAppWidgetId, newValue as Boolean)
-            hideSettingsBtnPref.isChecked = newValue
-            updateWidgetView()
-            true
-        }
+        hideSettingsBtnPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setSettingsButtonHidden(mAppWidgetId, newValue as Boolean)
+                hideSettingsBtnPref.isChecked = newValue
+                updateWidgetView()
+                true
+            }
+
+        hideRefreshBtnPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setRefreshButtonHidden(mAppWidgetId, newValue as Boolean)
+                hideRefreshBtnPref.isChecked = newValue
+                updateWidgetView()
+                true
+            }
 
         if (WidgetUtils.isLocationNameOptionalWidget(mWidgetType)) {
             hideLocNamePref.isChecked = WidgetUtils.isLocationNameHidden(mAppWidgetId)
@@ -425,6 +448,12 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         if (!WidgetUtils.isSettingsButtonOptional(mWidgetType)) {
             hideSettingsBtnPref.isVisible = false
+        }
+
+        hideRefreshBtnPref.isChecked = WidgetUtils.isRefreshButtonHidden(mAppWidgetId)
+
+        if (WidgetUtils.isMaterialYouWidget(mWidgetType)) {
+            hideRefreshBtnPref.isVisible = false
         }
 
         // Time and Date
@@ -444,18 +473,20 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
         calPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             AppChoiceDialogBuilder(requireContext())
-                    .setOnItemSelectedListener(object : OnAppSelectedListener {
-                        override fun onItemSelected(key: String?) {
-                            WidgetUtils.setOnClickCalendarApp(key)
-                            updateCalPreference()
-                        }
-                    }).show()
+                .setOnItemSelectedListener(object : OnAppSelectedListener {
+                    override fun onItemSelected(key: String?) {
+                        WidgetUtils.setOnClickCalendarApp(key)
+                        updateCalPreference()
+                    }
+                }).show()
             true
         }
-        useTimeZonePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setUseTimeZone(mAppWidgetId, newValue as Boolean)
-            true
-        }
+        useTimeZonePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setUseTimeZone(mAppWidgetId, newValue as Boolean)
+                updateWidgetView()
+                true
+            }
 
         if (WidgetUtils.isClockWidget(mWidgetType)) {
             updateClockPreference()
@@ -484,16 +515,17 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         bgColorPref = findPreference(KEY_BGCOLORCODE)!!
         txtColorPref = findPreference(KEY_TXTCOLORCODE)!!
 
-        bgChoicePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val value = newValue.toString().toInt()
+        bgChoicePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue.toString().toInt()
 
-            val mWidgetBackground = WidgetBackground.valueOf(value)
-            WidgetUtils.setWidgetBackground(mAppWidgetId, value)
+                val mWidgetBackground = WidgetBackground.valueOf(value)
+                WidgetUtils.setWidgetBackground(mAppWidgetId, value)
 
-            updateWidgetView()
+                updateWidgetView()
 
-            bgColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
-            txtColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
+                bgColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
+                txtColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
 
             if (mWidgetBackground == WidgetBackground.CURRENT_CONDITIONS) {
                 if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
@@ -508,23 +540,26 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             true
         }
 
-        bgStylePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setBackgroundStyle(mAppWidgetId, newValue.toString().toInt())
-            updateWidgetView()
-            true
-        }
+        bgStylePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setBackgroundStyle(mAppWidgetId, newValue.toString().toInt())
+                updateWidgetView()
+                true
+            }
 
-        bgColorPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setBackgroundColor(mAppWidgetId, (newValue as Int))
-            updateWidgetView()
-            true
-        }
+        bgColorPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setBackgroundColor(mAppWidgetId, (newValue as Int))
+                updateWidgetView()
+                true
+            }
 
-        txtColorPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WidgetUtils.setTextColor(mAppWidgetId, (newValue as Int))
-            updateWidgetView()
-            true
-        }
+        txtColorPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setTextColor(mAppWidgetId, (newValue as Int))
+                updateWidgetView()
+                true
+            }
 
         val styles = WidgetBackgroundStyle.values()
         val styleEntries = arrayOfNulls<CharSequence>(styles.size)
@@ -577,17 +612,49 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             findPreference<Preference>(KEY_BACKGROUND)!!.isVisible = false
         }
 
+        textSizePref = findPreference(KEY_TEXTSIZE)!!
+        textSizePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue as Float
+                WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, value)
+                updateWidgetView()
+
+                true
+            }
+
+        iconSizePref = findPreference(KEY_ICONSIZE)!!
+        iconSizePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue as Float
+                WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, value)
+                updateWidgetView()
+
+                true
+            }
+
+        if (WidgetUtils.isCustomSizeWidget(mWidgetType)) {
+            textSizePref.setValue(WidgetUtils.getCustomTextSizeMultiplier(mAppWidgetId))
+            textSizePref.callChangeListener(textSizePref.getValue())
+            iconSizePref.setValue(WidgetUtils.getCustomIconSizeMultiplier(mAppWidgetId))
+            iconSizePref.callChangeListener(iconSizePref.getValue())
+
+            findPreference<Preference>("key_custom_size")?.isVisible = true
+        } else {
+            findPreference<Preference>("key_custom_size")?.isVisible = false
+        }
+
         // Forecast Preferences
         fcastOptPref = findPreference(KEY_FORECASTOPTION)!!
-        fcastOptPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val fcastOptValue = newValue.toString().toInt()
-            WidgetUtils.setForecastOption(mAppWidgetId, fcastOptValue)
-            updateWidgetView()
+        fcastOptPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val fcastOptValue = newValue.toString().toInt()
+                WidgetUtils.setForecastOption(mAppWidgetId, fcastOptValue)
+                updateWidgetView()
 
-            tap2switchPref.isVisible = (fcastOptValue == WidgetUtils.ForecastOption.FULL.value)
+                tap2switchPref.isVisible = (fcastOptValue == WidgetUtils.ForecastOption.FULL.value)
 
-            true
-        }
+                true
+            }
 
         tap2switchPref = findPreference(KEY_TAP2SWITCH)!!
         tap2switchPref.onPreferenceChangeListener =
@@ -733,15 +800,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             val views = withContext(Dispatchers.Default) {
                 buildMockData()
 
-                val view = WidgetUpdaterHelper.buildUpdate(
+                WidgetUpdaterHelper.buildUpdate(
                     requireContext(), info, mAppWidgetId,
                     mockLocData!!, mockWeatherModel!!, mWidgetOptions, false
                 )
-                WidgetUpdaterHelper.buildExtras(
-                    requireContext(), mWidgetInfo,
-                    mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions
-                )
-                view
             }
 
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
@@ -771,7 +833,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     96 * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
-                        WidgetType.Widget2x2 -> 2
+                        WidgetType.Widget2x2 -> 4 /* 2 is to small */
                         WidgetType.Widget4x1 -> 4
                         WidgetType.Widget4x2 -> 4
                         WidgetType.Widget4x1Google -> 4
@@ -826,11 +888,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 val views = withContext(Dispatchers.Default) {
                     buildMockData()
 
-                    val view = WidgetUpdaterHelper.buildUpdate(requireContext(), mWidgetInfo, mAppWidgetId,
-                            mockLocData!!, mockWeatherModel!!, mWidgetOptions, false)
-                    WidgetUpdaterHelper.buildExtras(requireContext(), mWidgetInfo,
-                            mockLocData!!, mockWeatherData!!, view, mAppWidgetId, mWidgetOptions)
-                    view
+                    WidgetUpdaterHelper.buildUpdate(
+                        requireContext(), mWidgetInfo, mAppWidgetId,
+                        mockLocData!!, mockWeatherModel!!, mWidgetOptions, false
+                    )
                 }
 
                 views.reapply(mWidgetViewCtx, binding.widgetContainer.getChildAt(0))
@@ -1098,11 +1159,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         WidgetUtils.setBackgroundStyle(mAppWidgetId, bgStylePref.value.toInt())
         WidgetUtils.setLocationNameHidden(mAppWidgetId, hideLocNamePref.isChecked)
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
+        WidgetUtils.setRefreshButtonHidden(mAppWidgetId, hideRefreshBtnPref.isChecked)
         WidgetUtils.setForecastOption(mAppWidgetId, fcastOptPref.value.toInt())
         WidgetUtils.setTap2Switch(mAppWidgetId, tap2switchPref.isChecked)
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
         if (mWidgetType == WidgetType.Widget4x2Graph) {
             WidgetUtils.setWidgetGraphType(mAppWidgetId, graphTypePref.value.toInt())
+        }
+        if (WidgetUtils.isCustomSizeWidget(mWidgetType)) {
+            WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, textSizePref.getValue())
+            WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, iconSizePref.getValue())
         }
 
         // Trigger widget service to update widget

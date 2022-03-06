@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_gravity="center_vertical"
     tools:layout_height="72dp"
-    tools:viewBindingIgnore="true">
+    tools:viewBindingIgnore="true"
+    tools:ignore="UnusedAttribute,HardcodedText">
 
     <ImageView
         android:id="@+id/weather_icon"
         android:layout_width="@dimen/not_weather_icon_size"
         android:layout_height="@dimen/not_weather_icon_size"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/not_weather_icon_marginStart"
         android:layout_marginEnd="6dp"
         android:adjustViewBounds="true"
@@ -22,12 +25,11 @@
 
     <LinearLayout
         android:id="@+id/condition_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_toEndOf="@id/weather_icon"
-        android:layout_toStartOf="@id/extra_layout"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/location_name"
@@ -37,6 +39,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="4dp"
+            android:paddingEnd="0dp"
             android:textColor="@color/colorOnSurface"
             android:textSize="14sp"
             android:textFontWeight="500"
@@ -48,8 +51,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="center_vertical"
+            android:maxLines="1"
             android:paddingStart="4dp"
-            android:singleLine="true"
+            android:paddingEnd="0dp"
             android:textColor="@color/colorOnSurface"
             android:textSize="13sp"
             android:text="68° - Sunny" />
@@ -65,7 +69,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingStart="4dp"
+                android:paddingEnd="0dp"
                 android:text="74°"
                 android:textColor="@color/colorOnSurface"
                 android:textSize="13sp" />
@@ -101,6 +107,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:layout_toEndOf="@id/divider"
                 android:layout_marginStart="2dp"
                 android:textColor="@color/colorOnSurface"
@@ -129,10 +136,8 @@
         android:id="@+id/extra_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/weather_icon"
-        android:layout_alignBottom="@id/weather_icon"
         android:layout_marginEnd="@dimen/not_weather_icon_marginStart"
+        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:visibility="gone">
@@ -159,6 +164,7 @@
                 android:minHeight="24dp"
                 android:gravity="center_vertical"
                 android:paddingStart="4dp"
+                android:paddingEnd="0dp"
                 android:layout_toEndOf="@id/weather_popicon"
                 android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
@@ -189,6 +195,7 @@
                 android:gravity="center_vertical"
                 android:ellipsize="end"
                 android:paddingStart="4dp"
+                android:paddingEnd="0dp"
                 android:layout_toEndOf="@id/weather_windicon"
                 android:textColor="@color/colorOnSurface"
                 android:textSize="12sp"
@@ -198,4 +205,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

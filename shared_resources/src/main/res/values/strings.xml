@@ -186,7 +186,7 @@
     <string name="userthememode_light">Light</string>
 
     <!-- Date and Time Format -->
-    <string name="clock_12_hours_ampm_format" translatable="false">h:mm<font size="24">a</font></string>
+    <string name="clock_12_hours_ampm_format" translatable="false">h:mm<small>a</small></string>
     <string name="clock_12_hours_format" translatable="false">h:mm</string>
     <string name="clock_24_hours_format" translatable="false">HH:mm</string>
     <!-- Widget: Full day and month -->

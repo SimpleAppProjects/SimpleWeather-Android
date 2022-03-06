@@ -3,21 +3,51 @@
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_width="match_parent"
     tools:layout_height="288dp"
+    tools:ignore="UseAppTint"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="end"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white"
-        tools:visibility="visible" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/settings_button"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_refresh"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_refresh"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="8dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_settings"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_outline_settings_24"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/layout_container"
@@ -86,6 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:importantForAccessibility="no"
             android:paddingTop="6dp"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
@@ -102,7 +133,8 @@
             android:layout_gravity="center_vertical"
             android:gravity="bottom"
             android:orientation="vertical"
-            android:paddingStart="4dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="0dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -112,9 +144,11 @@
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="66dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
+                    android:maxWidth="66dp"
+                    android:maxHeight="66dp"
                     android:scaleType="fitCenter"
                     tools:src="@drawable/wi_night_alt_snow_thunderstorm" />
 

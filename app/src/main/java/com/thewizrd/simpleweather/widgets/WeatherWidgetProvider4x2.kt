@@ -17,19 +17,7 @@ class WeatherWidgetProvider4x2 : WeatherWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         val action = intent?.action
-        if (Intent.ACTION_TIME_CHANGED == action || Intent.ACTION_TIMEZONE_CHANGED == action) {
-            WeatherWidgetService.enqueueWork(
-                context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_UPDATECLOCK)
-                    .putExtra(EXTRA_WIDGET_IDS, info.appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value)
-            )
-
-            WeatherWidgetService.enqueueWork(context, Intent(context, WeatherWidgetService::class.java)
-                    .setAction(WeatherWidgetService.ACTION_UPDATEDATE)
-                    .putExtra(EXTRA_WIDGET_IDS, info.appWidgetIds)
-                    .putExtra(EXTRA_WIDGET_TYPE, info.widgetType.value))
-        } else if (ACTION_SHOWNEXTFORECAST == action) {
+        if (ACTION_SHOWNEXTFORECAST == action) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val appWidgetId =
                 intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)

@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:layout_height="288dp"
+    tools:layout_width="288dp">
+
+    <LinearLayout
+        android:id="@+id/layout_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:baselineAligned="false">
+
+        <ViewFlipper
+            android:id="@+id/forecast_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:autoStart="true"
+            android:flipInterval="10000"
+            android:inAnimation="@anim/widget_fade_in"
+            android:outAnimation="@anim/widget_fade_out" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="4dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_settings"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:tint="@android:color/white"
+            tools:src="@drawable/ic_outline_settings_24" />
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_refresh"
+            android:scaleType="fitCenter"
+            android:maxHeight="16dp"
+            android:maxWidth="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/settings_button"
+            tools:src="@drawable/ic_refresh"
+            android:tint="@android:color/white" />
+
+    </RelativeLayout>
+
+</LinearLayout>

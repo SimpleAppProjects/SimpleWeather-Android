@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
     android:layout_width="match_parent"
@@ -7,18 +7,47 @@
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_width="match_parent"
     tools:layout_height="288dp"
+    tools:ignore="UseAppTint"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="end"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white"
-        tools:visibility="visible" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/settings_button"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_refresh"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_refresh"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="8dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_settings"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_outline_settings_24"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/layout_container"
@@ -85,17 +114,19 @@
 
             <RelativeLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1">
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="60dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:adjustViewBounds="true"
+                    android:maxWidth="60dp"
+                    android:maxHeight="60dp"
                     android:padding="4dp"
                     android:scaleType="fitCenter"
                     tools:src="@drawable/wi_day_sunny_overcast" />
@@ -105,8 +136,7 @@
                     style="@style/ShadowText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignBottom="@id/weather_icon"
+                    android:layout_centerVertical="true"
                     android:layout_marginBottom="-2dp"
                     android:layout_toEndOf="@id/weather_icon"
                     android:gravity="start|center_vertical"
@@ -120,13 +150,12 @@
                     style="@style/ShadowText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:gravity="end|center_vertical"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignBottom="@id/weather_icon"
                     android:layout_alignParentStart="true"
                     android:layout_marginBottom="-2dp"
                     android:layout_toStartOf="@id/weather_icon"
+                    android:layout_centerVertical="true"
+                    android:ellipsize="end"
+                    android:gravity="end|center_vertical"
                     android:maxLines="2"
                     android:padding="4dp"
                     android:shadowColor="#000000"
@@ -145,4 +174,4 @@
 
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

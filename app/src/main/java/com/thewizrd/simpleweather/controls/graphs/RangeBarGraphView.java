@@ -12,9 +12,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.annotation.Px;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
@@ -53,22 +51,6 @@ public class RangeBarGraphView extends BaseGraphHorizontalScrollView<RangeBarGra
     @Override
     public RangeBarChartGraph getGraph() {
         return (RangeBarChartGraph) super.getGraph();
-    }
-
-    public void setBottomTextColor(@ColorInt int color) {
-        getGraph().setBottomTextColor(color);
-    }
-
-    public void setBottomTextSize(@Px float textSize) {
-        getGraph().setBottomTextSize(textSize);
-    }
-
-    public void setDrawIconLabels(boolean drawIconsLabels) {
-        getGraph().setDrawIconsLabels(drawIconsLabels);
-    }
-
-    public void setDrawDataLabels(boolean drawDataLabels) {
-        getGraph().setDrawDataLabels(drawDataLabels);
     }
 
     public RangeBarGraphData getData() {

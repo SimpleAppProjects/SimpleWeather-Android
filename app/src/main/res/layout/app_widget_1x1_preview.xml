@@ -6,18 +6,8 @@
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="96dp"
     tools:layout_width="96dp"
+    tools:ignore="HardcodedText,UseAppTint"
     tools:viewBindingIgnore="true">
-
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_gravity="top|end"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="?android:attr/textColorPrimary"
-        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -38,7 +28,8 @@
             android:adjustViewBounds="true"
             android:maxWidth="36dp"
             android:src="@drawable/wi_day_sunny"
-            android:tint="?android:attr/textColorPrimary" />
+            android:tint="?android:attr/textColorPrimary"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/condition_temp"

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.widgets;
+package com.thewizrd.simpleweather.preferences.colorpreference;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

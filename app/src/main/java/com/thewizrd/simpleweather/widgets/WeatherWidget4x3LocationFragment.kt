@@ -37,6 +37,7 @@ import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.preferences.SliderPreference
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -51,6 +52,7 @@ import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x3LocationsCreator
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -89,9 +91,13 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
     private lateinit var locationPref: ArrayMultiSelectListPreference
     private lateinit var hideSettingsBtnPref: SwitchPreference
+    private lateinit var hideRefreshBtnPref: SwitchPreference
 
     private lateinit var clockPref: Preference
     private lateinit var calPref: Preference
+
+    private lateinit var textSizePref: SliderPreference
+    private lateinit var iconSizePref: SliderPreference
 
     companion object {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
@@ -102,10 +108,14 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         private const val KEY_CATGENERAL = "key_catgeneral"
         private const val KEY_LOCATION = "key_location"
         private const val KEY_HIDESETTINGSBTN = "key_hidesettingsbtn"
+        private const val KEY_HIDEREFRESHBTN = "key_hiderefreshbtn"
 
         private const val KEY_CATCLOCKDATE = "key_catclockdate"
         private const val KEY_CLOCKAPP = "key_clockapp"
         private const val KEY_CALENDARAPP = "key_calendarapp"
+
+        private const val KEY_TEXTSIZE = "key_textsize"
+        private const val KEY_ICONSIZE = "key_iconsize"
 
         fun newInstance(widgetID: Int): WeatherWidget4x3LocationFragment {
             val fragment = WeatherWidget4x3LocationFragment()
@@ -301,7 +311,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         locationPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
+            Preference.OnPreferenceChangeListener { _, newValue ->
                 job?.cancel()
 
                 val selectedValues = newValue as? Set<*>
@@ -318,16 +328,35 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             }
 
         hideSettingsBtnPref = findPreference(KEY_HIDESETTINGSBTN)!!
+        hideRefreshBtnPref = findPreference(KEY_HIDEREFRESHBTN)!!
 
         hideSettingsBtnPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
+            Preference.OnPreferenceChangeListener { _, newValue ->
                 WidgetUtils.setSettingsButtonHidden(mAppWidgetId, newValue as Boolean)
                 hideSettingsBtnPref.isChecked = newValue
                 updateWidgetView()
                 true
             }
 
+        hideRefreshBtnPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setRefreshButtonHidden(mAppWidgetId, newValue as Boolean)
+                hideRefreshBtnPref.isChecked = newValue
+                updateWidgetView()
+                true
+            }
+
         hideSettingsBtnPref.isChecked = WidgetUtils.isSettingsButtonHidden(mAppWidgetId)
+
+        if (!WidgetUtils.isSettingsButtonOptional(mWidgetType)) {
+            hideSettingsBtnPref.isVisible = false
+        }
+
+        hideRefreshBtnPref.isChecked = WidgetUtils.isRefreshButtonHidden(mAppWidgetId)
+
+        if (WidgetUtils.isMaterialYouWidget(mWidgetType)) {
+            hideRefreshBtnPref.isVisible = false
+        }
 
         // Time and Date
         clockPref = findPreference(KEY_CLOCKAPP)!!
@@ -370,6 +399,37 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         findPreference<Preference>(KEY_CATCLOCKDATE)!!.isVisible =
             WidgetUtils.isClockWidget(mWidgetType) || WidgetUtils.isDateWidget(mWidgetType)
+
+        textSizePref = findPreference(KEY_TEXTSIZE)!!
+        textSizePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue as Float
+                WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, value)
+                updateWidgetView()
+
+                true
+            }
+
+        iconSizePref = findPreference(KEY_ICONSIZE)!!
+        iconSizePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue as Float
+                WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, value)
+                updateWidgetView()
+
+                true
+            }
+
+        if (WidgetUtils.isCustomSizeWidget(mWidgetType)) {
+            textSizePref.setValue(WidgetUtils.getCustomTextSizeMultiplier(mAppWidgetId))
+            textSizePref.callChangeListener(textSizePref.getValue())
+            iconSizePref.setValue(WidgetUtils.getCustomIconSizeMultiplier(mAppWidgetId))
+            iconSizePref.callChangeListener(iconSizePref.getValue())
+
+            findPreference<Preference>("key_custom_size")?.isVisible = true
+        } else {
+            findPreference<Preference>("key_custom_size")?.isVisible = false
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -452,12 +512,14 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             val views = withContext(Dispatchers.Default) {
                 buildMockData()
 
-                WidgetUpdaterHelper.buildUpdate4x3Locations(
-                    requireContext(), mWidgetInfo, mAppWidgetId,
-                    Collections.nCopies(locationPref.values?.size ?: 0, mockLocData),
-                    Collections.nCopies(locationPref.values?.size ?: 0, mockWeatherModel),
-                    mWidgetOptions
-                )
+                WeatherWidget4x3LocationsCreator(requireContext()).run {
+                    buildUpdate(
+                        mAppWidgetId,
+                        Collections.nCopies(locationPref.values?.size ?: 0, mockLocData),
+                        Collections.nCopies(locationPref.values?.size ?: 0, mockWeatherModel),
+                        mWidgetOptions
+                    )
+                }
             }
 
             val widgetView = views.apply(mWidgetViewCtx, binding.widgetContainer)
@@ -481,12 +543,14 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 val views = withContext(Dispatchers.Default) {
                     buildMockData()
 
-                    WidgetUpdaterHelper.buildUpdate4x3Locations(
-                        requireContext(), mWidgetInfo, mAppWidgetId,
-                        Collections.nCopies(locationPref.values?.size ?: 0, mockLocData),
-                        Collections.nCopies(locationPref.values?.size ?: 0, mockWeatherModel),
-                        mWidgetOptions
-                    )
+                    WeatherWidget4x3LocationsCreator(requireContext()).run {
+                        buildUpdate(
+                            mAppWidgetId,
+                            Collections.nCopies(locationPref.values?.size ?: 0, mockLocData),
+                            Collections.nCopies(locationPref.values?.size ?: 0, mockWeatherModel),
+                            mWidgetOptions
+                        )
+                    }
                 }
 
                 views.reapply(mWidgetViewCtx, binding.widgetContainer.getChildAt(0))
@@ -704,6 +768,12 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private fun finalizeWidgetUpdate() {
         // Save widget preferences
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
+        WidgetUtils.setRefreshButtonHidden(mAppWidgetId, hideRefreshBtnPref.isChecked)
+
+        if (WidgetUtils.isCustomSizeWidget(mWidgetType)) {
+            WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, textSizePref.getValue())
+            WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, iconSizePref.getValue())
+        }
 
         // Trigger widget service to update widget
         WidgetWorker.enqueueRefreshWidget(

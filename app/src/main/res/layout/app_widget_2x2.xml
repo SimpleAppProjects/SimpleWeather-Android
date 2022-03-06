@@ -5,13 +5,15 @@
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="288dp"
-    tools:layout_width="288dp">
+    tools:layout_width="288dp"
+    tools:ignore="UseAppTint">
 
     <ImageView
         android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
         android:scaleType="centerCrop"
         android:src="@drawable/app_widget_background" />
 
@@ -71,22 +73,48 @@
     <FrameLayout
         android:id="@+id/weather_notif_layout"
         android:layout_width="match_parent"
-        android:layout_height="66dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="8dp">
 
     </FrameLayout>
 
     <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_vertical"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white" />
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_toStartOf="@id/settings_button"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/action_refresh"
+        android:maxWidth="16dp"
+        android:maxHeight="16dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_refresh"
+        android:tint="@android:color/white"
+        tools:tint="?android:textColorPrimary" />
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_vertical"
+        android:layout_alignWithParentIfMissing="true"
+        android:contentDescription="@string/action_settings"
+        android:adjustViewBounds="true"
+        android:maxWidth="16dp"
+        android:maxHeight="16dp"
+        android:scaleType="fitCenter"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_outline_settings_24"
+        android:tint="@android:color/white"
+        tools:tint="?android:textColorPrimary" />
 
 </RelativeLayout>

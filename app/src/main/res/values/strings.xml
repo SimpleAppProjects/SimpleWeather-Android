@@ -20,6 +20,7 @@
 
     <!-- Widget -->
     <string name="widget_configure_prompt">Configure Widget</string>
+    <string name="widget_loading_prompt">Loading…</string>
     <string name="title_activity_widget_config">Widget Preferences</string>
     <string name="pref_title_bgcolor">Background</string>
     <!-- String: "Default" -->
@@ -39,6 +40,8 @@
     <string name="locname_pref_summary">Hide location name from widget</string>
     <string name="settingsbtn_pref_title">Settings Button</string>
     <string name="settingsbtn_pref_summary">Hide settings button from widget</string>
+    <string name="refreshbtn_pref_title">Refresh Button</string>
+    <string name="refreshbtn_pref_summary">Hide refresh button from widget</string>
     <string name="clock_pref_title">Clock</string>
     <string name="calendar_pref_title">Calendar</string>
     <string name="pref_title_fcastoption">Forecast</string>

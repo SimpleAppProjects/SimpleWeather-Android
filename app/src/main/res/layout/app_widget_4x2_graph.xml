@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@null"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-    tools:ignore="HardcodedText"
+    tools:ignore="HardcodedText,UseAppTint"
     tools:layout_height="192dp"
     tools:layout_width="384dp"
     tools:viewBindingIgnore="true">
@@ -47,17 +47,34 @@
                 android:textColor="?colorOnSurface"
                 android:textSize="14sp"
                 android:textFontWeight="500"
-                tools:text="New York, NY" />
+                tools:text="New York, NY"
+                tools:ignore="UnusedAttribute" />
+
+            <ImageView
+                android:id="@+id/refresh_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/action_refresh"
+                android:scaleType="fitCenter"
+                android:maxHeight="16dp"
+                android:maxWidth="16dp"
+                android:layout_marginEnd="4dp"
+                tools:src="@drawable/ic_refresh"
+                android:tint="?colorOnSurface" />
 
             <ImageView
                 android:id="@+id/settings_button"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
                 android:contentDescription="@string/action_settings"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:src="@drawable/ic_settings_black_24dp"
+                android:scaleType="fitCenter"
+                android:maxHeight="16dp"
+                android:maxWidth="16dp"
+                tools:src="@drawable/ic_outline_settings_24"
                 android:tint="?colorOnSurface" />
 
         </LinearLayout>

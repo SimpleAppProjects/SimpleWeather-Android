@@ -8,18 +8,46 @@
     android:gravity="center"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="288dp"
+    tools:ignore="UseAppTint"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/settings_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="end"
-        android:alpha="0.7"
-        android:padding="4dp"
-        android:src="@drawable/ic_settings_black_24dp"
-        android:tint="@android:color/white"
-        tools:visibility="visible" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/settings_button"
+            android:layout_alignWithParentIfMissing="true"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:contentDescription="@string/action_refresh"
+            android:src="@drawable/ic_refresh"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginEnd="8dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/action_settings"
+            android:maxWidth="16dp"
+            android:maxHeight="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_outline_settings_24"
+            android:tint="@android:color/white"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/layout_container"
@@ -46,13 +74,18 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_toEndOf="@id/date_panel"
-            android:adjustViewBounds="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            tools:src="@drawable/wi_night_alt_partly_cloudy" />
+            android:layout_toEndOf="@id/date_panel"
+            android:adjustViewBounds="true"
+            android:maxWidth="36dp"
+            android:maxHeight="36dp"
+            android:scaleType="fitCenter"
+            tools:src="@drawable/wi_night_alt_partly_cloudy"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/condition_temp"

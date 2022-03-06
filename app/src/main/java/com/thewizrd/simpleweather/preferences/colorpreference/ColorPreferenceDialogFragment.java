@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.widgets;
+package com.thewizrd.simpleweather.preferences.colorpreference;
 
 import android.content.Context;
 import android.graphics.Color;
