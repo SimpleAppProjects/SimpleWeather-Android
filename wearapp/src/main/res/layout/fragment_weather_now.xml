@@ -44,8 +44,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:popData="@{weatherView.weatherDetails}"
-                app:windData="@{weatherView.weatherDetails}">
+                app:popData="@{weatherView.weatherDetailsMap}"
+                app:windData="@{weatherView.weatherDetailsMap}">
 
                 <com.thewizrd.simpleweather.controls.timetext.TimeText
                     android:id="@+id/timeText"
@@ -572,7 +572,7 @@
                     android:textAlignment="textStart"
                     android:textColor="?colorOnSurface"
                     app:cornerRadius="@dimen/button_corner_radius"
-                    app:hideIfEmpty="@{weatherView.weatherDetails}"
+                    app:hideIfEmpty="@{weatherView.weatherDetailsMap}"
                     app:icon="@drawable/ic_list_black_24dp"
                     app:iconPadding="7dp"
                     app:iconSize="24dp"

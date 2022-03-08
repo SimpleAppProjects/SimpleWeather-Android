@@ -24,11 +24,11 @@ import com.thewizrd.simpleweather.R
 object BindingAdapters {
     @BindingAdapter("popData")
     @JvmStatic
-    fun updatePopLayout(view: ViewGroup, details: List<DetailItemViewModel>?) {
+    fun updatePopLayout(view: ViewGroup, details: Map<WeatherDetailsType, DetailItemViewModel>?) {
         val pop = view.findViewWithTag<TextView>("pop") ?: return
 
         if (details != null) {
-            val chanceModel = details.find { input -> input.detailsType == WeatherDetailsType.POPCHANCE }
+            val chanceModel = details[WeatherDetailsType.POPCHANCE]
 
             if (chanceModel != null) {
                 val wim = WeatherIconsManager.getInstance()
@@ -64,11 +64,11 @@ object BindingAdapters {
 
     @BindingAdapter("windData")
     @JvmStatic
-    fun updateWindLayout(view: ViewGroup, details: List<DetailItemViewModel>?) {
+    fun updateWindLayout(view: ViewGroup, details: Map<WeatherDetailsType, DetailItemViewModel>?) {
         val windSpeed = view.findViewWithTag<TextView>("windspeed") ?: return
 
         if (details != null) {
-            val windModel = details.find { input -> input.detailsType == WeatherDetailsType.WINDSPEED }
+            val windModel = details[WeatherDetailsType.WINDSPEED]
 
             if (windModel != null) {
                 val wim = WeatherIconsManager.getInstance()

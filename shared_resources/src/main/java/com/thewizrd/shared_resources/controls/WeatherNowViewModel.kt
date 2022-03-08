@@ -15,7 +15,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.text.DecimalFormat
-import java.util.*
+import kotlin.math.roundToInt
 
 class WeatherNowViewModel() : ObservableViewModel() {
     private val settingsMgr = SimpleLibrary.instance.app.settingsManager
@@ -61,7 +61,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
     @get:Bindable
     var sunPhase: SunPhaseViewModel? = null
         private set
-    private val weatherDetails: MutableList<DetailItemViewModel>
 
     @get:Bindable
     var uvIndex: UVIndexViewModel? = null
@@ -99,10 +98,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
     var weatherLocale: String? = null
         private set
 
-    @Bindable
-    fun getWeatherDetails(): List<DetailItemViewModel> {
-        return weatherDetails
-    }
+    @get:Bindable
+    val weatherDetailsMap: MutableMap<WeatherDetailsType, DetailItemViewModel>
 
     val query: String?
         get() = if (weatherData != null) {
@@ -125,7 +122,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
     private var iconProvider: String? = null
 
     init {
-        weatherDetails = ArrayList(WeatherDetailsType.values().size)
+        weatherDetailsMap = LinkedHashMap(WeatherDetailsType.values().size)
         locationCoord = Coordinate(0.0, 0.0)
     }
 
@@ -268,11 +265,15 @@ class WeatherNowViewModel() : ObservableViewModel() {
         }
 
         // WeatherDetails
-        weatherDetails.clear()
+        weatherDetailsMap.clear()
         // Precipitation
         if (weatherData?.precipitation != null) {
             if (weatherData?.precipitation?.pop != null && weatherData!!.precipitation.pop >= 0) {
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.POPCHANCE, weatherData!!.precipitation.pop.toString() + "%"))
+                weatherDetailsMap[WeatherDetailsType.POPCHANCE] =
+                    DetailItemViewModel(
+                        WeatherDetailsType.POPCHANCE,
+                        weatherData!!.precipitation.pop.toString() + "%"
+                    )
             }
             if (weatherData?.precipitation?.qpfRainIn != null && weatherData!!.precipitation.qpfRainIn >= 0) {
                 val unit = settingsMgr.getPrecipitationUnit()
@@ -293,8 +294,14 @@ class WeatherNowViewModel() : ObservableViewModel() {
                         precipUnit = context.getString(R.string.unit_in)
                     }
                 }
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.POPRAIN,
-                        String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue.toDouble()), precipUnit))
+                weatherDetailsMap[WeatherDetailsType.POPRAIN] = DetailItemViewModel(
+                    WeatherDetailsType.POPRAIN,
+                    String.format(
+                        LocaleUtils.getLocale(),
+                        "%s %s",
+                        df.format(precipValue.toDouble()),
+                        precipUnit
+                    )
                 )
             }
             if (weatherData?.precipitation?.qpfSnowIn != null && weatherData!!.precipitation.qpfSnowIn >= 0) {
@@ -316,12 +323,26 @@ class WeatherNowViewModel() : ObservableViewModel() {
                         precipUnit = context.getString(R.string.unit_in)
                     }
                 }
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.POPSNOW,
-                        String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue.toDouble()), precipUnit))
+                weatherDetailsMap.put(
+                    WeatherDetailsType.POPSNOW, DetailItemViewModel(
+                        WeatherDetailsType.POPSNOW,
+                        String.format(
+                            LocaleUtils.getLocale(),
+                            "%s %s",
+                            df.format(precipValue.toDouble()),
+                            precipUnit
+                        )
+                    )
                 )
             }
             if (weatherData?.precipitation?.cloudiness != null && weatherData!!.precipitation.cloudiness >= 0) {
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, weatherData!!.precipitation.cloudiness.toString() + "%"))
+                weatherDetailsMap.put(
+                    WeatherDetailsType.POPCLOUDINESS,
+                    DetailItemViewModel(
+                        WeatherDetailsType.POPCLOUDINESS,
+                        weatherData!!.precipitation.cloudiness.toString() + "%"
+                    )
+                )
             }
         }
 
@@ -346,24 +367,44 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 }
             }
 
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.PRESSURE,
-                    String.format(LocaleUtils.getLocale(), "%s %s", df.format(pressureVal.toDouble()), pressureUnit)))
+            weatherDetailsMap[WeatherDetailsType.PRESSURE] = DetailItemViewModel(
+                WeatherDetailsType.PRESSURE,
+                String.format(
+                    LocaleUtils.getLocale(),
+                    "%s %s",
+                    df.format(pressureVal.toDouble()),
+                    pressureUnit
+                )
+            )
         }
 
         if (weatherData?.atmosphere?.humidity != null) {
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.HUMIDITY,
-                    String.format(LocaleUtils.getLocale(), "%d%%", weatherData!!.atmosphere.humidity)))
+            weatherDetailsMap.put(
+                WeatherDetailsType.HUMIDITY, DetailItemViewModel(
+                    WeatherDetailsType.HUMIDITY,
+                    String.format(
+                        LocaleUtils.getLocale(),
+                        "%d%%",
+                        weatherData!!.atmosphere.humidity
+                    )
+                )
+            )
         }
 
         if (weatherData?.atmosphere?.dewpointF != null && !ObjectsCompat.equals(weatherData!!.atmosphere.dewpointF, weatherData!!.atmosphere.dewpointC)) {
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.DEWPOINT,
-                    String.format(LocaleUtils.getLocale(), "%d°",
-                            if (isFahrenheit) {
-                                Math.round(weatherData!!.atmosphere.dewpointF)
-                            } else {
-                                Math.round(weatherData!!.atmosphere.dewpointC)
-                            }
-                    )))
+            weatherDetailsMap.put(
+                WeatherDetailsType.DEWPOINT, DetailItemViewModel(
+                    WeatherDetailsType.DEWPOINT,
+                    String.format(
+                        LocaleUtils.getLocale(), "%d°",
+                        if (isFahrenheit) {
+                            Math.round(weatherData!!.atmosphere.dewpointF)
+                        } else {
+                            Math.round(weatherData!!.atmosphere.dewpointC)
+                        }
+                    )
+                )
+            )
         }
 
         if (weatherData?.atmosphere?.visibilityMi != null && weatherData!!.atmosphere.visibilityMi >= 0) {
@@ -386,15 +427,20 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 }
             }
 
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.VISIBILITY,
-                    String.format(LocaleUtils.getLocale(), "%d %s", visibilityVal, visibilityUnit)))
+            weatherDetailsMap.put(
+                WeatherDetailsType.VISIBILITY, DetailItemViewModel(
+                    WeatherDetailsType.VISIBILITY,
+                    String.format(LocaleUtils.getLocale(), "%d %s", visibilityVal, visibilityUnit)
+                )
+            )
         }
 
         if (weatherData?.condition?.uv?.index != null) {
             if (isPhone) {
                 uvIndex = UVIndexViewModel(weatherData!!.condition.uv)
             } else {
-                weatherDetails.add(DetailItemViewModel(weatherData!!.condition.uv))
+                weatherDetailsMap[WeatherDetailsType.UV] =
+                    DetailItemViewModel(weatherData!!.condition.uv)
             }
         } else {
             uvIndex = null
@@ -406,7 +452,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
             if (isPhone) {
                 airQuality = AirQualityViewModel(weatherData!!.condition.airQuality)
             } else {
-                weatherDetails.add(DetailItemViewModel(weatherData!!.condition.airQuality))
+                weatherDetailsMap[WeatherDetailsType.AIRQUALITY] =
+                    DetailItemViewModel(weatherData!!.condition.airQuality)
             }
         } else {
             airQuality = null
@@ -415,10 +462,15 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
         if (weatherData?.condition?.feelslikeF != null &&
             weatherData!!.condition.feelslikeF != weatherData!!.condition.feelslikeC) {
-            val value = if (isFahrenheit) Math.round(weatherData!!.condition.feelslikeF) else Math.round(weatherData!!.condition.feelslikeC)
+            val value =
+                if (isFahrenheit) Math.round(weatherData!!.condition.feelslikeF) else Math.round(
+                    weatherData!!.condition.feelslikeC
+                )
 
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
-                    String.format(LocaleUtils.getLocale(), "%d°", value)))
+            weatherDetailsMap[WeatherDetailsType.FEELSLIKE] = DetailItemViewModel(
+                WeatherDetailsType.FEELSLIKE,
+                String.format(LocaleUtils.getLocale(), "%d°", value)
+            )
         }
 
         // Wind
@@ -438,7 +490,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
                     speedUnit = context.getString(R.string.unit_kph)
                 }
                 Units.METERS_PER_SECOND -> {
-                    speedVal = Math.round(ConversionMethods.kphToMsec(weatherData!!.condition.windKph))
+                    speedVal =
+                        ConversionMethods.kphToMsec(weatherData!!.condition.windKph).roundToInt()
                     speedUnit = context.getString(R.string.unit_msec)
                 }
                 else -> {
@@ -448,12 +501,22 @@ class WeatherNowViewModel() : ObservableViewModel() {
             }
 
             if (weatherData!!.condition.windDegrees != null) {
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(LocaleUtils.getLocale(), "%d %s, %s", speedVal, speedUnit, getWindDirection(weatherData!!.condition.windDegrees.toFloat())),
-                        weatherData!!.condition.windDegrees + 180))
+                weatherDetailsMap[WeatherDetailsType.WINDSPEED] = DetailItemViewModel(
+                    WeatherDetailsType.WINDSPEED,
+                    String.format(
+                        LocaleUtils.getLocale(),
+                        "%d %s, %s",
+                        speedVal,
+                        speedUnit,
+                        getWindDirection(weatherData!!.condition.windDegrees.toFloat())
+                    ),
+                    weatherData!!.condition.windDegrees + 180
+                )
             } else {
-                weatherDetails.add(DetailItemViewModel(WeatherDetailsType.WINDSPEED,
-                        String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit), 180))
+                weatherDetailsMap[WeatherDetailsType.WINDSPEED] = DetailItemViewModel(
+                    WeatherDetailsType.WINDSPEED,
+                    String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit), 180
+                )
             }
         }
 
@@ -473,7 +536,8 @@ class WeatherNowViewModel() : ObservableViewModel() {
                     speedUnit = context.getString(R.string.unit_kph)
                 }
                 Units.METERS_PER_SECOND -> {
-                    speedVal = Math.round(ConversionMethods.kphToMsec(weatherData!!.condition.windGustKph))
+                    speedVal =
+                        Math.round(ConversionMethods.kphToMsec(weatherData!!.condition.windGustKph))
                     speedUnit = context.getString(R.string.unit_msec)
                 }
                 else -> {
@@ -482,8 +546,9 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 }
             }
 
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.WINDGUST,
-                    String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit))
+            weatherDetailsMap[WeatherDetailsType.WINDGUST] = DetailItemViewModel(
+                WeatherDetailsType.WINDGUST,
+                String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit)
             )
         }
 
@@ -491,7 +556,10 @@ class WeatherNowViewModel() : ObservableViewModel() {
             if (isPhone) {
                 beaufort = BeaufortViewModel(weatherData!!.condition.beaufort)
             } else {
-                weatherDetails.add(DetailItemViewModel(weatherData!!.condition.beaufort.scale))
+                weatherDetailsMap.put(
+                    WeatherDetailsType.BEAUFORT,
+                    DetailItemViewModel(weatherData!!.condition.beaufort.scale)
+                )
             }
         } else {
             beaufort = null
@@ -503,26 +571,20 @@ class WeatherNowViewModel() : ObservableViewModel() {
             if (isPhone) {
                 pollen = pollenVM
             } else {
-                weatherDetails.add(
-                    DetailItemViewModel(
-                        WeatherDetailsType.TREEPOLLEN,
-                        pollenVM.treePollenDesc.toString(),
-                        0
-                    )
+                weatherDetailsMap[WeatherDetailsType.TREEPOLLEN] = DetailItemViewModel(
+                    WeatherDetailsType.TREEPOLLEN,
+                    pollenVM.treePollenDesc.toString(),
+                    0
                 )
-                weatherDetails.add(
-                    DetailItemViewModel(
-                        WeatherDetailsType.GRASSPOLLEN,
-                        pollenVM.grassPollenDesc.toString(),
-                        0
-                    )
+                weatherDetailsMap[WeatherDetailsType.GRASSPOLLEN] = DetailItemViewModel(
+                    WeatherDetailsType.GRASSPOLLEN,
+                    pollenVM.grassPollenDesc.toString(),
+                    0
                 )
-                weatherDetails.add(
-                    DetailItemViewModel(
-                        WeatherDetailsType.RAGWEEDPOLLEN,
-                        pollenVM.ragweedPollenDesc.toString(),
-                        0
-                    )
+                weatherDetailsMap[WeatherDetailsType.RAGWEEDPOLLEN] = DetailItemViewModel(
+                    WeatherDetailsType.RAGWEEDPOLLEN,
+                    pollenVM.ragweedPollenDesc.toString(),
+                    0
                 )
             }
         } else {
@@ -534,36 +596,63 @@ class WeatherNowViewModel() : ObservableViewModel() {
         if (weatherData?.astronomy != null) {
             sunPhase = SunPhaseViewModel(weatherData!!.astronomy)
 
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise))
-            weatherDetails.add(DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase!!.sunset))
+            weatherDetailsMap[WeatherDetailsType.SUNRISE] =
+                DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise)
+            weatherDetailsMap[WeatherDetailsType.SUNSET] =
+                DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase!!.sunset)
 
             moonPhase = MoonPhaseViewModel(weatherData!!.astronomy)
 
             if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null) {
                 if (DateFormat.is24HourFormat(SimpleLibrary.instance.app.appContext)) {
                     if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
-                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                                weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
+                        weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
+                            WeatherDetailsType.MOONRISE,
+                            weatherData!!.astronomy.moonrise.format(
+                                DateTimeUtils.ofPatternForUserLocale(
+                                    DateTimeConstants.CLOCK_FORMAT_24HR
+                                )
+                            )
+                        )
                     }
                     if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
-                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
-                                weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_24HR))))
+                        weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
+                            WeatherDetailsType.MOONSET,
+                            weatherData!!.astronomy.moonset.format(
+                                DateTimeUtils.ofPatternForUserLocale(
+                                    DateTimeConstants.CLOCK_FORMAT_24HR
+                                )
+                            )
+                        )
                     }
                 } else {
                     if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
-                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONRISE,
-                                weatherData!!.astronomy.moonrise.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
+                        weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
+                            WeatherDetailsType.MOONRISE,
+                            weatherData!!.astronomy.moonrise.format(
+                                DateTimeUtils.ofPatternForUserLocale(
+                                    DateTimeConstants.CLOCK_FORMAT_12HR_AMPM
+                                )
+                            )
+                        )
                     }
                     if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
-                        weatherDetails.add(DetailItemViewModel(WeatherDetailsType.MOONSET,
-                                weatherData!!.astronomy.moonset.format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM))))
+                        weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
+                            WeatherDetailsType.MOONSET,
+                            weatherData!!.astronomy.moonset.format(
+                                DateTimeUtils.ofPatternForUserLocale(
+                                    DateTimeConstants.CLOCK_FORMAT_12HR_AMPM
+                                )
+                            )
+                        )
                     }
                 }
             }
 
             if (weatherData?.astronomy?.moonPhase != null) {
                 if (!isPhone) {
-                    weatherDetails.add(DetailItemViewModel(weatherData!!.astronomy.moonPhase.phase))
+                    weatherDetailsMap[WeatherDetailsType.MOONPHASE] =
+                        DetailItemViewModel(weatherData!!.astronomy.moonPhase.phase)
                 }
             }
         } else {
@@ -572,7 +661,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
         }
         notifyPropertyChanged(BR.sunPhase)
         notifyPropertyChanged(BR.moonPhase)
-        notifyPropertyChanged(BR.weatherDetails)
+        notifyPropertyChanged(BR.weatherDetailsMap)
 
         val entry = WeatherAPI.APIs.find { wapi -> weatherSource == wapi?.value }
         weatherCredit = String.format("%s %s",
@@ -588,7 +677,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
         curCondition = null
         weatherIcon = WeatherIcons.NA
         sunPhase = null
-        weatherDetails.clear()
+        weatherDetailsMap.clear()
         weatherCredit = null
         weatherSource = null
         weatherLocale = null

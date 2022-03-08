@@ -28,7 +28,7 @@
             android:paddingVertical="20dp"
             android:text="@string/label_details"
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-            app:showIfNotEmpty="@{weatherView.weatherDetails}"
+            app:showIfNotEmpty="@{weatherView.weatherDetailsMap}"
             app:showIfTrue="@{FeatureSettings.detailsEnabled}" />
 
         <com.thewizrd.simpleweather.controls.ExpandingGridView
@@ -47,8 +47,8 @@
             android:stretchMode="columnWidth"
             android:verticalSpacing="16dp"
             app:showIfTrue="@{FeatureSettings.detailsEnabled}"
-            app:showIfNotEmpty="@{weatherView.weatherDetails}"
-            app:details_data="@{weatherView.weatherDetails}"
+            app:showIfNotEmpty="@{weatherView.weatherDetailsMap}"
+            app:details_data="@{weatherView.weatherDetailsMap}"
             tools:layout_height="300dp"
             tools:visibility="visible" />
 

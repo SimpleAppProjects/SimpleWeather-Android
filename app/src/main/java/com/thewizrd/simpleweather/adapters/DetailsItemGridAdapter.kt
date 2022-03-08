@@ -32,7 +32,7 @@ class DetailsItemGridAdapter : BaseAdapter() {
         return view
     }
 
-    fun updateItems(dataset: List<DetailItemViewModel>?) {
+    fun updateItems(dataset: Collection<DetailItemViewModel>?) {
         if (mDataset == null || !sequenceEqual(mDataset, dataset)) {
             mDataset = dataset?.filterNot {
                 ((it.detailsType == WeatherDetailsType.SUNRISE || it.detailsType == WeatherDetailsType.SUNSET) && FeatureSettings.isSunPhaseEnabled()) ||

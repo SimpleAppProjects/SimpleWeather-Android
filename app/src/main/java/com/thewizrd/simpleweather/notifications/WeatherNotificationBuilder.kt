@@ -10,7 +10,6 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -68,30 +67,12 @@ object WeatherNotificationBuilder {
 
         // Details
         // Get extras
-        var chanceModel: DetailItemViewModel? = null
-        var windModel: DetailItemViewModel? = null
-        var windGustModel: DetailItemViewModel? = null
-        var feelsLikeModel: DetailItemViewModel? = null
-        var humidityModel: DetailItemViewModel? = null
-        for (input in viewModel.getWeatherDetails()) {
-            if (input.detailsType == WeatherDetailsType.POPCHANCE) {
-                chanceModel = input
-            } else if (chanceModel == null && input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
-                chanceModel = input
-            } else if (input.detailsType == WeatherDetailsType.WINDSPEED) {
-                windModel = input
-            } else if (input.detailsType == WeatherDetailsType.WINDGUST) {
-                windGustModel = input
-            } else if (input.detailsType == WeatherDetailsType.FEELSLIKE) {
-                feelsLikeModel = input
-            } else if (input.detailsType == WeatherDetailsType.HUMIDITY) {
-                humidityModel = input
-            }
-
-            if (chanceModel != null && windModel != null && windGustModel != null && feelsLikeModel != null && humidityModel != null) {
-                break
-            }
-        }
+        val chanceModel = viewModel.weatherDetailsMap[WeatherDetailsType.POPCHANCE]
+            ?: viewModel.weatherDetailsMap[WeatherDetailsType.POPCLOUDINESS]
+        val windModel = viewModel.weatherDetailsMap[WeatherDetailsType.WINDSPEED]
+        val windGustModel = viewModel.weatherDetailsMap[WeatherDetailsType.WINDGUST]
+        val feelsLikeModel = viewModel.weatherDetailsMap[WeatherDetailsType.FEELSLIKE]
+        val humidityModel = viewModel.weatherDetailsMap[WeatherDetailsType.HUMIDITY]
 
         val conditionTempBuilder = SpannableStringBuilder()
 

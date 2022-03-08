@@ -1703,9 +1703,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     class WeatherNowFragmentBindingAdapter(private val fragment: WeatherNowFragment?) {
         @BindingAdapter("details_data")
-        fun updateDetailsContainer(view: GridView, models: List<DetailItemViewModel>?) {
+        fun updateDetailsContainer(
+            view: GridView,
+            map: Map<WeatherDetailsType, DetailItemViewModel>?
+        ) {
             if (view.adapter is DetailsItemGridAdapter) {
-                (view.adapter as DetailsItemGridAdapter).updateItems(models)
+                (view.adapter as DetailsItemGridAdapter).updateItems(map?.values)
             }
         }
 
