@@ -236,7 +236,6 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
 
-        // TODO: move dimensions to resources
         val clockSizeBounds =
             "3:00".getTextBounds(context, (if (isSmallHeight && cellHeight <= 2) 60f else 66f))
         val dateSizeBounds = "Sun, Oct 24".getTextBounds(context, 14f * txtSizeMultiplier)

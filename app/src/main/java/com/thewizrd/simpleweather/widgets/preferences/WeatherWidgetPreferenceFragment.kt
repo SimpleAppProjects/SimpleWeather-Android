@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.widgets
+package com.thewizrd.simpleweather.widgets.preferences
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -64,6 +64,7 @@ import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreferenceDia
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder.OnAppSelectedListener
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackgroundStyle
@@ -138,33 +139,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
         private const val SETUP_REQUEST_CODE = 10
-
-        // Preference Keys
-        // TODO: Move preference keys to another class
-        private const val KEY_CATGENERAL = "key_catgeneral"
-        private const val KEY_LOCATION = "key_location"
-        private const val KEY_HIDELOCNAME = "key_hidelocname"
-        private const val KEY_HIDESETTINGSBTN = "key_hidesettingsbtn"
-        private const val KEY_HIDEREFRESHBTN = "key_hiderefreshbtn"
-
-        private const val KEY_CATCLOCKDATE = "key_catclockdate"
-        private const val KEY_USETIMEZONE = "key_usetimezone"
-        private const val KEY_CLOCKAPP = "key_clockapp"
-        private const val KEY_CALENDARAPP = "key_calendarapp"
-
-        private const val KEY_BACKGROUND = "key_background"
-        private const val KEY_BGCOLOR = "key_bgcolor"
-        private const val KEY_BGCOLORCODE = "key_bgcolorcode"
-        private const val KEY_TXTCOLORCODE = "key_txtcolorcode"
-        private const val KEY_BGSTYLE = "key_bgstyle"
-
-        private const val KEY_FORECAST = "key_forecast"
-        private const val KEY_FORECASTOPTION = "key_fcastoption"
-        private const val KEY_TAP2SWITCH = "key_tap2switch"
-        private const val KEY_GRAPHTYPEOPTION = "key_graphtypeoption"
-
-        private const val KEY_TEXTSIZE = "key_textsize"
-        private const val KEY_ICONSIZE = "key_iconsize"
 
         fun newInstance(args: Bundle): WeatherWidgetPreferenceFragment {
             val fragment = WeatherWidgetPreferenceFragment()
@@ -465,7 +439,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             AppChoiceDialogBuilder(requireContext())
                 .setOnItemSelectedListener(object : OnAppSelectedListener {
                     override fun onItemSelected(key: String?) {
-                            WidgetUtils.setOnClickClockApp(key)
+                        WidgetUtils.setOnClickClockApp(key)
                             updateClockPreference()
                         }
                     }).show()

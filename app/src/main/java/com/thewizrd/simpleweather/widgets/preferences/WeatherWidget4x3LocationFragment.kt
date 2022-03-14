@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.widgets
+package com.thewizrd.simpleweather.widgets.preferences
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -52,6 +52,11 @@ import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder
+import com.thewizrd.simpleweather.widgets.MultiLocationPreferenceDialogFragment
+import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
+import com.thewizrd.simpleweather.widgets.WidgetType
+import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x3LocationsCreator
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -103,19 +108,6 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
         private const val SETUP_REQUEST_CODE = 10
-
-        // Preference Keys
-        private const val KEY_CATGENERAL = "key_catgeneral"
-        private const val KEY_LOCATION = "key_location"
-        private const val KEY_HIDESETTINGSBTN = "key_hidesettingsbtn"
-        private const val KEY_HIDEREFRESHBTN = "key_hiderefreshbtn"
-
-        private const val KEY_CATCLOCKDATE = "key_catclockdate"
-        private const val KEY_CLOCKAPP = "key_clockapp"
-        private const val KEY_CALENDARAPP = "key_calendarapp"
-
-        private const val KEY_TEXTSIZE = "key_textsize"
-        private const val KEY_ICONSIZE = "key_iconsize"
 
         fun newInstance(widgetID: Int): WeatherWidget4x3LocationFragment {
             val fragment = WeatherWidget4x3LocationFragment()

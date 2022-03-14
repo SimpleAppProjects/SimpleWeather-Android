@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
+import com.thewizrd.simpleweather.widgets.preferences.WeatherWidget4x3LocationFragment
 
 class WeatherWidgetConfigActivity : UserLocaleActivity() {
     private var mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID

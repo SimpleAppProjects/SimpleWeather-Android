@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/weatherWidgetPreferenceFragment"
-        android:name="com.thewizrd.simpleweather.widgets.WeatherWidgetPreferenceFragment"
+        android:name="com.thewizrd.simpleweather.widgets.preferences.WeatherWidgetPreferenceFragment"
         android:label="WeatherWidgetPreferenceFragment">
         <action
             android:id="@+id/action_weatherWidgetPreferenceFragment_to_locationSearchFragment2"
