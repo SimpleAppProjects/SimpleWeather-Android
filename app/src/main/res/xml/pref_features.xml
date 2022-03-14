@@ -58,6 +58,12 @@
 
     <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
         android:defaultValue="true"
+        android:key="key_feature_pollen"
+        android:title="@string/label_pollen_count"
+        app:iconSpaceReserved="false" />
+
+    <com.thewizrd.simpleweather.preferences.RightCheckBoxPreference
+        android:defaultValue="true"
         android:key="key_feature_moonphase"
         android:title="@string/pref_title_feature_moonphase"
         app:iconSpaceReserved="false" />

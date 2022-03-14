@@ -950,10 +950,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        // TODO: add to FeatureSettings
-        run {
+        if (FeatureSettings.isPollenEnabled()) {
             // Pollen
-            pollenCountControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_pollencountcontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
+            pollenCountControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_pollencountcontrol,
+                binding.detailsWrapLayout as ViewGroup,
+                true,
+                dataBindingComponent
+            )
             pollenCountControlBinding!!.weatherView = weatherView
             pollenCountControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -961,7 +966,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             if (context.isLargeTablet()) {
                 pollenCountControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
                     width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                    itemMinimumWidth =
+                        context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
                 }
             }
         }

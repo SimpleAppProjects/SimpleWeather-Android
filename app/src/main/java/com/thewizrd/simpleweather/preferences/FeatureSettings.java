@@ -25,6 +25,7 @@ public class FeatureSettings {
     private static final String KEY_FEATURE_SUNPHASE = "key_feature_sunphase";
     private static final String KEY_FEATURE_RADAR = "key_feature_radar";
     private static final String KEY_FEATURE_LOCPANELIMG = "key_feature_locpanelimg";
+    private static final String KEY_FEATURE_POLLEN = "key_feature_pollen";
 
     public static boolean isBackgroundImageEnabled() {
         if (BuildConfig.IS_NONGMS)
@@ -79,5 +80,9 @@ public class FeatureSettings {
 
     public static boolean isLocationPanelImageEnabled() {
         return preferences.getBoolean(KEY_FEATURE_LOCPANELIMG, true);
+    }
+
+    public static boolean isPollenEnabled() {
+        return preferences.getBoolean(KEY_FEATURE_POLLEN, true);
     }
 }

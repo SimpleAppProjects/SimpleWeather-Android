@@ -9,6 +9,8 @@
 
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
 
+        <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
+
         <variable
             name="weatherView"
             type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
@@ -18,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{weatherView.pollen == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.pollenEnabled || weatherView.pollen == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/pollen_label"
