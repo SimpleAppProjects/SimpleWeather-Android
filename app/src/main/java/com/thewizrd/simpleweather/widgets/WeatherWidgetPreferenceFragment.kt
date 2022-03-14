@@ -239,7 +239,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         root.removeView(inflatedView)
         binding = FragmentWidgetSetupBinding.inflate(inflater, root, true)
 
-        val layoutIdx = binding.layoutContainer.indexOfChild(binding.widgetContainer)
+        val layoutIdx = binding.layoutContainer.indexOfChild(binding.bgLocationLayout)
         binding.layoutContainer.addView(inflatedView, layoutIdx + 1)
 
         // For landscape orientation
