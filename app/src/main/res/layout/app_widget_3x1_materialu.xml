@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     android:gravity="center"
+    tools:ignore="HardcodedText"
     tools:layout_height="96dp"
     tools:layout_width="192dp"
     tools:viewBindingIgnore="true">
@@ -67,7 +68,8 @@
                 android:textColor="@color/widget_m3_pill_foreground_color"
                 android:textFontWeight="500"
                 android:textSize="36sp"
-                tools:text="770°" />
+                tools:text="770°"
+                tools:ignore="UnusedAttribute" />
 
             <LinearLayout
                 android:id="@+id/condition_hilo_layout"

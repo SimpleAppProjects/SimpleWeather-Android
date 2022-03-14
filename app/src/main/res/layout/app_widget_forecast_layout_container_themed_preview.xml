@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    tools:viewBindingIgnore="true"
     android:baselineAligned="false"
-    android:theme="@style/AppWidgetTheme.AppWidgetContainer">
+    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@+id/forecast1"

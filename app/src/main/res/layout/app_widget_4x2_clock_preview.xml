@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText,UseAppTint"
     tools:layout_width="384dp"
     tools:layout_height="192dp"
     tools:viewBindingIgnore="true">
@@ -14,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        tools:ignore="UselessParent">
 
         <TextClock
             android:id="@+id/clock_panel"

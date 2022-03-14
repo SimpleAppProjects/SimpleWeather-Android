@@ -54,7 +54,8 @@
             android:paddingEnd="0dp"
             android:text="72°"
             android:textColor="@color/widget_m3_pill_foreground_color"
-            android:textSize="48sp" />
+            android:textSize="48sp"
+            tools:ignore="HardcodedText,UnusedAttribute" />
 
         <TextView
             android:id="@+id/center"

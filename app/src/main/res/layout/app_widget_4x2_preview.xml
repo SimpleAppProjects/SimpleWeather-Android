@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="HardcodedText,UnusedAttribute"
     tools:layout_height="192dp"
     tools:layout_width="384dp"
     tools:targetApi="JELLY_BEAN_MR1"
