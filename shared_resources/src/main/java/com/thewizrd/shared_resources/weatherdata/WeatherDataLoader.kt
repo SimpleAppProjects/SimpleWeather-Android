@@ -336,14 +336,17 @@ class WeatherDataLoader(private val location: LocationData) {
                     weather!!.condition.observationTime,
                     now
                 ).toMinutes()
-            if (duraMins > 60) {
+            if (duraMins > 180) {
                 val interval =
                     WeatherManager.getProvider(weather!!.source).getHourlyForecastInterval()
 
                 val nowHour = now.truncatedTo(ChronoUnit.HOURS)
                 var hrf = settingsMgr.getFirstHourlyForecastDataByDate(location.query, nowHour)
                 if (hrf == null || Duration.between(now, hrf.date).toHours() > interval * 0.5) {
-                    val prevHrf = settingsMgr.getFirstHourlyForecastDataByDate(location.query, nowHour.minusHours(interval.toLong()))
+                    val prevHrf = settingsMgr.getFirstHourlyForecastDataByDate(
+                        location.query,
+                        nowHour.minusHours(interval.toLong())
+                    )
                     if (prevHrf != null) hrf = prevHrf
                 }
 
