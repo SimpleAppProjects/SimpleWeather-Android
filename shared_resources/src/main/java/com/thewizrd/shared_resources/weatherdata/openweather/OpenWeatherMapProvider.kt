@@ -29,7 +29,10 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -408,9 +411,10 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             "313", // shower rain and drizzle
             "520", // light intensity shower rain
             "521", // shower rain
-            "522", // heavy intensity shower rain
-            "701" /* mist */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
+            "522", /* heavy intensity shower rain */
+            -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
             }
 
             "600", // light snow
@@ -436,12 +440,15 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 weatherIcon = WeatherIcons.DUST
             }
 
-            // fog
-            "741" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
+            "741", // fog
+            "701" /* mist */ -> {
+                weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
+            }
 
             // cloudy-gusts
             // squalls
-            "771" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS else WeatherIcons.DAY_CLOUDY_GUSTS
+            "771" -> weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS else WeatherIcons.DAY_CLOUDY_GUSTS
 
             // tornado
             "781",
