@@ -64,6 +64,10 @@
     <string name="prompt_setup_app_first">Please setup application first</string>
     <string name="prompt_max_locations_allowed">Maximum of five locations allowed</string>
 
+    <string name="pref_category_customsize">Icon and Text Size</string>
+    <string name="pref_title_textsize">Text Size</string>
+    <string name="pref_title_iconsize">Icon Size</string>
+
     <!-- Widget Service -->
     <string name="message_widgetservice_running">Widget update service is running</string>
     <string name="pref_title_foreground_service">Widget Updater Service</string>

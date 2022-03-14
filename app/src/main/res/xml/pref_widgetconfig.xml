@@ -119,7 +119,7 @@
 
     <PreferenceCategory
         android:key="key_custom_size"
-        android:title="Icon and Text Size"
+        android:title="@string/pref_category_customsize"
         app:iconSpaceReserved="false"
         app:isPreferenceVisible="false"
         tools:isPreferenceVisible="true">
@@ -129,7 +129,7 @@
             android:key="key_textsize"
             android:persistent="false"
             android:summary="%s"
-            android:title="Text Size"
+            android:title="@string/pref_title_textsize"
             app:sliderMin="0.5"
             app:sliderMax="1.5"
             app:sliderStepSize="0.125"
@@ -140,7 +140,7 @@
             android:key="key_iconsize"
             android:persistent="false"
             android:summary="%s"
-            android:title="Icon Size"
+            android:title="@string/pref_title_iconsize"
             app:sliderMin="0.5"
             app:sliderMax="1.5"
             app:sliderStepSize="0.125"
