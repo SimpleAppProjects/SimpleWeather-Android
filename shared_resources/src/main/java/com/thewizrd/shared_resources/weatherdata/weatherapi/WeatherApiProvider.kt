@@ -30,7 +30,10 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -38,8 +41,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
     companion object {
         private const val BASE_URL = "https://api.weatherapi.com/v1/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast.json?key=%s"
-        private const val WEATHER_QUERY_URL = BASE_URL + "forecast.json?q=%s&days=5&aqi=yes&alerts=yes&lang=%s&key=%s"
-        private const val ALERTS_QUERY_URL = BASE_URL + "forecast.json?q=%s&days=1&hour=6&aqi=no&alerts=yes&lang=%s&key=%s"
+        private const val WEATHER_QUERY_URL =
+            BASE_URL + "forecast.json?q=%s&days=10&aqi=yes&alerts=yes&lang=%s&key=%s"
+        private const val ALERTS_QUERY_URL =
+            BASE_URL + "forecast.json?q=%s&days=1&hour=6&aqi=no&alerts=yes&lang=%s&key=%s"
     }
 
     init {
