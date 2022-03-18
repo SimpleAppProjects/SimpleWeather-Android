@@ -92,6 +92,7 @@ class WeatherWidget4x2GraphCreator(context: Context, loadBackground: Boolean = t
             )
         }
 
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // original icon size: 24dp

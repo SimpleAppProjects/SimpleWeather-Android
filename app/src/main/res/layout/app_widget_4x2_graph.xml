@@ -37,32 +37,32 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
                 android:layout_weight="1"
                 android:ellipsize="end"
+                android:gravity="center_vertical"
                 android:maxLines="1"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:shadowColor="#000000"
                 android:textColor="?colorOnSurface"
-                android:textSize="14sp"
                 android:textFontWeight="500"
-                tools:text="New York, NY"
-                tools:ignore="UnusedAttribute" />
+                android:textSize="14sp"
+                tools:ignore="UnusedAttribute"
+                tools:text="New York, NY" />
 
             <ImageView
                 android:id="@+id/refresh_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginEnd="4dp"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/action_refresh"
-                android:scaleType="fitCenter"
-                android:maxHeight="16dp"
                 android:maxWidth="16dp"
-                android:layout_marginEnd="4dp"
-                tools:src="@drawable/ic_refresh"
-                android:tint="?colorOnSurface" />
+                android:maxHeight="16dp"
+                android:scaleType="fitCenter"
+                android:tint="?colorOnSurface"
+                tools:src="@drawable/ic_refresh" />
 
             <ImageView
                 android:id="@+id/settings_button"
@@ -71,11 +71,11 @@
                 android:layout_gravity="center_vertical"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/action_settings"
-                android:scaleType="fitCenter"
-                android:maxHeight="16dp"
                 android:maxWidth="16dp"
-                tools:src="@drawable/ic_outline_settings_24"
-                android:tint="?colorOnSurface" />
+                android:maxHeight="16dp"
+                android:scaleType="fitCenter"
+                android:tint="?colorOnSurface"
+                tools:src="@drawable/ic_outline_settings_24" />
 
         </LinearLayout>
 
@@ -85,8 +85,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside"
             android:contentDescription="Graph"
+            android:scaleType="centerInside"
             tools:src="@drawable/ic_settings_black_24dp" />
 
         <TextView
@@ -105,12 +105,12 @@
             android:id="@+id/graph_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:ellipsize="end"
+            android:gravity="center"
             android:maxLines="1"
             android:paddingStart="4dp"
-            android:paddingEnd="4dp"
             android:paddingTop="4dp"
+            android:paddingEnd="4dp"
             android:textAppearance="?textAppearanceBodyMedium"
             android:textColor="?colorOnSurface"
             tools:text="Precipitation" />
