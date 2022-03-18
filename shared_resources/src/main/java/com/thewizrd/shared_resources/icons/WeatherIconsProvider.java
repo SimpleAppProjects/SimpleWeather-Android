@@ -173,6 +173,7 @@ public final class WeatherIconsProvider extends WeatherIconProvider {
                 weatherIcon = R.drawable.wi_night_alt_thunderstorm;
                 break;
             case WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY:
+            case WeatherIcons.NIGHT_OVERCAST:
                 weatherIcon = R.drawable.wi_night_alt_partly_cloudy;
                 break;
             case WeatherIcons.NIGHT_ALT_CLOUDY_HIGH:

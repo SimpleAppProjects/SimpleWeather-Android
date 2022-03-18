@@ -53,7 +53,8 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.NIGHT_ALT_CLOUDY_WINDY -> weatherIcon =
                 R.drawable.wui_nt_mostlycloudy
 
-            WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> weatherIcon =
+            WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY,
+            WeatherIcons.NIGHT_OVERCAST -> weatherIcon =
                 R.drawable.wui_nt_partlycloudy
             WeatherIcons.NIGHT_ALT_CLOUDY_HIGH -> weatherIcon =
                 R.drawable.wui_nt_mostlycloudy

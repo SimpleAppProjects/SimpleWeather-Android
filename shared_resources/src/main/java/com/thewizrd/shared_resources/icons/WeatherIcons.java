@@ -35,6 +35,7 @@ public final class WeatherIcons {
     // NIGHT_ALT
     public static final String NIGHT_CLEAR = "\uf02e";
     public static final String NIGHT_FOG = "\uf04a";
+    public static final String NIGHT_OVERCAST = "\uf00c-nt";
     public static final String NIGHT_ALT_CLOUDY = "\uf086";
     public static final String NIGHT_ALT_CLOUDY_GUSTS = "\uf022";
     public static final String NIGHT_ALT_CLOUDY_WINDY = "\uf023";

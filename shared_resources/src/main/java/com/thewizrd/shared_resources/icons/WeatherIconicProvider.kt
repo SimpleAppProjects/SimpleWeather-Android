@@ -77,6 +77,7 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> weatherIcon = R.drawable.wic_moon_cloud
             WeatherIcons.NIGHT_ALT_CLOUDY_HIGH -> weatherIcon = R.drawable.wic_moon_cloud
             WeatherIcons.NIGHT_FOG -> weatherIcon = R.drawable.wic_moon_fog
+            WeatherIcons.NIGHT_OVERCAST -> weatherIcon = R.drawable.wic_moon_cloud
 
             WeatherIcons.CLOUD -> weatherIcon = R.drawable.wic_cloud
             WeatherIcons.CLOUDY -> weatherIcon = R.drawable.wic_clouds
