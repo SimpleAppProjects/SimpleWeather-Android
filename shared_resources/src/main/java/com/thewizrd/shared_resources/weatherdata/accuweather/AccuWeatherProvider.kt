@@ -16,7 +16,8 @@ import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
 import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,6 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class AccuWeatherProvider : WeatherProviderImpl() {
@@ -310,19 +310,23 @@ class AccuWeatherProvider : WeatherProviderImpl() {
             2, 3, 34, 35 -> weatherIcon = if (isNight)
                 WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
             else
-                WeatherIcons.DAY_SUNNY_OVERCAST
+                WeatherIcons.DAY_PARTLY_CLOUDY
             /*
              *  4: Intermittent Clouds
              *  6: Mostly Cloudy
              *  7: Cloudy
-             *  8: Dreary (Overcast)
              * 36: Intermittent Clouds
              * 38: Mostly Cloudy
              */
-            4, 6, 7, 8, 36, 38 -> weatherIcon = if (isNight)
+            4, 6, 7, 36, 38 -> weatherIcon = if (isNight)
                 WeatherIcons.NIGHT_ALT_CLOUDY
             else
                 WeatherIcons.DAY_CLOUDY
+            /* 8: Dreary (Overcast) */
+            8 -> weatherIcon = if (isNight)
+                WeatherIcons.NIGHT_OVERCAST
+            else
+                WeatherIcons.DAY_SUNNY_OVERCAST
             /*
              *  5: Hazy Sunshine
              * 37: Hazy Moonlight

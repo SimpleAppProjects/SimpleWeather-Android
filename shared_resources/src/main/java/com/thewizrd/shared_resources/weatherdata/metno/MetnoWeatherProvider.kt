@@ -227,7 +227,8 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
             }
             "fair", "partlycloudy" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
             }
             "cloudy" -> weatherIcon = WeatherIcons.CLOUDY
             "rainshowers" -> {

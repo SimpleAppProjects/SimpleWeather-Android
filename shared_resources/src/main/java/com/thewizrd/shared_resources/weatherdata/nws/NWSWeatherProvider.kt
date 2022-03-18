@@ -32,7 +32,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -433,8 +436,10 @@ class NWSWeatherProvider : WeatherProviderImpl() {
             if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_WINDY else WeatherIcons.DAY_CLOUDY_WINDY
         } else if (icon.contains("wind_skc") || icon.contains("wind_few") || icon.contains("wind")) {
             if (isNight) WeatherIcons.WINDY else WeatherIcons.DAY_WINDY
-        } else if (icon.contains("ovc") || icon.contains("sct") || icon.contains("few")) {
-            if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+        } else if (icon.contains("ovc")) {
+            if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+        } else if (icon.contains("sct") || icon.contains("few")) {
+            if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
         } else if (icon.contains("bkn")) {
             if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
         } else if (icon.contains("skc")) {

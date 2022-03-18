@@ -28,7 +28,10 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.io.InputStream
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -347,7 +350,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         } else if (icon.startsWith("p2")) {
             // Partly Cloudy
             weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+                if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
         } else if (icon.startsWith("p3")) {
             // Mostly Cloudy
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY

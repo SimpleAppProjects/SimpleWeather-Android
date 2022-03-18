@@ -323,17 +323,22 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
             }
 
-            /*
-             * 1003: Partly cloudy
-             * 1009: Overcast
-             */
-            1003, 1009 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+            /* Partly cloudy */
+            1003 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
+            }
+
+            /* Overcast */
+            1009 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
             }
 
             /* Cloudy */
             1006 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
             }
 
             /*

@@ -462,12 +462,19 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
 
             "801", // few clouds
             "802" /* scattered clouds */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
             }
 
-            "803", // broken clouds
-            "804" /* overcast clouds */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
+            /* broken clouds */
+            "803" ->
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
+
+            /* overcast clouds */
+            "804" -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
             }
 
             "901", // tropical storm

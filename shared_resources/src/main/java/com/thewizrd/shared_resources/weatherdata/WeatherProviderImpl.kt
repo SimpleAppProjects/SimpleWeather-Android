@@ -336,7 +336,8 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
             WeatherIcons.NIGHT_CLEAR -> {
                 context.getString(R.string.weather_clear)
             }
-            WeatherIcons.DAY_SUNNY_OVERCAST -> {
+            WeatherIcons.DAY_SUNNY_OVERCAST,
+            WeatherIcons.NIGHT_OVERCAST -> {
                 context.getString(R.string.weather_overcast)
             }
             WeatherIcons.DAY_PARTLY_CLOUDY,
@@ -448,6 +449,7 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
             WeatherIcons.NIGHT_ALT_THUNDERSTORM,
             WeatherIcons.NIGHT_FOG,
             WeatherIcons.NIGHT_CLEAR,
+            WeatherIcons.NIGHT_OVERCAST,
             WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY,
             WeatherIcons.NIGHT_ALT_CLOUDY,
             WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,

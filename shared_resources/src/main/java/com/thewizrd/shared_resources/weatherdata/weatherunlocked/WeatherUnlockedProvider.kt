@@ -27,7 +27,10 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -276,14 +279,16 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 0 /* Sunny skies/Clear skies */ -> {
                     if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
                 }
-                1, // Partly cloudy skies
-                3  /* Cloudy skies */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_SUNNY_OVERCAST
+                1 /* Partly cloudy skies */ -> {
+                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
                 }
                 2 /* Cloudy skies */ -> {
                     if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
                 }
-                10, // Haze
+                3  /* Overcast skies */ -> {
+                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                }
+                10, // Mist
                 45, // Fog
                 49  /* Freezing fog */ -> {
                     if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG

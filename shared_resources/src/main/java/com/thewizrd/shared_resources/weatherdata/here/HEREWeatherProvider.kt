@@ -13,7 +13,9 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.here.HEREOAuthUtils
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherAlertProviderInterface
+import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -293,17 +295,32 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProviderInterface
 
         if (icon == null) return WeatherIcons.NA
 
-        if (icon.contains("mostly_sunny") || icon.contains("mostly_clear") || icon.contains("partly_cloudy")
-            || icon.contains("passing_clounds") || icon.contains("more_sun_than_clouds") || icon.contains("scattered_clouds")
-            || icon.contains("decreasing_cloudiness") || icon.contains("clearing_skies") || icon.contains("overcast")
-            || icon.contains("low_clouds") || icon.contains("passing_clouds")) {
+        if (icon.contains("overcast")) {
+            weatherIcon = if (isNight)
+                WeatherIcons.NIGHT_OVERCAST
+            else
+                WeatherIcons.DAY_SUNNY_OVERCAST
+        } else if (icon.contains("mostly_sunny") || icon.contains("mostly_clear") || icon.contains("partly_cloudy")
+            || icon.contains("passing_clounds") || icon.contains("more_sun_than_clouds") || icon.contains(
+                "scattered_clouds"
+            )
+            || icon.contains("decreasing_cloudiness") || icon.contains("clearing_skies")
+            || icon.contains("low_clouds") || icon.contains("passing_clouds")
+        ) {
             weatherIcon = if (isNight)
                 WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
             else
-                WeatherIcons.DAY_SUNNY_OVERCAST
-        } else if (icon.contains("cloudy") || icon.contains("a_mixture_of_sun_and_clouds") || icon.contains("increasing_cloudiness")
-                   || icon.contains("breaks_of_sun_late") || icon.contains("afternoon_clouds") || icon.contains("morning_clouds")
-                   || icon.contains("partly_sunny") || icon.contains("more_clouds_than_sun") || icon.contains("broken_clouds")) {
+                WeatherIcons.DAY_PARTLY_CLOUDY
+        } else if (icon.contains("cloudy") || icon.contains("a_mixture_of_sun_and_clouds") || icon.contains(
+                "increasing_cloudiness"
+            )
+            || icon.contains("breaks_of_sun_late") || icon.contains("afternoon_clouds") || icon.contains(
+                "morning_clouds"
+            )
+            || icon.contains("partly_sunny") || icon.contains("more_clouds_than_sun") || icon.contains(
+                "broken_clouds"
+            )
+        ) {
             weatherIcon = if (isNight)
                 WeatherIcons.NIGHT_ALT_CLOUDY
             else
