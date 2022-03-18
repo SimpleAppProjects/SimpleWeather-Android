@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import com.thewizrd.shared_resources.controls.DetailItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
@@ -29,18 +28,8 @@ object DailyWeatherNotificationBuilder {
         val loTemp = viewModel.loTemp ?: WeatherIcons.PLACEHOLDER
         val condition = viewModel.condition ?: WeatherIcons.EM_DASH
 
-        var chanceModel: DetailItemViewModel? = null
-        var feelsLikeModel: DetailItemViewModel? = null
-        for (model in viewModel.extras) {
-            if (model.detailsType == WeatherDetailsType.POPCHANCE) {
-                chanceModel = model
-            } else if (model.detailsType == WeatherDetailsType.FEELSLIKE) {
-                feelsLikeModel = model
-            }
-
-            if (chanceModel != null && feelsLikeModel != null)
-                break
-        }
+        val chanceModel = viewModel.extras[WeatherDetailsType.POPCHANCE]
+        val feelsLikeModel = viewModel.extras[WeatherDetailsType.FEELSLIKE]
 
         val contentText = StringBuilder().append(condition)
         var appendDiv = false

@@ -17,7 +17,6 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 class ForecastWeatherTileProviderService : WeatherTileProviderService() {
     companion object {
@@ -50,20 +49,9 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
         updateViews.setTextViewText(R.id.weather_condition, viewModel.curCondition)
 
         // Details
-        var chanceModel: DetailItemViewModel? = null
-        var windModel: DetailItemViewModel? = null
-
-        for (input in viewModel.getWeatherDetails()) {
-            if (input.detailsType == WeatherDetailsType.POPCHANCE || input.detailsType == WeatherDetailsType.POPCLOUDINESS) {
-                chanceModel = input
-            } else if (input.detailsType == WeatherDetailsType.WINDSPEED) {
-                windModel = input
-            }
-
-            if (chanceModel != null && windModel != null) {
-                break
-            }
-        }
+        val chanceModel = viewModel.weatherDetailsMap[WeatherDetailsType.POPCHANCE]
+            ?: viewModel.weatherDetailsMap[WeatherDetailsType.POPCLOUDINESS]
+        val windModel = viewModel.weatherDetailsMap[WeatherDetailsType.WINDSPEED]
 
         if (chanceModel != null) {
             updateViews.setImageViewResource(

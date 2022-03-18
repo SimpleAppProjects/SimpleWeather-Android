@@ -37,7 +37,7 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
                 super.onStart(owner)
-                mAdapter.submitList(weatherView.getWeatherDetails())
+                mAdapter.submitList(weatherView.weatherDetailsMap.values.toList())
             }
         })
     }
@@ -99,8 +99,8 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
     private val propertyChangedCallback = object : OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             runWithView {
-                if (propertyId == BR.weatherDetails) {
-                    mAdapter.submitList(weatherView.getWeatherDetails())
+                if (propertyId == BR.weatherDetailsMap) {
+                    mAdapter.submitList(weatherView.weatherDetailsMap.values.toList())
                 }
             }
         }

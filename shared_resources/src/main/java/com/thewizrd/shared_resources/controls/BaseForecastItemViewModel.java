@@ -5,8 +5,8 @@ import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.weatherdata.WeatherManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class BaseForecastItemViewModel {
     protected final WeatherManager wm;
@@ -23,15 +23,13 @@ public abstract class BaseForecastItemViewModel {
     protected String windSpeed;
     protected String windDir;
 
-    protected List<DetailItemViewModel> detailExtras;
+    protected Map<WeatherDetailsType, DetailItemViewModel> detailExtras;
 
     public BaseForecastItemViewModel() {
         wm = WeatherManager.getInstance();
         wim = WeatherIconsManager.getInstance();
         settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
-
-        int capacity = WeatherDetailsType.values().length;
-        detailExtras = new ArrayList<>(capacity);
+        detailExtras = new LinkedHashMap<>(WeatherDetailsType.values().length);
     }
 
     public String getWeatherIcon() {
@@ -106,11 +104,11 @@ public abstract class BaseForecastItemViewModel {
         this.windSpeed = windSpeed;
     }
 
-    public List<DetailItemViewModel> getExtras() {
+    public Map<WeatherDetailsType, DetailItemViewModel> getExtras() {
         return detailExtras;
     }
 
-    public void setExtras(List<DetailItemViewModel> extras) {
+    public void setExtras(Map<WeatherDetailsType, DetailItemViewModel> extras) {
         this.detailExtras = extras;
     }
 

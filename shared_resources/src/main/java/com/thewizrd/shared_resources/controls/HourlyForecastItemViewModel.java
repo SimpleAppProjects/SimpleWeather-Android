@@ -24,7 +24,6 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.UV;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
 
@@ -42,8 +41,6 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
         df.applyPattern("0.##");
-
-        detailExtras = new ArrayList<>(WeatherDetailsType.values().length);
 
         weatherIcon = forecast.getIcon();
 
@@ -102,12 +99,12 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getFeelslikeF() != null && (!ObjectsCompat.equals(forecast.getExtras().getFeelslikeF(), forecast.getExtras().getFeelslikeC()))) {
                 int value = isFahrenheit ? Math.round(forecast.getExtras().getFeelslikeF()) : Math.round(forecast.getExtras().getFeelslikeC());
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
+                detailExtras.put(WeatherDetailsType.FEELSLIKE, new DetailItemViewModel(WeatherDetailsType.FEELSLIKE,
                         String.format(LocaleUtils.getLocale(), "%d°", value)));
             }
 
             if (forecast.getExtras().getPop() != null && forecast.getExtras().getPop() >= 0)
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCHANCE, forecast.getExtras().getPop() + "%"));
+                detailExtras.put(WeatherDetailsType.POPCHANCE, new DetailItemViewModel(WeatherDetailsType.POPCHANCE, forecast.getExtras().getPop() + "%"));
             if (forecast.getExtras().getQpfRainIn() != null && forecast.getExtras().getQpfRainIn() >= 0) {
                 final String unit = settingsMgr.getPrecipitationUnit();
                 float precipValue;
@@ -125,7 +122,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         break;
                 }
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPRAIN,
+                detailExtras.put(WeatherDetailsType.POPRAIN, new DetailItemViewModel(WeatherDetailsType.POPRAIN,
                                 String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)
                         )
                 );
@@ -147,20 +144,20 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         break;
                 }
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPSNOW,
+                detailExtras.put(WeatherDetailsType.POPSNOW, new DetailItemViewModel(WeatherDetailsType.POPSNOW,
                         String.format(LocaleUtils.getLocale(), "%s %s", df.format(precipValue), precipUnit)
                 ));
             }
             if (forecast.getExtras().getCloudiness() != null && forecast.getExtras().getCloudiness() >= 0)
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, forecast.getExtras().getCloudiness() + "%"));
+                detailExtras.put(WeatherDetailsType.POPCLOUDINESS, new DetailItemViewModel(WeatherDetailsType.POPCLOUDINESS, forecast.getExtras().getCloudiness() + "%"));
 
             if (forecast.getExtras().getHumidity() != null) {
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
+                detailExtras.put(WeatherDetailsType.HUMIDITY, new DetailItemViewModel(WeatherDetailsType.HUMIDITY,
                         String.format(LocaleUtils.getLocale(), "%d%%", forecast.getExtras().getHumidity())));
             }
 
             if (forecast.getExtras().getDewpointF() != null && (!ObjectsCompat.equals(forecast.getExtras().getDewpointF(), forecast.getExtras().getDewpointC()))) {
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
+                detailExtras.put(WeatherDetailsType.DEWPOINT, new DetailItemViewModel(WeatherDetailsType.DEWPOINT,
                         String.format(LocaleUtils.getLocale(), "%d°",
                                 isFahrenheit ?
                                         Math.round(forecast.getExtras().getDewpointF()) :
@@ -171,7 +168,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             if (forecast.getExtras().getUvIndex() != null && forecast.getExtras().getUvIndex() >= 0) {
                 UV uv = new UV(forecast.getExtras().getUvIndex());
 
-                detailExtras.add(new DetailItemViewModel(uv));
+                detailExtras.put(WeatherDetailsType.UV, new DetailItemViewModel(uv));
             }
 
             if (forecast.getExtras().getPressureIn() != null && forecast.getExtras().getPressureMb() != null) {
@@ -191,12 +188,12 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         break;
                 }
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.PRESSURE,
+                detailExtras.put(WeatherDetailsType.PRESSURE, new DetailItemViewModel(WeatherDetailsType.PRESSURE,
                         String.format(LocaleUtils.getLocale(), "%s %s", df.format(pressureVal), pressureUnit)));
             }
 
             if (!StringUtils.isNullOrWhitespace(windSpeed)) {
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
+                detailExtras.put(WeatherDetailsType.WINDSPEED, new DetailItemViewModel(WeatherDetailsType.WINDSPEED,
                         String.format(LocaleUtils.getLocale(), "%s, %s", windSpeed, windDir), windDirection + 180));
             }
 
@@ -222,7 +219,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                 }
 
                 String windGustSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit);
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
+                detailExtras.put(WeatherDetailsType.WINDGUST, new DetailItemViewModel(WeatherDetailsType.WINDGUST, windGustSpeed));
             }
 
             if (forecast.getExtras().getVisibilityMi() != null && forecast.getExtras().getVisibilityMi() >= 0) {
@@ -242,7 +239,7 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         break;
                 }
 
-                detailExtras.add(new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
+                detailExtras.put(WeatherDetailsType.VISIBILITY, new DetailItemViewModel(WeatherDetailsType.VISIBILITY,
                         String.format(LocaleUtils.getLocale(), "%d %s", visibilityVal, visibilityUnit)));
             }
         }
