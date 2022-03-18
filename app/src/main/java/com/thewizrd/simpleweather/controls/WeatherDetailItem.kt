@@ -10,8 +10,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
 import com.thewizrd.shared_resources.controls.ForecastItemViewModel
 import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
@@ -22,7 +20,6 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.StringUtils.lineSeparator
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding
-import kotlinx.coroutines.launch
 import java.util.*
 
 class WeatherDetailItem : LinearLayout {
@@ -303,7 +300,7 @@ class WeatherDetailItem : LinearLayout {
                 }
             }
 
-            findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+            binding.forecastCondition.post {
                 val paint = binding.forecastCondition.paint
                 val textWidth = paint.measureText(forecastView.condition)
 
@@ -313,7 +310,7 @@ class WeatherDetailItem : LinearLayout {
                         .append(lineSeparator())
                 } else if (sb.isEmpty()) {
                     setExpandable(false)
-                    return@launch
+                    return@post
                 }
 
                 binding.bodyTextview.setText(sb, TextView.BufferType.SPANNABLE)
