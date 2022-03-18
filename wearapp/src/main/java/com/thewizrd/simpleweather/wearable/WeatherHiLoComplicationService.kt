@@ -31,32 +31,32 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("70°").build(),
-                        PlainComplicationText.Builder("70° - Sunny").build()
+                    PlainComplicationText.Builder("70°").build(),
+                    PlainComplicationText.Builder("70° - Sunny").build()
                 ).setTitle(
-                        PlainComplicationText.Builder("75° | 65°").build()
+                    PlainComplicationText.Builder("75° | 65°").build()
                 ).setMonochromaticImage(
-                        MonochromaticImage.Builder(
-                                Icon.createWithResource(
-                                        getThemeContextOverride(false),
-                                        R.drawable.wi_day_sunny
-                                )
-                        ).build()
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(
+                            getThemeContextOverride(false),
+                            R.drawable.wi_day_sunny
+                        )
+                    ).build()
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("70° - Sunny").build(),
-                        PlainComplicationText.Builder("70° - Sunny").build()
+                    PlainComplicationText.Builder("70° - Sunny").build(),
+                    PlainComplicationText.Builder("70° - Sunny").build()
                 ).setTitle(
-                        PlainComplicationText.Builder("75° | 65°").build()
+                    PlainComplicationText.Builder("75° | 65°").build()
                 ).setMonochromaticImage(
-                        MonochromaticImage.Builder(
-                                Icon.createWithResource(
-                                        getThemeContextOverride(false),
-                                        R.drawable.wi_day_sunny
-                                )
-                        ).build()
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(
+                            getThemeContextOverride(false),
+                            R.drawable.wi_day_sunny
+                        )
+                    ).build()
                 ).build()
             }
             else -> {
@@ -76,15 +76,18 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
 
         val isFahrenheit = Units.FAHRENHEIT == settingsMgr.getTemperatureUnit()
 
+        var shouldHideHi = false
+        var shouldHideLo = false
+
         // Temperature
         val currTemp =
             if (weather.condition.tempF != null && weather.condition.tempF != weather.condition.tempC) {
                 val temp =
-                            if (isFahrenheit) Math.round(weather.condition.tempF) else Math.round(weather.condition.tempC)
-                    String.format(LocaleUtils.getLocale(), "%d", temp)
-                } else {
-                    WeatherIcons.PLACEHOLDER
-                }
+                    if (isFahrenheit) Math.round(weather.condition.tempF) else Math.round(weather.condition.tempC)
+                String.format(LocaleUtils.getLocale(), "%d", temp)
+            } else {
+                WeatherIcons.PLACEHOLDER
+            }
 
         val hiTemp =
             if (weather.condition.highF != null && weather.condition.highF != weather.condition.highC) {
@@ -96,6 +99,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
             } else {
+                shouldHideHi = true
                 WeatherIcons.PLACEHOLDER
             }
 
@@ -109,8 +113,11 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     if (isFahrenheit) Math.round(forecast.lowF) else Math.round(forecast.lowC)
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
             } else {
+                shouldHideLo = true
                 WeatherIcons.PLACEHOLDER
             }
+
+        val showHiLo = (!shouldHideHi || !shouldHideLo) && hiTemp != loTemp
 
         val tempUnit = if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
 
@@ -127,36 +134,43 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
         val wim = WeatherIconsManager.getInstance()
         val weatherIcon = wim.getWeatherIconResource(weather.condition.icon)
         val icon = Icon.createWithBitmap(
-                ImageUtils.bitmapFromDrawable(
-                        getThemeContextOverride(false),
-                        weatherIcon
-                )
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                weatherIcon
+            )
         )
 
         when (dataType) {
             ComplicationType.SHORT_TEXT -> {
                 val builder = ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("$hiTemp/$loTemp").build(),
-                        PlainComplicationText.Builder("$temp - $condition; Hi: $hiTemp, Lo: $loTemp").build()
+                    PlainComplicationText.Builder(
+                        if (showHiLo) {
+                            "$hiTemp/$loTemp"
+                        } else {
+                            "$currTemp°"
+                        }
+                    ).build(),
+                    PlainComplicationText.Builder("$temp - $condition; Hi: $hiTemp, Lo: $loTemp")
+                        .build()
                 )
 
                 builder.setMonochromaticImage(
-                        MonochromaticImage.Builder(icon).apply {
-                            // Weather Icon
-                            if (!wim.isFontIcon) {
-                                val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
-                                setAmbientImage(
-                                        Icon.createWithBitmap(
-                                                ImageUtils.tintedBitmapFromDrawable(
-                                                        this@WeatherHiLoComplicationService,
-                                                        wip.getWeatherIconResource(weather.condition.icon),
-                                                        Colors.WHITE
-                                                )
-                                        )
+                    MonochromaticImage.Builder(icon).apply {
+                        // Weather Icon
+                        if (!wim.isFontIcon) {
+                            val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+                            setAmbientImage(
+                                Icon.createWithBitmap(
+                                    ImageUtils.tintedBitmapFromDrawable(
+                                        this@WeatherHiLoComplicationService,
+                                        wip.getWeatherIconResource(weather.condition.icon),
+                                        Colors.WHITE
+                                    )
                                 )
-                            }
+                            )
                         }
-                                .build()
+                    }
+                        .build()
                 )
 
                 builder.setTapAction(getTapIntent(this))
@@ -164,31 +178,31 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 val builder = LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("$temp - $condition").build(),
-                        PlainComplicationText.Builder("$temp - $condition").build()
+                    PlainComplicationText.Builder("$temp - $condition").build(),
+                    PlainComplicationText.Builder("$temp - $condition").build()
                 ).setTitle(
-                        PlainComplicationText.Builder("$hiTemp | $loTemp").build()
+                    PlainComplicationText.Builder("$hiTemp | $loTemp").build()
                 )
 
                 // Weather Icon
                 if (wim.isFontIcon) {
                     builder.setMonochromaticImage(
-                            MonochromaticImage.Builder(icon).build()
+                        MonochromaticImage.Builder(icon).build()
                     )
                 } else {
                     val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
                     builder.setSmallImage(
-                            SmallImage.Builder(icon, SmallImageType.ICON)
-                                    .setAmbientImage(
-                                            Icon.createWithBitmap(
-                                                    ImageUtils.tintedBitmapFromDrawable(
-                                                            this,
-                                                            wip.getWeatherIconResource(weather.condition.icon),
-                                                            Colors.WHITE
-                                                    )
-                                            )
+                        SmallImage.Builder(icon, SmallImageType.ICON)
+                            .setAmbientImage(
+                                Icon.createWithBitmap(
+                                    ImageUtils.tintedBitmapFromDrawable(
+                                        this,
+                                        wip.getWeatherIconResource(weather.condition.icon),
+                                        Colors.WHITE
                                     )
-                                    .build()
+                                )
+                            )
+                            .build()
                     )
                 }
 
