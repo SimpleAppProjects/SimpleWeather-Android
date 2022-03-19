@@ -126,4 +126,10 @@
     <string name="label_widget_weather_clock_4x3">"Počasie a hodiny (4x3)"</string>
     <string name="label_widget_weather_3x1">"Počasie (3x1)"</string>
     <string name="label_widget_weather_forecast_4x2">"Predpoveď počasia (4x2)"</string>
+    <string name="widget_loading_prompt">"Načítava…"</string>
+    <string name="refreshbtn_pref_title">"Tlačidlo Obnoviť"</string>
+    <string name="refreshbtn_pref_summary">"Skryť tlačidlo obnovenia z widgetu"</string>
+    <string name="pref_category_customsize">"Veľkosť ikony a písma"</string>
+    <string name="pref_title_textsize">"Veľkosť písma"</string>
+    <string name="pref_title_iconsize">"Veľkosť ikony"</string>
 </resources>

@@ -150,4 +150,10 @@
     <string name="label_widget_weather_clock_4x3">"Tiempo y reloj (4x3)"</string>
     <string name="label_widget_weather_3x1">"Tiempo (3x1)"</string>
     <string name="label_widget_weather_forecast_4x2">"Previsión del tiempo (4x2)"</string>
+    <string name="widget_loading_prompt">"Cargando…"</string>
+    <string name="refreshbtn_pref_title">"Botón de actualización"</string>
+    <string name="refreshbtn_pref_summary">"Ocultar el botón de actualización del widget"</string>
+    <string name="pref_category_customsize">"Tamaño de los iconos y de la letra"</string>
+    <string name="pref_title_textsize">"Tamaño de la letra"</string>
+    <string name="pref_title_iconsize">"Tamaño de ícono"</string>
 </resources>

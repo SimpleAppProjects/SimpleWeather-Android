@@ -192,4 +192,10 @@
 
     <!-- Fuzzy -->
     <string name="label_widget_weather_forecast_4x2">"天气预报 (4x2)"</string>
+    <string name="widget_loading_prompt">"负载…"</string>
+    <string name="refreshbtn_pref_title">"刷新按钮"</string>
+    <string name="refreshbtn_pref_summary">"从小部件中隐藏刷新按钮"</string>
+    <string name="pref_category_customsize">"图标和文字大小"</string>
+    <string name="pref_title_textsize">"字体大小"</string>
+    <string name="pref_title_iconsize">"图标大小"</string>
 </resources>

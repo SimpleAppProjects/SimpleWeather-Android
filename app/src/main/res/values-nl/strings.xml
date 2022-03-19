@@ -126,4 +126,10 @@
     <string name="label_widget_weather_clock_4x3">"Weer en Klok (4x3)"</string>
     <string name="label_widget_weather_3x1">"Weer (3x1)"</string>
     <string name="label_widget_weather_forecast_4x2">"Weersvoorspelling (4x2)"</string>
+    <string name="widget_loading_prompt">"Laden…"</string>
+    <string name="refreshbtn_pref_title">"Vernieuwen knop"</string>
+    <string name="refreshbtn_pref_summary">"Verberg refresh knop van widget"</string>
+    <string name="pref_category_customsize">"Pictogramgrootte en tekengrootte"</string>
+    <string name="pref_title_textsize">"Tekengrootte"</string>
+    <string name="pref_title_iconsize">"Pictogramgrootte"</string>
 </resources>

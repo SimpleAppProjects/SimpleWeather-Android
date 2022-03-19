@@ -131,4 +131,10 @@
     <string name="label_widget_weather_clock_4x3">"Météo et horloge (4x3)"</string>
     <string name="label_widget_weather_3x1">"Météo (3x1)"</string>
     <string name="label_widget_weather_forecast_4x2">"Prévisions météo (4x2)"</string>
+    <string name="widget_loading_prompt">"Chargement…"</string>
+    <string name="refreshbtn_pref_title">"Bouton d'actualisation"</string>
+    <string name="refreshbtn_pref_summary">"Masquer le bouton d'actualisation du widget"</string>
+    <string name="pref_category_customsize">"Taille des icônes et de la police"</string>
+    <string name="pref_title_textsize">"Taille de la police"</string>
+    <string name="pref_title_iconsize">"Taille de l'icône"</string>
 </resources>
