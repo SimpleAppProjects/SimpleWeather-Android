@@ -8,11 +8,13 @@ import android.content.Context
 import android.content.Intent
 import androidx.navigation.findNavController
 import androidx.preference.Preference
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.thewizrd.extras.ExtrasLibrary
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.FirebaseConfigurator
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
@@ -20,10 +22,23 @@ import com.thewizrd.simpleweather.preferences.SettingsFragment
 import com.thewizrd.simpleweather.preferences.SettingsFragmentDirections
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
+import timber.log.Timber
 
 fun initializeExtras(app: ApplicationLib) {
     ExtrasLibrary.initialize(app)
     FirebaseConfigurator.initialize(app.appContext)
+    if (BuildConfig.DEBUG) {
+        MapsInitializer.initialize(app.appContext, MapsInitializer.Renderer.LATEST) {
+            when (it) {
+                MapsInitializer.Renderer.LATEST -> {
+                    Timber.tag("Application").d("The latest version of the renderer is used.")
+                }
+                MapsInitializer.Renderer.LEGACY -> {
+                    Timber.tag("Application").d("The legacy version of the renderer is used.")
+                }
+            }
+        }
+    }
 }
 
 fun App.attachToBaseContext(context: Context) {
