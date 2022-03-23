@@ -102,6 +102,7 @@
                     android:paddingTop="4dp"
                     android:paddingEnd="12dp"
                     android:paddingBottom="4dp"
+                    android:maxLines="1"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/weather_detail_item_textSize"
@@ -117,6 +118,7 @@
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintHeight_percent="0.3333"
+                    tools:drawableStart="@drawable/wi_raindrop"
                     tools:text="100%"
                     tools:visibility="visible" />
 
@@ -130,6 +132,7 @@
                     android:paddingTop="4dp"
                     android:paddingEnd="12dp"
                     android:paddingBottom="4dp"
+                    android:maxLines="1"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/weather_detail_item_textSize"
@@ -143,6 +146,7 @@
                     app:layout_constraintStart_toEndOf="@id/forecast_extra_pop"
                     app:layout_constraintTop_toBottomOf="@id/forecast_condition"
                     app:layout_constraintHeight_percent="0.3333"
+                    tools:drawableStart="@drawable/wi_cloudy"
                     tools:text="75%"
                     tools:visibility="visible" />
 
@@ -157,6 +161,7 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="4dp"
                     android:ellipsize="end"
+                    android:maxLines="1"
                     android:scrollbars="none"
                     android:textColor="?attr/colorSecondary"
                     android:textSize="@dimen/weather_detail_item_textSize"
@@ -170,6 +175,7 @@
                     app:layout_constraintStart_toEndOf="@id/forecast_extra_clouds"
                     app:layout_constraintTop_toBottomOf="@id/forecast_condition"
                     app:layout_constraintHeight_percent="0.3333"
+                    tools:drawableStart="@drawable/wi_strong_wind"
                     tools:text="5 mph, WNW"
                     tools:visibility="visible" />
 
