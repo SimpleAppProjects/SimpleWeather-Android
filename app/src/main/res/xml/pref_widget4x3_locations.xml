@@ -60,6 +60,46 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="key_background"
+        android:title="@string/pref_title_bgstyle"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/bgcolor_entries"
+            android:entryValues="@array/bgcolor_values"
+            android:key="key_bgcolor"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_bgcolor"
+            app:iconSpaceReserved="false" />
+
+        <com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
+            android:defaultValue="#00000000"
+            android:key="key_bgcolorcode"
+            android:persistent="false"
+            android:title="@string/pref_title_bgcolorcode"
+            app:iconSpaceReserved="false" />
+
+        <com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
+            android:defaultValue="#FFFFFFFF"
+            android:key="key_txtcolorcode"
+            android:persistent="false"
+            android:title="@string/pref_title_txtcolorcode"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:key="key_bgstyle"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_bgstyle"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="key_custom_size"
         android:title="@string/pref_category_customsize"
         app:iconSpaceReserved="false"

@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.thewizrd.shared_resources.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.helpers.ColorsUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -46,6 +47,12 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
+        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val viewCtx = context.getThemeContextOverride(
+            ColorsUtils.isSuperLight(backgroundColor)
+        )
+
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
         val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
 
@@ -62,7 +69,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
         updateViews.setImageViewBitmap(
             R.id.weather_icon,
             ImageUtils.bitmapFromDrawable(
-                context.getThemeContextOverride(false),
+                viewCtx,
                 weatherIconResId,
                 weatherIconSize,
                 weatherIconSize
@@ -77,7 +84,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             ImageUtils.tintedBitmapFromDrawable(
                 context,
                 R.drawable.wi_direction_up,
-                Colors.WHITE,
+                textColor,
                 tempArrowIconSize,
                 tempArrowIconSize
             )
@@ -87,19 +94,21 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             ImageUtils.tintedBitmapFromDrawable(
                 context,
                 R.drawable.wi_direction_down,
-                Colors.WHITE,
+                textColor,
                 tempArrowIconSize,
                 tempArrowIconSize
             )
         )
 
-        updateViews.setTextColor(R.id.condition_hi, Colors.WHITE)
-        updateViews.setTextColor(R.id.divider, Colors.WHITE)
-        updateViews.setTextColor(R.id.condition_lo, Colors.WHITE)
-        updateViews.setTextColor(R.id.weather_pop, Colors.WHITE)
-        updateViews.setTextColor(R.id.weather_windspeed, Colors.WHITE)
+        updateViews.setTextColor(R.id.condition_hi, textColor)
+        updateViews.setTextColor(R.id.divider, textColor)
+        updateViews.setTextColor(R.id.condition_lo, textColor)
+        updateViews.setTextColor(R.id.condition_weather, textColor)
+        updateViews.setTextColor(R.id.weather_pop, textColor)
+        updateViews.setTextColor(R.id.weather_windspeed, textColor)
+        updateViews.setTextColor(R.id.location_name, textColor)
 
-        val tint = if (wim.isFontIcon) Colors.WHITE else Colors.TRANSPARENT
+        val tint = if (wim.isFontIcon) textColor else Colors.TRANSPARENT
         updateViews.setInt(R.id.hi_icon, "setColorFilter", tint)
         updateViews.setInt(R.id.lo_icon, "setColorFilter", tint)
         updateViews.setInt(R.id.weather_popicon, "setColorFilter", tint)
@@ -117,7 +126,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             updateViews.setImageViewBitmap(
                 R.id.weather_popicon,
                 ImageUtils.bitmapFromDrawable(
-                    context.getThemeContextOverride(false),
+                    viewCtx,
                     wim.getWeatherIconResource(chanceModel.icon),
                     extraIconSize,
                     extraIconSize
@@ -133,7 +142,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
                 R.id.weather_windicon,
                 ImageUtils.rotateBitmap(
                     ImageUtils.bitmapFromDrawable(
-                        context.getThemeContextOverride(false),
+                        viewCtx,
                         wim.getWeatherIconResource(windModel.icon),
                         extraIconSize,
                         extraIconSize
@@ -184,6 +193,9 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             R.id.extra_layout,
             if (chanceModel != null || windModel != null) View.VISIBLE else View.GONE
         )
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // original icon size: 24dp
         val scaledIconSize = (context.dpToPx(16f) * txtSizeMultiplier).toInt()

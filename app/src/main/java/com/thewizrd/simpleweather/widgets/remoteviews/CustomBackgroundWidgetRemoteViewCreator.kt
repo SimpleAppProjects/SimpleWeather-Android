@@ -12,6 +12,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.Logger
@@ -32,6 +33,32 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
     context: Context,
     var loadBackground: Boolean
 ) : WidgetRemoteViewCreator(context) {
+    override suspend fun buildExtras(
+        appWidgetId: Int,
+        updateViews: RemoteViews,
+        weather: WeatherNowViewModel,
+        location: LocationData,
+        newOptions: Bundle
+    ) {
+        // Background
+        val background = WidgetUtils.getWidgetBackground(appWidgetId)
+        var style: WidgetUtils.WidgetBackgroundStyle? = null
+
+        if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+            style = WidgetUtils.getBackgroundStyle(appWidgetId)
+        }
+
+        setWidgetBackground(
+            info,
+            appWidgetId,
+            updateViews,
+            background,
+            style,
+            newOptions,
+            weather
+        )
+    }
+
     protected suspend fun setWidgetBackground(
         info: WidgetProviderInfo,
         appWidgetId: Int, updateViews: RemoteViews,

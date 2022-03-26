@@ -35,8 +35,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
-class WeatherWidget4x2GraphCreator(context: Context, loadBackground: Boolean = true) :
-    CustomBackgroundWidgetRemoteViewCreator(context, loadBackground) {
+class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(context) {
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x2ForecastGraph.Info.getInstance()
 
@@ -65,32 +64,12 @@ class WeatherWidget4x2GraphCreator(context: Context, loadBackground: Boolean = t
 
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
 
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
-        var style: WidgetUtils.WidgetBackgroundStyle? = null
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
 
-        if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            style = WidgetUtils.getBackgroundStyle(appWidgetId)
-        }
-
-        val textColor = WidgetUtils.getTextColor(appWidgetId, background)
-        val panelTextColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style)
-
-        setWidgetBackground(
-            info,
-            appWidgetId,
-            updateViews,
-            background,
-            style,
-            newOptions,
-            weather
+        updateViews.setTextColor(
+            R.id.location_name,
+            textColor
         )
-
-        if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
-            updateViews.setTextColor(
-                R.id.location_name,
-                panelTextColor
-            )
-        }
 
         updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)

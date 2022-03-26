@@ -32,7 +32,7 @@ object WidgetUtils {
         App.instance.appContext.getSharedPreferences("appwidgets", Context.MODE_PRIVATE)
 
     // Widget Prefs
-    private const val CurrentPrefsVersion = 5
+    private const val CurrentPrefsVersion = 6
 
     // Keys
     // TODO: Move preference keys to another class
@@ -170,15 +170,31 @@ object WidgetUtils {
                         setWidgetBackground(appWidgetId, WidgetBackground.TRANSPARENT.value)
                     }
                 }
-            }
+                5 -> {
+                    // Migrate color options
+                    val widgetIds = getAllWidgetIds()
+                    for (appWidgetId in widgetIds) {
+                        val widgetType = getWidgetTypeFromID(appWidgetId)
 
-            // Set to latest version
-            setVersion(CurrentPrefsVersion)
+                        if (isBackgroundCustomOnlyWidget(widgetType)) {
+                            val prevBackground = getWidgetBackground(appWidgetId)
+                            if (prevBackground != WidgetBackground.CUSTOM) {
+                                setWidgetBackground(appWidgetId, WidgetBackground.CUSTOM.value)
+                                setBackgroundColor(appWidgetId, Colors.TRANSPARENT)
+                                setTextColor(appWidgetId, Colors.WHITE)
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        // Set to latest version
+        setVersion(CurrentPrefsVersion)
     }
 
     private fun getVersion(): Int {
-        return widgetPrefs.getString(KEY_VERSION, CurrentPrefsVersion.toString())!!.toInt()
+        return widgetPrefs.getString(KEY_VERSION, null)?.toInt() ?: 5
     }
 
     private fun setVersion(value: Int) {
@@ -789,11 +805,11 @@ object WidgetUtils {
     }
 
     fun isBackgroundOptionalWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Graph
+        return !isMaterialYouWidget(widgetType) && widgetType != WidgetType.Unknown
     }
 
     fun isBackgroundCustomOnlyWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget4x2Graph
+        return !isMaterialYouWidget(widgetType) && widgetType != WidgetType.Widget2x2 && widgetType != WidgetType.Widget4x2
     }
 
     fun isLocationNameOptionalWidget(widgetType: WidgetType): Boolean {

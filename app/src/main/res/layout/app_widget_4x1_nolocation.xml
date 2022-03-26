@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    android:baselineAligned="false"
+    tools:ignore="UseAppTint"
     tools:layout_height="288dp"
     tools:layout_width="288dp">
 

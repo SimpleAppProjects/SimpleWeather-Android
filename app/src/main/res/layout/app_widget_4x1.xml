@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="UseAppTint"
     tools:layout_height="288dp"
     tools:layout_width="288dp">
 
@@ -58,7 +59,8 @@
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:textFontWeight="500"
-            tools:text="New York, NY" />
+            tools:text="New York, NY"
+            tools:ignore="UnusedAttribute" />
 
         <ImageView
             android:id="@+id/refresh_button"
@@ -66,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/action_refresh"
             android:scaleType="fitCenter"
             android:maxHeight="16dp"
             android:maxWidth="16dp"
@@ -79,6 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:adjustViewBounds="true"
+            android:contentDescription="@string/action_settings"
             android:scaleType="fitCenter"
             android:maxHeight="16dp"
             android:maxWidth="16dp"

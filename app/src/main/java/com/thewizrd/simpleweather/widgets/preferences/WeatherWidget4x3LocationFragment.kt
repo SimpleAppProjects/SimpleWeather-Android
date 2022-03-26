@@ -16,7 +16,9 @@ import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
@@ -25,10 +27,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
+import com.bumptech.glide.load.DecodeFormat
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.LocationQueryViewModel
@@ -45,18 +49,17 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayMultiSelectListPreference
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
+import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
+import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreferenceDialogFragment
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
-import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder
-import com.thewizrd.simpleweather.widgets.MultiLocationPreferenceDialogFragment
-import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
-import com.thewizrd.simpleweather.widgets.WidgetType
-import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x3LocationsCreator
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -100,6 +103,11 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
     private lateinit var clockPref: Preference
     private lateinit var calPref: Preference
+
+    private lateinit var bgChoicePref: ListPreference
+    private lateinit var bgColorPref: ColorPreference
+    private lateinit var txtColorPref: ColorPreference
+    private lateinit var bgStylePref: ListPreference
 
     private lateinit var textSizePref: SliderPreference
     private lateinit var iconSizePref: SliderPreference
@@ -392,6 +400,113 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         findPreference<Preference>(KEY_CATCLOCKDATE)!!.isVisible =
             WidgetUtils.isClockWidget(mWidgetType) || WidgetUtils.isDateWidget(mWidgetType)
 
+        // Widget background style
+        bgChoicePref = findPreference(KEY_BGCOLOR)!!
+        bgStylePref = findPreference(KEY_BGSTYLE)!!
+        bgColorPref = findPreference(KEY_BGCOLORCODE)!!
+        txtColorPref = findPreference(KEY_TXTCOLORCODE)!!
+
+        bgChoicePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val value = newValue.toString().toInt()
+
+                val mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(value)
+                WidgetUtils.setWidgetBackground(mAppWidgetId, value)
+
+                updateWidgetView()
+
+                bgColorPref.isVisible = mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM
+                txtColorPref.isVisible = mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM
+
+                if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                        bgStylePref.isVisible = true
+                        return@OnPreferenceChangeListener true
+                    }
+                }
+
+                bgStylePref.setValueIndex(0)
+                bgStylePref.callChangeListener(bgStylePref.value)
+                bgStylePref.isVisible = false
+                true
+            }
+
+        bgStylePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setBackgroundStyle(mAppWidgetId, newValue.toString().toInt())
+                updateWidgetView()
+                true
+            }
+
+        bgColorPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setBackgroundColor(mAppWidgetId, (newValue as Int))
+                updateWidgetView()
+                true
+            }
+
+        txtColorPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                WidgetUtils.setTextColor(mAppWidgetId, (newValue as Int))
+                updateWidgetView()
+                true
+            }
+
+        val styles = WidgetUtils.WidgetBackgroundStyle.values()
+        val styleEntries = arrayOfNulls<CharSequence>(styles.size)
+        val styleEntryValues = arrayOfNulls<CharSequence>(styles.size)
+
+        for (i in styles.indices) {
+            when (val style = styles[i]) {
+                WidgetUtils.WidgetBackgroundStyle.PANDA -> {
+                    styleEntries[i] = requireContext().getString(R.string.label_style_panda)
+                    styleEntryValues[i] = style.value.toString()
+                    bgStylePref.setDefaultValue(styleEntryValues[i])
+                }
+                WidgetUtils.WidgetBackgroundStyle.DARK -> {
+                    styleEntries[i] = requireContext().getText(R.string.label_style_dark)
+                    styleEntryValues[i] = style.value.toString()
+                }
+                WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
+                    styleEntries[i] = requireContext().getText(R.string.label_style_light)
+                    styleEntryValues[i] = style.value.toString()
+                }
+            }
+        }
+        bgStylePref.entries = styleEntries
+        bgStylePref.entryValues = styleEntryValues
+
+        val mWidgetBackground = WidgetUtils.getWidgetBackground(mAppWidgetId)
+        val mWidgetBGStyle = WidgetUtils.getBackgroundStyle(mAppWidgetId)
+        @ColorInt val mWidgetBackgroundColor = WidgetUtils.getBackgroundColor(mAppWidgetId)
+        @ColorInt val mWidgetTextColor = WidgetUtils.getTextColor(mAppWidgetId)
+
+        if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType)) {
+            bgChoicePref.setValueIndex(mWidgetBackground.value)
+            bgChoicePref.callChangeListener(bgChoicePref.value)
+
+            bgStylePref.setValueIndex(
+                listOf(*WidgetUtils.WidgetBackgroundStyle.values()).indexOf(
+                    mWidgetBGStyle
+                )
+            )
+            bgStylePref.callChangeListener(bgStylePref.value)
+
+            bgColorPref.color = mWidgetBackgroundColor
+            bgColorPref.callChangeListener(bgColorPref.color)
+            txtColorPref.color = mWidgetTextColor
+            txtColorPref.callChangeListener(txtColorPref.color)
+
+            findPreference<Preference>(KEY_BACKGROUND)!!.isVisible = true
+            if (WidgetUtils.isBackgroundCustomOnlyWidget(mWidgetType)) {
+                bgChoicePref.isVisible = false
+                bgStylePref.isVisible = false
+            }
+        } else {
+            bgChoicePref.setValueIndex(WidgetUtils.WidgetBackground.TRANSPARENT.value)
+            findPreference<Preference>(KEY_BACKGROUND)!!.isVisible = false
+        }
+
         textSizePref = findPreference(KEY_TEXTSIZE)!!
         textSizePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
@@ -437,6 +552,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             val f = MultiLocationPreferenceDialogFragment.newInstance(preference.key)
             f.setTargetFragment(this, 0)
             f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+        } else if (preference is ColorPreference) {
+            val f = ColorPreferenceDialogFragment.newInstance(preference.getKey())
+            f.setTargetFragment(this, 0)
+            f.show(parentFragmentManager, ColorPreferenceDialogFragment::class.java.name)
         } else {
             super.onDisplayPreferenceDialog(preference)
         }
@@ -521,9 +640,26 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 width = mWidgetViewCtx.dpToPx(96f * 4).toInt()
                 gravity = Gravity.CENTER
             }
+
+            updateBackground()
         }
         initializeWidgetJob!!.invokeOnCompletion {
             initializeWidgetJob = null
+        }
+    }
+
+    private fun updateBackground() {
+        if (WidgetUtils.WidgetBackground.valueOf(bgChoicePref.value.toInt()) == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
+            val imageView = binding.widgetContainer.findViewById<ImageView>(R.id.widgetBackground)
+            if (imageView != null) {
+                GlideApp.with(this)
+                    .load("file:///android_asset/backgrounds/day.jpg")
+                    .format(DecodeFormat.PREFER_RGB_565)
+                    .centerCrop()
+                    .transform(TransparentOverlay(0x33))
+                    .thumbnail(0.75f)
+                    .into(imageView)
+            }
         }
     }
 
@@ -546,6 +682,9 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 }
 
                 views.reapply(mWidgetViewCtx, binding.widgetContainer.getChildAt(0))
+
+                // Create view
+                updateBackground()
             } else {
                 initializeWidget()
             }
@@ -759,6 +898,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
     private fun finalizeWidgetUpdate() {
         // Save widget preferences
+        WidgetUtils.setWidgetBackground(mAppWidgetId, bgChoicePref.value.toInt())
+        WidgetUtils.setBackgroundColor(mAppWidgetId, bgColorPref.color)
+        WidgetUtils.setTextColor(mAppWidgetId, txtColorPref.color)
+        WidgetUtils.setBackgroundStyle(mAppWidgetId, bgStylePref.value.toInt())
         WidgetUtils.setSettingsButtonHidden(mAppWidgetId, hideSettingsBtnPref.isChecked)
         WidgetUtils.setRefreshButtonHidden(mAppWidgetId, hideRefreshBtnPref.isChecked)
 

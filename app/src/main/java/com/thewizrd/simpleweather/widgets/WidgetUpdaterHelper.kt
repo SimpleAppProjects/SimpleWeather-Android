@@ -175,7 +175,9 @@ object WidgetUpdaterHelper {
         }
 
         return if (creator is WidgetRemoteViewCreator) {
-            creator.buildUpdate(appWidgetId, weather, location, newOptions)
+            creator.buildUpdate(appWidgetId, weather, location, newOptions).apply {
+                creator.buildExtras(appWidgetId, this, weather, location, newOptions)
+            }
         } else {
             creator.buildUpdate(appWidgetId, newOptions)
                 ?: throw IllegalStateException("RemoteViews not provided")

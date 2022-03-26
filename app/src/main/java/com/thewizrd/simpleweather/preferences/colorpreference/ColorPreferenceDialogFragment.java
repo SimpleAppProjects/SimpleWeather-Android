@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.preferences.colorpreference;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -52,23 +53,22 @@ public class ColorPreferenceDialogFragment extends PreferenceDialogFragmentCompa
     }
 
     @Override
-    protected View onCreateDialogView(Context context) {
+    protected View onCreateDialogView(@NonNull Context context) {
         final LayoutColorpickerdialogBinding pickerBinding = LayoutColorpickerdialogBinding.inflate(LayoutInflater.from(context));
         pickerBinding.whiteTileView.setPaintColor(Colors.WHITE);
-        pickerBinding.whiteTileView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickerBinding.colorPickerView.setInitialColor(Colors.WHITE);
-                pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", Colors.WHITE));
-            }
+        pickerBinding.whiteTileView.setOnClickListener(v -> {
+            pickerBinding.colorPickerView.setInitialColor(Colors.WHITE);
+            pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", Colors.WHITE));
         });
         pickerBinding.blackTileView.setPaintColor(Colors.BLACK);
-        pickerBinding.blackTileView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickerBinding.colorPickerView.setInitialColor(Colors.BLACK);
-                pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", Colors.BLACK));
-            }
+        pickerBinding.blackTileView.setOnClickListener(v -> {
+            pickerBinding.colorPickerView.setInitialColor(Colors.BLACK);
+            pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", Colors.BLACK));
+        });
+        pickerBinding.transparentTileView.setPaintColor(Colors.TRANSPARENT);
+        pickerBinding.transparentTileView.setOnClickListener(v -> {
+            pickerBinding.colorPickerView.setInitialColor(Colors.TRANSPARENT);
+            pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", Colors.TRANSPARENT));
         });
 
         final TextWatcher textWatcher = new TextWatcher() {
@@ -94,17 +94,14 @@ public class ColorPreferenceDialogFragment extends PreferenceDialogFragmentCompa
         };
 
         pickerBinding.colorPickerView.setActionMode(ActionMode.ALWAYS);
-        pickerBinding.colorPickerView.setColorListener(new ColorListener() {
-            @Override
-            public void onColorSelected(int color, boolean fromUser) {
-                mColor = color;
-                pickerBinding.previewTileView.setPaintColor(color);
+        pickerBinding.colorPickerView.setColorListener((ColorListener) (color, fromUser) -> {
+            mColor = color;
+            pickerBinding.previewTileView.setPaintColor(color);
 
-                if (fromUser) {
-                    pickerBinding.colorPickerText.removeTextChangedListener(textWatcher);
-                    pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", color));
-                    pickerBinding.colorPickerText.addTextChangedListener(textWatcher);
-                }
+            if (fromUser) {
+                pickerBinding.colorPickerText.removeTextChangedListener(textWatcher);
+                pickerBinding.colorPickerText.setText(String.format(Locale.ROOT, "#%08X", color));
+                pickerBinding.colorPickerText.addTextChangedListener(textWatcher);
             }
         });
         pickerBinding.colorPickerView.attachAlphaSlider(pickerBinding.alphaSlideBar);
@@ -116,7 +113,7 @@ public class ColorPreferenceDialogFragment extends PreferenceDialogFragmentCompa
     }
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         super.onBindDialogView(view);
     }
 
@@ -124,6 +121,7 @@ public class ColorPreferenceDialogFragment extends PreferenceDialogFragmentCompa
         return (ColorPreference) getPreference();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected boolean needInputMethod() {
         return false;

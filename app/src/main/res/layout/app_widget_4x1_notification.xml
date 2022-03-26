@@ -206,6 +206,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:adjustViewBounds="true"
+                android:contentDescription="@string/label_wind"
                 android:maxWidth="24dp"
                 android:padding="2dp"
                 android:scaleType="fitCenter"

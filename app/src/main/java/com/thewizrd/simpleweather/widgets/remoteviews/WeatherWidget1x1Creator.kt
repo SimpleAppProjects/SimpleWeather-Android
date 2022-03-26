@@ -7,6 +7,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.helpers.ColorsUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -41,6 +42,12 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
+        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val viewCtx = context.getThemeContextOverride(
+            ColorsUtils.isSuperLight(backgroundColor)
+        )
+
         // WeatherIcon
         val wim = WeatherIconsManager.getInstance()
         val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
@@ -53,7 +60,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         updateViews.setImageViewBitmap(
             R.id.weather_icon,
             ImageUtils.bitmapFromDrawable(
-                context.getThemeContextOverride(false),
+                viewCtx,
                 weatherIconResId,
                 maxIconSize,
                 maxIconSize
@@ -65,6 +72,10 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         )
 
         updateViews.setTextViewText(R.id.condition_temp, weather.curTemp)
+        updateViews.setTextColor(R.id.condition_temp, textColor)
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // original icon size: 24dp
         val scaledIconSize = (context.dpToPx(16f) * txtSizeMultiplier).toInt()
@@ -87,6 +98,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
 
         // Location Name
         updateViews.setTextViewText(R.id.location_name, weather.location)
+        updateViews.setTextColor(R.id.location_name, textColor)
 
         updateViews.setViewVisibility(
             R.id.location_name,

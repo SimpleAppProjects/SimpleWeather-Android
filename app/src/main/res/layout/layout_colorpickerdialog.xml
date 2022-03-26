@@ -109,6 +109,29 @@
             </FrameLayout>
 
             <Space
+                android:layout_width="4dp"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+
+                <com.skydoves.colorpickerview.AlphaTileView
+                    android:id="@+id/transparent_tile_view"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_margin="1dp"
+                    app:tileSize="20"
+                    app:tileEvenColor="@android:color/white"
+                    app:tileOddColor="@android:color/darker_gray"
+                    android:background="@android:color/transparent" />
+
+            </FrameLayout>
+
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />

@@ -10,8 +10,10 @@ import android.widget.RemoteViews
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.helpers.ColorsUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.DateTimeUtils
@@ -66,7 +68,14 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         appWidgetId: Int, locations: List<LocationData?>,
         weatherData: List<WeatherNowViewModel?>, newOptions: Bundle
     ): RemoteViews {
-        return buildLayout(appWidgetId, locations, weatherData, newOptions)
+        return buildLayout(appWidgetId, locations, weatherData, newOptions).apply {
+            setImageViewBitmap(
+                R.id.widgetBackground,
+                ImageUtils.createColorBitmap(
+                    WidgetUtils.getBackgroundColor(appWidgetId)
+                )
+            )
+        }
     }
 
     private suspend fun buildLayout(
@@ -76,8 +85,21 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
+        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val viewCtx = context.getThemeContextOverride(
+            ColorsUtils.isSuperLight(backgroundColor)
+        )
+
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
         val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+
+        // Background
+        if (backgroundColor == Colors.TRANSPARENT) {
+            updateViews.setInt(R.id.widget, "setBackgroundColor", Colors.TRANSPARENT)
+        } else {
+            updateViews.setInt(R.id.widget, "setBackgroundColor", backgroundColor)
+        }
 
         // Open default clock/calendar app
         updateViews.setOnClickPendingIntent(
@@ -122,6 +144,10 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
             updateViews.setTextViewText(forecastHiId, weather.hiTemp)
             updateViews.setTextViewText(forecastLoId, weather.loTemp)
 
+            updateViews.setTextColor(locationNameViewId, textColor)
+            updateViews.setTextColor(forecastHiId, textColor)
+            updateViews.setTextColor(forecastLoId, textColor)
+
             updateViews.setTextViewTextSize(
                 forecastHiId,
                 TypedValue.COMPLEX_UNIT_SP,
@@ -149,7 +175,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
             updateViews.setImageViewBitmap(
                 forecastIconId,
                 ImageUtils.bitmapFromDrawable(
-                    context.getThemeContextOverride(false),
+                    viewCtx,
                     weatherIconResId,
                     weatherIconSize,
                     weatherIconSize
@@ -166,6 +192,13 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         updateClockSize(updateViews, appWidgetId, newOptions)
 
         updateViewSizes(updateViews, appWidgetId, newOptions)
+
+        // Color/tint
+        updateViews.setTextColor(R.id.clock_panel, textColor)
+        updateViews.setTextColor(R.id.date_panel, textColor)
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // original icon size: 24dp
         val scaledIconSize = (context.dpToPx(16f) * txtSizeMultiplier).toInt()

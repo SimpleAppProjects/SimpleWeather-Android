@@ -53,9 +53,15 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
             RemoteViews(context.packageName, R.layout.app_widget_4x1)
         }
 
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
+
         if (!hideLocationName) {
             updateViews.setTextViewText(R.id.location_name, weather.location)
+            updateViews.setTextColor(R.id.location_name, textColor)
         }
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
         // original icon size: 24dp

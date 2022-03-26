@@ -66,16 +66,6 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             style = WidgetUtils.getBackgroundStyle(appWidgetId)
         }
 
-        setWidgetBackground(
-            info,
-            appWidgetId,
-            updateViews,
-            background,
-            style,
-            newOptions,
-            weather
-        )
-
         // Add notification layout
         updateViews.removeAllViews(R.id.weather_notif_layout)
 
@@ -105,12 +95,16 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
         } else {
             val panelBackgroundColor =
-                if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                    WidgetUtils.getBackgroundColor(appWidgetId)
-                } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
-                    Colors.WHITE
-                } else {
-                    Colors.BLACK
+                when {
+                    background == WidgetUtils.WidgetBackground.CUSTOM -> {
+                        WidgetUtils.getBackgroundColor(appWidgetId)
+                    }
+                    style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
+                        Colors.WHITE
+                    }
+                    else -> {
+                        Colors.BLACK
+                    }
                 }
 
             updateViews.setImageViewBitmap(

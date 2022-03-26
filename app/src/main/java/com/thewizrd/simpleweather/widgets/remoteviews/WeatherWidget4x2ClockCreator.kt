@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.helpers.ColorsUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -49,6 +50,12 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
+        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val viewCtx = context.getThemeContextOverride(
+            ColorsUtils.isSuperLight(backgroundColor)
+        )
+
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
         val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
 
@@ -64,7 +71,7 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         updateViews.setImageViewBitmap(
             R.id.weather_icon,
             ImageUtils.bitmapFromDrawable(
-                context.getThemeContextOverride(false),
+                viewCtx,
                 weatherIconResId,
                 weatherIconSize,
                 weatherIconSize
@@ -81,6 +88,16 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
 
         // Open default clock/calendar app
         updateViews.setOnClickPendingIntent(R.id.clock_panel, getClockAppIntent())
+
+        // Color/tint
+        updateViews.setTextColor(R.id.clock_panel, textColor)
+        updateViews.setTextColor(R.id.date_panel, textColor)
+        updateViews.setTextColor(R.id.location_name, textColor)
+        updateViews.setTextColor(R.id.condition_temp, textColor)
+        updateViews.setTextColor(R.id.condition_weather, textColor)
+
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // original icon size: 24dp
         val scaledIconSize = (context.dpToPx(16f) * txtSizeMultiplier).toInt()

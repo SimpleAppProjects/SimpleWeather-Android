@@ -11,15 +11,6 @@
     tools:layout_width="384dp"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/widgetBackground"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
-        android:src="?android:attr/colorBackground" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -66,24 +66,7 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
 
         // Background
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
-        var style: WidgetUtils.WidgetBackgroundStyle? = null
-
-        if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            style = WidgetUtils.getBackgroundStyle(appWidgetId)
-        }
-
-        setWidgetBackground(
-            info,
-            appWidgetId,
-            updateViews,
-            background,
-            style,
-            newOptions,
-            weather
-        )
-
         val textColor = WidgetUtils.getTextColor(appWidgetId, background)
-        val panelTextColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style)
 
         // WeatherIcon
         val wim = WeatherIconsManager.getInstance()
