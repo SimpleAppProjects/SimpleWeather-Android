@@ -20,7 +20,8 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.TransparentOverlay
+import com.thewizrd.shared_resources.utils.glide.CustomRoundedCorners
+import com.thewizrd.shared_resources.utils.glide.TransparentOverlay
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
@@ -104,9 +105,6 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 updateViews.removeAllViews(R.id.panda_container)
             }
 
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor)
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
-
             if (loadBackground) {
                 loadBackgroundImage(
                     context,
@@ -120,21 +118,42 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 updateViews.setImageViewBitmap(R.id.widgetBackground, null)
             }
         } else if (background == WidgetUtils.WidgetBackground.TRANSPARENT) {
-            updateViews.setImageViewResource(
-                R.id.widgetBackground,
-                R.drawable.widget_panel_background
-            )
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.BLACK)
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0x00)
+            updateViews.setImageViewBitmap(R.id.widgetBackground, null)
             updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
             updateViews.setImageViewBitmap(R.id.panda_background, null)
         } else {
-            updateViews.setImageViewBitmap(
-                R.id.widgetBackground,
-                ImageUtils.createColorBitmap(backgroundColor)
-            )
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT)
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                updateViews.setImageViewBitmap(
+                    R.id.widgetBackground,
+                    ImageUtils.createColorBitmap(backgroundColor)
+                )
+            } else {
+                val maxBitmapSize = context.getMaxBitmapSize()
+
+                // Widget dimensions
+                val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+                val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+                val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+                val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+
+                var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
+                var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
+
+                if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
+                    imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
+                    imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
+                }
+
+                updateViews.setImageViewBitmap(
+                    R.id.widgetBackground,
+                    ImageUtils.fillColorRoundedCornerBitmap(
+                        backgroundColor,
+                        imgWidth,
+                        imgHeight,
+                        context.dpToPx(16f)
+                    )
+                )
+            }
             updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
             updateViews.setImageViewBitmap(R.id.panda_background, null)
         }
@@ -176,10 +195,16 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                             .override(imgWidth, imgHeight)
                             .run {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    transform(TransparentOverlay(0x33), CenterCrop())
+                                    transform(
+                                        TransparentOverlay(
+                                            0x33
+                                        ), CenterCrop()
+                                    )
                                 } else {
                                     transform(
-                                        TransparentOverlay(0x33),
+                                        TransparentOverlay(
+                                            0x33
+                                        ),
                                         CenterCrop(),
                                         CustomRoundedCorners(
                                             cornerRadius
@@ -222,8 +247,6 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 }
             } ?: return@withContext
 
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", Colors.TRANSPARENT)
-            updateViews.setInt(R.id.widgetBackground, "setImageAlpha", 0xFF)
             updateViews.setImageViewBitmap(R.id.widgetBackground, bmp)
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e)
@@ -268,10 +291,16 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                             .override(imgWidth, imgHeight)
                             .run {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    transform(TransparentOverlay(0x33), CenterCrop())
+                                    transform(
+                                        TransparentOverlay(
+                                            0x33
+                                        ), CenterCrop()
+                                    )
                                 } else {
                                     transform(
-                                        TransparentOverlay(0x33),
+                                        TransparentOverlay(
+                                            0x33
+                                        ),
                                         CenterCrop(),
                                         CustomRoundedCorners(
                                             cornerRadius

@@ -1,4 +1,4 @@
-package com.thewizrd.shared_resources.utils;
+package com.thewizrd.shared_resources.utils.glide;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.bumptech.glide.util.Util;
+import com.thewizrd.shared_resources.utils.Colors;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;

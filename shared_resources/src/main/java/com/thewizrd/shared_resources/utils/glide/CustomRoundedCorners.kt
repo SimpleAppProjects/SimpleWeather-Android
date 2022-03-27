@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.widgets.remoteviews
+package com.thewizrd.shared_resources.utils.glide
 
 import android.graphics.Bitmap
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
@@ -10,8 +10,8 @@ import java.security.MessageDigest
 
 class CustomRoundedCorners(private val cornerRadius: Float) : BitmapTransformation() {
     companion object {
-        const val ID = "com.thewizrd.simpleweather.widgets.remoteviews.CustomRoundedCorners"
-        val ID_BYTES = ID.toByteArray(CHARSET)
+        private val ID = CustomRoundedCorners::class.java.name
+        private val ID_BYTES = ID.toByteArray(CHARSET)
     }
 
     override fun transform(

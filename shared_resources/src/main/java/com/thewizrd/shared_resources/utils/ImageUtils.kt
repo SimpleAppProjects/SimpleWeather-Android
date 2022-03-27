@@ -303,4 +303,106 @@ object ImageUtils {
 
         return ImageType.UNKNOWN;
     }
+
+    fun roundedCornerBitmap(inBitmap: Bitmap, cornerRadius: Float): Bitmap {
+        return roundedCornerBitmap(inBitmap, cornerRadius, cornerRadius, cornerRadius, cornerRadius)
+    }
+
+    fun roundedCornerBitmap(
+        inBitmap: Bitmap,
+        topLeft: Float,
+        topRight: Float,
+        bottomLeft: Float,
+        bottomRight: Float
+    ): Bitmap {
+        val result = Bitmap.createBitmap(inBitmap.width, inBitmap.height, Bitmap.Config.ARGB_8888)
+        result.setHasAlpha(true)
+
+        val shader = BitmapShader(inBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+        val paint = Paint()
+        paint.isAntiAlias = true
+        paint.shader = shader
+        val rect = RectF(
+            0f, 0f,
+            result.width.toFloat(), result.height.toFloat()
+        )
+
+        val canvas = Canvas(result)
+        canvas.drawColor(Colors.TRANSPARENT, PorterDuff.Mode.CLEAR)
+
+        val clipPath = Path()
+        /*
+         * The corners are ordered top-left, top-right,
+         * bottom-right, bottom-left
+         */
+        clipPath.addRoundRect(
+            rect, floatArrayOf(
+                topLeft, topLeft,
+                topRight, topRight,
+                bottomRight, bottomRight,
+                bottomLeft, bottomLeft
+            ), Path.Direction.CW
+        )
+        canvas.drawPath(clipPath, paint)
+
+        canvas.setBitmap(null)
+
+        return result
+    }
+
+    fun fillColorRoundedCornerBitmap(
+        @ColorInt fillColor: Int,
+        width: Int,
+        height: Int,
+        cornerRadius: Float
+    ): Bitmap {
+        return fillColorRoundedCornerBitmap(
+            fillColor, width, height,
+            cornerRadius, cornerRadius, cornerRadius, cornerRadius
+        )
+    }
+
+    fun fillColorRoundedCornerBitmap(
+        @ColorInt fillColor: Int,
+        width: Int,
+        height: Int,
+        topLeft: Float,
+        topRight: Float,
+        bottomLeft: Float,
+        bottomRight: Float
+    ): Bitmap {
+        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        result.setHasAlpha(true)
+
+        val paint = Paint()
+        paint.isAntiAlias = true
+        paint.color = fillColor
+
+        val rect = RectF(
+            0f, 0f,
+            result.width.toFloat(), result.height.toFloat()
+        )
+
+        val canvas = Canvas(result)
+        canvas.drawColor(Colors.TRANSPARENT, PorterDuff.Mode.CLEAR)
+
+        val clipPath = Path()
+        /*
+         * The corners are ordered top-left, top-right,
+         * bottom-right, bottom-left
+         */
+        clipPath.addRoundRect(
+            rect, floatArrayOf(
+                topLeft, topLeft,
+                topRight, topRight,
+                bottomRight, bottomRight,
+                bottomLeft, bottomLeft
+            ), Path.Direction.CW
+        )
+        canvas.drawPath(clipPath, paint)
+
+        canvas.setBitmap(null)
+
+        return result
+    }
 }

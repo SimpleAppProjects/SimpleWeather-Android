@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.widgets.remoteviews
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.util.TypedValue
@@ -24,6 +25,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x3Locations
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.getResIdentifier
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -91,11 +93,36 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         if (backgroundColor == Colors.TRANSPARENT) {
             updateViews.setImageViewBitmap(R.id.widgetBackground, null)
         } else {
-            updateViews.setImageViewResource(
-                R.id.widgetBackground,
-                R.drawable.app_widget_background
-            )
-            updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                updateViews.setImageViewBitmap(
+                    R.id.widgetBackground,
+                    ImageUtils.createColorBitmap(backgroundColor)
+                )
+            } else {
+                val maxBitmapSize = context.getMaxBitmapSize()
+
+                // Widget dimensions
+                val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+                val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+                val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+                val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+
+                var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
+                var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
+
+                if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
+                    imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
+                    imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
+                }
+
+                updateViews.setImageViewBitmap(
+                    R.id.widgetBackground,
+                    ImageUtils.fillColorRoundedCornerBitmap(
+                        backgroundColor,
+                        imgWidth, imgHeight, context.dpToPx(16f)
+                    )
+                )
+            }
         }
 
         // Open default clock/calendar app

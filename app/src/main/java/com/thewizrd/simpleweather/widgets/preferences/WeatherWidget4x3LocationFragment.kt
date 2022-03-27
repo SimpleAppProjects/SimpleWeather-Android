@@ -47,6 +47,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
+import com.thewizrd.shared_resources.utils.glide.TransparentOverlay
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
@@ -656,7 +657,11 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                     .load("file:///android_asset/backgrounds/day.jpg")
                     .format(DecodeFormat.PREFER_RGB_565)
                     .centerCrop()
-                    .transform(TransparentOverlay(0x33))
+                    .transform(
+                        TransparentOverlay(
+                            0x33
+                        )
+                    )
                     .thumbnail(0.75f)
                     .into(imageView)
             }

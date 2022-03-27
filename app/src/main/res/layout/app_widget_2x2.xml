@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:importantForAccessibility="no"
         android:scaleType="fitXY"
-        android:src="@drawable/background_overlay" />
+        tools:src="@drawable/background_overlay" />
 
     <FrameLayout
         android:id="@+id/panda_container"

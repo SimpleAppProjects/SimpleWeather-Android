@@ -51,6 +51,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
+import com.thewizrd.shared_resources.utils.glide.TransparentOverlay
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.App
@@ -836,10 +837,14 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             val imageView = binding.widgetContainer.findViewById<ImageView>(R.id.widgetBackground)
             if (imageView != null) {
                 GlideApp.with(this)
-                        .load("file:///android_asset/backgrounds/day.jpg")
-                        .format(DecodeFormat.PREFER_RGB_565)
-                        .centerCrop()
-                        .transform(TransparentOverlay(0x33))
+                    .load("file:///android_asset/backgrounds/day.jpg")
+                    .format(DecodeFormat.PREFER_RGB_565)
+                    .centerCrop()
+                    .transform(
+                        TransparentOverlay(
+                            0x33
+                        )
+                    )
                         .thumbnail(0.75f)
                         .into(imageView)
             }
