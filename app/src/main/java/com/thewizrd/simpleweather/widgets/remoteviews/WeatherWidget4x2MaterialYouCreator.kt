@@ -16,6 +16,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x2MaterialYou
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.buildForecast
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSizes
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 
 class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCreator(context) {
@@ -45,7 +46,7 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
                 )
             )
         } else {
-            buildLayout(appWidgetId, weather, location, newOptions)
+            buildNormalUpdate(appWidgetId, weather, location, newOptions)
         }
     }
 
@@ -137,6 +138,7 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
 
             // Set sizes for views
             updateViewSizes(updateViews, appWidgetId, newOptions)
+            updateForecastSizes(context, info, appWidgetId, updateViews, newOptions)
 
             appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
         }
@@ -148,20 +150,8 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
         newOptions: Bundle
     ) {
         // Widget dimensions
-        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-        val maxCellHeight = WidgetUtils.getCellsForSize(maxHeight)
-        val maxCellWidth = WidgetUtils.getCellsForSize(maxWidth)
-        val cellHeight = WidgetUtils.getCellsForSize(minHeight)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
-        val forceSmallHeight = cellHeight == maxCellHeight
-        val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
-        val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
-
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
 
         updateViews.setViewVisibility(
             R.id.condition_weather,
