@@ -89,6 +89,7 @@
         android:layout_toStartOf="@id/settings_button"
         android:adjustViewBounds="true"
         android:contentDescription="@string/action_refresh"
+        android:elevation="4dp"
         android:maxWidth="16dp"
         android:maxHeight="16dp"
         android:scaleType="fitCenter"
