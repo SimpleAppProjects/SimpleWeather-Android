@@ -371,6 +371,10 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        // no-op
+        val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
+
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 }

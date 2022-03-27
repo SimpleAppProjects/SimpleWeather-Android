@@ -251,6 +251,8 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
 
         updateViewSizes(updateViews, appWidgetId, newOptions)
 
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 

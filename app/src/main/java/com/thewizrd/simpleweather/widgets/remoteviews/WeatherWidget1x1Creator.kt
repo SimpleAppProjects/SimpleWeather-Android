@@ -133,6 +133,8 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
 
         updateViewSizes(updateViews, appWidgetId, newOptions)
 
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 

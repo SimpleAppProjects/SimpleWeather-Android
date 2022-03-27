@@ -253,7 +253,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         }
     }
 
-    protected fun resizeWidgetBackground(
+    override fun resizeWidgetBackground(
         info: WidgetProviderInfo,
         appWidgetId: Int,
         updateViews: RemoteViews,

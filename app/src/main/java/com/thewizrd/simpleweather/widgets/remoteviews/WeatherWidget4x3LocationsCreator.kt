@@ -274,7 +274,43 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         updateClockSize(updateViews, appWidgetId, newOptions)
         updateDateSize(updateViews, appWidgetId, newOptions)
 
+        resizeWidgetBackground(appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
+    }
+
+    private fun resizeWidgetBackground(
+        appWidgetId: Int,
+        updateViews: RemoteViews,
+        newOptions: Bundle
+    ) {
+        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+
+        if (backgroundColor != Colors.TRANSPARENT && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            val maxBitmapSize = context.getMaxBitmapSize()
+
+            // Widget dimensions
+            val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+            val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+            val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+            val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+
+            var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
+            var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
+
+            if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
+                imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
+                imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
+            }
+
+            updateViews.setImageViewBitmap(
+                R.id.widgetBackground,
+                ImageUtils.fillColorRoundedCornerBitmap(
+                    backgroundColor,
+                    imgWidth, imgHeight, context.dpToPx(16f)
+                )
+            )
+        }
     }
 
     private fun updateViewSizes(

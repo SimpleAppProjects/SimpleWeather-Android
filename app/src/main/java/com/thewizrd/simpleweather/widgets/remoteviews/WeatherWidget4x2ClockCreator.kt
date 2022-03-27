@@ -189,6 +189,8 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         updateDateSize(updateViews, appWidgetId, newOptions)
         updateClockSize(updateViews, appWidgetId, newOptions)
 
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 

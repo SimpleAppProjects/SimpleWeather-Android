@@ -133,8 +133,6 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
         newOptions: Bundle
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            if (!settingsManager.useFollowGPS() && WidgetUtils.isGPS(appWidgetId)) return
-
             val updateViews = generateRemoteViews()
 
             // Set sizes for views
