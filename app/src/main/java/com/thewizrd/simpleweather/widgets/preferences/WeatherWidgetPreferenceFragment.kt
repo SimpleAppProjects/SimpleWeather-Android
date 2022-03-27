@@ -36,6 +36,8 @@ import androidx.preference.SwitchPreference
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
@@ -833,20 +835,28 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     }
 
     private fun updateBackground() {
+        binding.widgetContainer.findViewById<View>(R.id.widget)?.run {
+            if (background == null) {
+                setBackgroundResource(R.drawable.app_widget_background_mask)
+                clipToOutline = true
+            }
+        }
+
         if (WidgetBackground.valueOf(bgChoicePref.value.toInt()) == WidgetBackground.CURRENT_CONDITIONS) {
             val imageView = binding.widgetContainer.findViewById<ImageView>(R.id.widgetBackground)
             if (imageView != null) {
                 GlideApp.with(this)
                     .load("file:///android_asset/backgrounds/day.jpg")
-                    .format(DecodeFormat.PREFER_RGB_565)
-                    .centerCrop()
-                    .transform(
-                        TransparentOverlay(
-                            0x33
-                        )
+                    .apply(
+                        RequestOptions.noTransformation()
+                            .format(DecodeFormat.PREFER_RGB_565)
+                            .transform(
+                                TransparentOverlay(0x33),
+                                CenterCrop()
+                            )
                     )
-                        .thumbnail(0.75f)
-                        .into(imageView)
+                    .thumbnail(0.75f)
+                    .into(imageView)
             }
         }
     }
