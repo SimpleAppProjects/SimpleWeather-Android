@@ -230,6 +230,8 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         updateClockSize(updateViews, appWidgetId, newOptions)
         updateForecastSizes(context, info, appWidgetId, updateViews, newOptions)
 
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 

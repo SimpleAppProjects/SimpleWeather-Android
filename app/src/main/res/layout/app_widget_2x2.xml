@@ -4,18 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="UseAppTint"
     tools:layout_height="288dp"
-    tools:layout_width="288dp"
-    tools:ignore="UseAppTint">
+    tools:layout_width="288dp">
 
     <ImageView
         android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:adjustViewBounds="true"
         android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
-        android:src="@drawable/app_widget_background" />
+        android:scaleType="fitXY"
+        android:src="@drawable/background_overlay" />
 
     <FrameLayout
         android:id="@+id/panda_container"
@@ -25,8 +24,7 @@
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-        tools:background="@drawable/widget_background" />
+        tools:background="@drawable/widget_panel_background" />
 
     <LinearLayout
         android:id="@+id/datetime_container"
@@ -86,7 +84,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_toStartOf="@id/settings_button"
         android:adjustViewBounds="true"
@@ -102,17 +100,17 @@
         android:id="@+id/settings_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="center_vertical"
         android:layout_alignWithParentIfMissing="true"
-        android:contentDescription="@string/action_settings"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/action_settings"
         android:maxWidth="16dp"
         android:maxHeight="16dp"
         android:scaleType="fitCenter"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="4dp"
         android:src="@drawable/ic_outline_settings_24"
         android:tint="@android:color/white"
         tools:tint="?android:textColorPrimary" />

@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
     android:layout_width="match_parent"
@@ -11,266 +11,282 @@
     tools:viewBindingIgnore="true">
 
     <ImageView
-        android:id="@+id/weather_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/not_weather_icon_marginStart"
-        android:layout_marginEnd="6dp"
+        android:id="@+id/widgetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:layout_gravity="center_vertical"
-        android:scaleType="fitCenter"
-        android:maxHeight="@dimen/not_weather_icon_size"
-        android:maxWidth="@dimen/not_weather_icon_size"
-        tools:src="@drawable/wi_day_sunny"
-        tools:ignore="ContentDescription" />
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:src="?android:attr/colorBackground" />
 
     <LinearLayout
-        android:id="@+id/condition_layout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/location_name"
-            style="@style/ShadowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="0dp"
-            android:shadowColor="#000000"
-            android:textColor="@android:color/white"
-            android:textFontWeight="500"
-            android:textSize="14sp"
-            tools:ignore="UnusedAttribute"
-            tools:text="New York, NY" />
-
-        <TextView
-            android:id="@+id/condition_weather"
-            style="@style/ShadowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:paddingEnd="0dp"
-            android:shadowColor="#000000"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            tools:text="68° - Sunny" />
-
-        <RelativeLayout
-            android:id="@+id/condition_hilo_layout"
+        <ImageView
+            android:id="@+id/weather_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:visibility="visible">
+            android:layout_marginStart="@dimen/not_weather_icon_marginStart"
+            android:layout_marginEnd="6dp"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center_vertical"
+            android:scaleType="fitCenter"
+            android:maxHeight="@dimen/not_weather_icon_size"
+            android:maxWidth="@dimen/not_weather_icon_size"
+            tools:src="@drawable/wi_day_sunny"
+            tools:ignore="ContentDescription" />
+
+        <LinearLayout
+            android:id="@+id/condition_layout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/condition_hi"
+                android:id="@+id/location_name"
                 style="@style/ShadowText"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="0dp"
+                android:shadowColor="#000000"
+                android:textColor="@android:color/white"
+                android:textFontWeight="500"
+                android:textSize="14sp"
+                tools:ignore="UnusedAttribute"
+                tools:text="New York, NY" />
+
+            <TextView
+                android:id="@+id/condition_weather"
+                style="@style/ShadowText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLines="1"
                 android:paddingStart="4dp"
                 android:paddingEnd="0dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
                 android:textSize="13sp"
-                tools:text="74°" />
+                tools:text="68° - Sunny" />
+
+            <RelativeLayout
+                android:id="@+id/condition_hilo_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/condition_hi"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="0dp"
+                    android:shadowColor="#000000"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    tools:text="74°" />
+
+                <ImageView
+                    android:id="@+id/hi_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/condition_hi"
+                    android:layout_alignBottom="@id/condition_hi"
+                    android:layout_gravity="center_vertical"
+                    android:layout_toEndOf="@id/condition_hi"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/label_high"
+                    android:maxWidth="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/wi_direction_up" />
+
+                <TextView
+                    android:id="@+id/divider"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_toEndOf="@id/hi_icon"
+                    android:ellipsize="end"
+                    android:shadowColor="#000000"
+                    android:text="|"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/condition_lo"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_toEndOf="@id/divider"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:shadowColor="#000000"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    tools:text="65°" />
+
+                <ImageView
+                    android:id="@+id/lo_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/condition_hi"
+                    android:layout_alignBottom="@id/condition_hi"
+                    android:layout_gravity="center_vertical"
+                    android:layout_toEndOf="@id/condition_lo"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/label_low"
+                    android:maxWidth="16dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/wi_direction_down" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/extra_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/not_weather_icon_marginStart"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/weather_pop_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/weather_popicon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="24dp"
+                    android:padding="2dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/wi_cloudy" />
+
+                <TextView
+                    android:id="@+id/weather_pop"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="0dp"
+                    android:shadowColor="#000000"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    tools:text="60%" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/weather_wind_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/weather_windicon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/label_wind"
+                    android:maxWidth="24dp"
+                    android:padding="2dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/wi_direction_up" />
+
+                <TextView
+                    android:id="@+id/weather_windspeed"
+                    style="@style/ShadowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="0dp"
+                    android:shadowColor="#000000"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    tools:text="10 mph" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="4dp">
 
             <ImageView
-                android:id="@+id/hi_icon"
+                android:id="@+id/refresh_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@id/condition_hi"
-                android:layout_alignBottom="@id/condition_hi"
+                android:layout_below="@id/settings_button"
                 android:layout_gravity="center_vertical"
-                android:layout_toEndOf="@id/condition_hi"
                 android:adjustViewBounds="true"
-                android:contentDescription="@string/label_high"
+                android:contentDescription="@string/action_refresh"
                 android:maxWidth="16dp"
+                android:maxHeight="16dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/wi_direction_up" />
-
-            <TextView
-                android:id="@+id/divider"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp"
-                android:layout_toEndOf="@id/hi_icon"
-                android:ellipsize="end"
-                android:shadowColor="#000000"
-                android:text="|"
-                android:textColor="@android:color/white"
-                android:textSize="13sp"
-                tools:ignore="HardcodedText" />
-
-            <TextView
-                android:id="@+id/condition_lo"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_toEndOf="@id/divider"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:shadowColor="#000000"
-                android:textColor="@android:color/white"
-                android:textSize="13sp"
-                tools:text="65°" />
+                android:layout_marginEnd="4dp"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_refresh"
+                android:tint="@android:color/white"
+                tools:tint="?android:textColorPrimary" />
 
             <ImageView
-                android:id="@+id/lo_icon"
+                android:id="@+id/settings_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@id/condition_hi"
-                android:layout_alignBottom="@id/condition_hi"
+                android:contentDescription="@string/action_settings"
                 android:layout_gravity="center_vertical"
-                android:layout_toEndOf="@id/condition_lo"
                 android:adjustViewBounds="true"
-                android:contentDescription="@string/label_low"
                 android:maxWidth="16dp"
+                android:maxHeight="16dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/wi_direction_down" />
+                android:layout_marginEnd="4dp"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_outline_settings_24"
+                android:tint="@android:color/white"
+                tools:tint="?android:textColorPrimary" />
 
         </RelativeLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/extra_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/not_weather_icon_marginStart"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <LinearLayout
-            android:id="@+id/weather_pop_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/weather_popicon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:adjustViewBounds="true"
-                android:maxWidth="24dp"
-                android:padding="2dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/wi_cloudy" />
-
-            <TextView
-                android:id="@+id/weather_pop"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="24dp"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:paddingStart="4dp"
-                android:paddingEnd="0dp"
-                android:shadowColor="#000000"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                tools:text="60%" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/weather_wind_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/weather_windicon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/label_wind"
-                android:maxWidth="24dp"
-                android:padding="2dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/wi_direction_up" />
-
-            <TextView
-                android:id="@+id/weather_windspeed"
-                style="@style/ShadowText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="24dp"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:ellipsize="end"
-                android:paddingStart="4dp"
-                android:paddingEnd="0dp"
-                android:shadowColor="#000000"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                tools:text="10 mph" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layout_marginStart="4dp">
-
-        <ImageView
-            android:id="@+id/refresh_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/settings_button"
-            android:layout_gravity="center_vertical"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/action_refresh"
-            android:maxWidth="16dp"
-            android:maxHeight="16dp"
-            android:scaleType="fitCenter"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="4dp"
-            android:src="@drawable/ic_refresh"
-            android:tint="@android:color/white"
-            tools:tint="?android:textColorPrimary" />
-
-        <ImageView
-            android:id="@+id/settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/action_settings"
-            android:layout_gravity="center_vertical"
-            android:adjustViewBounds="true"
-            android:maxWidth="16dp"
-            android:maxHeight="16dp"
-            android:scaleType="fitCenter"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="4dp"
-            android:src="@drawable/ic_outline_settings_24"
-            android:tint="@android:color/white"
-            tools:tint="?android:textColorPrimary" />
-
-    </RelativeLayout>
-
-</LinearLayout>
+</FrameLayout>

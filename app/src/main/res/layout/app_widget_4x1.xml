@@ -1,94 +1,109 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:ignore="UseAppTint"
     tools:layout_height="288dp"
     tools:layout_width="288dp">
 
-    <LinearLayout
-        android:id="@+id/layout_container"
+    <ImageView
+        android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:baselineAligned="false">
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:src="?android:attr/colorBackground" />
 
-        <ViewFlipper
-            android:id="@+id/forecast_layout"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/layout_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:baselineAligned="false">
+
+            <ViewFlipper
+                android:id="@+id/forecast_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:autoStart="true"
+                android:flipInterval="10000"
+                android:inAnimation="@anim/widget_fade_in"
+                android:outAnimation="@anim/widget_fade_out" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:autoStart="true"
-            android:flipInterval="10000"
-            android:inAnimation="@anim/widget_fade_in"
-            android:outAnimation="@anim/widget_fade_out" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal"
-        android:paddingLeft="4dp"
-        android:paddingStart="4dp"
-        android:paddingRight="4dp"
-        android:paddingEnd="4dp">
-
-        <TextView
-            android:id="@+id/location_name"
-            style="@style/ShadowText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
+            android:gravity="end"
+            android:orientation="horizontal"
             android:paddingLeft="4dp"
-            android:paddingTop="2dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
             android:paddingRight="4dp"
-            android:paddingBottom="2dp"
-            android:shadowColor="#000000"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:textFontWeight="500"
-            tools:text="New York, NY"
-            tools:ignore="UnusedAttribute" />
+            android:paddingEnd="4dp">
 
-        <ImageView
-            android:id="@+id/refresh_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/action_refresh"
-            android:scaleType="fitCenter"
-            android:maxHeight="16dp"
-            android:maxWidth="16dp"
-            android:layout_marginEnd="4dp"
-            tools:src="@drawable/ic_refresh"
-            android:tint="@android:color/white" />
+            <TextView
+                android:id="@+id/location_name"
+                style="@style/ShadowText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|top"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="4dp"
+                android:paddingLeft="4dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="4dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="2dp"
+                android:shadowColor="#000000"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textFontWeight="500"
+                tools:text="New York, NY"
+                tools:ignore="UnusedAttribute" />
 
-        <ImageView
-            android:id="@+id/settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/action_settings"
-            android:scaleType="fitCenter"
-            android:maxHeight="16dp"
-            android:maxWidth="16dp"
-            tools:src="@drawable/ic_outline_settings_24"
-            android:tint="@android:color/white" />
+            <ImageView
+                android:id="@+id/refresh_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/action_refresh"
+                android:scaleType="fitCenter"
+                android:maxHeight="16dp"
+                android:maxWidth="16dp"
+                android:layout_marginEnd="4dp"
+                tools:src="@drawable/ic_refresh"
+                android:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/settings_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/action_settings"
+                android:scaleType="fitCenter"
+                android:maxHeight="16dp"
+                android:maxWidth="16dp"
+                tools:src="@drawable/ic_outline_settings_24"
+                android:tint="@android:color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

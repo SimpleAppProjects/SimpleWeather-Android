@@ -420,6 +420,8 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         updateDateSize(updateViews, appWidgetId, newOptions)
         updateClockSize(updateViews, appWidgetId, newOptions)
 
+        resizeWidgetBackground(info, appWidgetId, updateViews, newOptions)
+
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
     }
 

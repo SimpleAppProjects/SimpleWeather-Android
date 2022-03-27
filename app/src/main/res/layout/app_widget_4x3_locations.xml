@@ -1,21 +1,28 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    style="@style/Widget.AppWidget.AppWidget.Container"
-    android:background="@android:color/transparent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:ignore="HardcodedText,UseAppTint"
     tools:layout_width="match_parent"
     tools:layout_height="288dp"
     tools:viewBindingIgnore="true">
 
+    <ImageView
+        android:id="@+id/widgetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:src="?android:attr/colorBackground" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp">
+        android:layout_marginTop="8dp">
 
         <ImageView
             android:id="@+id/refresh_button"
@@ -52,347 +59,356 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
-
-        <TextClock
-            android:id="@+id/clock_panel"
-            style="@style/ShadowTextHeavy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:format12Hour="@string/clock_12_hours_format"
-            android:format24Hour="@string/clock_24_hours_format"
-            android:gravity="bottom|center_horizontal"
-            android:layout_gravity="center_horizontal"
-            android:maxLines="1"
-            android:shadowColor="#DD000000"
-            android:textColor="@android:color/white"
-            android:textSize="66sp"
-            tools:text="11:00"
-            tools:visibility="visible" />
-
-        <TextClock
-            android:id="@+id/date_panel"
-            style="@style/ShadowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:format12Hour="@string/widget_4x1_date_format"
-            android:format24Hour="@string/widget_4x1_date_format"
-            android:gravity="bottom|center_horizontal"
-            android:layout_gravity="center_horizontal"
-            android:shadowColor="#DD000000"
-            android:textAllCaps="true"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            tools:text="Sun, Oct 08" />
+        style="@style/Widget.AppWidget.AppWidget.Container"
+        android:background="@null">
 
         <LinearLayout
-            android:id="@+id/locations_container"
+            android:id="@+id/layout_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_marginHorizontal="4dp"
-            android:layout_marginVertical="4dp">
+            android:gravity="center">
+
+            <TextClock
+                android:id="@+id/clock_panel"
+                style="@style/ShadowTextHeavy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:format12Hour="@string/clock_12_hours_format"
+                android:format24Hour="@string/clock_24_hours_format"
+                android:gravity="bottom|center_horizontal"
+                android:layout_gravity="center_horizontal"
+                android:maxLines="1"
+                android:shadowColor="#DD000000"
+                android:textColor="@android:color/white"
+                android:textSize="66sp"
+                tools:text="11:00"
+                tools:visibility="visible" />
+
+            <TextClock
+                android:id="@+id/date_panel"
+                style="@style/ShadowText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:format12Hour="@string/widget_4x1_date_format"
+                android:format24Hour="@string/widget_4x1_date_format"
+                android:gravity="bottom|center_horizontal"
+                android:layout_gravity="center_horizontal"
+                android:shadowColor="#DD000000"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                tools:text="Sun, Oct 08" />
 
             <LinearLayout
-                android:id="@+id/location1"
-                android:orientation="horizontal"
+                android:id="@+id/locations_container"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:padding="4dp"
-                android:gravity="center_vertical"
-                android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-                tools:viewBindingIgnore="true">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginVertical="4dp">
 
-                <TextView
-                    android:id="@+id/location1_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Location"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                <LinearLayout
+                    android:id="@+id/location1"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:padding="4dp"
+                    android:gravity="center_vertical"
+                    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+                    tools:viewBindingIgnore="true">
 
-                <ImageView
-                    android:id="@+id/forecast1_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:maxHeight="36dp"
-                    android:maxWidth="36dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/wi_day_sunny" />
+                    <TextView
+                        android:id="@+id/location1_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Location"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
-                <TextView
-                    android:id="@+id/forecast1_hi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="end"
-                    android:minWidth="32dp"
-                    android:text="15°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@android:color/white" />
+                    <ImageView
+                        android:id="@+id/forecast1_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:maxHeight="36dp"
+                        android:maxWidth="36dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/wi_day_sunny" />
 
-                <TextView
-                    android:id="@+id/forecast1_lo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="start"
-                    android:minWidth="32dp"
-                    android:text="11°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="#B2FFFFFF" />
+                    <TextView
+                        android:id="@+id/forecast1_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="end"
+                        android:minWidth="32dp"
+                        android:text="15°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@android:color/white" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/forecast1_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="start"
+                        android:minWidth="32dp"
+                        android:text="11°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="#B2FFFFFF" />
 
-            <LinearLayout
-                android:id="@+id/location2"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:padding="4dp"
-                android:gravity="center_vertical"
-                android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-                tools:viewBindingIgnore="true">
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/location2_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Location"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                <LinearLayout
+                    android:id="@+id/location2"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:padding="4dp"
+                    android:gravity="center_vertical"
+                    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+                    tools:viewBindingIgnore="true">
 
-                <ImageView
-                    android:id="@+id/forecast2_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:maxHeight="36dp"
-                    android:maxWidth="36dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/wi_day_sunny" />
+                    <TextView
+                        android:id="@+id/location2_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Location"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
-                <TextView
-                    android:id="@+id/forecast2_hi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="end"
-                    android:minWidth="32dp"
-                    android:text="15°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@android:color/white" />
+                    <ImageView
+                        android:id="@+id/forecast2_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:maxHeight="36dp"
+                        android:maxWidth="36dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/wi_day_sunny" />
 
-                <TextView
-                    android:id="@+id/forecast2_lo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="start"
-                    android:minWidth="32dp"
-                    android:text="11°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="#B2FFFFFF" />
+                    <TextView
+                        android:id="@+id/forecast2_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="end"
+                        android:minWidth="32dp"
+                        android:text="15°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@android:color/white" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/forecast2_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="start"
+                        android:minWidth="32dp"
+                        android:text="11°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="#B2FFFFFF" />
 
-            <LinearLayout
-                android:id="@+id/location3"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:padding="4dp"
-                android:gravity="center_vertical"
-                android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-                tools:viewBindingIgnore="true">
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/location3_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Location"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                <LinearLayout
+                    android:id="@+id/location3"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:padding="4dp"
+                    android:gravity="center_vertical"
+                    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+                    tools:viewBindingIgnore="true">
 
-                <ImageView
-                    android:id="@+id/forecast3_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:maxHeight="36dp"
-                    android:maxWidth="36dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/wi_day_sunny" />
+                    <TextView
+                        android:id="@+id/location3_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Location"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
-                <TextView
-                    android:id="@+id/forecast3_hi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="end"
-                    android:minWidth="32dp"
-                    android:text="15°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@android:color/white" />
+                    <ImageView
+                        android:id="@+id/forecast3_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:maxHeight="36dp"
+                        android:maxWidth="36dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/wi_day_sunny" />
 
-                <TextView
-                    android:id="@+id/forecast3_lo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="start"
-                    android:minWidth="32dp"
-                    android:text="11°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="#B2FFFFFF" />
+                    <TextView
+                        android:id="@+id/forecast3_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="end"
+                        android:minWidth="32dp"
+                        android:text="15°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@android:color/white" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/forecast3_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="start"
+                        android:minWidth="32dp"
+                        android:text="11°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="#B2FFFFFF" />
 
-            <LinearLayout
-                android:id="@+id/location4"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:padding="4dp"
-                android:gravity="center_vertical"
-                android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-                android:visibility="gone"
-                tools:viewBindingIgnore="true">
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/location4_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Location"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                <LinearLayout
+                    android:id="@+id/location4"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:padding="4dp"
+                    android:gravity="center_vertical"
+                    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+                    android:visibility="gone"
+                    tools:viewBindingIgnore="true">
 
-                <ImageView
-                    android:id="@+id/forecast4_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:maxHeight="36dp"
-                    android:maxWidth="36dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/wi_day_sunny" />
+                    <TextView
+                        android:id="@+id/location4_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Location"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
-                <TextView
-                    android:id="@+id/forecast4_hi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="end"
-                    android:minWidth="32dp"
-                    android:text="15°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@android:color/white" />
+                    <ImageView
+                        android:id="@+id/forecast4_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:maxHeight="36dp"
+                        android:maxWidth="36dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/wi_day_sunny" />
 
-                <TextView
-                    android:id="@+id/forecast4_lo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="start"
-                    android:minWidth="32dp"
-                    android:text="11°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="#B2FFFFFF" />
+                    <TextView
+                        android:id="@+id/forecast4_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="end"
+                        android:minWidth="32dp"
+                        android:text="15°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@android:color/white" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/forecast4_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="start"
+                        android:minWidth="32dp"
+                        android:text="11°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="#B2FFFFFF" />
 
-            <LinearLayout
-                android:id="@+id/location5"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:padding="4dp"
-                android:gravity="center_vertical"
-                android:theme="@style/AppWidgetTheme.AppWidgetContainer"
-                android:visibility="gone"
-                tools:viewBindingIgnore="true">
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/location5_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Location"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                <LinearLayout
+                    android:id="@+id/location5"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:padding="4dp"
+                    android:gravity="center_vertical"
+                    android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+                    android:visibility="gone"
+                    tools:viewBindingIgnore="true">
 
-                <ImageView
-                    android:id="@+id/forecast5_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"
-                    android:maxHeight="36dp"
-                    android:maxWidth="36dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/wi_day_sunny" />
+                    <TextView
+                        android:id="@+id/location5_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Location"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
-                <TextView
-                    android:id="@+id/forecast5_hi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="end"
-                    android:minWidth="32dp"
-                    android:text="15°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@android:color/white" />
+                    <ImageView
+                        android:id="@+id/forecast5_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:maxHeight="36dp"
+                        android:maxWidth="36dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/wi_day_sunny" />
 
-                <TextView
-                    android:id="@+id/forecast5_lo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:gravity="start"
-                    android:minWidth="32dp"
-                    android:text="11°"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="#B2FFFFFF" />
+                    <TextView
+                        android:id="@+id/forecast5_hi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="end"
+                        android:minWidth="32dp"
+                        android:text="15°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/forecast5_lo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="start"
+                        android:minWidth="32dp"
+                        android:text="11°"
+                        android:textAppearance="?android:textAppearanceSmall"
+                        android:textColor="#B2FFFFFF" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -400,4 +416,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

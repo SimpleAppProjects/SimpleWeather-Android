@@ -68,14 +68,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         appWidgetId: Int, locations: List<LocationData?>,
         weatherData: List<WeatherNowViewModel?>, newOptions: Bundle
     ): RemoteViews {
-        return buildLayout(appWidgetId, locations, weatherData, newOptions).apply {
-            setImageViewBitmap(
-                R.id.widgetBackground,
-                ImageUtils.createColorBitmap(
-                    WidgetUtils.getBackgroundColor(appWidgetId)
-                )
-            )
-        }
+        return buildLayout(appWidgetId, locations, weatherData, newOptions)
     }
 
     private suspend fun buildLayout(
@@ -96,9 +89,13 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
         // Background
         if (backgroundColor == Colors.TRANSPARENT) {
-            updateViews.setInt(R.id.widget, "setBackgroundColor", Colors.TRANSPARENT)
+            updateViews.setImageViewBitmap(R.id.widgetBackground, null)
         } else {
-            updateViews.setInt(R.id.widget, "setBackgroundColor", backgroundColor)
+            updateViews.setImageViewResource(
+                R.id.widgetBackground,
+                R.drawable.app_widget_background
+            )
+            updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor)
         }
 
         // Open default clock/calendar app

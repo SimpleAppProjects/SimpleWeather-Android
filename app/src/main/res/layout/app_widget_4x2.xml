@@ -5,18 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
+    tools:ignore="UseAppTint"
     tools:layout_height="180dp"
     tools:layout_width="match_parent"
     tools:targetApi="JELLY_BEAN_MR1"
-    tools:viewBindingIgnore="true"
-    tools:ignore="UseAppTint">
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/widgetBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
         android:src="@drawable/background_overlay" />
 
     <FrameLayout
@@ -36,7 +36,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_toStartOf="@id/settings_button"
         android:adjustViewBounds="true"
@@ -52,17 +52,17 @@
         android:id="@+id/settings_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="center_vertical"
         android:layout_alignWithParentIfMissing="true"
-        android:contentDescription="@string/action_settings"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/action_settings"
         android:maxWidth="16dp"
         android:maxHeight="16dp"
         android:scaleType="fitCenter"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="4dp"
         android:src="@drawable/ic_outline_settings_24"
         android:tint="@android:color/white"
         tools:tint="?android:textColorPrimary" />
@@ -71,8 +71,8 @@
         android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_above="@id/forecast_layout"
+        android:layout_alignParentTop="true"
         android:orientation="vertical"
         android:padding="8dp">
 
@@ -94,55 +94,55 @@
                 android:paddingEnd="4dp"
                 android:shadowColor="#000000"
                 android:textColor="@android:color/white"
-                android:textSize="14sp"
                 android:textFontWeight="500"
-                tools:text="New York, NY"
-                tools:ignore="UnusedAttribute" />
+                android:textSize="14sp"
+                tools:ignore="UnusedAttribute"
+                tools:text="New York, NY" />
 
         </LinearLayout>
 
         <TextView
             android:id="@+id/condition_weather"
+            style="@style/ShadowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="start"
             android:maxLines="1"
-            android:paddingLeft="4dp"
             android:paddingStart="4dp"
-            android:paddingRight="4dp"
+            android:paddingLeft="4dp"
             android:paddingEnd="4dp"
+            android:paddingRight="4dp"
             android:shadowColor="#000000"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            style="@style/ShadowText"
             tools:text="Mostly Sunny. Refreshingly cool." />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
                 android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextClock
                     android:id="@+id/clock_panel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginVertical="-2dp"
+                    android:layout_marginStart="-2dp"
                     android:baselineAligned="true"
                     android:format12Hour="@string/clock_12_hours_ampm_format"
                     android:format24Hour="@string/clock_24_hours_format"
-                    android:layout_marginStart="-2dp"
-                    android:layout_marginVertical="-2dp"
-                    android:layout_gravity="start"
                     android:gravity="start"
                     android:maxLines="1"
                     android:shadowColor="#DD000000"

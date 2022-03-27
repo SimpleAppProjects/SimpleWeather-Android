@@ -28,6 +28,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x2ForecastGraph
 import com.thewizrd.simpleweather.widgets.WidgetGraphType
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -128,15 +129,25 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         weather: Weather?,
         newOptions: Bundle
     ) {
+        val maxBitmapSize = context.getMaxBitmapSize()
+
         // Widget dimensions
-        val width = if (context.isLargeTablet()) {
+        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+
+        var width = if (context.isLargeTablet()) {
             min(context.resources.displayMetrics.widthPixels, context.dpToPx(600f).toInt())
         } else if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
             min(context.resources.displayMetrics.heightPixels, context.dpToPx(560f).toInt())
         } else {
             context.resources.displayMetrics.widthPixels
         }
-        val height = width / 2
+        var height = width / 2
+
+        if (height * width * 4 * 1.5f >= maxBitmapSize) {
+            width = context.dpToPx(minWidth.toFloat()).toInt()
+            height = context.dpToPx(minHeight.toFloat()).toInt()
+        }
 
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
         val textColor = WidgetUtils.getTextColor(appWidgetId, background)

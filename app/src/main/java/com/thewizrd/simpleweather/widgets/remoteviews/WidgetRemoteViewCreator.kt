@@ -38,9 +38,13 @@ abstract class WidgetRemoteViewCreator(context: Context) :
             val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
 
             if (backgroundColor == Colors.TRANSPARENT) {
-                updateViews.setInt(R.id.widget, "setBackgroundColor", Colors.TRANSPARENT)
+                updateViews.setImageViewBitmap(R.id.widgetBackground, null)
             } else {
-                updateViews.setInt(R.id.widget, "setBackgroundColor", backgroundColor)
+                updateViews.setImageViewResource(
+                    R.id.widgetBackground,
+                    R.drawable.app_widget_background
+                )
+                updateViews.setInt(R.id.widgetBackground, "setColorFilter", backgroundColor)
             }
         }
     }

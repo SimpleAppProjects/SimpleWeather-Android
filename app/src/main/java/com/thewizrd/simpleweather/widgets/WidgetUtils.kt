@@ -58,6 +58,8 @@ object WidgetUtils {
     private const val KEY_CUSTOMTXTMULTIPLIER = "key_customtxtmultiplier"
     private const val KEY_CUSTOMICONMULTIPLIER = "key_customiconmultiplier"
 
+    private const val KEY_BACKGROUNDURI = "key_backgrounduri"
+
     private const val FORECAST_LENGTH = 3 // 3-day
     private const val MEDIUM_FORECAST_LENGTH = 4 // 4-day
     private const val WIDE_FORECAST_LENGTH = 5 // 5-day
@@ -577,6 +579,17 @@ object WidgetUtils {
         return (size + 30) / 70
     }
 
+    fun Context.getMaxBitmapSize(): Float {
+        /*
+         * The total Bitmap memory used by the RemoteViews object cannot exceed
+         * that required to fill the screen 1.5 times,
+         * ie. (screen width x screen height x 4 x 1.5) bytes.
+         */
+        return this.resources.displayMetrics.run {
+            heightPixels * widthPixels * 4 * 1.5f
+        }
+    }
+
     internal fun getPreviewAppWidgetOptions(context: Context, appwidgetId: Int): Bundle {
         val options = AppWidgetManager.getInstance(context.applicationContext)
             .getAppWidgetOptions(appwidgetId) ?: Bundle()
@@ -761,7 +774,7 @@ object WidgetUtils {
         if (value.isNullOrBlank()) {
             val widgetType = getWidgetTypeFromID(widgetId)
 
-            value = if (widgetType == WidgetType.Widget4x2Graph) {
+            value = if (isBackgroundCustomOnlyWidget(widgetType)) {
                 "2"
             } else {
                 "1"
@@ -1113,6 +1126,17 @@ object WidgetUtils {
     fun setCustomIconSizeMultiplier(widgetId: Int, value: Float) {
         getPreferences(widgetId).edit(true) {
             putFloat(KEY_CUSTOMICONMULTIPLIER, value)
+        }
+    }
+
+    fun getBackgroundUri(widgetId: Int): String? {
+        val prefs = getPreferences(widgetId)
+        return prefs.getString(KEY_BACKGROUNDURI, null)
+    }
+
+    fun setBackgroundUri(widgetId: Int, uri: String?) {
+        getPreferences(widgetId).edit {
+            putString(KEY_BACKGROUNDURI, uri)
         }
     }
 }
