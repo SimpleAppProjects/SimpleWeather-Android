@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:theme="@style/AppWidgetTheme.AppWidgetContainer"
     tools:layout_height="192dp"
-    tools:layout_width="192dp">
+    tools:layout_width="192dp"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/widgetBackground"

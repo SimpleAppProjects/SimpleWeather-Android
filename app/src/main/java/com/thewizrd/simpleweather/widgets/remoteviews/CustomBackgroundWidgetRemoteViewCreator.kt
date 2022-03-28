@@ -81,28 +81,57 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 imageData = weather.getImageData()
             }
 
-            updateViews.removeAllViews(R.id.panda_container)
-            updateViews.addView(
-                R.id.panda_container,
-                RemoteViews(context.packageName, R.layout.layout_panda_bg)
-            )
-
             if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
-                // No-op
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    updateViews.setColorAttr(
+                        R.id.panda_container,
+                        "setBackgroundColor",
+                        R.attr.colorSurface
+                    )
+                } else {
+                    updateViews.addView(
+                        R.id.panda_container,
+                        RemoteViews(context.packageName, R.layout.layout_panda_bg)
+                    )
+                }
             } else if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
-                updateViews.setImageViewResource(
-                    R.id.panda_background,
-                    R.drawable.widget_panel_background
-                )
-                updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    updateViews.setColorInt(
+                        R.id.panda_container,
+                        "setBackgroundColor",
+                        Colors.WHITE,
+                        Colors.WHITE
+                    )
+                } else {
+                    updateViews.addView(
+                        R.id.panda_container,
+                        RemoteViews(context.packageName, R.layout.layout_panda_bg)
+                    )
+                    updateViews.setImageViewResource(
+                        R.id.panda_background,
+                        R.drawable.widget_panel_background
+                    )
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.WHITE)
+                }
             } else if (style == WidgetUtils.WidgetBackgroundStyle.DARK) {
-                updateViews.setImageViewResource(
-                    R.id.panda_background,
-                    R.drawable.widget_panel_background
-                )
-                updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.BLACK)
-            } else {
-                updateViews.removeAllViews(R.id.panda_container)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    updateViews.setColorInt(
+                        R.id.panda_container,
+                        "setBackgroundColor",
+                        Colors.BLACK,
+                        Colors.BLACK
+                    )
+                } else {
+                    updateViews.addView(
+                        R.id.panda_container,
+                        RemoteViews(context.packageName, R.layout.layout_panda_bg)
+                    )
+                    updateViews.setImageViewResource(
+                        R.id.panda_background,
+                        R.drawable.widget_panel_background
+                    )
+                    updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.BLACK)
+                }
             }
 
             if (loadBackground) {
