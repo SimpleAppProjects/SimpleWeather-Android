@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.widgets.preferences
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -21,6 +22,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
@@ -52,7 +54,9 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.ContextUtils.isLandscape
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
+import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.glide.TransparentOverlay
 import com.thewizrd.shared_resources.weatherdata.*
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -78,6 +82,8 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.coroutines.coroutineContext
+import kotlin.math.min
+import kotlin.math.roundToInt
 import com.google.android.material.snackbar.Snackbar as materialSnackbar
 
 class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
@@ -110,6 +116,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
     // Views
     private lateinit var binding: FragmentWidgetSetupBinding
+    private var wallpaperLoaded = false
     private var mockLocData: LocationData? = null
     private var mockWeatherModel: WeatherNowViewModel? = null
     private var mockWeatherData: Weather? = null
@@ -141,6 +148,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         private val MAX_LOCATIONS = App.instance.settingsManager.getMaxLocations()
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
+        private const val PERMISSION_WALLPAPER_REQUEST_CODE = 2
         private const val SETUP_REQUEST_CODE = 10
 
         fun newInstance(args: Bundle): WeatherWidgetPreferenceFragment {
@@ -167,6 +175,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     override fun onDestroyView() {
         job?.cancel()
         super.onDestroyView()
+        wallpaperLoaded = false
     }
 
     override fun getTitle(): Int {
@@ -250,6 +259,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     }
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            loadWallpaperBackground(true)
         }
 
         // Location Listener
@@ -731,6 +744,12 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         listView.clearOnScrollListeners()
         appBarLayout.liftOnScrollTargetViewId = binding.scrollView.id
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            if (!wallpaperLoaded) {
+                loadWallpaperBackground()
+            }
+        }
     }
 
     private fun updateClockPreference() {
@@ -787,7 +806,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             binding.widgetContainer.addView(widgetView)
             widgetView.updateLayoutParams<FrameLayout.LayoutParams> {
                 height = mWidgetViewCtx.dpToPx(
-                    96 * when (mWidgetType) {
+                    96f * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
                         WidgetType.Widget2x2 -> 2
@@ -800,7 +819,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget2x2MaterialYou -> 2
                         WidgetType.Widget2x2PillMaterialYou -> 2
                         WidgetType.Widget4x2MaterialYou -> 2
-                        WidgetType.Widget4x4MaterialYou -> 4
+                        WidgetType.Widget4x4MaterialYou -> 3.5f
                         WidgetType.Widget4x3Locations -> 3
                         WidgetType.Widget3x1MaterialYou -> 1
                         WidgetType.Widget4x2Graph -> 2
@@ -827,6 +846,21 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER
+            }
+
+            if (!widgetView.context.isSmallestWidth(600) || !widgetView.context.isLandscape()) {
+                TransitionManager.beginDelayedTransition(
+                    binding.widgetFrame.parent as ViewGroup,
+                    AutoTransition().apply {
+                        addTarget(binding.widgetFrame)
+                    })
+
+                binding.widgetFrame.updateLayoutParams {
+                    height = min(
+                        widgetView.layoutParams.height * 1.25f,
+                        widgetView.context.dpToPx(360f)
+                    ).roundToInt()
+                }
             }
 
             updateLocationView()
@@ -1274,6 +1308,13 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     )
                 }
             }
+            PERMISSION_WALLPAPER_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    runWithView(Dispatchers.Default) {
+                        loadWallpaperBackground(true)
+                    }
+                }
+            }
         }
     }
 
@@ -1408,6 +1449,31 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             })
         } else {
             mockWeatherModel?.location = mockLocData?.name
+        }
+    }
+
+    private suspend fun loadWallpaperBackground(skipPermissions: Boolean = false) {
+        if (!skipPermissions && ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                PERMISSION_WALLPAPER_REQUEST_CODE
+            )
+            return
+        }
+
+        runCatching {
+            val wallpaperMgr = WallpaperManager.getInstance(requireContext())
+
+            wallpaperMgr.fastDrawable?.let {
+                withContext(Dispatchers.Main.immediate) {
+                    binding.widgetBackground.setImageDrawable(it)
+                    wallpaperLoaded = true
+                }
+            }
         }
     }
 }

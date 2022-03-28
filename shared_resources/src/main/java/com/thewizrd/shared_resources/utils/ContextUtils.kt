@@ -64,6 +64,11 @@ object ContextUtils {
     }
 
     @JvmStatic
+    fun Context.isLandscape(): Boolean {
+        return this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    }
+
+    @JvmStatic
     fun Context.getAttrDimension(@AttrRes resId: Int): Int {
         val value = TypedValue()
         this.theme.resolveAttribute(resId, value, true)
