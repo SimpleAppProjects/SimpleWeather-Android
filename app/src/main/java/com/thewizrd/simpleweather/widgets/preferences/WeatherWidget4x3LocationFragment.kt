@@ -229,7 +229,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             }
         }
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Default) {
             loadWallpaperBackground(true)
         }
 
