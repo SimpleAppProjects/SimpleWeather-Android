@@ -336,7 +336,7 @@ class WeatherDataLoader(private val location: LocationData) {
                     weather!!.condition.observationTime,
                     now
                 ).toMinutes()
-            if (duraMins > 180) {
+            if (duraMins > 90) {
                 val interval =
                     WeatherManager.getProvider(weather!!.source).getHourlyForecastInterval()
 
