@@ -7,12 +7,7 @@
     tools:ignore="UseAppTint"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/widgetBackground"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no"
-        android:scaleType="fitXY" />
+    <include layout="@layout/app_widget_background" />
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -193,21 +193,14 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         info: WidgetProviderInfo, appWidgetId: Int,
         backgroundURI: String?, newOptions: Bundle
     ) = withContext(Dispatchers.IO) {
-        val maxBitmapSize = context.getMaxBitmapSize()
-
         // Widget dimensions
         val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
         val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
         val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
 
-        var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
-        var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
-
-        if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
-            imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
-            imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
-        }
+        val imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
+        val imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
 
         val cornerRadius = context.dpToPx(16f)
 
@@ -218,10 +211,16 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 val task = GlideApp.with(context)
                     .asBitmap()
                     .load(backgroundURI)
+                    .run {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            thumbnail(0.75f)
+                        } else {
+                            this
+                        }
+                    }
                     .apply(
                         RequestOptions.noTransformation()
                             .format(DecodeFormat.PREFER_RGB_565)
-                            .override(imgWidth, imgHeight)
                             .run {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                     transform(
@@ -230,15 +229,16 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                                         ), CenterCrop()
                                     )
                                 } else {
-                                    transform(
-                                        TransparentOverlay(
-                                            0x33
-                                        ),
-                                        CenterCrop(),
-                                        CustomRoundedCorners(
-                                            cornerRadius
+                                    override(imgWidth, imgHeight)
+                                        .transform(
+                                            TransparentOverlay(
+                                                0x33
+                                            ),
+                                            CenterCrop(),
+                                            CustomRoundedCorners(
+                                                cornerRadius
+                                            )
                                         )
-                                    )
                                 }
                             }
                     )
@@ -265,11 +265,13 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                             // Original image -> firstResource
                             // Thumbnail -> second resource
                             // Resume on the second call
-                            it.resume(resource)
+                            if (it.isActive && (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !isFirstResource)) {
+                                it.resume(resource)
+                            }
                             return true
                         }
                     })
-                    .submit(imgWidth, imgHeight)
+                    .submit()
 
                 it.invokeOnCancellation {
                     task.cancel(true)
@@ -288,25 +290,20 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         updateViews: RemoteViews,
         newOptions: Bundle
     ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
+
         // Background
         val background = WidgetUtils.getWidgetBackground(appWidgetId)
 
         if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            val maxBitmapSize = context.getMaxBitmapSize()
-
             // Widget dimensions
             val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
             val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
             val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
             val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
 
-            var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
-            var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
-
-            if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
-                imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
-                imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
-            }
+            val imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
+            val imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
 
             val cornerRadius = context.dpToPx(16f)
 
@@ -314,10 +311,16 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 GlideApp.with(context)
                     .asBitmap()
                     .load(WidgetUtils.getBackgroundUri(appWidgetId))
+                    .run {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            thumbnail(0.75f)
+                        } else {
+                            this
+                        }
+                    }
                     .apply(
                         RequestOptions.noTransformation()
                             .format(DecodeFormat.PREFER_RGB_565)
-                            .override(imgWidth, imgHeight)
                             .run {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                     transform(
@@ -326,21 +329,21 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                                         ), CenterCrop()
                                     )
                                 } else {
-                                    transform(
-                                        TransparentOverlay(
-                                            0x33
-                                        ),
-                                        CenterCrop(),
-                                        CustomRoundedCorners(
-                                            cornerRadius
+                                    override(imgWidth, imgHeight)
+                                        .transform(
+                                            TransparentOverlay(
+                                                0x33
+                                            ),
+                                            CenterCrop(),
+                                            CustomRoundedCorners(
+                                                cornerRadius
+                                            )
                                         )
-                                    )
                                 }
                             }
                     ).into(
                         AppWidgetTarget(
-                            context, appWidgetId, updateViews, R.id.widgetBackground,
-                            width = imgWidth, height = imgHeight
+                            context, appWidgetId, updateViews, R.id.widgetBackground
                         )
                     )
             } catch (e: Exception) {

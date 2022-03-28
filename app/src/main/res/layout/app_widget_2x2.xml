@@ -9,13 +9,7 @@
     tools:layout_width="288dp"
     tools:viewBindingIgnore="true">
 
-    <ImageView
-        android:id="@+id/widgetBackground"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no"
-        android:scaleType="fitXY"
-        tools:src="@drawable/background_overlay" />
+    <include layout="@layout/app_widget_background" />
 
     <FrameLayout
         android:id="@+id/panda_container"
