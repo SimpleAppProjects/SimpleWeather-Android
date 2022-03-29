@@ -441,12 +441,7 @@ class WeatherDataLoader(private val location: LocationData) {
 
         if (_override || isInvalid) return !isInvalid
 
-        // TODO: make this a premium feature
-        val ttl = if (WeatherAPI.HERE == wm.getWeatherAPI()) {
-            settingsMgr.getRefreshInterval()
-        } else {
-            max(weather!!.ttl, settingsMgr.getRefreshInterval())
-        }
+        val ttl = max(settingsMgr.getRefreshInterval(), 30)
 
         // Check file age
         val updateTime = weather!!.updateTime
