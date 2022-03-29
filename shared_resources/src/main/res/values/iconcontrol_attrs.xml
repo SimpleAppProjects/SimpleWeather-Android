@@ -5,6 +5,7 @@
     <attr name="animate" format="boolean" />
     <attr name="showAsMonochrome" format="boolean" />
     <attr name="useDefaultIconProvider" format="boolean" />
+    <attr name="forceDarkMode" format="boolean" />
 
     <declare-styleable name="IconControl">
         <attr name="weatherIcon" format="string|reference" />
@@ -13,6 +14,7 @@
         <attr name="animate" />
         <attr name="showAsMonochrome" />
         <attr name="useDefaultIconProvider" />
+        <attr name="forceDarkMode" />
     </declare-styleable>
 
     <declare-styleable name="TextViewWeatherIconDrawableCompat">
@@ -26,5 +28,6 @@
         <attr name="showAsMonochrome" />
         <attr name="useDefaultIconProvider" />
         <attr name="iconRotation" format="integer" />
+        <attr name="forceDarkMode" />
     </declare-styleable>
 </resources>

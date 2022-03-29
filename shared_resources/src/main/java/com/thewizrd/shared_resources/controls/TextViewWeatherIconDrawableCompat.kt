@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.SettingsManager
 
 class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
@@ -27,6 +28,7 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
     private var mShouldAnimate = false
     private var mShowAsMonochrome = false
     private var mIconTint: ColorStateList? = null
+    private var mForceDarkMode: Boolean = false
 
     private val wim = WeatherIconsManager.getInstance()
 
@@ -85,6 +87,10 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
                 if (a.hasValue(R.styleable.TextViewWeatherIconDrawableCompat_iconRotation)) {
                     mIconRotation =
                         a.getInteger(R.styleable.TextViewWeatherIconDrawableCompat_iconRotation, 0)
+                }
+
+                if (a.hasValue(R.styleable.IconControl_forceDarkMode)) {
+                    mForceDarkMode = a.getBoolean(R.styleable.IconControl_forceDarkMode, false)
                 }
             } finally {
                 a.recycle()
@@ -160,19 +166,33 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             updateIconDrawables()
         }
 
+    var forceDarkMode: Boolean
+        get() = mForceDarkMode
+        set(value) {
+            mForceDarkMode = value
+            updateIconDrawables()
+        }
+
     fun useDefaultIconProvider() {
         this.iconProvider = WeatherIconsProvider.KEY
     }
 
     private fun updateIconDrawables() {
+        val iconCtx = if (mForceDarkMode) {
+            context.getThemeContextOverride(false)
+        } else {
+            context
+        }
+
         val wip = WeatherIconsManager.getProvider(
             iconProvider ?: SettingsManager(context).getIconsProvider()
         )
+
         if (shouldAnimate && wip is AVDIconsProviderInterface) {
-            var drawableStart = weatherIconStart?.let { wip.getAnimatedDrawable(context, it) }
-            var drawableEnd = weatherIconEnd?.let { wip.getAnimatedDrawable(context, it) }
-            var drawableTop = weatherIconTop?.let { wip.getAnimatedDrawable(context, it) }
-            var drawableBottom = weatherIconBottom?.let { wip.getAnimatedDrawable(context, it) }
+            var drawableStart = weatherIconStart?.let { wip.getAnimatedDrawable(iconCtx, it) }
+            var drawableEnd = weatherIconEnd?.let { wip.getAnimatedDrawable(iconCtx, it) }
+            var drawableTop = weatherIconTop?.let { wip.getAnimatedDrawable(iconCtx, it) }
+            var drawableBottom = weatherIconBottom?.let { wip.getAnimatedDrawable(iconCtx, it) }
 
             if (drawableStart is Animatable && !drawableStart.isRunning) {
                 drawableStart.start()
@@ -242,25 +262,25 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
         } else {
             var drawableStart = weatherIconStart?.let {
                 ContextCompat.getDrawable(
-                    context,
+                    iconCtx,
                     wip.getWeatherIconResource(it)
                 )
             }
             var drawableEnd = weatherIconEnd?.let {
                 ContextCompat.getDrawable(
-                    context,
+                    iconCtx,
                     wip.getWeatherIconResource(it)
                 )
             }
             var drawableTop = weatherIconTop?.let {
                 ContextCompat.getDrawable(
-                    context,
+                    iconCtx,
                     wip.getWeatherIconResource(it)
                 )
             }
             var drawableBottom = weatherIconBottom?.let {
                 ContextCompat.getDrawable(
-                    context,
+                    iconCtx,
                     wip.getWeatherIconResource(it)
                 )
             }

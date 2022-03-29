@@ -50,8 +50,8 @@
                 android:layout_margin="8dp"
                 android:layout_gravity="center_vertical"
                 app:srcCompat="@drawable/ic_place_white_24dp"
-                app:tint="?attr/colorOnSurface"
                 app:showIfTrue="@{weatherNowState.isGPSLocation()}"
+                app:tint="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
                 tools:tint="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -81,6 +81,7 @@
             android:text="@{weatherView.updateDate}"
             android:textSize="12sp"
             android:textAppearance="?textAppearanceTitleMedium"
+            android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
             tools:text="Updated on 11:12 PM"
             tools:ignore="MissingConstraints" />
 
@@ -190,6 +191,7 @@
                         android:scrollbars="none"
                         android:text="@{weatherView.hiTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
+                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_up"
@@ -207,6 +209,7 @@
                         android:scrollbars="none"
                         android:text="@{weatherView.loTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
+                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_down"
@@ -220,15 +223,16 @@
                     android:id="@+id/weather_icon"
                     android:layout_width="0dp"
                     android:layout_height="88dp"
-                    android:gravity="end|center_vertical"
+                    android:layout_alignParentEnd="true"
                     android:layout_marginEnd="16dp"
-                    android:padding="4dp"
+                    android:layout_toEndOf="@id/weather_hilo_layout"
                     android:adjustViewBounds="true"
+                    android:gravity="end|center_vertical"
+                    android:padding="4dp"
                     android:scaleType="fitEnd"
                     app:animate="true"
+                    app:forceDarkMode="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
                     app:weatherIcon="@{weatherView.weatherIcon}"
-                    android:layout_toEndOf="@id/weather_hilo_layout"
-                    android:layout_alignParentEnd="true"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>
@@ -248,6 +252,7 @@
                 android:padding="4dp"
                 android:text="@{weatherView.curCondition}"
                 android:textAppearance="@style/TextAppearance.WeatherNow.ConditionText"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
                 tools:text="Sunny" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -265,6 +270,7 @@
                 android:text="@{weatherView.weatherSummary}"
                 android:textSize="@dimen/weather_summary_text_size"
                 android:textAppearance="?textAppearanceTitleMedium"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
                 app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />

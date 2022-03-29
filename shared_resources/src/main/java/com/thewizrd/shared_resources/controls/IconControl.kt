@@ -6,12 +6,14 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Animatable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.SettingsManager
 
 class IconControl : AppCompatImageView {
@@ -20,6 +22,7 @@ class IconControl : AppCompatImageView {
     private var mShouldAnimate = false
     private var mShowAsMonochrome = false
     private var mIconTint: ColorStateList? = null
+    private var mForceDarkMode: Boolean = false
 
     private val wim = WeatherIconsManager.getInstance()
 
@@ -54,6 +57,10 @@ class IconControl : AppCompatImageView {
                     if (useDefault) {
                         mIconProvider = WeatherIconsProvider.KEY
                     }
+                }
+
+                if (a.hasValue(R.styleable.IconControl_forceDarkMode)) {
+                    mForceDarkMode = a.getBoolean(R.styleable.IconControl_forceDarkMode, false)
                 }
             } finally {
                 a.recycle()
@@ -103,16 +110,30 @@ class IconControl : AppCompatImageView {
             updateIconDrawable()
         }
 
+    var forceDarkMode: Boolean
+        get() = mForceDarkMode
+        set(value) {
+            mForceDarkMode = value
+            updateIconDrawable()
+        }
+
     fun useDefaultIconProvider() {
         this.iconProvider = WeatherIconsProvider.KEY
     }
 
     private fun updateIconDrawable() {
+        val iconCtx = if (mForceDarkMode) {
+            context.getThemeContextOverride(false)
+        } else {
+            context
+        }
+
         val wip = WeatherIconsManager.getProvider(
             iconProvider ?: SettingsManager(context).getIconsProvider()
         )
+
         if (shouldAnimate && wip is AVDIconsProviderInterface) {
-            val drawable = wip.getAnimatedDrawable(context, weatherIcon ?: WeatherIcons.NA)
+            val drawable = wip.getAnimatedDrawable(iconCtx, weatherIcon ?: WeatherIcons.NA)
             this.setImageDrawable(drawable)
             if (drawable is Animatable && !drawable.isRunning) {
                 drawable.start()
@@ -120,7 +141,12 @@ class IconControl : AppCompatImageView {
 
             this.mIconChangedListener?.onIconChanged(this)
         } else {
-            this.setImageResource(mWeatherIcon?.let { wip.getWeatherIconResource(it) } ?: 0)
+            this.setImageDrawable(mWeatherIcon?.let {
+                ContextCompat.getDrawable(
+                    iconCtx,
+                    wip.getWeatherIconResource(it)
+                )
+            })
             val drawable = this.drawable
             if (shouldAnimate && drawable is Animatable && !drawable.isRunning) {
                 drawable.start()
