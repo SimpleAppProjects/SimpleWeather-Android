@@ -189,7 +189,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     val currentRequest = Request.Builder()
                         .cacheControl(
                             CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
+                                .maxAge(30, TimeUnit.MINUTES)
                                 .build()
                         )
                         .url(requestCurrentUri.toString())

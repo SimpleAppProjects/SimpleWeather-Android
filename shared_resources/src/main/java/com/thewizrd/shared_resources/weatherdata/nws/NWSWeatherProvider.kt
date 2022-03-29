@@ -100,7 +100,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     val observationRequest = Request.Builder()
                         .cacheControl(
                             CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
+                                .maxAge(30, TimeUnit.MINUTES)
                                 .build()
                         )
                         .url(String.format(FORECAST_QUERY_URL, location_query))

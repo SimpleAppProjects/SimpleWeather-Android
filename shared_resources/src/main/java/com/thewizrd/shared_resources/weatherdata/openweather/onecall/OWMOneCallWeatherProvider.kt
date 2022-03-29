@@ -172,7 +172,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterfa
                     val request = Request.Builder()
                         .cacheControl(
                             CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
+                                .maxAge(30, TimeUnit.MINUTES)
                                 .build()
                         )
                         .url(String.format(WEATHER_QUERY_URL, query, key, locale))

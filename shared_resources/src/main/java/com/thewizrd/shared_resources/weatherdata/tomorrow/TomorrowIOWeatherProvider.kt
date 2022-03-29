@@ -31,7 +31,10 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -168,8 +171,9 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
                         .build()
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
+                            .cacheControl(
+                                CacheControl.Builder()
+                                    .maxAge(1, TimeUnit.HOURS)
                                     .build())
                             .url(requestUri.toString())
                             .header("Accept", "application/json")

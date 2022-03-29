@@ -157,7 +157,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                     val request = Request.Builder()
                         .cacheControl(
                             CacheControl.Builder()
-                                .maxAge(3, TimeUnit.HOURS)
+                                .maxAge(1, TimeUnit.HOURS)
                                 .build()
                         )
                         .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))
