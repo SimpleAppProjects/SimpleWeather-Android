@@ -267,7 +267,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     showSnackbar(snackBar, null)
                 }
                 ErrorStatus.QUERYNOTFOUND -> {
-                    if (!wm.isRegionSupported(locationData!!.countryCode)) {
+                    if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
                         showSnackbar(
                             Snackbar.make(
                                 R.string.error_message_weather_region_unsupported,

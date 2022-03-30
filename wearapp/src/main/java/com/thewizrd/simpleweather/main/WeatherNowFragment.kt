@@ -167,7 +167,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        if (!wm.isRegionSupported(locationData!!.countryCode)) {
+        if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
             showToast(R.string.error_message_weather_region_unsupported, Toast.LENGTH_LONG)
         } else {
             showToast(wEx.message, Toast.LENGTH_LONG)
