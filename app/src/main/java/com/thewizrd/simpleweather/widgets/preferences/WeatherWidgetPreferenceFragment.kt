@@ -797,7 +797,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 buildMockData()
 
                 WidgetUpdaterHelper.buildUpdate(
-                    requireContext(), info, mAppWidgetId,
+                    mWidgetViewCtx, info, mAppWidgetId,
                     mockLocData!!, mockWeatherModel!!, mWidgetOptions, false
                 )
             }
