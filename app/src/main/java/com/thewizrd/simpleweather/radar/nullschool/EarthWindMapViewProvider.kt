@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebSettings
@@ -13,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.helpers.RadarWebClient
 import com.thewizrd.simpleweather.helpers.WebViewHelper.disableInteractions
 import com.thewizrd.simpleweather.helpers.WebViewHelper.enableInteractions
@@ -113,48 +115,57 @@ class EarthWindMapViewProvider(context: Context, rootView: ViewGroup) : RadarVie
             return null
         }
 
-        return WebView(context).apply {
-            // WebView
-            restrictWebView()
-            enableJS(true)
+        return runCatching {
+            WebView(context).apply {
+                // WebView
+                restrictWebView()
+                enableJS(true)
 
-            settings.setRenderPriority(WebSettings.RenderPriority.HIGH)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true)
-            }
-
-            webViewClient = object : RadarWebClient(!interactionsEnabled()) {
-                override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val args = Bundle().apply {
-                            putBoolean("didCrash", detail.didCrash())
-                            putInt("renderPriorityAtExit", detail.rendererPriorityAtExit())
-                        }
-                        AnalyticsLogger.logEvent("WeatherRadarFragment: render gone", args)
-                    } else {
-                        AnalyticsLogger.logEvent("WeatherRadarFragment: render gone")
-                    }
-
-                    if (viewContainer != null) {
-                        var wv = radarWebView
-
-                        if (wv === view) {
-                            viewContainer.removeAllViews()
-                            wv = null
-                            view.loadUrl("about:blank")
-                            view.onPause()
-                            view.destroy()
-                            updateRadarView()
-                            return true
-                        }
-                    }
-
-                    return super.onRenderProcessGone(view, detail)
+                settings.setRenderPriority(WebSettings.RenderPriority.HIGH)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true)
                 }
-            }
 
-            setBackgroundColor(Colors.BLACK)
-            resumeTimers()
-        }
+                webViewClient = object : RadarWebClient(!interactionsEnabled()) {
+                    override fun onRenderProcessGone(
+                        view: WebView,
+                        detail: RenderProcessGoneDetail
+                    ): Boolean {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val args = Bundle().apply {
+                                putBoolean("didCrash", detail.didCrash())
+                                putInt("renderPriorityAtExit", detail.rendererPriorityAtExit())
+                            }
+                            AnalyticsLogger.logEvent("WeatherRadarFragment: render gone", args)
+                        } else {
+                            AnalyticsLogger.logEvent("WeatherRadarFragment: render gone")
+                        }
+
+                        if (viewContainer != null) {
+                            var wv = radarWebView
+
+                            if (wv === view) {
+                                viewContainer.removeAllViews()
+                                wv = null
+                                view.loadUrl("about:blank")
+                                view.onPause()
+                                view.destroy()
+                                updateRadarView()
+                                return true
+                            }
+                        }
+
+                        return super.onRenderProcessGone(view, detail)
+                    }
+                }
+
+                setBackgroundColor(Colors.BLACK)
+                resumeTimers()
+            }
+        }.onFailure {
+            AnalyticsLogger.logEvent("EarthWindMap: no webview installed")
+            Logger.writeLine(Log.WARN, it)
+            Snackbar.make(viewContainer, "WebView not installed", Snackbar.LENGTH_SHORT).show()
+        }.getOrNull()
     }
 }
