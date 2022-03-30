@@ -290,7 +290,6 @@ class LocationSearchFragment : WindowColorFragment() {
         binding.recyclerView.isEnabled = enable
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
@@ -369,6 +368,47 @@ class LocationSearchFragment : WindowColorFragment() {
             false
         })
 
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        binding.recyclerView.setHasFixedSize(true)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView) { v, i ->
+            val insets = i.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom
+            }
+
+            i
+        }
+
+        // use a linear layout manager
+        mLayoutManager = LinearLayoutManager(appCompatActivity)
+        binding.recyclerView.layoutManager = mLayoutManager
+
+        // specify an adapter (see also next example)
+        mLocationAdapter = LocationQueryAdapter()
+        mLocationAdapter.setOnClickListener(recyclerClickListener)
+        binding.recyclerView.adapter = ConcatAdapter(mLocationAdapter).also { mAdapter = it }
+        mFooterAdapter = LocationQueryFooterAdapter()
+
+        if (savedInstanceState != null) {
+            val text = savedInstanceState.getString(KEY_SEARCHTEXT)
+            if (!text.isNullOrBlank()) {
+                searchBarBinding.searchView.setText(text, TextView.BufferType.EDITABLE)
+            }
+        }
+
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requestSearchbarFocus()
+
+        val navController = findNavController()
+
         /*
            Capture touch events on RecyclerView
            We're not using ADJUST_RESIZE so hide the keyboard when necessary
@@ -390,7 +430,7 @@ class LocationSearchFragment : WindowColorFragment() {
                 }
 
                 override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    findNavController().navigateUp()
+                    navController.navigateUp()
                     return super.onSingleTapConfirmed(e)
                 }
 
@@ -442,44 +482,6 @@ class LocationSearchFragment : WindowColorFragment() {
             })
 
         binding.recyclerView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        binding.recyclerView.setHasFixedSize(true)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView) { v, i ->
-            val insets = i.getInsets(WindowInsetsCompat.Type.systemBars())
-
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = insets.bottom
-            }
-
-            i
-        }
-
-        // use a linear layout manager
-        mLayoutManager = LinearLayoutManager(appCompatActivity)
-        binding.recyclerView.layoutManager = mLayoutManager
-
-        // specify an adapter (see also next example)
-        mLocationAdapter = LocationQueryAdapter()
-        mLocationAdapter.setOnClickListener(recyclerClickListener)
-        binding.recyclerView.adapter = ConcatAdapter(mLocationAdapter).also { mAdapter = it }
-        mFooterAdapter = LocationQueryFooterAdapter()
-
-        if (savedInstanceState != null) {
-            val text = savedInstanceState.getString(KEY_SEARCHTEXT)
-            if (!text.isNullOrBlank()) {
-                searchBarBinding.searchView.setText(text, TextView.BufferType.EDITABLE)
-            }
-        }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        requestSearchbarFocus()
     }
 
     override fun updateWindowColors() {
