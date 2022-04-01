@@ -84,7 +84,7 @@
         </receiver>
 
         <service
-            android:icon="@drawable/wi_day_sunny"
+            android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/label_nav_weathernow"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherComplicationService"
@@ -102,7 +102,7 @@
         </service>
 
         <service
-            android:icon="@drawable/wi_day_sunny"
+            android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/complication_label_weather_hilo"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:name=".wearable.WeatherHiLoComplicationService"
@@ -120,7 +120,7 @@
         </service>
         <service
             android:name=".wearable.PrecipitationComplicationService"
-            android:icon="@drawable/wi_umbrella"
+            android:icon="@drawable/wi_umbrella_white"
             android:label="@string/label_chance"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -137,7 +137,7 @@
         </service>
         <service
             android:name=".wearable.UVComplicationService"
-            android:icon="@drawable/wi_day_sunny"
+            android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/label_uv"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -154,7 +154,7 @@
         </service>
         <service
             android:name=".wearable.AQIComplicationService"
-            android:icon="@drawable/wi_cloud"
+            android:icon="@drawable/wi_cloud_white"
             android:label="@string/label_airquality_short"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -171,7 +171,7 @@
         </service>
         <service
             android:name=".wearable.BeaufortComplicationService"
-            android:icon="@drawable/wi_strong_wind"
+            android:icon="@drawable/wi_strong_wind_white"
             android:label="@string/label_beaufort"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -188,7 +188,7 @@
         </service>
         <service
             android:name=".wearable.HumidityComplicationService"
-            android:icon="@drawable/wi_humidity"
+            android:icon="@drawable/wi_humidity_white"
             android:label="@string/label_humidity"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -205,7 +205,7 @@
         </service>
         <service
             android:name=".wearable.WindComplicationService"
-            android:icon="@drawable/wi_wind_direction"
+            android:icon="@drawable/wi_wind_direction_white"
             android:label="@string/label_wind"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
@@ -222,7 +222,7 @@
         </service>
         <service
             android:name=".wearable.FeelsLikeComplicationService"
-            android:icon="@drawable/wi_thermometer"
+            android:icon="@drawable/wi_thermometer_white"
             android:label="@string/label_feelslike"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
             android:exported="true">
