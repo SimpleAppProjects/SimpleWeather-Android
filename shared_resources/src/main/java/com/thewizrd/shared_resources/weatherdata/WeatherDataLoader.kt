@@ -17,6 +17,7 @@ import java.time.Duration
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
 
@@ -183,6 +184,12 @@ class WeatherDataLoader(private val location: LocationData) {
                     weatherAlerts = weather!!.weatherAlerts
                     if (!loadedSavedAlertData) {
                         saveWeatherAlerts()
+                    }
+                }
+
+                if (SimpleLibrary.instance.app.isPhone && !loadedSavedData) {
+                    if (Objects.equals(location, settingsMgr.getHomeData())) {
+                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                     }
                 }
             }
@@ -406,7 +413,7 @@ class WeatherDataLoader(private val location: LocationData) {
                     }
 
                     if (request.isShouldSaveData) {
-                        settingsMgr.saveWeatherData(weather!!)
+                        saveWeatherData()
                     }
                 }
             }
