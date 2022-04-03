@@ -1,14 +1,16 @@
 package com.thewizrd.simpleweather.main
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.shared_resources.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -33,7 +35,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import java.util.*
 
 class WeatherChartsFragment : ToolbarFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()
@@ -168,7 +169,11 @@ class WeatherChartsFragment : ToolbarFragment() {
                                             )
                                         }
                                         ErrorStatus.QUERYNOTFOUND -> {
-                                            if (!wm.isRegionSupported(locationData!!.countryCode)) {
+                                            if (locationData?.countryCode?.let {
+                                                    !wm.isRegionSupported(
+                                                        it
+                                                    )
+                                                } == true) {
                                                 showSnackbar(
                                                     Snackbar.make(
                                                         R.string.error_message_weather_region_unsupported,
