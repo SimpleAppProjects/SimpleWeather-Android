@@ -2,11 +2,8 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.ConversionMethods
-import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.utils.getWindDirection
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
@@ -30,12 +27,16 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder("5 mph").build(),
-                    PlainComplicationText.Builder("Wind: 5 mph").build()
+                    PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), 330.0f // 150° + 180
+                            )
                         )
                     ).build()
                 ).setTitle(
@@ -119,9 +120,13 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(windSpeedLong).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), windDirection.toFloat() + 180
+                            )
                         )
                     ).build()
                 ).setTitle(
