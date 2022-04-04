@@ -168,6 +168,16 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     override fun onWeatherError(wEx: WeatherException) {
         if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
+            Logger.writeLine(
+                Log.WARN,
+                "Location: %s",
+                JSONParser.serializer(locationData, LocationData::class.java)
+            )
+            Logger.writeLine(
+                Log.WARN,
+                CustomException(R.string.error_message_weather_region_unsupported)
+            )
+
             showToast(R.string.error_message_weather_region_unsupported, Toast.LENGTH_LONG)
         } else {
             showToast(wEx.message, Toast.LENGTH_LONG)
@@ -634,6 +644,21 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     if (locationData?.isValid == true) {
                         wLoader = WeatherDataLoader(locationData!!)
                     } else {
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Location: %s",
+                            JSONParser.serializer(locationData, LocationData::class.java)
+                        )
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Home: %s",
+                            JSONParser.serializer(
+                                settingsManager.getHomeData(),
+                                LocationData::class.java
+                            )
+                        )
+                        Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
+
                         // Show error prompt
                         binding.noLocationsPrompt.visibility = View.VISIBLE
                         this.cancel()

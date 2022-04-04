@@ -108,8 +108,7 @@ class WeatherDataLoader(private val location: LocationData) {
                 if (!location.weatherSource.isNullOrBlank()) {
                     val provider = WeatherManager.getProvider(location.weatherSource)
                     if (provider.isRegionSupported(location.countryCode)) {
-                        weather =
-                            WeatherManager.getProvider(location.weatherSource).getWeather(location)
+                        weather = provider.getWeather(location)
                     }
                 }
 

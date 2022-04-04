@@ -268,6 +268,24 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 }
                 ErrorStatus.QUERYNOTFOUND -> {
                     if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Location: %s",
+                            JSONParser.serializer(locationData, LocationData::class.java)
+                        )
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Home: %s",
+                            JSONParser.serializer(
+                                getSettingsManager().getHomeData(),
+                                LocationData::class.java
+                            )
+                        )
+                        Logger.writeLine(
+                            Log.WARN,
+                            CustomException(R.string.error_message_weather_region_unsupported)
+                        )
+
                         showSnackbar(
                             Snackbar.make(
                                 R.string.error_message_weather_region_unsupported,
@@ -1380,6 +1398,21 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     if (locationData?.isValid == true) {
                         wLoader = WeatherDataLoader(locationData!!)
                     } else {
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Location: %s",
+                            JSONParser.serializer(locationData, LocationData::class.java)
+                        )
+                        Logger.writeLine(
+                            Log.WARN,
+                            "Home: %s",
+                            JSONParser.serializer(
+                                getSettingsManager().getHomeData(),
+                                LocationData::class.java
+                            )
+                        )
+                        Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
+
                         showBanner(Banner.make(R.string.prompt_location_not_set).apply {
                             setBannerIcon(binding.root.context, R.drawable.ic_location_off_24dp)
                             setPrimaryAction(R.string.label_fab_add_location) {
