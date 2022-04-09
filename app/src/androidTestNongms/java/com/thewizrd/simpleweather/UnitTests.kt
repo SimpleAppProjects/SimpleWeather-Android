@@ -288,11 +288,19 @@ class UnitTests {
             }
             Assert.assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = locations.find { it.locationName.startsWith("Redmond, ") }
+            val queryVM = locations.find { it.locationName.startsWith("Redmond") }
             Assert.assertNotNull(queryVM)
 
             val nameModel = locationProvider.getLocationFromName(queryVM!!)
             Assert.assertNotNull(nameModel)
+
+            if (nameModel!!.locationTZLong.isNullOrBlank() && nameModel.locationLat != 0.0 && nameModel.locationLong != 0.0) {
+                val tzId = TZDBCache.getTimeZone(nameModel.locationLat, nameModel.locationLong)
+                if ("unknown" != tzId)
+                    nameModel.locationTZLong = tzId
+            }
+
+            Assert.assertFalse(nameModel.locationTZLong.isNullOrEmpty())
         }
     }
 
