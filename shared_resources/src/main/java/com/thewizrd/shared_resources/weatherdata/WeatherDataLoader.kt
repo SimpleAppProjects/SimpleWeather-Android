@@ -6,6 +6,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
@@ -114,7 +115,12 @@ class WeatherDataLoader(private val location: LocationData) {
 
                 // Nothing to fallback on; error out
                 if (weather == null) {
-                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                    Logger.writeLine(
+                        Log.WARN,
+                        "Location: %s",
+                        JSONParser.serializer(location, LocationData::class.java)
+                    )
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND).initCause(CustomException(R.string.error_message_weather_region_unsupported))
                 }
             } else {
                 // Load weather from provider
@@ -327,7 +333,7 @@ class WeatherDataLoader(private val location: LocationData) {
         } catch (ex: Exception) {
             Logger.writeLine(Log.ERROR, ex, "WeatherDataLoader: error loading saved weather data")
             weather = null
-            throw WeatherException(ErrorStatus.NOWEATHER)
+            throw WeatherException(ErrorStatus.NOWEATHER).initCause(ex)
         }
 
         return isDataValid(_override)
