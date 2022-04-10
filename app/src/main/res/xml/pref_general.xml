@@ -135,6 +135,7 @@
         <EditTextPreference
             android:key="API_KEY"
             android:singleLine="true"
+            app:dialogMessage="@string/message_enter_apikey"
             android:summary="@string/pref_summary_apikey"
             android:title="@string/key_hint" />
 

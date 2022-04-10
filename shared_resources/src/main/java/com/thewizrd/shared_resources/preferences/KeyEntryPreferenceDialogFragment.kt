@@ -5,12 +5,12 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doAfterTextChanged
 import androidx.preference.EditTextPreferenceDialogFragmentCompat
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.SimpleLibrary
@@ -23,8 +23,6 @@ class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat(
         private set
     var apiProvider: String = ""
         private set
-
-    private var keyEntry: EditText? = null
 
     companion object {
         fun newInstance(prefKey: String?, apiProvider: String): KeyEntryPreferenceDialogFragment {
@@ -45,18 +43,11 @@ class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat(
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
 
-        keyEntry = view.findViewById(android.R.id.edit)
-        keyEntry!!.addTextChangedListener(editTextWatcher)
-    }
-
-    private val editTextWatcher: TextWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            key = s.toString()
+        view.findViewById<EditText>(android.R.id.edit)?.doAfterTextChanged {
+            key = it?.toString()
         }
 
-        override fun afterTextChanged(s: Editable) {}
+        view.findViewById<TextView>(android.R.id.message)?.text = preference?.dialogMessage
     }
 
     fun setPositiveButtonOnClickListener(listener: View.OnClickListener?) {

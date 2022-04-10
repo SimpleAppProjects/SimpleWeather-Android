@@ -1,8 +1,11 @@
 package com.thewizrd.simpleweather.preferences
 
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.simpleweather.R
@@ -48,11 +51,18 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
         key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
     }
 
+    override fun onCreateDialogView(context: Context): View {
+        val inflater = LayoutInflater.from(context)
+        return inflater.inflate(R.layout.layout_keyentry_dialog, null)
+    }
+
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
 
         view.findViewById<EditText>(android.R.id.edit)?.doAfterTextChanged {
             key = it?.toString()
         }
+
+        view.findViewById<TextView>(android.R.id.message)?.text = getPreference()?.dialogMessage
     }
 }
