@@ -1381,7 +1381,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                             forceRefresh = true
                         } else {
                             // Reset locdata if source is different
-                            if (getSettingsManager().getAPI() != locData.weatherSource) getSettingsManager().saveLastGPSLocData(LocationData())
+                            if (getSettingsManager().getAPI() != locData.weatherSource) {
+                                getSettingsManager().saveLastGPSLocData(LocationData.buildGPSLocation())
+                            }
                             if (updateLocation()) {
                                 // Setup loader from updated location
                                 forceRefresh = true

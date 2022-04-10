@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.locationdata;
 
 import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -139,6 +140,17 @@ public class LocationData extends CustomJsonObject {
 
     public void setLocationSource(String locationSource) {
         this.locationSource = locationSource;
+    }
+
+    public static LocationData buildGPSLocation() {
+        String weatherSource = null;
+
+        if (SettingsManager.Companion.isLoaded()) {
+            final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+            weatherSource = settingsMgr.getAPI();
+        }
+
+        return new LocationData(LocationQueryViewModel.buildEmptyModel(weatherSource), new Location(LocationManager.PASSIVE_PROVIDER));
     }
 
     public LocationData() {

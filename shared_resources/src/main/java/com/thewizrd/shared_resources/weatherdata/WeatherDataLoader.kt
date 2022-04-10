@@ -27,11 +27,23 @@ class WeatherDataLoader(private val location: LocationData) {
         private const val TAG = "WeatherDataLoader"
     }
 
+    init {
+        if (location == null || !location.isValid) {
+            Logger.writeLine(
+                Log.WARN,
+                "Location: %s",
+                JSONParser.serializer(location, LocationData::class.java)
+            )
+            throw IllegalArgumentException("location")
+        }
+    }
+
     private var weather: Weather? = null
     private var weatherAlerts: Collection<WeatherAlert>? = null
     private val wm = WeatherManager.instance
 
-    private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(SimpleLibrary.instance.app.appContext)
+    private val mLocalBroadcastManager =
+        LocalBroadcastManager.getInstance(SimpleLibrary.instance.app.appContext)
     private val settingsMgr = SimpleLibrary.instance.app.settingsManager
 
     suspend fun loadWeatherData(request: WeatherRequest): Weather? {

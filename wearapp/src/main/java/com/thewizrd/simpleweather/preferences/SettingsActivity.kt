@@ -706,8 +706,6 @@ class SettingsActivity : WearableListenerActivity() {
                         // Do the task you need to do.
                         followGps.isChecked = true
                         settingsManager.setFollowGPS(true)
-                        // Reset home location data
-                        //getSettingsManager().SaveLastGPSLocData(new WeatherData.LocationData());
                     } else {
                         // permission denied, boo! Disable the
                         // functionality that depends on this permission.

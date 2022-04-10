@@ -627,7 +627,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                             forceRefresh = true
                         } else {
                             // Reset locdata if source is different
-                            if (settingsManager.getAPI() != locData.weatherSource) settingsManager.saveHomeData(LocationData())
+                            if (settingsManager.getAPI() != locData.weatherSource) {
+                                settingsManager.saveHomeData(LocationData.buildGPSLocation())
+                            }
                             if (updateLocation()) {
                                 // Setup loader from updated location
                                 forceRefresh = true

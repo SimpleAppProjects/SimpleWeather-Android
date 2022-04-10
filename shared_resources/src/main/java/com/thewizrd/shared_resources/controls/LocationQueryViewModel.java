@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.controls;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SimpleLibrary;
@@ -54,6 +55,15 @@ public class LocationQueryViewModel {
         newModel.locationCountry = model.getLocationCountry();
 
         return newModel;
+    }
+
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static LocationQueryViewModel buildEmptyModel(String weatherSource) {
+        LocationQueryViewModel vm = new LocationQueryViewModel();
+        vm.locationName = ""; // Reset name
+        vm.updateWeatherSource(weatherSource);
+        return vm;
     }
 
     private void updateLocationQuery() {

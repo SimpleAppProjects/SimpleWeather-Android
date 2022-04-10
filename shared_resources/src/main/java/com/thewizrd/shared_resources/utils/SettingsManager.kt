@@ -145,7 +145,9 @@ class SettingsManager(context: Context) {
             } catch (ex: Exception) {
                 Timber.tag(TAG).e(ex, "Error on load(): lastGPSLocData")
             } finally {
-                if (lastGPSLocData?.tzLong.isNullOrEmpty()) lastGPSLocData = LocationData()
+                if (lastGPSLocData?.tzLong.isNullOrEmpty()) {
+                    lastGPSLocData = LocationData.buildGPSLocation()
+                }
             }
         }
 
