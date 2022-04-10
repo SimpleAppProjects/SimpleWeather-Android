@@ -462,7 +462,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
                         settingsManager.setPersonalKey(true)
                         personalKeyPref.isChecked = true
-                        personalKeyPref.isEnabled = false
+                        personalKeyPref.isEnabled =
+                            selectedProvider == WeatherAPI.OPENWEATHERMAP && !BuildConfig.IS_NONGMS
                         keyEntry.isEnabled = false
                         apiCategory.removePreference(keyEntry)
                         apiCategory.removePreference(registerPref)

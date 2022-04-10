@@ -35,6 +35,7 @@ import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.App
+import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.extras.isIconPackSupported
 import com.thewizrd.simpleweather.extras.isWeatherAPISupported
@@ -433,7 +434,8 @@ class SettingsActivity : WearableListenerActivity() {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
                         settingsManager.setPersonalKey(true)
                         personalKeyPref.isChecked = true
-                        personalKeyPref.isEnabled = false
+                        personalKeyPref.isEnabled =
+                            selectedProvider == WeatherAPI.OPENWEATHERMAP && !BuildConfig.IS_NONGMS
                         keyEntry.isEnabled = false
                         apiCategory.removePreference(keyEntry)
                         apiCategory.removePreference(registerPref)
