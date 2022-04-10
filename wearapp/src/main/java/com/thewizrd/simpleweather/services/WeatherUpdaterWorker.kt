@@ -309,7 +309,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     if (query_vm == null || query_vm.locationQuery.isNullOrBlank()) {
                         // Stop since there is no valid query
                         return@withContext false
-                    } else if (query_vm.locationTZLong?.isNotBlank() == true && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
+                    } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
                         val tzId =
                             TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
 
