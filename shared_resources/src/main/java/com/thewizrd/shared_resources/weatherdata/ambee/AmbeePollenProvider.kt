@@ -6,7 +6,6 @@ import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.IRateLimitedRequest
@@ -39,18 +38,17 @@ class AmbeePollenProvider : PollenProviderInterface, IRateLimitedRequest {
         withContext(Dispatchers.IO) {
             var pollenData: Pollen? = null
 
-            val key =
-                DevSettingsEnabler.getAPIKey(SimpleLibrary.instance.appContext, WeatherAPI.AMBEE)
-                    ?: Keys.getAmbeeKey()
+            val settingsMgr = SimpleLibrary.instance.app.settingsManager
+            val key = settingsMgr.getAPIKey(WeatherAPI.AMBEE) ?: Keys.getAmbeeKey()
 
             if (key.isNullOrBlank()) return@withContext null
 
-                val client = SimpleLibrary.instance.httpClient
-                var response: Response? = null
+            val client = SimpleLibrary.instance.httpClient
+            var response: Response? = null
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit(WeatherAPI.AMBEE)
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit(WeatherAPI.AMBEE)
 
                     val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
                     df.applyPattern("0.####")

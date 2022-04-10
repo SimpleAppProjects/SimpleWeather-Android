@@ -32,7 +32,7 @@ import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -44,7 +44,6 @@ import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
 import kotlinx.coroutines.*
-import java.util.*
 
 class LocationSearchFragment : SwipeDismissFragment() {
     companion object {
@@ -88,7 +87,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                     throw CancellationException()
                                 }
 
-                                if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY()
+                                if (settingsManager.usePersonalKey() && settingsManager.getAPIKey()
                                         .isNullOrBlank() && wm.isKeyRequired()
                                 ) {
                                     throw CustomException(R.string.werror_invalidkey)

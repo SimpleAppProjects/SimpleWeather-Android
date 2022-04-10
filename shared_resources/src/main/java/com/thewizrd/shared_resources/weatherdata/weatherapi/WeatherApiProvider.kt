@@ -144,7 +144,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+                val key =
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.WEATHERAPI) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
@@ -205,17 +206,18 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProviderInterface 
             }
 
     @Throws(WeatherException::class)
-    override suspend fun getAlerts(location: LocationData): Collection<WeatherAlert>? =
-            withContext(Dispatchers.IO) {
-                var alerts: Collection<WeatherAlert>? = null
+    override suspend fun getAlerts(location: LocationData): Collection<WeatherAlert> =
+        withContext(Dispatchers.IO) {
+            var alerts: Collection<WeatherAlert>? = null
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+            val settingsMgr = SimpleLibrary.instance.app.settingsManager
+            val key =
+                if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.WEATHERAPI) else getAPIKey()
 
-                val client = SimpleLibrary.instance.httpClient
+            val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
 
                 try {

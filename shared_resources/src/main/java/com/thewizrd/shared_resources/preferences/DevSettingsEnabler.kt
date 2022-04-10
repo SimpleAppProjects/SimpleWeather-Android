@@ -29,20 +29,6 @@ object DevSettingsEnabler {
             .sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
     }
 
-    fun getAPIKey(context: Context, key: String): String? {
-        val preferences = getPreferences(context)
-        return preferences.getString(key, null)
-    }
-
-    fun setAPIKey(context: Context, key: String, value: String?) {
-        val preferences = getPreferences(context)
-        preferences.edit(true) {
-            putString(key, value)
-        }
-        LocalBroadcastManager.getInstance(context.applicationContext)
-            .sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
-    }
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getPreferenceMap(context: Context): Map<String, Any?> {
         val preferences = getPreferences(context)

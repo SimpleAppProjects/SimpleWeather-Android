@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 import java.time.Clock
 import java.time.Instant
-import java.util.*
 
 class WearableWorker(context: Context, workerParams: WorkerParameters) :
         CoroutineWorker(context, workerParams) {
@@ -142,8 +141,11 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.SettingsPath)
             mapRequest.dataMap.putString(WearableSettings.KEY_API, settingsManager.getAPI())
-            mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKEY())
-            mapRequest.dataMap.putBoolean(WearableSettings.KEY_APIKEY_VERIFIED, settingsManager.isKeyVerified())
+            mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKey())
+            mapRequest.dataMap.putBoolean(
+                WearableSettings.KEY_APIKEY_VERIFIED,
+                settingsManager.isKeyVerified()
+            )
             mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, settingsManager.useFollowGPS())
             mapRequest.dataMap.putString(
                 WearableSettings.KEY_TEMPUNIT,
@@ -162,15 +164,19 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_UNITS, unitMap)
 
             if (DevSettingsEnabler.isDevSettingsEnabled(applicationContext)) {
-                val devSettingsMap = DataMap()
-                devSettingsMap.putBoolean(WearableSettings.KEY_DEVSETTINGS, true)
-                for (entry in DevSettingsEnabler.getPreferenceMap(applicationContext)) {
-                    if (entry.value is String) {
-                        devSettingsMap.putString(entry.key, entry.value as String)
-                    }
+                val devSettingsMap = DataMap().apply {
+                    putBoolean(WearableSettings.KEY_DEVSETTINGS, true)
                 }
                 mapRequest.dataMap.putDataMap(WearableSettings.KEY_DEVSETTINGS, devSettingsMap)
             }
+
+            val apiKeyMap = DataMap()
+            for (entry in settingsManager.getAPIKeyMap()) {
+                if (entry.value is String) {
+                    apiKeyMap.putString(entry.key, entry.value as String)
+                }
+            }
+            mapRequest.dataMap.putDataMap(WearableSettings.KEY_APIKEYS, apiKeyMap)
 
             mapRequest.dataMap.putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode())
             mapRequest.dataMap.putString(

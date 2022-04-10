@@ -300,7 +300,7 @@ class SetupLocationFragment : CustomFragment() {
                             view.updateWeatherSource(provider)
                         }
 
-                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY()
+                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKey()
                                 .isNullOrBlank() && wm.isKeyRequired()
                         ) {
                             throw CustomException(R.string.werror_invalidkey)

@@ -161,7 +161,7 @@ class SettingsActivity : WearableListenerActivity() {
 
         override fun onBackPressed(): Boolean {
             if (settingsManager.usePersonalKey() &&
-                settingsManager.getAPIKEY().isNullOrBlank() &&
+                settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
                 WeatherManager.isKeyRequired(providerPref.value)
             ) {
                 // Set keyentrypref color to red
@@ -203,7 +203,9 @@ class SettingsActivity : WearableListenerActivity() {
         override fun onPause() {
             AnalyticsLogger.logEvent("SettingsFragment: onPause")
 
-            if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY().isNullOrBlank() && WeatherManager.isKeyRequired(providerPref.value)) {
+            if (settingsManager.usePersonalKey() && settingsManager.getAPIKey(providerPref.value)
+                    .isNullOrBlank() && WeatherManager.isKeyRequired(providerPref.value)
+            ) {
                 // Fallback to supported weather provider
                 val API = RemoteConfig.getDefaultWeatherProvider()
                 providerPref.value = API
@@ -415,13 +417,15 @@ class SettingsActivity : WearableListenerActivity() {
             providerPref.entryValues = entryValues
             providerPref.isPersistent = false
             providerPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                if (!isWeatherAPISupported(newValue.toString())) {
+                val selectedProvider = newValue.toString()
+
+                if (!isWeatherAPISupported(selectedProvider)) {
                     navigateToPremiumFragment()
                     return@OnPreferenceChangeListener false
                 }
 
                 val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(newValue.toString())
+                val selectedWProv = WeatherManager.getProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -445,7 +449,7 @@ class SettingsActivity : WearableListenerActivity() {
                         // User is using personal (unverified) keys
                         settingsManager.setKeyVerified(false)
                         // Clear API KEY entry to avoid issues
-                        settingsManager.setAPIKEY("")
+                        settingsManager.setAPIKey(selectedProvider, "")
 
                         keyEntry.isEnabled = true
 
@@ -462,11 +466,11 @@ class SettingsActivity : WearableListenerActivity() {
                     if (!settingsManager.isKeyVerified())
                         settingsManager.setAPI(pref.value)
                     else
-                        settingsManager.setAPI(newValue.toString())
+                        settingsManager.setAPI(selectedProvider)
 
                     var providerEntry: ProviderEntry? = null
                     for (entry in providers) {
-                        if (entry.value == newValue.toString()) {
+                        if (entry.value == selectedProvider) {
                             providerEntry = entry
                             break
                         }
@@ -478,9 +482,9 @@ class SettingsActivity : WearableListenerActivity() {
                     keyEntry.isEnabled = false
                     personalKeyPref.isEnabled = false
 
-                    settingsManager.setAPI(newValue.toString())
+                    settingsManager.setAPI(selectedProvider)
                     // Clear API KEY entry to avoid issues
-                    settingsManager.setAPIKEY("")
+                    settingsManager.setAPIKey(selectedProvider, "")
 
                     apiCategory.removePreference(personalKeyPref)
                     apiCategory.removePreference(keyEntry)
@@ -499,7 +503,9 @@ class SettingsActivity : WearableListenerActivity() {
             if (WeatherManager.instance.isKeyRequired()) {
                 keyEntry.isEnabled = true
 
-                if (!settingsManager.getAPIKEY().isNullOrBlank() && !settingsManager.isKeyVerified())
+                if (!settingsManager.getAPIKey()
+                        .isNullOrBlank() && !settingsManager.isKeyVerified()
+                )
                     settingsManager.setKeyVerified(true)
 
                 if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
@@ -520,11 +526,6 @@ class SettingsActivity : WearableListenerActivity() {
                     apiCategory.removePreference(keyEntry)
                     apiCategory.removePreference(registerPref)
                 } else {
-                    // User is using personal (unverified) keys
-                    //getSettingsManager().setKeyVerified(false);
-                    // Clear API KEY entry to avoid issues
-                    //getSettingsManager().setAPIKEY("");
-
                     keyEntry.isEnabled = true
 
                     if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
@@ -540,7 +541,7 @@ class SettingsActivity : WearableListenerActivity() {
                 apiCategory.removePreference(registerPref)
                 settingsManager.setKeyVerified(false)
                 // Clear API KEY entry to avoid issues
-                settingsManager.setAPIKEY("")
+                settingsManager.setAPIKey("")
             }
 
             updateKeySummary()
@@ -576,16 +577,19 @@ class SettingsActivity : WearableListenerActivity() {
                     return
                 }
 
-                val fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey())
-                fragment.setPositiveButtonOnClickListener { dialog, which ->
+                val fragment = KeyEntryPreferenceDialogFragment.newInstance(
+                    preference.getKey(),
+                    providerPref.value
+                )
+                fragment.setPositiveButtonOnClickListener { dialog, _ ->
                     runWithView {
+                        val provider = fragment.apiProvider
                         val key = fragment.key
 
-                        val API = providerPref.value
                         try {
-                            if (WeatherManager.isKeyValid(key, API)) {
-                                settingsManager.setAPIKEY(key)
-                                settingsManager.setAPI(API)
+                            if (WeatherManager.isKeyValid(key, provider)) {
+                                settingsManager.setAPIKey(provider, key)
+                                settingsManager.setAPI(provider)
 
                                 settingsManager.setKeyVerified(true)
                                 updateKeySummary()
@@ -666,7 +670,7 @@ class SettingsActivity : WearableListenerActivity() {
         }
 
         private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
-            if (!settingsManager.getAPIKEY().isNullOrBlank()) {
+            if (!settingsManager.getAPIKey(providerPref.value).isNullOrBlank()) {
                 val keyVerified = settingsManager.isKeyVerified()
 
                 val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)

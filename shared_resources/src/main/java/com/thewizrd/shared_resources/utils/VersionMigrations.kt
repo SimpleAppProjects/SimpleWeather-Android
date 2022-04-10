@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.FeatureSettings
 import com.thewizrd.shared_resources.utils.DBUtils.updateLocationKey
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -87,6 +88,23 @@ internal object VersionMigrations {
                             .clearDiskCache()
                     }
                 }
+            }
+
+            if (settingsMgr.getVersionCode() < 315520500) {
+                // settings.getAPIKEY -> settings.getAPIKey
+                val weatherAPI = settingsMgr.getAPI()
+                if (weatherAPI != null) {
+                    settingsMgr.setAPIKey(weatherAPI, settingsMgr.getAPIKEY())
+                }
+
+                // DevSettings -> settings.setAPIKey
+                val devSettingsMap = DevSettingsEnabler.getPreferenceMap(context)
+                devSettingsMap.forEach { (key, value) ->
+                    if (value is String) {
+                        settingsMgr.setAPIKey(key, value)
+                    }
+                }
+                DevSettingsEnabler.clearPreferences(context)
             }
 
             val bundle = Bundle().apply {

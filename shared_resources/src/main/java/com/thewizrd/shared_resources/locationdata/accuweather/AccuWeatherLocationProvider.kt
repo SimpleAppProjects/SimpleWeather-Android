@@ -8,7 +8,6 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.locationdata.google.AndroidLocationProvider
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
@@ -69,11 +68,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
 
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
                     val key =
-                        (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                            ?: DevSettingsEnabler.getAPIKey(
-                                SimpleLibrary.instance.appContext,
-                                WeatherAPI.ACCUWEATHER
-                            )
+                        if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.ACCUWEATHER) else getAPIKey()
 
                     if (key.isNullOrBlank()) {
                         throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -149,11 +144,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
 
                     val settingsMgr = SimpleLibrary.instance.app.settingsManager
                     val key =
-                        (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                            ?: DevSettingsEnabler.getAPIKey(
-                                SimpleLibrary.instance.appContext,
-                                WeatherAPI.ACCUWEATHER
-                            )
+                        if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.ACCUWEATHER) else getAPIKey()
 
                     if (key.isNullOrBlank()) {
                         throw WeatherException(ErrorStatus.INVALIDAPIKEY)

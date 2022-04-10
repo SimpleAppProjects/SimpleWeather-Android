@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.R
 
@@ -31,11 +30,11 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
 
             key = WeatherAPI.AMBEE
             summaryProvider = Preference.SummaryProvider<EditTextPreference> {
-                DevSettingsEnabler.getAPIKey(it.context, WeatherAPI.AMBEE) ?: "null"
+                settingsManager.getAPIKey(WeatherAPI.AMBEE) ?: "null"
             }
             isPersistent = false
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                DevSettingsEnabler.setAPIKey(preference.context, preference.key, newValue?.toString())
+                settingsManager.setAPIKey(preference.key, newValue?.toString())
                 true
             }
         })
@@ -46,11 +45,11 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
 
             key = WeatherAPI.ACCUWEATHER
             summaryProvider = Preference.SummaryProvider<EditTextPreference> {
-                DevSettingsEnabler.getAPIKey(it.context, WeatherAPI.ACCUWEATHER) ?: "null"
+                settingsManager.getAPIKey(WeatherAPI.ACCUWEATHER) ?: "null"
             }
             isPersistent = false
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                DevSettingsEnabler.setAPIKey(preference.context, preference.key, newValue?.toString())
+                settingsManager.setAPIKey(preference.key, newValue?.toString())
                 true
             }
         })

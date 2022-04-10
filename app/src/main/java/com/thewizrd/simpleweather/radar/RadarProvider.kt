@@ -56,7 +56,10 @@ object RadarProvider {
         if (provider == WeatherAPI.OPENWEATHERMAP) {
             val owm = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
             // Fallback to default since API KEY is unavailable
-            if ((App.instance.settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) || App.instance.settingsManager.getAPIKEY() == null) {
+            if ((App.instance.settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) || App.instance.settingsManager.getAPIKey(
+                    WeatherAPI.OPENWEATHERMAP
+                ) == null
+            ) {
                 return EARTHWINDMAP
             }
         }

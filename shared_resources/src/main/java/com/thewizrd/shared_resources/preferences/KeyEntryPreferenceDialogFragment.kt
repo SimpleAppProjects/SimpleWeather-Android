@@ -21,14 +21,18 @@ class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat(
 
     var key: String? = null
         private set
+    var apiProvider: String = ""
+        private set
+
     private var keyEntry: EditText? = null
 
     companion object {
-        fun newInstance(key: String?): KeyEntryPreferenceDialogFragment {
+        fun newInstance(prefKey: String?, apiProvider: String): KeyEntryPreferenceDialogFragment {
             val fragment = KeyEntryPreferenceDialogFragment()
-            val b = Bundle(1)
-            b.putString(ARG_KEY, key)
-            fragment.arguments = b
+            fragment.arguments = Bundle(1).apply {
+                putString(ARG_KEY, prefKey)
+            }
+            fragment.apiProvider = apiProvider
             return fragment
         }
     }
@@ -78,6 +82,6 @@ class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat(
             }
         }
 
-        key = SimpleLibrary.instance.app.settingsManager.getAPIKEY()
+        key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
     }
 }

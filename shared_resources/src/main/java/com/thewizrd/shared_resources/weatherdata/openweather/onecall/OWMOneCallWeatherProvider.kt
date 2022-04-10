@@ -159,7 +159,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterfa
                 }
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+                val key =
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
@@ -276,7 +277,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterfa
                 var aqiData: AirQualityData? = null
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+                val key =
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null

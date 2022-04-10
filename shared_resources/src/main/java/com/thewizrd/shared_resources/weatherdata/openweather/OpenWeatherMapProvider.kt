@@ -143,7 +143,8 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 }
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+                val key =
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var currentResponse: Response? = null

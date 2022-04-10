@@ -195,7 +195,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     override fun onPause() {
         AnalyticsLogger.logEvent("SettingsFragment: onPause")
-        if (settingsManager.usePersonalKey() && settingsManager.getAPIKEY().isNullOrBlank() && WeatherManager.isKeyRequired(providerPref.value)) {
+        if (settingsManager.usePersonalKey() && settingsManager.getAPIKey(providerPref.value)
+                .isNullOrBlank() && WeatherManager.isKeyRequired(providerPref.value)
+        ) {
             // Fallback to supported weather provider
             val API = RemoteConfig.getDefaultWeatherProvider()
             providerPref.value = API
@@ -271,8 +273,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     override fun onBackPressed(): Boolean {
         if ((settingsManager.usePersonalKey() &&
-             settingsManager.getAPIKEY().isNullOrBlank() &&
-             WeatherManager.isKeyRequired(providerPref.value))) {
+                    settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
+                    WeatherManager.isKeyRequired(providerPref.value))) {
             // Set keyentrypref color to red
             showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null)
             return true
@@ -439,7 +441,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         providerPref.isPersistent = false
         providerPref.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-                if (!isWeatherAPISupported(newValue.toString())) {
+                val selectedProvider = newValue.toString()
+
+                if (!isWeatherAPISupported(selectedProvider)) {
                     runWithView {
                         navigateToPremiumFragment()
                     }
@@ -447,7 +451,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
 
                 val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(newValue.toString())
+                val selectedWProv = WeatherManager.getProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -471,7 +475,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                         // User is using personal (unverified) keys
                         settingsManager.setKeyVerified(false)
                         // Clear API KEY entry to avoid issues
-                        settingsManager.setAPIKEY("")
+                        settingsManager.setAPIKey(selectedProvider, "")
                         keyEntry.isEnabled = true
                         if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null) apiCategory.addPreference(keyEntry)
                         if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null) apiCategory.addPreference(registerPref)
@@ -484,10 +488,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     if (!settingsManager.isKeyVerified())
                         settingsManager.setAPI(pref.value)
                     else
-                        settingsManager.setAPI(newValue.toString())
+                        settingsManager.setAPI(selectedProvider)
 
                     val providerEntry =
-                        providers.find { entry -> entry.value == newValue.toString() }
+                        providers.find { entry -> entry.value == selectedProvider }
                     updateKeySummary(providerEntry!!.display)
                     updateRegisterLink(providerEntry.value)
                 } else {
@@ -495,9 +499,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     keyEntry.isEnabled = false
                     personalKeyPref.isEnabled = false
 
-                    settingsManager.setAPI(newValue.toString())
+                    settingsManager.setAPI(selectedProvider)
                     // Clear API KEY entry to avoid issues
-                    settingsManager.setAPIKEY("")
+                    settingsManager.setAPIKey(selectedProvider, "")
 
                     apiCategory.removePreference(personalKeyPref)
                     apiCategory.removePreference(keyEntry)
@@ -518,7 +522,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         if (WeatherManager.instance.isKeyRequired()) {
             keyEntry.isEnabled = true
 
-            if (!settingsManager.getAPIKEY().isNullOrBlank() && !settingsManager.isKeyVerified())
+            if (!settingsManager.getAPIKey().isNullOrBlank() && !settingsManager.isKeyVerified())
                 settingsManager.setKeyVerified(true)
 
             if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
@@ -539,11 +543,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 apiCategory.removePreference(keyEntry)
                 apiCategory.removePreference(registerPref)
             } else {
-                // User is using personal (unverified) keys
-                //getSettingsManager().setKeyVerified(false);
-                // Clear API KEY entry to avoid issues
-                //getSettingsManager().setAPIKEY("");
-
                 keyEntry.isEnabled = true
 
                 if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
@@ -559,7 +558,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             apiCategory.removePreference(registerPref)
             settingsManager.setKeyVerified(false)
             // Clear API KEY entry to avoid issues
-            settingsManager.setAPIKEY("")
+            settingsManager.setAPIKey("")
         }
 
         updateKeySummary()
@@ -803,16 +802,19 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 return
             }
 
-            val fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey())
+            val fragment = KeyEntryPreferenceDialogFragment.newInstance(
+                preference.getKey(),
+                providerPref.value
+            )
             fragment.setPositiveButtonOnClickListener {
                 runWithView {
+                    val provider = fragment.apiProvider
                     val key = fragment.key
 
-                    val API = providerPref.value
                     try {
-                        if (WeatherManager.isKeyValid(key, API)) {
-                            settingsManager.setAPIKEY(key)
-                            settingsManager.setAPI(API)
+                        if (WeatherManager.isKeyValid(key, provider)) {
+                            settingsManager.setAPIKey(provider, key)
+                            settingsManager.setAPI(provider)
 
                             settingsManager.setKeyVerified(true)
                             updateKeySummary()
@@ -820,7 +822,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
                             fragment.dialog?.dismiss()
                         } else {
-                            Toast.makeText(appCompatActivity, R.string.message_keyinvalid, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                appCompatActivity,
+                                R.string.message_keyinvalid,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } catch (e: WeatherException) {
                         Logger.writeLine(Log.ERROR, e)
@@ -859,7 +865,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
-        if (!settingsManager.getAPIKEY().isNullOrBlank()) {
+        if (!settingsManager.getAPIKey(providerPref.value).isNullOrBlank()) {
             val keyVerified = settingsManager.isKeyVerified()
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
             val summary = SpannableString(

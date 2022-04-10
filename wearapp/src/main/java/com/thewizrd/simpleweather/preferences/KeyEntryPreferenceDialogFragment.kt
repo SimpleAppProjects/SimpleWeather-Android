@@ -15,15 +15,18 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
 
     var key: String? = null
         private set
+    var apiProvider: String = ""
+        private set
 
     companion object {
-        fun newInstance(key: String?): KeyEntryPreferenceDialogFragment {
+        fun newInstance(prefKey: String?, apiProvider: String): KeyEntryPreferenceDialogFragment {
             val fragment = KeyEntryPreferenceDialogFragment().apply {
                 setStyle(STYLE_NO_FRAME, R.style.WearDialogFragmentTheme)
             }
-            val b = Bundle(1)
-            b.putString(ARG_KEY, key)
-            fragment.arguments = b
+            fragment.arguments = Bundle(1).apply {
+                putString(ARG_KEY, prefKey)
+            }
+            fragment.apiProvider = apiProvider
             return fragment
         }
     }
@@ -42,7 +45,7 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
         builder.setOnPositiveButtonClicked(posButtonClickListener)
         builder.setOnNegativeButtonClicked(negButtonClickListener)
 
-        key = SimpleLibrary.instance.app.settingsManager.getAPIKEY()
+        key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
     }
 
     override fun onBindDialogView(view: View) {

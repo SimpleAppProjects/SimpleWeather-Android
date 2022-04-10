@@ -103,9 +103,11 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         providerPref.entryValues = entryValues
         providerPref.isPersistent = false
         providerPref.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { preference, newValue ->
-                    val pref = preference as ListPreference
-                    val selectedWProv = WeatherManager.getProvider(newValue.toString())
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                val selectedProvider = newValue.toString()
+
+                val pref = preference as ListPreference
+                val selectedWProv = WeatherManager.getProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -125,7 +127,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                         // User is using personal (unverified) keys
                         settingsManager.setKeyVerified(false)
                         // Clear API KEY entry to avoid issues
-                        settingsManager.setAPIKEY("")
+                        settingsManager.setAPIKey(selectedProvider, "")
                         keyEntry.isEnabled = true
                         if (prefGroup.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null) prefGroup.addPreference(
                             keyEntry
@@ -139,19 +141,19 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                     if (!settingsManager.isKeyVerified())
                         settingsManager.setAPI(pref.value)
                     else
-                        settingsManager.setAPI(newValue.toString())
+                        settingsManager.setAPI(selectedProvider)
 
                     val providerEntry =
-                        providers.find { entry -> entry.value == newValue.toString() }
+                        providers.find { entry -> entry.value == selectedProvider }
                     updateKeySummary(providerEntry!!.display)
                     updateRegisterLink(providerEntry.value)
                 } else {
                     settingsManager.setKeyVerified(false)
                     keyEntry.isEnabled = false
 
-                    settingsManager.setAPI(newValue.toString())
+                    settingsManager.setAPI(selectedProvider)
                     // Clear API KEY entry to avoid issues
-                    settingsManager.setAPIKEY("")
+                    settingsManager.setAPIKey(selectedProvider, "")
 
                     prefGroup.removePreference(keyEntry)
                     prefGroup.removePreference(registerPref)
@@ -170,7 +172,9 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         if (WeatherManager.instance.isKeyRequired()) {
             keyEntry.isEnabled = true
 
-            if (!settingsManager.getAPIKEY().isNullOrBlank() && !settingsManager.isKeyVerified())
+            if (!settingsManager.getAPIKey(providerPref.value)
+                    .isNullOrBlank() && !settingsManager.isKeyVerified()
+            )
                 settingsManager.setKeyVerified(true)
 
             if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
@@ -200,7 +204,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
             prefGroup.removePreference(registerPref)
             settingsManager.setKeyVerified(false)
             // Clear API KEY entry to avoid issues
-            settingsManager.setAPIKEY("")
+            settingsManager.setAPIKey(providerPref.value, "")
         }
 
         updateKeySummary()
@@ -215,16 +219,19 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         }
 
         if (preference is EditTextPreference && (SettingsManager.KEY_APIKEY == preference.getKey())) {
-            val fragment = KeyEntryPreferenceDialogFragment.newInstance(preference.getKey())
+            val fragment = KeyEntryPreferenceDialogFragment.newInstance(
+                preference.getKey(),
+                providerPref.value
+            )
             fragment.setPositiveButtonOnClickListener {
                 runWithView {
+                    val provider = fragment.apiProvider
                     val key = fragment.key
 
-                    val API = providerPref.value
                     try {
-                        if (WeatherManager.isKeyValid(key, API)) {
-                            settingsManager.setAPIKEY(key)
-                            settingsManager.setAPI(API)
+                        if (WeatherManager.isKeyValid(key, provider)) {
+                            settingsManager.setAPIKey(provider, key)
+                            settingsManager.setAPI(provider)
 
                             settingsManager.setKeyVerified(true)
                             updateKeySummary()
@@ -251,7 +258,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
     }
 
     private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
-        if (!settingsManager.getAPIKEY().isNullOrBlank()) {
+        if (!settingsManager.getAPIKey(providerPref.value).isNullOrBlank()) {
             val keyVerified = settingsManager.isKeyVerified()
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
             val summary = SpannableString(
@@ -284,7 +291,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
     override fun canGoNext(): Boolean {
         if (settingsManager.usePersonalKey()
-            && settingsManager.getAPIKEY().isNullOrBlank()
+            && settingsManager.getAPIKey(providerPref.value).isNullOrBlank()
             && WeatherManager.isKeyRequired(providerPref.value)
         ) {
             showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null)

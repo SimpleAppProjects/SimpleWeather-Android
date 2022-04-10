@@ -18,6 +18,7 @@ import androidx.preference.PreferenceManager
 import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDAO
@@ -72,6 +73,7 @@ class SettingsManager(context: Context) {
         const val KEY_API = "API"
         const val KEY_APIKEY = "API_KEY"
         const val KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED"
+        private const val KEY_APIKEY_PREFIX = "api_key";
         private const val KEY_USECELSIUS = "key_usecelsius"
         private const val KEY_WEATHERLOADED = "weatherLoaded"
         const val KEY_FOLLOWGPS = "key_followgps"
@@ -601,7 +603,8 @@ class SettingsManager(context: Context) {
         editor.commit()
     }
 
-    fun getAPIKEY(): String? {
+    @Deprecated("Use getAPIKey()", ReplaceWith("getAPIKey()"))
+    internal fun getAPIKEY(): String? {
         return if (!preferences.contains(KEY_APIKEY)) {
             ""
         } else {
@@ -609,9 +612,33 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun setAPIKEY(key: String?) {
-        editor.putString(KEY_APIKEY, key)
+    fun getAPIKey(): String? {
+        return getAPI()?.let { getAPIKey(it) }
+    }
+
+    fun setAPIKey(key: String?) {
+        getAPI()?.let {
+            setAPIKey(it, key)
+        }
+    }
+
+    fun getAPIKey(@WeatherProviders provider: String): String? {
+        return preferences.getString("${KEY_APIKEY_PREFIX}_${provider}", null)
+    }
+
+    fun setAPIKey(@WeatherProviders provider: String, key: String?) {
+        editor.putString("${KEY_APIKEY_PREFIX}_${provider}", key)
         editor.commit()
+        if (SimpleLibrary.instance.app.isPhone) {
+            LocalBroadcastManager.getInstance(SimpleLibrary.instance.appContext)
+                .sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
+        }
+    }
+
+    fun getAPIKeyMap(): Map<String, Any?> {
+        return preferences.all.filter { (key, _) ->
+            key.startsWith(KEY_APIKEY_PREFIX, false)
+        }
     }
 
     fun useFollowGPS(): Boolean {

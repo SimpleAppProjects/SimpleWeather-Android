@@ -118,7 +118,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                     throw CancellationException()
                                 }
 
-                                if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKEY()
+                                if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKey()
                                         .isNullOrBlank() && wm.isKeyRequired()
                                 ) {
                                     throw CustomException(R.string.werror_invalidkey)

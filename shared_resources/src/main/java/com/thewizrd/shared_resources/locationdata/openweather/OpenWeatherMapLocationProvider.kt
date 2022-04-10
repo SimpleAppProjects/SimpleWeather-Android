@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.keys.Keys
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
@@ -28,7 +27,6 @@ import java.net.HttpURLConnection
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.HashSet
 
 class OpenWeatherMapLocationProvider : LocationProviderImpl() {
     companion object {
@@ -67,11 +65,7 @@ class OpenWeatherMapLocationProvider : LocationProviderImpl() {
 
             val settingsMgr = SimpleLibrary.instance.app.settingsManager
             val key =
-                (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                    ?: DevSettingsEnabler.getAPIKey(
-                        SimpleLibrary.instance.appContext,
-                        WeatherAPI.OPENWEATHERMAP
-                    )
+                if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
 
             if (key.isNullOrBlank()) {
                 throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -146,7 +140,7 @@ class OpenWeatherMapLocationProvider : LocationProviderImpl() {
     override suspend fun getLocation(
         coordinate: Coordinate,
         weatherAPI: String?
-    ): LocationQueryViewModel? = withContext(Dispatchers.IO) {
+    ): LocationQueryViewModel = withContext(Dispatchers.IO) {
         val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
 
         val client = SimpleLibrary.instance.httpClient
@@ -154,19 +148,13 @@ class OpenWeatherMapLocationProvider : LocationProviderImpl() {
         var result: ResponseItem? = null
         var wEx: WeatherException? = null
 
-        var location: LocationQueryViewModel?
-
         try {
             // If were under rate limit, deny request
             checkRateLimit()
 
             val settingsMgr = SimpleLibrary.instance.app.settingsManager
             val key =
-                (if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey())
-                    ?: DevSettingsEnabler.getAPIKey(
-                        SimpleLibrary.instance.appContext,
-                        WeatherAPI.OPENWEATHERMAP
-                    )
+                if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
 
             if (key.isNullOrBlank()) {
                 throw WeatherException(ErrorStatus.INVALIDAPIKEY)
@@ -224,13 +212,11 @@ class OpenWeatherMapLocationProvider : LocationProviderImpl() {
 
         if (wEx != null) throw wEx
 
-        location = if (result?.lat != null && result.lon != null) {
+        return@withContext if (result?.lat != null && result.lon != null) {
             createLocationModel(result, uLocale.language, weatherAPI!!)
         } else {
             LocationQueryViewModel()
         }
-
-        return@withContext location
     }
 
     @Throws(WeatherException::class)

@@ -146,7 +146,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
                 val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
-                val key = if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKEY() else getAPIKey()
+                val key =
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.TOMORROWIO) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var response: Response? = null
