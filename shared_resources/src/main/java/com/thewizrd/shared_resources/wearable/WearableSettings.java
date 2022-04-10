@@ -4,6 +4,7 @@ public class WearableSettings {
     public static final String KEY_API = "API";
     public static final String KEY_APIKEY = "API_KEY";
     public static final String KEY_APIKEYS = "api_keys";
+    public static final String KEY_APIKEYS_VERIFIED = "api_keys_verified";
     public static final String KEY_APIKEY_VERIFIED = "KeyVerified";
     public static final String KEY_FOLLOWGPS = "FollowGPS";
     public static final String KEY_UPDATETIME = "update_time";

@@ -64,6 +64,7 @@ import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
+import kotlinx.coroutines.Dispatchers
 import java.util.*
 
 class SettingsFragment : ToolbarPreferenceFragmentCompat(),
@@ -195,8 +196,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     override fun onPause() {
         AnalyticsLogger.logEvent("SettingsFragment: onPause")
-        if (settingsManager.usePersonalKey() && settingsManager.getAPIKey(providerPref.value)
-                .isNullOrBlank() && WeatherManager.isKeyRequired(providerPref.value)
+        if (settingsManager.usePersonalKey() &&
+            settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
+            WeatherManager.isKeyRequired(providerPref.value)
         ) {
             // Fallback to supported weather provider
             val API = RemoteConfig.getDefaultWeatherProvider()
@@ -206,7 +208,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             WeatherManager.instance.updateAPI()
 
             settingsManager.setPersonalKey(false)
-            settingsManager.setKeyVerified(true)
+            settingsManager.setKeyVerified(API, true)
         }
 
         // Unregister listener
@@ -401,20 +403,23 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
         keyEntry = findPreference(SettingsManager.KEY_APIKEY)!!
         personalKeyPref = findPreference(SettingsManager.KEY_USEPERSONALKEY)!!
-        personalKeyPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            if (newValue as Boolean) {
-                if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
-                    apiCategory.addPreference(keyEntry)
-                if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null)
-                    apiCategory.addPreference(registerPref)
-                keyEntry.isEnabled = true
-            } else {
-                val selectedWProv = WeatherManager.getProvider(providerPref.value)
+        personalKeyPref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                if (newValue as Boolean) {
+                    if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null)
+                        apiCategory.addPreference(keyEntry)
+                    if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null)
+                        apiCategory.addPreference(registerPref)
+                    keyEntry.isEnabled = true
+                } else {
+                    val selectedWProv = WeatherManager.getProvider(providerPref.value)
 
-                if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey().isNullOrBlank()) {
+                    if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey()
+                            .isNullOrBlank()
+                    ) {
                     // We're using our own (verified) keys
-                    settingsManager.setKeyVerified(true)
-                    settingsManager.setAPI(providerPref.value)
+                        settingsManager.setKeyVerified(providerPref.value, true)
+                        settingsManager.setAPI(providerPref.value)
                 }
 
                 keyEntry.isEnabled = false
@@ -467,25 +472,33 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
                     if (!settingsManager.usePersonalKey()) {
                         // We're using our own (verified) keys
-                        settingsManager.setKeyVerified(true)
+                        settingsManager.setKeyVerified(selectedProvider, true)
                         keyEntry.isEnabled = false
                         apiCategory.removePreference(keyEntry)
                         apiCategory.removePreference(registerPref)
                     } else {
                         // User is using personal (unverified) keys
-                        settingsManager.setKeyVerified(false)
-                        // Clear API KEY entry to avoid issues
-                        settingsManager.setAPIKey(selectedProvider, "")
+                        settingsManager.setKeyVerified(selectedProvider, false)
+
+                        // Show dialog to set key
+                        runWithView(Dispatchers.Main) {
+                            onDisplayPreferenceDialog(keyEntry)
+                        }
+
                         keyEntry.isEnabled = true
-                        if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null) apiCategory.addPreference(keyEntry)
-                        if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null) apiCategory.addPreference(registerPref)
+                        if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_APIKEY) == null) apiCategory.addPreference(
+                            keyEntry
+                        )
+                        if (apiCategory.findPreference<Preference?>(KEY_APIREGISTER) == null) apiCategory.addPreference(
+                            registerPref
+                        )
                     }
 
                     if (apiCategory.findPreference<Preference?>(SettingsManager.KEY_USEPERSONALKEY) == null)
                         apiCategory.addPreference(personalKeyPref)
 
                     // Reset to old value if not verified
-                    if (!settingsManager.isKeyVerified())
+                    if (!settingsManager.isKeyVerified(selectedProvider))
                         settingsManager.setAPI(pref.value)
                     else
                         settingsManager.setAPI(selectedProvider)
@@ -495,7 +508,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     updateKeySummary(providerEntry!!.display)
                     updateRegisterLink(providerEntry.value)
                 } else {
-                    settingsManager.setKeyVerified(false)
+                    settingsManager.setKeyVerified(selectedProvider, false)
                     keyEntry.isEnabled = false
                     personalKeyPref.isEnabled = false
 
@@ -522,8 +535,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         if (WeatherManager.instance.isKeyRequired()) {
             keyEntry.isEnabled = true
 
-            if (!settingsManager.getAPIKey().isNullOrBlank() && !settingsManager.isKeyVerified())
-                settingsManager.setKeyVerified(true)
+            if (!settingsManager.getAPIKey().isNullOrBlank() &&
+                !settingsManager.isKeyVerified(providerPref.value)
+            ) {
+                settingsManager.setKeyVerified(providerPref.value, true)
+            }
 
             if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
                 settingsManager.setPersonalKey(true)
@@ -538,7 +554,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
             if (!settingsManager.usePersonalKey()) {
                 // We're using our own (verified) keys
-                settingsManager.setKeyVerified(true)
+                settingsManager.setKeyVerified(providerPref.value, true)
                 keyEntry.isEnabled = false
                 apiCategory.removePreference(keyEntry)
                 apiCategory.removePreference(registerPref)
@@ -556,7 +572,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             apiCategory.removePreference(personalKeyPref)
             apiCategory.removePreference(keyEntry)
             apiCategory.removePreference(registerPref)
-            settingsManager.setKeyVerified(false)
+            settingsManager.setKeyVerified(providerPref.value, false)
             // Clear API KEY entry to avoid issues
             settingsManager.setAPIKey("")
         }
@@ -815,8 +831,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                         if (WeatherManager.isKeyValid(key, provider)) {
                             settingsManager.setAPIKey(provider, key)
                             settingsManager.setAPI(provider)
+                            settingsManager.setKeyVerified(provider, true)
 
-                            settingsManager.setKeyVerified(true)
                             updateKeySummary()
                             updateAlertPreference(WeatherManager.instance.supportsAlerts())
 
@@ -866,7 +882,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     private fun updateKeySummary(providerAPI: CharSequence? = providerPref.entry) {
         if (!settingsManager.getAPIKey(providerPref.value).isNullOrBlank()) {
-            val keyVerified = settingsManager.isKeyVerified()
+            val keyVerified = settingsManager.isKeyVerified(providerPref.value)
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
             val summary = SpannableString(
                 if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)

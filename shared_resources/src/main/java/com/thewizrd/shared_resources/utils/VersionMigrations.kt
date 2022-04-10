@@ -95,6 +95,7 @@ internal object VersionMigrations {
                 val weatherAPI = settingsMgr.getAPI()
                 if (weatherAPI != null) {
                     settingsMgr.setAPIKey(weatherAPI, settingsMgr.getAPIKEY())
+                    settingsMgr.setKeyVerified(weatherAPI, settingsMgr.isKeyVerified())
                 }
 
                 // DevSettings -> settings.setAPIKey
@@ -102,6 +103,7 @@ internal object VersionMigrations {
                 devSettingsMap.forEach { (key, value) ->
                     if (value is String) {
                         settingsMgr.setAPIKey(key, value)
+                        settingsMgr.setKeyVerified(key, true)
                     }
                 }
                 DevSettingsEnabler.clearPreferences(context)

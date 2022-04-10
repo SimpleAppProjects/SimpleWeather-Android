@@ -53,10 +53,10 @@ object DataSyncManager {
                     settingsMgr.setAPI(API)
                     if (WeatherManager.isKeyRequired(API)) {
                         settingsMgr.setAPIKey(API, API_KEY)
-                        settingsMgr.setKeyVerified(false)
+                        settingsMgr.setKeyVerified(API, keyVerified)
                     } else {
                         settingsMgr.setAPIKey(API, "")
-                        settingsMgr.setKeyVerified(false)
+                        settingsMgr.setKeyVerified(API, true)
                     }
                 }
 
@@ -105,12 +105,16 @@ object DataSyncManager {
                 }
 
                 val apiKeyMap = dataMap.getDataMap(WearableSettings.KEY_APIKEYS)
+                val apiKeyVerifyMap = dataMap.getDataMap(WearableSettings.KEY_APIKEYS_VERIFIED)
                 if (apiKeyMap != null) {
                     for (key in apiKeyMap.keySet()) {
                         settingsMgr.setAPIKey(
                             key,
                             apiKeyMap.getString(key)
                         )
+                        if (apiKeyVerifyMap != null) {
+                            settingsMgr.setKeyVerified(key, apiKeyVerifyMap.getBoolean(key, false))
+                        }
                     }
                 }
 

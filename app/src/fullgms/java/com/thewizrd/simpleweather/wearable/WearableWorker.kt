@@ -144,7 +144,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKey())
             mapRequest.dataMap.putBoolean(
                 WearableSettings.KEY_APIKEY_VERIFIED,
-                settingsManager.isKeyVerified()
+                settingsManager.getAPI()?.let { settingsManager.isKeyVerified(it) } ?: false
             )
             mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, settingsManager.useFollowGPS())
             mapRequest.dataMap.putString(
@@ -171,12 +171,15 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             }
 
             val apiKeyMap = DataMap()
+            val apiKeyVerifyMap = DataMap()
             for (entry in settingsManager.getAPIKeyMap()) {
                 if (entry.value is String) {
                     apiKeyMap.putString(entry.key, entry.value as String)
+                    apiKeyVerifyMap.putBoolean(entry.key, settingsManager.isKeyVerified(entry.key))
                 }
             }
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_APIKEYS, apiKeyMap)
+            mapRequest.dataMap.putDataMap(WearableSettings.KEY_APIKEYS_VERIFIED, apiKeyVerifyMap)
 
             mapRequest.dataMap.putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode())
             mapRequest.dataMap.putString(

@@ -72,7 +72,7 @@ class SettingsManager(context: Context) {
         // Settings Keys
         const val KEY_API = "API"
         const val KEY_APIKEY = "API_KEY"
-        const val KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED"
+        private const val KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED"
         private const val KEY_APIKEY_PREFIX = "api_key";
         private const val KEY_USECELSIUS = "key_usecelsius"
         private const val KEY_WEATHERLOADED = "weatherLoaded"
@@ -744,6 +744,10 @@ class SettingsManager(context: Context) {
     }
     // END - !ANDROID_WEAR
 
+    @Deprecated(
+        "Use isKeyVerified(String)",
+        ReplaceWith("isKeyVerified(null)")
+    )
     fun isKeyVerified(): Boolean {
         return if (!wuSharedPrefs.contains(KEY_APIKEY_VERIFIED)) {
             false
@@ -752,11 +756,36 @@ class SettingsManager(context: Context) {
         }
     }
 
+    @Deprecated(
+        "Use setKeyVerified(String, Boolean)",
+        ReplaceWith("setKeyVerified(null, true)")
+    )
     fun setKeyVerified(value: Boolean) {
         val wuEditor = wuSharedPrefs.edit()
         wuEditor.putBoolean(KEY_APIKEY_VERIFIED, value)
         wuEditor.apply()
         if (!value) wuEditor.remove(KEY_APIKEY_VERIFIED).apply()
+    }
+
+    fun isKeyVerified(provider: String): Boolean {
+        val prefKey = "${KEY_APIKEY_VERIFIED}_${provider}"
+
+        return if (!wuSharedPrefs.contains(prefKey)) {
+            false
+        } else {
+            wuSharedPrefs.getBoolean(prefKey, false)
+        }
+    }
+
+    fun setKeyVerified(provider: String, value: Boolean) {
+        val prefKey = "${KEY_APIKEY_VERIFIED}_${provider}"
+
+        wuSharedPrefs.edit {
+            putBoolean(prefKey, value)
+            if (!value) {
+                remove(prefKey)
+            }
+        }
     }
 
     fun usePersonalKey(): Boolean {
