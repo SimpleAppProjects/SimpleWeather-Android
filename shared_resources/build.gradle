@@ -162,13 +162,13 @@ task keyCheck(type:Exec) {
     commandLine 'cmd', '/c', 'keycheck.bat'
 
     doLast {
-        execResult.assertNormalExitValue()
+        executionResult.getOrNull()?.assertNormalExitValue()
     }
 }
 
 android.libraryVariants.all { variant ->
     def name = variant.flavorName
     if (name.contains('fullgms')) {
-        variant.preBuild.dependsOn keyCheck
+        variant.preBuildProvider.configure { dependsOn(keyCheck) }
     }
 }
