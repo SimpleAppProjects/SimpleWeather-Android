@@ -122,8 +122,8 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // Kotlin
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_version"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
@@ -147,9 +147,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
 
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha03'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha04'
     // 2.5.0-alpha01 needed for Gradle 7.1
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha03'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha04'
     // 2.5.0-alpha01 needed for Gradle 7.1
 
     implementation 'androidx.room:room-runtime:2.4.2'
@@ -160,7 +160,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.13.1'
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation 'com.ibm.icu:icu4j:70.1'
+    implementation 'com.ibm.icu:icu4j:71.1'
     implementation 'com.github.skydoves:colorpickerview:2.2.4'
 
     implementation("com.vimeo.stag:stag-library:2.6.0") {
@@ -188,7 +188,7 @@ dependencies {
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation 'com.google.android.play:core:1.10.3'
     fullgmsImplementation 'com.google.android.play:core-ktx:1.8.1'
-    fullgmsImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
+    fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 
     nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.11'
 }
