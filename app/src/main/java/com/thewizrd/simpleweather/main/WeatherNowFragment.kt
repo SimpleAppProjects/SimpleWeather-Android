@@ -117,6 +117,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.coroutines.coroutineContext
+import kotlin.math.abs
 import kotlin.math.min
 
 class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
@@ -1647,14 +1648,23 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 var lastGPSLocData = getSettingsManager().getLastGPSLocData()
 
                 // Check previous location difference
-                if (lastGPSLocData?.query != null &&
-                    mLocation != null && ConversionMethods.calculateGeopositionDistance(mLocation, location) < 1600) {
+                if (lastGPSLocData?.isValid == true &&
+                    mLocation != null && ConversionMethods.calculateGeopositionDistance(
+                        mLocation,
+                        location
+                    ) < 1600
+                ) {
                     return false
                 }
 
-                if (lastGPSLocData?.query != null &&
-                        Math.abs(ConversionMethods.calculateHaversine(lastGPSLocData.latitude, lastGPSLocData.longitude,
-                                location.latitude, location.longitude)) < 1600) {
+                if (lastGPSLocData?.isValid == true &&
+                    abs(
+                        ConversionMethods.calculateHaversine(
+                            lastGPSLocData.latitude, lastGPSLocData.longitude,
+                            location.latitude, location.longitude
+                        )
+                    ) < 1600
+                ) {
                     return false
                 }
 

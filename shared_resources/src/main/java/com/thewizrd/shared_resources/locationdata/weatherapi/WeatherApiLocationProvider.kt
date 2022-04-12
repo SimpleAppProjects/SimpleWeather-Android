@@ -25,6 +25,7 @@ import java.net.URLEncoder
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 class WeatherApiLocationProvider : LocationProviderImpl() {
     companion object {
@@ -186,7 +187,7 @@ class WeatherApiLocationProvider : LocationProviderImpl() {
             val locations = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
 
             for (item in locations) {
-                if (Math.abs(
+                if (abs(
                         ConversionMethods.calculateHaversine(
                             coordinate.latitude,
                             coordinate.longitude,

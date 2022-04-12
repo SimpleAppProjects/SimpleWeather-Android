@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import kotlin.math.abs
 
 abstract class LocationProviderImpl : LocationProviderImplInterface, IRateLimitedRequest {
     // Variables
@@ -71,7 +72,15 @@ abstract class LocationProviderImpl : LocationProviderImplInterface, IRateLimite
                 val addresses = geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 5)
 
                 for (addr in addresses) {
-                    if (Math.abs(ConversionMethods.calculateHaversine(coordinate.latitude, coordinate.longitude, addr.latitude, addr.longitude)) <= 100) {
+                    if (abs(
+                            ConversionMethods.calculateHaversine(
+                                coordinate.latitude,
+                                coordinate.longitude,
+                                addr.latitude,
+                                addr.longitude
+                            )
+                        ) <= 100
+                    ) {
                         result = addr
                         break
                     }

@@ -11,15 +11,16 @@ import android.os.HandlerThread
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import androidx.work.*
-import com.google.android.gms.location.*
 import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
 import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
 import com.thewizrd.shared_resources.tzdb.TZDBCache
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
@@ -32,7 +33,7 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.util.concurrent.*
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
@@ -292,8 +293,13 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                     // Check previous location difference
-                    if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(
-                                    lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
+                    if (lastGPSLocData?.isValid == true && ConversionMethods.calculateHaversine(
+                            lastGPSLocData.latitude,
+                            lastGPSLocData.longitude,
+                            location.latitude,
+                            location.longitude
+                        ).absoluteValue < 1600
+                    ) {
                         return@withContext false
                     }
 

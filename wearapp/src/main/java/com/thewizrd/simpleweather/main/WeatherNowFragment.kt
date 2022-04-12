@@ -776,7 +776,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 var lastGPSLocData = settingsManager.getLastGPSLocData()
 
                 // Check previous location difference
-                if (lastGPSLocData?.query != null &&
+                if (lastGPSLocData?.isValid == true &&
                     mLocation != null && ConversionMethods.calculateGeopositionDistance(
                         mLocation,
                         location
@@ -785,13 +785,14 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     return false
                 }
 
-                if (lastGPSLocData?.query != null &&
+                if (lastGPSLocData?.isValid == true &&
                     abs(
                         ConversionMethods.calculateHaversine(
                             lastGPSLocData.latitude, lastGPSLocData.longitude,
                             location.latitude, location.longitude
                         )
-                    ) < 1600) {
+                    ) < 1600
+                ) {
                     return false
                 }
 

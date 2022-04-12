@@ -630,7 +630,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
             }
 
-            if (gpsData != null) {
+            if (gpsData?.isValid == true) {
                 locations.add(0, gpsData)
             }
 
@@ -677,7 +677,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         if (appCompatActivity != null && getSettingsManager().useFollowGPS()) {
             var locData = getSettingsManager().getLastGPSLocData()
 
-            if (locData?.query == null) {
+            if (locData?.isValid != true) {
                 locData = updateLocation()
                 if (locData != null) {
                     getSettingsManager().saveLastGPSLocData(locData)
@@ -686,7 +686,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
             }
 
-            if (locData?.query != null) {
+            if (locData?.isValid == true) {
                 return@withContext locData
             }
         }

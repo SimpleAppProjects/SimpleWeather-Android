@@ -42,7 +42,7 @@ import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.util.concurrent.*
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
@@ -369,8 +369,13 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                     // Check previous location difference
-                    if (lastGPSLocData?.query != null && ConversionMethods.calculateHaversine(
-                                    lastGPSLocData.latitude, lastGPSLocData.longitude, location.latitude, location.longitude).absoluteValue < 1600) {
+                    if (lastGPSLocData?.isValid == true && ConversionMethods.calculateHaversine(
+                            lastGPSLocData.latitude,
+                            lastGPSLocData.longitude,
+                            location.latitude,
+                            location.longitude
+                        ).absoluteValue < 1600
+                    ) {
                         return@withContext false
                     }
 

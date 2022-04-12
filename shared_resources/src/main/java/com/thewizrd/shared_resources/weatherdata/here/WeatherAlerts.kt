@@ -13,6 +13,7 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.math.absoluteValue
 
 fun createWeatherAlerts(root: Rootobject, lat: Float, lon: Float): Collection<WeatherAlert>? {
     var weatherAlerts: Collection<WeatherAlert>? = null
@@ -31,7 +32,13 @@ fun createWeatherAlerts(root: Rootobject, lat: Float, lon: Float): Collection<We
         if (root.nwsAlerts?.watch != null) {
             for (watchItem in root.nwsAlerts.watch) {
                 // Add watch item if location is within 20km of the center of the alert zone
-                if (ConversionMethods.calculateHaversine(lat.toDouble(), lon.toDouble(), watchItem.latitude, watchItem.longitude) < 20000) {
+                if (ConversionMethods.calculateHaversine(
+                        lat.toDouble(),
+                        lon.toDouble(),
+                        watchItem.latitude,
+                        watchItem.longitude
+                    ).absoluteValue < 20000
+                ) {
                     weatherAlerts.add(createWeatherAlert(watchItem))
                 }
             }
@@ -39,7 +46,13 @@ fun createWeatherAlerts(root: Rootobject, lat: Float, lon: Float): Collection<We
         if (root.nwsAlerts?.warning != null) {
             for (warningItem in root.nwsAlerts.warning) {
                 // Add warning item if location is within 25km of the center of the alert zone
-                if (ConversionMethods.calculateHaversine(lat.toDouble(), lon.toDouble(), warningItem.latitude, warningItem.longitude) < 25000) {
+                if (ConversionMethods.calculateHaversine(
+                        lat.toDouble(),
+                        lon.toDouble(),
+                        warningItem.latitude,
+                        warningItem.longitude
+                    ).absoluteValue < 25000
+                ) {
                     weatherAlerts.add(createWeatherAlert(warningItem))
                 }
             }
