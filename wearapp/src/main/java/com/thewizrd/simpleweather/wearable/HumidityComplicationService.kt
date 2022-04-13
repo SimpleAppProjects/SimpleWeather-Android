@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
@@ -28,10 +28,8 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("75%").build()
@@ -62,10 +60,8 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("$humidityPct%").build()

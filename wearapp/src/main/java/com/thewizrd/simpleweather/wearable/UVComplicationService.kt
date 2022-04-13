@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.wearable
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import com.thewizrd.shared_resources.controls.UVIndexViewModel
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -30,10 +30,8 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
@@ -66,10 +64,8 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(uvModel.description).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(uvModel.index.toString()).build()

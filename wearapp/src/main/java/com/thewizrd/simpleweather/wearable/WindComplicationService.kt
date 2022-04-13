@@ -51,10 +51,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("5 mph, SSE").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
             }
@@ -131,6 +129,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_wind)).build()
+                ).setTapAction(
+                    getTapIntent(this)
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
@@ -141,11 +141,11 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(windSpeedLong).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
+                ).setTapAction(
+                    getTapIntent(this)
                 ).build()
             }
             else -> {

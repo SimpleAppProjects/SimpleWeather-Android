@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -11,10 +11,10 @@ import kotlin.math.roundToInt
 
 class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
-        private const val TAG = "WindComplicationService"
+        private const val TAG = "FeelsLikeComplicationService"
     }
 
-    override val supportedComplicationTypes: Set<ComplicationType> =
+    override val supportedComplicationTypes =
         setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
     private val complicationIconResId = R.drawable.wi_thermometer
 
@@ -30,10 +30,8 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     PlainComplicationText.Builder("Feels like: 75°").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_feelslike)).build()
@@ -47,10 +45,8 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     PlainComplicationText.Builder("75°").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
             }
@@ -90,10 +86,8 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_feelslike)).build()
@@ -109,11 +103,11 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     PlainComplicationText.Builder(tempStr).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
+                ).setTapAction(
+                    getTapIntent(this)
                 ).build()
             }
             else -> {

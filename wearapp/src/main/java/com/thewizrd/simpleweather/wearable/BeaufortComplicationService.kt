@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.wearable
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import com.thewizrd.shared_resources.controls.BeaufortViewModel
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.model.Beaufort
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -31,10 +31,8 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(getString(R.string.label_beaufort)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
@@ -69,10 +67,8 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(beaufortModel.beaufort.value).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(beaufortModel.progress.toString()).build()

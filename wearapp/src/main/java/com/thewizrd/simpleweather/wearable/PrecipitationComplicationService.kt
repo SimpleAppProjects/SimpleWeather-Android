@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
@@ -14,6 +14,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
 
     override val supportedComplicationTypes: Set<ComplicationType> =
         setOf(ComplicationType.RANGED_VALUE)
+    private val complicationIconResId = R.drawable.wi_umbrella
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -27,10 +28,8 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder(getString(R.string.label_chance)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            R.drawable.wi_umbrella
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("50%").build()
@@ -60,10 +59,8 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder(getString(R.string.label_chance)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            R.drawable.wi_umbrella
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("$popChance%").build()

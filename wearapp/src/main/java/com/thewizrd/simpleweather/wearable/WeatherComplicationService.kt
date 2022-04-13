@@ -22,6 +22,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
 
     override val supportedComplicationTypes =
         setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
+    private val complicationIconResId = R.drawable.wi_day_sunny
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -35,10 +36,8 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            R.drawable.wi_day_sunny
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
             }
@@ -50,10 +49,8 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     PlainComplicationText.Builder("70°").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            R.drawable.wi_day_sunny
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
             }

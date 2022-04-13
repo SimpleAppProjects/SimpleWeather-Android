@@ -4,7 +4,7 @@ import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import com.thewizrd.shared_resources.controls.AirQualityViewModel
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
 import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
@@ -87,10 +87,8 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                         .build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("57").build()
@@ -121,10 +119,8 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     PlainComplicationText.Builder(aqiModel.description).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            getThemeContextOverride(false),
-                            complicationIconResId
-                        )
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(aqiIndex.toString()).build()
