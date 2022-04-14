@@ -42,13 +42,17 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
         negButtonClickListener = listener
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
+    }
+
     override fun onPrepareDialogBuilder(builder: WearDialogParams.Builder) {
         super.onPrepareDialogBuilder(builder)
 
         builder.setOnPositiveButtonClicked(posButtonClickListener)
         builder.setOnNegativeButtonClicked(negButtonClickListener)
-
-        key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
     }
 
     override fun onCreateDialogView(context: Context): View {
@@ -59,8 +63,12 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
 
-        view.findViewById<EditText>(android.R.id.edit)?.doAfterTextChanged {
-            key = it?.toString()
+        view.findViewById<EditText>(android.R.id.edit)?.apply {
+            this.text.replace(0, this.text.length, key ?: "")
+
+            doAfterTextChanged {
+                key = it?.toString()
+            }
         }
 
         view.findViewById<TextView>(android.R.id.message)?.text = getPreference()?.dialogMessage
