@@ -16,18 +16,22 @@
         <Preference
             android:key="key_feedback"
             android:title="@string/pref_title_feedback"
-            android:summary="@string/pref_summary_feedback" />
+            android:summary="@string/pref_summary_feedback"
+            app:icon="@drawable/ic_baseline_feedback_24" />
 
         <Preference
             android:key="key_ratereview"
             app:isPreferenceVisible="false"
             android:title="@string/pref_title_rateandreview"
-            android:summary="@string/pref_summary_rateandreview" />
+            android:summary="@string/pref_summary_rateandreview"
+            app:icon="@drawable/ic_baseline_rate_review_24"
+            tools:isPreferenceVisible="true" />
 
         <Preference
             android:key="key_translate"
             android:title="@string/pref_title_translate"
-            android:summary="@string/pref_summary_translate">
+            android:summary="@string/pref_summary_translate"
+            app:icon="@drawable/ic_baseline_translate_24">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://poeditor.com/join/project?hash=x9AzamDQO8" />
