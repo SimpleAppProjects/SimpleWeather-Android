@@ -128,6 +128,8 @@ fun SettingsFragment.createPremiumPreference(): Preference {
 }
 
 fun SettingsFragment.AboutAppFragment.setupReviewPreference(preference: Preference) {
+    preference.isVisible = !BuildConfig.IS_NONGMS
+
     preference.onPreferenceClickListener = object : Preference.OnPreferenceClickListener {
         override fun onPreferenceClick(preference: Preference): Boolean {
             openPlayStore()
