@@ -202,10 +202,6 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProviderInterfac
                 forecastStream.closeQuietly()
 
                 weather = createWeatherData(currRoot, foreRoot)
-
-                // Add weather alerts if available
-                weather.weatherAlerts =
-                    createWeatherAlerts(currRoot.alerts, currRoot.data!!.first()!!.timezone!!)
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {

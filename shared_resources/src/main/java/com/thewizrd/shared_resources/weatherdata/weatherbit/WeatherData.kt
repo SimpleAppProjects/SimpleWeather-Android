@@ -9,10 +9,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
 import java.text.DecimalFormat
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.roundToInt
@@ -21,12 +18,10 @@ fun createWeatherData(currRoot: CurrentResponse, foreRoot: ForecastResponse): We
     return Weather().apply {
         val currData = currRoot.data?.first()!!
         val tzLong = currData.timezone!!
+        val zoneId = ZoneIdCompat.of(tzLong)
 
         location = createLocation(currData)
-        updateTime = ZonedDateTime.ofInstant(
-            Instant.ofEpochSecond(currData.ts!!.toLong()),
-            ZoneIdCompat.of(tzLong)
-        )
+        updateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currData.ts!!.toLong()), zoneId)
 
         // 16-day forecast
         forecast = ArrayList(16)
@@ -34,6 +29,16 @@ fun createWeatherData(currRoot: CurrentResponse, foreRoot: ForecastResponse): We
         for (day in foreRoot.data!!) {
             val fcast = createForecast(day!!)
             forecast.add(fcast)
+        }
+
+        currRoot.minutely?.let {
+            minForecast = ArrayList(it.size)
+
+            it.forEach { minute ->
+                minForecast.add(createMinutelyForecast(minute!!).apply {
+                    date = date.withZoneSameInstant(zoneId)
+                })
+            }
         }
 
         condition = createCondition(currData)
@@ -57,6 +62,8 @@ fun createWeatherData(currRoot: CurrentResponse, foreRoot: ForecastResponse): We
             condition.lowF = forecast[0].lowF
             condition.lowC = forecast[0].lowC
         }
+
+        weatherAlerts = createWeatherAlerts(currRoot.alerts, tzLong)
 
         source = WeatherAPI.WEATHERBITIO
     }
@@ -130,6 +137,13 @@ fun createForecast(forecast: ForecastDataItem): Forecast {
     }
 }
 
+fun createMinutelyForecast(item: MinutelyItem): MinutelyForecast {
+    return MinutelyForecast().apply {
+        date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(item.ts!!.toLong()), ZoneOffset.UTC)
+        rainMm = item.precip
+    }
+}
+
 fun createCondition(current: CurrentDataItem): Condition {
     return Condition().apply {
         weather = current.weather?.description?.toUpperCase()
@@ -182,7 +196,7 @@ fun createAtmosphere(current: CurrentDataItem): Atmosphere {
             visibilityKm = it
             visibilityMi = ConversionMethods.kmToMi(it)
         }
-        current.dewpt?.toFloat()?.let {
+        current.dewpt?.let {
             dewpointC = it
             dewpointF = ConversionMethods.CtoF(it)
         }
