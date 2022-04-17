@@ -14,7 +14,6 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
-import com.thewizrd.shared_resources.utils.ExceptionUtils.copyStackTrace
 import com.thewizrd.shared_resources.weatherdata.AirQualityProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
@@ -123,7 +122,9 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProviderInterfa
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).copyStackTrace(ex)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
+                    initCause(ex)
+                }
             } else if (ex is WeatherException) {
                 wEx = ex
             }
