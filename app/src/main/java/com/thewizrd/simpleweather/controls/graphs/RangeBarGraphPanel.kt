@@ -78,7 +78,7 @@ class RangeBarGraphPanel : LinearLayout {
         barChartView.setOnTouchListener(onTouchListener)
         barChartView.setDrawDataLabels(true)
         barChartView.setDrawIconLabels(true)
-        barChartView.setGraphMaxWidth(context.resources.getDimensionPixelSize(R.dimen.graph_max_width))
+        //barChartView.setGraphMaxWidth(context.resources.getDimensionPixelSize(R.dimen.graph_max_width))
 
         removeAllViews()
         this.addView(barChartView)
