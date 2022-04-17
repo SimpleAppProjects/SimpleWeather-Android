@@ -434,6 +434,17 @@ class UnitTests {
         }
     }
 
+    @Throws(WeatherException::class)
+    @Test
+    fun getWeatherbitIOWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERBITIO)
+            val weather =
+                getWeather(provider, Coordinate(39.9, -105.1)) // ~ Denver, CO
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
     @Test
     fun tzdbTest() {
         val tzLong = "Asia/Qostanay" // tzdb - 2018h

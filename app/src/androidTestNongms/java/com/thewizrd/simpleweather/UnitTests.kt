@@ -314,6 +314,38 @@ class UnitTests {
         }
     }
 
+    @Throws(WeatherException::class)
+    @Test
+    fun getWeatherAPIWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERAPI)
+            val weather = getWeather(provider)
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getTomorrowIOWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.TOMORROWIO)
+            val weather =
+                getWeather(provider, Coordinate(34.0207305, -118.6919157)) // ~ Los Angeles
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getWeatherbitIOWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERBITIO)
+            val weather =
+                getWeather(provider, Coordinate(39.9, -105.1)) // ~ Denver, CO
+            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
     @Test
     @Throws(WeatherException::class)
     fun owmLocationTest() {

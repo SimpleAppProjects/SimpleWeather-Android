@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.weatherdata.openweather.OpenWeatherMapProvi
 import com.thewizrd.shared_resources.weatherdata.openweather.onecall.OWMOneCallWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.shared_resources.weatherdata.weatherapi.WeatherApiProvider
+import com.thewizrd.shared_resources.weatherdata.weatherbit.WeatherBitIOProvider
 import com.thewizrd.shared_resources.weatherdata.weatherunlocked.WeatherUnlockedProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -68,6 +69,7 @@ class WeatherManager private constructor() : WeatherProviderImplInterface {
                 WeatherAPI.METEOFRANCE -> providerImpl = MeteoFranceProvider()
                 WeatherAPI.TOMORROWIO -> providerImpl = TomorrowIOWeatherProvider()
                 WeatherAPI.ACCUWEATHER -> providerImpl = AccuWeatherProvider()
+                WeatherAPI.WEATHERBITIO -> providerImpl = WeatherBitIOProvider()
                 else -> {
                     if (!BuildConfig.DEBUG) {
                         providerImpl = if (!BuildConfig.IS_NONGMS)

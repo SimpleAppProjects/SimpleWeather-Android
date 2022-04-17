@@ -101,6 +101,16 @@
         </value>
     </entry>
     <entry>
+        <key>weatherbitio</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "LocIQ",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>weatherapi</value>
     </entry>

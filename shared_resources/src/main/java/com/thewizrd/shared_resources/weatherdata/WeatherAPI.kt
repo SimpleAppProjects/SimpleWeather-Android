@@ -18,6 +18,7 @@ object WeatherAPI {
     const val METEOFRANCE = "meteofrance"
     const val TOMORROWIO = "tomorrowio"
     const val ACCUWEATHER = "accuweather"
+    const val WEATHERBITIO = "weatherbitio"
 
     // Location APIs
     const val ANDROID = "android"
@@ -37,7 +38,19 @@ object WeatherAPI {
      * 5) Add API to WeatherManager
      * 6) Add to remote_config_defaults.xml
      */
-    @StringDef(HERE, YAHOO, METNO, NWS, OPENWEATHERMAP, WEATHERAPI, WEATHERUNLOCKED, METEOFRANCE, TOMORROWIO, ACCUWEATHER)
+    @StringDef(
+        HERE,
+        YAHOO,
+        METNO,
+        NWS,
+        OPENWEATHERMAP,
+        WEATHERAPI,
+        WEATHERUNLOCKED,
+        METEOFRANCE,
+        TOMORROWIO,
+        ACCUWEATHER,
+        WEATHERBITIO
+    )
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
@@ -76,27 +89,27 @@ object WeatherAPI {
         }
 
     private val GMSFullAPIs = listOf(
-            ProviderEntry(
-                    "HERE Weather", HERE,
-                    "https://www.here.com/en",
-                    "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
-            ),
-            ProviderEntry(
-                    "MET Norway", METNO,
-                    "https://www.met.no/en", "https://www.met.no/en"
-            ),
-            ProviderEntry(
-                    "National Weather Service (United States)", NWS,
-                    "https://www.weather.gov", "https://www.weather.gov"
-            ),
-            ProviderEntry(
-                    "OpenWeatherMap", OPENWEATHERMAP,
-                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
-            ),
-            ProviderEntry(
-                "WeatherAPI.com", WEATHERAPI,
-                "https://weatherapi.com", "https://weatherapi.com/api"
-            ),
+        ProviderEntry(
+            "HERE Weather", HERE,
+            "https://www.here.com/en",
+            "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
+        ),
+        ProviderEntry(
+            "MET Norway", METNO,
+            "https://www.met.no/en", "https://www.met.no/en"
+        ),
+        ProviderEntry(
+            "National Weather Service (United States)", NWS,
+            "https://www.weather.gov", "https://www.weather.gov"
+        ),
+        ProviderEntry(
+            "OpenWeatherMap", OPENWEATHERMAP,
+            "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+        ),
+        ProviderEntry(
+            "WeatherAPI.com", WEATHERAPI,
+            "https://weatherapi.com", "https://weatherapi.com/api"
+        ),
         ProviderEntry(
             "WeatherUnlocked", WEATHERUNLOCKED,
             "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
@@ -108,44 +121,69 @@ object WeatherAPI {
         ProviderEntry(
             "Tomorrow.io", TOMORROWIO,
             "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+        ),
+        ProviderEntry(
+            "Weatherbit.io", WEATHERBITIO,
+            "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
         )
     )
 
     private val NonGMSAPIs = listOf(
-            ProviderEntry("MET Norway", METNO,
-                    "https://www.met.no/en", "https://www.met.no/en"),
-            ProviderEntry("National Weather Service (United States)", NWS,
-                    "https://www.weather.gov", "https://www.weather.gov"),
-            ProviderEntry("OpenWeatherMap", OPENWEATHERMAP,
-                    "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"),
-            ProviderEntry(
-                    "WeatherAPI.com", WEATHERAPI,
-                    "https://weatherapi.com", "https://weatherapi.com/api"),
-            ProviderEntry(
-                    "Tomorrow.io", TOMORROWIO,
-                    "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
-            )
+        ProviderEntry(
+            "MET Norway", METNO,
+            "https://www.met.no/en", "https://www.met.no/en"
+        ),
+        ProviderEntry(
+            "National Weather Service (United States)", NWS,
+            "https://www.weather.gov", "https://www.weather.gov"
+        ),
+        ProviderEntry(
+            "OpenWeatherMap", OPENWEATHERMAP,
+            "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+        ),
+        ProviderEntry(
+            "WeatherAPI.com", WEATHERAPI,
+            "https://weatherapi.com", "https://weatherapi.com/api"
+        ),
+        ProviderEntry(
+            "Tomorrow.io", TOMORROWIO,
+            "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+        ),
+        ProviderEntry(
+            "Weatherbit.io", WEATHERBITIO,
+            "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
+        )
     )
 
     private val TestingAPIs = listOf(
-            ProviderEntry(
-                    "AccuWeather", ACCUWEATHER,
-                    "https://www.accuweather.com/", "https://developer.accuweather.com/"
-            )
+        ProviderEntry(
+            "AccuWeather", ACCUWEATHER,
+            "https://www.accuweather.com/", "https://developer.accuweather.com/"
+        )
     )
 
     private val GMSFullLocationAPIs = listOf(
-            ProviderEntry("Google", ANDROID,
-                    "https://google.com/maps", "https://google.com/maps"),
-            ProviderEntry("LocationIQ", LOCATIONIQ,
-                    "https://locationiq.com", "https://locationiq.com"),
-            ProviderEntry("Google", GOOGLE,
-                    "https://google.com/maps", "https://google.com/maps"),
-            ProviderEntry("WeatherAPI.com", WEATHERAPI,
-                    "https://weatherapi.com", "https://weatherapi.com/api"),
-            ProviderEntry("Google", ACCUWEATHER,
-                    /* Uses AndroidLocationProvider | accuweather is used for locationid only */
-                    "https://google.com/maps", "https://google.com/maps")
+        ProviderEntry(
+            "Google", ANDROID,
+            "https://google.com/maps", "https://google.com/maps"
+        ),
+        ProviderEntry(
+            "LocationIQ", LOCATIONIQ,
+            "https://locationiq.com", "https://locationiq.com"
+        ),
+        ProviderEntry(
+            "Google", GOOGLE,
+            "https://google.com/maps", "https://google.com/maps"
+        ),
+        ProviderEntry(
+            "WeatherAPI.com", WEATHERAPI,
+            "https://weatherapi.com", "https://weatherapi.com/api"
+        ),
+        ProviderEntry(
+            "Google", ACCUWEATHER,
+            /* Uses AndroidLocationProvider | accuweather is used for locationid only */
+            "https://google.com/maps", "https://google.com/maps"
+        )
     )
 
     private val NonGMSLocationAPIs = listOf(
