@@ -45,7 +45,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProviderInterfac
         private const val FORECAST_QUERY_URL =
             BASE_URL + "forecast/daily?%s&lang=%s&units=M&key=%s"
         private const val ALERTS_QUERY_URL =
-            BASE_URL + "alerts?%s&lang=%s&units=M&key=%s"
+            BASE_URL + "alerts?%s&key=%s"
     }
 
     init {

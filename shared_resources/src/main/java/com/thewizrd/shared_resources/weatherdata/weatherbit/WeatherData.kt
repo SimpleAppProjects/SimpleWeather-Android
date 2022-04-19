@@ -175,10 +175,8 @@ fun createCondition(current: CurrentDataItem): Condition {
             }
         }
 
-        observationTime = LocalDateTime.parse(
-            current.obTime,
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ROOT)
-        ).atZone(
+        observationTime = ZonedDateTime.ofInstant(
+            Instant.ofEpochSecond(current.ts!!.toLong()),
             ZoneIdCompat.of(current.timezone)
         )
     }
@@ -206,10 +204,7 @@ fun createAtmosphere(current: CurrentDataItem): Atmosphere {
 fun createAstronomy(current: CurrentDataItem, foreRoot: ForecastResponse): Astronomy {
     return Astronomy().apply {
         val zoneId = ZoneIdCompat.of(current.timezone)
-        val obsTime = LocalDateTime.parse(
-            current.obTime,
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ROOT)
-        ).atZone(zoneId)
+        val obsTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(current.ts!!.toLong()), zoneId)
         val obsDateStr = obsTime.toLocalDate().toString()
 
         val currentDayFcast =
