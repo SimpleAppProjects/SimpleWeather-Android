@@ -100,11 +100,11 @@
                     android:layout_marginEnd="12dp"
                     android:background="@null"
                     android:button="@drawable/ic_expand_more_white_24dp"
-                    android:buttonTint="@android:color/white"
                     android:clickable="false"
                     android:duplicateParentState="true"
                     android:focusable="false"
-                    android:stateListAnimator="@animator/weather_detail_expandicon_anim" />
+                    android:stateListAnimator="@animator/weather_detail_expandicon_anim"
+                    app:buttonTint="@android:color/white" />
 
             </LinearLayout>
 
