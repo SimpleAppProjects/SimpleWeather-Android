@@ -43,7 +43,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
     override suspend fun buildUpdate(appWidgetId: Int, newOptions: Bundle): RemoteViews? {
         val locationSet = WidgetUtils.getLocationDataSet(appWidgetId) ?: return null
-        val locations = MutableList(locationSet.size) {
+        val locations = List(locationSet.size) {
             val location = locationSet.elementAt(it)
             if (location == Constants.KEY_GPS) {
                 settingsManager.getHomeData()
@@ -52,7 +52,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
             }
         }
 
-        val weather = MutableList(locations.size) {
+        val weather = List(locations.size) {
             val l = locations[it]
             l?.let { loc ->
                 val w = loadWeather(loc)
@@ -199,7 +199,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
             updateViews.setViewVisibility(locationItemId, View.VISIBLE)
         }
 
-        WidgetUtils.setMaxForecastLength(appWidgetId, locations.size)
+        WidgetUtils.setMaxForecastLength(appWidgetId, locations.filterNotNull().size)
 
         // Date + Time
         updateDateSize(updateViews, appWidgetId, newOptions)
