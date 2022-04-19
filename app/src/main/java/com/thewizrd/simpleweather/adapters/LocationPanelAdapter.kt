@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
@@ -11,12 +12,15 @@ import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.helpers.ObservableArrayList
 import com.thewizrd.shared_resources.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.App
@@ -460,7 +464,15 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         // Remove panel
         scope.launch {
             // Remove location from list
-            settingsManager.deleteLocation(panel.locationData!!.query)
+            val query = panel.locationData!!.query
+            settingsManager.deleteLocation(query)
+
+            // Notify location removed
+            LocalBroadcastManager.getInstance(App.instance.appContext)
+                .sendBroadcast(
+                    Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
+                        .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, query)
+                )
 
             remove(panel)
         }
@@ -615,6 +627,13 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
 
                                     val key: String = panelPair.second.locationData!!.query
                                     settingsManager.deleteLocation(key)
+
+                                    // Notify location removed
+                                    LocalBroadcastManager.getInstance(App.instance.appContext)
+                                        .sendBroadcast(
+                                            Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
+                                                .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, key)
+                                        )
                                 }
                             }
                         }

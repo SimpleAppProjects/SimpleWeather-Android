@@ -16,7 +16,7 @@ public enum LocationType {
         this.value = value;
     }
 
-    private static SparseArray<LocationType> map = new SparseArray<>();
+    private static final SparseArray<LocationType> map = new SparseArray<>();
 
     static {
         for (LocationType locationType : values()) {

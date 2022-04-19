@@ -566,6 +566,12 @@ object WidgetUtils {
         }
     }
 
+    fun removeLocation(query: String) {
+        widgetPrefs.edit {
+            remove(query)
+        }
+    }
+
     /**
      * Returns number of cells needed for given size of the widget.
      *

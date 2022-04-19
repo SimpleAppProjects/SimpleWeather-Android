@@ -198,21 +198,23 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
 
     private fun registerCommonReceiver() {
         mCommonReceiver = CommonActionsBroadcastReceiver()
-        val filter = IntentFilter()
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEREFRESH)
-        filter.addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-        filter.addAction(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE)
-        filter.addAction(CommonActions.ACTION_SETTINGS_SENDUPDATE)
-        filter.addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
-        filter.addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS)
-        filter.addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS)
-        filter.addAction(CommonActions.ACTION_IMAGES_UPDATEWORKER)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION)
+        val filter = IntentFilter().apply {
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEREFRESH)
+            addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+            addAction(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE)
+            addAction(CommonActions.ACTION_SETTINGS_SENDUPDATE)
+            addAction(CommonActions.ACTION_WEATHER_UPDATEWIDGETLOCATION)
+            addAction(CommonActions.ACTION_WIDGET_REFRESHWIDGETS)
+            addAction(CommonActions.ACTION_WIDGET_RESETWIDGETS)
+            addAction(CommonActions.ACTION_IMAGES_UPDATEWORKER)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION)
+            addAction(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
+        }
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mCommonReceiver, filter)
+            .registerReceiver(mCommonReceiver, filter)
     }
 
     private fun unregisterCommonReceiver() {

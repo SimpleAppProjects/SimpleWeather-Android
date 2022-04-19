@@ -7,6 +7,7 @@ public class CommonActions {
     public static final String ACTION_SETTINGS_UPDATEREFRESH = "SimpleWeather.Droid.action.SETTINGS_UPDATEREFRESH";
     public static final String ACTION_SETTINGS_UPDATEDATASYNC = "SimpleWeather.Droid.action.SETTINGS_UPDATEDATASYNC";
     public static final String ACTION_SETTINGS_SENDUPDATE = "SimpleWeather.Droid.action.SETTINGS_SENDUPDATE";
+    public static final String ACTION_WEATHER_LOCATIONREMOVED = "SimpleWeather.Droid.action.WEATHER_LOCATIONREMOVED";
     public static final String ACTION_WEATHER_SENDLOCATIONUPDATE = "SimpleWeather.Droid.action.WEATHER_SENDLOCATIONUPDATE";
     public static final String ACTION_WEATHER_SENDWEATHERUPDATE = "SimpleWeather.Droid.action.WEATHER_SENDWEATHERUPDATE";
     public static final String ACTION_WEATHER_UPDATEWIDGETLOCATION = "SimpleWeather.Droid.action.WEATHER_UPDATEWIDGETLOCATION";

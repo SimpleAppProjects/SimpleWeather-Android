@@ -23,7 +23,7 @@ public class ArrayMultiSelectListPreference extends MultiSelectListPreference {
     private List<CharSequence> mEntries;
     private List<CharSequence> mEntryValues;
 
-    private Set<String> mValues = new LinkedHashSet<>();
+    private final Set<String> mValues = new LinkedHashSet<>();
 
     public ArrayMultiSelectListPreference(Context context) {
         super(context);
