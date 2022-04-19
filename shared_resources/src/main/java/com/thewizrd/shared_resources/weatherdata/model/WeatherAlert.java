@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 public class WeatherAlert extends CustomJsonObject {
     @SerializedName("Type")
@@ -236,17 +237,18 @@ public class WeatherAlert extends CustomJsonObject {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         WeatherAlert that = (WeatherAlert) o;
 
         return type == that.type &&
                 severity == that.severity &&
-                title.equals(that.title) &&
-                //message.equals(that.message) &&
-                attribution.equals(that.attribution) &&
-                //date.equals(that.date) &&
-                expiresDate.equals(that.expiresDate);
+                Objects.equals(title, that.title) &&
+                //Objects.equals(message, that.message) &&
+                Objects.equals(attribution, that.attribution) &&
+                //Objects.equals(date, that.date) &&
+                Objects.equals(expiresDate, that.expiresDate);
     }
 
     @Override
