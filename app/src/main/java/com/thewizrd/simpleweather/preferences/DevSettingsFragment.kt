@@ -25,21 +25,6 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
         }.also { apiKeyCategory = it })
 
         apiKeyCategory.addPreference(EditTextPreference(context).apply {
-            title = "Ambee Key (Pollen)"
-            dialogTitle = "API Key"
-
-            key = WeatherAPI.AMBEE
-            summaryProvider = Preference.SummaryProvider<EditTextPreference> {
-                settingsManager.getAPIKey(WeatherAPI.AMBEE) ?: "null"
-            }
-            isPersistent = false
-            onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                settingsManager.setAPIKey(preference.key, newValue?.toString())
-                true
-            }
-        })
-
-        apiKeyCategory.addPreference(EditTextPreference(context).apply {
             title = "AccuWeather Key"
             dialogTitle = "API Key"
 
@@ -48,10 +33,27 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
                 settingsManager.getAPIKey(WeatherAPI.ACCUWEATHER) ?: "null"
             }
             isPersistent = false
-            onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                settingsManager.setAPIKey(preference.key, newValue?.toString())
-                true
+            onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    settingsManager.setAPIKey(preference.key, newValue?.toString())
+                    true
+                }
+        })
+
+        apiKeyCategory.addPreference(EditTextPreference(context).apply {
+            title = "Tomorrow.io Key"
+            dialogTitle = "API Key"
+
+            key = WeatherAPI.TOMORROWIO
+            summaryProvider = Preference.SummaryProvider<EditTextPreference> {
+                settingsManager.getAPIKey(WeatherAPI.TOMORROWIO) ?: "null"
             }
+            isPersistent = false
+            onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    settingsManager.setAPIKey(preference.key, newValue?.toString())
+                    true
+                }
         })
     }
 }

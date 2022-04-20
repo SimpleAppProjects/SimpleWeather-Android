@@ -9,12 +9,14 @@ import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
+import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.tzdb.TZDBCache
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNData
 import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
+import com.thewizrd.shared_resources.weatherdata.tomorrow.TomorrowIOWeatherProvider
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -154,6 +156,12 @@ abstract class WeatherProviderImpl : WeatherProviderImplInterface, IRateLimitedR
             } else if (this is AirQualityProviderInterface) {
                 val aqiData = this.getAirQualityData(location)
                 updateAQIData(location, weather, aqiData)
+            }
+        }
+
+        if (weather.condition.pollen == null) {
+            if (DevSettingsEnabler.isDevSettingsEnabled(SimpleLibrary.instance.appContext)) {
+                weather.condition.pollen = TomorrowIOWeatherProvider().getPollenData(location)
             }
         }
 

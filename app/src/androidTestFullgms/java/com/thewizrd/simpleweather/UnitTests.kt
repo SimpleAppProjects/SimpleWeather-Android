@@ -31,6 +31,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
 import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
 import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
+import com.thewizrd.shared_resources.weatherdata.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.simpleweather.images.ImageDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -442,6 +443,19 @@ class UnitTests {
             val weather =
                 getWeather(provider, Coordinate(39.9, -105.1)) // ~ Denver, CO
             Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
+    @Test
+    fun getPollenData() {
+        runBlocking(Dispatchers.Default) {
+            val provider = TomorrowIOWeatherProvider()
+            val location = provider.getLocation(Coordinate(34.0207305, -118.6919157))?.let {
+                LocationData(it)
+            }
+            Assert.assertNotNull(location)
+            val pollenData = provider.getPollenData(location!!)
+            Assert.assertNotNull(pollenData)
         }
     }
 

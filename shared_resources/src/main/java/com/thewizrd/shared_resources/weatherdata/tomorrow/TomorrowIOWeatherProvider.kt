@@ -15,8 +15,10 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.shared_resources.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.shared_resources.utils.APIRequestUtils.throwIfRateLimited
+import com.thewizrd.shared_resources.weatherdata.PollenProviderInterface
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProviderImpl
+import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
@@ -37,7 +39,7 @@ import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class TomorrowIOWeatherProvider : WeatherProviderImpl() {
+class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProviderInterface {
     companion object {
         private const val BASE_URL = "https://api.tomorrow.io/v4/timelines"
         private const val EVENTS_BASE_URL = "https://api.tomorrow.io/v4/events"
@@ -46,7 +48,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
     init {
         mLocationProvider = RemoteConfig.getLocationProvider(getWeatherAPI())
-                ?: LocationIQProvider()
+            ?: LocationIQProvider()
     }
 
     override fun getWeatherAPI(): String {
@@ -277,6 +279,92 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl() {
 
                 return@withContext weather!!
             }
+
+    override suspend fun getPollenData(location: LocationData): Pollen? =
+        withContext(Dispatchers.IO) {
+            var pollenData: Pollen? = null
+
+            val settingsMgr = SimpleLibrary.instance.app.settingsManager
+            val key =
+                if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.TOMORROWIO) else getAPIKey()
+
+            val client = SimpleLibrary.instance.httpClient
+            var response: Response? = null
+
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
+
+                val requestUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter("apikey", key)
+                    .appendQueryParameter("location", updateLocationQuery(location))
+                    .appendQueryParameter(
+                        "fields",
+                        "treeIndex,grassIndex,weedIndex"
+                    )
+                    .appendQueryParameter("timesteps", "current")
+                    .appendQueryParameter("units", "metric")
+                    .appendQueryParameter("timezone", "UTC")
+                    .build()
+
+                val request = Request.Builder()
+                    .cacheControl(
+                        CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build()
+                    )
+                    .url(requestUri.toString())
+                    .header("Accept", "application/json")
+                    .build()
+
+                // Connect to webstream
+                response = client.newCall(request).await()
+                checkForErrors(response)
+                // Load weather
+                val root = response.getStream().use {
+                    JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
+                }
+
+                root.data.timelines.firstOrNull()?.intervals?.firstOrNull()?.let { item ->
+                    pollenData = Pollen().apply {
+                        treePollenCount = when (item.values.treeIndex) {
+                            1, 2 -> Pollen.PollenCount.LOW
+                            3 -> Pollen.PollenCount.MODERATE
+                            4 -> Pollen.PollenCount.HIGH
+                            5 -> Pollen.PollenCount.VERY_HIGH
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+
+                        grassPollenCount = when (item.values.grassIndex) {
+                            1, 2 -> Pollen.PollenCount.LOW
+                            3 -> Pollen.PollenCount.MODERATE
+                            4 -> Pollen.PollenCount.HIGH
+                            5 -> Pollen.PollenCount.VERY_HIGH
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+
+                        ragweedPollenCount = when (item.values.weedIndex) {
+                            1, 2 -> Pollen.PollenCount.LOW
+                            3 -> Pollen.PollenCount.MODERATE
+                            4 -> Pollen.PollenCount.HIGH
+                            5 -> Pollen.PollenCount.VERY_HIGH
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                pollenData = null
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "TomorrowIOWeatherProvider: error getting pollen data"
+                )
+            } finally {
+                response?.closeQuietly()
+            }
+
+            return@withContext pollenData
+        }
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
