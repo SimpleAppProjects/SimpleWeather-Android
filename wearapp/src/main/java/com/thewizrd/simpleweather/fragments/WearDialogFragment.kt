@@ -1,11 +1,11 @@
 package com.thewizrd.simpleweather.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.FrameLayout
+import androidx.core.view.InputDeviceCompat
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.ViewConfigurationCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +17,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.WearChipButton
 import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding
 import com.thewizrd.simpleweather.databinding.LayoutWearDialogBinding
+import kotlin.math.roundToInt
 
 public class WearDialogFragment private constructor(private val params: WearDialogParams) :
     DialogFragment(), WearDialogInterface {
@@ -53,6 +54,24 @@ public class WearDialogFragment private constructor(private val params: WearDial
         })
 
         binding = LayoutWearDialogBinding.inflate(inflater, swipeLayoutBinding.root, true)
+
+        binding.scrollView.setOnGenericMotionListener(View.OnGenericMotionListener { v, event ->
+            if (event.action == MotionEvent.ACTION_SCROLL && event.isFromSource(InputDeviceCompat.SOURCE_ROTARY_ENCODER)) {
+                // Don't forget the negation here
+                val delta = -event.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
+                        ViewConfigurationCompat.getScaledVerticalScrollFactor(
+                            ViewConfiguration.get(v.context), v.context
+                        )
+
+                // Swap these axes if you want to do horizontal scrolling instead
+                v.scrollBy(0, delta.roundToInt())
+
+                return@OnGenericMotionListener true
+            }
+            false
+        })
+        binding.scrollView.requestFocus()
+
         return swipeLayoutBinding.root
     }
 
