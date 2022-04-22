@@ -145,7 +145,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
 
                 val settingsMgr = SimpleLibrary.instance.app.settingsManager
                 val key =
-                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(WeatherAPI.OPENWEATHERMAP) else getAPIKey()
+                    if (settingsMgr.usePersonalKey()) settingsMgr.getAPIKey(getWeatherAPI()) else getAPIKey()
 
                 val client = SimpleLibrary.instance.httpClient
                 var currentResponse: Response? = null
@@ -267,59 +267,45 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
     }
 
     override fun localeToLangCode(iso: String, name: String): String {
-        var code = "en"
-
-        code = when (iso) {
-            // Arabic
-            "ar",
-                // Bulgarian
-            "bg",
-                // Catalan
-            "ca",
-                // Croatian
-            "hr",
-                // Dutch
-            "nl",
-                // Farsi / Persian
-            "fa",
-                // Finnish
-            "fi",
-                // French
-            "fr",
-                // Galician
-            "gl",
-                // German
-            "de",
-                // Greek
-            "el",
-                // Hungarian
-            "hu",
-                // Italian
-            "it",
-                // Japanese
-            "ja",
-                // Lithuanian
-            "lt",
-                // Macedonian
-            "mk",
-                // Polish
-            "pl",
-                // Portuguese
-            "pt",
-                // Romanian
-            "ro",
-                // Russian
-            "ru",
-                // Slovak
-            "sk",
-                // Slovenian
-            "sl",
-                // Spanish
-            "es",
-                // Turkish
-            "tr",
-                // Vietnamese
-            "vi" -> iso
+        val code = when (iso) {
+            "af", // Afrikaans
+            "ar", // Arabic
+            "az", // Azerbaijani
+            "bg", // Bulgarian
+            "ca", // Catalan
+            "da", // Danish
+            "de", // German
+            "el", // Greek
+            "eu", // Basque
+            "fa", // Persian (Farsi)
+            "fi", // Finnish
+            "fr", // French
+            "gl", // Galician
+            "he", // Hebrew
+            "hi", // Hindi
+            "hr", // Croatian
+            "hu", // Hungarian
+            "id", // Indonesian
+            "it", // Italian
+            "ja", // Japanese
+            "lt", // Lithuanian
+            "mk", // Macedonian
+            "no", // Norwegian
+            "nl", // Dutch
+            "pl", // Polish
+            "ro", // Romanian
+            "ru", // Russian
+            "sv", // Swedish (sv or se)
+            "sk", // Slovak
+            "sl", // Slovenian
+            "es", // Spanish
+            "sr", // Serbian
+            "th", // Thai
+            "tr", // Turkish
+            "uk", // Ukrainian
+            "vi", // Vietnamese
+            "zu" /* Zulu */
+            -> iso
             // Chinese
             "zh" -> when (name) {
                 "zh-Hant",
@@ -332,20 +318,24 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     "zh_cn"
                 }
             }
+            // Portuguese
+            "pt" -> when (name) {
+                // Português Brasil
+                "pt-BR" -> "pt_br"
+                else -> "pt"
+            }
+            // Albanian
+            "sq" -> "al"
             // Czech
             "cs" -> "cz"
             // Korean
             "ko" -> "kr"
             // Latvian
             "lv" -> "la"
-            // Swedish
-            "sv" -> "se"
-            // Ukrainian
-            "uk" -> "ua"
-            else ->
-                // Default is English
-                "en"
+            // Default is English
+            else -> "en"
         }
+
         return code
     }
 
@@ -403,11 +393,13 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             "310", // light intensity drizzle rain
             "511", // freezing rain
             "611", // sleet
-            "612", // shower sleet
+            "612", // light shower sleet
+            "613", // shower sleet
             "615", // light rain and snow
             "616", // rain and snow
             "620" /* light shower snow */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
             }
 
             "313", // shower rain and drizzle
@@ -427,7 +419,8 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             }
 
             // heavy snow
-            "602" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
+            "602" -> weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
 
             // smoke
             "711" -> weatherIcon = WeatherIcons.SMOKE
@@ -435,10 +428,9 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             // haze
             "721" -> weatherIcon = if (isNight) WeatherIcons.WINDY else WeatherIcons.DAY_HAZE
 
-            // dust
-            "731",
-            "761",
-            "762" -> {
+            "731", // sand/ dust whirls
+            "761", /* dust */
+            -> {
                 weatherIcon = WeatherIcons.DUST
             }
 
@@ -447,7 +439,16 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
             }
 
-            // cloudy-gusts
+            // Sand
+            "751" -> {
+                weatherIcon = WeatherIcons.SANDSTORM
+            }
+
+            // volcanic ash
+            "762" -> {
+                weatherIcon = WeatherIcons.VOLCANO
+            }
+
             // squalls
             "771" -> weatherIcon =
                 if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS else WeatherIcons.DAY_CLOUDY_GUSTS
@@ -458,7 +459,6 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                 weatherIcon = WeatherIcons.TORNADO
             }
 
-            // day-sunny
             // clear sky
             "800" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
 
@@ -515,12 +515,13 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
         when (weather.condition.icon) {
             // The following cases can be present at any time of day
             WeatherIcons.SMOKE,
-            WeatherIcons.WINDY,
             WeatherIcons.DUST,
+            WeatherIcons.SANDSTORM,
+            WeatherIcons.VOLCANO,
             WeatherIcons.TORNADO,
             WeatherIcons.HURRICANE,
             WeatherIcons.SNOWFLAKE_COLD,
-            WeatherIcons.HAIL,
+            WeatherIcons.WINDY,
             WeatherIcons.STRONG_WIND -> {
                 if (!isNight) {
                     // Fallback to sunset/rise time just in case
