@@ -3,13 +3,13 @@ package com.thewizrd.simpleweather.controls.viewmodels
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphData
 import com.thewizrd.simpleweather.controls.graphs.RangeBarGraphDataSet
@@ -20,9 +20,8 @@ import kotlin.math.roundToInt
 object RangeBarGraphMapper {
     @JvmStatic
     private fun createIconDrawable(context: Context, icon: String): Drawable? {
-        val settingsMgr = App.instance.settingsManager
-        val iconsSource = settingsMgr.getIconsProvider()
-        val wip = WeatherIconsManager.getProvider(iconsSource)
+        val iconsSource = settingsManager.getIconsProvider()
+        val wip = sharedDeps.weatherIconsManager.getIconProvider(iconsSource)
 
         return if (wip is AVDIconsProviderInterface) {
             val avdProvider = wip as AVDIconsProviderInterface
@@ -39,7 +38,7 @@ object RangeBarGraphMapper {
     ): RangeBarGraphData? {
         if (forecastData == null) return null
 
-        val isFahrenheit = Units.FAHRENHEIT == App.instance.settingsManager.getTemperatureUnit()
+        val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
 
         val entryData = ArrayList<RangeBarGraphEntry>(forecastData.size)
 

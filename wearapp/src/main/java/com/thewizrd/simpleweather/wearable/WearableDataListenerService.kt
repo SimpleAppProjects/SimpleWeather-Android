@@ -2,10 +2,10 @@ package com.thewizrd.simpleweather.wearable
 
 import android.util.Log
 import com.google.android.gms.wearable.*
+import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import kotlinx.coroutines.*
 
 class WearableDataListenerService : WearableListenerService() {

@@ -2,6 +2,8 @@ package com.thewizrd.shared_resources.controls;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 public class ComboBoxItem {
     private String display;
     private String value;
@@ -40,8 +42,8 @@ public class ComboBoxItem {
 
         ComboBoxItem that = (ComboBoxItem) o;
 
-        if (display != null ? !display.equals(that.display) : that.display != null) return false;
-        return value != null ? value.equals(that.value) : that.value == null;
+        if (!Objects.equals(display, that.display)) return false;
+        return Objects.equals(value, that.value);
     }
 
     @Override

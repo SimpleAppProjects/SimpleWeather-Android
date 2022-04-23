@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.core.text.scale
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.common.controls.BaseForecastItemViewModel
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.simpleweather.databinding.ForecastItemBinding

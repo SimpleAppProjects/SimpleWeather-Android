@@ -11,26 +11,26 @@ import android.os.HandlerThread
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import androidx.work.*
-import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
-import com.thewizrd.shared_resources.location.LocationProvider
-import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ConversionMethods
-import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -155,14 +155,12 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
     private object WeatherUpdaterHelper {
         suspend fun executeWork(context: Context): Boolean {
-            val wm = WeatherManager.instance
-            val settingsManager = App.instance.settingsManager
             var locationChanged = false
 
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                 runCatching {
                     // Update configuration
-                    RemoteConfig.checkConfigAsync()
+                    remoteConfigService.checkConfigAsync()
                 }
             }
 
@@ -198,8 +196,6 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
         }
 
         private suspend fun getWeather(): Weather? = withContext(Dispatchers.IO) {
-            val settingsManager = App.instance.settingsManager
-
             Timber.tag(TAG).d("Getting weather data...")
 
             val weather = try {
@@ -221,9 +217,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
         @SuppressLint("MissingPermission")
         private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
-            val context = App.instance.appContext
-            val wm = WeatherManager.instance
-            val settingsManager = App.instance.settingsManager
+            val context = sharedDeps.context
+            val wm = weatherModule.weatherManager
             val locationProvider = LocationProvider(context)
 
             if (settingsManager.useFollowGPS()) {
@@ -317,7 +312,10 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                         return@withContext false
                     } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
                         val tzId =
-                            TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
+                            weatherModule.tzdbService.getTimeZone(
+                                query_vm.locationLat,
+                                query_vm.locationLong
+                            )
 
                         if ("unknown" != tzId) {
                             query_vm.locationTZLong = tzId
@@ -325,7 +323,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     }
 
                     // Save location as last known
-                    settingsManager.saveLastGPSLocData(LocationData(query_vm, location))
+                    settingsManager.saveLastGPSLocData(query_vm.toLocationData(location))
                     return@withContext true
                 }
             }

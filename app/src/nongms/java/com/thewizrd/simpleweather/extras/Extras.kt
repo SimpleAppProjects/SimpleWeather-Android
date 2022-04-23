@@ -5,19 +5,17 @@ package com.thewizrd.simpleweather.extras
 
 import android.content.Context
 import androidx.preference.Preference
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.utils.FileLoggingTree
-import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.preferences.SettingsFragment
 
-fun initializeExtras(app: ApplicationLib) {
-    if (!BuildConfig.DEBUG) {
-        Logger.registerLogger(FileLoggingTree(app.appContext))
-    }
+fun initializeExtras() {
+    // no-op
+}
+
+fun initializeFirebase(context: Context) {
+    // no-op
 }
 
 fun App.attachToBaseContext(context: Context) {
@@ -29,7 +27,9 @@ fun UserLocaleActivity.attachToBaseContext() {
 }
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return packKey != null && WeatherIconsManager.DEFAULT_ICONS.containsKey(packKey)
+    return packKey != null && sharedDeps.weatherIconsManager.defaultIconProviders.containsKey(
+        packKey
+    )
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {

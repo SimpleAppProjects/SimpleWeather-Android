@@ -12,9 +12,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
-import com.thewizrd.shared_resources.BR
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
+import com.thewizrd.common.BR
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.adapters.DetailItemAdapter

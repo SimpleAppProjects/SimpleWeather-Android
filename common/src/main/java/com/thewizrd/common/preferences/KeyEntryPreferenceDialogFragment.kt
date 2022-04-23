@@ -1,0 +1,85 @@
+package com.thewizrd.common.preferences
+
+import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doAfterTextChanged
+import androidx.preference.EditTextPreferenceDialogFragmentCompat
+import com.thewizrd.common.R
+import com.thewizrd.shared_resources.di.settingsManager
+
+class KeyEntryPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat() {
+    private var posButtonClickListener: View.OnClickListener? = null
+    private var negButtonClickListener: View.OnClickListener? = null
+
+    var key: String? = null
+        private set
+    var apiProvider: String = ""
+        private set
+
+    companion object {
+        fun newInstance(prefKey: String?, apiProvider: String): KeyEntryPreferenceDialogFragment {
+            val fragment = KeyEntryPreferenceDialogFragment()
+            fragment.arguments = Bundle(1).apply {
+                putString(ARG_KEY, prefKey)
+            }
+            fragment.apiProvider = apiProvider
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        key = settingsManager.getAPIKey(apiProvider)
+    }
+
+    override fun onCreateDialogView(context: Context): View {
+        val inflater = LayoutInflater.from(context)
+        return inflater.inflate(R.layout.layout_keyentry_dialog, null)
+    }
+
+    override fun onBindDialogView(view: View) {
+        super.onBindDialogView(view)
+
+        view.findViewById<EditText>(android.R.id.edit)?.apply {
+            this.text.replace(0, this.text.length, key ?: "")
+
+            doAfterTextChanged {
+                key = it?.toString()
+            }
+        }
+
+        view.findViewById<TextView>(android.R.id.message)?.text = preference?.dialogMessage
+    }
+
+    fun setPositiveButtonOnClickListener(listener: View.OnClickListener?) {
+        posButtonClickListener = listener
+    }
+
+    fun setNegativeButtonOnClickListener(listener: View.OnClickListener?) {
+        negButtonClickListener = listener
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun setupDialog(dialog: Dialog, style: Int) {
+        super.setupDialog(dialog, style)
+        val alertDialog = getDialog() as AlertDialog?
+        alertDialog?.setOnShowListener { dialog ->
+            val posButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+            val negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+            posButton.setOnClickListener(posButtonClickListener)
+            if (negButtonClickListener == null) {
+                negButton.setOnClickListener { dialog.dismiss() }
+            } else {
+                negButton.setOnClickListener(negButtonClickListener)
+            }
+        }
+    }
+}

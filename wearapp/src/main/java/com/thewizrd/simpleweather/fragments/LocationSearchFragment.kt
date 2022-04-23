@@ -22,17 +22,18 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
+import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -43,6 +44,7 @@ import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
 import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentLocationSearchBinding
 import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 
 class LocationSearchFragment : SwipeDismissFragment() {
@@ -55,7 +57,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
     private lateinit var binding: FragmentLocationSearchBinding
     private lateinit var mAdapter: LocationQueryAdapter
     private lateinit var swipeCallback: SwipeDismissFrameLayout.Callback
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
 
@@ -65,8 +67,8 @@ class LocationSearchFragment : SwipeDismissFragment() {
     }
 
     private val recyclerClickListener =
-        object : ListAdapterOnClickInterface<LocationQueryViewModel> {
-            override fun onClick(view: View, item: LocationQueryViewModel) {
+        object : ListAdapterOnClickInterface<LocationQuery> {
+            override fun onClick(view: View, item: LocationQuery) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     showLoading(true)
                     binding.recyclerView.isEnabled = false
@@ -77,7 +79,8 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     supervisorScope {
                         val deferredJob =
                             viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
-                                var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
+                                var queryResult: LocationQuery? =
+                                    LocationQuery()
 
                                 if (!item.locationQuery.isNullOrEmpty())
                                     queryResult = item
@@ -123,7 +126,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                     throw InterruptedException()
                                 } else if (queryResult.locationTZLong.isNullOrEmpty() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
                                     val tzId =
-                                        TZDBCache.getTimeZone(
+                                        weatherModule.tzdbService.getTimeZone(
                                             queryResult.locationLat,
                                             queryResult.locationLong
                                         )
@@ -134,7 +137,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                 if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                                     // Set default provider based on location
                                     val provider =
-                                        RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                                        remoteConfigService.getDefaultWeatherProvider(queryResult.locationCountry)
                                     settingsManager.setAPI(provider)
                                     queryResult.updateWeatherSource(provider)
                                     wm.updateAPI()
@@ -146,7 +149,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                                 // Check if location already exists
                                 val locData = settingsManager.getLocationData()
-                                val finalQueryResult: LocationQueryViewModel = queryResult
+                                val finalQueryResult: LocationQuery = queryResult
                                 val loc =
                                     locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
@@ -157,7 +160,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                                 ensureActive()
 
-                                val location = LocationData(queryResult)
+                                val location = queryResult.toLocationData()
                                 if (!location.isValid) {
                                     throw CustomException(R.string.werror_noweather)
                                 }
@@ -375,7 +378,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                     }
 
                     launch(Dispatchers.Main.immediate) {
-                        mAdapter.submitList(results.toList())
+                        mAdapter.submitList(results?.toList() ?: emptyList())
                         binding.progressBarContainer.visibility = View.GONE
                     }
                 } catch (e: Exception) {
@@ -383,7 +386,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                         if (e is WeatherException) {
                             showToast(e.message, Toast.LENGTH_SHORT)
                         }
-                        mAdapter.submitList(listOf(LocationQueryViewModel()))
+                        mAdapter.submitList(listOf(LocationQuery()))
                     }
                 }
             }

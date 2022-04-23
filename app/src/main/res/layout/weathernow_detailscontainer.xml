@@ -11,7 +11,7 @@
 
         <variable
             name="weatherView"
-            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+            type="com.thewizrd.common.controls.WeatherNowViewModel" />
 
     </data>
 

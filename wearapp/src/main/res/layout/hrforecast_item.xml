@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel" />
+            type="com.thewizrd.common.controls.HourlyForecastItemViewModel" />
     </data>
 
     <LinearLayout
@@ -35,7 +35,7 @@
             android:textAppearance="?textAppearanceBody1"
             tools:text="10PM" />
 
-        <com.thewizrd.shared_resources.controls.IconControl
+        <com.thewizrd.common.controls.IconControl
             android:id="@+id/hrforecast_icon"
             android:layout_width="0dp"
             android:layout_height="36dp"

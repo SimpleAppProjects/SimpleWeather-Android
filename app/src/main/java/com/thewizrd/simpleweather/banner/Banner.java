@@ -10,13 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
-import com.thewizrd.simpleweather.App;
-
 /**
  * Wrapper for the Material Banner implementation
  * Banner is managed by {@link BannerManager}
  */
 public class Banner {
+    private final Context mContext;
     private Drawable mBannerIcon;
     private CharSequence mMessageText;
     private CharSequence mPrimaryActionText;
@@ -24,23 +23,26 @@ public class Banner {
     private View.OnClickListener mPrimaryAction;
     private View.OnClickListener mSecondaryAction;
 
-    private Banner() {
+    private Banner(@NonNull Context context) {
+        mContext = context;
     }
 
-    public static Banner make(@StringRes int resId) {
-        Banner banner = new Banner();
-        banner.mMessageText = App.getInstance().getAppContext().getText(resId);
+    @NonNull
+    public static Banner make(@NonNull Context context, @StringRes int resId) {
+        Banner banner = new Banner(context);
+        banner.mMessageText = context.getText(resId);
         return banner;
     }
 
-    public static Banner make(CharSequence messageText) {
-        Banner banner = new Banner();
+    @NonNull
+    public static Banner make(@NonNull Context context, CharSequence messageText) {
+        Banner banner = new Banner(context);
         banner.mMessageText = messageText;
         return banner;
     }
 
-    public void setBannerIcon(@NonNull Context context, @DrawableRes int resId) {
-        this.mBannerIcon = ContextCompat.getDrawable(context, resId);
+    public void setBannerIcon(@DrawableRes int resId) {
+        this.mBannerIcon = ContextCompat.getDrawable(mContext, resId);
     }
 
     public void setBannerIcon(@Nullable Drawable drawable) {
@@ -48,7 +50,7 @@ public class Banner {
     }
 
     public void setPrimaryAction(@StringRes int resId, View.OnClickListener bannerAction) {
-        this.mPrimaryActionText = App.getInstance().getAppContext().getText(resId);
+        this.mPrimaryActionText = mContext.getText(resId);
         this.mPrimaryAction = bannerAction;
     }
 
@@ -58,7 +60,7 @@ public class Banner {
     }
 
     public void setSecondaryAction(@StringRes int resId, View.OnClickListener bannerAction) {
-        this.mSecondaryActionText = App.getInstance().getAppContext().getText(resId);
+        this.mSecondaryActionText = mContext.getText(resId);
         this.mSecondaryAction = bannerAction;
     }
 

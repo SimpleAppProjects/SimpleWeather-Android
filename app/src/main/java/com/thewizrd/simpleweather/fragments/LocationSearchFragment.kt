@@ -23,14 +23,15 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -42,6 +43,7 @@ import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -57,7 +59,7 @@ class LocationSearchFragment : WindowColorFragment() {
     private lateinit var mLocationAdapter: LocationQueryAdapter
     private lateinit var mFooterAdapter: LocationQueryFooterAdapter
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
 
@@ -90,8 +92,8 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     private val recyclerClickListener =
-        object : ListAdapterOnClickInterface<LocationQueryViewModel> {
-            override fun onClick(view: View, item: LocationQueryViewModel) {
+        object : ListAdapterOnClickInterface<LocationQuery> {
+            override fun onClick(view: View, item: LocationQuery) {
                 val props = Bundle()
                 props.putString("method", "recyclerClickListener.onClick")
                 AnalyticsLogger.logEvent("$TAG: onClick", props)
@@ -108,7 +110,8 @@ class LocationSearchFragment : WindowColorFragment() {
                     supervisorScope {
                         val deferredJob =
                             viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
-                                var queryResult: LocationQueryViewModel? = LocationQueryViewModel()
+                                var queryResult: LocationQuery? =
+                                    LocationQuery()
 
                                 if (!item.locationQuery.isNullOrBlank())
                                     queryResult = item
@@ -153,7 +156,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                     throw CustomException(R.string.error_retrieve_location)
                                 } else if (queryResult.locationTZLong.isNullOrBlank() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
                                     val tzId =
-                                        TZDBCache.getTimeZone(
+                                        weatherModule.tzdbService.getTimeZone(
                                             queryResult.locationLat,
                                             queryResult.locationLong
                                         )
@@ -164,7 +167,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                 if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                                     // Set default provider based on location
                                     val provider =
-                                        RemoteConfig.getDefaultWeatherProvider(queryResult.locationCountry)
+                                        remoteConfigService.getDefaultWeatherProvider(queryResult.locationCountry)
                                     getSettingsManager().setAPI(provider)
                                     queryResult.updateWeatherSource(provider)
                                 }
@@ -175,7 +178,7 @@ class LocationSearchFragment : WindowColorFragment() {
 
                                 // Check if location already exists
                                 val locData = getSettingsManager().getLocationData()
-                                val finalQueryResult: LocationQueryViewModel = queryResult
+                                val finalQueryResult: LocationQuery = queryResult
                                 val loc =
                                     locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
 
@@ -186,7 +189,7 @@ class LocationSearchFragment : WindowColorFragment() {
 
                                 ensureActive()
 
-                                val location = LocationData(queryResult)
+                                val location = queryResult.toLocationData()
                                 if (!location.isValid) {
                                     throw CustomException(R.string.werror_noweather)
                                 }
@@ -255,12 +258,17 @@ class LocationSearchFragment : WindowColorFragment() {
                                 runWithView {
                                     if (t is WeatherException || t is CustomException) {
                                         showSnackbar(
-                                            Snackbar.make(t.message, Snackbar.Duration.SHORT),
+                                            Snackbar.make(
+                                                view.context,
+                                                t.message,
+                                                Snackbar.Duration.SHORT
+                                            ),
                                             SnackbarWindowAdjustCallback(appCompatActivity!!)
                                         )
                                     } else {
                                         showSnackbar(
                                             Snackbar.make(
+                                                view.context,
                                                 R.string.error_retrieve_location,
                                                 Snackbar.Duration.SHORT
                                             ),
@@ -519,18 +527,22 @@ class LocationSearchFragment : WindowColorFragment() {
                     }
 
                     launch(Dispatchers.Main.immediate) {
-                        mLocationAdapter.submitList(results.toList())
+                        mLocationAdapter.submitList(results?.toList() ?: emptyList())
                         mAdapter.addAdapter(mFooterAdapter)
                     }
                 } catch (e: Exception) {
                     launch(Dispatchers.Main.immediate) {
                         if (e is WeatherException) {
                             showSnackbar(
-                                Snackbar.make(e.message, Snackbar.Duration.SHORT),
+                                Snackbar.make(
+                                    appCompatActivity!!,
+                                    e.message,
+                                    Snackbar.Duration.SHORT
+                                ),
                                 SnackbarWindowAdjustCallback(appCompatActivity!!)
                             )
                         }
-                        mLocationAdapter.submitList(listOf(LocationQueryViewModel()))
+                        mLocationAdapter.submitList(listOf(LocationQuery()))
                         mAdapter.addAdapter(mFooterAdapter)
                     }
                 }

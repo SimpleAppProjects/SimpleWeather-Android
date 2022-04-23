@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.LayoutRes;
 import androidx.preference.PreferenceScreen;
 
-import com.thewizrd.shared_resources.SimpleLibrary;
+import com.thewizrd.shared_resources.SharedModuleKt;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo;
@@ -21,7 +21,7 @@ public abstract class IconProviderPickerFragment extends RadioButtonPickerFragme
     private static final String TAG = "IconProviderPckrFrgmt";
 
     protected List<CandidateInfo> getCandidates() {
-        final Map<String, WeatherIconProvider> providers = SimpleLibrary.getInstance().getIconProviders();
+        final Map<String, WeatherIconProvider> providers = SharedModuleKt.getSharedDeps().getWeatherIconsManager().getIconProviders();
         final List<CandidateInfo> mCandidates = new ArrayList<>(providers.size());
 
         providers.forEach((s, wiProvider) -> {

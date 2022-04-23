@@ -7,16 +7,15 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.work.*
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.*
 
 class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     companion object {
@@ -120,7 +119,11 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
                     initChannel(context, mNotifyMgr)
 
                     // Update notification
-                    val mNotification = WeatherNotificationBuilder.updateNotification(NOT_CHANNEL_ID, WeatherNowViewModel(weather))
+                    val mNotification = WeatherNotificationBuilder.updateNotification(
+                        context,
+                        NOT_CHANNEL_ID,
+                        WeatherNowViewModel(weather)
+                    )
                     mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification)
                 } else if (!settingsManager.showOngoingNotification()) {
                     removeNotification(context)

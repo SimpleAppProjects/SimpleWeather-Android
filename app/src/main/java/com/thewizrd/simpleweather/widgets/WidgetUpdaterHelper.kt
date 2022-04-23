@@ -11,30 +11,30 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import com.thewizrd.common.controls.BaseForecastItemViewModel
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.ColorsUtils
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ColorsUtils
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.widgets.remoteviews.CustomBackgroundWidgetRemoteViewCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WidgetRemoteViewCreator
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -42,7 +42,6 @@ import kotlin.math.min
 
 object WidgetUpdaterHelper {
     private const val TAG = "WidgetUpdaterHelper"
-    private val settingsManager = App.instance.settingsManager
     private const val MAX_FORECASTS = 6
 
     @JvmStatic
@@ -371,7 +370,7 @@ object WidgetUpdaterHelper {
         }
 
         // WeatherIcon
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         val weatherIconResId = wim.getWeatherIconResource(forecast.weatherIcon)
         if (info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
             forecastPanel.setImageViewResource(iconId, weatherIconResId)
@@ -631,7 +630,7 @@ object WidgetUpdaterHelper {
         hrfcasts = if (forecasts?.isNotEmpty() == true) {
             forecasts
         } else {
-            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+            val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
             settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                 locData.query,
                 forecastLength,

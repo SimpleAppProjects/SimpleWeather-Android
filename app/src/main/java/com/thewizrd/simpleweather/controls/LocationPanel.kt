@@ -25,7 +25,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.card.MaterialCardView
-import com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+import com.thewizrd.common.controls.TextViewDrawableCompat
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -82,20 +82,20 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         strokeWidth = context.dpToPx(1f).toInt()
         setStrokeColor(
             AppCompatResources.getColorStateList(
-                context, if (FeatureSettings.isLocationPanelImageEnabled()) {
+                context, if (FeatureSettings.isLocationPanelImageEnabled) {
                     R.color.location_panel_card_stroke_imageon
                 } else {
                     R.color.location_panel_card_stroke_imageoff
                 }
             )
         )
-        checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled()) {
+        checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled) {
             ColorStateList.valueOf(Colors.WHITE)
         } else ColorStateList.valueOf(
             context.getAttrColor(R.attr.colorPrimary)
         )
         setRippleColorResource(
-            if (FeatureSettings.isLocationPanelImageEnabled()) {
+            if (FeatureSettings.isLocationPanelImageEnabled) {
                 R.color.location_panel_ripple_imageon
             } else {
                 R.color.location_panel_ripple_imageoff
@@ -104,7 +104,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         setCardForegroundColor(
             AppCompatResources.getColorStateList(
                 context,
-                if (FeatureSettings.isLocationPanelImageEnabled()) {
+                if (FeatureSettings.isLocationPanelImageEnabled) {
                     R.color.location_panel_foreground_imageon
                 } else {
                     R.color.location_panel_foreground_imageoff
@@ -130,17 +130,18 @@ class LocationPanel : MaterialCardView, CoroutineScope {
                 val backgroundUri = panelView.imageData?.imageURI
 
                 // Background
-                if (FeatureSettings.isLocationPanelImageEnabled() && backgroundUri != null) {
+                if (FeatureSettings.isLocationPanelImageEnabled && backgroundUri != null) {
                     mGlide.asBitmap()
-                            .load(backgroundUri)
-                            .apply(
-                                RequestOptions
-                                    .centerCropTransform()
-                                    .format(DecodeFormat.PREFER_RGB_565)
-                                    .error(null)
-                                    .placeholder(null)
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                    .skipMemoryCache(skipCache))
+                        .load(backgroundUri)
+                        .apply(
+                            RequestOptions
+                                .centerCropTransform()
+                                .format(DecodeFormat.PREFER_RGB_565)
+                                .error(null)
+                                .placeholder(null)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .skipMemoryCache(skipCache)
+                        )
                             .transition(BitmapTransitionOptions.withCrossFade())
                             .into(object : BitmapImageViewTarget(binding.imageView) {
                                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
@@ -200,8 +201,8 @@ class LocationPanel : MaterialCardView, CoroutineScope {
 
         this.tag = model.locationData
 
-        if (FeatureSettings.isLocationPanelImageEnabled() && model.imageData != null ||
-            !FeatureSettings.isLocationPanelImageEnabled() && model.locationName != null && tag != null
+        if (FeatureSettings.isLocationPanelImageEnabled && model.imageData != null ||
+            !FeatureSettings.isLocationPanelImageEnabled && model.locationName != null && tag != null
         ) {
             showLoading(false)
         }
@@ -224,7 +225,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
 
     private fun setStroke() {
         var strokeDp = 1f
-        if (FeatureSettings.isLocationPanelImageEnabled()) {
+        if (FeatureSettings.isLocationPanelImageEnabled) {
             if (isDragged) {
                 strokeDp = 3f
             } else if (isChecked) {

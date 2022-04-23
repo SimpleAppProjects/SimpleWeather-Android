@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.notifications
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -10,29 +11,31 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.utils.ImageUtils.bitmapFromDrawable
+import com.thewizrd.common.utils.ImageUtils.rotateBitmap
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ImageUtils.bitmapFromDrawable
-import com.thewizrd.shared_resources.utils.ImageUtils.rotateBitmap
 import com.thewizrd.shared_resources.utils.StringUtils.containsDigits
 import com.thewizrd.shared_resources.utils.StringUtils.isNullOrWhitespace
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
 
 object WeatherNotificationBuilder {
     private const val TAG = "WeatherNotificationBuilder"
 
-    fun updateNotification(notChannelID: String, viewModel: WeatherNowViewModel): Notification {
-        val context = App.instance.appContext
-        val settingsManager = App.instance.settingsManager
-        val wim = WeatherIconsManager.getInstance()
-        val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+    fun updateNotification(
+        context: Context,
+        notChannelID: String,
+        viewModel: WeatherNowViewModel
+    ): Notification {
+        val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         // Build update
         val updateViews = RemoteViews(

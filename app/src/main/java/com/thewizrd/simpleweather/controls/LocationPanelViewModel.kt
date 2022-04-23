@@ -2,23 +2,22 @@ package com.thewizrd.simpleweather.controls
 
 import androidx.annotation.DrawableRes
 import androidx.core.util.ObjectsCompat
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.images.getImageData
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class LocationPanelViewModel {
-    private val settingsManager = App.instance.settingsManager
-
     private var weather: Weather? = null
     private var unitCode: String? = null
     private var localeCode: String? = null
@@ -95,8 +94,8 @@ class LocationPanelViewModel {
     }
 
     private fun refreshView() {
-        val provider = WeatherManager.getProvider(weather!!.source)
-        val context = App.instance.appContext
+        val provider = weatherModule.weatherManager.getWeatherProvider(weather!!.source)
+        val context = appLib.context
 
         val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
         unitCode = settingsManager.getUnitString()

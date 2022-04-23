@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.thewizrd.shared_resources.utils.StringUtils" />
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.shared_resources.locationdata.LocationQuery" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/list_horizontal_padding"
+        android:paddingEnd="@dimen/list_horizontal_padding"
+        android:paddingTop="@dimen/list_vertical_padding"
+        android:paddingBottom="@dimen/list_vertical_padding">
+
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/list_horizontal_padding"
+            android:layout_marginLeft="@dimen/list_horizontal_padding"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:text="@{viewModel.locationName}"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/list_text_size"
+            app:layout_constraintBottom_toTopOf="@id/location_country"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/pin"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@id/pin"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="New York, New York" />
+
+        <TextView
+            android:id="@+id/location_country"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/list_horizontal_padding"
+            android:layout_marginLeft="@dimen/list_horizontal_padding"
+            android:text="@{viewModel.locationCountry}"
+            android:textAppearance="?android:textAppearanceSmallInverse"
+            android:textColor="@android:color/secondary_text_light_nodisable"
+            android:textSize="@dimen/list_secondary_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/pin"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@id/pin"
+            app:layout_constraintTop_toBottomOf="@id/location_name"
+            tools:text="USA" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/pin"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            app:srcCompat="@drawable/ic_place_white_24dp"
+            app:tint="?attr/colorPrimary"
+            android:visibility="@{StringUtils.isNullOrWhitespace(viewModel.locationQuery) &amp;&amp; StringUtils.isNullOrWhitespace(viewModel.locationCountry) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

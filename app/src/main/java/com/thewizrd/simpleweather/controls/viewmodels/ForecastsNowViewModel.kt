@@ -1,19 +1,21 @@
 package com.thewizrd.simpleweather.controls.viewmodels
 
+import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
-import com.thewizrd.simpleweather.App
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,15 +23,13 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-class ForecastsNowViewModel : ViewModel() {
-    private val settingsManager = App.instance.settingsManager
-
+class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
     var locationData: LocationData? = null
     var unitCode: String? = null
     var localeCode: String? = null
     var iconProvider: String? = null
 
-    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
     private var forecastData = MutableLiveData<List<Forecast>>()
     private var hourlyForecastsData = MutableLiveData<List<HourlyForecast>>()
@@ -61,7 +61,7 @@ class ForecastsNowViewModel : ViewModel() {
         if (locationData == null || !ObjectsCompat.equals(locationData?.query, location.query)) {
             viewModelScope.launch {
                 // Clone location data
-                locationData = LocationData(LocationQueryViewModel(location))
+                locationData = LocationQuery(location).toLocationData()
 
                 unitCode = settingsManager.getUnitString()
                 localeCode = LocaleUtils.getLocaleCode()
@@ -78,7 +78,7 @@ class ForecastsNowViewModel : ViewModel() {
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 currentHrForecastsData = withContext(Dispatchers.IO) {
-                    val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+                    val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
                     weatherDAO.getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                         location.query,
                         12,
@@ -109,7 +109,7 @@ class ForecastsNowViewModel : ViewModel() {
     }
 
     private val precipMinGraphMapper = Function<Forecasts?, List<MinutelyForecast>?> { input ->
-        val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+        val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
         val now = ZonedDateTime.now(
             locationData?.tzOffset
                 ?: ZoneOffset.UTC

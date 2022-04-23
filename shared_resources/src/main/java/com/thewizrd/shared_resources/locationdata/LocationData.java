@@ -1,7 +1,5 @@
 package com.thewizrd.shared_resources.locationdata;
 
-import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,9 +12,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.util.TimeZone;
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.DateTimeConstants;
-import com.thewizrd.shared_resources.SimpleLibrary;
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -142,20 +139,9 @@ public class LocationData extends CustomJsonObject {
         this.locationSource = locationSource;
     }
 
-    public static LocationData buildGPSLocation() {
-        String weatherSource = null;
-
-        if (SettingsManager.Companion.isLoaded()) {
-            final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
-            weatherSource = settingsMgr.getAPI();
-        }
-
-        return new LocationData(LocationQueryViewModel.buildEmptyModel(weatherSource), new Location(LocationManager.PASSIVE_PROVIDER));
-    }
-
     public LocationData() {
         if (SettingsManager.Companion.isLoaded()) {
-            final SettingsManager settingsMgr = SimpleLibrary.getInstance().getApp().getSettingsManager();
+            final SettingsManager settingsMgr = ApplicationLibKt.getAppLib().getSettingsManager();
             weatherSource = settingsMgr.getAPI();
         }
     }
@@ -168,33 +154,6 @@ public class LocationData extends CustomJsonObject {
         longitude = weather.getLocation().getLongitude();
         tzLong = weather.getLocation().getTzLong();
         weatherSource = weather.getSource();
-    }
-
-    @Ignore
-    public LocationData(@NonNull LocationQueryViewModel query_vm) {
-        query = query_vm.getLocationQuery();
-        name = query_vm.getLocationName();
-        latitude = query_vm.getLocationLat();
-        longitude = query_vm.getLocationLong();
-        tzLong = query_vm.getLocationTZLong();
-        weatherSource = query_vm.getWeatherSource();
-        locationSource = query_vm.getLocationSource();
-    }
-
-    @Ignore
-    public LocationData(@NonNull LocationQueryViewModel query_vm, @NonNull Location location) {
-        setData(query_vm, location);
-    }
-
-    public void setData(@NonNull LocationQueryViewModel query_vm, @NonNull Location location) {
-        query = query_vm.getLocationQuery();
-        name = query_vm.getLocationName();
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        tzLong = query_vm.getLocationTZLong();
-        locationType = LocationType.GPS;
-        weatherSource = query_vm.getWeatherSource();
-        locationSource = query_vm.getLocationSource();
     }
 
     @Override

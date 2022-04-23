@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import com.thewizrd.shared_resources.controls.UVIndexViewModel
+import com.thewizrd.common.controls.UVIndexViewModel
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.UV

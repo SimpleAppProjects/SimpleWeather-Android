@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.ForecastItemViewModel" />
+            type="com.thewizrd.common.controls.ForecastItemViewModel" />
     </data>
 
     <LinearLayout
@@ -44,7 +44,7 @@
                 app:autoSizeTextType="uniform"
                 tools:text="Thu 08" />
 
-            <com.thewizrd.shared_resources.controls.IconControl
+            <com.thewizrd.common.controls.IconControl
                 android:id="@+id/forecast_icon"
                 android:layout_width="32dp"
                 android:layout_height="36dp"
@@ -62,7 +62,7 @@
                 android:layout_gravity="center"
                 android:gravity="center">
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.common.controls.TextViewDrawableCompat
                     android:id="@+id/forecast_temphi"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -87,7 +87,7 @@
                     app:drawableWidth="30dp"
                     tools:text="0°" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.common.controls.TextViewDrawableCompat
                     android:id="@+id/forecast_templo"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -125,7 +125,7 @@
             app:popData="@{viewModel.extras}"
             app:windData="@{viewModel.extras}">
 
-            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+            <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/forecast_pop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -148,7 +148,7 @@
                 tools:drawableStartCompat="@drawable/wi_umbrella"
                 tools:text="50%" />
 
-            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+            <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/forecast_windspeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

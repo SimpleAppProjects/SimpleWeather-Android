@@ -11,9 +11,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.simpleweather.R
@@ -67,7 +67,7 @@ object PoPChanceNotificationHelper {
             initChannel(context)
         }
 
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
 
         // Should be within 0-3 hours
         val duration = Duration.between(now, forecast.date).toMinutes()
@@ -93,7 +93,7 @@ object PoPChanceNotificationHelper {
             notifBuilder.setSmallIcon(wim.getWeatherIconResource(WeatherIcons.UMBRELLA))
         } else {
             // Use default icon pack here; animated icons are not supported here
-            val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
             notifBuilder.setSmallIcon(wip.getWeatherIconResource(WeatherIcons.UMBRELLA))
         }
 

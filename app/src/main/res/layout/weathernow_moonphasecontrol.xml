@@ -19,7 +19,7 @@
 
         <variable
             name="weatherView"
-            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+            type="com.thewizrd.common.controls.WeatherNowViewModel" />
 
     </data>
 
@@ -228,7 +228,7 @@
             app:barrierDirection="top"
             app:constraint_referenced_ids="moonrise,moonset" />
 
-        <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+        <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
             android:id="@+id/moonrise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -251,7 +251,7 @@
             tools:drawableStart="@drawable/wi_moonrise"
             tools:text="4:01 PM" />
 
-        <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+        <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
             android:id="@+id/moonset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

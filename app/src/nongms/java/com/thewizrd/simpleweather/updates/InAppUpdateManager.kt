@@ -2,18 +2,8 @@ package com.thewizrd.simpleweather.updates
 
 import android.app.Activity
 import android.content.Context
-import android.content.IntentSender
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import com.thewizrd.shared_resources.preferences.FeatureSettings
-import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.ArrayList
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class InAppUpdateManager private constructor(context: Context) {

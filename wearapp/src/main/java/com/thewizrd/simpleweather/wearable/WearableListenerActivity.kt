@@ -17,13 +17,12 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
 import com.google.android.gms.wearable.CapabilityClient.OnCapabilityChangedListener
 import com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener
+import com.thewizrd.common.wearable.WearConnectionStatus
+import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.wearable.WearableHelper
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
@@ -91,8 +90,6 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     protected var mPhoneNodeWithApp: Node? = null
     private var mConnectionStatus = WearConnectionStatus.CONNECTING
     var isAcceptingDataUpdates = false
-
-    protected val settingsManager: SettingsManager = App.instance.settingsManager
 
     protected abstract val broadcastReceiver: BroadcastReceiver
     protected abstract val intentFilter: IntentFilter

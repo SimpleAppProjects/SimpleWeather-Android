@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.services.*
 import com.thewizrd.simpleweather.services.UpdaterUtils.Companion.updateAlarm
 import com.thewizrd.simpleweather.wearable.WearableWorker
@@ -40,7 +40,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             CommonActions.ACTION_SETTINGS_UPDATEGPS -> {
                 WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDUPDATE)
                 // Reset notification time for new location
-                App.instance.settingsManager.setLastPoPChanceNotificationTime(
+                settingsManager.setLastPoPChanceNotificationTime(
                     ZonedDateTime.of(
                         DateTimeUtils.getLocalDateTimeMIN(),
                         ZoneOffset.UTC
@@ -73,7 +73,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                     )
                 }
                 // Reset notification time for new location
-                App.instance.settingsManager.setLastPoPChanceNotificationTime(
+                settingsManager.setLastPoPChanceNotificationTime(
                     ZonedDateTime.of(
                         DateTimeUtils.getLocalDateTimeMIN(),
                         ZoneOffset.UTC

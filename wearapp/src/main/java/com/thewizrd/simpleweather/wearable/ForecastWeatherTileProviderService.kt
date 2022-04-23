@@ -4,17 +4,19 @@ import android.content.Context
 import android.text.TextUtils
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.common.controls.*
+import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isScreenRound
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.StringUtils.removeDigitChars
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
+import com.thewizrd.weather_api.weatherModule
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -26,7 +28,8 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
 
     override val LOGTAG = TAG
 
-    private val wim = WeatherIconsManager.getInstance()
+    private val wim: WeatherIconsManager
+        get() = sharedDeps.weatherIconsManager
 
     override suspend fun buildUpdate(weather: Weather): RemoteViews {
         val updateViews = RemoteViews(packageName, R.layout.tile_layout_weather)
@@ -131,10 +134,10 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
     }
 
     private suspend fun getForecasts(): List<ForecastItemViewModel> {
-        val locationData = settingsMgr.getHomeData()
+        val locationData = settingsManager.getHomeData()
 
         if (locationData?.isValid == true) {
-            val forecasts = settingsMgr.getWeatherForecastData(locationData.query)
+            val forecasts = settingsManager.getWeatherForecastData(locationData.query)
 
             if (forecasts?.forecast?.isNotEmpty() == true) {
                 val size = Math.min(FORECAST_LENGTH, forecasts.forecast.size)
@@ -152,13 +155,13 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
     }
 
     private suspend fun getHourlyForecasts(): List<HourlyForecastItemViewModel> {
-        val locationData = settingsMgr.getHomeData()
+        val locationData = settingsManager.getHomeData()
 
         if (locationData?.isValid == true) {
             val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
 
-            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
-            val forecasts = settingsMgr.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+            val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+            val forecasts = settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                 locationData.query,
                 FORECAST_LENGTH,
                 now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)

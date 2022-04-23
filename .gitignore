@@ -13,9 +13,9 @@
 /captures
 .externalNativeBuild
 API_KEY.txt
-/shared_resources/.cxx
-/shared_resources/src/main/jni/fullgms
-/shared_resources/src/fullgms/java/com/thewizrd/shared_resources/keys/Keys.java
+.cxx
+/weather-api/src/main/jni/fullgms
+/weather-api/src/fullgms/java/com/thewizrd/weather_api/keys/Keys.java
 /app/debug
 /app/release
 /app/fullgms

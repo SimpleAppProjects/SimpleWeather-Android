@@ -105,6 +105,8 @@ android {
 
 dependencies {
     implementation project(":shared_resources")
+    implementation project(":weather-api")
+    implementation project(":common")
     fullgmsImplementation project(":extras")
 
     // Unit Testing

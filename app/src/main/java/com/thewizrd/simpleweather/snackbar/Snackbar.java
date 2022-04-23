@@ -1,11 +1,11 @@
 package com.thewizrd.simpleweather.snackbar;
 
+import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-
-import com.thewizrd.simpleweather.App;
 
 /**
  * Wrapper for the Material Snackbar
@@ -16,17 +16,20 @@ public class Snackbar {
     private static final int LONG_DURATION_MS = 4000;
     private static final int VERYLONG_DURATION_MS = 4000;
 
+    private final Context mContext;
     private CharSequence mMessageText;
     private CharSequence mActionText;
     private View.OnClickListener mAction;
     private int mDurationMs;
 
-    private Snackbar() {
+    private Snackbar(@NonNull Context context) {
+        mContext = context;
     }
 
-    public static Snackbar make(@StringRes int resId, Snackbar.Duration duration) {
-        Snackbar snackbar = new Snackbar();
-        snackbar.mMessageText = App.getInstance().getAppContext().getText(resId);
+    @NonNull
+    public static Snackbar make(@NonNull Context context, @StringRes int resId, @NonNull Snackbar.Duration duration) {
+        Snackbar snackbar = new Snackbar(context);
+        snackbar.mMessageText = context.getText(resId);
 
         switch (duration) {
             default:
@@ -47,8 +50,9 @@ public class Snackbar {
         return snackbar;
     }
 
-    public static Snackbar make(CharSequence messageText, Snackbar.Duration duration) {
-        Snackbar snackbar = new Snackbar();
+    @NonNull
+    public static Snackbar make(@NonNull Context context, CharSequence messageText, @NonNull Snackbar.Duration duration) {
+        Snackbar snackbar = new Snackbar(context);
         snackbar.mMessageText = messageText;
 
         switch (duration) {
@@ -71,7 +75,7 @@ public class Snackbar {
     }
 
     public void setAction(@StringRes int resId, View.OnClickListener snackBarAction) {
-        this.mActionText = App.getInstance().getAppContext().getText(resId);
+        this.mActionText = mContext.getText(resId);
         this.mAction = snackBarAction;
     }
 

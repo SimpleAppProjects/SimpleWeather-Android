@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.thewizrd.simpleweather.App;
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.simpleweather.R;
 
 import java.util.Stack;
@@ -186,7 +186,7 @@ public final class SnackbarManager {
             mMainHandler.removeCallbacks(mHideRunnable);
             int durationMs = snackPair.snackbar.getDuration();
             if (durationMs >= 0) {
-                durationMs *= App.getInstance().getSettingsManager().getAnimatorScale();
+                durationMs *= ApplicationLibKt.getAppLib().getSettingsManager().getAnimatorScale();
                 mMainHandler.postDelayed(mHideRunnable, durationMs);
             }
         }

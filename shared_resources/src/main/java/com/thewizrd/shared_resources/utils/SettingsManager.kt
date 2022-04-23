@@ -3,35 +3,26 @@ package com.thewizrd.shared_resources.utils
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.content.edit
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import com.google.gson.stream.JsonReader
-import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.database.WeatherDatabase
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.Units.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -54,7 +45,10 @@ class SettingsManager(context: Context) {
     // Shared Settings
     private val preferences = PreferenceManager.getDefaultSharedPreferences(appContext)
     private val editor = preferences.edit()
-    private val wuSharedPrefs = appContext.getSharedPreferences(WeatherAPI.WEATHERUNDERGROUND, Context.MODE_PRIVATE)
+    private val wuSharedPrefs = appContext.getSharedPreferences(
+        WeatherAPI.WEATHERUNDERGROUND,
+        Context.MODE_PRIVATE
+    )
     private val versionPrefs = appContext.getSharedPreferences("version", Context.MODE_PRIVATE)
 
     companion object {
@@ -73,9 +67,9 @@ class SettingsManager(context: Context) {
         const val KEY_API = "API"
         const val KEY_APIKEY = "API_KEY"
         private const val KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED"
-        private const val KEY_APIKEY_PREFIX = "api_key";
+        const val KEY_APIKEY_PREFIX = "api_key"
         private const val KEY_USECELSIUS = "key_usecelsius"
-        private const val KEY_WEATHERLOADED = "weatherLoaded"
+        const val KEY_WEATHERLOADED = "weatherLoaded"
         const val KEY_FOLLOWGPS = "key_followgps"
         private const val KEY_LASTGPSLOCATION = "key_lastgpslocation"
         const val KEY_REFRESHINTERVAL = "key_refreshinterval"
@@ -148,13 +142,10 @@ class SettingsManager(context: Context) {
                 Timber.tag(TAG).e(ex, "Error on load(): lastGPSLocData")
             } finally {
                 if (lastGPSLocData?.tzLong.isNullOrEmpty()) {
-                    lastGPSLocData = LocationData.buildGPSLocation()
+                    lastGPSLocData = buildEmptyGPSLocation()
                 }
             }
         }
-
-        /* Version-specific Migrations */
-        VersionMigrations.performMigrations(appContext, getWeatherDB(), getLocationDB())
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -162,65 +153,6 @@ class SettingsManager(context: Context) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     private fun getLocationsDAO(): LocationsDAO = getLocationDB().locationsDAO()
-
-    // Shared Preferences listener
-    class SettingsListener(@NonNull private val app: ApplicationLib) : OnSharedPreferenceChangeListener {
-        private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(app.appContext)
-        private val settingsMgr = SettingsManager(app.appContext)
-
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-            if (key.isNullOrBlank()) return
-
-            val isWeatherLoaded = sharedPreferences.getBoolean(KEY_WEATHERLOADED, false)
-
-            when (key) {
-                KEY_API -> {
-                    // Weather Provider changed
-                    WeatherManager.instance.updateAPI()
-                    if (isWeatherLoaded) {
-                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
-                    }
-                }
-                KEY_USEPERSONALKEY -> {
-                    // Weather Provider changed
-                    WeatherManager.instance.updateAPI()
-                }
-                KEY_FOLLOWGPS -> {
-                    if (isWeatherLoaded) {
-                        val value = sharedPreferences.getBoolean(key, false)
-                        mLocalBroadcastManager.sendBroadcast(
-                                Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS))
-                        if (app.isPhone) mLocalBroadcastManager.sendBroadcast(
-                                Intent(if (value) CommonActions.ACTION_WIDGET_REFRESHWIDGETS else CommonActions.ACTION_WIDGET_RESETWIDGETS))
-                    }
-                }
-                KEY_REFRESHINTERVAL -> {
-                    if (isWeatherLoaded) {
-                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEREFRESH))
-                    }
-                }
-                KEY_DATASYNC -> {
-                    if (isWeatherLoaded) {
-                        // Reset UpdateTime value to force a refresh
-                        val dataSync = WearableDataSync.valueOf(sharedPreferences.getString(KEY_DATASYNC, "0")!!.toInt())
-                        settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
-                        // Reset interval if setting is off
-                        if (dataSync == WearableDataSync.OFF) settingsMgr.setRefreshInterval(
-                            DEFAULT_INTERVAL
-                        )
-                    }
-                }
-                KEY_ICONSSOURCE -> {
-                    WeatherIconsManager.getInstance().updateIconProvider()
-                }
-                KEY_DAILYNOTIFICATION -> {
-                    if (isWeatherLoaded) {
-                        mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION))
-                    }
-                }
-            }
-        }
-    }
 
     suspend fun getFavorites(): Collection<LocationData> {
         loadIfNeeded()
@@ -587,10 +519,10 @@ class SettingsManager(context: Context) {
         editor.commit()
     }
 
-    @WeatherProviders
+    @WeatherAPI.WeatherProviders
     fun getAPI(): String? {
         return if (!preferences.contains(KEY_API)) {
-            val API = RemoteConfig.getDefaultWeatherProvider()
+            val API = remoteConfigService.getDefaultWeatherProvider()
             setAPI(API)
             API
         } else {
@@ -598,13 +530,14 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun setAPI(@WeatherProviders api: String?) {
+    fun setAPI(@WeatherAPI.WeatherProviders api: String?) {
         editor.putString(KEY_API, api)
         editor.commit()
     }
 
     @Deprecated("Use getAPIKey()", ReplaceWith("getAPIKey()"))
-    internal fun getAPIKEY(): String? {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getAPIKEY(): String? {
         return if (!preferences.contains(KEY_APIKEY)) {
             ""
         } else {
@@ -622,17 +555,13 @@ class SettingsManager(context: Context) {
         }
     }
 
-    fun getAPIKey(@WeatherProviders provider: String): String? {
+    fun getAPIKey(@WeatherAPI.WeatherProviders provider: String): String? {
         return preferences.getString("${KEY_APIKEY_PREFIX}_${provider}", null)
     }
 
-    fun setAPIKey(@WeatherProviders provider: String, key: String?) {
+    fun setAPIKey(@WeatherAPI.WeatherProviders provider: String, key: String?) {
         editor.putString("${KEY_APIKEY_PREFIX}_${provider}", key)
         editor.commit()
-        if (SimpleLibrary.instance.app.isPhone) {
-            LocalBroadcastManager.getInstance(SimpleLibrary.instance.appContext)
-                .sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
-        }
     }
 
     fun getAPIKeyMap(): Map<String, Any?> {
@@ -834,7 +763,7 @@ class SettingsManager(context: Context) {
     }
 
     fun getIconsProvider(): String {
-        return preferences.getString(KEY_ICONSSOURCE, WeatherIconsProvider.KEY)!!
+        return preferences.getString(KEY_ICONSSOURCE, WeatherIconsEFProvider.KEY)!!
     }
 
     fun setIconsProvider(iconsSource: String?) {

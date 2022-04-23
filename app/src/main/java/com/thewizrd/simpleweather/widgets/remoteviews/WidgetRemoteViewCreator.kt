@@ -5,11 +5,11 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils

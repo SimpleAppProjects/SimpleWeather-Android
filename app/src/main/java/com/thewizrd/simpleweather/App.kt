@@ -18,12 +18,14 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import com.google.android.material.color.DynamicColors
-import com.thewizrd.shared_resources.AppState
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.common.CommonModule
+import com.thewizrd.common.commonModule
+import com.thewizrd.common.utils.SettingsListener
+import com.thewizrd.shared_resources.*
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.simpleweather.extras.attachToBaseContext
 import com.thewizrd.simpleweather.extras.initializeExtras
+import com.thewizrd.simpleweather.extras.initializeFirebase
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,92 +33,67 @@ import kotlinx.coroutines.launch
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
-class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configuration.Provider {
-    companion object {
-        const val HOMEIDX = 0
-
-        @JvmStatic
-        lateinit var instance: ApplicationLib
-            private set
-    }
-
-    private lateinit var context: Context
-    private lateinit var appProperties: Bundle
-    private lateinit var settingsMgr: SettingsManager
-    private lateinit var sharedPreferenceChangeListener: OnSharedPreferenceChangeListener
+class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
     private lateinit var applicationState: AppState
     private var mActivitiesStarted = 0
     private lateinit var mCommonReceiver: CommonActionsBroadcastReceiver
 
     private var isMainProcess = true
 
-    override fun getAppContext(): Context {
-        return context
-    }
-
-    override fun getPreferences(): SharedPreferences {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-    }
-
-    override fun getSettingsManager(): SettingsManager {
-        return settingsMgr
-    }
-
-    override fun registerAppSharedPreferenceListener() {
-        registerAppSharedPreferenceListener(sharedPreferenceChangeListener)
-    }
-
-    override fun registerAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
-        preferences.registerOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun unregisterAppSharedPreferenceListener() {
-        unregisterAppSharedPreferenceListener(sharedPreferenceChangeListener)
-    }
-
-    override fun unregisterAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
-        preferences.unregisterOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun getAppState(): AppState {
-        return applicationState
-    }
-
-    override fun isPhone(): Boolean {
-        return true
-    }
-
-    override fun getProperties(): Bundle {
-        return appProperties
-    }
-
     @SuppressLint("MissingPermission")
     override fun onCreate() {
         super.onCreate()
+
         isMainProcess = packageName == getProcessNameCompat()
-        context = if (isMainProcess) LocaleUtils.attachBaseContext(applicationContext) else applicationContext
-        appProperties = Bundle()
-        instance = this
+        registerActivityLifecycleCallbacks(this)
         applicationState = AppState.CLOSED
         mActivitiesStarted = 0
 
+        // Initialize app dependencies (library module chain)
+        // 1. ApplicationLib + SharedModule, 2. Firebase, 3. CommonModule, 4. ExtrasModule
+        appLib = object : ApplicationLib() {
+            override val context = LocaleUtils.attachBaseContext(applicationContext)
+            override val preferences: SharedPreferences
+                get() = PreferenceManager.getDefaultSharedPreferences(context)
+            private val sharedPreferenceChangeListener by lazy { SettingsListener(appLib) }
+
+            override fun registerAppSharedPreferenceListener() {
+                registerAppSharedPreferenceListener(sharedPreferenceChangeListener)
+            }
+
+            override fun registerAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
+                preferences.registerOnSharedPreferenceChangeListener(listener)
+            }
+
+            override fun unregisterAppSharedPreferenceListener() {
+                unregisterAppSharedPreferenceListener(sharedPreferenceChangeListener)
+            }
+
+            override fun unregisterAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
+                preferences.unregisterOnSharedPreferenceChangeListener(listener)
+            }
+
+            override val appState: AppState
+                get() = this@App.applicationState
+            override val isPhone = true
+            override val properties = Bundle()
+            override val settingsManager = SettingsManager(context)
+        }
+
         if (isMainProcess) {
-            registerActivityLifecycleCallbacks(this)
+            sharedDeps = object : SharedModule() {
+                override val context = appLib.context
+            }
 
-            // Initialize settings
-            settingsMgr = SettingsManager(this)
-            sharedPreferenceChangeListener = SettingsManager.SettingsListener(this)
+            initializeFirebase(applicationContext)
 
-            // Init shared library
-            SimpleLibrary.initialize(this)
+            // Initialize CommonModule: Version migrations (depends on SharedModule, Firebase)
+            commonModule = object : CommonModule() {
+                override val context = appLib.context
+            }
 
-            // Start logger
-            Logger.init(context)
-
-            // Init common action broadcast receiver
             registerCommonReceiver()
-
-            initializeExtras(this)
+            initializeExtras()
         }
 
         if (BuildConfig.DEBUG) {
@@ -159,10 +136,10 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
         if (isMainProcess) {
             // Load data if needed
             GlobalScope.launch(Dispatchers.Default) {
-                settingsMgr.loadIfNeeded()
+                appLib.settingsManager.loadIfNeeded()
             }
 
-            when (settingsMgr.getUserThemeMode()) {
+            when (appLib.settingsManager.getUserThemeMode()) {
                 UserThemeMode.FOLLOW_SYSTEM -> {
                     if (Build.VERSION.SDK_INT >= 29) {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -185,7 +162,7 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
                 }
             }
 
-            registerAppSharedPreferenceListener()
+            appLib.registerAppSharedPreferenceListener()
 
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
@@ -228,7 +205,6 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks, Configura
             unregisterActivityLifecycleCallbacks(this)
             // Shutdown logger
             Logger.shutdown()
-            SimpleLibrary.unregister()
         }
         super.onTerminate()
     }

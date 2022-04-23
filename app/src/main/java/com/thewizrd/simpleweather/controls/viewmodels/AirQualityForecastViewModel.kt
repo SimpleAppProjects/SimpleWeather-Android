@@ -1,30 +1,27 @@
 package com.thewizrd.simpleweather.controls.viewmodels
 
+import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
-import androidx.lifecycle.Observer
-import com.thewizrd.shared_resources.controls.AirQualityViewModel
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.common.controls.AirQualityViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
-import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.util.*
 
-class AirQualityForecastViewModel : ViewModel() {
-    private val settingsManager = App.instance.settingsManager
-
+class AirQualityForecastViewModel(app: Application) : AndroidViewModel(app) {
     var locationData: LocationData? = null
 
-    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
     private var currentForecastsData: LiveData<Forecasts>? = null
 
@@ -39,7 +36,7 @@ class AirQualityForecastViewModel : ViewModel() {
         if (locationData == null || !ObjectsCompat.equals(locationData?.query, location.query)) {
             viewModelScope.launch {
                 // Clone location data
-                locationData = LocationData(LocationQueryViewModel(location))
+                locationData = LocationQuery(location).toLocationData()
 
                 currentForecastsData?.removeObserver(forecastObserver)
                 currentForecastsData = withContext(Dispatchers.IO) {

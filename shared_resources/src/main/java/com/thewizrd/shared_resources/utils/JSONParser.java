@@ -6,11 +6,11 @@ import androidx.core.util.AtomicFile;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.thewizrd.shared_resources.locationdata.LocationData;
-import com.thewizrd.shared_resources.stag.generated.Stag;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.model.Atmosphere;
 import com.thewizrd.shared_resources.weatherdata.model.Condition;
@@ -38,11 +38,10 @@ import java.time.ZonedDateTime;
 
 public class JSONParser {
 
-    private static final Gson gson;
+    private static Gson gson;
 
     static {
         gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new Stag.Factory())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeConverter())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .registerTypeAdapter(LocationData.class, new CustomJsonConverter<>(LocationData.class))
@@ -59,6 +58,18 @@ public class JSONParser {
                 .registerTypeAdapter(WeatherAlert.class, new CustomJsonConverter<>(WeatherAlert.class))
                 .setDateFormat(DateTimeUtils.ZONED_DATETIME_FORMAT)
                 .serializeNulls()
+                .create();
+    }
+
+    public static void registerTypeAdapterFactory(TypeAdapterFactory factory) {
+        gson = gson.newBuilder()
+                .registerTypeAdapterFactory(factory)
+                .create();
+    }
+
+    public static void registerTypeAdapter(Type type, Object typeAdapter) {
+        gson = gson.newBuilder()
+                .registerTypeAdapter(type, typeAdapter)
                 .create();
     }
 

@@ -3,12 +3,12 @@ package com.thewizrd.simpleweather.services
 import android.content.Context
 import android.util.Log
 import androidx.work.*
-import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.images.ImageDataHelper
 import com.thewizrd.simpleweather.images.ImageDatabase
+import com.thewizrd.simpleweather.images.imageDataService
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CANCELALARM
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CHECKUPDATETIME
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_STARTALARM
@@ -105,7 +105,7 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
         Logger.writeLine(Log.INFO, "%s: Work started", TAG)
 
         // Check if cache is populated
-        if (!ImageDataHelper.getImageDataHelper().isEmpty && !FeatureSettings.isUpdateAvailable()) {
+        if (!imageDataService.isEmpty && !UpdateSettings.isUpdateAvailable) {
             // If so, check if we need to invalidate
             val updateTime = try {
                 ImageDatabase.getLastUpdateTime()
@@ -114,13 +114,13 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
                 0L
             }
 
-            if (updateTime > ImageDataHelper.getImageDBUpdateTime()) {
+            if (updateTime > imageDataService.getImageDBUpdateTime()) {
                 AnalyticsLogger.logEvent("ImgDBWorker: clearing image cache")
 
                 // if so, invalidate
-                ImageDataHelper.setImageDBUpdateTime(updateTime)
-                ImageDataHelper.getImageDataHelper().clearCachedImageData()
-                ImageDataHelper.invalidateCache(true)
+                imageDataService.setImageDBUpdateTime(updateTime)
+                imageDataService.clearCachedImageData()
+                imageDataService.invalidateCache(true)
             }
         }
 

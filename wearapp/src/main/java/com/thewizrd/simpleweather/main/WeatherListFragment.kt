@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
+import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter
-import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx

@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
-import com.thewizrd.shared_resources.controls.BeaufortViewModel
+import com.thewizrd.common.controls.BeaufortViewModel
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.model.Beaufort

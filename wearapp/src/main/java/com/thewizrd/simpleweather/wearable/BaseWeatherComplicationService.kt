@@ -8,8 +8,6 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
@@ -24,8 +22,6 @@ abstract class BaseWeatherComplicationService : SuspendingComplicationDataSource
     }
 
     protected val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    protected val settingsMgr: SettingsManager = App.instance.settingsManager
-
     protected abstract val supportedComplicationTypes: Set<ComplicationType>
 
     override fun onDestroy() {

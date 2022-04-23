@@ -8,10 +8,10 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener
+import com.thewizrd.common.wearable.WearConnectionStatus
+import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.wearable.WearConnectionStatus
-import com.thewizrd.shared_resources.wearable.WearableHelper
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivitySetupSyncBinding
 import com.thewizrd.simpleweather.helpers.showConfirmationOverlay

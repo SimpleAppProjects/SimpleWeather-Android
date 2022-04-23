@@ -138,7 +138,7 @@
                 app:barrierDirection="end"
                 app:constraint_referenced_ids="weather_hi,weather_lo" />
 
-            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+            <com.thewizrd.common.controls.TextViewDrawableCompat
                 android:id="@+id/weather_hi"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
@@ -168,7 +168,7 @@
                 tools:textColor="?attr/colorOnSurface"
                 tools:visibility="visible" />
 
-            <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+            <com.thewizrd.common.controls.TextViewDrawableCompat
                 android:id="@+id/weather_lo"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"

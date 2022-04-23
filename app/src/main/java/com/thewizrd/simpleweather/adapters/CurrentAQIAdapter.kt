@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.shared_resources.controls.AirQualityViewModel
+import com.thewizrd.common.controls.AirQualityViewModel
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.LayoutAqiForecastItemBinding
 

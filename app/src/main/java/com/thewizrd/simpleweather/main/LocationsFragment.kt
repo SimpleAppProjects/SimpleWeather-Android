@@ -45,25 +45,29 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFade
 import com.google.android.material.transition.MaterialFadeThrough
+import com.thewizrd.common.helpers.*
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.utils.ActivityUtils.setLightStatusBar
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.*
-import com.thewizrd.shared_resources.location.LocationProvider
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.tzdb.TZDBCache
-import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ActivityUtils.setLightStatusBar
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.App.Companion.instance
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter
@@ -75,6 +79,7 @@ import com.thewizrd.simpleweather.helpers.*
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.lang.Runnable
@@ -111,7 +116,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private var onBackPressedCallback: OnBackPressedCallback? = null
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     override fun getTitle(): Int {
         return R.string.label_nav_locations
@@ -176,7 +181,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     // Show error message and prompt to refresh
                     // Only warn once
                     if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        val snackbar = Snackbar.make(wEx.message, Snackbar.Duration.LONG)
+                        val snackbar =
+                            Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
                         snackbar.setAction(R.string.action_retry) { // Reset counter to allow retry
                             mErrorCounter[wEx.errorStatus.ordinal] = false
                             refreshLocations()
@@ -186,7 +192,13 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     }
                 ErrorStatus.QUERYNOTFOUND -> {
                     if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                rootView.context,
+                                wEx.message,
+                                Snackbar.Duration.LONG
+                            ), null
+                        )
                         mErrorCounter[wEx.errorStatus.ordinal] = true
                     }
                 }
@@ -194,7 +206,13 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     // Show error message
                     // Only warn once
                     if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                rootView.context,
+                                wEx.message,
+                                Snackbar.Duration.LONG
+                            ), null
+                        )
                         mErrorCounter[wEx.errorStatus.ordinal] = true
                     }
                 }
@@ -259,9 +277,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     } else {
                         showSnackbar(
                             Snackbar.make(
+                                requireContext(),
                                 R.string.error_retrieve_location,
                                 Snackbar.Duration.SHORT
-                            ), null
+                            )
                         )
                     }
                 }
@@ -269,12 +288,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
             override fun onRequestTimedOut() {
                 stopLocationUpdates()
-                showSnackbar(
-                    Snackbar.make(
-                        R.string.error_retrieve_location,
-                        Snackbar.Duration.SHORT
-                    ), null
-                )
+                context?.let {
+                    showSnackbar(
+                        Snackbar.make(
+                            it,
+                            R.string.error_retrieve_location,
+                            Snackbar.Duration.SHORT
+                        )
+                    )
+                }
                 removeGPSPanel()
             }
         }
@@ -453,10 +475,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             private val sendUpdateRunner = Runnable {
                 // Home has changed send notice
                 Timber.tag("LocationsFragment").d("Home changed; sending update")
-                LocalBroadcastManager.getInstance(instance.appContext)
+                LocalBroadcastManager.getInstance(appLib.context)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                                 .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
-                LocalBroadcastManager.getInstance(instance.appContext)
+                LocalBroadcastManager.getInstance(appLib.context)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
             }
         })
@@ -781,10 +803,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             if (gpsData != null) {
                 launch(Dispatchers.Default) {
                     val weather = WeatherDataLoader(gpsData)
-                            .loadWeatherData(WeatherRequest.Builder()
-                                    .forceRefresh(false)
-                                    .setErrorListener(this@LocationsFragment)
-                                    .build())
+                        .loadWeatherData(
+                            WeatherRequest.Builder()
+                                .forceRefresh(false)
+                                .setErrorListener(this@LocationsFragment)
+                                .build()
+                        )
 
                     onWeatherLoaded(gpsData, weather)
                 }
@@ -859,13 +883,14 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
 
                 if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                    val tzId =
+                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
                     if ("unknown" != tzId)
                         view.locationTZLong = tzId
                 }
 
                 // Save location as last known
-                locationData = LocationData(view, location)
+                locationData = view.toLocationData(location)
             }
         }
 
@@ -898,7 +923,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     // functionality that depends on this permission.
                     getSettingsManager().setFollowGPS(false)
                     removeGPSPanel()
-                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
                 }
                 return
             }
@@ -916,7 +949,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 if (mEditMode && dataMoved)
                     mDataChanged = true
 
-                if (mEditMode && (e.newStartingIndex == App.HOMEIDX || e.oldStartingIndex == App.HOMEIDX))
+                if (mEditMode && (e.newStartingIndex == 0 || e.oldStartingIndex == 0))
                     mHomeChanged = true
 
                 // Hide FAB; Don't allow adding more locations
@@ -1002,12 +1035,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         if (!mEditMode && mHomeChanged) {
             Timber.tag(TAG).d("Home changed; sending update")
-            LocalBroadcastManager.getInstance(instance.appContext)
+            LocalBroadcastManager.getInstance(appLib.context)
                 .sendBroadcast(
                     Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                         .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
                 )
-            LocalBroadcastManager.getInstance(instance.appContext)
+            LocalBroadcastManager.getInstance(appLib.context)
                 .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
         }
 

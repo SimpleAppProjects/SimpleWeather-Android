@@ -15,10 +15,10 @@ import androidx.core.text.SpannableStringBuilderKt;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.thewizrd.common.controls.BaseForecastItemViewModel;
+import com.thewizrd.common.controls.ForecastItemViewModel;
+import com.thewizrd.common.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.DateTimeConstants;
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel;
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;

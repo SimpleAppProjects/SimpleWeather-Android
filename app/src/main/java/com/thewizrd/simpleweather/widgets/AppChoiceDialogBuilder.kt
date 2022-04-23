@@ -11,8 +11,8 @@ import androidx.core.util.ObjectsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
-import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding

@@ -8,12 +8,12 @@ import android.text.format.DateFormat
 import androidx.annotation.ColorInt
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.ZonedDateTime
 
 fun getLastBuildDate(weather: Weather): String {
-    val context = SimpleLibrary.instance.app.appContext
+    val context = sharedDeps.context
     val date: String
     val prefix: String
     val update_time = weather.updateTime.toLocalDateTime()
@@ -39,9 +39,7 @@ fun getLastBuildDate(weather: Weather): String {
 }
 
 fun getPressureStateIcon(state: String?): String {
-    val state = state ?: ""
-
-    return when (state) {
+    return when (state ?: "") {
         "1",
         "+",
         "Rising" -> {

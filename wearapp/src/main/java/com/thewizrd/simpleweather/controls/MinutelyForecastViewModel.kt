@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.controls
 import android.text.format.DateFormat
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
@@ -17,8 +17,8 @@ class MinutelyForecastViewModel(minutely: MinutelyForecast) {
     val rainAmount: String
 
     init {
-        val context = SimpleLibrary.instance.appContext
-        val settingsMgr = SimpleLibrary.instance.app.settingsManager
+        val context = appLib.context
+        val settingsMgr = appLib.settingsManager
         val df = DecimalFormat.getInstance(LocaleUtils.getLocale()) as DecimalFormat
         df.applyPattern("0.##")
 

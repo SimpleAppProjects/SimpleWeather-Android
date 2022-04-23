@@ -10,8 +10,8 @@ import androidx.navigation.findNavController
 import androidx.preference.Preference
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.play.core.splitcompat.SplitCompat
-import com.thewizrd.extras.ExtrasLibrary
-import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.extras.extrasModule
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
@@ -24,11 +24,11 @@ import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import timber.log.Timber
 
-fun initializeExtras(app: ApplicationLib) {
-    ExtrasLibrary.initialize(app)
-    FirebaseConfigurator.initialize(app.appContext)
+fun initializeExtras() {
+    extrasModule.initialize()
+
     if (BuildConfig.DEBUG) {
-        MapsInitializer.initialize(app.appContext, MapsInitializer.Renderer.LATEST) {
+        MapsInitializer.initialize(appLib.context, MapsInitializer.Renderer.LATEST) {
             when (it) {
                 MapsInitializer.Renderer.LATEST -> {
                     Timber.tag("Application").d("The latest version of the renderer is used.")
@@ -41,6 +41,10 @@ fun initializeExtras(app: ApplicationLib) {
     }
 }
 
+fun initializeFirebase(context: Context) {
+    FirebaseConfigurator.initialize(context)
+}
+
 fun App.attachToBaseContext(context: Context) {
     SplitCompat.install(context)
 }
@@ -50,11 +54,11 @@ fun UserLocaleActivity.attachToBaseContext() {
 }
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return com.thewizrd.extras.isIconPackSupported(packKey)
+    return extrasModule.isIconPackSupported(packKey)
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {
-    return com.thewizrd.extras.isWeatherAPISupported(api)
+    return extrasModule.isWeatherAPISupported(api)
 }
 
 fun SettingsFragment.navigateToPremiumFragment() {
@@ -64,7 +68,11 @@ fun SettingsFragment.navigateToPremiumFragment() {
             .navigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
     } else {
         showSnackbar(
-            Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT),
+            Snackbar.make(
+                rootView.context,
+                R.string.message_premium_required,
+                Snackbar.Duration.SHORT
+            ),
             null
         )
     }
@@ -77,7 +85,11 @@ fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
         rootView.findNavController().navigate(R.id.action_iconsFragment_to_premiumFragment)
     } else {
         showSnackbar(
-            Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT),
+            Snackbar.make(
+                rootView.context,
+                R.string.message_premium_required,
+                Snackbar.Duration.SHORT
+            ),
             null
         )
     }
@@ -85,23 +97,23 @@ fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
 }
 
 fun enableAdditionalRefreshIntervals(): Boolean {
-    return ExtrasLibrary.isEnabled()
+    return extrasModule.isEnabled()
 }
 
 fun checkPremiumStatus() {
-    ExtrasLibrary.checkPremiumStatus()
+    extrasModule.checkPremiumStatus()
 }
 
 fun isPremiumSupported(): Boolean {
-    return ExtrasLibrary.areSubscriptionsSupported
+    return extrasModule.areSubscriptionsSupported
 }
 
 fun isRadarInteractionEnabled(): Boolean {
-    return ExtrasLibrary.isEnabled()
+    return extrasModule.isEnabled()
 }
 
 fun areNotificationExtrasEnabled(): Boolean {
-    return ExtrasLibrary.isEnabled()
+    return extrasModule.isEnabled()
 }
 
 fun SettingsFragment.createPremiumPreference(): Preference {
@@ -118,7 +130,11 @@ fun SettingsFragment.createPremiumPreference(): Preference {
             )
         } else {
             showSnackbar(
-                Snackbar.make(R.string.message_premium_required, Snackbar.Duration.SHORT),
+                Snackbar.make(
+                    rootView.context,
+                    R.string.message_premium_required,
+                    Snackbar.Duration.SHORT
+                ),
                 null
             )
         }

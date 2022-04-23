@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.DetailItemViewModel" />
+            type="com.thewizrd.common.controls.DetailItemViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +45,7 @@
             android:orientation="vertical"
             app:layout_constraintGuide_end="14dp" />
 
-        <com.thewizrd.shared_resources.controls.IconControl
+        <com.thewizrd.common.controls.IconControl
             android:id="@+id/detail_icon"
             android:layout_width="@dimen/details_icon_size"
             android:layout_height="@dimen/details_icon_size"

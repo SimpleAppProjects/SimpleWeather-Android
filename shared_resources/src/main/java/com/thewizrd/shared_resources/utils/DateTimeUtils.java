@@ -35,15 +35,16 @@ public class DateTimeUtils {
             return prevWeekday;
     }
 
-    public static LocalDateTime getNextWeekday(LocalDateTime start, DayOfWeek dayOfWeek) {
+    public static LocalDateTime getNextWeekday(@NonNull LocalDateTime start, DayOfWeek dayOfWeek) {
         return start.with(TemporalAdjusters.nextOrSame(dayOfWeek));
     }
 
-    public static LocalDateTime getPrevWeekday(LocalDateTime start, DayOfWeek dayOfWeek) {
+    public static LocalDateTime getPrevWeekday(@NonNull LocalDateTime start, DayOfWeek dayOfWeek) {
         return start.with(TemporalAdjusters.previousOrSame(dayOfWeek));
     }
 
-    public static String offsetToHMSFormat(ZoneOffset offset) {
+    @NonNull
+    public static String offsetToHMSFormat(@NonNull ZoneOffset offset) {
         int seconds = offset.getTotalSeconds();
         long absSeconds = Math.abs(seconds);
         String hmsString = String.format(Locale.ROOT,
@@ -54,7 +55,8 @@ public class DateTimeUtils {
         return seconds < 0 ? "-" + hmsString : "+" + hmsString;
     }
 
-    public static String durationToHMFormat(Duration duration) {
+    @NonNull
+    public static String durationToHMFormat(@NonNull Duration duration) {
         long seconds = duration.getSeconds();
         long absSeconds = Math.abs(seconds);
         String hmString = String.format(Locale.ROOT,
@@ -73,10 +75,12 @@ public class DateTimeUtils {
         return DateTimeFormatter.ofPattern(ZONED_DATETIME_FORMAT, Locale.ROOT);
     }
 
+    @NonNull
     public static String formatDateTimeForSkeleton(@NonNull Instant instant, @NonNull String skeleton) {
         return formatDateTimeForSkeleton(instant, skeleton, LocaleUtils.getLocale());
     }
 
+    @NonNull
     public static String formatDateTimeForSkeleton(@NonNull Instant instant, @NonNull String skeleton, @NonNull Locale locale) {
         Date date = Date.from(instant);
         return DateFormat.getInstanceForSkeleton(skeleton, locale).format(date);

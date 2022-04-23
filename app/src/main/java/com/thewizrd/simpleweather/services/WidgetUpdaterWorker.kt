@@ -5,7 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
-import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper

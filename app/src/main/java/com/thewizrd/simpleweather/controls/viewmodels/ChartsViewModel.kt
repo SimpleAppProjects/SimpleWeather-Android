@@ -1,16 +1,17 @@
 package com.thewizrd.simpleweather.controls.viewmodels
 
+import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
-import com.thewizrd.simpleweather.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,12 +19,10 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-class ChartsViewModel : ViewModel() {
-    private val settingsManager = App.instance.settingsManager
-
+class ChartsViewModel(app: Application) : AndroidViewModel(app) {
     var locationData: LocationData? = null
 
-    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
     private var currentForecastsData: LiveData<Forecasts>? = null
     private var currentHrForecastsData: LiveData<List<HourlyForecast>>? = null
@@ -40,7 +39,7 @@ class ChartsViewModel : ViewModel() {
         if (locationData == null || !ObjectsCompat.equals(locationData?.query, location.query)) {
             viewModelScope.launch {
                 // Clone location data
-                locationData = LocationData(LocationQueryViewModel(location))
+                locationData = LocationQuery(location).toLocationData()
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 currentHrForecastsData = withContext(Dispatchers.IO) {

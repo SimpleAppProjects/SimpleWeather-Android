@@ -15,14 +15,13 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.TransitionManager
+import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.SetupGraphDirections
@@ -34,8 +33,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SetupActivity : UserLocaleActivity() {
-    private lateinit var settingsManager: SettingsManager
-
     private lateinit var binding: ActivitySetupBinding
     private val viewModel: SetupViewModel by viewModels()
     private var mNavController: NavController? = null
@@ -47,7 +44,6 @@ class SetupActivity : UserLocaleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SetupActivity: onCreate")
-        settingsManager = App.instance.settingsManager
 
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)

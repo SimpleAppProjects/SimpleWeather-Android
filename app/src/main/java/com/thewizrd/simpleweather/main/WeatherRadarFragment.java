@@ -20,7 +20,7 @@ import androidx.navigation.Navigation;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.android.material.transition.MaterialFadeThrough;
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel;
+import com.thewizrd.common.controls.WeatherNowViewModel;
 import com.thewizrd.shared_resources.utils.AnalyticsLogger;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.R;

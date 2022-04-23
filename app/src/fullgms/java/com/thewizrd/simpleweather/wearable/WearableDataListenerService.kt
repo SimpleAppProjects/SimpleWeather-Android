@@ -5,7 +5,7 @@ import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.wearable.WearableHelper
+import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.simpleweather.LaunchActivity
 
 class WearableDataListenerService : WearableListenerService() {

@@ -1,11 +1,11 @@
 package com.thewizrd.shared_resources.utils
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.core.util.AtomicFile
 import androidx.core.util.ObjectsCompat
-import com.thewizrd.shared_resources.SimpleLibrary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
@@ -21,7 +21,7 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun isValid(assetUri: Uri?): Boolean {
+    fun isValid(context: Context, assetUri: Uri?): Boolean {
         if (assetUri != null && ObjectsCompat.equals(assetUri.scheme, "file")) {
             var path = assetUri.path
             if (path?.startsWith("/android_asset") == true) {
@@ -30,7 +30,6 @@ object FileUtils {
 
                 var stream: InputStream? = null
                 try {
-                    val context = SimpleLibrary.instance.appContext
                     stream = context.resources.assets.open(path)
                     return true
                 } catch (ignored: IOException) {

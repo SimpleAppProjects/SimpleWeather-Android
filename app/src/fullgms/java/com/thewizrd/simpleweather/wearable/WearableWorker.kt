@@ -11,8 +11,8 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.wearable.WearableHelper
-import com.thewizrd.shared_resources.wearable.WearableSettings
+import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await

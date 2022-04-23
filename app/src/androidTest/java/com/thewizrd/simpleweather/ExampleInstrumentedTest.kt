@@ -9,19 +9,22 @@ import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ibm.icu.text.DateFormat
-import com.thewizrd.shared_resources.AppState
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.SimpleLibrary
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.FileUtils
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationBuilder
 import com.thewizrd.simpleweather.notifications.WeatherAlertNotificationService
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -54,44 +57,33 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = ApplicationProvider.getApplicationContext<Context>()
 
-        val app = object : ApplicationLib {
-            override fun getAppContext(): Context {
-                return appContext.applicationContext
-            }
-
-            override fun getPreferences(): SharedPreferences {
-                return PreferenceManager.getDefaultSharedPreferences(getAppContext())
-            }
+        appLib = object : ApplicationLib() {
+            override val context: Context
+                get() = appContext.applicationContext
+            override val preferences: SharedPreferences
+                get() = PreferenceManager.getDefaultSharedPreferences(context)
 
             override fun registerAppSharedPreferenceListener() {}
             override fun unregisterAppSharedPreferenceListener() {}
             override fun registerAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {}
             override fun unregisterAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {}
 
-            override fun getAppState(): AppState {
-                return AppState.BACKGROUND
-            }
-
-            override fun isPhone(): Boolean {
-                return true
-            }
-
-            override fun getProperties(): Bundle {
-                return Bundle()
-            }
-
-            override fun getSettingsManager(): SettingsManager {
-                return SettingsManager(appContext.applicationContext)
-            }
+            override val appState: AppState
+                get() = AppState.BACKGROUND
+            override val isPhone = true
+            override val properties = Bundle()
+            override val settingsManager = SettingsManager(context)
         }
 
+        // Needs to be called on main thread
         runBlocking(Dispatchers.Main.immediate) {
-            SimpleLibrary.initialize(app)
+            sharedDeps = object : SharedModule() {
+                override val context = appContext.applicationContext
+            }
         }
 
-        // Start logger
-        Logger.init(appContext)
-        settingsManager = app.settingsManager
+        settingsManager = appLib.settingsManager
+
         runBlocking {
             settingsManager.loadIfNeeded()
         }
@@ -119,7 +111,7 @@ class ExampleInstrumentedTest {
     @Test
     fun getWeatherTest() {
         runBlocking(Dispatchers.Default) {
-            val wm = WeatherManager.instance
+            val wm = weatherModule.weatherManager
             settingsManager.setAPI(WeatherAPI.HERE)
             wm.updateAPI()
 
@@ -148,7 +140,7 @@ class ExampleInstrumentedTest {
                 }
             }
 
-            val locationData = LocationData(loc)
+            val locationData = loc.toLocationData()
             val weather = withContext(Dispatchers.IO) {
                 wm.getWeather(locationData)
             }
@@ -161,7 +153,7 @@ class ExampleInstrumentedTest {
     @Throws(WeatherException::class)
     fun updateLocationQueryTest() {
         runBlocking(Dispatchers.Default) {
-            val wm = WeatherManager.instance
+            val wm = weatherModule.weatherManager
             settingsManager.setAPI(WeatherAPI.HERE)
             wm.updateAPI()
 
@@ -190,7 +182,7 @@ class ExampleInstrumentedTest {
                 }
             }
 
-            val locationData = LocationData(loc)
+            val locationData = loc.toLocationData()
             var weather = wm.getWeather(locationData)
 
             settingsManager.setAPI(WeatherAPI.WEATHERUNLOCKED)
@@ -237,22 +229,22 @@ class ExampleInstrumentedTest {
                 la.add(alert)
             }
 
-            val vm = LocationQueryViewModel().apply {
+            val vm = LocationQuery().apply {
                 locationCountry = "US"
                 locationName = "New York, NY"
                 locationQuery = "11434"
                 locationTZLong = "America/New_York"
             }
 
-            WeatherAlertNotificationBuilder.createNotifications(LocationData(vm), la)
+            WeatherAlertNotificationBuilder.createNotifications(vm.toLocationData(), la)
 
-            val vm2 = LocationQueryViewModel().apply {
+            val vm2 = LocationQuery().apply {
                 locationCountry = "US"
                 locationName = "New York City, NY"
                 locationQuery = "10007"
                 locationTZLong = "America/New_York"
             }
-            WeatherAlertNotificationBuilder.createNotifications(LocationData(vm2), la)
+            WeatherAlertNotificationBuilder.createNotifications(vm2.toLocationData(), la)
 
             while (WeatherAlertNotificationService.getNotificationsCount() > 0) {
                 delay(3000)
@@ -264,7 +256,7 @@ class ExampleInstrumentedTest {
     @Throws(IOException::class)
     fun logCleanupTest() {
         // Context of the app under test.
-        val appContext = SimpleLibrary.instance.appContext
+        val appContext = appLib.context
         val filePath = appContext.getExternalFilesDir(null).toString() + "/logs"
         val directory = File(filePath)
         if (!directory.exists()) {

@@ -8,9 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.FragmentActivity;
 
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.lifecycle.LifecycleAwareFragment;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.simpleweather.App;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,7 +26,7 @@ public abstract class CustomFragment extends LifecycleAwareFragment {
     }
 
     private FragmentActivity mActivity;
-    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
+    private final SettingsManager settingsMgr = ApplicationLibKt.getAppLib().getSettingsManager();
 
     public final FragmentActivity getFragmentActivity() {
         return mActivity;

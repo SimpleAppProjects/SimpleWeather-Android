@@ -4,11 +4,12 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -31,8 +32,8 @@ abstract class WeatherHourlyForecastComplicationService : BaseWeatherComplicatio
         return scope.async {
             var complicationData: ComplicationData? = null
 
-            if (settingsMgr.isWeatherLoaded()) {
-                complicationData = settingsMgr.getHomeData()?.let { locData ->
+            if (settingsManager.isWeatherLoaded()) {
+                complicationData = settingsManager.getHomeData()?.let { locData ->
                     val weather = withContext(Dispatchers.IO) {
                         try {
                             WeatherDataLoader(locData)
@@ -51,13 +52,14 @@ abstract class WeatherHourlyForecastComplicationService : BaseWeatherComplicatio
 
                     val hrf = if (weather != null) {
                         val interval =
-                            WeatherManager.getProvider(weather.source).getHourlyForecastInterval()
+                            weatherModule.weatherManager.getWeatherProvider(weather.source)
+                                .getHourlyForecastInterval()
                         var hrf =
-                            settingsMgr.getFirstHourlyForecastDataByDate(locData.query, nowHour)
+                            settingsManager.getFirstHourlyForecastDataByDate(locData.query, nowHour)
                         if (hrf == null || Duration.between(now, hrf.date)
                                 .toHours() > interval * 0.5
                         ) {
-                            val prevHrf = settingsMgr.getFirstHourlyForecastDataByDate(
+                            val prevHrf = settingsManager.getFirstHourlyForecastDataByDate(
                                 locData.query,
                                 nowHour.minusHours(interval.toLong())
                             )
@@ -66,7 +68,7 @@ abstract class WeatherHourlyForecastComplicationService : BaseWeatherComplicatio
 
                         hrf
                     } else {
-                        settingsMgr.getFirstHourlyForecastDataByDate(locData.query, nowHour)
+                        settingsManager.getFirstHourlyForecastDataByDate(locData.query, nowHour)
                     }
 
                     buildUpdate(request.complicationType, weather, hrf)

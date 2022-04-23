@@ -4,12 +4,12 @@ import android.text.format.DateFormat
 import android.util.Log
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
-import com.thewizrd.simpleweather.App
+import com.thewizrd.weather_api.weatherModule
 import java.text.DecimalFormat
 
 class HourlyForecastNowViewModel(forecast: HourlyForecast) {
@@ -22,14 +22,14 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
     var windDirection: Int = 0
 
     init {
-        val context = App.instance.appContext
-        val settingsManager = App.instance.settingsManager
+        val context = appLib.context
+        val settingsManager = appLib.settingsManager
         val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
 
         val df = DecimalFormat.getInstance(LocaleUtils.getLocale()) as DecimalFormat
         df.applyPattern("0.##")
 
-        val wm = WeatherManager.instance
+        val wm = weatherModule.weatherManager
 
         date = if (DateFormat.is24HourFormat(context)) {
             val skeleton = if (context.isLargeTablet()) {

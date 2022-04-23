@@ -1,35 +1,34 @@
 package com.thewizrd.simpleweather.controls
 
+import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.*
-import androidx.lifecycle.Observer
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.LocaleUtils
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
-import com.thewizrd.simpleweather.App
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import kotlin.math.min
 
-class ForecastPanelsViewModel : ViewModel() {
-    private val settingsMgr = App.instance.settingsManager
-
+class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
     private var locationData: LocationData? = null
     private var unitCode: String? = null
     private var localeCode: String? = null
     private var iconProvider: String? = null
 
-    private val weatherDAO = WeatherDatabase.getWeatherDAO(App.instance.appContext)
+    private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
     private var forecasts: MutableLiveData<List<ForecastItemViewModel>>?
     private var hourlyForecasts: MutableLiveData<List<HourlyForecastItemViewModel>>?
@@ -61,11 +60,11 @@ class ForecastPanelsViewModel : ViewModel() {
         if (locationData == null || !ObjectsCompat.equals(locationData?.query, location.query)) {
             viewModelScope.launch {
                 // Clone location data
-                locationData = LocationData(LocationQueryViewModel(location))
+                locationData = LocationQuery(location).toLocationData()
 
-                unitCode = settingsMgr.getUnitString()
+                unitCode = settingsManager.getUnitString()
                 localeCode = LocaleUtils.getLocaleCode()
-                iconProvider = settingsMgr.getIconsProvider()
+                iconProvider = settingsManager.getIconsProvider()
 
                 currentForecastsData?.removeObserver(forecastObserver)
                 currentForecastsData = weatherDAO.getLiveForecastData(location.query)
@@ -75,7 +74,7 @@ class ForecastPanelsViewModel : ViewModel() {
                 minutelyForecasts?.postValue(minForecastMapper.apply(currentForecastsData!!.value))
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
-                val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+                val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
                 currentHrForecastsData =
                     weatherDAO.getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                         location.query, 6,
@@ -85,13 +84,13 @@ class ForecastPanelsViewModel : ViewModel() {
                 currentHrForecastsData!!.observeForever(hrforecastObserver)
                 hourlyForecasts?.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
             }
-        } else if (!ObjectsCompat.equals(unitCode, settingsMgr.getUnitString()) ||
+        } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
             !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
-            !ObjectsCompat.equals(iconProvider, settingsMgr.getIconsProvider())
+            !ObjectsCompat.equals(iconProvider, settingsManager.getIconsProvider())
         ) {
-            unitCode = settingsMgr.getUnitString()
+            unitCode = settingsManager.getUnitString()
             localeCode = LocaleUtils.getLocaleCode()
-            iconProvider = settingsMgr.getIconsProvider()
+            iconProvider = settingsManager.getIconsProvider()
 
             if (currentForecastsData?.value != null) {
                 forecasts?.postValue(forecastMapper.apply(currentForecastsData!!.value))
@@ -108,7 +107,7 @@ class ForecastPanelsViewModel : ViewModel() {
             val totalCount = input.forecast.size
             val models = ArrayList<ForecastItemViewModel>(totalCount)
 
-            for (i in 0 until Math.min(totalCount, 4)) {
+            for (i in 0 until min(totalCount, 4)) {
                 models.add(ForecastItemViewModel(input.forecast[i]))
             }
 

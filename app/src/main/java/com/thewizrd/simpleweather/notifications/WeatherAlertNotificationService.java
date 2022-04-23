@@ -9,9 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.SafeJobIntentService;
 
 import com.google.gson.reflect.TypeToken;
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.main.MainActivity;
 
 import java.lang.reflect.Type;
@@ -37,7 +37,7 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
     private static HashMap<Integer, String> mNotifications;
 
     // Shared Settings
-    private static final SharedPreferences notifPrefs = App.getInstance().getAppContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
+    private static final SharedPreferences notifPrefs = ApplicationLibKt.getAppLib().getContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
     private static final SharedPreferences.Editor editor = notifPrefs.edit();
 
     private static final String KEY_NOTIFS = "notifications";

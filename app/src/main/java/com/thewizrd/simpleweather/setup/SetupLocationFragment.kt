@@ -21,15 +21,19 @@ import androidx.navigation.fragment.FragmentNavigator
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.requestLocationPermission
+import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
-import com.thewizrd.shared_resources.helpers.requestLocationPermission
-import com.thewizrd.shared_resources.location.LocationProvider
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.tzdb.TZDBCache
-import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.simpleweather.BuildConfig
@@ -41,6 +45,7 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.coroutines.coroutineContext
@@ -65,7 +70,7 @@ class SetupLocationFragment : CustomFragment() {
 
     private val viewModel: SetupViewModel by activityViewModels()
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
 
@@ -100,12 +105,15 @@ class SetupLocationFragment : CustomFragment() {
                 runWithView {
                     if (mLocation == null) {
                         enableControls(true)
-                        showSnackbar(
-                            Snackbar.make(
-                                R.string.error_retrieve_location,
-                                Snackbar.Duration.SHORT
-                            ), null
-                        )
+                        context?.let {
+                            showSnackbar(
+                                Snackbar.make(
+                                    it,
+                                    R.string.error_retrieve_location,
+                                    Snackbar.Duration.SHORT
+                                )
+                            )
+                        }
                     } else {
                         fetchGeoLocation()
                     }
@@ -115,12 +123,15 @@ class SetupLocationFragment : CustomFragment() {
             override fun onRequestTimedOut() {
                 stopLocationUpdates()
                 enableControls(true)
-                showSnackbar(
-                    Snackbar.make(
-                        R.string.error_retrieve_location,
-                        Snackbar.Duration.SHORT
-                    ), null
-                )
+                context?.let {
+                    showSnackbar(
+                        Snackbar.make(
+                            it,
+                            R.string.error_retrieve_location,
+                            Snackbar.Duration.SHORT
+                        )
+                    )
+                }
             }
         }
         mRequestingLocationUpdates = false
@@ -263,10 +274,24 @@ class SetupLocationFragment : CustomFragment() {
                                     enableControls(true)
                                     getSettingsManager().setFollowGPS(false)
                                     getSettingsManager().setWeatherLoaded(false)
-                                    if (e is WeatherException || e is CustomException) {
-                                        showSnackbar(Snackbar.make(e.message, Snackbar.Duration.SHORT), null)
-                                    } else {
-                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                                    context?.let {
+                                        if (e is WeatherException || e is CustomException) {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    it,
+                                                    e.message,
+                                                    Snackbar.Duration.SHORT
+                                                ), null
+                                            )
+                                        } else {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    it,
+                                                    R.string.error_retrieve_location,
+                                                    Snackbar.Duration.SHORT
+                                                ), null
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -288,14 +313,18 @@ class SetupLocationFragment : CustomFragment() {
                         if (view == null || view.locationQuery.isNullOrBlank()) {
                             throw CustomException(R.string.error_retrieve_location)
                         } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                            val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                            val tzId = weatherModule.tzdbService.getTimeZone(
+                                view.locationLat,
+                                view.locationLong
+                            )
                             if ("unknown" != tzId)
                                 view.locationTZLong = tzId
                         }
 
                         if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                             // Set default provider based on location
-                            val provider = RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
+                            val provider =
+                                remoteConfigService.getDefaultWeatherProvider(view.locationCountry)
                             getSettingsManager().setAPI(provider)
                             view.updateWeatherSource(provider)
                         }
@@ -313,7 +342,7 @@ class SetupLocationFragment : CustomFragment() {
                         }
 
                         // Get Weather Data
-                        val location = LocationData(view, mLocation!!)
+                        val location = view.toLocationData(mLocation!!)
                         if (!location.isValid) {
                             throw CustomException(R.string.werror_noweather)
                         }
@@ -340,7 +369,7 @@ class SetupLocationFragment : CustomFragment() {
                         // Save weather data
                         getSettingsManager().saveLastGPSLocData(location)
                         getSettingsManager().deleteLocations()
-                        getSettingsManager().addLocation(LocationData(view))
+                        getSettingsManager().addLocation(view.toLocationData())
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
                             getSettingsManager().saveWeatherAlerts(location, weather.weatherAlerts)
                         getSettingsManager().saveWeatherData(weather)
@@ -380,12 +409,30 @@ class SetupLocationFragment : CustomFragment() {
                                     enableControls(true)
                                     getSettingsManager().setFollowGPS(false)
 
-                                    val locMan = appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                                    val locMan =
+                                        appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
-                                    if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                                        showSnackbar(Snackbar.make(R.string.error_enable_location_services, Snackbar.Duration.LONG), null)
-                                    } else {
-                                        showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                                    context?.let { ctx ->
+                                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(
+                                                locMan
+                                            )
+                                        ) {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    ctx,
+                                                    R.string.error_enable_location_services,
+                                                    Snackbar.Duration.LONG
+                                                ), null
+                                            )
+                                        } else {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    ctx,
+                                                    R.string.error_retrieve_location,
+                                                    Snackbar.Duration.SHORT
+                                                ), null
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -396,10 +443,24 @@ class SetupLocationFragment : CustomFragment() {
                                 getSettingsManager().setFollowGPS(false)
                                 getSettingsManager().setWeatherLoaded(false)
 
-                                if (t is WeatherException || t is CustomException) {
-                                    showSnackbar(Snackbar.make(t.message, Snackbar.Duration.SHORT), null)
-                                } else {
-                                    showSnackbar(Snackbar.make(R.string.error_retrieve_location, Snackbar.Duration.SHORT), null)
+                                context?.let { ctx ->
+                                    if (t is WeatherException || t is CustomException) {
+                                        showSnackbar(
+                                            Snackbar.make(
+                                                ctx,
+                                                t.message,
+                                                Snackbar.Duration.SHORT
+                                            ), null
+                                        )
+                                    } else {
+                                        showSnackbar(
+                                            Snackbar.make(
+                                                ctx,
+                                                R.string.error_retrieve_location,
+                                                Snackbar.Duration.SHORT
+                                            ), null
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -465,7 +526,13 @@ class SetupLocationFragment : CustomFragment() {
                     // functionality that depends on this permission.
                     runWithView {
                         enableControls(true)
-                        showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                        showSnackbar(
+                            Snackbar.make(
+                                requireContext(),
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
                     }
                 }
             }

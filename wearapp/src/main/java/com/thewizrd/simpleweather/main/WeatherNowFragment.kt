@@ -24,28 +24,29 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ibm.icu.util.ULocale
+import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.SpacerItemDecoration
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.requestLocationPermission
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.wearable.WearConnectionStatus
+import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
-import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
-import com.thewizrd.shared_resources.helpers.requestLocationPermission
-import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.wearable.WearableHelper
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.ForecastNowAdapter
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
@@ -59,6 +60,7 @@ import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WearableWorker
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.Duration
@@ -76,7 +78,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         private const val TAG_SYNCRECEIVER = "SyncDataReceiver"
     }
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
     private var wLoader: WeatherDataLoader? = null
 
     // Views
@@ -130,7 +132,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             binding.scrollView.visibility = View.VISIBLE
             binding.scrollView.requestFocus() // View is now visible; take focus
 
-            val context = App.instance.appContext
+            val context = appLib.context
             val span = Duration.between(
                 ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(),
                 settingsManager.getUpdateTime()
@@ -186,7 +188,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        App.instance.registerAppSharedPreferenceListener(this)
+        appLib.registerAppSharedPreferenceListener(this)
     }
 
     override fun onDestroy() {
@@ -195,7 +197,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onDetach() {
-        App.instance.unregisterAppSharedPreferenceListener(this)
+        appLib.unregisterAppSharedPreferenceListener(this)
         wLoader = null
         super.onDetach()
     }
@@ -278,11 +280,13 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                             launch(Dispatchers.IO) {
                                 supervisorScope {
                                     wLoader = WeatherDataLoader(locationData!!)
-                                    val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
+                                    val weather = wLoader!!.loadWeatherData(
+                                        WeatherRequest.Builder()
                                             .forceLoadSavedData()
                                             .loadAlerts()
                                             .setErrorListener(this@WeatherNowFragment)
-                                            .build())
+                                            .build()
+                                    )
 
                                     weatherLiveData.postValue(weather)
                                 }
@@ -628,7 +632,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         } else {
                             // Reset locdata if source is different
                             if (settingsManager.getAPI() != locData.weatherSource) {
-                                settingsManager.saveHomeData(LocationData.buildGPSLocation())
+                                settingsManager.saveHomeData(buildEmptyGPSLocation())
                             }
                             if (updateLocation()) {
                                 // Setup loader from updated location
@@ -809,7 +813,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     // Stop since there is no valid query
                     return false
                 } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                    val tzId =
+                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
                     if ("unknown" != tzId)
                         view.locationTZLong = tzId
                 }
@@ -817,7 +822,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 if (!coroutineContext.isActive) return false
 
                 // Save location as last known
-                lastGPSLocData = LocationData(view, location)
+                lastGPSLocData = view.toLocationData(location)
                 settingsManager.saveHomeData(lastGPSLocData)
 
                 locationData = lastGPSLocData
@@ -960,11 +965,13 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 runWithView(Dispatchers.IO) {
                     supervisorScope {
                         wLoader = WeatherDataLoader(locationData!!)
-                        val weather = wLoader!!.loadWeatherData(WeatherRequest.Builder()
+                        val weather = wLoader!!.loadWeatherData(
+                            WeatherRequest.Builder()
                                 .forceLoadSavedData()
                                 .loadAlerts()
                                 .setErrorListener(this@WeatherNowFragment)
-                                .build())
+                                .build()
+                        )
 
                         weatherLiveData.postValue(weather)
                     }

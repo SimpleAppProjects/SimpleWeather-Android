@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.common.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.simpleweather.helpers.WindowColorManager;
 
 public abstract class WindowColorPreferenceFragmentCompat extends CustomPreferenceFragmentCompat

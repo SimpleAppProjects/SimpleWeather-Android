@@ -6,16 +6,16 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ColorsUtils
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.ColorsUtils
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x1Notification
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
@@ -57,7 +57,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
         val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
 
         // WeatherIcon
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
 
         val weatherIconSize =

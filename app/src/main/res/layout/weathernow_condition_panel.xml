@@ -11,11 +11,11 @@
 
         <variable
             name="weatherView"
-            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+            type="com.thewizrd.common.controls.WeatherNowViewModel" />
 
         <variable
             name="alertsView"
-            type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+            type="com.thewizrd.common.controls.WeatherAlertsViewModel" />
 
     </data>
 
@@ -150,7 +150,7 @@
                     app:showIfTrue="@{weatherView.showHiLo}"
                     tools:visibility="visible">
 
-                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                    <com.thewizrd.common.controls.TextViewDrawableCompat
                         android:id="@+id/weather_hi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
                         tools:text="75°"
                         tools:visibility="visible" />
 
-                    <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                    <com.thewizrd.common.controls.TextViewDrawableCompat
                         android:id="@+id/weather_lo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -186,7 +186,7 @@
 
                 </LinearLayout>
 
-                <com.thewizrd.shared_resources.controls.IconControl
+                <com.thewizrd.common.controls.IconControl
                     android:id="@+id/weather_icon"
                     android:layout_width="0dp"
                     android:layout_height="88dp"

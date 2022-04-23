@@ -6,17 +6,16 @@ package com.thewizrd.simpleweather.images
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.ColorInt
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.FileUtils
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.WeatherBackground
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.images.model.ImageData
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -29,7 +28,7 @@ import java.net.URI
 suspend fun Weather.getImageData(): ImageDataViewModel? {
     val icon: String = this.condition.icon
     val backgroundCode: String
-    val wm = WeatherManager.instance
+    val wm = weatherModule.weatherManager
 
     // Apply background based on weather condition
     backgroundCode = when (icon) {
@@ -129,10 +128,9 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
     }
 
     // Check cache for image data
-    val imageHelper = ImageDataHelper.getImageDataHelper()
-    var imageData = imageHelper.getCachedImageData(backgroundCode)
+    var imageData = imageDataService.getCachedImageData(backgroundCode)
     // Check if cache is available and valid
-    val imgDataValid = imageData != null && imageData.isValid
+    val imgDataValid = imageData != null && imageData.isValid(appLib.context)
     // Validate image header/contents
     val imgValid = imgDataValid && imageData?.isImageValid() == true
     if (imgValid) {
@@ -149,20 +147,20 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
             }
         }
 
-        if (!FeatureSettings.isUpdateAvailable()) {
+        if (!UpdateSettings.isUpdateAvailable) {
             imageData = withTimeoutOrNull(15000) {
-                imageHelper.getRemoteImageData(backgroundCode)
+                imageDataService.getRemoteImageData(backgroundCode)
             }
-            if (imageData?.isValid == true) {
+            if (imageData?.isValid(appLib.context) == true) {
                 return ImageDataViewModel(imageData)
             } else {
-                imageData = imageHelper.getDefaultImageData(backgroundCode, this)
-                if (imageData?.isValid == true)
+                imageData = imageDataService.getDefaultImageData(backgroundCode, this)
+                if (imageData?.isValid(appLib.context) == true)
                     return ImageDataViewModel(imageData)
             }
         } else {
-            imageData = imageHelper.getDefaultImageData(backgroundCode, this)
-            if (imageData?.isValid == true)
+            imageData = imageDataService.getDefaultImageData(backgroundCode, this)
+            if (imageData?.isValid(appLib.context) == true)
                 return ImageDataViewModel(imageData)
         }
     }
@@ -174,7 +172,7 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
 fun Weather.getBackgroundColor(): Int {
     var rgb = -1
     val icon: String = this.condition.icon
-    val wm = WeatherManager.instance
+    val wm = weatherModule.weatherManager
 
     // Apply background based on weather condition
     rgb = when (icon) {
@@ -289,7 +287,9 @@ fun Weather.getBackgroundColor(): Int {
 suspend fun ImageData.isImageValid(): Boolean {
     val imgData = this
     return withContext(Dispatchers.IO) {
-        if (imgData.isValid) {
+        val ctx = appLib.context
+
+        if (imgData.isValid(ctx)) {
             val uri = Uri.parse(imgData.imageURL)
             if ("file" == uri.scheme) {
                 val stream = uri.path?.let {
@@ -297,7 +297,6 @@ suspend fun ImageData.isImageValid(): Boolean {
                         if (it.startsWith("/android_asset")) {
                             val startAsset = it.indexOf("/android_asset/")
                             val path = it.substring(startAsset + 15)
-                            val ctx = SimpleLibrary.instance.appContext
                             BufferedInputStream(ctx.resources.assets.open(path))
                         } else {
                             val file = File(it)

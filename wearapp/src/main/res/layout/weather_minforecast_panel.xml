@@ -37,7 +37,7 @@
             app:autoSizeTextType="uniform"
             tools:text="10:00PM" />
 
-        <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+        <com.thewizrd.common.controls.TextViewDrawableCompat
             android:id="@+id/minforecast_rainamt"
             android:layout_width="0dp"
             android:layout_height="match_parent"

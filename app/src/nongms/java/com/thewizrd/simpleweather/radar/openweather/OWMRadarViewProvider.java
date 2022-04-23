@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.thewizrd.shared_resources.keys.Keys;
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;
+import com.thewizrd.weather_api.keys.Keys;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.MapTileProviderBase;

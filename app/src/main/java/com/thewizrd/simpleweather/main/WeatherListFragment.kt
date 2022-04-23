@@ -12,17 +12,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
+import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
+import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.adapters.WeatherAlertPanelAdapter
-import com.thewizrd.shared_resources.controls.*
-import com.thewizrd.shared_resources.helpers.SimpleRecyclerViewAdapterObserver
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
@@ -30,6 +33,7 @@ import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -50,7 +54,7 @@ class WeatherListFragment : ToolbarFragment() {
 
     private var args: WeatherListFragmentArgs? = null
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     companion object {
         fun newInstance(type: WeatherListType): WeatherListFragment {
@@ -184,9 +188,10 @@ class WeatherListFragment : ToolbarFragment() {
                                             // Show error message and prompt to refresh
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                         ErrorStatus.QUERYNOTFOUND -> {
@@ -197,26 +202,29 @@ class WeatherListFragment : ToolbarFragment() {
                                                 } == true) {
                                                 showSnackbar(
                                                     Snackbar.make(
+                                                        binding.root.context,
                                                         R.string.error_message_weather_region_unsupported,
                                                         Snackbar.Duration.LONG
-                                                    ), null
+                                                    )
                                                 )
                                                 return@setErrorListener
                                             }
                                             // Show error message
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                         else -> {
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                     }
@@ -247,20 +255,20 @@ class WeatherListFragment : ToolbarFragment() {
                     if (weatherListType == WeatherListType.FORECAST) {
                         forecastsView.getForecasts()?.removeObservers(this@WeatherListFragment)
                         forecastsView.getForecasts()
-                            ?.observe(this@WeatherListFragment, { forecasts ->
+                            ?.observe(this@WeatherListFragment) { forecasts ->
                                 val detailsAdapter =
                                     getForecastAdapter<ForecastItemViewModel>(binding.recyclerView)
                                 detailsAdapter.submitList(forecasts)
-                            })
+                            }
                     } else {
                         forecastsView.getHourlyForecasts()
                             ?.removeObservers(this@WeatherListFragment)
                         forecastsView.getHourlyForecasts()
-                            ?.observe(this@WeatherListFragment, { hrforecasts ->
+                            ?.observe(this@WeatherListFragment) { hrforecasts ->
                                 val detailsAdapter =
                                     getForecastAdapter<HourlyForecastItemViewModel>(binding.recyclerView)
                                 detailsAdapter.submitList(hrforecasts)
-                            })
+                            }
                     }
                 }
                 WeatherListType.ALERTS -> {
@@ -279,9 +287,9 @@ class WeatherListFragment : ToolbarFragment() {
                     })
 
                     alertsView.getAlerts()?.removeObservers(this@WeatherListFragment)
-                    alertsView.getAlerts()?.observe(this@WeatherListFragment, { alerts ->
+                    alertsView.getAlerts()?.observe(this@WeatherListFragment) { alerts ->
                         alertAdapter.submitList(alerts)
-                    })
+                    }
                 }
                 else -> {
                     binding.recyclerView.adapter = null
@@ -294,8 +302,9 @@ class WeatherListFragment : ToolbarFragment() {
     private fun <T : BaseForecastItemViewModel> getForecastAdapter(recyclerView: RecyclerView
     ): WeatherDetailsAdapter<T> {
         @Suppress("UNCHECKED_CAST")
-        val detailsAdapter: WeatherDetailsAdapter<T> = recyclerView.adapter as? WeatherDetailsAdapter<T>?
-                                                       ?: WeatherDetailsAdapter<T>()
+        val detailsAdapter: WeatherDetailsAdapter<T> =
+            recyclerView.adapter as? WeatherDetailsAdapter<T>?
+                ?: WeatherDetailsAdapter()
         if (recyclerView.adapter !== detailsAdapter) {
             recyclerView.adapter = detailsAdapter
         }

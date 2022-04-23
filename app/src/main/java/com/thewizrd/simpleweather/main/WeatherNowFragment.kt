@@ -60,15 +60,22 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
+import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.requestLocationPermission
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.*
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
-import com.thewizrd.shared_resources.helpers.requestLocationPermission
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -76,13 +83,8 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.DetailsItemAdapter
@@ -111,6 +113,7 @@ import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.Duration
@@ -118,6 +121,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.min
 
 class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
@@ -131,7 +136,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     private lateinit var args: WeatherNowFragmentArgs
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
     private var wLoader: WeatherDataLoader? = null
     private var radarViewProvider: RadarViewProvider? = null
 
@@ -181,7 +186,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             wNowViewModel.isGPSLocation.postValue(locationData?.locationType == LocationType.GPS)
 
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                if (FeatureSettings.isBackgroundImageEnabled()) {
+                if (FeatureSettings.isBackgroundImageEnabled) {
                     imageData.postValue(withContext(Dispatchers.Default) {
                         weather.getImageData()
                     })
@@ -194,7 +199,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     val imageView = conditionPanelBinding.imageView ?: binding.imageView
 
                     if (imageView != null) {
-                        if (FeatureSettings.isBackgroundImageEnabled() && (!ObjectsCompat.equals(
+                        if (FeatureSettings.isBackgroundImageEnabled && (!ObjectsCompat.equals(
                                 imageView.tag,
                                 backgroundUri
                             ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
@@ -215,7 +220,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 forecastsView.updateForecasts(locationData!!)
 
                 GlobalScope.launch(Dispatchers.Default) {
-                    val context = App.instance.appContext
+                    val context = appLib.context
 
                     if (getSettingsManager().getHomeData() == locationData) {
                         // Update widgets if they haven't been already
@@ -260,12 +265,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             when (wEx.errorStatus) {
                 ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
                     // Show error message and prompt to refresh
-                    val snackBar = Snackbar.make(wEx.message, Snackbar.Duration.LONG)
+                    val snackBar =
+                        Snackbar.make(binding.root.context, wEx.message, Snackbar.Duration.LONG)
                     snackBar.setAction(R.string.action_retry) {
                         binding.refreshLayout.isRefreshing = true
                         refreshWeather(false)
                     }
-                    showSnackbar(snackBar, null)
+                    showSnackbar(snackBar)
                 }
                 ErrorStatus.QUERYNOTFOUND -> {
                     if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
@@ -289,17 +295,30 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                         showSnackbar(
                             Snackbar.make(
+                                binding.root.context,
                                 R.string.error_message_weather_region_unsupported,
                                 Snackbar.Duration.LONG
-                            ), null
+                            )
                         )
                         return@runWithView
                     }
-                    showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                    showSnackbar(
+                        Snackbar.make(
+                            binding.root.context,
+                            wEx.message,
+                            Snackbar.Duration.LONG
+                        )
+                    )
                 }
                 else -> {
                     // Show error message
-                    showSnackbar(Snackbar.make(wEx.message, Snackbar.Duration.LONG), null)
+                    showSnackbar(
+                        Snackbar.make(
+                            binding.root.context,
+                            wEx.message,
+                            Snackbar.Duration.LONG
+                        )
+                    )
                 }
             }
 
@@ -492,7 +511,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             /*
              * Values from OverScroller class
              */
-            private val DECELERATION_RATE = (Math.log(0.78) / Math.log(0.9)).toFloat()
+            private val DECELERATION_RATE = (ln(0.78) / ln(0.9)).toFloat()
             private val INFLEXION = 0.35f // Tension lines cross at (INFLEXION, 1)
 
             // Fling friction
@@ -504,13 +523,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     * 0.84f) // look and feel tuning
 
             private fun getSplineDeceleration(velocity: Int): Double {
-                return Math.log((INFLEXION * Math.abs(velocity) / (mFlingFriction * mPhysicalCoeff)).toDouble())
+                return ln((INFLEXION * abs(velocity) / (mFlingFriction * mPhysicalCoeff)).toDouble())
             }
 
             private fun getSplineFlingDistance(velocity: Int): Double {
                 val l = getSplineDeceleration(velocity)
                 val decelMinusOne = DECELERATION_RATE - 1.0
-                return mFlingFriction * mPhysicalCoeff * Math.exp(DECELERATION_RATE / decelMinusOne * l)
+                return mFlingFriction * mPhysicalCoeff * exp(DECELERATION_RATE / decelMinusOne * l)
             }
 
             /*
@@ -523,7 +542,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
-                if (appCompatActivity == null || appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
+                if (appCompatActivity == null || appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
                     return
 
                 runWithView {
@@ -571,7 +590,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         binding.scrollView.setTouchScrollListener(object : OnTouchScrollChangeListener {
             @SuppressLint("RestrictedApi")
             override fun onTouchScrollChange(scrollY: Int, oldScrollY: Int) {
-                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled())
+                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
                     return
 
                 runWithView {
@@ -683,7 +702,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                 if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
                     imageContainerHeight = imageLandSize
-                } else if (FeatureSettings.isBackgroundImageEnabled() && height > 0) {
+                } else if (FeatureSettings.isBackgroundImageEnabled && height > 0) {
                     imageContainerHeight =
                         height - conditionPanelBinding.conditionPanel.measuredHeight - imageContainerParams.bottomMargin - imageContainerParams.topMargin
                     if (conditionPanelBinding.alertButton.visibility != View.GONE) {
@@ -715,7 +734,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isForecastEnabled()) {
+        if (FeatureSettings.isForecastEnabled) {
             // Forecast
             forecastPanelBinding = DataBindingUtil.inflate(
                 inflater,
@@ -755,9 +774,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isHourlyForecastEnabled()) {
+        if (FeatureSettings.isHourlyForecastEnabled) {
             // Hourly Forecast
-            hrForecastPanelBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_hrforecastlistpanel, binding.listLayout, false, dataBindingComponent)
+            hrForecastPanelBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_hrforecastlistpanel,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             hrForecastPanelBinding!!.forecastsView = forecastsView
             hrForecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -808,7 +833,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isChartsEnabled()) {
+        if (FeatureSettings.isChartsEnabled) {
             // Precipitation graph
             precipPanelBinding = DataBindingUtil.inflate(
                 inflater,
@@ -851,8 +876,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isDetailsEnabled()) {
-            detailsContainerBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_detailscontainer, binding.listLayout, false, dataBindingComponent)
+        if (FeatureSettings.isDetailsEnabled) {
+            detailsContainerBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_detailscontainer,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
 
             // Details
             detailsContainerBinding!!.weatherView = weatherView
@@ -878,14 +909,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             rowSpec = GridLayout.spec(5, GridLayout.CENTER)
         }
 
-        if (FeatureSettings.isUVEnabled()) {
+        if (FeatureSettings.isUVEnabled) {
             // UV
             uvControlBinding = DataBindingUtil.inflate(
-                    inflater,
-                    R.layout.weathernow_uvcontrol,
-                    binding.detailsWrapLayout as ViewGroup,
-                    true,
-                    dataBindingComponent
+                inflater,
+                R.layout.weathernow_uvcontrol,
+                binding.detailsWrapLayout as ViewGroup,
+                true,
+                dataBindingComponent
             )
             uvControlBinding!!.weatherView = weatherView
             uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
@@ -893,7 +924,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             uvControlBinding!!.uvIcon.setOnIconChangedListener(object :
                 IconControl.OnIconChangedListener {
                 override fun onIconChanged(view: IconControl) {
-                    val wim = WeatherIconsManager.getInstance()
+                    val wim = sharedDeps.weatherIconsManager
                     if (view.iconProvider != null) {
                         view.showAsMonochrome = wim.shouldUseMonochrome(view.iconProvider)
                     } else {
@@ -911,14 +942,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isBeaufortEnabled()) {
+        if (FeatureSettings.isBeaufortEnabled) {
             // Beaufort
             beaufortControlBinding = DataBindingUtil.inflate(
-                    inflater,
-                    R.layout.weathernow_beaufortcontrol,
-                    binding.detailsWrapLayout as ViewGroup,
-                    true,
-                    dataBindingComponent
+                inflater,
+                R.layout.weathernow_beaufortcontrol,
+                binding.detailsWrapLayout as ViewGroup,
+                true,
+                dataBindingComponent
             )
             beaufortControlBinding!!.weatherView = weatherView
             beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
@@ -926,7 +957,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             beaufortControlBinding!!.beaufortIcon.setOnIconChangedListener(object :
                 IconControl.OnIconChangedListener {
                 override fun onIconChanged(view: IconControl) {
-                    val wim = WeatherIconsManager.getInstance()
+                    val wim = sharedDeps.weatherIconsManager
                     if (view.iconProvider != null) {
                         view.showAsMonochrome = wim.shouldUseMonochrome(view.iconProvider)
                     } else {
@@ -944,9 +975,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isAQIndexEnabled()) {
+        if (FeatureSettings.isAQIndexEnabled) {
             // Air Quality
-            aqiControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_aqicontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
+            aqiControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_aqicontrol,
+                binding.detailsWrapLayout as ViewGroup,
+                true,
+                dataBindingComponent
+            )
             aqiControlBinding!!.weatherView = weatherView
             aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -954,7 +991,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 runWithView {
                     AnalyticsLogger.logEvent("WeatherNowFragment: aqi panel click")
                     v.isEnabled = false
-                    val args = WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherAQIFragment()
+                    val args =
+                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherAQIFragment()
                             .setData(JSONParser.serializer(locationData, LocationData::class.java))
                     view.findNavController().safeNavigate(args)
                 }
@@ -969,7 +1007,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isPollenEnabled()) {
+        if (FeatureSettings.isPollenEnabled) {
             // Pollen
             pollenCountControlBinding = DataBindingUtil.inflate(
                 inflater,
@@ -991,9 +1029,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        if (FeatureSettings.isMoonPhaseEnabled()) {
+        if (FeatureSettings.isMoonPhaseEnabled) {
             // Moon Phase
-            moonphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_moonphasecontrol, binding.detailsWrapLayout as ViewGroup, true, dataBindingComponent)
+            moonphaseControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_moonphasecontrol,
+                binding.detailsWrapLayout as ViewGroup,
+                true,
+                dataBindingComponent
+            )
             moonphaseControlBinding!!.weatherView = weatherView
             moonphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -1001,14 +1045,21 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             if (context.isLargeTablet()) {
                 moonphaseControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
                     width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                    itemMinimumWidth =
+                        context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
                 }
             }
         }
 
-        if (FeatureSettings.isSunPhaseEnabled()) {
+        if (FeatureSettings.isSunPhaseEnabled) {
             // Sun Phase
-            sunphaseControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_sunphasecontrol, binding.listLayout, false, dataBindingComponent)
+            sunphaseControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_sunphasecontrol,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
             sunphaseControlBinding!!.weatherView = weatherView
             sunphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -1020,8 +1071,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
 
         // Radar
-        if (FeatureSettings.isRadarEnabled()) {
-            radarControlBinding = DataBindingUtil.inflate(inflater, R.layout.weathernow_radarcontrol, binding.listLayout, false, dataBindingComponent)
+        if (FeatureSettings.isRadarEnabled) {
+            radarControlBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.weathernow_radarcontrol,
+                binding.listLayout,
+                false,
+                dataBindingComponent
+            )
 
             radarControlBinding!!.radarWebviewCover.setOnClickListener { v ->
                 runWithView {
@@ -1091,7 +1148,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     }
                 } else if (propertyId == BR.locationCoord) {
                     // Restrict control to Kitkat+ for Chromium WebView
-                    if (FeatureSettings.isRadarEnabled()) {
+                    if (FeatureSettings.isRadarEnabled) {
                         radarViewProvider?.updateCoordinates(weatherView.locationCoord, true)
                     }
                 } else if (propertyId == BR.weatherSummary) {
@@ -1215,7 +1272,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 conditionPanelBinding.imageView ?: binding.imageView ?: return@runWithView
 
             // Reload background image
-            if (FeatureSettings.isBackgroundImageEnabled()) {
+            if (FeatureSettings.isBackgroundImageEnabled) {
                 if (!ObjectsCompat.equals(imageView.tag, imageURI)) {
                     imageView.tag = imageURI
                     if (!imageURI.isNullOrBlank()) {
@@ -1383,7 +1440,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         } else {
                             // Reset locdata if source is different
                             if (getSettingsManager().getAPI() != locData.weatherSource) {
-                                getSettingsManager().saveLastGPSLocData(LocationData.buildGPSLocation())
+                                getSettingsManager().saveLastGPSLocData(buildEmptyGPSLocation())
                             }
                             if (updateLocation()) {
                                 // Setup loader from updated location
@@ -1416,14 +1473,18 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         )
                         Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
 
-                        showBanner(Banner.make(R.string.prompt_location_not_set).apply {
-                            setBannerIcon(binding.root.context, R.drawable.ic_location_off_24dp)
-                            setPrimaryAction(R.string.label_fab_add_location) {
-                                binding.root.findNavController().safeNavigate(
-                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
-                                )
-                            }
-                        })
+                        showBanner(
+                            Banner.make(
+                                binding.root.context,
+                                R.string.prompt_location_not_set
+                            ).apply {
+                                setBannerIcon(R.drawable.ic_location_off_24dp)
+                                setPrimaryAction(R.string.label_fab_add_location) {
+                                    binding.root.findNavController().safeNavigate(
+                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
+                                    )
+                                }
+                            })
                         this.cancel()
                     }
                     forceRefresh
@@ -1604,14 +1665,15 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     private suspend fun updateLocation(): Boolean {
         var locationChanged = false
 
-        if (appCompatActivity != null && getSettingsManager().useFollowGPS() && locationData?.locationType == LocationType.GPS) {
-            if (!appCompatActivity!!.locationPermissionEnabled()) {
+        val context = context
+
+        if (context != null && getSettingsManager().useFollowGPS() && locationData?.locationType == LocationType.GPS) {
+            if (!context.locationPermissionEnabled()) {
                 this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                 return false
             }
 
-            val locMan =
-                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 locationData = getSettingsManager().getLastGPSLocData()
@@ -1673,7 +1735,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         wm.getLocation(location)
                     }
                 } catch (e: WeatherException) {
-                    showSnackbar(Snackbar.make(e.message, Snackbar.Duration.SHORT), null)
+                    showSnackbar(Snackbar.make(context, e.message, Snackbar.Duration.SHORT), null)
                     return false
                 }
 
@@ -1681,7 +1743,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     // Stop since there is no valid query
                     return false
                 } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                    val tzId =
+                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
                     if ("unknown" != tzId)
                         view.locationTZLong = tzId
                 }
@@ -1689,10 +1752,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 if (!coroutineContext.isActive) return false
 
                 // Save location as last known
-                lastGPSLocData = LocationData(view, location)
+                lastGPSLocData = view.toLocationData(location)
                 getSettingsManager().saveLastGPSLocData(lastGPSLocData)
 
-                LocalBroadcastManager.getInstance(appCompatActivity!!)
+                LocalBroadcastManager.getInstance(context)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
 
                 locationData = lastGPSLocData
@@ -1723,7 +1786,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     getSettingsManager().setFollowGPS(false)
-                    showSnackbar(Snackbar.make(R.string.error_location_denied, Snackbar.Duration.SHORT), null)
+                    showSnackbar(
+                        Snackbar.make(
+                            binding.rootView.context,
+                            R.string.error_location_denied,
+                            Snackbar.Duration.SHORT
+                        ), null
+                    )
                 }
             }
         }
@@ -1732,7 +1801,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun updateRadarView() {
         runWithView {
-            if (!FeatureSettings.isRadarEnabled() || radarViewProvider == null)
+            if (!FeatureSettings.isRadarEnabled || radarViewProvider == null)
                 return@runWithView
 
             radarViewProvider?.updateRadarView()

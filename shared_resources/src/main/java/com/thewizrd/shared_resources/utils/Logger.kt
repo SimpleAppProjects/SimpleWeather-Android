@@ -13,8 +13,11 @@ object Logger {
     fun init(context: Context) {
         if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
-            Timber.plant(FileLoggingTree(context.applicationContext))
         } else {
+            if (BuildConfig.IS_NONGMS) {
+                Timber.plant(FileLoggingTree(context.applicationContext))
+            }
+
             cleanupLogs(context.applicationContext)
         }
     }

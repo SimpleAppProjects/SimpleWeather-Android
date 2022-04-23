@@ -11,10 +11,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
+import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
-import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.R
@@ -86,17 +86,18 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
         val appUpdateManager = InAppUpdateManager.create(applicationContext)
 
         if (appUpdateManager.checkIfUpdateAvailable()) {
-            if (appUpdateManager.updatePriority > 3 && !FeatureSettings.isUpdateAvailable()) {
+            if (appUpdateManager.updatePriority > 3 && !UpdateSettings.isUpdateAvailable) {
                 // Notify user of update availability
-                val mNotifyMgr = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val mNotifyMgr =
+                    applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 initChannel(mNotifyMgr)
 
                 val mNotif = NotificationCompat.Builder(applicationContext, NOT_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_error_white)
-                        .setContentTitle(applicationContext.getString(R.string.prompt_update_title))
-                        .setContentText(applicationContext.getString(R.string.prompt_update_available))
-                        .setContentIntent(getLaunchUpdatesIntent(applicationContext))
-                        .setColor(Colors.SIMPLEBLUE)
+                    .setSmallIcon(R.drawable.ic_error_white)
+                    .setContentTitle(applicationContext.getString(R.string.prompt_update_title))
+                    .setContentText(applicationContext.getString(R.string.prompt_update_available))
+                    .setContentIntent(getLaunchUpdatesIntent(applicationContext))
+                    .setColor(Colors.SIMPLEBLUE)
                         .setAutoCancel(true)
 
                 mNotifyMgr.notify((SystemClock.uptimeMillis() + appUpdateManager.updatePriority).toInt(), mNotif.build())

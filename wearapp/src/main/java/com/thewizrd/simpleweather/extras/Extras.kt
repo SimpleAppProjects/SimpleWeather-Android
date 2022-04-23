@@ -6,16 +6,17 @@ package com.thewizrd.simpleweather.extras
 import android.content.Intent
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.thewizrd.extras.extrasModule
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 
 fun isIconPackSupported(packKey: String?): Boolean {
-    return com.thewizrd.extras.isIconPackSupported(packKey)
+    return extrasModule.isIconPackSupported(packKey)
 }
 
 fun isWeatherAPISupported(api: String?): Boolean {
-    return com.thewizrd.extras.isWeatherAPISupported(api)
+    return extrasModule.isWeatherAPISupported(api)
 }
 
 fun SettingsActivity.SettingsFragment.navigateToPremiumFragment() {

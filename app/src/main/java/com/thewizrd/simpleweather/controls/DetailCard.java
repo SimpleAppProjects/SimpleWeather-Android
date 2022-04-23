@@ -17,7 +17,8 @@ import androidx.core.widget.ImageViewCompat;
 
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
-import com.thewizrd.shared_resources.controls.DetailItemViewModel;
+import com.thewizrd.common.controls.DetailItemViewModel;
+import com.thewizrd.shared_resources.SharedModuleKt;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.simpleweather.R;
@@ -122,7 +123,7 @@ public class DetailCard extends LinearLayout {
         binding.setViewModel(model);
         binding.executePendingBindings();
 
-        WeatherIconsManager wim = WeatherIconsManager.getInstance();
+        final WeatherIconsManager wim = SharedModuleKt.getSharedDeps().getWeatherIconsManager();
         if (binding.detailIcon.getIconProvider() != null) {
             binding.detailIcon.setShowAsMonochrome(wim.shouldUseMonochrome(binding.detailIcon.getIconProvider()));
         } else {

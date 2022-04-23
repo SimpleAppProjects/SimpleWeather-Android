@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
 public class CustomJsonConverter<T extends CustomJsonObject> extends TypeAdapter<T> {
-    private Class<T> clazz;
+    private final Class<T> clazz;
 
     public CustomJsonConverter(Class<T> clazz) {
         this.clazz = clazz;
@@ -23,9 +23,7 @@ public class CustomJsonConverter<T extends CustomJsonObject> extends TypeAdapter
         try {
             T object = clazz.newInstance();
             object.fromJson(in);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;

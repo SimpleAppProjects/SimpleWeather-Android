@@ -11,11 +11,11 @@
 
         <variable
             name="weatherView"
-            type="com.thewizrd.shared_resources.controls.WeatherNowViewModel" />
+            type="com.thewizrd.common.controls.WeatherNowViewModel" />
 
         <variable
             name="alertsView"
-            type="com.thewizrd.shared_resources.controls.WeatherAlertsViewModel" />
+            type="com.thewizrd.common.controls.WeatherAlertsViewModel" />
 
         <variable
             name="forecastsView"
@@ -90,7 +90,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:visibility="gone" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.common.controls.TextViewDrawableCompat
                     android:id="@+id/disconnected_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -174,7 +174,7 @@
                     app:autoSizeTextType="uniform"
                     tools:text="New York, New York" />
 
-                <com.thewizrd.shared_resources.controls.IconControl
+                <com.thewizrd.common.controls.IconControl
                     android:id="@+id/weather_icon"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -268,7 +268,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/weather_condition" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.common.controls.TextViewDrawableCompat
                     android:id="@+id/weather_hi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -284,7 +284,7 @@
                     app:drawableWidth="30dp"
                     tools:text="75°" />
 
-                <com.thewizrd.shared_resources.controls.TextViewDrawableCompat
+                <com.thewizrd.common.controls.TextViewDrawableCompat
                     android:id="@+id/weather_lo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -317,7 +317,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/weather_hilo_layout" />
 
-                <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+                <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                     android:id="@+id/condition_pop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -340,7 +340,7 @@
                     tools:drawableStartCompat="@drawable/wi_umbrella"
                     tools:text="50%" />
 
-                <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+                <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                     android:id="@+id/condition_windspeed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

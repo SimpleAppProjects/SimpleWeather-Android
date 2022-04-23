@@ -3,8 +3,8 @@ package com.thewizrd.simpleweather.adapters
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import com.thewizrd.shared_resources.controls.DetailItemViewModel
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
+import com.thewizrd.common.controls.DetailItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.utils.sequenceEqual
 import com.thewizrd.simpleweather.controls.DetailCard
 import com.thewizrd.simpleweather.preferences.FeatureSettings
@@ -35,8 +35,8 @@ class DetailsItemGridAdapter : BaseAdapter() {
     fun updateItems(dataset: Collection<DetailItemViewModel>?) {
         if (mDataset == null || !sequenceEqual(mDataset, dataset)) {
             mDataset = dataset?.filterNot {
-                ((it.detailsType == WeatherDetailsType.SUNRISE || it.detailsType == WeatherDetailsType.SUNSET) && FeatureSettings.isSunPhaseEnabled()) ||
-                        (it.detailsType == WeatherDetailsType.MOONRISE || it.detailsType == WeatherDetailsType.MOONSET || it.detailsType == WeatherDetailsType.MOONPHASE) && FeatureSettings.isMoonPhaseEnabled()
+                ((it.detailsType == WeatherDetailsType.SUNRISE || it.detailsType == WeatherDetailsType.SUNSET) && FeatureSettings.isSunPhaseEnabled) ||
+                        (it.detailsType == WeatherDetailsType.MOONRISE || it.detailsType == WeatherDetailsType.MOONSET || it.detailsType == WeatherDetailsType.MOONPHASE) && FeatureSettings.isMoonPhaseEnabled
             }
             notifyDataSetChanged()
         }

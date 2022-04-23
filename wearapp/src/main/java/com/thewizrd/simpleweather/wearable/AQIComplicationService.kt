@@ -3,10 +3,11 @@ package com.thewizrd.simpleweather.wearable
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
-import com.thewizrd.shared_resources.controls.AirQualityViewModel
+import com.thewizrd.common.controls.AirQualityViewModel
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +33,8 @@ class AQIComplicationService : BaseWeatherComplicationService() {
         return scope.async {
             var complicationData: ComplicationData? = null
 
-            if (settingsMgr.isWeatherLoaded()) {
-                complicationData = settingsMgr.getHomeData()?.let { locData ->
+            if (settingsManager.isWeatherLoaded()) {
+                complicationData = settingsManager.getHomeData()?.let { locData ->
                     val weather = withContext(Dispatchers.IO) {
                         try {
                             WeatherDataLoader(locData)
@@ -51,11 +52,12 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     val today = LocalDate.now(locData.tzOffset)
 
                     val aqiIndex =
-                        weather?.condition?.airQuality?.index ?: settingsMgr.getWeatherForecastData(
-                            locData.query
-                        )?.aqiForecast?.firstOrNull {
-                            today.isEqual(it.date)
-                        }?.index ?: return@let null
+                        weather?.condition?.airQuality?.index
+                            ?: settingsManager.getWeatherForecastData(
+                                locData.query
+                            )?.aqiForecast?.firstOrNull {
+                                today.isEqual(it.date)
+                            }?.index ?: return@let null
 
                     buildUpdate(request.complicationType, aqiIndex)
                 }

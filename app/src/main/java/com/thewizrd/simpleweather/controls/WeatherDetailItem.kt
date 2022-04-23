@@ -10,11 +10,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.common.controls.BaseForecastItemViewModel
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.StringUtils.lineSeparator
@@ -109,7 +109,7 @@ class WeatherDetailItem : LinearLayout {
 
         binding.executePendingBindings()
 
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         if (binding.forecastExtraPop.iconProvider != null) {
             binding.forecastExtraPop.showAsMonochrome =
                 wim.shouldUseMonochrome(binding.forecastExtraPop.iconProvider)

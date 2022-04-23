@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -72,7 +73,7 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
 
         if (feelsLikeF == feelsLikeC) return null
 
-        val tempUnit = settingsMgr.getTemperatureUnit()
+        val tempUnit = settingsManager.getTemperatureUnit()
         val tempVal =
             if (tempUnit == Units.FAHRENHEIT) feelsLikeF.roundToInt() else feelsLikeC.toInt()
         val tempStr = String.format("$tempVal°$tempUnit")

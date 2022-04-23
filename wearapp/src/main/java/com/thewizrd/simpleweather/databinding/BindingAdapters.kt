@@ -9,10 +9,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.widget.TextViewCompat
 import androidx.databinding.BindingAdapter
-import com.thewizrd.shared_resources.controls.DetailItemViewModel
-import com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.common.controls.DetailItemViewModel
+import com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
@@ -31,7 +31,7 @@ object BindingAdapters {
             val chanceModel = details[WeatherDetailsType.POPCHANCE]
 
             if (chanceModel != null) {
-                val wim = WeatherIconsManager.getInstance()
+                val wim = sharedDeps.weatherIconsManager
 
                 if (pop is TextViewWeatherIconDrawableCompat) {
                     pop.weatherIconStart = chanceModel.icon
@@ -71,7 +71,7 @@ object BindingAdapters {
             val windModel = details[WeatherDetailsType.WINDSPEED]
 
             if (windModel != null) {
-                val wim = WeatherIconsManager.getInstance()
+                val wim = sharedDeps.weatherIconsManager
 
                 if (windSpeed is TextViewWeatherIconDrawableCompat) {
                     windSpeed.weatherIconStart = windModel.icon

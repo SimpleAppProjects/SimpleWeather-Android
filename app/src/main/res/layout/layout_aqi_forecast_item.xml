@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.AirQualityViewModel" />
+            type="com.thewizrd.common.controls.AirQualityViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

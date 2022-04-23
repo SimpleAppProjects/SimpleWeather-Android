@@ -6,18 +6,18 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ColorsUtils
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.ColorsUtils
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.ImageUtils
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider1x1
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.weather_api.weatherModule
 
 class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(context) {
     private fun generateRemoteViews() = RemoteViews(context.packageName, info.widgetLayoutId)
@@ -49,7 +49,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         )
 
         // WeatherIcon
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
 
         val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
@@ -68,7 +68,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         )
         updateViews.setContentDescription(
             R.id.weather_icon,
-            WeatherManager.instance.getWeatherCondition(weather.weatherIcon)
+            weatherModule.weatherManager.getWeatherCondition(weather.weatherIcon)
         )
 
         updateViews.setTextViewText(R.id.condition_temp, weather.curTemp)

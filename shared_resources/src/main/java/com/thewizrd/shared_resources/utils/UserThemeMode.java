@@ -18,7 +18,7 @@ public enum UserThemeMode {
         this.value = value;
     }
 
-    private static SparseArray<UserThemeMode> map = new SparseArray<>();
+    private static final SparseArray<UserThemeMode> map = new SparseArray<>();
 
     static {
         for (UserThemeMode mode : values()) {

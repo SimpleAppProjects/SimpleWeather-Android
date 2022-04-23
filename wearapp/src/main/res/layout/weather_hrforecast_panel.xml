@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.HourlyForecastItemViewModel" />
+            type="com.thewizrd.common.controls.HourlyForecastItemViewModel" />
     </data>
 
     <LinearLayout
@@ -45,7 +45,7 @@
                 app:autoSizeTextType="uniform"
                 tools:text="10PM\nThu" />
 
-            <com.thewizrd.shared_resources.controls.IconControl
+            <com.thewizrd.common.controls.IconControl
                 android:id="@+id/hrforecast_icon"
                 android:layout_width="32dp"
                 android:layout_height="36dp"
@@ -81,7 +81,7 @@
             app:popData="@{viewModel.extras}"
             app:windData="@{viewModel.extras}">
 
-            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+            <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/hrforecast_pop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                 tools:drawableStartCompat="@drawable/wi_umbrella"
                 tools:text="50%" />
 
-            <com.thewizrd.shared_resources.controls.TextViewWeatherIconDrawableCompat
+            <com.thewizrd.common.controls.TextViewWeatherIconDrawableCompat
                 android:id="@+id/hrforecast_windspeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

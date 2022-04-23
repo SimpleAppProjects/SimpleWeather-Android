@@ -23,18 +23,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.*
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
+import com.thewizrd.common.helpers.*
+import com.thewizrd.common.wearable.WearConnectionStatus
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import com.thewizrd.shared_resources.helpers.*
+import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.extras.isIconPackSupported
@@ -51,6 +52,7 @@ import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPrefere
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.guava.await
@@ -114,7 +116,8 @@ class SettingsActivity : WearableListenerActivity() {
         }
     }
 
-    class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener, OnBackPressedFragmentListener {
+    class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener,
+        OnBackPressedFragmentListener {
         companion object {
             private const val PERMISSION_LOCATION_REQUEST_CODE = 0
             private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
@@ -164,7 +167,7 @@ class SettingsActivity : WearableListenerActivity() {
         override fun onBackPressed(): Boolean {
             if (settingsManager.usePersonalKey() &&
                 settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                WeatherManager.isKeyRequired(providerPref.value)
+                weatherModule.weatherManager.isKeyRequired(providerPref.value)
             ) {
                 // Set keyentrypref color to red
                 showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT)
@@ -180,16 +183,20 @@ class SettingsActivity : WearableListenerActivity() {
             AnalyticsLogger.logEvent("SettingsFragment: onResume")
 
             // Register listener
-            val app = App.instance
-            app.unregisterAppSharedPreferenceListener()
-            app.registerAppSharedPreferenceListener(this)
+            appLib.unregisterAppSharedPreferenceListener()
+            appLib.registerAppSharedPreferenceListener(this)
             // Initialize queue
             intentQueue = HashSet()
 
             statusReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     if (ACTION_UPDATECONNECTIONSTATUS == intent.action) {
-                        mConnectionStatus = WearConnectionStatus.valueOf(intent.getIntExtra(EXTRA_CONNECTIONSTATUS, 0))
+                        mConnectionStatus = WearConnectionStatus.valueOf(
+                            intent.getIntExtra(
+                                EXTRA_CONNECTIONSTATUS,
+                                0
+                            )
+                        )
                         updateConnectionPref()
                     }
                 }
@@ -207,51 +214,62 @@ class SettingsActivity : WearableListenerActivity() {
 
             if (settingsManager.usePersonalKey() &&
                 settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                WeatherManager.isKeyRequired(providerPref.value)
+                weatherModule.weatherManager.isKeyRequired(providerPref.value)
             ) {
                 // Fallback to supported weather provider
-                val API = RemoteConfig.getDefaultWeatherProvider()
+                val API = remoteConfigService.getDefaultWeatherProvider()
                 providerPref.value = API
                 providerPref.onPreferenceChangeListener?.onPreferenceChange(providerPref, API)
                 settingsManager.setAPI(API)
-                WeatherManager.instance.updateAPI()
+                weatherModule.weatherManager.updateAPI()
 
                 settingsManager.setPersonalKey(false)
                 settingsManager.setKeyVerified(API, true)
             }
 
             // Unregister listener
-            val app = App.instance
-            app.unregisterAppSharedPreferenceListener(this)
-            app.registerAppSharedPreferenceListener()
+            appLib.unregisterAppSharedPreferenceListener(this)
+            appLib.registerAppSharedPreferenceListener()
 
-            val mLocalBroadcastManager = LocalBroadcastManager.getInstance(parentActivity!!)
-            mLocalBroadcastManager.unregisterReceiver(statusReceiver!!)
+            val localBroadcastManager = LocalBroadcastManager.getInstance(parentActivity!!)
+            localBroadcastManager.unregisterReceiver(statusReceiver!!)
 
             for (filter in intentQueue!!) {
-                if (CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action) {
-                    WeatherManager.instance.updateAPI()
-                    mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
+                when (filter.intent.action) {
+                    CommonActions.ACTION_SETTINGS_UPDATEAPI -> {
+                        weatherModule.weatherManager.updateAPI()
+                        localBroadcastManager.sendBroadcast(
+                            Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI)
+                        )
 
-                    // Log event
-                    val bundle = Bundle().apply {
-                        putString("API", settingsManager.getAPI())
-                        putString("API_IsInternalKey", (!settingsManager.usePersonalKey()).toString())
+                        // Log event
+                        val bundle = Bundle().apply {
+                            putString("API", settingsManager.getAPI())
+                            putString(
+                                "API_IsInternalKey",
+                                (!settingsManager.usePersonalKey()).toString()
+                            )
+                        }
+                        AnalyticsLogger.logEvent("Update_API", bundle)
                     }
-                    AnalyticsLogger.logEvent("Update_API", bundle)
-                } else if (CommonActions.ACTION_SETTINGS_UPDATEGPS == filter.intent.action) {
-                    mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS))
-                } else if (CommonActions.ACTION_SETTINGS_UPDATEUNIT == filter.intent.action) {
-                    mLocalBroadcastManager.sendBroadcast(
-                            Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
-                } else if (CommonActions.ACTION_SETTINGS_UPDATEDATASYNC == filter.intent.action) {
-                    mLocalBroadcastManager.sendBroadcast(
-                        Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
-                    )
-                } else {
-                    parentActivity!!.startService(filter.intent)
+                    CommonActions.ACTION_SETTINGS_UPDATEGPS -> {
+                        localBroadcastManager.sendBroadcast(
+                            Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS)
+                        )
+                    }
+                    CommonActions.ACTION_SETTINGS_UPDATEUNIT -> {
+                        localBroadcastManager.sendBroadcast(
+                            Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
+                        )
+                    }
+                    CommonActions.ACTION_SETTINGS_UPDATEDATASYNC -> {
+                        localBroadcastManager.sendBroadcast(
+                            Intent(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
+                        )
+                    }
+                    else -> {
+                        parentActivity!!.startService(filter.intent)
+                    }
                 }
             }
 
@@ -389,7 +407,8 @@ class SettingsActivity : WearableListenerActivity() {
                             apiCategory.addPreference(registerPref)
                         keyEntry.isEnabled = true
                     } else {
-                        val selectedWProv = WeatherManager.getProvider(providerPref.value)
+                        val selectedWProv =
+                            weatherModule.weatherManager.getWeatherProvider(providerPref.value)
 
                     if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey().isNullOrBlank()) {
                         // We're using our own (verified) keys
@@ -428,7 +447,8 @@ class SettingsActivity : WearableListenerActivity() {
                 }
 
                 val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(selectedProvider)
+                val selectedWProv =
+                    weatherModule.weatherManager.getWeatherProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -507,7 +527,7 @@ class SettingsActivity : WearableListenerActivity() {
             registerPref.onPreferenceClickListener = registerPrefClickListener
 
             // Set key as verified if API Key is req for API and its set
-            if (WeatherManager.instance.isKeyRequired()) {
+            if (weatherModule.weatherManager.isKeyRequired()) {
                 keyEntry.isEnabled = true
 
                 if (!settingsManager.getAPIKey().isNullOrBlank() &&
@@ -516,7 +536,7 @@ class SettingsActivity : WearableListenerActivity() {
                     settingsManager.setKeyVerified(providerPref.value, true)
                 }
 
-                if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
+                if (weatherModule.weatherManager.getAPIKey().isNullOrBlank()) {
                     settingsManager.setPersonalKey(true)
                     personalKeyPref.isChecked = true
                     personalKeyPref.isEnabled = false
@@ -595,7 +615,7 @@ class SettingsActivity : WearableListenerActivity() {
                         val key = fragment.key
 
                         try {
-                            if (WeatherManager.isKeyValid(key, provider)) {
+                            if (weatherModule.weatherManager.isKeyValid(key, provider)) {
                                 settingsManager.setAPIKey(provider, key)
                                 settingsManager.setAPI(provider)
                                 settingsManager.setKeyVerified(provider, true)

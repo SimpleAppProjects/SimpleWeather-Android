@@ -9,8 +9,8 @@ import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.R
+import com.thewizrd.weather_api.weatherModule
 
 class DetailItemFooterAdapter : RecyclerView.Adapter<DetailItemFooterAdapter.FooterViewHolder>() {
     private interface HeaderSetterInterface {
@@ -28,7 +28,7 @@ class DetailItemFooterAdapter : RecyclerView.Adapter<DetailItemFooterAdapter.Foo
         override fun setHeader() {
             val context = header.context
             val creditPrefix = context.getString(R.string.credit_prefix)
-            val weatherAPI = WeatherManager.instance.getWeatherAPI()
+            val weatherAPI = weatherModule.weatherManager.getWeatherAPI()
 
             val entry =
                 WeatherAPI.APIs.find { wapi: ProviderEntry? -> wapi != null && weatherAPI == wapi.value }

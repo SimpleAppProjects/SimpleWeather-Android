@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.*
+import com.thewizrd.shared_resources.R
 
 object ContextUtils {
     @IntDef(
@@ -152,5 +153,10 @@ object ContextUtils {
         val currentNightMode: Int =
             this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+    }
+
+    @JvmStatic
+    fun Context.isPhone(): Boolean {
+        return this.resources.getBoolean(R.bool.isPhone)
     }
 }

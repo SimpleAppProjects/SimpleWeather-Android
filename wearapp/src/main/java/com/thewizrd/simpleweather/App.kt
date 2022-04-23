@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather
 import android.app.Activity
 import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
-import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -11,100 +10,77 @@ import android.os.Bundle
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import com.thewizrd.extras.ExtrasLibrary
-import com.thewizrd.shared_resources.AppState
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.common.CommonModule
+import com.thewizrd.common.commonModule
+import com.thewizrd.common.utils.SettingsListener
+import com.thewizrd.extras.extrasModule
+import com.thewizrd.shared_resources.*
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.utils.SettingsManager.SettingsListener
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
-    companion object {
-        @JvmStatic
-        lateinit var instance: ApplicationLib
-            private set
-    }
-
-    private lateinit var context: Context
-    private lateinit var appProperties: Bundle
-    private lateinit var settingsMgr: SettingsManager
-    private lateinit var sharedPreferenceChangeListener: OnSharedPreferenceChangeListener
+class App : Application(), ActivityLifecycleCallbacks {
     private lateinit var applicationState: AppState
     private var mActivitiesStarted = 0
     private lateinit var mCommonReceiver: CommonActionsBroadcastReceiver
 
-    override fun getAppContext(): Context {
-        return context
-    }
-
-    override fun getPreferences(): SharedPreferences {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-    }
-
-    override fun getSettingsManager(): SettingsManager {
-        return settingsMgr
-    }
-
-    override fun registerAppSharedPreferenceListener() {
-        registerAppSharedPreferenceListener(sharedPreferenceChangeListener)
-    }
-
-    override fun registerAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
-        preferences.registerOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun unregisterAppSharedPreferenceListener() {
-        unregisterAppSharedPreferenceListener(sharedPreferenceChangeListener)
-    }
-
-    override fun unregisterAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
-        preferences.unregisterOnSharedPreferenceChangeListener(listener)
-    }
-
-    override fun getAppState(): AppState {
-        return applicationState
-    }
-
-    override fun isPhone(): Boolean {
-        return false
-    }
-
-    override fun getProperties(): Bundle {
-        return appProperties
-    }
-
     override fun onCreate() {
         super.onCreate()
-        context = LocaleUtils.attachBaseContext(applicationContext)
-        appProperties = Bundle()
-        instance = this
+
         registerActivityLifecycleCallbacks(this)
         applicationState = AppState.CLOSED
         mActivitiesStarted = 0
 
-        // Initialize settings
-        settingsMgr = SettingsManager(this)
-        sharedPreferenceChangeListener = SettingsListener(this)
+        // Initialize app dependencies (library module chain)
+        // 1. ApplicationLib + SharedModule, 2. Firebase, 3. CommonModule, 4. ExtrasModule
+        appLib = object : ApplicationLib() {
+            override val context = LocaleUtils.attachBaseContext(applicationContext)
+            override val preferences: SharedPreferences
+                get() = PreferenceManager.getDefaultSharedPreferences(context)
+            private val sharedPreferenceChangeListener by lazy { SettingsListener(appLib) }
 
-        // Init shared library
-        SimpleLibrary.initialize(this)
-        ExtrasLibrary.initialize(this)
+            override fun registerAppSharedPreferenceListener() {
+                registerAppSharedPreferenceListener(sharedPreferenceChangeListener)
+            }
 
-        // Start logger
-        Logger.init(context)
+            override fun registerAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
+                preferences.registerOnSharedPreferenceChangeListener(listener)
+            }
 
-        // Init common action broadcast receiver
+            override fun unregisterAppSharedPreferenceListener() {
+                unregisterAppSharedPreferenceListener(sharedPreferenceChangeListener)
+            }
+
+            override fun unregisterAppSharedPreferenceListener(listener: OnSharedPreferenceChangeListener) {
+                preferences.unregisterOnSharedPreferenceChangeListener(listener)
+            }
+
+            override val appState: AppState
+                get() = this@App.applicationState
+            override val isPhone = false
+            override val properties = Bundle()
+            override val settingsManager = SettingsManager(context)
+        }
+
+        sharedDeps = object : SharedModule() {
+            override val context = applicationContext
+        }
+
+        FirebaseConfigurator.initialize(applicationContext)
+
+        // Initialize CommonModule: Version migrations (depends on SharedModule, Firebase)
+        commonModule = object : CommonModule() {
+            override val context = appLib.context
+        }
+
         registerCommonReceiver()
-
-        FirebaseConfigurator.initialize(context)
+        extrasModule.initialize()
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
@@ -118,22 +94,23 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
 
         // Load data if needed
         GlobalScope.launch(Dispatchers.Default) {
-            settingsMgr.loadIfNeeded()
+            appLib.settingsManager.loadIfNeeded()
         }
 
-        registerAppSharedPreferenceListener()
+        appLib.registerAppSharedPreferenceListener()
     }
 
     private fun registerCommonReceiver() {
         mCommonReceiver = CommonActionsBroadcastReceiver()
-        val filter = IntentFilter()
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
-        filter.addAction(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
-        filter.addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+        val filter = IntentFilter().apply {
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEAPI)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEGPS)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEUNIT)
+            addAction(CommonActions.ACTION_SETTINGS_UPDATEDATASYNC)
+            addAction(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+        }
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mCommonReceiver, filter)
+            .registerReceiver(mCommonReceiver, filter)
     }
 
     private fun unregisterCommonReceiver() {
@@ -147,7 +124,6 @@ class App : Application(), ApplicationLib, ActivityLifecycleCallbacks {
         unregisterActivityLifecycleCallbacks(this)
         // Shutdown logger
         Logger.shutdown()
-        SimpleLibrary.unregister()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

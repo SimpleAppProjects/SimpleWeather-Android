@@ -12,12 +12,13 @@ import androidx.annotation.ColorInt
 import androidx.core.content.edit
 import com.google.gson.reflect.TypeToken
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.widgets.remoteviews.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -27,9 +28,9 @@ import java.util.*
 
 object WidgetUtils {
     // Shared Settings
-    private val settingsMgr = App.instance.settingsManager
-    private val widgetPrefs =
-        App.instance.appContext.getSharedPreferences("appwidgets", Context.MODE_PRIVATE)
+    private val widgetPrefs by lazy {
+        appLib.context.getSharedPreferences("appwidgets", Context.MODE_PRIVATE)
+    }
 
     // Widget Prefs
     private const val CurrentPrefsVersion = 6
@@ -219,7 +220,7 @@ object WidgetUtils {
     }
 
     private fun getWidgetIds(widgetType: WidgetType): IntArray {
-        val mAppWidgetManager = AppWidgetManager.getInstance(App.instance.appContext)
+        val mAppWidgetManager = AppWidgetManager.getInstance(appLib.context)
 
         return when (widgetType) {
             WidgetType.Unknown -> IntArray(0)
@@ -334,7 +335,7 @@ object WidgetUtils {
             clear()
         }
 
-        val context = App.instance.appContext
+        val context = appLib.context
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.deleteSharedPreferences(String.format(Locale.ROOT, "appwidget_%d", widgetId))
@@ -425,7 +426,7 @@ object WidgetUtils {
     }
 
     private fun getPreferences(appWidgetId: Int): SharedPreferences {
-        return App.instance.appContext.getSharedPreferences(
+        return appLib.context.getSharedPreferences(
             String.format(
                 Locale.ROOT,
                 "appwidget_%d",
@@ -452,8 +453,8 @@ object WidgetUtils {
 
     fun cleanupWidgetIds() {
         GlobalScope.launch(Dispatchers.Default) {
-            val locs = ArrayList(settingsMgr.getLocationData())
-            settingsMgr.getLastGPSLocData()?.let {
+            val locs = ArrayList(settingsManager.getLocationData())
+            settingsManager.getLastGPSLocData()?.let {
                 locs.add(it)
             }
             val currLocQueries = ArrayList<String>(locs.size)
@@ -478,7 +479,7 @@ object WidgetUtils {
         GlobalScope.launch(Dispatchers.IO) {
             val currentIds = getAllWidgetIds()
 
-            val context = App.instance.appContext
+            val context = appLib.context
             val parentPath = context.filesDir.parent
             val sharedPrefsPath = String.format(Locale.ROOT, "%s/shared_prefs", parentPath)
             val sharedPrefsFolder = File(sharedPrefsPath)
@@ -696,7 +697,7 @@ object WidgetUtils {
 
     fun getWidgetTypeFromID(appWidgetId: Int): WidgetType {
         val providerInfo =
-            AppWidgetManager.getInstance(App.instance.appContext).getAppWidgetInfo(appWidgetId)
+            AppWidgetManager.getInstance(appLib.context).getAppWidgetInfo(appWidgetId)
 
         if (providerInfo != null) {
             when (providerInfo.initialLayout) {
@@ -970,23 +971,23 @@ object WidgetUtils {
     }
 
     fun getOnClickClockApp(): String? {
-        val prefs = App.instance.preferences
+        val prefs = appLib.preferences
         return prefs.getString(KEY_CLOCKAPP, null)
     }
 
     fun setOnClickClockApp(value: String?) {
-        App.instance.preferences.edit(true) {
+        appLib.preferences.edit(true) {
             putString(KEY_CLOCKAPP, value)
         }
     }
 
     fun getOnClickCalendarApp(): String? {
-        val prefs = App.instance.preferences
+        val prefs = appLib.preferences
         return prefs.getString(KEY_CALENDARAPP, null)
     }
 
     fun setOnClickCalendarApp(value: String?) {
-        App.instance.preferences.edit(true) {
+        appLib.preferences.edit(true) {
             putString(KEY_CALENDARAPP, value)
         }
     }

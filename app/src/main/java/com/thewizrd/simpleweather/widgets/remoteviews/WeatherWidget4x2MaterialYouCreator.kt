@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.util.SizeF
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x2MaterialYou
@@ -77,7 +77,7 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
         val updateViews = generateRemoteViews()
 
         // WeatherIcon
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
 
         updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)

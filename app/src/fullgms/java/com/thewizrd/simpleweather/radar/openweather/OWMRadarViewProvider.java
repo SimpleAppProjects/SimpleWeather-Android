@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.thewizrd.shared_resources.keys.Keys;
+import com.thewizrd.weather_api.keys.Keys;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider;
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider;

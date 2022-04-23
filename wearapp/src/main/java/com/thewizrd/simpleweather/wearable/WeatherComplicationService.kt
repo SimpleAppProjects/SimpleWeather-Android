@@ -2,18 +2,19 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
+import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.ImageUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
+import com.thewizrd.weather_api.weatherModule
 
 class WeatherComplicationService : WeatherForecastComplicationService() {
     companion object {
@@ -69,7 +70,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
             return null
         }
 
-        val isFahrenheit = Units.FAHRENHEIT == settingsMgr.getTemperatureUnit()
+        val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
 
         // Temperature
         val currTemp =
@@ -86,14 +87,14 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
         val temp = String.format(LocaleUtils.getLocale(), "%s°%s", currTemp, tempUnit)
 
         // Condition text
-        val provider = WeatherManager.getProvider(weather.source)
+        val provider = weatherModule.weatherManager.getWeatherProvider(weather.source)
         val condition = if (provider.supportsWeatherLocale()) {
             weather.condition.weather
         } else {
             provider.getWeatherCondition(weather.condition.icon)
         }
 
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
         val weatherIcon = wim.getWeatherIconResource(weather.condition.icon)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -113,7 +114,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     MonochromaticImage.Builder(icon).apply {
                         // Weather Icon
                         if (!wim.isFontIcon) {
-                            val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+                            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
                             setAmbientImage(
                                 Icon.createWithBitmap(
                                     ImageUtils.tintedBitmapFromDrawable(
@@ -145,7 +146,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                         MonochromaticImage.Builder(icon).build()
                     )
                 } else {
-                    val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+                    val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
                             .setAmbientImage(

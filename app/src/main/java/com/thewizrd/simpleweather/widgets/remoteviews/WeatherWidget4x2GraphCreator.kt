@@ -9,15 +9,14 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
 import androidx.core.view.drawToBitmap
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.ColorsUtils
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.graphs.*
@@ -29,6 +28,7 @@ import com.thewizrd.simpleweather.widgets.WidgetGraphType
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -302,7 +302,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
             }
         } else {
             val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
-            val hrInterval = WeatherManager.instance.getHourlyForecastInterval()
+            val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
             val hrfcastData = (
                     weather?.hrForecast?.take(12)
                         ?: settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(

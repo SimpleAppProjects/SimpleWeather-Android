@@ -3,7 +3,7 @@ package com.thewizrd.shared_resources.icons;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
-public abstract class WeatherIconProvider implements WeatherIconsProviderInterface {
+public abstract class WeatherIconProvider implements WeatherIconsProvider {
     public abstract String getKey();
 
     public abstract String getDisplayName();

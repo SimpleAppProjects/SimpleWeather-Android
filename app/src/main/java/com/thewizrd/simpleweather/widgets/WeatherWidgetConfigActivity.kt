@@ -5,14 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.core.graphics.ColorUtils
 import androidx.navigation.fragment.NavHostFragment
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.utils.ActivityUtils.setFullScreen
-import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
+import com.thewizrd.common.utils.ActivityUtils.setFullScreen
+import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
+import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.UserThemeMode
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.widgets.preferences.WeatherWidget4x3LocationFragment
@@ -42,7 +42,7 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         setContentView(R.layout.activity_widget_setup)
 
         var color = getAttrColor(android.R.attr.colorBackground)
-        if (App.instance.settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+        if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             color = Colors.BLACK
         }
 
@@ -96,7 +96,7 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         }
 
         // Update configuration
-        RemoteConfig.checkConfig()
+        remoteConfigService.checkConfig()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

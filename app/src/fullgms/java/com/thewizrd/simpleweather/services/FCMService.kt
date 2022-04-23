@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.services
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.thewizrd.simpleweather.images.ImageDataHelper
+import com.thewizrd.simpleweather.images.imageDataService
 
 class FCMService : FirebaseMessagingService() {
     companion object {
@@ -20,7 +20,7 @@ class FCMService : FirebaseMessagingService() {
                 if (remoteMessage.data.containsKey("date")) {
                     val date = remoteMessage.data["date"]
                     if (date != null) {
-                        ImageDataHelper.setImageDBUpdateTime(date.toLong())
+                        imageDataService.setImageDBUpdateTime(date.toLong())
                     }
                 }
                 // For long-running tasks (10 seconds or more) use WorkManager.

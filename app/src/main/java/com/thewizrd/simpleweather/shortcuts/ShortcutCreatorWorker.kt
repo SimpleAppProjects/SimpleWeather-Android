@@ -8,19 +8,20 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.ImageUtils
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,10 +56,9 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
 
         fun removeShortcuts() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                val context = App.instance.appContext
-
-                val shortcutMan = context.getSystemService(ShortcutManager::class.java)
-                shortcutMan.removeAllDynamicShortcuts()
+                appLib.context.getSystemService<ShortcutManager>()?.run {
+                    removeAllDynamicShortcuts()
+                }
 
                 Logger.writeLine(Log.INFO, "%s: Shortcuts removed", TAG)
             }
@@ -73,7 +73,7 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private object ShortcutCreatorHelper {
         suspend fun executeWork(context: Context) {
-            val wim = WeatherIconsManager.getInstance()
+            val wim = sharedDeps.weatherIconsManager
             val settingsManager = SettingsManager(context.applicationContext)
 
             val locations: MutableList<LocationData> = ArrayList(settingsManager.getLocationData()

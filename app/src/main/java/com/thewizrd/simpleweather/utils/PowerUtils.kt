@@ -12,10 +12,11 @@ import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thewizrd.shared_resources.AppState
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.App
 
 class PowerUtils {
     companion object {
@@ -24,12 +25,11 @@ class PowerUtils {
 
         var useForegroundService: Boolean
             get() {
-                return App.instance.preferences.getBoolean(KEY_USE_FOREGROUNDSERVICE, false)
+                return appLib.preferences.getBoolean(KEY_USE_FOREGROUNDSERVICE, false)
             }
             set(value) {
-                App.instance.preferences.edit().also {
-                    it.putBoolean(KEY_USE_FOREGROUNDSERVICE, value)
-                    it.commit()
+                appLib.preferences.edit {
+                    putBoolean(KEY_USE_FOREGROUNDSERVICE, value)
                 }
             }
 
@@ -75,13 +75,13 @@ class PowerUtils {
 
         @JvmStatic
         fun startForegroundService(context: Context, intent: Intent, onBoot: Boolean = false) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || App.instance.appState == AppState.FOREGROUND || onBoot) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || appLib.appState == AppState.FOREGROUND || onBoot) {
                 ContextCompat.startForegroundService(context, intent)
             } else {
                 Logger.writeLine(
                     Log.INFO,
                     "Foreground service not started (action: ${intent.action};" +
-                            "SDK: ${Build.VERSION.SDK_INT}, AppState: ${App.instance.appState}, onBoot: $onBoot"
+                            "SDK: ${Build.VERSION.SDK_INT}, AppState: ${appLib.appState}, onBoot: $onBoot"
                 )
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     LocalBroadcastManager.getInstance(context.applicationContext)

@@ -12,10 +12,10 @@ import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
-import com.thewizrd.shared_resources.helpers.backgroundLocationPermissionEnabled
-import com.thewizrd.shared_resources.helpers.getBackgroundLocationRationale
-import com.thewizrd.shared_resources.helpers.openAppSettingsActivity
-import com.thewizrd.shared_resources.helpers.requestBackgroundLocationPermission
+import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
+import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.openAppSettingsActivity
+import com.thewizrd.common.helpers.requestBackgroundLocationPermission
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.SettingsManager
@@ -86,8 +86,10 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
 
             if (value && settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() && requireActivity().backgroundLocationPermissionEnabled()) {
                 runWithView {
+                    val ctx = requireActivity()
                     val snackbar = Snackbar.make(
-                        requireActivity().getBackgroundLocationRationale(),
+                        ctx,
+                        ctx.getBackgroundLocationRationale(),
                         Snackbar.Duration.VERY_LONG
                     ).apply {
                         setAction(android.R.string.ok) {
@@ -98,7 +100,7 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                             }
                         }
                     }
-                    showSnackbar(snackbar, null)
+                    showSnackbar(snackbar)
                     settingsManager.setRequestBGAccess(true)
                 }
             }

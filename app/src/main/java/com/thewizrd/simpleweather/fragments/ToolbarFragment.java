@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.transition.MaterialFadeThrough;
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener;
+import com.thewizrd.common.helpers.OnBackPressedFragmentListener;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.UserThemeMode;

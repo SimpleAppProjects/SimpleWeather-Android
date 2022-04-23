@@ -38,23 +38,26 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.*
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.preferences.SliderPreference
+import com.thewizrd.common.utils.glide.TransparentOverlay
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
-import com.thewizrd.shared_resources.helpers.*
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.location.LocationProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.preferences.SliderPreference
-import com.thewizrd.shared_resources.tzdb.TZDBCache
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isLandscape
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
-import com.thewizrd.shared_resources.utils.glide.TransparentOverlay
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
@@ -68,6 +71,7 @@ import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x3LocationsCreator
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -98,7 +102,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private var initializeWidgetJob: Job? = null
 
     // Weather
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     // Views
     private lateinit var binding: FragmentWidgetSetupBinding
@@ -248,9 +252,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                     runWithView {
                         showSnackbar(
                             Snackbar.make(
+                                requireContext(),
                                 R.string.error_retrieve_location,
                                 Snackbar.Duration.SHORT
-                            ), null
+                            )
                         )
                     }
                 }
@@ -258,12 +263,15 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
             override fun onRequestTimedOut() {
                 stopLocationUpdates()
-                showSnackbar(
-                    Snackbar.make(
-                        R.string.error_retrieve_location,
-                        Snackbar.Duration.SHORT
-                    ), null
-                )
+                context?.let {
+                    showSnackbar(
+                        Snackbar.make(
+                            it,
+                            R.string.error_retrieve_location,
+                            Snackbar.Duration.SHORT
+                        )
+                    )
+                }
             }
         }
         mRequestingLocationUpdates = false
@@ -854,6 +862,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                                 !appCompatActivity.backgroundLocationPermissionEnabled()
                             ) {
                                 val snackbar = Snackbar.make(
+                                    appCompatActivity,
                                     appCompatActivity.getBackgroundLocationRationale(),
                                     Snackbar.Duration.VERY_LONG
                                 )
@@ -922,18 +931,20 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                                 }
                             }
                         } else {
-                            if (t is WeatherException || t is CustomException) {
-                                showSnackbar(
-                                    Snackbar.make(t.message, Snackbar.Duration.SHORT),
-                                    null
-                                )
-                            } else {
-                                showSnackbar(
-                                    Snackbar.make(
-                                        R.string.error_retrieve_location,
-                                        Snackbar.Duration.SHORT
-                                    ), null
-                                )
+                            context?.let {
+                                if (t is WeatherException || t is CustomException) {
+                                    showSnackbar(
+                                        Snackbar.make(it, t.message, Snackbar.Duration.SHORT)
+                                    )
+                                } else {
+                                    showSnackbar(
+                                        Snackbar.make(
+                                            it,
+                                            R.string.error_retrieve_location,
+                                            Snackbar.Duration.SHORT
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
@@ -1010,7 +1021,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         if (location != null && coroutineContext.isActive) {
-            var query_vm: LocationQueryViewModel? = null
+            var query_vm: LocationQuery? = null
 
             try {
                 query_vm = withContext(Dispatchers.IO) {
@@ -1024,7 +1035,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 // Stop since there is no valid query
                 return false
             } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
-                val tzId = TZDBCache.getTimeZone(query_vm.locationLat, query_vm.locationLong)
+                val tzId = weatherModule.tzdbService.getTimeZone(
+                    query_vm.locationLat,
+                    query_vm.locationLong
+                )
 
                 if ("unknown" != tzId)
                     query_vm.locationTZLong = tzId
@@ -1033,7 +1047,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             if (!coroutineContext.isActive) return false
 
             // Save location as last known
-            settingsManager.saveLastGPSLocData(LocationData(query_vm, location))
+            settingsManager.saveLastGPSLocData(query_vm.toLocationData(location))
 
             LocalBroadcastManager.getInstance(appCompatActivity!!)
                 .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
@@ -1059,23 +1073,29 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    showSnackbar(
-                        Snackbar.make(
-                            R.string.error_location_denied,
-                            Snackbar.Duration.SHORT
-                        ), null
-                    )
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
                 }
             PERMISSION_BGLOCATION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     binding.bgLocationLayout.visibility = View.GONE
                 } else {
-                    showSnackbar(
-                        Snackbar.make(
-                            R.string.error_location_denied,
-                            Snackbar.Duration.SHORT
-                        ), null
-                    )
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
                 }
             }
             PERMISSION_WALLPAPER_REQUEST_CODE -> {

@@ -11,9 +11,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.preferences.FeatureSettings
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.preferences.UpdateSettings
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.extras.checkPremiumStatus
@@ -32,7 +33,6 @@ class LaunchActivity : ComponentActivity() {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private var appUpdateManager: InAppUpdateManager? = null
-    private val settingsMgr = App.instance.settingsManager
 
     private var isReadyToView = false
 
@@ -54,7 +54,7 @@ class LaunchActivity : ComponentActivity() {
             }
         })
 
-        if (FeatureSettings.isUpdateAvailable()) {
+        if (UpdateSettings.isUpdateAvailable) {
             // Update is available; double check if mandatory
             InAppUpdateManager.create(applicationContext).also {
                 appUpdateManager = it
@@ -73,7 +73,7 @@ class LaunchActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             // Update configuration
-            RemoteConfig.checkConfig()
+            remoteConfigService.checkConfig()
 
             // Check premium status
             checkPremiumStatus()
@@ -86,7 +86,7 @@ class LaunchActivity : ComponentActivity() {
 
         // Checks that the update is not stalled during 'onResume()'.
         // However, you should execute this check at all entry points into the app.
-        if (FeatureSettings.isUpdateAvailable()) {
+        if (UpdateSettings.isUpdateAvailable) {
             appUpdateManager?.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE)
             isReadyToView = true
         }
@@ -107,16 +107,20 @@ class LaunchActivity : ComponentActivity() {
         var intent: Intent? = null
 
         try {
-            intent = if (settingsMgr.isWeatherLoaded() && settingsMgr.isOnBoardingComplete()) {
-                Intent(this, MainActivity::class.java)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    .putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
-                        JSONParser.serializer(settingsMgr.getHomeData(), LocationData::class.java)
-                    })
-                    .putExtra(Constants.FRAGTAG_HOME, true)
-            } else {
-                Intent(this, SetupActivity::class.java)
-            }
+            intent =
+                if (settingsManager.isWeatherLoaded() && settingsManager.isOnBoardingComplete()) {
+                    Intent(this, MainActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
+                            JSONParser.serializer(
+                                settingsManager.getHomeData(),
+                                LocationData::class.java
+                            )
+                        })
+                        .putExtra(Constants.FRAGTAG_HOME, true)
+                } else {
+                    Intent(this, SetupActivity::class.java)
+                }
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e, "%s: error loading", TAG)
         } finally {

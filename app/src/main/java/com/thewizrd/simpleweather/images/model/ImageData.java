@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.images.model;
 
+import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -22,12 +23,12 @@ public class ImageData {
     private String originalLink;
     private String siteName;
 
-    public boolean isValid() {
+    public boolean isValid(@NonNull Context context) {
         if (imageURL != null && !StringUtils.isNullOrWhitespace(hexColor)) {
             Uri uri = Uri.parse(imageURL);
 
             if ("file".equals(uri.getScheme())) {
-                return uri.getPath() != null && FileUtils.isValid(uri);
+                return uri.getPath() != null && FileUtils.isValid(context, uri);
             } else {
                 return uri.isAbsolute();
             }

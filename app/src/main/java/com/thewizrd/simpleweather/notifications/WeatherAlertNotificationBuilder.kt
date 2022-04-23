@@ -11,13 +11,17 @@ import android.os.Build
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.thewizrd.common.controls.WeatherAlertViewModel
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.WeatherAlertViewModel
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.getColorFromAlertSeverity
+import com.thewizrd.shared_resources.utils.getDrawableFromAlertType
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +39,7 @@ object WeatherAlertNotificationBuilder {
     private const val SUMMARY_ID = -1
 
     suspend fun createNotifications(location: LocationData, alerts: Collection<WeatherAlert>) = withContext(Dispatchers.Default) {
-        val context = App.instance.appContext
+        val context = appLib.context
         // Gets an instance of the NotificationManager service
         val mNotifyMgr = NotificationManagerCompat.from(context)
         initChannel()
@@ -176,10 +180,10 @@ object WeatherAlertNotificationBuilder {
     }
 
     private fun getDeleteNotificationIntent(notId: Int): PendingIntent {
-        val context = App.instance.appContext
+        val context = appLib.context
         val intent = Intent(context, WeatherAlertNotificationBroadcastReceiver::class.java)
-                .setAction(WeatherAlertNotificationService.ACTION_CANCELNOTIFICATION)
-                .putExtra(WeatherAlertNotificationService.EXTRA_NOTIFICATIONID, notId)
+            .setAction(WeatherAlertNotificationService.ACTION_CANCELNOTIFICATION)
+            .putExtra(WeatherAlertNotificationService.EXTRA_NOTIFICATIONID, notId)
 
         // Use notification id as unique request code
         return PendingIntent.getBroadcast(
@@ -191,9 +195,9 @@ object WeatherAlertNotificationBuilder {
     }
 
     private fun getDeleteAllNotificationsIntent(): PendingIntent {
-        val context = App.instance.appContext
+        val context = appLib.context
         val intent = Intent(context, WeatherAlertNotificationBroadcastReceiver::class.java)
-                .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
+            .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
         return PendingIntent.getBroadcast(
             context,
             19,
@@ -203,10 +207,10 @@ object WeatherAlertNotificationBuilder {
     }
 
     private fun getDeleteAllNotificationsIntentJB(): PendingIntent {
-        val context = App.instance.appContext
+        val context = appLib.context
         val intent = Intent(context, WeatherAlertNotificationBroadcastReceiver::class.java)
-                .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
-                .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
+            .setAction(WeatherAlertNotificationService.ACTION_CANCELALLNOTIFICATIONS)
+            .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
         return PendingIntent.getBroadcast(
             context,
             16,
@@ -217,8 +221,9 @@ object WeatherAlertNotificationBuilder {
 
     private fun initChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val context = App.instance.appContext
-            val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val context = appLib.context
+            val mNotifyMgr =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
             val notchannel_name = context.resources.getString(R.string.not_channel_name_alerts)
             val notchannel_desc = context.resources.getString(R.string.not_channel_desc_alerts)

@@ -8,11 +8,14 @@ import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.webkit.WebView
 import androidx.annotation.RequiresApi
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -22,17 +25,20 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.thewizrd.common.helpers.OnBackPressedFragmentListener
+import com.thewizrd.common.utils.ActivityUtils.setFullScreen
+import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.OnBackPressedFragmentListener
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.preferences.FeatureSettings
-import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ActivityUtils.setFullScreen
-import com.thewizrd.shared_resources.utils.ActivityUtils.setTransparentWindow
+import com.thewizrd.shared_resources.preferences.UpdateSettings
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
 import com.thewizrd.simpleweather.helpers.WindowColorManager
@@ -51,8 +57,6 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         private const val INSTALL_REQUESTCODE = 168
     }
 
-    private lateinit var settingsManager: SettingsManager
-
     private lateinit var binding: ActivityMainBinding
     private var mNavController: NavController? = null
 
@@ -63,7 +67,6 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        settingsManager = App.instance.settingsManager
 
         AnalyticsLogger.logEvent("$TAG: onCreate")
 
@@ -127,7 +130,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             // Start services
             UpdaterUtils.startAlarm(this@MainActivity)
 
-            if (FeatureSettings.isUpdateAvailable()) {
+            if (UpdateSettings.isUpdateAvailable) {
                 // Update is available; double check if mandatory
                 appUpdateManager = InAppUpdateManager.create(applicationContext)
                 val isUpdateAvailable = appUpdateManager!!.shouldStartImmediateUpdateFlow()
@@ -176,8 +179,10 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             initializeNavController()
         }
 
-        // Update app shortcuts
-        ShortcutCreatorWorker.requestUpdateShortcuts(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            // Update app shortcuts
+            ShortcutCreatorWorker.requestUpdateShortcuts(this)
+        }
     }
 
     private fun initializeNavController() {
@@ -281,7 +286,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
 
         // Checks that the update is not stalled during 'onResume()'.
         // However, you should execute this check at all entry points into the app.
-        if (FeatureSettings.isUpdateAvailable()) {
+        if (UpdateSettings.isUpdateAvailable) {
             appUpdateManager?.resumeUpdateIfStarted(this, INSTALL_REQUESTCODE)
         }
 

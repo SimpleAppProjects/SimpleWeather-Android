@@ -9,16 +9,19 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
 import com.thewizrd.simpleweather.R
@@ -30,6 +33,7 @@ import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.weather_api.weatherModule
 import de.twoid.ui.decoration.InsetItemDecoration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -47,7 +51,7 @@ class WeatherChartsFragment : ToolbarFragment() {
 
     private lateinit var args: WeatherChartsFragmentArgs
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     init {
         arguments = Bundle()
@@ -125,9 +129,9 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         binding.progressBar.visibility = View.VISIBLE
 
-        chartsView.getForecastData().observe(viewLifecycleOwner, {
+        chartsView.getForecastData().observe(viewLifecycleOwner) {
             adapter.submitList(createGraphModelData(it?.first, it?.second))
-        })
+        }
     }
 
     override fun onResume() {
@@ -163,9 +167,10 @@ class WeatherChartsFragment : ToolbarFragment() {
                                             // Show error message and prompt to refresh
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                         ErrorStatus.QUERYNOTFOUND -> {
@@ -176,26 +181,29 @@ class WeatherChartsFragment : ToolbarFragment() {
                                                 } == true) {
                                                 showSnackbar(
                                                     Snackbar.make(
+                                                        binding.root.context,
                                                         R.string.error_message_weather_region_unsupported,
                                                         Snackbar.Duration.LONG
-                                                    ), null
+                                                    )
                                                 )
                                                 return@setErrorListener
                                             }
                                             // Show error message
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                         else -> {
                                             showSnackbar(
                                                 Snackbar.make(
+                                                    binding.root.context,
                                                     wEx.message,
                                                     Snackbar.Duration.LONG
-                                                ), null
+                                                )
                                             )
                                         }
                                     }

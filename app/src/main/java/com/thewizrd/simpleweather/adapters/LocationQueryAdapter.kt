@@ -5,16 +5,16 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.shared_resources.adapters.LocationQueryDiffer
-import com.thewizrd.shared_resources.controls.LocationQueryViewModel
-import com.thewizrd.shared_resources.databinding.LocationQueryViewBinding
+import com.thewizrd.common.adapters.LocationQueryDiffer
+import com.thewizrd.common.databinding.LocationQueryViewBinding
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 
 class LocationQueryAdapter :
-    ListAdapter<LocationQueryViewModel, LocationQueryAdapter.ViewHolder>(LocationQueryDiffer()) {
-    private var onClickListener: ListAdapterOnClickInterface<LocationQueryViewModel>? = null
+    ListAdapter<LocationQuery, LocationQueryAdapter.ViewHolder>(LocationQueryDiffer()) {
+    private var onClickListener: ListAdapterOnClickInterface<LocationQuery>? = null
 
-    fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationQueryViewModel>?) {
+    fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationQuery>?) {
         this.onClickListener = onClickListener
     }
 
@@ -23,7 +23,7 @@ class LocationQueryAdapter :
     // you provide access to all the views for a data item in a view holder
     inner class ViewHolder(private val binding: LocationQueryViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(model: LocationQueryViewModel) {
+        fun bind(model: LocationQuery) {
             binding.root.setOnClickListener { v ->
                 onClickListener?.onClick(v, model)
             }

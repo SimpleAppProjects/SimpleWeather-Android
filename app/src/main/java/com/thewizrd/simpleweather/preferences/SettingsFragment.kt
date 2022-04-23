@@ -32,17 +32,17 @@ import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.common.helpers.*
+import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
-import com.thewizrd.shared_resources.helpers.*
-import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.extras.*
@@ -64,6 +64,7 @@ import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import java.util.*
 
@@ -182,91 +183,100 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         AnalyticsLogger.logEvent("SettingsFragment: onResume")
 
         // Register listener
-        val app = App.instance
-        app.unregisterAppSharedPreferenceListener()
-        app.registerAppSharedPreferenceListener(this)
+        appLib.unregisterAppSharedPreferenceListener()
+        appLib.registerAppSharedPreferenceListener(this)
         registerOnThemeChangeListener(this)
         registerOnThemeChangeListener(appCompatActivity as OnThemeChangeListener)
 
         // Initialize queue
         intentQueue = HashSet()
 
-        batteryOptsPref.isVisible = !(Build.VERSION.SDK_INT < Build.VERSION_CODES.M || PowerUtils.isBackgroundOptimizationDisabled(requireContext()))
+        batteryOptsPref.isVisible =
+            !(Build.VERSION.SDK_INT < Build.VERSION_CODES.M || PowerUtils.isBackgroundOptimizationDisabled(
+                requireContext()
+            ))
     }
 
     override fun onPause() {
         AnalyticsLogger.logEvent("SettingsFragment: onPause")
         if (settingsManager.usePersonalKey() &&
             settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-            WeatherManager.isKeyRequired(providerPref.value)
+            weatherModule.weatherManager.isKeyRequired(providerPref.value)
         ) {
             // Fallback to supported weather provider
-            val API = RemoteConfig.getDefaultWeatherProvider()
+            val API = remoteConfigService.getDefaultWeatherProvider()
             providerPref.value = API
             providerPref.callChangeListener(API)
             settingsManager.setAPI(API)
-            WeatherManager.instance.updateAPI()
+            weatherModule.weatherManager.updateAPI()
 
             settingsManager.setPersonalKey(false)
             settingsManager.setKeyVerified(API, true)
         }
 
         // Unregister listener
-        val app = App.instance
-        app.unregisterAppSharedPreferenceListener(this)
-        app.registerAppSharedPreferenceListener()
+        appLib.unregisterAppSharedPreferenceListener(this)
+        appLib.registerAppSharedPreferenceListener()
         unregisterOnThemeChangeListener(appCompatActivity as OnThemeChangeListener)
         unregisterOnThemeChangeListener(this)
 
         for (filter: FilterComparison in intentQueue) {
-            if ((CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action)) {
-                WeatherManager.instance.updateAPI()
-                // Log event
-                val bundle = Bundle()
-                bundle.putString("API", settingsManager.getAPI())
-                bundle.putString(
-                    "API_IsInternalKey",
-                    (!settingsManager.usePersonalKey()).toString()
-                )
-                AnalyticsLogger.logEvent("Update_API", bundle)
-
-                WeatherUpdaterWorker.enqueueAction(
-                    appCompatActivity,
-                    WeatherUpdaterWorker.ACTION_UPDATEWEATHER
-                )
-            } else if ((WidgetWorker::class.java.name == filter.intent.component!!.className)) {
-                when (filter.intent.action) {
-                    WidgetWorker.ACTION_REFRESHGPSWIDGETS -> WidgetWorker.enqueueRefreshGPSWidgets(
-                        appCompatActivity
+            when {
+                CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action -> {
+                    weatherModule.weatherManager.updateAPI()
+                    // Log event
+                    val bundle = Bundle()
+                    bundle.putString("API", settingsManager.getAPI())
+                    bundle.putString(
+                        "API_IsInternalKey",
+                        (!settingsManager.usePersonalKey()).toString()
                     )
-                    WidgetWorker.ACTION_RESETGPSWIDGETS -> WidgetWorker.enqueueResetGPSWidgets(
-                        appCompatActivity
+                    AnalyticsLogger.logEvent("Update_API", bundle)
+
+                    WeatherUpdaterWorker.enqueueAction(
+                        appCompatActivity,
+                        WeatherUpdaterWorker.ACTION_UPDATEWEATHER
                     )
                 }
-            } else if ((WeatherUpdaterWorker::class.java.name == filter.intent.component!!.className)) {
-                when (filter.intent.action) {
-                    WeatherUpdaterWorker.ACTION_REQUEUEWORK -> {
-                        UpdaterUtils.updateAlarm(appCompatActivity)
-                    }
-                    WeatherUpdaterWorker.ACTION_ENQUEUEWORK -> {
-                        UpdaterUtils.startAlarm(appCompatActivity)
-                    }
-                    WeatherUpdaterWorker.ACTION_CANCELWORK -> {
-                        UpdaterUtils.cancelAlarm(appCompatActivity)
-                    }
-                    else -> {
-                        WeatherUpdaterWorker.enqueueAction(
-                            appCompatActivity,
-                            (filter.intent.action)!!
+                WidgetWorker::class.java.name == filter.intent.component!!.className -> {
+                    when (filter.intent.action) {
+                        WidgetWorker.ACTION_REFRESHGPSWIDGETS -> WidgetWorker.enqueueRefreshGPSWidgets(
+                            appCompatActivity
+                        )
+                        WidgetWorker.ACTION_RESETGPSWIDGETS -> WidgetWorker.enqueueResetGPSWidgets(
+                            appCompatActivity
                         )
                     }
                 }
-            } else if ((WearableWorker::class.java.name == filter.intent.component!!.className)) {
-                WearableWorker.enqueueAction(appCompatActivity, (filter.intent.action)!!)
-            } else if ((CommonActionsBroadcastReceiver::class.java.name == filter.intent.component!!.className)) {
-                LocalBroadcastManager.getInstance(appCompatActivity).sendBroadcast(filter.intent)
-            } else {
-                appCompatActivity.startService(filter.intent)
+                WeatherUpdaterWorker::class.java.name == filter.intent.component!!.className -> {
+                    when (filter.intent.action) {
+                        WeatherUpdaterWorker.ACTION_REQUEUEWORK -> {
+                            UpdaterUtils.updateAlarm(appCompatActivity)
+                        }
+                        WeatherUpdaterWorker.ACTION_ENQUEUEWORK -> {
+                            UpdaterUtils.startAlarm(appCompatActivity)
+                        }
+                        WeatherUpdaterWorker.ACTION_CANCELWORK -> {
+                            UpdaterUtils.cancelAlarm(appCompatActivity)
+                        }
+                        else -> {
+                            WeatherUpdaterWorker.enqueueAction(
+                                appCompatActivity,
+                                (filter.intent.action)!!
+                            )
+                        }
+                    }
+                }
+                WearableWorker::class.java.name == filter.intent.component!!.className -> {
+                    WearableWorker.enqueueAction(appCompatActivity, (filter.intent.action)!!)
+                }
+                CommonActionsBroadcastReceiver::class.java.name == filter.intent.component!!.className -> {
+                    LocalBroadcastManager.getInstance(appCompatActivity)
+                        .sendBroadcast(filter.intent)
+                }
+                else -> {
+                    appCompatActivity.startService(filter.intent)
+                }
             }
         }
 
@@ -276,9 +286,18 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     override fun onBackPressed(): Boolean {
         if ((settingsManager.usePersonalKey() &&
                     settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                    WeatherManager.isKeyRequired(providerPref.value))) {
+                    weatherModule.weatherManager.isKeyRequired(providerPref.value))
+        ) {
             // Set keyentrypref color to red
-            showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null)
+            context?.let {
+                showSnackbar(
+                    Snackbar.make(
+                        it,
+                        R.string.message_enter_apikey,
+                        Snackbar.Duration.LONG
+                    )
+                )
+            }
             return true
         }
 
@@ -320,9 +339,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                             showSnackbar(
                                 Snackbar.make(
+                                    appCompatActivity,
                                     R.string.error_enable_location_services,
                                     Snackbar.Duration.SHORT
-                                ), null
+                                )
                             )
 
                             settingsManager.setFollowGPS(false)
@@ -332,6 +352,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                                 !appCompatActivity.backgroundLocationPermissionEnabled()
                             ) {
                                 val snackbar = Snackbar.make(
+                                    appCompatActivity,
                                     appCompatActivity.getBackgroundLocationRationale(),
                                     Snackbar.Duration.VERY_LONG
                                 )
@@ -412,7 +433,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                         apiCategory.addPreference(registerPref)
                     keyEntry.isEnabled = true
                 } else {
-                    val selectedWProv = WeatherManager.getProvider(providerPref.value)
+                    val selectedWProv =
+                        weatherModule.weatherManager.getWeatherProvider(providerPref.value)
 
                     if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey()
                             .isNullOrBlank()
@@ -456,7 +478,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
 
                 val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(selectedProvider)
+                val selectedWProv =
+                    weatherModule.weatherManager.getWeatherProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -524,7 +547,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     updateRegisterLink()
                 }
 
-                updateAlertPreference(WeatherManager.instance.supportsAlerts())
+                updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
 
                 return true
             }
@@ -533,7 +556,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         registerPref = findPreference(KEY_APIREGISTER)!!
 
         // Set key as verified if API Key is req for API and its set
-        if (WeatherManager.instance.isKeyRequired()) {
+        if (weatherModule.weatherManager.isKeyRequired()) {
             keyEntry.isEnabled = true
 
             if (!settingsManager.getAPIKey().isNullOrBlank() &&
@@ -542,7 +565,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 settingsManager.setKeyVerified(providerPref.value, true)
             }
 
-            if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
+            if (weatherModule.weatherManager.getAPIKey().isNullOrBlank()) {
                 settingsManager.setPersonalKey(true)
                 personalKeyPref.isChecked = true
                 personalKeyPref.isEnabled = false
@@ -649,7 +672,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
             true
         }
-        updateAlertPreference(WeatherManager.instance.supportsAlerts())
+        updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
 
         findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
@@ -829,13 +852,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     val key = fragment.key
 
                     try {
-                        if (WeatherManager.isKeyValid(key, provider)) {
+                        if (weatherModule.weatherManager.isKeyValid(key, provider)) {
                             settingsManager.setAPIKey(provider, key)
                             settingsManager.setAPI(provider)
                             settingsManager.setKeyVerified(provider, true)
 
                             updateKeySummary()
-                            updateAlertPreference(WeatherManager.instance.supportsAlerts())
+                            updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
 
                             fragment.dialog?.dismiss()
                         } else {
@@ -932,12 +955,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     // functionality that depends on this permission.
                     followGps.isChecked = false
                     settingsManager.setFollowGPS(false)
-                    showSnackbar(
-                        Snackbar.make(
-                            R.string.error_location_denied,
-                            Snackbar.Duration.SHORT
-                        ), null
-                    )
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
                 }
                 return
             }
@@ -1025,6 +1051,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             !appCompatActivity.backgroundLocationPermissionEnabled()
         ) {
             val snackbar = Snackbar.make(
+                appCompatActivity,
                 appCompatActivity.getBackgroundLocationRationale(),
                 Snackbar.Duration.VERY_LONG
             )
@@ -1259,15 +1286,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             val iconsCategory = findPreference<PreferenceCategory>(CATEGORY_ICONS)
             iconsCategory!!.removeAll()
 
-            val providers = SimpleLibrary.instance.iconProviders
-            providers.forEach { (s, wiProvider) ->
+            val providers = sharedDeps.weatherIconsManager.iconProviders
+            providers.forEach { (_, wiProvider) ->
                 val pref = Preference(requireContext())
                 pref.title = wiProvider.displayName
                 pref.summary = wiProvider.authorName
                 if (wiProvider.attributionLink != null) {
                     pref.intent = Intent(Intent.ACTION_VIEW)
-                            .addCategory(Intent.CATEGORY_BROWSABLE)
-                            .setData(Uri.parse(wiProvider.attributionLink))
+                        .addCategory(Intent.CATEGORY_BROWSABLE)
+                        .setData(Uri.parse(wiProvider.attributionLink))
                 }
 
                 iconsCategory.addPreference(pref)

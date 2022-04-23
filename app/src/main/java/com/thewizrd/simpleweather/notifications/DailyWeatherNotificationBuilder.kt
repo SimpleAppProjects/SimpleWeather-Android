@@ -6,14 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import com.thewizrd.shared_resources.controls.ForecastItemViewModel
-import com.thewizrd.shared_resources.controls.WeatherDetailsType
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsManager
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.ImageUtils
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.simpleweather.main.MainActivity
 
@@ -21,7 +21,7 @@ object DailyWeatherNotificationBuilder {
     @JvmStatic
     fun createNotification(context: Context, notChannelID: String, location: LocationData,
                            forecast: Forecast): Notification {
-        val wim = WeatherIconsManager.getInstance()
+        val wim = sharedDeps.weatherIconsManager
 
         val viewModel = ForecastItemViewModel(forecast)
         val hiTemp = viewModel.hiTemp ?: WeatherIcons.PLACEHOLDER
@@ -74,7 +74,7 @@ object DailyWeatherNotificationBuilder {
             notifBuilder.setSmallIcon(weatherIconResId)
         } else {
             // Use default icon pack here; animated icons are not supported here
-            val wip = WeatherIconsManager.getProvider(WeatherIconsProvider.KEY)
+            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
             notifBuilder.setSmallIcon(wip.getWeatherIconResource(forecast.icon))
         }
 

@@ -9,25 +9,30 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.thewizrd.shared_resources.AppState
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.locationdata.LocationProviderImpl
-import com.thewizrd.shared_resources.locationdata.citydb.CityDBLocationProvider
-import com.thewizrd.shared_resources.locationdata.openweather.OpenWeatherMapLocationProvider
-import com.thewizrd.shared_resources.locationdata.weatherapi.WeatherApiLocationProvider
-import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.*
-import com.thewizrd.shared_resources.weatherdata.aqicn.AQICNProvider
+import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.shared_resources.weatherdata.nws.SolCalcAstroProvider
-import com.thewizrd.shared_resources.weatherdata.nws.alerts.NWSAlertProvider
-import com.thewizrd.shared_resources.weatherdata.smc.SunMoonCalcProvider
+import com.thewizrd.weather_api.aqicn.AQICNProvider
+import com.thewizrd.weather_api.locationdata.citydb.CityDBLocationProvider
+import com.thewizrd.weather_api.nws.SolCalcAstroProvider
+import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
+import com.thewizrd.weather_api.openweather.location.OpenWeatherMapLocationProvider
+import com.thewizrd.weather_api.smc.SunMoonCalcProvider
+import com.thewizrd.weather_api.weatherModule
+import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +46,6 @@ import java.util.*
 @RunWith(AndroidJUnit4::class)
 class UnitTests {
     private lateinit var context: Context
-    private lateinit var app: ApplicationLib
     private var wasUsingPersonalKey = false
 
     @Before
@@ -49,74 +53,68 @@ class UnitTests {
         // Context of the app under test.
         context = ApplicationProvider.getApplicationContext()
 
-        app = object : ApplicationLib {
-            override fun getAppContext(): Context {
-                return context.applicationContext
-            }
-
-            override fun getPreferences(): SharedPreferences {
-                return PreferenceManager.getDefaultSharedPreferences(appContext)
-            }
+        appLib = object : ApplicationLib() {
+            override val context: Context
+                get() = this@UnitTests.context.applicationContext
+            override val preferences: SharedPreferences
+                get() = PreferenceManager.getDefaultSharedPreferences(context)
 
             override fun registerAppSharedPreferenceListener() {}
             override fun unregisterAppSharedPreferenceListener() {}
             override fun registerAppSharedPreferenceListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
             override fun unregisterAppSharedPreferenceListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
 
-            override fun getAppState(): AppState {
-                return AppState.BACKGROUND
-            }
-
-            override fun isPhone(): Boolean {
-                return true
-            }
-
-            override fun getProperties(): Bundle {
-                return Bundle()
-            }
-
-            override fun getSettingsManager(): SettingsManager {
-                return SettingsManager(appContext.applicationContext)
-            }
+            override val appState: AppState
+                get() = AppState.BACKGROUND
+            override val isPhone = true
+            override val properties = Bundle()
+            override val settingsManager = SettingsManager(context)
         }
 
         // Needs to be called on main thread
         runBlocking(Dispatchers.Main.immediate) {
-            SimpleLibrary.initialize(app)
+            sharedDeps = object : SharedModule() {
+                override val context = this@UnitTests.context.applicationContext
+            }
         }
 
-        // Start logger
-        Logger.init(app.appContext)
         runBlocking {
-            app.settingsManager.loadIfNeeded()
+            appLib.settingsManager.loadIfNeeded()
         }
 
-        if (app.settingsManager.usePersonalKey()) {
-            app.settingsManager.setPersonalKey(false)
+        if (appLib.settingsManager.usePersonalKey()) {
+            appLib.settingsManager.setPersonalKey(false)
             wasUsingPersonalKey = true
         }
     }
 
     @Throws(WeatherException::class)
     private suspend fun getWeather(
-        providerImpl: WeatherProviderImpl,
+        provider: WeatherProvider,
         coordinate: Coordinate = Coordinate(
             47.6721646,
             -122.1706614
         ) /* Redmond, WA */
     ) = withContext(Dispatchers.IO) {
-        val location = providerImpl.getLocation(coordinate)
-        val locData = LocationData(location!!)
-        return@withContext providerImpl.getWeather(locData)
+        val location = provider.getLocation(coordinate)
+        assertNotNull(location)
+        if (location!!.locationTZLong.isNullOrBlank() && location.locationLat != 0.0 && location.locationLong != 0.0) {
+            val tzId =
+                weatherModule.tzdbService.getTimeZone(location.locationLat, location.locationLong)
+            if ("unknown" != tzId)
+                location.locationTZLong = tzId
+        }
+        val locData = location.toLocationData()
+        return@withContext provider.getWeather(locData)
     }
 
     @Throws(WeatherException::class)
     @Test
     fun getMetNoWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.METNO)
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METNO)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            assertTrue(weather.isValid)
         }
     }
 
@@ -124,13 +122,15 @@ class UnitTests {
     @Test
     fun getNWSAlerts() {
         runBlocking(Dispatchers.Default) {
-            val location = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+            val location =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
                     .getLocation(Coordinate(47.6721646, -122.1706614))
-            val locData = LocationData(location!!)
+            val locData = location?.toLocationData()
+            assertNotNull(locData)
             val alerts = withContext(Dispatchers.IO) {
-                NWSAlertProvider().getAlerts(locData)
+                NWSAlertProvider().getAlerts(locData!!)
             }
-            Assert.assertNotNull(alerts)
+            assertNotNull(alerts)
         }
     }
 
@@ -138,10 +138,10 @@ class UnitTests {
     @Test
     fun getNWSWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.NWS)
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.NWS)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
-            Assert.assertTrue(weather.isValid)
+            assertTrue(weather.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
+            assertTrue(weather.isValid)
         }
     }
 
@@ -149,9 +149,11 @@ class UnitTests {
     @Test
     fun getOWMWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+            val provider =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid)
+            assertTrue(weather.forecast?.isNotEmpty() == true && weather.hrForecast?.isNotEmpty() == true)
+            assertTrue(weather.isValid)
         }
     }
 
@@ -168,7 +170,7 @@ class UnitTests {
             val aqi = withContext(Dispatchers.IO) {
                 AQICNProvider().getAirQualityData(locationData)
             }
-            Assert.assertNotNull(aqi)
+            assertNotNull(aqi)
         }
     }
 
@@ -176,7 +178,7 @@ class UnitTests {
     @Throws(WeatherException::class, IOException::class)
     fun serializationTest() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.NWS)
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.NWS)
 
             val startTime = SystemClock.elapsedRealtimeNanos()
             val weather = getWeather(provider)
@@ -219,7 +221,7 @@ class UnitTests {
             val fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
             Log.d("SolCalc", String.format(Locale.ROOT,
                     "Sunrise: %s; Sunset: %s", astro.sunrise.format(fmt), astro.sunset.format(fmt)))
-            Assert.assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN)
+            assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN)
         }
     }
 
@@ -245,7 +247,7 @@ class UnitTests {
                         "Moonphase: %s", astro.moonPhase.phase.name))
             }
 
-            Assert.assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN && astro.moonrise !== LocalDateTime.MIN && astro.moonset !== LocalDateTime.MIN)
+            assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN && astro.moonrise !== LocalDateTime.MIN && astro.moonset !== LocalDateTime.MIN)
         }
     }
 
@@ -253,12 +255,12 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidAutoCompleteLocTest() {
         runBlocking(Dispatchers.Default) {
-            Assert.assertTrue(Geocoder.isPresent())
+            assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocationName("Redmond", 5) // Redmond
             }
-            Assert.assertFalse(addressList.isNullOrEmpty())
+            assertFalse(addressList.isNullOrEmpty())
         }
     }
 
@@ -266,15 +268,15 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidGeocoderTest() {
         runBlocking(Dispatchers.Default) {
-            Assert.assertTrue(Geocoder.isPresent())
+            assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
             //List<Address> addressList = geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocation(51.5073884, -0.1334347, 1) // London
             }
-            Assert.assertFalse(addressList.isNullOrEmpty())
+            assertFalse(addressList.isNullOrEmpty())
             val result = addressList!![0]
-            Assert.assertNotNull(result)
+            assertNotNull(result)
         }
     }
 
@@ -282,25 +284,43 @@ class UnitTests {
     @Throws(WeatherException::class)
     fun weatherAPILocationTest() {
         runBlocking(Dispatchers.Default) {
-            val locationProvider: LocationProviderImpl = WeatherApiLocationProvider()
+            val locationProvider: WeatherLocationProvider = WeatherApiLocationProvider()
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Redmond, WA", WeatherAPI.WEATHERAPI)
             }
-            Assert.assertFalse(locations.isNullOrEmpty())
+            assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = locations.find { it.locationName.startsWith("Redmond") }
-            Assert.assertNotNull(queryVM)
+            val queryVM = locations.find { it.locationName?.startsWith("Redmond") == true }
+            assertNotNull(queryVM)
 
-            val nameModel = locationProvider.getLocationFromName(queryVM!!)
-            Assert.assertNotNull(nameModel)
-
-            if (nameModel!!.locationTZLong.isNullOrBlank() && nameModel.locationLat != 0.0 && nameModel.locationLong != 0.0) {
-                val tzId = TZDBCache.getTimeZone(nameModel.locationLat, nameModel.locationLong)
-                if ("unknown" != tzId)
-                    nameModel.locationTZLong = tzId
+            val locModel = if (locationProvider.needsLocationFromName()) {
+                locationProvider.getLocationFromName(queryVM!!)
+            } else if (locationProvider.needsLocationFromGeocoder()) {
+                locationProvider.getLocation(
+                    Coordinate(
+                        queryVM!!.locationLat,
+                        queryVM.locationLong
+                    ), WeatherAPI.OPENWEATHERMAP
+                )
+            } else if (locationProvider.needsLocationFromID()) {
+                locationProvider.getLocationFromID(queryVM!!)
+            } else {
+                queryVM
             }
 
-            Assert.assertFalse(nameModel.locationTZLong.isNullOrEmpty())
+            assertNotNull(locModel)
+
+            if (locModel!!.locationTZLong.isNullOrBlank() && locModel.locationLat != 0.0 && locModel.locationLong != 0.0) {
+                val tzId = weatherModule.tzdbService.getTimeZone(
+                    locModel.locationLat,
+                    locModel.locationLong
+                )
+                if ("unknown" != tzId)
+                    locModel.locationTZLong = tzId
+            }
+
+            assertFalse(locModel.locationTZLong.isNullOrEmpty())
+            assertTrue(locModel.toLocationData().isValid)
         }
     }
 
@@ -308,9 +328,10 @@ class UnitTests {
     @Test
     fun getMeteoFranceWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.METEOFRANCE)
+            val provider =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METEOFRANCE)
             val weather = getWeather(provider, Coordinate(48.85, 2.34))
-            Assert.assertTrue(weather.isValid)
+            assertTrue(weather.isValid)
         }
     }
 
@@ -318,9 +339,9 @@ class UnitTests {
     @Test
     fun getWeatherAPIWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERAPI)
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERAPI)
             val weather = getWeather(provider)
-            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+            assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -328,10 +349,10 @@ class UnitTests {
     @Test
     fun getTomorrowIOWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.TOMORROWIO)
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.TOMORROWIO)
             val weather =
                 getWeather(provider, Coordinate(34.0207305, -118.6919157)) // ~ Los Angeles
-            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+            assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -339,10 +360,11 @@ class UnitTests {
     @Test
     fun getWeatherbitIOWeather() {
         runBlocking(Dispatchers.Default) {
-            val provider = WeatherManager.getProvider(WeatherAPI.WEATHERBITIO)
+            val provider =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERBITIO)
             val weather =
                 getWeather(provider, Coordinate(39.9, -105.1)) // ~ Denver, CO
-            Assert.assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+            assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
         }
     }
 
@@ -350,17 +372,43 @@ class UnitTests {
     @Throws(WeatherException::class)
     fun owmLocationTest() {
         runBlocking(Dispatchers.Default) {
-            val locationProvider: LocationProviderImpl = OpenWeatherMapLocationProvider()
+            val locationProvider: WeatherLocationProvider = OpenWeatherMapLocationProvider()
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Redmond", WeatherAPI.OPENWEATHERMAP)
             }
-            Assert.assertFalse(locations.isNullOrEmpty())
+            assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = locations.find { it.locationName.startsWith("Redmond, ") }
-            Assert.assertNotNull(queryVM)
+            val queryVM = locations.find { it.locationName?.startsWith("Redmond") == true }
+            assertNotNull(queryVM)
 
-            val nameModel = locationProvider.getLocationFromName(queryVM!!)
-            Assert.assertNotNull(nameModel)
+            val locModel = if (locationProvider.needsLocationFromName()) {
+                locationProvider.getLocationFromName(queryVM!!)
+            } else if (locationProvider.needsLocationFromGeocoder()) {
+                locationProvider.getLocation(
+                    Coordinate(
+                        queryVM!!.locationLat,
+                        queryVM.locationLong
+                    ), WeatherAPI.OPENWEATHERMAP
+                )
+            } else if (locationProvider.needsLocationFromID()) {
+                locationProvider.getLocationFromID(queryVM!!)
+            } else {
+                queryVM
+            }
+
+            assertNotNull(locModel)
+
+            if (locModel!!.locationTZLong.isNullOrBlank() && locModel.locationLat != 0.0 && locModel.locationLong != 0.0) {
+                val tzId = weatherModule.tzdbService.getTimeZone(
+                    locModel.locationLat,
+                    locModel.locationLong
+                )
+                if ("unknown" != tzId)
+                    locModel.locationTZLong = tzId
+            }
+
+            assertFalse(locModel.locationTZLong.isNullOrEmpty())
+            assertTrue(locModel.toLocationData().isValid)
         }
     }
 
@@ -368,16 +416,27 @@ class UnitTests {
     @Throws(WeatherException::class)
     fun owmGeocoderLocationTest() {
         runBlocking(Dispatchers.Default) {
-            val locationProvider: LocationProviderImpl = OpenWeatherMapLocationProvider()
+            val locationProvider: WeatherLocationProvider = OpenWeatherMapLocationProvider()
             val location = withContext(Dispatchers.IO) {
                 locationProvider.getLocation(
-                    Coordinate(47.6721646, -122.1706614),
+                    Coordinate(51.5073884, -0.1334347),
                     WeatherAPI.OPENWEATHERMAP
-                ) // Washington
-                //locationProvider.getLocation(Coordinate(51.5073884, -0.1334347), null) // London
+                ) // London
             }
-            Assert.assertFalse(location == null)
-            Assert.assertEquals(location?.locationName?.startsWith("Redmond"), true)
+            assertNotNull(location)
+            assertEquals(location?.locationName?.startsWith("London"), true)
+
+            if (location!!.locationTZLong.isNullOrBlank() && location.locationLat != 0.0 && location.locationLong != 0.0) {
+                val tzId = weatherModule.tzdbService.getTimeZone(
+                    location.locationLat,
+                    location.locationLong
+                )
+                if ("unknown" != tzId)
+                    location.locationTZLong = tzId
+            }
+
+            assertFalse(location.locationTZLong.isNullOrEmpty())
+            assertTrue(location.toLocationData().isValid)
         }
     }
 
@@ -385,17 +444,30 @@ class UnitTests {
     @Throws(WeatherException::class)
     fun cityDBLocationTest() {
         runBlocking(Dispatchers.Default) {
-            val locationProvider: LocationProviderImpl = CityDBLocationProvider()
+            val locationProvider: WeatherLocationProvider = CityDBLocationProvider()
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Redmond", WeatherAPI.OPENWEATHERMAP)
             }
-            Assert.assertFalse(locations.isNullOrEmpty())
+            assertFalse(locations.isNullOrEmpty())
 
-            val queryVM = locations.find { it.locationName.startsWith("Redmond, ") }
-            Assert.assertNotNull(queryVM)
+            val queryVM = locations.find { it.locationName?.startsWith("Redmond, ") == true }
+            assertNotNull(queryVM)
 
-            val nameModel = locationProvider.getLocationFromName(queryVM!!)
-            Assert.assertNotNull(nameModel)
+            if (locationProvider.needsLocationFromName()) {
+                val nameModel = locationProvider.getLocationFromName(queryVM!!)
+                assertNotNull(nameModel)
+            } else if (locationProvider.needsLocationFromGeocoder()) {
+                val geoModel = locationProvider.getLocation(
+                    Coordinate(
+                        queryVM!!.locationLat,
+                        queryVM.locationLong
+                    ), WeatherAPI.OPENWEATHERMAP
+                )
+                assertNotNull(geoModel)
+            } else if (locationProvider.needsLocationFromID()) {
+                val idModel = locationProvider.getLocationFromID(queryVM!!)
+                assertNotNull(idModel)
+            }
         }
     }
 
@@ -403,16 +475,27 @@ class UnitTests {
     @Throws(WeatherException::class)
     fun cityDBGeocoderLocationTest() {
         runBlocking(Dispatchers.Default) {
-            val locationProvider: LocationProviderImpl = CityDBLocationProvider()
+            val locationProvider: WeatherLocationProvider = CityDBLocationProvider()
             val location = withContext(Dispatchers.IO) {
                 locationProvider.getLocation(
-                    Coordinate(40.6720422, -73.7595417),
+                    Coordinate(51.5073884, -0.1334347),
                     WeatherAPI.OPENWEATHERMAP
-                ) // Washington
-                //locationProvider.getLocation(Coordinate(51.5073884, -0.1334347), null) // London
+                ) // London
             }
-            Assert.assertFalse(location == null)
-            Assert.assertEquals(location?.locationName?.startsWith("Redmond"), true)
+            assertNotNull(location)
+            assertEquals(location?.locationName?.startsWith("London"), true)
+
+            if (location!!.locationTZLong.isNullOrBlank() && location.locationLat != 0.0 && location.locationLong != 0.0) {
+                val tzId = weatherModule.tzdbService.getTimeZone(
+                    location.locationLat,
+                    location.locationLong
+                )
+                if ("unknown" != tzId)
+                    location.locationTZLong = tzId
+            }
+
+            assertFalse(location.locationTZLong.isNullOrEmpty())
+            assertTrue(location.toLocationData().isValid)
         }
     }
 }

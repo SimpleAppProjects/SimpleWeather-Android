@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.thewizrd.shared_resources.controls.DetailItemViewModel" />
+            type="com.thewizrd.common.controls.DetailItemViewModel" />
     </data>
 
     <merge
@@ -36,7 +36,7 @@
             tools:text="Label"
             tools:textColor="?android:textColorPrimary" />
 
-        <com.thewizrd.shared_resources.controls.IconControl
+        <com.thewizrd.common.controls.IconControl
             android:id="@+id/detail_icon"
             android:layout_width="match_parent"
             android:layout_height="0dp"

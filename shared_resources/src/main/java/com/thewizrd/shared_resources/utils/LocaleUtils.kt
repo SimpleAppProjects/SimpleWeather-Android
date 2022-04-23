@@ -5,7 +5,8 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.sharedDeps
 import java.util.*
 
 object LocaleUtils {
@@ -25,7 +26,7 @@ object LocaleUtils {
     }
 
     private fun updateAppContextLocale() {
-        val context = SimpleLibrary.instance.appContext
+        val context = sharedDeps.context
         val oldConfig = context.resources.configuration
         val newConfig = Configuration(oldConfig)
 
@@ -38,7 +39,7 @@ object LocaleUtils {
 
     @JvmStatic
     fun getLocaleCode(): String? {
-        return SimpleLibrary.instance.app.preferences.getString(KEY_LANGUAGE, "")
+        return appLib.preferences.getString(KEY_LANGUAGE, "")
     }
 
     @JvmStatic
@@ -48,7 +49,7 @@ object LocaleUtils {
 
     @JvmStatic
     fun setLocaleCode(localeCode: String?) {
-        SimpleLibrary.instance.app.preferences.edit {
+        appLib.preferences.edit {
             putString(KEY_LANGUAGE, localeCode)
         }
         updateLocale(localeCode)

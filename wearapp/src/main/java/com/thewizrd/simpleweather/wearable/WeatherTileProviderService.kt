@@ -6,12 +6,12 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.google.android.clockwork.tiles.TileData
 import com.google.android.clockwork.tiles.TileProviderService
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.LaunchActivity
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
@@ -26,8 +26,6 @@ abstract class WeatherTileProviderService : TileProviderService() {
         private set
 
     protected val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    protected val settingsMgr = App.instance.settingsManager
 
     override fun onDestroy() {
         Timber.tag(LOGTAG).d("destroying service...")
@@ -88,7 +86,7 @@ abstract class WeatherTileProviderService : TileProviderService() {
 
         val weather = withContext(Dispatchers.IO) {
             try {
-                val locData = settingsMgr.getHomeData() ?: return@withContext null
+                val locData = settingsManager.getHomeData() ?: return@withContext null
                 WeatherDataLoader(locData)
                     .loadWeatherData(
                         WeatherRequest.Builder()

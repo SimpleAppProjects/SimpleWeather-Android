@@ -6,6 +6,7 @@ import android.text.format.DateFormat;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
@@ -19,7 +20,6 @@ import com.thewizrd.shared_resources.weatherdata.model.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData;
 import com.thewizrd.simpleweather.controls.graphs.BarGraphDataSet;
@@ -46,7 +46,7 @@ public class ForecastGraphViewModel {
         SNOW
     }
 
-    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
+    private final SettingsManager settingsMgr = ApplicationLibKt.getAppLib().getSettingsManager();
 
     private GraphData<?> graphData;
 
@@ -106,7 +106,7 @@ public class ForecastGraphViewModel {
     }
 
     private void addEntryData(BaseForecast forecast, LineDataSeries series, @NonNull ForecastGraphType graphType) {
-        Context context = App.getInstance().getAppContext();
+        final Context context = ApplicationLibKt.getAppLib().getContext();
         final boolean isFahrenheit = Units.FAHRENHEIT.equals(settingsMgr.getTemperatureUnit());
 
         final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
@@ -215,7 +215,7 @@ public class ForecastGraphViewModel {
 
     private void addMinutelyEntryData(@NonNull MinutelyForecast forecast, LineDataSeries series) {
         if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
-            Context context = App.getInstance().getAppContext();
+            final Context context = ApplicationLibKt.getAppLib().getContext();
 
             final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
             df.applyPattern("0.##");
@@ -249,7 +249,7 @@ public class ForecastGraphViewModel {
 
     @NonNull
     private LineDataSeries createSeriesData(List<LineGraphEntry> entryData, @NonNull ForecastGraphType graphType) {
-        Context context = App.getInstance().getAppContext();
+        final Context context = ApplicationLibKt.getAppLib().getContext();
 
         LineDataSeries series;
 
@@ -336,7 +336,7 @@ public class ForecastGraphViewModel {
     }
 
     private String getDateFromForecast(BaseForecast forecast) {
-        Context context = App.getInstance().getAppContext();
+        final Context context = ApplicationLibKt.getAppLib().getContext();
 
         String date;
         if (forecast instanceof Forecast) {
@@ -370,7 +370,7 @@ public class ForecastGraphViewModel {
     }
 
     private String getLabelForGraphType(@NonNull ForecastGraphType graphType) {
-        Context context = App.getInstance().getAppContext();
+        final Context context = ApplicationLibKt.getAppLib().getContext();
 
         String graphLabel;
 

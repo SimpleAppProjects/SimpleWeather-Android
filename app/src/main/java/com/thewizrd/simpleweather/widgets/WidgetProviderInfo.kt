@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.widgets
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import com.thewizrd.simpleweather.App
+import com.thewizrd.shared_resources.appLib
 
 abstract class WidgetProviderInfo protected constructor() {
     // Fields
@@ -11,11 +11,11 @@ abstract class WidgetProviderInfo protected constructor() {
     abstract val className: String
 
     val componentName: ComponentName
-        get() = ComponentName(App.instance.appContext, className)
+        get() = ComponentName(appLib.context, className)
 
     val appWidgetIds: IntArray
         get() {
-            val appWidgetManager = AppWidgetManager.getInstance(App.instance.appContext)
+            val appWidgetManager = AppWidgetManager.getInstance(appLib.context)
             return appWidgetManager.getAppWidgetIds(componentName)
         }
 

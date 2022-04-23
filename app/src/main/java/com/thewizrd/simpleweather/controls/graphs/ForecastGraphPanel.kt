@@ -14,7 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.simpleweather.R
 
 class ForecastGraphPanel : LinearLayout {

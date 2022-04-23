@@ -19,10 +19,8 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
-import com.thewizrd.shared_resources.helpers.SpacerItemDecoration
+import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.PreferenceListHeaderAdapter
 import com.thewizrd.simpleweather.adapters.SpacerAdapter
@@ -45,7 +43,6 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
 
     var parentActivity: Activity? = null
         private set
-    protected val settingsManager: SettingsManager = App.instance.settingsManager
 
     private lateinit var binding: ActivitySettingsBinding
     private var swipeCallback: SwipeDismissFrameLayout.Callback? = null
@@ -175,16 +172,20 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
             return
         }
 
-        if (preference is WearEditTextPreference) {
-            val f = WearEditTextPreferenceDialogFragment.newInstance(preference.key)
-            f.setTargetFragment(this, 0)
-            f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
-        } else if (preference is WearListPreference) {
-            val f = WearListPreferenceDialogFragment.newInstance(preference.key)
-            f.setTargetFragment(this, 0)
-            f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
-        } else {
-            super.onDisplayPreferenceDialog(preference)
+        when (preference) {
+            is WearEditTextPreference -> {
+                val f = WearEditTextPreferenceDialogFragment.newInstance(preference.key)
+                f.setTargetFragment(this, 0)
+                f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+            }
+            is WearListPreference -> {
+                val f = WearListPreferenceDialogFragment.newInstance(preference.key)
+                f.setTargetFragment(this, 0)
+                f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+            }
+            else -> {
+                super.onDisplayPreferenceDialog(preference)
+            }
         }
     }
 }

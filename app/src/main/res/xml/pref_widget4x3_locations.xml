@@ -106,7 +106,7 @@
         app:isPreferenceVisible="false"
         tools:isPreferenceVisible="true">
 
-        <com.thewizrd.shared_resources.preferences.SliderPreference
+        <com.thewizrd.common.preferences.SliderPreference
             android:defaultValue="1"
             android:key="key_textsize"
             android:persistent="false"
@@ -117,7 +117,7 @@
             app:sliderStepSize="0.125"
             app:iconSpaceReserved="false" />
 
-        <com.thewizrd.shared_resources.preferences.SliderPreference
+        <com.thewizrd.common.preferences.SliderPreference
             android:defaultValue="1"
             android:key="key_iconsize"
             android:persistent="false"

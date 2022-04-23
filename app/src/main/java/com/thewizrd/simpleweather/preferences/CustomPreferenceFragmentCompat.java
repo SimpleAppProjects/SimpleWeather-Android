@@ -7,9 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.lifecycle.LifecycleAwarePreferenceFragmentCompat;
 import com.thewizrd.shared_resources.utils.SettingsManager;
-import com.thewizrd.simpleweather.App;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface;
 
@@ -17,7 +17,7 @@ public abstract class CustomPreferenceFragmentCompat extends LifecycleAwarePrefe
 
     private AppCompatActivity mActivity;
     private SnackbarManager mSnackMgr;
-    private final SettingsManager settingsMgr = App.getInstance().getSettingsManager();
+    private final SettingsManager settingsMgr = ApplicationLibKt.getAppLib().getSettingsManager();
 
     public final AppCompatActivity getAppCompatActivity() {
         return mActivity;

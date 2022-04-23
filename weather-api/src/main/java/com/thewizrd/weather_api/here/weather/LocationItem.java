@@ -1,0 +1,98 @@
+package com.thewizrd.weather_api.here.weather;
+
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
+
+import java.util.List;
+
+@UseStag(UseStag.FieldOption.ALL)
+public class LocationItem {
+
+    @SerializedName("country")
+    private String country;
+
+    @SerializedName("distance")
+    private float distance;
+
+    @SerializedName("city")
+    private String city;
+
+    @SerializedName("observation")
+    private List<ObservationItem> observation;
+
+    @SerializedName("timezone")
+    private int timezone;
+
+    @SerializedName("latitude")
+    private float latitude;
+
+    @SerializedName("state")
+    private String state;
+
+    @SerializedName("longitude")
+    private float longitude;
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setObservation(List<ObservationItem> observation) {
+        this.observation = observation;
+    }
+
+    public List<ObservationItem> getObservation() {
+        return observation;
+    }
+
+    public void setTimezone(int timezone) {
+        this.timezone = timezone;
+    }
+
+    public int getTimezone() {
+        return timezone;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+}

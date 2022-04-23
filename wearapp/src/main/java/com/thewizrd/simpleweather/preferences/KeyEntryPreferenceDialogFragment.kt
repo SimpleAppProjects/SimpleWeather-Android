@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.fragments.WearDialogInterface
 import com.thewizrd.simpleweather.fragments.WearDialogParams
@@ -45,7 +45,7 @@ class KeyEntryPreferenceDialogFragment : WearEditTextPreferenceDialogFragment() 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        key = SimpleLibrary.instance.app.settingsManager.getAPIKey(apiProvider)
+        key = settingsManager.getAPIKey(apiProvider)
     }
 
     override fun onPrepareDialogBuilder(builder: WearDialogParams.Builder) {

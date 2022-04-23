@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.shared_resources.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R

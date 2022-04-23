@@ -7,12 +7,8 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.thewizrd.shared_resources.AppState
-import com.thewizrd.shared_resources.ApplicationLib
-import com.thewizrd.shared_resources.DateTimeConstants
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.thewizrd.shared_resources.*
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +23,6 @@ import java.time.format.DateTimeFormatter
 @RunWith(AndroidJUnit4::class)
 class UnitTests {
     private lateinit var context: Context
-    private lateinit var app: ApplicationLib
     private var wasUsingPersonalKey = false
 
     @Before
@@ -35,50 +30,37 @@ class UnitTests {
         // Context of the app under test.
         context = ApplicationProvider.getApplicationContext()
 
-        app = object : ApplicationLib {
-            override fun getAppContext(): Context {
-                return context.applicationContext
-            }
-
-            override fun getPreferences(): SharedPreferences {
-                return PreferenceManager.getDefaultSharedPreferences(appContext)
-            }
+        appLib = object : ApplicationLib() {
+            override val context: Context
+                get() = this@UnitTests.context.applicationContext
+            override val preferences: SharedPreferences
+                get() = PreferenceManager.getDefaultSharedPreferences(context)
 
             override fun registerAppSharedPreferenceListener() {}
             override fun unregisterAppSharedPreferenceListener() {}
             override fun registerAppSharedPreferenceListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
             override fun unregisterAppSharedPreferenceListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
 
-            override fun getAppState(): AppState {
-                return AppState.BACKGROUND
-            }
-
-            override fun isPhone(): Boolean {
-                return false
-            }
-
-            override fun getProperties(): Bundle {
-                return Bundle()
-            }
-
-            override fun getSettingsManager(): SettingsManager {
-                return SettingsManager(appContext.applicationContext)
-            }
+            override val appState: AppState
+                get() = AppState.BACKGROUND
+            override val isPhone = false
+            override val properties = Bundle()
+            override val settingsManager = SettingsManager(context)
         }
 
         // Needs to be called on main thread
         runBlocking(Dispatchers.Main.immediate) {
-            SimpleLibrary.initialize(app)
+            sharedDeps = object : SharedModule() {
+                override val context = this@UnitTests.context.applicationContext
+            }
         }
 
-        // Start logger
-        Logger.init(app.appContext)
         runBlocking {
-            app.settingsManager.loadIfNeeded()
+            appLib.settingsManager.loadIfNeeded()
         }
 
-        if (app.settingsManager.usePersonalKey()) {
-            app.settingsManager.setPersonalKey(false)
+        if (appLib.settingsManager.usePersonalKey()) {
+            appLib.settingsManager.setPersonalKey(false)
             wasUsingPersonalKey = true
         }
     }

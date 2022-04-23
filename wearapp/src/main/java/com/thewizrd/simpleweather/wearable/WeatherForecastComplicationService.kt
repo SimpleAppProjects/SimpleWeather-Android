@@ -4,8 +4,9 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
-import com.thewizrd.shared_resources.weatherdata.WeatherDataLoader
-import com.thewizrd.shared_resources.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +28,8 @@ abstract class WeatherForecastComplicationService : BaseWeatherComplicationServi
         return scope.async {
             var complicationData: ComplicationData? = null
 
-            if (settingsMgr.isWeatherLoaded()) {
-                complicationData = settingsMgr.getHomeData()?.let { locData ->
+            if (settingsManager.isWeatherLoaded()) {
+                complicationData = settingsManager.getHomeData()?.let { locData ->
                     val weather = withContext(Dispatchers.IO) {
                         try {
                             WeatherDataLoader(locData)
@@ -43,7 +44,7 @@ abstract class WeatherForecastComplicationService : BaseWeatherComplicationServi
                     }
 
                     val forecast =
-                        settingsMgr.getWeatherForecastData(locData.query)?.forecast?.firstOrNull()
+                        settingsManager.getWeatherForecastData(locData.query)?.forecast?.firstOrNull()
 
                     buildUpdate(request.complicationType, weather, forecast)
                 }

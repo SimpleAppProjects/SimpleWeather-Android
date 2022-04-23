@@ -5,7 +5,7 @@ import androidx.annotation.WorkerThread
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 
-class ImageDataHelperImplApp : ImageDataHelperImpl() {
+class ImageDataServiceImpl : BaseImageDataService() {
     override suspend fun getCachedImageData(backgroundCode: String?): ImageData? {
         return null
     }

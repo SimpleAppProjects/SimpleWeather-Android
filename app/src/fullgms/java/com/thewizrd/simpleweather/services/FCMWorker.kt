@@ -3,11 +3,11 @@ package com.thewizrd.simpleweather.services
 import android.content.Context
 import android.util.Log
 import androidx.work.*
-import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.images.ImageDataHelper
 import com.thewizrd.simpleweather.images.ImageDatabase
+import com.thewizrd.simpleweather.images.imageDataService
 import java.util.concurrent.TimeUnit
 
 class FCMWorker(context: Context, workerParams: WorkerParameters) :
@@ -47,7 +47,7 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) :
         Logger.writeLine(Log.INFO, "%s: Work started", TAG)
 
         // Check if cache is populated
-        if (!ImageDataHelper.getImageDataHelper().isEmpty && !FeatureSettings.isUpdateAvailable()) {
+        if (!imageDataService.isEmpty && !UpdateSettings.isUpdateAvailable) {
             // If so, check if we need to invalidate
             val updateTime = try {
                 ImageDatabase.getLastUpdateTime()
@@ -56,13 +56,13 @@ class FCMWorker(context: Context, workerParams: WorkerParameters) :
                 0L
             }
 
-            if (updateTime > ImageDataHelper.getImageDBUpdateTime()) {
+            if (updateTime > imageDataService.getImageDBUpdateTime()) {
                 AnalyticsLogger.logEvent("$TAG: clearing image cache")
 
                 // if so, invalidate
-                ImageDataHelper.setImageDBUpdateTime(updateTime)
-                ImageDataHelper.getImageDataHelper().clearCachedImageData()
-                ImageDataHelper.invalidateCache(true)
+                imageDataService.setImageDBUpdateTime(updateTime)
+                imageDataService.clearCachedImageData()
+                imageDataService.invalidateCache(true)
             }
         }
 

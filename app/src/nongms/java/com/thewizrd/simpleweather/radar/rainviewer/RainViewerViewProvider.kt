@@ -16,18 +16,18 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.DateTimeConstants
-import com.thewizrd.shared_resources.SimpleLibrary
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
-import com.thewizrd.shared_resources.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.IRateLimitedRequest
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.stag.generated.Stag
+import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.weather_api.utils.RateLimitedRequest
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -45,7 +45,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
-import kotlin.collections.ArrayList
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
@@ -78,7 +77,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
         radarContainerBinding = RadarAnimateContainerBinding.inflate(LayoutInflater.from(context))
         viewContainer.addView(radarContainerBinding!!.root)
 
-        radarContainerBinding!!.playButton.setOnCheckedChangeListener { buttonView, isChecked ->
+        radarContainerBinding!!.playButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 mMainHandler.post(animationRunnable)
             } else {
@@ -86,7 +85,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
             }
         }
 
-        radarContainerBinding!!.animationSeekbar.addOnChangeListener(Slider.OnChangeListener { slider, value, fromUser ->
+        radarContainerBinding!!.animationSeekbar.addOnChangeListener(Slider.OnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 mMainHandler.removeCallbacks(animationRunnable)
                 showFrame(value.toInt())
@@ -138,7 +137,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     }
 
     private fun getRadarFrames() {
-        val httpClient = SimpleLibrary.instance.httpClient
+        val httpClient = sharedDeps.httpClient
 
         val request = Request.Builder()
             .get()
@@ -151,7 +150,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
         mFrameCall!!.enqueue(mFrameCallBack)
     }
 
-    private val mFrameCallBack = object : Callback, IRateLimitedRequest {
+    private val mFrameCallBack = object : Callback, RateLimitedRequest {
         override fun getRetryTime(): Long {
             return 5000
         }

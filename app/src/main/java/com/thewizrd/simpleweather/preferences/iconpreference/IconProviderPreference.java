@@ -12,10 +12,10 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceViewHolder;
 
+import com.thewizrd.shared_resources.SharedModuleKt;
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface;
 import com.thewizrd.shared_resources.icons.WeatherIconProvider;
 import com.thewizrd.shared_resources.icons.WeatherIcons;
-import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.databinding.PreferenceIconViewBinding;
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference;
@@ -57,11 +57,11 @@ public class IconProviderPreference extends RadioButtonPreference {
 
     @NonNull
     public final WeatherIconProvider getIconProvider() {
-        return WeatherIconsManager.getProvider(getKey());
+        return SharedModuleKt.getSharedDeps().getWeatherIconsManager().getIconProvider(getKey());
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
         mIconFrame = holder.findViewById(R.id.icon_frame);

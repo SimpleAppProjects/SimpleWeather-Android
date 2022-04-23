@@ -8,10 +8,11 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.thewizrd.extras.ExtrasLibrary
+import com.thewizrd.extras.extrasModule
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.main.MainActivity
@@ -45,7 +46,7 @@ class LaunchActivity : ComponentActivity() {
             }
         })
 
-        val settingsMgr = App.instance.settingsManager
+        val settingsMgr = appLib.settingsManager
 
         lifecycleScope.launch {
             var intent: Intent? = null
@@ -66,10 +67,10 @@ class LaunchActivity : ComponentActivity() {
                 }
 
                 // Update configuration
-                RemoteConfig.checkConfig()
+                remoteConfigService.checkConfig()
 
                 // Check premium status
-                ExtrasLibrary.checkPremiumStatus()
+                extrasModule.checkPremiumStatus()
             } catch (e: Exception) {
                 Logger.writeLine(Log.ERROR, e, "%s: error loading", TAG)
             } finally {

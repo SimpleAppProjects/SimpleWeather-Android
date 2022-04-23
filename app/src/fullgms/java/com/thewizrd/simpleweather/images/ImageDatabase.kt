@@ -7,18 +7,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.*
-import com.thewizrd.shared_resources.SimpleLibrary
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.Source
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.*
 import kotlin.coroutines.resume
 
 object ImageDatabase {
@@ -34,7 +35,7 @@ object ImageDatabase {
                 var querySnapshot: QuerySnapshot? = null
                 try {
                     // Try to retrieve from cache first
-                    if (!ImageDataHelper.shouldInvalidateCache()) {
+                    if (!imageDataService.shouldInvalidateCache()) {
                         querySnapshot = query[Source.CACHE].await()
                     }
                 } catch (e: Exception) {
@@ -82,7 +83,7 @@ object ImageDatabase {
                 var querySnapshot: QuerySnapshot? = null
                 try {
                     // Try to retrieve from cache first
-                    if (!ImageDataHelper.shouldInvalidateCache()) {
+                    if (!imageDataService.shouldInvalidateCache()) {
                         querySnapshot = query[Source.CACHE].await()
                     }
                 } catch (e: Exception) {
@@ -126,19 +127,18 @@ object ImageDatabase {
         val query = db.collection("background_images")
         try {
             query[Source.SERVER].await()
-            ImageDataHelper.invalidateCache(false)
-            if (ImageDataHelper.getImageDBUpdateTime() == 0L) {
-                ImageDataHelper.setImageDBUpdateTime(getLastUpdateTime())
+            imageDataService.invalidateCache(false)
+            if (imageDataService.getImageDBUpdateTime() == 0L) {
+                imageDataService.setImageDBUpdateTime(getLastUpdateTime())
             }
         } catch (e: Exception) {
             Logger.writeLine(Log.ERROR, e)
         }
 
         // Register worker
-        val app = SimpleLibrary.instance.app
-        if (app.isPhone) {
-            LocalBroadcastManager.getInstance(app.appContext)
-                    .sendBroadcast(Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER))
+        if (appLib.isPhone) {
+            LocalBroadcastManager.getInstance(appLib.context)
+                .sendBroadcast(Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER))
         }
     }
 

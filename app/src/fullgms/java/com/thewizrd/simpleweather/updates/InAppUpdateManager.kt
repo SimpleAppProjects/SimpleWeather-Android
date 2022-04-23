@@ -15,7 +15,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.requestAppUpdateInfo
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.reflect.TypeToken
-import com.thewizrd.shared_resources.preferences.FeatureSettings
+import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
@@ -23,7 +23,6 @@ import com.thewizrd.shared_resources.utils.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.ArrayList
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class InAppUpdateManager private constructor(context: Context) {
@@ -48,7 +47,7 @@ class InAppUpdateManager private constructor(context: Context) {
 
             // Checks that the platform will allow the specified type of update.
             if (appUpdateInfo?.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                FeatureSettings.setUpdateAvailable(true)
+                UpdateSettings.isUpdateAvailable = true
 
                 // Check priority of update
                 val remoteUpdateInfo = getRemoteUpdateInfo()
@@ -156,7 +155,7 @@ class InAppUpdateManager private constructor(context: Context) {
                     Logger.writeLine(Log.ERROR, e)
                 }
             } else if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && shouldStartImmediateUpdate()) {
-                FeatureSettings.setUpdateAvailable(true)
+                UpdateSettings.isUpdateAvailable = true
                 if (!activity.isDestroyed && !activity.isFinishing) {
                     startImmediateUpdateFlow(activity, requestCode)
                 }

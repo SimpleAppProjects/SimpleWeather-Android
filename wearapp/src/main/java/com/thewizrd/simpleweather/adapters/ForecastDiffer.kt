@@ -2,7 +2,7 @@ package com.thewizrd.simpleweather.adapters
 
 import androidx.core.util.ObjectsCompat
 import androidx.recyclerview.widget.DiffUtil
-import com.thewizrd.shared_resources.controls.BaseForecastItemViewModel
+import com.thewizrd.common.controls.BaseForecastItemViewModel
 
 class ForecastDiffer<T : BaseForecastItemViewModel> : DiffUtil.ItemCallback<T>() {
     override fun areItemsTheSame(

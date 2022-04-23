@@ -1,13 +1,12 @@
 package com.thewizrd.simpleweather.images
 
-import com.thewizrd.shared_resources.weatherdata.WeatherBackground
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
+import com.thewizrd.weather_api.weatherModule
 
 object ImageDataUtils {
     suspend fun getDefaultImageData(backgroundCode: String?, weather: Weather): ImageData {
-        val wm = WeatherManager.instance
+        val wm = weatherModule.weatherManager
 
         // Fallback to assets
         // day, night, rain, snow

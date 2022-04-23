@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
@@ -14,16 +15,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.common.helpers.ObservableArrayList
+import com.thewizrd.common.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
-import com.thewizrd.shared_resources.helpers.ObservableArrayList
-import com.thewizrd.shared_resources.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.LocationPanel
@@ -36,8 +38,9 @@ import kotlinx.coroutines.*
 import java.util.*
 import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
-class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
-        ItemTouchHelperAdapterInterface, LifecycleEventObserver {
+class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    ItemTouchHelperAdapterInterface, LifecycleEventObserver {
     object Payload {
         const val IMAGE_UPDATE = 0
     }
@@ -62,10 +65,14 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         fun onLongClick(holder: RecyclerView.ViewHolder)
     }
 
-    private val settingsManager = App.instance.settingsManager
-
-    private val mDataset: ObservableArrayList<LocationPanelViewModel>
-    private val mSelectedItems: ObservableArrayList<LocationPanelViewModel>
+    private val mDataset =
+        ObservableArrayList<LocationPanelViewModel>(
+            settingsManager.getMaxLocations()
+        )
+    private val mSelectedItems =
+        ObservableArrayList<LocationPanelViewModel>(
+            settingsManager.getMaxLocations()
+        )
 
     private var gpsVH: GPSHeaderViewHolder? = null
     private var favVH: FavHeaderViewHolder? = null
@@ -79,7 +86,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
     // Event listeners
     private var onClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
     private var onLongClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
-    private val onLongClickToDragListener: ViewHolderLongClickListener?
+    private val onLongClickToDragListener: ViewHolderLongClickListener? = longClickListener
     private var onListChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
     private var onSelectionChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
 
@@ -166,13 +173,6 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                 true
             }
         }
-    }
-
-    // Provide a suitable constructor (depends on the kind of dataset)
-    constructor(longClickListener: ViewHolderLongClickListener?) : super() {
-        mDataset = ObservableArrayList<LocationPanelViewModel>(settingsManager.getMaxLocations())
-        mSelectedItems = ObservableArrayList<LocationPanelViewModel>(settingsManager.getMaxLocations())
-        onLongClickToDragListener = longClickListener
     }
 
     fun clearSelection() {
@@ -468,7 +468,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
             settingsManager.deleteLocation(query)
 
             // Notify location removed
-            LocalBroadcastManager.getInstance(App.instance.appContext)
+            LocalBroadcastManager.getInstance(appLib.context)
                 .sendBroadcast(
                     Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
                         .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, query)
@@ -501,8 +501,9 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
             }
         }.invokeOnCompletion { cause ->
             if (cause == null) {
-                val context: Context = App.instance.appContext
-                ShortcutCreatorWorker.requestUpdateShortcuts(context)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    ShortcutCreatorWorker.requestUpdateShortcuts(appLib.context)
+                }
             }
         }
     }
@@ -556,6 +557,9 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
             }
         }
 
+        private val context: Context
+            get() = mParentRecyclerView?.context ?: appLib.context
+
         private fun undoAction() {
             panelPairs.sortWith { o1, o2 -> o1.first.compareTo(o2.first) }
 
@@ -599,7 +603,13 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                     undoAction()
 
                     if (isActive) {
-                        mSnackMgr?.show(Snackbar.make(R.string.message_needfavorite, Snackbar.Duration.SHORT), null)
+                        mSnackMgr?.show(
+                            Snackbar.make(
+                                context,
+                                R.string.message_needfavorite,
+                                Snackbar.Duration.SHORT
+                            ), null
+                        )
                     }
 
                     return@launch
@@ -612,7 +622,11 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
         private fun showUndoSnackbar() {
             if (mSnackMgr != null) {
                 // Make SnackBar
-                val snackbar = Snackbar.make(R.string.message_locationremoved, Snackbar.Duration.SHORT)
+                val snackbar = Snackbar.make(
+                    context,
+                    R.string.message_locationremoved,
+                    Snackbar.Duration.SHORT
+                )
                 snackbar.setAction(R.string.undo) { undoAction() }
 
                 val callback = object : MaterialSnackbar.Callback() {
@@ -629,7 +643,7 @@ class LocationPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>,
                                     settingsManager.deleteLocation(key)
 
                                     // Notify location removed
-                                    LocalBroadcastManager.getInstance(App.instance.appContext)
+                                    LocalBroadcastManager.getInstance(context)
                                         .sendBroadcast(
                                             Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
                                                 .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, key)

@@ -5,9 +5,9 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
 import androidx.work.*
-import com.thewizrd.shared_resources.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
@@ -29,7 +29,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         suspend fun requestWidgetUpdate(context: Context) {
-            if (App.instance.settingsManager.isWeatherLoaded()) {
+            if (settingsManager.isWeatherLoaded()) {
                 Timber.tag(TAG).i("Requesting widget update...")
 
                 // Update complications

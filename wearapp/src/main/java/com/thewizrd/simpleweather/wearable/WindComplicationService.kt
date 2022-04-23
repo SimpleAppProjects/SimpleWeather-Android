@@ -2,6 +2,8 @@ package com.thewizrd.simpleweather.wearable
 
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
+import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -78,7 +80,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
 
         if (windMph < 0 || windKph < 0 || windDirection < 0) return null
 
-        val unit = settingsMgr.getSpeedUnit()
+        val unit = settingsManager.getSpeedUnit()
         val speedVal: Int
         val speedUnit: String
 

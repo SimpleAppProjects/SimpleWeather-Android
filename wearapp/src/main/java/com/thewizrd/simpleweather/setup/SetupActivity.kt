@@ -16,20 +16,21 @@ import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.requestLocationPermission
+import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.utils.ActivityUtils.showToast
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.helpers.locationPermissionEnabled
-import com.thewizrd.shared_resources.helpers.requestLocationPermission
-import com.thewizrd.shared_resources.location.LocationProvider
+import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.remoteconfig.RemoteConfig
-import com.thewizrd.shared_resources.tzdb.TZDBCache
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ActivityUtils.showToast
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupBinding
@@ -37,6 +38,7 @@ import com.thewizrd.simpleweather.fragments.LocationSearchFragment
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.coroutines.coroutineContext
@@ -47,8 +49,6 @@ class SetupActivity : UserLocaleActivity() {
         private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val REQUEST_CODE_SYNC_ACTIVITY = 10
     }
-
-    private lateinit var settingsManager: SettingsManager
 
     // Views
     private lateinit var binding: FragmentSetupBinding
@@ -61,15 +61,13 @@ class SetupActivity : UserLocaleActivity() {
      */
     private var mRequestingLocationUpdates = false
 
-    private val wm = WeatherManager.instance
+    private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SetupActivity: onCreate")
-
-        settingsManager = App.instance.settingsManager
 
         binding = FragmentSetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -262,7 +260,10 @@ class SetupActivity : UserLocaleActivity() {
                         if (view == null || view.locationQuery.isNullOrBlank()) {
                             throw CustomException(R.string.error_retrieve_location)
                         } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                            val tzId = TZDBCache.getTimeZone(view.locationLat, view.locationLong)
+                            val tzId = weatherModule.tzdbService.getTimeZone(
+                                view.locationLat,
+                                view.locationLong
+                            )
                             if ("unknown" != tzId)
                                 view.locationTZLong = tzId
                         }
@@ -270,7 +271,7 @@ class SetupActivity : UserLocaleActivity() {
                         if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                             // Set default provider based on location
                             val provider =
-                                RemoteConfig.getDefaultWeatherProvider(view.locationCountry)
+                                remoteConfigService.getDefaultWeatherProvider(view.locationCountry)
                             settingsManager.setAPI(provider)
                             view.updateWeatherSource(provider)
                         }
@@ -288,7 +289,7 @@ class SetupActivity : UserLocaleActivity() {
                         }
 
                         // Get Weather Data
-                        val location = LocationData(view, mLocation!!)
+                        val location = view.toLocationData(mLocation!!)
                         if (!location.isValid) {
                             throw CustomException(R.string.werror_noweather)
                         }

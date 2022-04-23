@@ -5,13 +5,14 @@ import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringDef
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
-import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.radar.nullschool.EarthWindMapViewProvider
 import com.thewizrd.simpleweather.radar.openweather.OWMRadarViewProvider
 import com.thewizrd.simpleweather.radar.rainviewer.RainViewerViewProvider
+import com.thewizrd.weather_api.weatherModule
 
 object RadarProvider {
     const val KEY_RADARPROVIDER = "key_radarprovider"
@@ -24,8 +25,8 @@ object RadarProvider {
     annotation class RadarProviders
 
     fun getRadarProviders(): List<ProviderEntry> {
-        val owm = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
-        return if (App.instance.settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) {
+        val owm = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
+        return if (settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) {
             FullRadarProviders.filterNot { it.value == WeatherAPI.OPENWEATHERMAP }
         } else {
             FullRadarProviders
@@ -50,13 +51,13 @@ object RadarProvider {
     @JvmStatic
     @RadarProviders
     fun getRadarProvider(): String {
-        val prefs = App.instance.preferences
+        val prefs = appLib.preferences
         val provider = prefs.getString(KEY_RADARPROVIDER, EARTHWINDMAP)!!
 
         if (provider == WeatherAPI.OPENWEATHERMAP) {
-            val owm = WeatherManager.getProvider(WeatherAPI.OPENWEATHERMAP)
+            val owm = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
             // Fallback to default since API KEY is unavailable
-            if ((App.instance.settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) || App.instance.settingsManager.getAPIKey(
+            if ((settingsManager.getAPI() != owm.getWeatherAPI() && owm.getAPIKey() == null) || settingsManager.getAPIKey(
                     WeatherAPI.OPENWEATHERMAP
                 ) == null
             ) {

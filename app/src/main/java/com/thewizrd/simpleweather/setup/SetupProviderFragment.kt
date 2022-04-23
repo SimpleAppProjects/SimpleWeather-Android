@@ -17,16 +17,15 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
+import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
-import com.thewizrd.shared_resources.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.utils.WeatherException
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupProvidersBinding
@@ -34,6 +33,7 @@ import com.thewizrd.simpleweather.preferences.CustomPreferenceFragmentCompat
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.stepper.StepperFragment
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 
 class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment {
@@ -108,7 +108,8 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                 val selectedProvider = newValue.toString()
 
                 val pref = preference as ListPreference
-                val selectedWProv = WeatherManager.getProvider(selectedProvider)
+                val selectedWProv =
+                    weatherModule.weatherManager.getWeatherProvider(selectedProvider)
 
                 if (selectedWProv.isKeyRequired()) {
                     if (selectedWProv.getAPIKey().isNullOrBlank()) {
@@ -174,7 +175,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         providerPref.value = settingsManager.getAPI()
 
         // Set key as verified if API Key is req for API and its set
-        if (WeatherManager.instance.isKeyRequired()) {
+        if (weatherModule.weatherManager.isKeyRequired()) {
             keyEntry.isEnabled = true
 
             if (!settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
@@ -183,7 +184,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                 settingsManager.setKeyVerified(providerPref.value, true)
             }
 
-            if (WeatherManager.instance.getAPIKey().isNullOrBlank()) {
+            if (weatherModule.weatherManager.getAPIKey().isNullOrBlank()) {
                 settingsManager.setPersonalKey(true)
                 keyEntry.isEnabled = false
                 prefGroup.removePreference(keyEntry)
@@ -235,7 +236,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                     val key = fragment.key
 
                     try {
-                        if (WeatherManager.isKeyValid(key, provider)) {
+                        if (weatherModule.weatherManager.isKeyValid(key, provider)) {
                             settingsManager.setAPIKey(provider, key)
                             settingsManager.setAPI(provider)
                             settingsManager.setKeyVerified(provider, true)
@@ -298,9 +299,17 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
     override fun canGoNext(): Boolean {
         if (settingsManager.usePersonalKey()
             && settingsManager.getAPIKey(providerPref.value).isNullOrBlank()
-            && WeatherManager.isKeyRequired(providerPref.value)
+            && weatherModule.weatherManager.isKeyRequired(providerPref.value)
         ) {
-            showSnackbar(Snackbar.make(R.string.message_enter_apikey, Snackbar.Duration.LONG), null)
+            context?.let {
+                showSnackbar(
+                    Snackbar.make(
+                        it,
+                        R.string.message_enter_apikey,
+                        Snackbar.Duration.LONG
+                    )
+                )
+            }
             return false
         }
 

@@ -9,18 +9,18 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableStatusCodes
+import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.database.WeatherDatabase
-import com.thewizrd.shared_resources.icons.WeatherIconsProvider
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.wearable.WearableHelper
-import com.thewizrd.shared_resources.wearable.WearableSettings
-import com.thewizrd.shared_resources.weatherdata.WeatherManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker.Companion.requestWidgetUpdate
+import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.tasks.await
@@ -51,7 +51,7 @@ object DataSyncManager {
                 val keyVerified = dataMap.getBoolean(WearableSettings.KEY_APIKEY_VERIFIED, false)
                 if (!API.isNullOrBlank()) {
                     settingsMgr.setAPI(API)
-                    if (WeatherManager.isKeyRequired(API)) {
+                    if (weatherModule.weatherManager.isKeyRequired(API)) {
                         settingsMgr.setAPIKey(API, API_KEY)
                         settingsMgr.setKeyVerified(API, keyVerified)
                     } else {
@@ -85,7 +85,7 @@ object DataSyncManager {
                 settingsMgr.setIconsProvider(
                     dataMap.getString(
                         WearableSettings.KEY_ICONPROVIDER,
-                        WeatherIconsProvider.KEY
+                        WeatherIconsEFProvider.KEY
                     )
                 )
                 val newIcons = settingsMgr.getIconsProvider()

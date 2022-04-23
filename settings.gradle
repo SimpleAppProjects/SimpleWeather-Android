@@ -1,3 +1,5 @@
 include ':extras'
 include ':weathericons'
 include ':app', ':wearapp', ':shared_resources', ':unofficialtileapi'
+include ':weather-api'
+include ':common'
