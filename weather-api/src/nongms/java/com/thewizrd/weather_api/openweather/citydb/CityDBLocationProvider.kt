@@ -1,4 +1,4 @@
-package com.thewizrd.weather_api.locationdata.citydb
+package com.thewizrd.weather_api.openweather.citydb
 
 import android.util.Log
 import com.thewizrd.shared_resources.appLib
@@ -17,7 +17,7 @@ import java.text.DecimalFormat
  * Location provider using city id database provided by OpenWeatherMap
  * https://openweathermap.org/faq
  */
-class CityDBLocationProvider : WeatherLocationProviderImpl() {
+open class CityDBLocationProvider : WeatherLocationProviderImpl() {
     private val cityDBDao = CityDatabase.getCityDAO(appLib.context)
 
     override fun getLocationAPI(): String {

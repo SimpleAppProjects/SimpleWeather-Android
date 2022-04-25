@@ -16,8 +16,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.google.location.getGoogleLocationProvider
 import com.thewizrd.weather_api.here.auth.hereOAuthService
-import com.thewizrd.weather_api.locationdata.google.getGoogleLocationProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit

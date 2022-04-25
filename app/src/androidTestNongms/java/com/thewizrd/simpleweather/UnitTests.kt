@@ -22,9 +22,9 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.weather_api.aqicn.AQICNProvider
-import com.thewizrd.weather_api.locationdata.citydb.CityDBLocationProvider
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
+import com.thewizrd.weather_api.openweather.citydb.CityDBLocationProvider
 import com.thewizrd.weather_api.openweather.location.OpenWeatherMapLocationProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.weatherModule

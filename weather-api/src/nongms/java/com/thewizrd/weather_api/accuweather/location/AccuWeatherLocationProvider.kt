@@ -14,7 +14,7 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.weather_api.google.location.AndroidLocationProvider
+import com.thewizrd.weather_api.openweather.citydb.CityDBLocationProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +28,10 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
+internal class AccuWeatherLocationProvider : CityDBLocationProvider() {
     companion object {
-        private const val BASE_URL = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search"
+        private const val BASE_URL =
+            "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search"
     }
 
     override fun getLocationAPI(): String {

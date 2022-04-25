@@ -1,4 +1,4 @@
-package com.thewizrd.weather_api.locationdata.citydb
+package com.thewizrd.weather_api.openweather.citydb
 
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
