@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherapi.location
 
+import android.location.Geocoder
 import android.util.Log
 import com.google.gson.reflect.TypeToken
 import com.ibm.icu.util.ULocale
@@ -136,7 +137,11 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocationFromName(
         model: LocationQuery
     ): LocationQuery? {
-        return super.getLocationFromName(model)
+        return if (Geocoder.isPresent()) {
+            super.getLocationFromName(model)
+        } else {
+            model
+        }
     }
 
     @Throws(WeatherException::class)
@@ -240,9 +245,7 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
     }
 
     override fun localeToLangCode(iso: String, name: String): String {
-        var code = "en"
-
-        code = when (iso) {
+        val code = when (iso) {
             // Chinese
             "zh" -> when (name) {
                 // Chinese - Traditional
@@ -260,6 +263,7 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
             }
             else -> iso
         }
+
         return code
     }
 }

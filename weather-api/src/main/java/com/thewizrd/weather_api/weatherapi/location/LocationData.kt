@@ -11,12 +11,9 @@ fun createLocationModel(result: LocationItem, weatherAPI: String): LocationQuery
 
         var name = result.name
         if (isUSorCA) {
-            name = name.replaceFirst(String.format(", %s", result.country).toRegex(), "")
+            name = "$name, ${result.region}"
         } else {
-            name = name.replaceFirst(
-                String.format(", %s, %s", result.region, result.country).toRegex(),
-                String.format(", %s", result.country)
-            )
+            name = "$name, ${result.country}"
             locationRegion = result.region
         }
 
