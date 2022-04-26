@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
@@ -22,7 +23,6 @@ import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
 import okhttp3.Request
 import okhttp3.internal.closeQuietly
 import java.io.IOException
@@ -79,7 +79,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
     @Throws(WeatherException::class)
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
             withContext(Dispatchers.IO) {
-                var weather: Weather? = null
+                var weather: Weather?
 
                 var forecastResponse: okhttp3.Response? = null
                 var sunriseResponse: okhttp3.Response? = null
@@ -93,11 +93,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     val version = String.format("v%s", packageInfo.versionName)
 
                     val forecastRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(FORECAST_QUERY_URL, location_query))
                             .addHeader("Accept-Encoding", "gzip")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
@@ -105,11 +101,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
 
                     val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
                     val sunriseRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(3, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                         .url(String.format(SUNRISE_QUERY_URL, location_query, date))
                         .addHeader("Accept-Encoding", "gzip")
                         .addHeader(

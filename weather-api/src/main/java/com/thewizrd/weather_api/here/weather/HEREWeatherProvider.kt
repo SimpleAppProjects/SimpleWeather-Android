@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.google.location.getGoogleLocationProvider
 import com.thewizrd.weather_api.here.auth.hereOAuthService
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
@@ -25,7 +26,6 @@ import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -115,11 +115,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     }
 
                     val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .url(url)
                         .addHeader("Authorization", authorization)
                         .build()
@@ -242,11 +238,8 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             val request = Request.Builder()
                 .url(url)
                 .addHeader("Authorization", authorization)
-                .cacheControl(
-                    CacheControl.Builder() // Updates 4x per day
-                        .maxAge(6, TimeUnit.HOURS)
-                        .build()
-                ).build()
+                .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                .build()
 
             // Connect to webstream
             response = client.newCall(request).await()

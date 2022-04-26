@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
@@ -24,7 +25,6 @@ import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -124,19 +124,11 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 checkRateLimit()
 
                 val currentRequest = Request.Builder()
-                    .cacheControl(
-                        CacheControl.Builder()
-                            .maxAge(30, TimeUnit.MINUTES)
-                            .build()
-                    )
+                    .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                     .url(String.format(CURRENT_QUERY_URL, location_query, locale, key))
                     .build()
                 val forecastRequest = Request.Builder()
-                    .cacheControl(
-                        CacheControl.Builder()
-                            .maxAge(1, TimeUnit.HOURS)
-                            .build()
-                    )
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                     .url(String.format(FORECAST_QUERY_URL, location_query, locale, key))
                     .build()
 
@@ -164,11 +156,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
                 if (foreRoot.position?.dept != null) {
                     val alertsRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(12, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .url(String.format(ALERTS_QUERY_URL, foreRoot.position!!.dept, key))
                         .build()
 

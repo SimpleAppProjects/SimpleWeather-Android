@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
@@ -187,13 +188,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                         .build()
 
                     val request = Request.Builder()
-                            .cacheControl(
-                                CacheControl.Builder()
-                                    .maxAge(1, TimeUnit.HOURS)
-                                    .build())
-                            .url(requestUri.toString())
-                            .header("Accept", "application/json")
-                            .build()
+                        .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
+                        .url(requestUri.toString())
+                        .header("Accept", "application/json")
+                        .build()
 
                     val minutelyRequestUri = Uri.parse(BASE_URL).buildUpon()
                             .appendQueryParameter("apikey", key)
@@ -205,12 +203,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                             .build()
 
                     val minutelyRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(45, TimeUnit.MINUTES)
-                                    .build())
-                            .url(minutelyRequestUri.toString())
-                            .header("Accept", "application/json")
-                            .build()
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                        .url(minutelyRequestUri.toString())
+                        .header("Accept", "application/json")
+                        .build()
 
                     val alertsRequestUri = Uri.parse(EVENTS_BASE_URL).buildUpon()
                         .appendQueryParameter("apikey", key)
@@ -230,12 +226,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                             .build()
 
                     val alertsRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(6, TimeUnit.HOURS)
-                                    .build())
-                            .url(alertsRequestUri.toString())
-                            .header("Accept", "application/json")
-                            .build()
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                        .url(alertsRequestUri.toString())
+                        .header("Accept", "application/json")
+                        .build()
 
                     // Connect to webstream
                     response = client.newCall(request).await()
@@ -319,11 +313,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .build()
 
                 val request = Request.Builder()
-                    .cacheControl(
-                        CacheControl.Builder()
-                            .maxAge(1, TimeUnit.HOURS)
-                            .build()
-                    )
+                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                     .url(requestUri.toString())
                     .header("Accept", "application/json")
                     .build()

@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
@@ -27,7 +28,6 @@ import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -110,11 +110,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                     checkRateLimit()
 
                     val currentRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(30, TimeUnit.MINUTES)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                         .addHeader("Accept", "application/json")
                         .url(
                             String.format(
@@ -127,11 +123,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                         )
                         .build()
                     val forecastRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(3, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .addHeader("Accept", "application/json")
                         .url(
                             String.format(

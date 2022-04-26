@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.nws.hourly.HourlyForecastResponse
 import com.thewizrd.weather_api.nws.hourly.Location
 import com.thewizrd.weather_api.nws.hourly.PeriodsItem
@@ -27,7 +28,6 @@ import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.CacheControl
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -107,11 +107,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     val version = String.format("v%s", packageInfo.versionName)
 
                     val observationRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(30, TimeUnit.MINUTES)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(FORECAST_QUERY_URL, location_query))
                             .addHeader("Accept", "application/ld+json")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
@@ -130,13 +126,14 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     observationStream.closeQuietly()
 
                     val hrForecastRequest = Request.Builder()
-                            .url(String.format(HRFORECAST_QUERY_URL, location_query))
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
-                            .addHeader("Accept", "application/ld+json")
-                            .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                            .build()
+                        .url(String.format(HRFORECAST_QUERY_URL, location_query))
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                        .addHeader("Accept", "application/ld+json")
+                        .addHeader(
+                            "User-Agent",
+                            String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
+                        )
+                        .build()
 
                     // Connect to webstream
                     forecastResponse = client.newCall(hrForecastRequest).await()

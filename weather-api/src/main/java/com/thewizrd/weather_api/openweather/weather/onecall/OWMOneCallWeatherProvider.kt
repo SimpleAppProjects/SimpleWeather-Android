@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.AirQualityData
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
@@ -181,11 +182,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                     checkRateLimit()
 
                     val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(30, TimeUnit.MINUTES)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(WEATHER_QUERY_URL, query, key, locale))
                         .build()
 
@@ -300,11 +297,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                     df.applyPattern("0.####")
 
                     val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(12, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .url(
                             String.format(
                                 AQI_QUERY_URL,

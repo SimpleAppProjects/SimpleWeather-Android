@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
@@ -169,19 +170,11 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     checkRateLimit()
 
                     val currentRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(CURRENT_QUERY_URL, query, key, locale))
                         .build()
                     val forecastRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(3, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .url(String.format(FORECAST_QUERY_URL, query, key, locale))
                         .build()
 

@@ -19,6 +19,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
@@ -169,11 +170,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     checkRateLimit()
 
                     val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
                         .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))
                         .build()
 
@@ -237,11 +234,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     checkRateLimit()
 
                     val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(6, TimeUnit.HOURS)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                         .url(
                             String.format(
                                 ALERTS_QUERY_URL,

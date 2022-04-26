@@ -19,6 +19,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.accuweather.location.AccuWeatherLocationProvider
+import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
@@ -162,9 +163,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .appendQueryParameter("metric", "true")
 
                     val request = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
+                        .cacheRequestIfNeeded(isKeyRequired(), 3, TimeUnit.HOURS)
                             .url(request5dayUri.toString())
                             .build()
 
@@ -176,9 +175,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .appendQueryParameter("metric", "true")
 
                     val hourlyRequest = Request.Builder()
-                            .cacheControl(CacheControl.Builder()
-                                    .maxAge(3, TimeUnit.HOURS)
-                                    .build())
+                        .cacheRequestIfNeeded(isKeyRequired(), 3, TimeUnit.HOURS)
                             .url(requestHourlyUri.toString())
                             .build()
 
@@ -189,11 +186,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .appendQueryParameter("details", "true")
 
                     val currentRequest = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(30, TimeUnit.MINUTES)
-                                .build()
-                        )
+                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                         .url(requestCurrentUri.toString())
                         .build()
 
