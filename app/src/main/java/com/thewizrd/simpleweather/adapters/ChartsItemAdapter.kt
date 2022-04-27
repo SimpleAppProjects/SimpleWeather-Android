@@ -26,7 +26,7 @@ class ChartsItemAdapter : ListAdapter<ForecastGraphViewModel, RecyclerView.ViewH
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<ForecastGraphViewModel>() {
             override fun areItemsTheSame(oldItem: ForecastGraphViewModel, newItem: ForecastGraphViewModel): Boolean {
-                return Objects.equals(oldItem.graphType, newItem.graphType)
+                return Objects.equals(oldItem, newItem)
             }
 
             override fun areContentsTheSame(oldItem: ForecastGraphViewModel, newItem: ForecastGraphViewModel): Boolean {

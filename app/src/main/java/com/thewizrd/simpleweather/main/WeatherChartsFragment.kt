@@ -13,19 +13,18 @@ import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.ChartsItemAdapter
+import com.thewizrd.simpleweather.controls.graphs.LineDataSeries
 import com.thewizrd.simpleweather.controls.viewmodels.ChartsViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
@@ -39,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlin.math.max
 
 class WeatherChartsFragment : ToolbarFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()
@@ -262,8 +262,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         hrfcasts: List<HourlyForecast>?
     ): List<ForecastGraphViewModel> {
         val graphTypes = ForecastGraphViewModel.ForecastGraphType.values()
-        val data =
-            ArrayList<ForecastGraphViewModel>(graphTypes.size + (if (!minfcasts.isNullOrEmpty()) 1 else 0))
+        val data = ArrayList<ForecastGraphViewModel>(graphTypes.size)
 
         if (!minfcasts.isNullOrEmpty()) {
             data.add(ForecastGraphViewModel().apply {
@@ -376,9 +375,31 @@ class WeatherChartsFragment : ToolbarFragment() {
                 data.add(uviData!!)
             }
             if (rainData?.graphData?.dataCount ?: 0 > 0) {
+                rainData?.graphData?.dataSets?.forEach {
+                    if (it is LineDataSeries) {
+                        // Heavy rain — rate is >= 7.6 mm (0.30 in) per hr
+                        when (settingsManager.getPrecipitationUnit()) {
+                            Units.INCHES -> it.setSeriesMinMax(0f, max(it.yMax, 0.3f))
+                            Units.MILLIMETERS -> it.setSeriesMinMax(0f, max(it.yMax, 7.6f))
+                            else -> it.setSeriesMinMax(0f, max(it.yMax, 0.3f))
+                        }
+                    }
+                }
+                rainData?.graphData?.notifyDataChanged()
                 data.add(rainData!!)
             }
             if (snowData?.graphData?.dataCount ?: 0 > 0) {
+                snowData?.graphData?.dataSets?.forEach {
+                    if (it is LineDataSeries) {
+                        // Snow will often accumulate at a rate of 0.5in (12.7mm) an hour
+                        when (settingsManager.getPrecipitationUnit()) {
+                            Units.INCHES -> it.setSeriesMinMax(0f, max(it.yMax, 0.5f))
+                            Units.MILLIMETERS -> it.setSeriesMinMax(0f, max(it.yMax, 12.7f))
+                            else -> it.setSeriesMinMax(0f, max(it.yMax, 0.3f))
+                        }
+                    }
+                }
+                snowData?.graphData?.notifyDataChanged()
                 data.add(snowData!!)
             }
         }

@@ -38,6 +38,7 @@ import java.util.List;
 public class ForecastGraphViewModel {
     public enum ForecastGraphType {
         TEMPERATURE,
+        MINUTELY,
         PRECIPITATION,
         WIND,
         HUMIDITY,
@@ -83,26 +84,62 @@ public class ForecastGraphViewModel {
         this.graphData.notifyDataChanged();
     }
 
-    public void setForecastData(List<? extends BaseForecast> forecasts, ForecastGraphType graphType) {
+    public void setForecastData(@NonNull List<? extends BaseForecast> forecasts, ForecastGraphType graphType) {
         LineDataSeries series = createSeriesData(new ArrayList<>(forecasts.size()), graphType);
 
         for (BaseForecast forecast : forecasts) {
             addEntryData(forecast, series, graphType);
         }
 
+        if (graphType == ForecastGraphType.RAIN || graphType == ForecastGraphType.SNOW) {
+            final String unit = settingsMgr.getPrecipitationUnit();
+
+            // Heavy rain — rate is >= 7.6 mm (0.30 in) per hr
+            // Snow will often accumulate at a rate of 0.5in (12.7mm) an hour
+            switch (unit) {
+                default:
+                case Units.INCHES:
+                    if (graphType == ForecastGraphType.SNOW) {
+                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 0.5f));
+                    } else {
+                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 0.3f));
+                    }
+                    break;
+                case Units.MILLIMETERS:
+                    if (graphType == ForecastGraphType.SNOW) {
+                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 0.5f));
+                    } else {
+                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 12.7f));
+                    }
+                    break;
+            }
+        }
+
         this.graphData = createGraphData(Collections.singletonList(series), graphType);
         this.graphType = graphType;
     }
 
-    public void setMinutelyForecastData(List<MinutelyForecast> forecasts) {
-        LineDataSeries series = createSeriesData(new ArrayList<>(forecasts.size()), ForecastGraphType.PRECIPITATION);
+    public void setMinutelyForecastData(@NonNull List<MinutelyForecast> forecasts) {
+        LineDataSeries series = createSeriesData(new ArrayList<>(forecasts.size()), ForecastGraphType.MINUTELY);
 
         for (MinutelyForecast forecast : forecasts) {
             addMinutelyEntryData(forecast, series);
         }
 
-        this.graphData = createGraphData(Collections.singletonList(series), ForecastGraphType.PRECIPITATION);
-        this.graphType = ForecastGraphType.PRECIPITATION;
+        // Heavy rain — rate is >= 7.6 mm (0.30 in) per hr
+        final String unit = settingsMgr.getPrecipitationUnit();
+        switch (unit) {
+            default:
+            case Units.INCHES:
+                series.setSeriesMinMax(0f, Math.max(series.getYMax(), 0.3f));
+                break;
+            case Units.MILLIMETERS:
+                series.setSeriesMinMax(0f, Math.max(series.getYMax(), 7.6f));
+                break;
+        }
+
+        this.graphData = createGraphData(Collections.singletonList(series), ForecastGraphType.MINUTELY);
+        this.graphType = ForecastGraphType.MINUTELY;
     }
 
     private void addEntryData(BaseForecast forecast, LineDataSeries series, @NonNull ForecastGraphType graphType) {
@@ -268,6 +305,7 @@ public class ForecastGraphViewModel {
                 series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.SEAGREEN);
                 break;
+            case MINUTELY:
             case RAIN:
                 series = new LineDataSeries(entryData);
                 series.setSeriesColors(Colors.DEEPSKYBLUE);
@@ -379,6 +417,7 @@ public class ForecastGraphViewModel {
                 graphLabel = context.getString(R.string.label_temperature);
                 break;
             default:
+            case MINUTELY:
             case PRECIPITATION:
                 graphLabel = context.getString(R.string.label_precipitation);
                 break;
