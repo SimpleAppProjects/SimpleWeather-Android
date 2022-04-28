@@ -148,11 +148,11 @@ fun SettingsFragment.AboutAppFragment.setupReviewPreference(preference: Preferen
 
     preference.onPreferenceClickListener = object : Preference.OnPreferenceClickListener {
         override fun onPreferenceClick(preference: Preference): Boolean {
-            openPlayStore()
+            openPlayStore(preference.context)
             return true
         }
 
-        private fun openPlayStore() {
+        private fun openPlayStore(context: Context) {
             try {
                 startActivity(
                     Intent(Intent.ACTION_VIEW)
@@ -164,7 +164,7 @@ fun SettingsFragment.AboutAppFragment.setupReviewPreference(preference: Preferen
                     .addCategory(Intent.CATEGORY_BROWSABLE)
                     .setData(PlayStoreUtils.getPlayStoreWebURI())
 
-                if (i.resolveActivity(appCompatActivity.packageManager) != null) {
+                if (i.resolveActivity(context.packageManager) != null) {
                     startActivity(i)
                 }
             }

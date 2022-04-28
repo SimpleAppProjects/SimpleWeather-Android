@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.main
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
@@ -83,7 +85,7 @@ class WeatherAQIFragment : ToolbarFragment() {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
                 locationData = JSONParser.deserializer(
                         savedInstanceState.getString(Constants.KEY_DATA),
-                        LocationData::class.java
+                    LocationData::class.java
                 )
             }
         } else {
@@ -93,14 +95,13 @@ class WeatherAQIFragment : ToolbarFragment() {
         }
     }
 
-    override fun getScrollTargetViewId(): Int {
-        return binding.recyclerView.id
-    }
+    override val scrollTargetViewId: Int
+        get() = binding.recyclerView.id
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup?
         // Use this to return your custom view for this Fragment
@@ -116,7 +117,7 @@ class WeatherAQIFragment : ToolbarFragment() {
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
-        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also {
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext()).also {
             if (requireContext().isLargeTablet()) {
                 val context = requireContext()
                 val maxWidth = context.resources.getDimension(R.dimen.wnow_max_view_width)
@@ -124,9 +125,9 @@ class WeatherAQIFragment : ToolbarFragment() {
             }
         }
         binding.recyclerView.adapter = ConcatAdapter(
-                CurrentAQIAdapter().also {
-                    currentAQIAdapter = it
-                },
+            CurrentAQIAdapter().also {
+                currentAQIAdapter = it
+            },
                 if (requireContext().isLargeTablet()) {
                     AQIForecastAdapter().also {
                         aqiForecastAdapter = it
@@ -190,23 +191,24 @@ class WeatherAQIFragment : ToolbarFragment() {
         super.onPause()
     }
 
-    override fun getTitle(): Int {
-        return R.string.label_airquality
-    }
+    override val titleResId: Int
+        get() = R.string.label_airquality
 
     private fun initialize() {
         runWithView {
-            if (locationData == null) locationData = getSettingsManager().getHomeData()
+            if (locationData == null) {
+                locationData = settingsManager.getHomeData()
+            }
 
             if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
                 runWithView(Dispatchers.Default) {
                     supervisorScope {
                         val weather = WeatherDataLoader(locationData!!).loadWeatherData(
-                                WeatherRequest.Builder()
-                                        .forceLoadSavedData()
-                                        .setErrorListener { wEx ->
-                                            when (wEx.errorStatus) {
-                                                ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
+                            WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .setErrorListener { wEx ->
+                                    when (wEx.errorStatus) {
+                                        ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
                                                     // Show error message and prompt to refresh
                                                     showSnackbar(
                                                             Snackbar.make(
@@ -285,17 +287,17 @@ class WeatherAQIFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        if (appCompatActivity == null) return
+        activity?.let {
+            var backgroundColor = it.getAttrColor(android.R.attr.colorBackground)
+            if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                backgroundColor = Colors.BLACK
+            }
 
-        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
-        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            backgroundColor = Colors.BLACK
+            binding.recyclerView.setBackgroundColor(backgroundColor)
         }
-
-        binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 
-    override fun createSnackManager(): SnackbarManager {
+    override fun createSnackManager(activity: Activity): SnackbarManager? {
         return SnackbarManager(binding.root).apply {
             setSwipeDismissEnabled(true)
             setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)

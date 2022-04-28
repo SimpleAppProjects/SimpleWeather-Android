@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.main
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -85,9 +86,8 @@ class WeatherChartsFragment : ToolbarFragment() {
         }
     }
 
-    override fun getScrollTargetViewId(): Int {
-        return binding.recyclerView.id
-    }
+    override val scrollTargetViewId: Int
+        get() = binding.recyclerView.id
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -108,7 +108,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
-        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also {
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext()).also {
             if (requireContext().isLargeTablet()) {
                 val context = requireContext()
                 val maxWidth = context.resources.getDimension(R.dimen.wnow_max_view_width)
@@ -147,13 +147,14 @@ class WeatherChartsFragment : ToolbarFragment() {
         super.onPause()
     }
 
-    override fun getTitle(): Int {
-        return R.string.label_forecast
-    }
+    override val titleResId: Int
+        get() = R.string.label_forecast
 
     private fun initialize() {
         runWithView {
-            if (locationData == null) locationData = getSettingsManager().getHomeData()
+            if (locationData == null) {
+                locationData = settingsManager.getHomeData()
+            }
 
             if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
                 runWithView(Dispatchers.Default) {
@@ -240,17 +241,17 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        if (appCompatActivity == null) return
+        context?.let { ctx ->
+            var backgroundColor = ctx.getAttrColor(android.R.attr.colorBackground)
+            if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                backgroundColor = Colors.BLACK
+            }
 
-        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
-        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            backgroundColor = Colors.BLACK
+            binding.recyclerView.setBackgroundColor(backgroundColor)
         }
-
-        binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 
-    override fun createSnackManager(): SnackbarManager {
+    override fun createSnackManager(activity: Activity): SnackbarManager? {
         return SnackbarManager(binding.root).apply {
             setSwipeDismissEnabled(true)
             setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)

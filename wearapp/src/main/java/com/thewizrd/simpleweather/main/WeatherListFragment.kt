@@ -14,6 +14,7 @@ import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.common.controls.*
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -93,7 +94,7 @@ class WeatherListFragment : SwipeDismissFragment() {
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.layoutManager = LinearLayoutManager(fragmentActivity)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.requestFocus()
 
         val verticalPadding = requireContext().dpToPx(48f).toInt()
@@ -130,7 +131,9 @@ class WeatherListFragment : SwipeDismissFragment() {
         runWithView {
             binding.recyclerView.requestFocus()
 
-            if (locationData == null) locationData = settingsManager.getHomeData()
+            if (locationData == null) {
+                locationData = settingsManager.getHomeData()
+            }
             forecastsView.updateForecasts(locationData!!)
             alertsView.updateAlerts(locationData!!)
             forecastsPanelView.updateForecasts(locationData!!)

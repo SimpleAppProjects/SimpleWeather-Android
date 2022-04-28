@@ -1,7 +1,5 @@
 package com.thewizrd.weather_api.extras
 
-import com.thewizrd.extras.extrasModule
-import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.appLib
 import okhttp3.CacheControl
 import okhttp3.Request

@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.setup
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -25,6 +26,7 @@ import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -74,13 +76,13 @@ class SetupLocationFragment : CustomFragment() {
 
     private var job: Job? = null
 
-    override fun createSnackManager(): SnackbarManager {
-        val mStepperNavBar = appCompatActivity!!.findViewById<View>(R.id.bottom_nav_bar)
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        mSnackMgr.setAnchorView(mStepperNavBar)
-        return mSnackMgr
+    override fun createSnackManager(activity: Activity): SnackbarManager? {
+        val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+            setAnchorView(mStepperNavBar)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +96,7 @@ class SetupLocationFragment : CustomFragment() {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
 
         // Location Listener
-        locationProvider = LocationProvider(appCompatActivity!!)
+        locationProvider = LocationProvider(requireActivity())
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
@@ -148,16 +150,18 @@ class SetupLocationFragment : CustomFragment() {
             binding.gpsFollow.isEnabled = false
 
             // Setup search UI
-            val bottomNavBar = appCompatActivity!!.findViewById<View>(R.id.bottom_nav_bar)
-            bottomNavBar.visibility = View.GONE
+            activity?.let {
+                val bottomNavBar = it.findViewById<View>(R.id.bottom_nav_bar)
+                bottomNavBar.visibility = View.GONE
 
-            v.findNavController()
-                .safeNavigate(
-                    SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                    FragmentNavigator.Extras.Builder()
-                        .addSharedElement(v, Constants.SHARED_ELEMENT)
-                        .build()
-                )
+                v.findNavController()
+                    .safeNavigate(
+                        SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
+                        FragmentNavigator.Extras.Builder()
+                            .addSharedElement(v, Constants.SHARED_ELEMENT)
+                            .build()
+                    )
+            }
         }
         ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT)
 
@@ -272,8 +276,8 @@ class SetupLocationFragment : CustomFragment() {
                                 if (mLocation == null) {
                                     // Restore controls
                                     enableControls(true)
-                                    getSettingsManager().setFollowGPS(false)
-                                    getSettingsManager().setWeatherLoaded(false)
+                                    settingsManager.setFollowGPS(false)
+                                    settingsManager.setWeatherLoaded(false)
                                     context?.let {
                                         if (e is WeatherException || e is CustomException) {
                                             showSnackbar(
@@ -321,15 +325,15 @@ class SetupLocationFragment : CustomFragment() {
                                 view.locationTZLong = tzId
                         }
 
-                        if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                        if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                             // Set default provider based on location
                             val provider =
                                 remoteConfigService.getDefaultWeatherProvider(view.locationCountry)
-                            getSettingsManager().setAPI(provider)
+                            settingsManager.setAPI(provider)
                             view.updateWeatherSource(provider)
                         }
 
-                        if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKey()
+                        if (settingsManager.usePersonalKey() && settingsManager.getAPIKey()
                                 .isNullOrBlank() && wm.isKeyRequired()
                         ) {
                             throw CustomException(R.string.werror_invalidkey)
@@ -349,7 +353,7 @@ class SetupLocationFragment : CustomFragment() {
 
                         ensureActive()
 
-                        var weather = getSettingsManager().getWeatherData(location.query)
+                        var weather = settingsManager.getWeatherData(location.query)
                         if (weather == null) {
                             ensureActive()
 
@@ -367,21 +371,31 @@ class SetupLocationFragment : CustomFragment() {
                         ensureActive()
 
                         // Save weather data
-                        getSettingsManager().saveLastGPSLocData(location)
-                        getSettingsManager().deleteLocations()
-                        getSettingsManager().addLocation(view.toLocationData())
+                        settingsManager.saveLastGPSLocData(location)
+                        settingsManager.deleteLocations()
+                        settingsManager.addLocation(view.toLocationData())
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                            getSettingsManager().saveWeatherAlerts(location, weather.weatherAlerts)
-                        getSettingsManager().saveWeatherData(weather)
-                        getSettingsManager().saveWeatherForecasts(Forecasts(weather))
-                        getSettingsManager().saveWeatherForecasts(location.query, weather.hrForecast?.map { input -> HourlyForecasts(weather.query, input) })
+                            settingsManager.saveWeatherAlerts(location, weather.weatherAlerts)
+                        settingsManager.saveWeatherData(weather)
+                        settingsManager.saveWeatherForecasts(Forecasts(weather))
+                        settingsManager.saveWeatherForecasts(
+                            location.query,
+                            weather.hrForecast?.map { input ->
+                                HourlyForecasts(
+                                    weather.query,
+                                    input
+                                )
+                            })
 
-                        getSettingsManager().setFollowGPS(true)
-                        getSettingsManager().setWeatherLoaded(true)
+                        settingsManager.setFollowGPS(true)
+                        settingsManager.setWeatherLoaded(true)
 
                         // Send data for wearables
-                        if (appCompatActivity != null) {
-                            WearableWorker.enqueueAction(appCompatActivity!!, WearableWorkerActions.ACTION_SENDUPDATE)
+                        context?.let {
+                            WearableWorker.enqueueAction(
+                                it,
+                                WearableWorkerActions.ACTION_SENDUPDATE
+                            )
                         }
 
                         location
@@ -407,12 +421,12 @@ class SetupLocationFragment : CustomFragment() {
                                     )
                                 } else {
                                     enableControls(true)
-                                    getSettingsManager().setFollowGPS(false)
-
-                                    val locMan =
-                                        appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                                    settingsManager.setFollowGPS(false)
 
                                     context?.let { ctx ->
+                                        val locMan =
+                                            ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+
                                         if (locMan == null || !LocationManagerCompat.isLocationEnabled(
                                                 locMan
                                             )
@@ -440,8 +454,8 @@ class SetupLocationFragment : CustomFragment() {
                             runWithView {
                                 // Restore controls
                                 enableControls(true)
-                                getSettingsManager().setFollowGPS(false)
-                                getSettingsManager().setWeatherLoaded(false)
+                                settingsManager.setFollowGPS(false)
+                                settingsManager.setWeatherLoaded(false)
 
                                 context?.let { ctx ->
                                     if (t is WeatherException || t is CustomException) {
@@ -473,13 +487,14 @@ class SetupLocationFragment : CustomFragment() {
     @SuppressLint("MissingPermission")
     @Throws(CustomException::class)
     private suspend fun updateLocation() {
-        if (appCompatActivity != null && !appCompatActivity!!.locationPermissionEnabled()) {
-            this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
-            return
+        context?.let {
+            if (!it.locationPermissionEnabled()) {
+                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                return
+            }
         }
 
-        val locMan =
-            appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        val locMan = context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
             throw CustomException(R.string.error_enable_location_services)

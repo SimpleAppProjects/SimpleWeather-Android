@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.main
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
@@ -133,14 +135,14 @@ class WeatherListFragment : ToolbarFragment() {
         // in content do not change the layout size of the binding.recyclerView
         binding.recyclerView.setHasFixedSize(true)
         // use a linear layout manager
-        binding.recyclerView.layoutManager = LinearLayoutManager(appCompatActivity).also { layoutManager = it }
+        binding.recyclerView.layoutManager =
+            LinearLayoutManager(requireContext()).also { layoutManager = it }
 
         return root
     }
 
-    override fun getScrollTargetViewId(): Int {
-        return binding.recyclerView.id
-    }
+    override val scrollTargetViewId: Int
+        get() = binding.recyclerView.id
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -164,17 +166,18 @@ class WeatherListFragment : ToolbarFragment() {
         super.onPause()
     }
 
-    override fun getTitle(): Int {
-        return when (weatherListType) {
+    override val titleResId: Int
+        get() = when (weatherListType) {
             WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> R.string.label_forecast
             WeatherListType.ALERTS -> R.string.title_fragment_alerts
             else -> R.string.label_nav_weathernow
         }
-    }
 
     private fun initialize() {
         runWithView {
-            if (locationData == null) locationData = getSettingsManager().getHomeData()
+            if (locationData == null) {
+                locationData = settingsManager.getHomeData()
+            }
 
             if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
                 runWithView(Dispatchers.Default) {
@@ -344,17 +347,17 @@ class WeatherListFragment : ToolbarFragment() {
     override fun updateWindowColors() {
         super.updateWindowColors()
 
-        if (appCompatActivity == null) return
+        context?.let { ctx ->
+            var backgroundColor = ctx.getAttrColor(android.R.attr.colorBackground)
+            if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                backgroundColor = Colors.BLACK
+            }
 
-        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
-        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            backgroundColor = Colors.BLACK
+            binding.recyclerView.setBackgroundColor(backgroundColor)
         }
-
-        binding.recyclerView.setBackgroundColor(backgroundColor)
     }
 
-    override fun createSnackManager(): SnackbarManager {
+    override fun createSnackManager(activity: Activity): SnackbarManager {
         val mSnackMgr = SnackbarManager(binding.root)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)

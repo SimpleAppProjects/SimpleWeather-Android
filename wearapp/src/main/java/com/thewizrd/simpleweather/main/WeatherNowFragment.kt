@@ -36,6 +36,8 @@ import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.localBroadcastManager
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -225,7 +227,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             )
         }
 
-        locationProvider = LocationProvider(fragmentActivity)
+        locationProvider = LocationProvider(requireActivity())
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
@@ -351,11 +353,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
         // SwipeRefresh
         binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
-            fragmentActivity.getAttrColor(
-                R.attr.colorSurface
-            )
+            requireContext().getAttrColor(R.attr.colorSurface)
         )
-        binding.swipeRefreshLayout.setColorSchemeColors(fragmentActivity.getAttrColor(R.attr.colorAccent))
+        binding.swipeRefreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
         binding.swipeRefreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
@@ -374,7 +374,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 // Don't forget the negation here
                 val delta = -event.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
                         ViewConfigurationCompat.getScaledVerticalScrollFactor(
-                            ViewConfiguration.get(fragmentActivity), fragmentActivity
+                            ViewConfiguration.get(v.context), v.context
                         )
 
                 // Swap these axes if you want to do horizontal scrolling instead
@@ -553,7 +553,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         AnalyticsLogger.logEvent("WeatherNowFragment: onPause")
 
         if (syncReceiverRegistered) {
-            LocalBroadcastManager.getInstance(fragmentActivity)
+            LocalBroadcastManager.getInstance(requireContext())
                     .unregisterReceiver(syncDataReceiver)
             syncReceiverRegistered = false
         }
@@ -737,13 +737,14 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
         if (settingsManager.getDataSync() == WearableDataSync.OFF &&
                 settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-            if (fragmentActivity != null && !fragmentActivity.locationPermissionEnabled()) {
-                requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
-                return false
+            context?.let {
+                if (!it.locationPermissionEnabled()) {
+                    requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                    return@updateLocation false
+                }
             }
 
-            val locMan =
-                fragmentActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan = context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 locationData = settingsManager.getHomeData()
@@ -891,7 +892,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             // Check data map if data is available to load
             wLoader = null
             locationData = null
-            WearableWorker.enqueueAction(fragmentActivity, WearableWorker.ACTION_REQUESTUPDATE, forceRefresh)
+            context?.let {
+                WearableWorker.enqueueAction(it, WearableWorker.ACTION_REQUESTUPDATE, forceRefresh)
+            }
 
             // Start timeout timer
             resetTimer()
@@ -911,8 +914,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     addAction(WearableHelper.WeatherPath)
                 }
 
-                LocalBroadcastManager.getInstance(fragmentActivity)
-                    .registerReceiver(syncDataReceiver, filter)
+                localBroadcastManager.registerReceiver(syncDataReceiver, filter)
 
                 syncReceiverRegistered = true
             }

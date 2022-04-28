@@ -55,7 +55,7 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager =
-            WearableLinearLayoutManager(fragmentActivity, CustomScrollingLayoutCallback())
+            WearableLinearLayoutManager(requireContext(), CustomScrollingLayoutCallback())
         binding.recyclerView.requestFocus()
 
         mAdapter = DetailItemAdapter()

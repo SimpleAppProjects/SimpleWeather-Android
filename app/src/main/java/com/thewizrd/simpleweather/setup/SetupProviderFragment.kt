@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.setup
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -19,6 +20,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -57,8 +59,8 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
         }
     }
 
-    override fun createSnackManager(): SnackbarManager {
-        val mStepperNavBar = appCompatActivity.findViewById<View>(R.id.bottom_nav_bar)
+    override fun createSnackManager(activity: Activity): SnackbarManager {
+        val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
         val mSnackMgr = SnackbarManager(binding.root)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -245,11 +247,13 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
                             fragment.dialog!!.dismiss()
                         } else {
-                            Toast.makeText(
-                                appCompatActivity,
-                                R.string.message_keyinvalid,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            context?.let {
+                                Toast.makeText(
+                                    it,
+                                    R.string.message_keyinvalid,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     } catch (e: WeatherException) {
                         Logger.writeLine(Log.ERROR, e)

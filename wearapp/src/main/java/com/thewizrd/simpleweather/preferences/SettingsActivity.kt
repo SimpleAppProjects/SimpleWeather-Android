@@ -19,7 +19,6 @@ import android.widget.Toast
 import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.*
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
@@ -27,6 +26,7 @@ import com.thewizrd.common.helpers.*
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -157,7 +157,8 @@ class SettingsActivity : WearableListenerActivity() {
 
         protected lateinit var remoteActivityHelper: RemoteActivityHelper
 
-        override fun getTitle(): Int = R.string.title_activity_settings
+        override val titleResId: Int
+            get() = R.string.title_activity_settings
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -202,11 +203,13 @@ class SettingsActivity : WearableListenerActivity() {
                 }
             }
 
-            val mBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity!!)
-            mBroadcastMgr.registerReceiver(statusReceiver!!,
-                    IntentFilter(ACTION_UPDATECONNECTIONSTATUS))
-            mBroadcastMgr.sendBroadcast(
-                    Intent(ACTION_SENDCONNECTIONSTATUS))
+            localBroadcastManager.registerReceiver(
+                statusReceiver!!,
+                IntentFilter(ACTION_UPDATECONNECTIONSTATUS)
+            )
+            localBroadcastManager.sendBroadcast(
+                Intent(ACTION_SENDCONNECTIONSTATUS)
+            )
         }
 
         override fun onPause() {
@@ -231,7 +234,6 @@ class SettingsActivity : WearableListenerActivity() {
             appLib.unregisterAppSharedPreferenceListener(this)
             appLib.registerAppSharedPreferenceListener()
 
-            val localBroadcastManager = LocalBroadcastManager.getInstance(parentActivity!!)
             localBroadcastManager.unregisterReceiver(statusReceiver!!)
 
             for (filter in intentQueue!!) {
@@ -268,7 +270,7 @@ class SettingsActivity : WearableListenerActivity() {
                         )
                     }
                     else -> {
-                        parentActivity!!.startService(filter.intent)
+                        requireContext().startService(filter.intent)
                     }
                 }
             }
@@ -297,39 +299,47 @@ class SettingsActivity : WearableListenerActivity() {
                     AnalyticsLogger.logEvent("Settings: followGps toggled")
 
                     if (newValue as Boolean) {
-                        if (!parentActivity!!.locationPermissionEnabled()) {
+                        if (!preference.context.locationPermissionEnabled()) {
                             requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                             return@OnPreferenceChangeListener false
                         } else {
-                            val locMan =
-                                parentActivity!!.getSystemService(LOCATION_SERVICE) as LocationManager?
-                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            showToast(R.string.error_enable_location_services, Toast.LENGTH_SHORT)
-                            settingsManager.setFollowGPS(false)
-                            return@OnPreferenceChangeListener false
-                        } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                !parentActivity!!.backgroundLocationPermissionEnabled()
-                            ) {
-                                AcceptDenyDialog.Builder(
-                                    parentActivity
-                                ) { d: DialogInterface?, which: Int ->
-                                    if (which == DialogInterface.BUTTON_POSITIVE) {
-                                        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                            parentActivity?.openAppSettingsActivity()
-                                        } else {
-                                            requestBackgroundLocationPermission(
-                                                PERMISSION_BGLOCATION_REQUEST_CODE
-                                            )
+                            activity?.let {
+                                val locMan =
+                                    it.getSystemService(LOCATION_SERVICE) as? LocationManager
+                                if (locMan == null || !LocationManagerCompat.isLocationEnabled(
+                                        locMan
+                                    )
+                                ) {
+                                    showToast(
+                                        R.string.error_enable_location_services,
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    settingsManager.setFollowGPS(false)
+                                    return@OnPreferenceChangeListener false
+                                } else {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                        !it.backgroundLocationPermissionEnabled()
+                                    ) {
+                                        AcceptDenyDialog.Builder(
+                                            it
+                                        ) { d: DialogInterface?, which: Int ->
+                                            if (which == DialogInterface.BUTTON_POSITIVE) {
+                                                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                                                    it.openAppSettingsActivity()
+                                                } else {
+                                                    requestBackgroundLocationPermission(
+                                                        PERMISSION_BGLOCATION_REQUEST_CODE
+                                                    )
+                                                }
+                                            }
                                         }
+                                            .setMessage(it.getBackgroundLocationRationale())
+                                            .show()
+
+                                        settingsManager.setRequestBGAccess(true)
                                     }
                                 }
-                                    .setMessage(parentActivity!!.getBackgroundLocationRationale())
-                                    .show()
-
-                                settingsManager.setRequestBGAccess(true)
                             }
-                        }
                         }
                     }
 
@@ -338,12 +348,12 @@ class SettingsActivity : WearableListenerActivity() {
 
             bgLocationPref = findPreference(KEY_BGLOCATIONACCESS)!!
             bgLocationPref.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                    !parentActivity!!.backgroundLocationPermissionEnabled() &&
+                    !requireContext().backgroundLocationPermissionEnabled() &&
                     settingsManager.useFollowGPS()
             bgLocationPref.setOnPreferenceClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        parentActivity?.openAppSettingsActivity()
+                        it.context.openAppSettingsActivity()
                     } else {
                         requestBackgroundLocationPermission(
                             PERMISSION_BGLOCATION_REQUEST_CODE
@@ -805,16 +815,14 @@ class SettingsActivity : WearableListenerActivity() {
         private lateinit var distanceUnitPref: ListPreference
         private lateinit var precipationUnitPref: ListPreference
         private lateinit var pressureUnitPref: ListPreference
-        private lateinit var localBroadcastMgr: LocalBroadcastManager
 
-        override fun getTitle(): Int = R.string.pref_title_units
+        override val titleResId: Int
+            get() = R.string.pref_title_units
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_units, rootKey)
 
             preferenceScreen.setTitle(R.string.pref_title_units)
-
-            localBroadcastMgr = LocalBroadcastManager.getInstance(parentActivity!!)
 
             tempUnitPref = findPreference(SettingsManager.KEY_TEMPUNIT)!!
             speedUnitPref = findPreference(SettingsManager.KEY_SPEEDUNIT)!!
@@ -824,35 +832,38 @@ class SettingsActivity : WearableListenerActivity() {
 
             findPreference<Preference>(KEY_RESETUNITS)!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    val params = WearDialogParams.Builder(parentActivity!!)
-                        .setTitle(R.string.pref_title_units)
-                        .setItems(R.array.default_units) { dialog, which ->
-                            val isFahrenheit = which == 0
-                            tempUnitPref.value =
-                                if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
-                            speedUnitPref.value =
-                                if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
-                            distanceUnitPref.value =
-                                if (isFahrenheit) Units.MILES else Units.KILOMETERS
-                            precipationUnitPref.value =
-                                if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
-                            pressureUnitPref.value =
-                                if (isFahrenheit) Units.INHG else Units.MILLIBAR
-                            dialog.dismiss()
+                    activity?.let {
+                        val params = WearDialogParams.Builder(it)
+                            .setTitle(R.string.pref_title_units)
+                            .setItems(R.array.default_units) { dialog, which ->
+                                val isFahrenheit = which == 0
+                                tempUnitPref.value =
+                                    if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
+                                speedUnitPref.value =
+                                    if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
+                                distanceUnitPref.value =
+                                    if (isFahrenheit) Units.MILES else Units.KILOMETERS
+                                precipationUnitPref.value =
+                                    if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
+                                pressureUnitPref.value =
+                                    if (isFahrenheit) Units.INHG else Units.MILLIBAR
+                                dialog.dismiss()
 
-                            localBroadcastMgr.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
-                        }
-                        .hidePositiveButton()
-                        .build()
+                                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
+                            }
+                            .hidePositiveButton()
+                            .build()
 
-                    WearDialogFragment.show(parentFragmentManager, params, null)
+                        WearDialogFragment.show(parentFragmentManager, params, null)
+                    }
                     true
-            }
+                }
         }
     }
 
     class IconsFragment : IconProviderPickerFragment() {
-        override fun getTitle(): Int = R.string.pref_title_icons
+        override val titleResId: Int
+            get() = R.string.pref_title_icons
 
         override fun getDefaultKey(): String {
             return settingsManager.getIconsProvider()
@@ -902,7 +913,8 @@ class SettingsActivity : WearableListenerActivity() {
             private const val KEY_ABOUTVERSION = "key_aboutversion"
         }
 
-        override fun getTitle(): Int = R.string.pref_title_about
+        override val titleResId: Int
+            get() = R.string.pref_title_about
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_aboutapp, rootKey)
@@ -925,13 +937,11 @@ class SettingsActivity : WearableListenerActivity() {
                     true
                 }
 
-            try {
+            runCatching {
                 val packageInfo =
-                    parentActivity!!.packageManager.getPackageInfo(parentActivity!!.packageName, 0)
+                    requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
                 findPreference<Preference>(KEY_ABOUTVERSION)!!.summary =
                     String.format("v%s", packageInfo.versionName)
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
             }
         }
     }
@@ -939,7 +949,8 @@ class SettingsActivity : WearableListenerActivity() {
     class CreditsFragment : SwipeDismissPreferenceFragment() {
         private lateinit var remoteActivityHelper: RemoteActivityHelper
 
-        override fun getTitle(): Int = R.string.pref_title_credits
+        override val titleResId: Int
+            get() = R.string.pref_title_credits
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -963,7 +974,7 @@ class SettingsActivity : WearableListenerActivity() {
                         // Show open on phone animation
                         ConfirmationOverlay()
                             .setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                            .setMessage(parentActivity!!.getString(R.string.message_openedonphone))
+                            .setMessage(preference.context.getString(R.string.message_openedonphone))
                             .showAbove(requireView())
                     }
                 }
@@ -975,7 +986,8 @@ class SettingsActivity : WearableListenerActivity() {
     }
 
     class OSSCreditsFragment : SwipeDismissPreferenceFragment() {
-        override fun getTitle(): Int = R.string.pref_title_oslibs
+        override val titleResId: Int
+            get() = R.string.pref_title_oslibs
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_oslibs, rootKey)

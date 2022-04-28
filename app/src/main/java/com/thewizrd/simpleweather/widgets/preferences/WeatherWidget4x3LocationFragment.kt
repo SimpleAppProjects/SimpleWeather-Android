@@ -20,6 +20,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.view.ViewCompat
@@ -28,7 +29,6 @@ import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
@@ -44,6 +44,8 @@ import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.preferences.SliderPreference
 import com.thewizrd.common.utils.glide.TransparentOverlay
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.localBroadcastManager
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -80,6 +82,7 @@ import java.util.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 import kotlin.math.roundToInt
+import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
 class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     // Widget id for ConfigurationActivity
@@ -149,9 +152,8 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         wallpaperLoaded = false
     }
 
-    override fun getTitle(): Int {
-        return R.string.widget_configure_prompt
-    }
+    override val titleResId: Int
+        get() = R.string.widget_configure_prompt
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Find the widget id from the intent.
@@ -174,12 +176,12 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         lifecycleScope.launchWhenCreated {
             if (!settingsManager.isWeatherLoaded() && isActive) {
                 Toast.makeText(
-                    appCompatActivity,
+                    requireContext(),
                     R.string.prompt_setup_app_first,
                     Toast.LENGTH_SHORT
                 ).show()
 
-                val intent = Intent(appCompatActivity, SetupActivity::class.java)
+                val intent = Intent(requireContext(), SetupActivity::class.java)
                     .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
                     .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
                 startActivityForResult(intent, SETUP_REQUEST_CODE)
@@ -212,20 +214,24 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         listView?.isNestedScrollingEnabled = false
 
-        appCompatActivity.setSupportActionBar(toolbar)
-        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as? AppCompatActivity)?.let {
+            it.setSupportActionBar(toolbar)
+            it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
 
         binding.widgetCompleteBtn.setOnClickListener {
             prepareWidget()
         }
 
-        binding.bgLocationRationaleText.text = appCompatActivity.getBackgroundLocationRationale()
+        binding.bgLocationRationaleText.text = requireContext().getBackgroundLocationRationale()
 
         binding.bgLocationSettingsBtn.setOnClickListener {
+            val ctx = it.context
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (!appCompatActivity.backgroundLocationPermissionEnabled()) {
+                if (!ctx.backgroundLocationPermissionEnabled()) {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        appCompatActivity.openAppSettingsActivity()
+                        ctx.openAppSettingsActivity()
                     } else {
                         requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
                     }
@@ -238,7 +244,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         // Location Listener
-        locationProvider = LocationProvider(appCompatActivity)
+        locationProvider = LocationProvider(requireActivity())
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
@@ -324,7 +330,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 object : Observer<LifecycleOwner> {
                     override fun onChanged(t: LifecycleOwner?) {
                         viewLifecycleOwnerLiveData.removeObserver(this)
-                        if (locationPref.values?.contains(Constants.KEY_GPS) == true && !appCompatActivity.backgroundLocationPermissionEnabled()) {
+                        if (locationPref.values?.contains(Constants.KEY_GPS) == true && !requireContext().backgroundLocationPermissionEnabled()) {
                             binding.bgLocationLayout.visibility = View.VISIBLE
                         }
                         t?.lifecycleScope?.launchWhenStarted {
@@ -335,12 +341,12 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         locationPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { _, newValue ->
+            Preference.OnPreferenceChangeListener { pref, newValue ->
                 job?.cancel()
 
                 val selectedValues = newValue as? Set<*>
                 if (selectedValues?.contains(Constants.KEY_GPS) == true) {
-                    if (!appCompatActivity.backgroundLocationPermissionEnabled()) {
+                    if (!pref.context.backgroundLocationPermissionEnabled()) {
                         binding.bgLocationLayout.visibility = View.VISIBLE
                     }
                 } else {
@@ -387,35 +393,41 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         calPref = findPreference(KEY_CALENDARAPP)!!
 
         clockPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AppChoiceDialogBuilder(requireContext())
-                .setOnItemSelectedListener(object : AppChoiceDialogBuilder.OnAppSelectedListener {
-                    override fun onItemSelected(key: String?) {
-                        WidgetUtils.setOnClickClockApp(key)
-                        updateClockPreference()
-                    }
-                }).show()
+            activity?.let {
+                AppChoiceDialogBuilder(it)
+                    .setOnItemSelectedListener(object :
+                        AppChoiceDialogBuilder.OnAppSelectedListener {
+                        override fun onItemSelected(key: String?) {
+                            WidgetUtils.setOnClickClockApp(key)
+                            updateClockPreference(it)
+                        }
+                    }).show()
+            }
             true
         }
         calPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AppChoiceDialogBuilder(requireContext())
-                .setOnItemSelectedListener(object : AppChoiceDialogBuilder.OnAppSelectedListener {
-                    override fun onItemSelected(key: String?) {
-                        WidgetUtils.setOnClickCalendarApp(key)
-                        updateCalPreference()
-                    }
-                }).show()
+            activity?.let {
+                AppChoiceDialogBuilder(it)
+                    .setOnItemSelectedListener(object :
+                        AppChoiceDialogBuilder.OnAppSelectedListener {
+                        override fun onItemSelected(key: String?) {
+                            WidgetUtils.setOnClickCalendarApp(key)
+                            updateCalPreference(it)
+                        }
+                    }).show()
+            }
             true
         }
 
         if (WidgetUtils.isClockWidget(mWidgetType)) {
-            updateClockPreference()
+            updateClockPreference(requireContext())
             clockPref.isVisible = true
         } else {
             clockPref.isVisible = false
         }
 
         if (WidgetUtils.isDateWidget(mWidgetType)) {
-            updateCalPreference()
+            updateCalPreference(requireContext())
             calPref.isVisible = true
         } else {
             calPref.isVisible = false
@@ -610,13 +622,13 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
     }
 
-    private fun updateClockPreference() {
-        val componentName = WidgetUtils.getClockAppComponent(appCompatActivity)
+    private fun updateClockPreference(context: Context) {
+        val componentName = WidgetUtils.getClockAppComponent(context)
         if (componentName != null) {
             try {
                 val appInfo =
-                    requireContext().packageManager.getApplicationInfo(componentName.packageName, 0)
-                val appLabel = requireContext().packageManager.getApplicationLabel(appInfo)
+                    context.packageManager.getApplicationInfo(componentName.packageName, 0)
+                val appLabel = context.packageManager.getApplicationLabel(appInfo)
                 clockPref.summary = appLabel
                 return
             } catch (e: PackageManager.NameNotFoundException) {
@@ -628,13 +640,13 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         clockPref.setSummary(R.string.summary_default)
     }
 
-    private fun updateCalPreference() {
-        val componentName = WidgetUtils.getCalendarAppComponent(appCompatActivity)
+    private fun updateCalPreference(context: Context) {
+        val componentName = WidgetUtils.getCalendarAppComponent(context)
         if (componentName != null) {
             try {
                 val appInfo =
-                    requireContext().packageManager.getApplicationInfo(componentName.packageName, 0)
-                val appLabel = requireContext().packageManager.getApplicationLabel(appInfo)
+                    context.packageManager.getApplicationInfo(componentName.packageName, 0)
+                val appLabel = context.packageManager.getApplicationLabel(appInfo)
                 calPref.summary = appLabel
                 return
             } catch (e: PackageManager.NameNotFoundException) {
@@ -820,8 +832,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 }
             } else {
                 // Setup was cancelled. Cancel widget setup
-                appCompatActivity.setResult(Activity.RESULT_CANCELED, resultValue)
-                appCompatActivity.finish()
+                activity?.run {
+                    setResult(Activity.RESULT_CANCELED, resultValue)
+                    finish()
+                }
             }
         }
     }
@@ -829,8 +843,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                appCompatActivity.setResult(Activity.RESULT_CANCELED, resultValue)
-                appCompatActivity.finish()
+                activity?.run {
+                    setResult(Activity.RESULT_CANCELED, resultValue)
+                    finish()
+                }
                 return true
             }
         }
@@ -849,9 +865,11 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 supervisorScope {
                     // Check location
                     val task = async(Dispatchers.Default) {
+                        val ctx = requireContext()
+
                         if (containsGps) {
                             // Changing location to GPS
-                            if (!appCompatActivity.locationPermissionEnabled()) {
+                            if (!ctx.locationPermissionEnabled()) {
                                 this@WeatherWidget4x3LocationFragment.requestLocationPermission(
                                     PERMISSION_LOCATION_REQUEST_CODE
                                 )
@@ -859,42 +877,39 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                             }
 
                             if (settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                !appCompatActivity.backgroundLocationPermissionEnabled()
+                                !ctx.backgroundLocationPermissionEnabled()
                             ) {
                                 val snackbar = Snackbar.make(
-                                    appCompatActivity,
-                                    appCompatActivity.getBackgroundLocationRationale(),
+                                    ctx,
+                                    ctx.getBackgroundLocationRationale(),
                                     Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
                                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                        appCompatActivity.openAppSettingsActivity()
+                                        ctx.openAppSettingsActivity()
                                     } else {
                                         requestBackgroundLocationPermission(
                                             PERMISSION_BGLOCATION_REQUEST_CODE
                                         )
                                     }
                                 }
-                                showSnackbar(
-                                    snackbar,
-                                    object :
-                                        com.google.android.material.snackbar.Snackbar.Callback() {
-                                        override fun onDismissed(
-                                            transientBottomBar: com.google.android.material.snackbar.Snackbar?,
-                                            event: Int
-                                        ) {
-                                            super.onDismissed(transientBottomBar, event)
-                                            if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
-                                                prepareWidget()
-                                            }
+                                showSnackbar(snackbar, object : MaterialSnackbar.Callback() {
+                                    override fun onDismissed(
+                                        transientBottomBar: MaterialSnackbar?,
+                                        event: Int
+                                    ) {
+                                        super.onDismissed(transientBottomBar, event)
+                                        if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
+                                            prepareWidget()
                                         }
-                                    })
+                                    }
+                                })
                                 settingsManager.setRequestBGAccess(true)
                                 return@async false
                             }
 
                             val locMan =
-                                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+                                ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
                             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                                 throw CustomException(R.string.error_enable_location_services)
                             }
@@ -950,8 +965,10 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                     }
                 }
             } else {
-                appCompatActivity.setResult(Activity.RESULT_CANCELED, resultValue)
-                appCompatActivity.finish()
+                activity?.run {
+                    setResult(Activity.RESULT_CANCELED, resultValue)
+                    finish()
+                }
             }
         }
     }
@@ -970,16 +987,18 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, iconSizePref.getValue())
         }
 
-        // Trigger widget service to update widget
-        WidgetWorker.enqueueRefreshWidget(
-            appCompatActivity,
-            intArrayOf(mAppWidgetId),
-            mWidgetInfo
-        )
+        activity?.run {
+            // Trigger widget service to update widget
+            WidgetWorker.enqueueRefreshWidget(
+                this,
+                intArrayOf(mAppWidgetId),
+                mWidgetInfo
+            )
 
-        // Create return intent
-        appCompatActivity.setResult(Activity.RESULT_OK, resultValue)
-        appCompatActivity.finish()
+            // Create return intent
+            setResult(Activity.RESULT_OK, resultValue)
+            finish()
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -987,12 +1006,13 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private suspend fun updateLocation(): Boolean {
         var locationChanged = false
 
-        if (appCompatActivity != null && !appCompatActivity.locationPermissionEnabled()) {
-            return false
+        activity?.run {
+            if (!locationPermissionEnabled()) {
+                return@updateLocation false
+            }
         }
 
-        val locMan =
-            appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        val locMan = activity?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
         if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
             throw CustomException(R.string.error_enable_location_services)
@@ -1049,8 +1069,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
             // Save location as last known
             settingsManager.saveLastGPSLocData(query_vm.toLocationData(location))
 
-            LocalBroadcastManager.getInstance(appCompatActivity!!)
-                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
 
             locationChanged = true
         }
@@ -1058,6 +1077,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         return locationChanged
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

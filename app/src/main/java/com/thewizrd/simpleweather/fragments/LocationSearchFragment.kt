@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -23,6 +24,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
@@ -65,13 +67,15 @@ class LocationSearchFragment : WindowColorFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        initSnackManager()
+        initSnackManager(context as Activity)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("$TAG: onCreate")
-        sharedElementEnterTransition = MaterialContainerTransform().setDuration(Constants.ANIMATION_DURATION.toLong())
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            duration = Constants.ANIMATION_DURATION.toLong()
+        }
     }
 
     override fun onPause() {
@@ -84,8 +88,8 @@ class LocationSearchFragment : WindowColorFragment() {
         super.onDetach()
     }
 
-    override fun createSnackManager(): SnackbarManager {
-        val mSnackMgr = SnackbarManager(appCompatActivity!!.findViewById(android.R.id.content))
+    override fun createSnackManager(activity: Activity): SnackbarManager {
+        val mSnackMgr = SnackbarManager(activity.findViewById(android.R.id.content))
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
         return mSnackMgr
@@ -121,7 +125,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                     throw CancellationException()
                                 }
 
-                                if (getSettingsManager().usePersonalKey() && getSettingsManager().getAPIKey()
+                                if (settingsManager.usePersonalKey() && settingsManager.getAPIKey()
                                         .isNullOrBlank() && wm.isKeyRequired()
                                 ) {
                                     throw CustomException(R.string.werror_invalidkey)
@@ -164,11 +168,11 @@ class LocationSearchFragment : WindowColorFragment() {
                                         queryResult.locationTZLong = tzId
                                 }
 
-                                if (!getSettingsManager().isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
+                                if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                                     // Set default provider based on location
                                     val provider =
                                         remoteConfigService.getDefaultWeatherProvider(queryResult.locationCountry)
-                                    getSettingsManager().setAPI(provider)
+                                    settingsManager.setAPI(provider)
                                     queryResult.updateWeatherSource(provider)
                                 }
 
@@ -177,10 +181,10 @@ class LocationSearchFragment : WindowColorFragment() {
                                 }
 
                                 // Check if location already exists
-                                val locData = getSettingsManager().getLocationData()
+                                val locData = settingsManager.getLocationData()
                                 val finalQueryResult: LocationQuery = queryResult
                                 val loc =
-                                    locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+                                    locData.find { input -> input.query == finalQueryResult.locationQuery }
 
                                 if (loc != null) {
                                     // Location exists; return
@@ -193,7 +197,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                 if (!location.isValid) {
                                     throw CustomException(R.string.werror_noweather)
                                 }
-                                var weather = getSettingsManager().getWeatherData(location.query)
+                                var weather = settingsManager.getWeatherData(location.query)
                                 if (weather == null) {
                                     weather = wm.getWeather(location)
                                 }
@@ -205,15 +209,15 @@ class LocationSearchFragment : WindowColorFragment() {
                                 }
 
                                 // Save data
-                                getSettingsManager().addLocation(location)
+                                settingsManager.addLocation(location)
                                 if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                                    getSettingsManager().saveWeatherAlerts(
+                                    settingsManager.saveWeatherAlerts(
                                         location,
                                         weather.weatherAlerts
                                     )
-                                getSettingsManager().saveWeatherData(weather)
-                                getSettingsManager().saveWeatherForecasts(Forecasts(weather))
-                                getSettingsManager().saveWeatherForecasts(
+                                settingsManager.saveWeatherData(weather)
+                                settingsManager.saveWeatherForecasts(Forecasts(weather))
+                                settingsManager.saveWeatherForecasts(
                                     location.query,
                                     weather.hrForecast?.map { input ->
                                         HourlyForecasts(
@@ -222,7 +226,7 @@ class LocationSearchFragment : WindowColorFragment() {
                                         )
                                     })
 
-                                getSettingsManager().setWeatherLoaded(true)
+                                settingsManager.setWeatherLoaded(true)
 
                                 location
                             }.also {
@@ -256,24 +260,26 @@ class LocationSearchFragment : WindowColorFragment() {
                                 }
                             } else {
                                 runWithView {
-                                    if (t is WeatherException || t is CustomException) {
-                                        showSnackbar(
-                                            Snackbar.make(
-                                                view.context,
-                                                t.message,
-                                                Snackbar.Duration.SHORT
-                                            ),
-                                            SnackbarWindowAdjustCallback(appCompatActivity!!)
-                                        )
-                                    } else {
-                                        showSnackbar(
-                                            Snackbar.make(
-                                                view.context,
-                                                R.string.error_retrieve_location,
-                                                Snackbar.Duration.SHORT
-                                            ),
-                                            SnackbarWindowAdjustCallback(appCompatActivity!!)
-                                        )
+                                    activity?.let {
+                                        if (t is WeatherException || t is CustomException) {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    view.context,
+                                                    t.message,
+                                                    Snackbar.Duration.SHORT
+                                                ),
+                                                SnackbarWindowAdjustCallback(it)
+                                            )
+                                        } else {
+                                            showSnackbar(
+                                                Snackbar.make(
+                                                    view.context,
+                                                    R.string.error_retrieve_location,
+                                                    Snackbar.Duration.SHORT
+                                                ),
+                                                SnackbarWindowAdjustCallback(it)
+                                            )
+                                        }
                                     }
                                     showLoading(false)
                                     enableRecyclerView(true)
@@ -367,7 +373,7 @@ class LocationSearchFragment : WindowColorFragment() {
                 hideInputMethod(v)
             }
         }
-        searchBarBinding.searchView.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+        searchBarBinding.searchView.setOnEditorActionListener(OnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 fetchLocations(v.text.toString())
                 hideInputMethod(v)
@@ -391,7 +397,7 @@ class LocationSearchFragment : WindowColorFragment() {
         }
 
         // use a linear layout manager
-        mLayoutManager = LinearLayoutManager(appCompatActivity)
+        mLayoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
@@ -493,20 +499,21 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     override fun updateWindowColors() {
-        var backgroundColor =
-            appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
-        var statusBarColor = appCompatActivity!!.getAttrColor(R.attr.colorSurface)
-        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            backgroundColor = Colors.BLACK
-            statusBarColor = Colors.BLACK
-        }
+        context?.let { ctx ->
+            var backgroundColor = ctx.getAttrColor(android.R.attr.colorBackground)
+            var statusBarColor = ctx.getAttrColor(R.attr.colorSurface)
+            if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                backgroundColor = Colors.BLACK
+                statusBarColor = Colors.BLACK
+            }
 
-        binding.rootView.setBackgroundColor(backgroundColor)
-        if (binding.appBar.background is MaterialShapeDrawable) {
-            val materialShapeDrawable = binding.appBar.background as MaterialShapeDrawable
-            materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
-        } else {
-            binding.appBar.setBackgroundColor(statusBarColor)
+            binding.rootView.setBackgroundColor(backgroundColor)
+            if (binding.appBar.background is MaterialShapeDrawable) {
+                val materialShapeDrawable = binding.appBar.background as MaterialShapeDrawable
+                materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
+            } else {
+                binding.appBar.setBackgroundColor(statusBarColor)
+            }
         }
     }
 
@@ -533,14 +540,12 @@ class LocationSearchFragment : WindowColorFragment() {
                 } catch (e: Exception) {
                     launch(Dispatchers.Main.immediate) {
                         if (e is WeatherException) {
-                            showSnackbar(
-                                Snackbar.make(
-                                    appCompatActivity!!,
-                                    e.message,
-                                    Snackbar.Duration.SHORT
-                                ),
-                                SnackbarWindowAdjustCallback(appCompatActivity!!)
-                            )
+                            activity?.let {
+                                showSnackbar(
+                                    Snackbar.make(it, e.message, Snackbar.Duration.SHORT),
+                                    SnackbarWindowAdjustCallback(it)
+                                )
+                            }
                         }
                         mLocationAdapter.submitList(listOf(LocationQuery()))
                         mAdapter.addAdapter(mFooterAdapter)
@@ -561,17 +566,19 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     private fun showInputMethod(view: View?) {
-        val imm = appCompatActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                ?: return
         view?.let {
+            val imm =
+                it.context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    ?: return
             imm.showSoftInput(it, 0)
         }
     }
 
     private fun hideInputMethod(view: View?) {
-        val imm = appCompatActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                ?: return
         view?.let {
+            val imm =
+                it.context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    ?: return
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }

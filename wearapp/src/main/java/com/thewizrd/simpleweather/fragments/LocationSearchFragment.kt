@@ -18,12 +18,13 @@ import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.localBroadcastManager
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
@@ -151,7 +152,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                 val locData = settingsManager.getLocationData()
                                 val finalQueryResult: LocationQuery = queryResult
                                 val loc =
-                                    locData?.find { input -> input != null && input.query == finalQueryResult.locationQuery }
+                                    locData.find { input -> input.query == finalQueryResult.locationQuery }
 
                                 if (loc != null) {
                                     // Location exists; return
@@ -195,8 +196,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
                                 // If we're changing locations, trigger an update
                                 if (settingsManager.isWeatherLoaded()) {
-                                    LocalBroadcastManager.getInstance(fragmentActivity)
-                                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                                    localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
                                 }
 
                                 // If we're using search
@@ -278,9 +278,18 @@ class LocationSearchFragment : SwipeDismissFragment() {
         binding.voiceButton.setOnClickListener {
             binding.searchView.setText("")
             view!!.requestFocus()
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                    .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    .putExtra(RecognizerIntent.EXTRA_PROMPT, fragmentActivity.getString(R.string.location_search_hint))
+
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(
+                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                )
+                putExtra(
+                    RecognizerIntent.EXTRA_PROMPT,
+                    it.context.getString(R.string.location_search_hint)
+                )
+            }
+
             startActivityForResult(intent, REQUEST_CODE_VOICE_INPUT)
         }
         binding.searchView.addTextChangedListener(object : TextWatcher {
@@ -327,7 +336,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
             )
         )
         binding.recyclerView.layoutManager =
-            WearableLinearLayoutManager(fragmentActivity, CustomScrollingLayoutCallback())
+            WearableLinearLayoutManager(requireContext(), CustomScrollingLayoutCallback())
 
         // specify an adapter (see also next example)
         mAdapter = LocationQueryAdapter()
@@ -425,18 +434,19 @@ class LocationSearchFragment : SwipeDismissFragment() {
     }
 
     private fun showInputMethod(view: View?) {
-        val imm =
-            fragmentActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                ?: return
         view?.let {
+            val imm =
+                it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    ?: return
             imm.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }
     }
 
     private fun hideInputMethod(view: View?) {
-        val imm = fragmentActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                ?: return
         view?.let {
+            val imm =
+                it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    ?: return
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
     }

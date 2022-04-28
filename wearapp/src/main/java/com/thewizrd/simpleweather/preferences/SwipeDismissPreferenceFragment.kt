@@ -1,8 +1,6 @@
 package com.thewizrd.simpleweather.preferences
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,29 +39,11 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
     @Retention(AnnotationRetention.SOURCE)
     annotation class ToastDuration
 
-    var parentActivity: Activity? = null
-        private set
-
     private lateinit var binding: ActivitySettingsBinding
     private var swipeCallback: SwipeDismissFrameLayout.Callback? = null
 
-    @StringRes
-    protected abstract fun getTitle(): Int
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        parentActivity = context as Activity
-    }
-
-    override fun onDetach() {
-        parentActivity = null
-        super.onDetach()
-    }
-
-    override fun onDestroy() {
-        parentActivity = null
-        super.onDestroy()
-    }
+    @get:StringRes
+    protected abstract val titleResId: Int
 
     @SuppressLint("RestrictedApi")
     override fun onCreateView(
@@ -78,7 +58,7 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
         swipeCallback = object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
                 layout.visibility = View.GONE
-                parentActivity?.onBackPressed()
+                activity?.onBackPressed()
             }
         }
         binding.swipeLayout.addCallback(swipeCallback)
@@ -94,16 +74,16 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
 
     fun showToast(@StringRes resId: Int, @ToastDuration duration: Int) {
         lifecycleScope.launch {
-            if (parentActivity != null && isVisible) {
-                Toast.makeText(parentActivity, resId, duration).show()
+            if (isVisible) {
+                Toast.makeText(requireContext(), resId, duration).show()
             }
         }
     }
 
     fun showToast(message: CharSequence?, @ToastDuration duration: Int) {
         lifecycleScope.launch {
-            if (parentActivity != null && isVisible) {
-                Toast.makeText(parentActivity, message, duration).show()
+            if (isVisible) {
+                Toast.makeText(requireContext(), message, duration).show()
             }
         }
     }
@@ -160,7 +140,7 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
         return ConcatAdapter(
-            PreferenceListHeaderAdapter(requireContext().getString(getTitle())),
+            PreferenceListHeaderAdapter(requireContext().getString(titleResId)),
             super.onCreateAdapter(preferenceScreen),
             SpacerAdapter(requireContext().dpToPx(48f).toInt())
         )

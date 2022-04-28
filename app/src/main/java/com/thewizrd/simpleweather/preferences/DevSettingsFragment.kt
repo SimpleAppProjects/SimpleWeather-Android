@@ -4,14 +4,14 @@ import android.os.Bundle
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.R
 
 class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
 
-    override fun getTitle(): Int {
-        return R.string.title_dev_settings
-    }
+    override val titleResId: Int
+        get() = R.string.title_dev_settings
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val context = requireContext()

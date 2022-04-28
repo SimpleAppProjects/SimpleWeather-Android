@@ -36,6 +36,8 @@ import com.thewizrd.common.helpers.*
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.di.localBroadcastManager
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
@@ -128,9 +130,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    override fun getTitle(): Int {
-        return R.string.title_activity_settings
-    }
+    override val titleResId: Int
+        get() = R.string.title_activity_settings
 
     /**
      * Registers a listener.
@@ -186,7 +187,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         appLib.unregisterAppSharedPreferenceListener()
         appLib.registerAppSharedPreferenceListener(this)
         registerOnThemeChangeListener(this)
-        registerOnThemeChangeListener(appCompatActivity as OnThemeChangeListener)
+        registerOnThemeChangeListener(requireActivity() as OnThemeChangeListener)
 
         // Initialize queue
         intentQueue = HashSet()
@@ -217,7 +218,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         // Unregister listener
         appLib.unregisterAppSharedPreferenceListener(this)
         appLib.registerAppSharedPreferenceListener()
-        unregisterOnThemeChangeListener(appCompatActivity as OnThemeChangeListener)
+        unregisterOnThemeChangeListener(requireActivity() as OnThemeChangeListener)
         unregisterOnThemeChangeListener(this)
 
         for (filter: FilterComparison in intentQueue) {
@@ -234,48 +235,48 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     AnalyticsLogger.logEvent("Update_API", bundle)
 
                     WeatherUpdaterWorker.enqueueAction(
-                        appCompatActivity,
+                        requireContext(),
                         WeatherUpdaterWorker.ACTION_UPDATEWEATHER
                     )
                 }
                 WidgetWorker::class.java.name == filter.intent.component!!.className -> {
                     when (filter.intent.action) {
                         WidgetWorker.ACTION_REFRESHGPSWIDGETS -> WidgetWorker.enqueueRefreshGPSWidgets(
-                            appCompatActivity
+                            requireContext()
                         )
                         WidgetWorker.ACTION_RESETGPSWIDGETS -> WidgetWorker.enqueueResetGPSWidgets(
-                            appCompatActivity
+                            requireContext()
                         )
                     }
                 }
                 WeatherUpdaterWorker::class.java.name == filter.intent.component!!.className -> {
                     when (filter.intent.action) {
                         WeatherUpdaterWorker.ACTION_REQUEUEWORK -> {
-                            UpdaterUtils.updateAlarm(appCompatActivity)
+                            UpdaterUtils.updateAlarm(requireContext())
                         }
                         WeatherUpdaterWorker.ACTION_ENQUEUEWORK -> {
-                            UpdaterUtils.startAlarm(appCompatActivity)
+                            UpdaterUtils.startAlarm(requireContext())
                         }
                         WeatherUpdaterWorker.ACTION_CANCELWORK -> {
-                            UpdaterUtils.cancelAlarm(appCompatActivity)
+                            UpdaterUtils.cancelAlarm(requireContext())
                         }
                         else -> {
                             WeatherUpdaterWorker.enqueueAction(
-                                appCompatActivity,
+                                requireContext(),
                                 (filter.intent.action)!!
                             )
                         }
                     }
                 }
                 WearableWorker::class.java.name == filter.intent.component!!.className -> {
-                    WearableWorker.enqueueAction(appCompatActivity, (filter.intent.action)!!)
+                    WearableWorker.enqueueAction(requireContext(), (filter.intent.action)!!)
                 }
                 CommonActionsBroadcastReceiver::class.java.name == filter.intent.component!!.className -> {
-                    LocalBroadcastManager.getInstance(appCompatActivity)
+                    LocalBroadcastManager.getInstance(requireContext())
                         .sendBroadcast(filter.intent)
                 }
                 else -> {
-                    appCompatActivity.startService(filter.intent)
+                    requireContext().startService(filter.intent)
                 }
             }
         }
@@ -310,63 +311,68 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         notCategory = findPreference(CATEGORY_NOTIFICATION)!!
         apiCategory = findPreference(CATEGORY_API)!!
 
-        findPreference<Preference>(KEY_ABOUTAPP)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            // Display the fragment as the main content.
-            appCompatActivity.findNavController(R.id.fragment_container)
-                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment())
-            true
-        }
+        findPreference<Preference>(KEY_ABOUTAPP)!!.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment())
+                true
+            }
 
-        findPreference<Preference>(KEY_UNITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { // Display the fragment as the main content.
-            appCompatActivity.findNavController(R.id.fragment_container)
-                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToUnitsFragment())
-            true
-        }
+        findPreference<Preference>(KEY_UNITS)!!.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToUnitsFragment())
+                true
+            }
 
         followGps = findPreference(SettingsManager.KEY_FOLLOWGPS)!!
         followGps.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
             override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
                 AnalyticsLogger.logEvent("Settings: followGps toggled")
                 if (newValue as Boolean) {
-                    if (!appCompatActivity.locationPermissionEnabled()) {
+                    if (!preference.context.locationPermissionEnabled()) {
                         this@SettingsFragment.requestLocationPermission(
                             PERMISSION_LOCATION_REQUEST_CODE
                         )
                         return false
                     } else {
-                        val locMan =
-                            appCompatActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-                        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                            showSnackbar(
-                                Snackbar.make(
-                                    appCompatActivity,
-                                    R.string.error_enable_location_services,
-                                    Snackbar.Duration.SHORT
+                        activity?.let {
+                            val locMan =
+                                it.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+                            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
+                                showSnackbar(
+                                    Snackbar.make(
+                                        it,
+                                        R.string.error_enable_location_services,
+                                        Snackbar.Duration.SHORT
+                                    )
                                 )
-                            )
 
-                            settingsManager.setFollowGPS(false)
-                            return false
-                        } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                                !appCompatActivity.backgroundLocationPermissionEnabled()
-                            ) {
-                                val snackbar = Snackbar.make(
-                                    appCompatActivity,
-                                    appCompatActivity.getBackgroundLocationRationale(),
-                                    Snackbar.Duration.VERY_LONG
-                                )
-                                snackbar.setAction(android.R.string.ok) {
-                                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                        appCompatActivity.openAppSettingsActivity()
-                                    } else {
-                                        requestBackgroundLocationPermission(
-                                            PERMISSION_BGLOCATION_REQUEST_CODE
-                                        )
+                                settingsManager.setFollowGPS(false)
+                                return false
+                            } else {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                                    !it.backgroundLocationPermissionEnabled()
+                                ) {
+                                    val snackbar = Snackbar.make(
+                                        it,
+                                        it.getBackgroundLocationRationale(),
+                                        Snackbar.Duration.VERY_LONG
+                                    )
+                                    snackbar.setAction(android.R.string.ok) { v ->
+                                        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                                            it.openAppSettingsActivity()
+                                        } else {
+                                            requestBackgroundLocationPermission(
+                                                PERMISSION_BGLOCATION_REQUEST_CODE
+                                            )
+                                        }
                                     }
+                                    showSnackbar(snackbar, null)
+                                    settingsManager.setRequestBGAccess(true)
                                 }
-                                showSnackbar(snackbar, null)
-                                settingsManager.setRequestBGAccess(true)
                             }
                         }
                     }
@@ -676,15 +682,15 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
         findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
-            appCompatActivity.findNavController(R.id.fragment_container)
-                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
+            activity?.findNavController(R.id.fragment_container)
+                ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
             true
         }
 
         findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
-            appCompatActivity.findNavController(R.id.fragment_container)
-                .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
+            activity?.findNavController(R.id.fragment_container)
+                ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
             true
         }
 
@@ -817,9 +823,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             }
         }
 
-        tintIcons(preferenceScreen, appCompatActivity.getAttrColor(R.attr.colorPrimary))
+        tintIcons(preferenceScreen, requireContext().getAttrColor(R.attr.colorPrimary))
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == LocaleInstaller.CONFIRMATION_REQUEST_CODE) {
             // Handle the user's decision. For example, if the user selects "Cancel",
@@ -863,7 +870,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                             fragment.dialog?.dismiss()
                         } else {
                             Toast.makeText(
-                                appCompatActivity,
+                                it.context,
                                 R.string.message_keyinvalid,
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -1000,46 +1007,48 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         if (key.isNullOrBlank()) return
 
-        val context: Context = appCompatActivity
+        val ctx: Context = activity ?: return
 
         when (key) {
             SettingsManager.KEY_API -> {
                 enqueueIntent(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
-                enqueueIntent(Intent(context, WearableWorker::class.java)
-                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE))
+                enqueueIntent(
+                    Intent(ctx, WearableWorker::class.java)
+                        .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
+                )
             }
             SettingsManager.KEY_FOLLOWGPS -> {
                 val value = sharedPreferences.getBoolean(key, false)
                 enqueueIntent(
-                    Intent(context, WearableWorker::class.java)
+                    Intent(ctx, WearableWorker::class.java)
                         .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
                 )
                 enqueueIntent(
-                    Intent(context, WearableWorker::class.java)
+                    Intent(ctx, WearableWorker::class.java)
                         .setAction(WearableWorkerActions.ACTION_SENDLOCATIONUPDATE)
                 )
                 enqueueIntent(
-                    Intent(context, WeatherUpdaterWorker::class.java)
+                    Intent(ctx, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_UPDATEWEATHER)
                 )
                 enqueueIntent(
-                    Intent(context, WearableWorker::class.java)
+                    Intent(ctx, WearableWorker::class.java)
                         .setAction(WearableWorkerActions.ACTION_SENDWEATHERUPDATE)
                 )
                 enqueueIntent(
-                    Intent(context, WidgetWorker::class.java)
+                    Intent(ctx, WidgetWorker::class.java)
                         .setAction(if (value) WidgetWorker.ACTION_REFRESHGPSWIDGETS else WidgetWorker.ACTION_RESETGPSWIDGETS)
                 )
             }
             SettingsManager.KEY_REFRESHINTERVAL -> {
                 enqueueIntent(
-                    Intent(context, WeatherUpdaterWorker::class.java)
+                    Intent(ctx, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_REQUEUEWORK)
                 )
             }
             LocaleUtils.KEY_LANGUAGE -> {
                 enqueueIntent(
-                    Intent(context, WearableWorker::class.java)
+                    Intent(ctx, WearableWorker::class.java)
                         .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
                 )
             }
@@ -1047,31 +1056,33 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     private fun checkBackgroundLocationAccess() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-            !appCompatActivity.backgroundLocationPermissionEnabled()
-        ) {
-            val snackbar = Snackbar.make(
-                appCompatActivity,
-                appCompatActivity.getBackgroundLocationRationale(),
-                Snackbar.Duration.VERY_LONG
-            )
-            snackbar.setAction(android.R.string.ok) {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                    appCompatActivity.openAppSettingsActivity()
-                } else {
-                    requestBackgroundLocationPermission(
-                        PERMISSION_BGLOCATION_REQUEST_CODE
-                    )
+        activity?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
+                !it.backgroundLocationPermissionEnabled()
+            ) {
+                val snackbar = Snackbar.make(
+                    it,
+                    it.getBackgroundLocationRationale(),
+                    Snackbar.Duration.VERY_LONG
+                )
+                snackbar.setAction(android.R.string.ok) { v ->
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        it.openAppSettingsActivity()
+                    } else {
+                        requestBackgroundLocationPermission(
+                            PERMISSION_BGLOCATION_REQUEST_CODE
+                        )
+                    }
                 }
+                showSnackbar(snackbar, null)
+                settingsManager.setRequestBGAccess(true)
             }
-            showSnackbar(snackbar, null)
-            settingsManager.setRequestBGAccess(true)
         }
     }
 
     class UnitsFragment : ToolbarPreferenceFragmentCompat() {
         companion object {
-            private val KEY_RESETUNITS = "key_resetunits"
+            private const val KEY_RESETUNITS = "key_resetunits"
         }
 
         private lateinit var tempUnitPref: ListPreference
@@ -1081,11 +1092,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         private lateinit var pressureUnitPref: ListPreference
 
         private var unitsChanged = false
-        private lateinit var localBroadcastMgr: LocalBroadcastManager
 
-        override fun getTitle(): Int {
-            return R.string.pref_title_units
-        }
+        override val titleResId: Int
+            get() = R.string.pref_title_units
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_units, null)
@@ -1103,39 +1112,42 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             pressureUnitPref.onPreferenceChangeListener = onUnitChangeListener
 
             findPreference<Preference>(KEY_RESETUNITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                MaterialAlertDialogBuilder(appCompatActivity)
+                activity?.let {
+                    MaterialAlertDialogBuilder(it)
                         .setTitle(R.string.pref_title_units)
                         .setItems(R.array.default_units) { dialog, which ->
                             val isFahrenheit: Boolean = which == 0
-                            tempUnitPref.value = if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
-                            speedUnitPref.value = if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
-                            distanceUnitPref.value = if (isFahrenheit) Units.MILES else Units.KILOMETERS
-                            precipationUnitPref.value = if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
-                            pressureUnitPref.value = if (isFahrenheit) Units.INHG else Units.MILLIBAR
+                            tempUnitPref.value =
+                                if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
+                            speedUnitPref.value =
+                                if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
+                            distanceUnitPref.value =
+                                if (isFahrenheit) Units.MILES else Units.KILOMETERS
+                            precipationUnitPref.value =
+                                if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
+                            pressureUnitPref.value =
+                                if (isFahrenheit) Units.INHG else Units.MILLIBAR
                             dialog.dismiss()
 
-                            localBroadcastMgr.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
+                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
                         }
-                        .setNegativeButton(android.R.string.cancel) { dialog, which -> dialog.cancel() }
+                        .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
                         .setCancelable(true)
                         .show()
+                }
                 true
             }
         }
 
-        private val onUnitChangeListener = Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any? ->
-            unitsChanged = true
-            true
-        }
-
-        override fun onResume() {
-            super.onResume()
-            localBroadcastMgr = LocalBroadcastManager.getInstance(appCompatActivity)
-        }
+        private val onUnitChangeListener =
+            Preference.OnPreferenceChangeListener { _: Preference?, _: Any? ->
+                unitsChanged = true
+                true
+            }
 
         override fun onPause() {
             if (unitsChanged) {
-                localBroadcastMgr.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
                 unitsChanged = false
             }
             super.onPause()
@@ -1143,9 +1155,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     class IconsFragment : IconProviderPickerFragment() {
-        override fun getTitle(): Int {
-            return R.string.pref_title_icons
-        }
+        override val titleResId: Int
+            get() = R.string.pref_title_icons
 
         override fun getDefaultKey(): String {
             return settingsManager.getIconsProvider()
@@ -1184,14 +1195,14 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     class FeaturesFragment : ToolbarPreferenceFragmentCompat() {
-        override fun getTitle(): Int {
-            return R.string.pref_title_features
-        }
+        override val titleResId: Int
+            get() = R.string.pref_title_features
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_features, null)
 
-            findPreference<Preference>(FeatureSettings.KEY_FEATURE_BGIMAGE)?.isVisible = !BuildConfig.IS_NONGMS
+            findPreference<Preference>(FeatureSettings.KEY_FEATURE_BGIMAGE)?.isVisible =
+                !BuildConfig.IS_NONGMS
         }
     }
 
@@ -1208,9 +1219,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
         private lateinit var devSettingsController: DevSettingsController
 
-        override fun getTitle(): Int {
-            return R.string.pref_title_about
-        }
+        override val titleResId: Int
+            get() = R.string.pref_title_about
 
         override fun onCreate(savedInstanceState: Bundle?) {
             devSettingsController = DevSettingsController(this, KEY_ABOUTVERSION)
@@ -1220,17 +1230,18 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_aboutapp, null)
 
-            findPreference<Preference>(KEY_ABOUTCREDITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                // Display the fragment as the main content.
-                appCompatActivity.findNavController(R.id.fragment_container)
-                    .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToCreditsFragment())
-                true
+            findPreference<Preference>(KEY_ABOUTCREDITS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    // Display the fragment as the main content.
+                    activity?.findNavController(R.id.fragment_container)
+                        ?.safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToCreditsFragment())
+                    true
             }
 
             findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 // Display the fragment as the main content.
-                appCompatActivity.findNavController(R.id.fragment_container)
-                    .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
                 true
             }
 
@@ -1246,7 +1257,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
                 preference.intent?.let {
                     runCatching {
-                        if (it.resolveActivity(appCompatActivity.packageManager) != null) {
+                        if (it.resolveActivity(requireActivity().packageManager) != null) {
                             startActivity(it)
                         }
                     }
@@ -1254,11 +1265,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 true
             }
 
-            try {
-                val packageInfo = appCompatActivity.packageManager.getPackageInfo(appCompatActivity.packageName, 0)
-                findPreference<Preference>(KEY_ABOUTVERSION)!!.summary = String.format("v%s", packageInfo.versionName)
-            } catch (e: PackageManager.NameNotFoundException) {
-                // should never happen
+            runCatching {
+                val packageInfo =
+                    requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+                findPreference<Preference>(KEY_ABOUTVERSION)!!.summary =
+                    String.format("v%s", packageInfo.versionName)
             }
 
             devSettingsController.onCreatePreferences(preferenceScreen)
@@ -1274,11 +1285,12 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     class CreditsFragment : ToolbarPreferenceFragmentCompat() {
-        private val CATEGORY_ICONS = "key_caticons"
-
-        override fun getTitle(): Int {
-            return R.string.pref_title_credits
+        companion object {
+            private const val CATEGORY_ICONS = "key_caticons"
         }
+
+        override val titleResId: Int
+            get() = R.string.pref_title_credits
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_credits, null)
@@ -1304,7 +1316,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         override fun onPreferenceTreeClick(preference: Preference): Boolean {
             preference.intent?.let {
                 runCatching {
-                    if (it.resolveActivity(appCompatActivity.packageManager) != null) {
+                    if (it.resolveActivity(requireActivity().packageManager) != null) {
                         startActivity(it)
                     }
                 }
@@ -1317,9 +1329,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     }
 
     class OSSCreditsFragment : ToolbarPreferenceFragmentCompat() {
-        override fun getTitle(): Int {
-            return R.string.pref_title_oslibs
-        }
+        override val titleResId: Int
+            get() = R.string.pref_title_oslibs
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_oslibs, null)

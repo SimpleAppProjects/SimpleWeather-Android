@@ -1,21 +1,24 @@
-package com.thewizrd.simpleweather.fragments
+package com.thewizrd.simpleweather.preferences
 
 import android.app.Activity
 import androidx.annotation.CallSuper
-import com.thewizrd.shared_resources.lifecycle.LifecycleAwareFragment
+import com.thewizrd.shared_resources.lifecycle.LifecycleAwarePreferenceFragmentCompat
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarManagerInterface
 import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
-abstract class CustomFragment : LifecycleAwareFragment(), SnackbarManagerInterface {
+abstract class CustomPreferenceFragmentCompat : LifecycleAwarePreferenceFragmentCompat(),
+    SnackbarManagerInterface {
     private var mSnackMgr: SnackbarManager? = null
 
     abstract override fun createSnackManager(activity: Activity): SnackbarManager?
 
     @CallSuper
     override fun initSnackManager(activity: Activity) {
-        mSnackMgr = createSnackManager(activity)
+        if (mSnackMgr == null) {
+            mSnackMgr = createSnackManager(activity)
+        }
     }
 
     fun showSnackbar(snackbar: Snackbar) {
@@ -28,12 +31,10 @@ abstract class CustomFragment : LifecycleAwareFragment(), SnackbarManagerInterfa
     ) {
         runWithView {
             activity?.let {
-                if (isVisible) {
+                if (isAlive) {
                     if (mSnackMgr == null) {
                         mSnackMgr = createSnackManager(it)
                     }
-                    // Snackbar may check higher up in the view hierarchy
-                    // Check if fragment is attached
                     mSnackMgr?.show(snackbar, callback)
                 }
             }

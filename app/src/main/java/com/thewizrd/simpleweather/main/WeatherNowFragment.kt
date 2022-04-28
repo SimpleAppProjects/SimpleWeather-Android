@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.main
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -69,6 +70,7 @@ import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
@@ -222,12 +224,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 GlobalScope.launch(Dispatchers.Default) {
                     val context = appLib.context
 
-                    if (getSettingsManager().getHomeData() == locationData) {
+                    if (settingsManager.getHomeData() == locationData) {
                         // Update widgets if they haven't been already
                         if (Duration.between(
                                 LocalDateTime.now(ZoneOffset.UTC),
-                                getSettingsManager().getUpdateTime()
-                            ).toMinutes() > getSettingsManager().getRefreshInterval()
+                                settingsManager.getUpdateTime()
+                            ).toMinutes() > settingsManager.getRefreshInterval()
                         ) {
                             WeatherUpdaterWorker.enqueueAction(
                                 context,
@@ -284,7 +286,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                             Log.WARN,
                             "Home: %s",
                             JSONParser.serializer(
-                                getSettingsManager().getHomeData(),
+                                settingsManager.getHomeData(),
                                 LocationData::class.java
                             )
                         )
@@ -327,7 +329,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
     }
 
-    override fun createSnackManager(): SnackbarManager {
+    override fun createSnackManager(activity: Activity): SnackbarManager? {
         val mSnackMgr = SnackbarManager(binding.root)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -344,7 +346,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
     override fun showBanner(banner: Banner) {
         runWithView {
-            if (appCompatActivity != null && isVisible) {
+            if (isVisible) {
                 if (mBannerMgr == null) {
                     mBannerMgr = createBannerManager()
                 }
@@ -377,13 +379,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             locationData = JSONParser.deserializer(args.data, LocationData::class.java)
         }
 
-        locationProvider = LocationProvider(appCompatActivity!!)
+        locationProvider = LocationProvider(requireActivity())
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
 
                 runWithView {
-                    if (getSettingsManager().useFollowGPS() && updateLocation()) {
+                    if (settingsManager.useFollowGPS() && updateLocation()) {
                         // Setup loader from updated location
                         wLoader = WeatherDataLoader(locationData!!)
 
@@ -516,7 +518,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             // Fling friction
             private val mFlingFriction = ViewConfiguration.getScrollFriction()
-            private val ppi = appCompatActivity!!.resources.displayMetrics.density * 160.0f
+            private val ppi = binding.scrollView.context.resources.displayMetrics.density * 160.0f
             private val mPhysicalCoeff = (SensorManager.GRAVITY_EARTH // g (m/s^2)
                     * 39.37f // inch/meter
                     * ppi
@@ -542,46 +544,48 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
-                if (appCompatActivity == null || appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
-                    return
+                context?.let {
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
+                        return
 
-                runWithView {
-                    val condPnlHeight =
-                        binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
-                    val THRESHOLD = condPnlHeight / 2
-                    val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
-                    val dY = scrollY - oldScrollY
-                    var mScrollHandled = false
+                    runWithView {
+                        val condPnlHeight =
+                            binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
+                        val THRESHOLD = condPnlHeight / 2
+                        val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
+                        val dY = scrollY - oldScrollY
+                        var mScrollHandled = false
 
-                    if (dY == 0) return@runWithView
-
-                    Timber.tag("ScrollView")
-                        .d("onFlingStopped: height: $condPnlHeight; offset|scrollY: $scrollOffset; prevScrollY: $oldScrollY; dY: $dY;")
-
-                    if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
-                        binding.scrollView.smoothScrollTo(0, 0)
-                        mScrollHandled = true
-                    } else if (scrollOffset < condPnlHeight && scrollOffset >= condPnlHeight - THRESHOLD) {
-                        binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                        mScrollHandled = true
-                    } else if (dY > 0 && scrollOffset < condPnlHeight - THRESHOLD) {
-                        binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                        mScrollHandled = true
-                    }
-
-                    if (!mScrollHandled && scrollOffset < condPnlHeight) {
-                        val animDY = getSplineFlingDistance(startvelocityY).toInt()
-                        val animScrollY = oldScrollY + animDY
+                        if (dY == 0) return@runWithView
 
                         Timber.tag("ScrollView")
-                            .d("onFlingStopped: height: $condPnlHeight; animScrollY: $animScrollY; prevScrollY: $oldScrollY; animDY: $animDY;")
+                            .d("onFlingStopped: height: $condPnlHeight; offset|scrollY: $scrollOffset; prevScrollY: $oldScrollY; dY: $dY;")
 
-                        if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                        if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
                             binding.scrollView.smoothScrollTo(0, 0)
-                        } else if (animScrollY < condPnlHeight && animScrollY >= condPnlHeight - THRESHOLD) {
+                            mScrollHandled = true
+                        } else if (scrollOffset < condPnlHeight && scrollOffset >= condPnlHeight - THRESHOLD) {
                             binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                        } else if (startvelocityY > 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                            mScrollHandled = true
+                        } else if (dY > 0 && scrollOffset < condPnlHeight - THRESHOLD) {
                             binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                            mScrollHandled = true
+                        }
+
+                        if (!mScrollHandled && scrollOffset < condPnlHeight) {
+                            val animDY = getSplineFlingDistance(startvelocityY).toInt()
+                            val animScrollY = oldScrollY + animDY
+
+                            Timber.tag("ScrollView")
+                                .d("onFlingStopped: height: $condPnlHeight; animScrollY: $animScrollY; prevScrollY: $oldScrollY; animDY: $animDY;")
+
+                            if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                                binding.scrollView.smoothScrollTo(0, 0)
+                            } else if (animScrollY < condPnlHeight && animScrollY >= condPnlHeight - THRESHOLD) {
+                                binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                            } else if (startvelocityY > 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                                binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                            }
                         }
                     }
                 }
@@ -590,27 +594,29 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         binding.scrollView.setTouchScrollListener(object : OnTouchScrollChangeListener {
             @SuppressLint("RestrictedApi")
             override fun onTouchScrollChange(scrollY: Int, oldScrollY: Int) {
-                if (appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
-                    return
+                context?.let {
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
+                        return
 
-                runWithView {
-                    val condPnlHeight =
-                        binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
-                    val THRESHOLD = condPnlHeight / 2
-                    val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
-                    val dY = scrollY - oldScrollY
+                    runWithView {
+                        val condPnlHeight =
+                            binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
+                        val THRESHOLD = condPnlHeight / 2
+                        val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
+                        val dY = scrollY - oldScrollY
 
-                    if (dY == 0) return@runWithView
+                        if (dY == 0) return@runWithView
 
-                    Timber.tag("ScrollView")
-                        .d("onTouchScrollChange: height: $condPnlHeight; offset: $scrollOffset; scrollY: $scrollY; prevScrollY: $oldScrollY; dY: $dY")
+                        Timber.tag("ScrollView")
+                            .d("onTouchScrollChange: height: $condPnlHeight; offset: $scrollOffset; scrollY: $scrollY; prevScrollY: $oldScrollY; dY: $dY")
 
-                    if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
-                        binding.scrollView.smoothScrollTo(0, 0)
-                    } else if (scrollY < condPnlHeight && scrollY >= condPnlHeight - THRESHOLD) {
-                        binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                    } else if (dY > 0 && scrollY < condPnlHeight) {
-                        binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
+                            binding.scrollView.smoothScrollTo(0, 0)
+                        } else if (scrollY < condPnlHeight && scrollY >= condPnlHeight - THRESHOLD) {
+                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        } else if (dY > 0 && scrollY < condPnlHeight) {
+                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        }
                     }
                 }
             }
@@ -619,16 +625,14 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         // SwipeRefresh
         binding.progressBar.show()
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
-            appCompatActivity!!.getAttrColor(
-                R.attr.colorSurface
-            )
+            requireContext().getAttrColor(R.attr.colorSurface)
         )
-        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorAccent))
+        binding.refreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
         binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
             runWithView {
-                if (getSettingsManager().useFollowGPS() && updateLocation()) {
+                if (settingsManager.useFollowGPS() && updateLocation()) {
                     // Setup loader from updated location
                     wLoader = WeatherDataLoader(locationData!!)
                 }
@@ -1249,11 +1253,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         weatherView.notifyChange()
 
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
-            appCompatActivity!!.getAttrColor(
-                R.attr.colorSurface
-            )
+            requireContext().getAttrColor(R.attr.colorSurface)
         )
-        binding.refreshLayout.setColorSchemeColors(appCompatActivity!!.getAttrColor(R.attr.colorAccent))
+        binding.refreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
 
         // Resize necessary views
         adjustConditionPanelLayout()
@@ -1359,7 +1361,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         // Check if current location still exists (is valid)
         if (locationData?.locationType == LocationType.SEARCH) {
-            if (getSettingsManager().getLocation(locationData?.query) == null) {
+            if (settingsManager.getLocation(locationData?.query) == null) {
                 locationData = null
                 wLoader = null
                 locationChanged = true
@@ -1369,7 +1371,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         if (args.home) {
             // Check if home location changed
             // For ex. due to GPS setting change
-            val homeData = getSettingsManager().getHomeData()
+            val homeData = settingsManager.getHomeData()
             if (!ObjectsCompat.equals(locationData, homeData)) {
                 locationData = homeData
                 locationChanged = true
@@ -1401,12 +1403,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                 // Check current weather source (API)
                 // Reset if source OR locale is different
-                if (getSettingsManager().getAPI() != weatherView.weatherSource
-                        || wm.supportsWeatherLocale() && locale != weatherView.weatherLocale) {
+                if (settingsManager.getAPI() != weatherView.weatherSource
+                    || wm.supportsWeatherLocale() && locale != weatherView.weatherLocale
+                ) {
                     restore()
                 } else {
                     // Update weather if needed on resume
-                    if (getSettingsManager().useFollowGPS() && updateLocation()) {
+                    if (settingsManager.useFollowGPS() && updateLocation()) {
                         // Setup loader from updated location
                         wLoader = WeatherDataLoader(locationData!!)
                     }
@@ -1431,16 +1434,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     var forceRefresh = false
 
                     // GPS Follow location
-                    if (getSettingsManager().useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-                        val locData = getSettingsManager().getLastGPSLocData()
+                    if (settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
+                        val locData = settingsManager.getLastGPSLocData()
                         if (locData == null) {
                             // Update location if not setup
                             updateLocation()
                             forceRefresh = true
                         } else {
                             // Reset locdata if source is different
-                            if (getSettingsManager().getAPI() != locData.weatherSource) {
-                                getSettingsManager().saveLastGPSLocData(buildEmptyGPSLocation())
+                            if (settingsManager.getAPI() != locData.weatherSource) {
+                                settingsManager.saveLastGPSLocData(buildEmptyGPSLocation())
                             }
                             if (updateLocation()) {
                                 // Setup loader from updated location
@@ -1452,7 +1455,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         }
                     } else if (locationData == null && wLoader == null) {
                         // Weather was loaded before. Lets load it up...
-                        locationData = getSettingsManager().getHomeData()
+                        locationData = settingsManager.getHomeData()
                     }
 
                     if (locationData?.isValid == true) {
@@ -1467,7 +1470,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                             Log.WARN,
                             "Home: %s",
                             JSONParser.serializer(
-                                getSettingsManager().getHomeData(),
+                                settingsManager.getHomeData(),
                                 LocationData::class.java
                             )
                         )
@@ -1641,23 +1644,23 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun updateWindowColors() {
-        if (appCompatActivity == null) return
+        context?.let {
+            var backgroundColor = it.getAttrColor(android.R.attr.colorBackground)
+            var navBarColor = it.getAttrColor(R.attr.colorSurface)
+            var statusBarColor = navBarColor
+            if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
+                backgroundColor = Colors.BLACK
+                navBarColor = Colors.BLACK
+                statusBarColor = Colors.BLACK
+            }
 
-        var backgroundColor = appCompatActivity!!.getAttrColor(android.R.attr.colorBackground)
-        var navBarColor = appCompatActivity!!.getAttrColor(R.attr.colorSurface)
-        var statusBarColor = navBarColor
-        if (getSettingsManager().getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
-            backgroundColor = Colors.BLACK
-            navBarColor = Colors.BLACK
-            statusBarColor = Colors.BLACK
-        }
-
-        binding.rootView.setBackgroundColor(backgroundColor)
-        if (binding.appBarLayout.background is MaterialShapeDrawable) {
-            val materialShapeDrawable = binding.appBarLayout.background as MaterialShapeDrawable
-            materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
-        } else {
-            binding.appBarLayout.setBackgroundColor(navBarColor)
+            binding.rootView.setBackgroundColor(backgroundColor)
+            if (binding.appBarLayout.background is MaterialShapeDrawable) {
+                val materialShapeDrawable = binding.appBarLayout.background as MaterialShapeDrawable
+                materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
+            } else {
+                binding.appBarLayout.setBackgroundColor(navBarColor)
+            }
         }
     }
 
@@ -1667,7 +1670,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         val context = context
 
-        if (context != null && getSettingsManager().useFollowGPS() && locationData?.locationType == LocationType.GPS) {
+        if (context != null && settingsManager.useFollowGPS() && locationData?.locationType == LocationType.GPS) {
             if (!context.locationPermissionEnabled()) {
                 this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
                 return false
@@ -1676,7 +1679,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                locationData = getSettingsManager().getLastGPSLocData()
+                locationData = settingsManager.getLastGPSLocData()
                 return false
             }
 
@@ -1707,7 +1710,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
 
             if (location != null && !mRequestingLocationUpdates) {
-                var lastGPSLocData = getSettingsManager().getLastGPSLocData()
+                var lastGPSLocData = settingsManager.getLastGPSLocData()
 
                 // Check previous location difference
                 if (lastGPSLocData?.isValid == true &&
@@ -1753,7 +1756,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
                 // Save location as last known
                 lastGPSLocData = view.toLocationData(location)
-                getSettingsManager().saveLastGPSLocData(lastGPSLocData)
+                settingsManager.saveLastGPSLocData(lastGPSLocData)
 
                 LocalBroadcastManager.getInstance(context)
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
@@ -1775,7 +1778,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     // permission was granted, yay!
                     // Do the task you need to do.
                     runWithView {
-                        if (getSettingsManager().useFollowGPS() && updateLocation()) {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
                             // Setup loader from updated location
                             wLoader = WeatherDataLoader(locationData!!)
 
@@ -1785,7 +1788,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    getSettingsManager().setFollowGPS(false)
+                    settingsManager.setFollowGPS(false)
                     showSnackbar(
                         Snackbar.make(
                             binding.rootView.context,

@@ -1,6 +1,7 @@
 package com.thewizrd.simpleweather.setup
 
 import android.Manifest
+import android.app.Activity
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.openAppSettingsActivity
 import com.thewizrd.common.helpers.requestBackgroundLocationPermission
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.SettingsManager
@@ -37,8 +39,8 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
     }
 
     @NonNull
-    override fun createSnackManager(): SnackbarManager {
-        val mStepperNavBar = appCompatActivity.findViewById<View>(R.id.bottom_nav_bar)
+    override fun createSnackManager(activity: Activity): SnackbarManager {
+        val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
 
         return SnackbarManager(binding.root).apply {
             setSwipeDismissEnabled(true)

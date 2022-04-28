@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.setup;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,7 @@ public class SetupWelcomeFragment extends CustomFragment {
 
     @Nullable
     @Override
-    public SnackbarManager createSnackManager() {
+    public SnackbarManager createSnackManager(@NonNull Activity activity) {
         return null;
     }
 }

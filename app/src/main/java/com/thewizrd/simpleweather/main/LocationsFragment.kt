@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.main
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -53,6 +54,8 @@ import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.localBroadcastManager
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
@@ -118,9 +121,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private val wm = weatherModule.weatherManager
 
-    override fun getTitle(): Int {
-        return R.string.label_nav_locations
-    }
+    override val titleResId: Int
+        get() = R.string.label_nav_locations
 
     @WorkerThread
     private suspend fun onWeatherLoaded(location: LocationData, weather: Weather?) {
@@ -220,7 +222,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
     }
 
-    override fun createSnackManager(): SnackbarManager {
+    override fun createSnackManager(activity: Activity): SnackbarManager? {
         val mSnackMgr = SnackbarManager(rootView)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -238,8 +240,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     runWithView {
                         val locData = view.tag as LocationData
 
-                        val isHome =
-                            ObjectsCompat.equals(locData, getSettingsManager().getHomeData())
+                        val isHome = ObjectsCompat.equals(locData, settingsManager.getHomeData())
 
                         val args =
                             LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
@@ -266,7 +267,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         mErrorCounter = BooleanArray(ErrorStatus.values().size)
 
-        locationProvider = LocationProvider(appCompatActivity!!)
+        locationProvider = LocationProvider(requireActivity())
         locationCallback = object : LocationProvider.Callback {
             override fun onLocationChanged(location: Location?) {
                 stopLocationUpdates()
@@ -309,7 +310,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 }
             }
         }
-        appCompatActivity!!.onBackPressedDispatcher.addCallback(this, onBackPressedCallback!!)
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback!!)
     }
 
     /**
@@ -329,9 +331,8 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         mRequestingLocationUpdates = false
     }
 
-    override fun getScrollTargetViewId(): Int {
-        return binding.recyclerView.id
-    }
+    override val scrollTargetViewId: Int
+        get() = binding.recyclerView.id
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -346,11 +347,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         root.requestFocus()
 
         /*
-           Capture touch events on RecyclerView
-           Expand or collapse FAB (MaterialButton) based on scroll direction
-           Collapse FAB if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
-           Expand FAB if we're scrolling to the top (items at the top are already visible)
-        */
+         * Capture touch events on RecyclerView
+         * Expand or collapse FAB (MaterialButton) based on scroll direction
+         * Collapse FAB if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
+         * Expand FAB if we're scrolling to the top (items at the top are already visible)
+         */
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             private var scrollState = RecyclerView.SCROLL_STATE_IDLE
 
@@ -396,10 +397,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         // in content do not change the layout size of the RecyclerView
         binding.recyclerView.setHasFixedSize(true)
 
-        if (appCompatActivity!!.isLargeTablet()) {
+        if (requireContext().isLargeTablet()) {
             // use a linear layout manager
-            val gridLayoutManager: GridLayoutManager =
-                object : GridLayoutManager(appCompatActivity, 2, VERTICAL, false) {
+            val gridLayoutManager =
+                object : GridLayoutManager(requireContext(), 2, VERTICAL, false) {
                     override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
                         return RecyclerView.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -419,10 +420,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             binding.recyclerView.addItemDecoration(object : ItemDecoration() {})
         } else {
             // use a linear layout manager
-            mLayoutManager = object : LinearLayoutManager(appCompatActivity) {
+            mLayoutManager = object : LinearLayoutManager(requireContext()) {
                 override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
-                    return RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT)
+                    return RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                 }
             }
         }
@@ -482,7 +485,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
             }
         })
-        if (!appCompatActivity!!.isLargeTablet()) {
+        if (!requireContext().isLargeTablet()) {
             val swipeDecor = SwipeToDeleteOffSetItemDecoration(
                 binding.recyclerView.context, 2f,
                 OffsetMargin.TOP or OffsetMargin.BOTTOM
@@ -519,25 +522,28 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     }
 
     private fun adjustPanelContainer() {
-        if (appCompatActivity!!.isLargeTablet()) {
+        if (requireContext().isLargeTablet()) {
             binding.recyclerView.viewTreeObserver.addOnPreDrawListener(object :
                 ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     binding.recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+                    val ctx = binding.recyclerView.context
 
                     runWithView(Dispatchers.Main.immediate) {
                         val isLandscape =
-                            appCompatActivity!!.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
+                            ctx.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
                         val viewWidth = binding.recyclerView.measuredWidth
                         val minColumns = if (isLandscape) 2 else 1
 
                         // Minimum width for ea. card
-                        val minWidth = appCompatActivity!!.resources.getDimensionPixelSize(R.dimen.location_panel_minwidth)
+                        val minWidth =
+                            ctx.resources.getDimensionPixelSize(R.dimen.location_panel_minwidth)
                         // Available columns based on min card width
-                        val availColumns = if ((viewWidth / minWidth) <= 1) minColumns else (viewWidth / minWidth)
+                        val availColumns =
+                            if ((viewWidth / minWidth) <= 1) minColumns else (viewWidth / minWidth)
 
-                        if (binding.recyclerView.layoutManager is GridLayoutManager) {
-                            (binding.recyclerView.layoutManager as GridLayoutManager).spanCount = availColumns
+                        (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
+                            it.spanCount = availColumns
                         }
                     }
 
@@ -629,8 +635,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun loadLocations() {
         runWithView(Dispatchers.Default) {
             // Load up saved locations
-            val locations = ArrayList(getSettingsManager().getFavorites()
-                                      ?: Collections.emptyList())
+            val locations = ArrayList(settingsManager.getFavorites() ?: Collections.emptyList())
             withContext(Dispatchers.Main) {
                 mAdapter.removeAll()
             }
@@ -639,7 +644,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
             // Setup saved favorite locations
             var gpsData: LocationData? = null
-            if (getSettingsManager().useFollowGPS()) {
+            if (settingsManager.useFollowGPS()) {
                 gpsData = getGPSPanel()
 
                 if (gpsData != null) {
@@ -696,20 +701,21 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private suspend fun getGPSPanel(): LocationData? = withContext(Dispatchers.IO) {
         // Setup gps panel
-        if (appCompatActivity != null && getSettingsManager().useFollowGPS()) {
-            var locData = getSettingsManager().getLastGPSLocData()
+        context?.let {
+            if (settingsManager.useFollowGPS()) {
+                var locData = settingsManager.getLastGPSLocData()
 
-            if (locData?.isValid != true) {
-                locData = updateLocation()
-                if (locData != null) {
-                    getSettingsManager().saveLastGPSLocData(locData)
-                    LocalBroadcastManager.getInstance(appCompatActivity!!)
-                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                if (locData?.isValid != true) {
+                    locData = updateLocation()
+                    if (locData != null) {
+                        settingsManager.saveLastGPSLocData(locData)
+                        localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                    }
                 }
-            }
 
-            if (locData?.isValid == true) {
-                return@withContext locData
+                if (locData?.isValid == true) {
+                    return@withContext locData
+                }
             }
         }
         null
@@ -718,26 +724,30 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun refreshLocations() {
         runWithView(Dispatchers.Default) {
             // Reload all panels if needed
-            val locations = ArrayList(getSettingsManager().getLocationData()
-                                      ?: Collections.emptyList())
-            if (getSettingsManager().useFollowGPS()) {
-                val homeData = getSettingsManager().getLastGPSLocData()
+            val locations = ArrayList(settingsManager.getLocationData() ?: Collections.emptyList())
+            if (settingsManager.useFollowGPS()) {
+                val homeData = settingsManager.getLastGPSLocData()
                 locations.add(0, homeData)
             }
             val gpsPanelViewModel = mAdapter.getGPSPanel()
 
             var reload = locations.size != mAdapter.getDataCount() ||
-                    getSettingsManager().useFollowGPS() && gpsPanelViewModel == null ||
-                    !getSettingsManager().useFollowGPS() && gpsPanelViewModel != null
+                    settingsManager.useFollowGPS() && gpsPanelViewModel == null ||
+                    !settingsManager.useFollowGPS() && gpsPanelViewModel != null
 
             // Reload if weather source differs
-            if (getSettingsManager().getAPI() != gpsPanelViewModel?.weatherSource ||
-                    mAdapter.getFavoritesCount() > 0 && getSettingsManager().getAPI() != mAdapter.getFirstFavPanel()?.weatherSource) {
+            if (settingsManager.getAPI() != gpsPanelViewModel?.weatherSource ||
+                mAdapter.getFavoritesCount() > 0 && settingsManager.getAPI() != mAdapter.getFirstFavPanel()?.weatherSource
+            ) {
                 reload = true
             }
 
-            if (getSettingsManager().useFollowGPS()) {
-                if (!reload && !ObjectsCompat.equals(locations[0]?.query, gpsPanelViewModel?.locationData?.query)) {
+            if (settingsManager.useFollowGPS()) {
+                if (!reload && !ObjectsCompat.equals(
+                        locations[0]?.query,
+                        gpsPanelViewModel?.locationData?.query
+                    )
+                ) {
                     reload = true
                 }
             }
@@ -783,7 +793,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         runWithView(Dispatchers.Default) {
             // Setup saved favorite locations
             val gpsData: LocationData?
-            if (getSettingsManager().useFollowGPS()) {
+            if (settingsManager.useFollowGPS()) {
                 gpsData = getGPSPanel()
 
                 if (gpsData != null) {
@@ -827,14 +837,15 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private suspend fun updateLocation(): LocationData? {
         var locationData: LocationData? = null
 
-        if (getSettingsManager().useFollowGPS()) {
-            if (appCompatActivity != null && !appCompatActivity!!.locationPermissionEnabled()) {
-                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
-                return null
+        if (settingsManager.useFollowGPS()) {
+            context?.let {
+                if (!it.locationPermissionEnabled()) {
+                    this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                    return@updateLocation null
+                }
             }
 
-            val locMan =
-                appCompatActivity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            val locMan = context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
                 return null
@@ -907,11 +918,10 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                         // Do the task you need to do.
                         val locData = updateLocation()
                         if (locData != null) {
-                            getSettingsManager().saveLastGPSLocData(locData)
+                            settingsManager.saveLastGPSLocData(locData)
                             refreshLocations()
                             Timber.tag("LocationsFragment").d("Location changed; sending update")
-                            LocalBroadcastManager.getInstance(appCompatActivity!!)
-                                    .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
                         } else {
                             launch(Dispatchers.Main) {
                                 removeGPSPanel()
@@ -921,7 +931,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    getSettingsManager().setFollowGPS(false)
+                    settingsManager.setFollowGPS(false)
                     removeGPSPanel()
                     context?.let {
                         showSnackbar(
@@ -953,7 +963,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                     mHomeChanged = true
 
                 // Hide FAB; Don't allow adding more locations
-                if (mAdapter.getDataCount() >= getSettingsManager().getMaxLocations()) {
+                if (mAdapter.getDataCount() >= settingsManager.getMaxLocations()) {
                     binding.fab.hide()
                 } else {
                     binding.fab.show()
@@ -1078,12 +1088,12 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         } else {
             toolbar.navigationIcon = null
             toolbar.setNavigationOnClickListener(null)
-            toolbar.setTitle(title)
+            toolbar.setTitle(titleResId)
             toolbar.setTitleTextAppearance(
                 toolbar.context,
                 toolbar.context.getAttrResourceId(R.attr.textAppearanceHeadline6)
             )
-            (appCompatActivity as? WindowColorManager)?.updateWindowColors()
+            (activity as? WindowColorManager)?.updateWindowColors()
         }
 
         toolbar.menu.forEach {
@@ -1131,7 +1141,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         var dataPosition = mAdapter.getDataset().indexOf(view)
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
         GlobalScope.launch(Dispatchers.Default) {
-            getSettingsManager().moveLocation(query, pos)
+            settingsManager.moveLocation(query, pos)
         }
     }
 
@@ -1139,19 +1149,21 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         super.updateWindowColors()
 
         if (mEditMode) {
-            val statusBarColor = appCompatActivity!!.getAttrColor(R.attr.colorPrimary)
+            activity?.let {
+                val statusBarColor = it.getAttrColor(R.attr.colorPrimary)
 
-            if (appBarLayout.background is MaterialShapeDrawable) {
-                val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
-                materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
-            } else {
-                appBarLayout.setBackgroundColor(statusBarColor)
-            }
+                if (appBarLayout.background is MaterialShapeDrawable) {
+                    val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
+                    materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
+                } else {
+                    appBarLayout.setBackgroundColor(statusBarColor)
+                }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                appCompatActivity?.window?.setLightStatusBar(
-                    ColorsUtils.isSuperLight(statusBarColor)
-                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    it.window?.setLightStatusBar(
+                        ColorsUtils.isSuperLight(statusBarColor)
+                    )
+                }
             }
         }
     }
