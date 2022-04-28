@@ -25,7 +25,6 @@ import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.location.LocationManagerCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
@@ -272,8 +271,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     WearableWorker.enqueueAction(requireContext(), (filter.intent.action)!!)
                 }
                 CommonActionsBroadcastReceiver::class.java.name == filter.intent.component!!.className -> {
-                    LocalBroadcastManager.getInstance(requireContext())
-                        .sendBroadcast(filter.intent)
+                    localBroadcastManager.sendBroadcast(filter.intent)
                 }
                 else -> {
                     requireContext().startService(filter.intent)

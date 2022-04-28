@@ -34,7 +34,6 @@ import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
@@ -53,7 +52,6 @@ import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
@@ -478,11 +476,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             private val sendUpdateRunner = Runnable {
                 // Home has changed send notice
                 Timber.tag("LocationsFragment").d("Home changed; sending update")
-                LocalBroadcastManager.getInstance(appLib.context)
-                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-                                .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
-                LocalBroadcastManager.getInstance(appLib.context)
-                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
+                localBroadcastManager.sendBroadcast(
+                    Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
+                )
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
             }
         })
         if (!requireContext().isLargeTablet()) {
@@ -1045,13 +1043,11 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         if (!mEditMode && mHomeChanged) {
             Timber.tag(TAG).d("Home changed; sending update")
-            LocalBroadcastManager.getInstance(appLib.context)
-                .sendBroadcast(
-                    Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
-                )
-            LocalBroadcastManager.getInstance(appLib.context)
-                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
+            localBroadcastManager.sendBroadcast(
+                Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                    .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
+            )
+            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
         }
 
         mDataChanged = false

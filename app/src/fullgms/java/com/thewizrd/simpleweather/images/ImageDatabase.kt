@@ -3,17 +3,17 @@ package com.thewizrd.simpleweather.images
 import android.content.Intent
 import android.util.Log
 import androidx.annotation.WorkerThread
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.Source
-import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.images.model.ImageData
 import kotlinx.coroutines.Dispatchers
@@ -137,8 +137,7 @@ object ImageDatabase {
 
         // Register worker
         if (appLib.isPhone) {
-            LocalBroadcastManager.getInstance(appLib.context)
-                .sendBroadcast(Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER))
+            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_IMAGES_UPDATEWORKER))
         }
     }
 

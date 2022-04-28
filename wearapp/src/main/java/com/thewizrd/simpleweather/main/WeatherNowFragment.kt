@@ -22,7 +22,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ibm.icu.util.ULocale
 import com.thewizrd.common.controls.*
 import com.thewizrd.common.helpers.SpacerItemDecoration
@@ -500,11 +499,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
 
         binding.openonphoneButton.setOnClickListener {
-            LocalBroadcastManager.getInstance(requireActivity())
-                .sendBroadcast(
-                    Intent(WearableListenerActivity.ACTION_OPENONPHONE)
-                        .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
-                )
+            localBroadcastManager.sendBroadcast(
+                Intent(WearableListenerActivity.ACTION_OPENONPHONE)
+                    .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
+            )
         }
 
         return view
@@ -553,8 +551,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         AnalyticsLogger.logEvent("WeatherNowFragment: onPause")
 
         if (syncReceiverRegistered) {
-            LocalBroadcastManager.getInstance(requireContext())
-                    .unregisterReceiver(syncDataReceiver)
+            localBroadcastManager.unregisterReceiver(syncDataReceiver)
             syncReceiverRegistered = false
         }
 

@@ -16,7 +16,7 @@ import com.thewizrd.weather_api.weatherModule
 // Shared Preferences listener
 class SettingsListener(@NonNull private val app: ApplicationLib) :
     SharedPreferences.OnSharedPreferenceChangeListener {
-    private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(app.context)
+    private val localBroadcastManager = LocalBroadcastManager.getInstance(app.context)
     private val settingsMgr = SettingsManager(app.context)
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
@@ -28,7 +28,7 @@ class SettingsListener(@NonNull private val app: ApplicationLib) :
             // Weather Provider changed
             weatherModule.weatherManager.updateAPI()
             if (isWeatherLoaded) {
-                mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEAPI))
             }
         } else if (key == SettingsManager.KEY_USEPERSONALKEY) {
             // Weather Provider changed
@@ -36,16 +36,16 @@ class SettingsListener(@NonNull private val app: ApplicationLib) :
         } else if (key == SettingsManager.KEY_FOLLOWGPS) {
             if (isWeatherLoaded) {
                 val value = sharedPreferences.getBoolean(key, false)
-                mLocalBroadcastManager.sendBroadcast(
+                localBroadcastManager.sendBroadcast(
                     Intent(CommonActions.ACTION_SETTINGS_UPDATEGPS)
                 )
-                if (app.isPhone) mLocalBroadcastManager.sendBroadcast(
+                if (app.isPhone) localBroadcastManager.sendBroadcast(
                     Intent(if (value) CommonActions.ACTION_WIDGET_REFRESHWIDGETS else CommonActions.ACTION_WIDGET_RESETWIDGETS)
                 )
             }
         } else if (key == SettingsManager.KEY_REFRESHINTERVAL) {
             if (isWeatherLoaded) {
-                mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEREFRESH))
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEREFRESH))
             }
         } else if (key == SettingsManager.KEY_DATASYNC) {
             if (isWeatherLoaded) {
@@ -66,11 +66,11 @@ class SettingsListener(@NonNull private val app: ApplicationLib) :
             sharedDeps.weatherIconsManager.updateIconProvider()
         } else if (key == SettingsManager.KEY_DAILYNOTIFICATION) {
             if (isWeatherLoaded) {
-                mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION))
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEDAILYNOTIFICATION))
             }
         } else if (key.startsWith(SettingsManager.KEY_APIKEY_PREFIX)) {
             if (appLib.isPhone) {
-                mLocalBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
+                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
             }
         }
     }

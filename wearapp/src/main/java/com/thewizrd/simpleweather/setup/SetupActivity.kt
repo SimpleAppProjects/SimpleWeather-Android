@@ -15,12 +15,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.utils.ActivityUtils.showToast
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -330,8 +330,7 @@ class SetupActivity : UserLocaleActivity() {
 
                         // If we're changing locations, trigger an update
                         if (settingsManager.isWeatherLoaded()) {
-                            LocalBroadcastManager.getInstance(this@SetupActivity)
-                                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
                         }
 
                         settingsManager.setFollowGPS(true)

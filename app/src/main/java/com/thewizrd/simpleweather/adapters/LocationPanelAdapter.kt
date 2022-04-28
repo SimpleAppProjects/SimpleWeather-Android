@@ -13,12 +13,12 @@ import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import com.thewizrd.common.helpers.ObservableArrayList
 import com.thewizrd.common.helpers.OnListChangedListener
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -468,11 +468,10 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
             settingsManager.deleteLocation(query)
 
             // Notify location removed
-            LocalBroadcastManager.getInstance(appLib.context)
-                .sendBroadcast(
-                    Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
-                        .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, query)
-                )
+            localBroadcastManager.sendBroadcast(
+                Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
+                    .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, query)
+            )
 
             remove(panel)
         }
@@ -643,11 +642,10 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
                                     settingsManager.deleteLocation(key)
 
                                     // Notify location removed
-                                    LocalBroadcastManager.getInstance(context)
-                                        .sendBroadcast(
-                                            Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
-                                                .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, key)
-                                        )
+                                    localBroadcastManager.sendBroadcast(
+                                        Intent(CommonActions.ACTION_WEATHER_LOCATIONREMOVED)
+                                            .putExtra(Constants.WIDGETKEY_LOCATIONQUERY, key)
+                                    )
                                 }
                             }
                         }

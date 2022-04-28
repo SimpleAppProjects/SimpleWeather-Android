@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.phone.interactions.PhoneTypeHelper
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
@@ -19,6 +18,7 @@ import com.google.android.gms.wearable.CapabilityClient.OnCapabilityChangedListe
 import com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.shared_resources.utils.Logger
@@ -106,8 +106,7 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
         Wearable.getCapabilityClient(this).addListener(this, WearableHelper.CAPABILITY_PHONE_APP)
         Wearable.getMessageClient(this).addListener(this)
 
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(broadcastReceiver, intentFilter)
+        localBroadcastManager.registerReceiver(broadcastReceiver, intentFilter)
 
         lifecycleScope.launch { checkConnectionStatus() }
 
@@ -116,8 +115,7 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(broadcastReceiver)
+        localBroadcastManager.unregisterReceiver(broadcastReceiver)
         Wearable.getCapabilityClient(this).removeListener(this, WearableHelper.CAPABILITY_PHONE_APP)
         Wearable.getMessageClient(this).removeListener(this)
         super.onPause()
@@ -185,10 +183,11 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
             if (messageEvent.path == WearableHelper.IsSetupPath) {
                 val data = messageEvent.data
                 val isDeviceSetup = data[0] != 0.toByte()
-                LocalBroadcastManager.getInstance(this)
-                        .sendBroadcast(Intent(WearableHelper.IsSetupPath)
-                                .putExtra(EXTRA_DEVICESETUPSTATUS, isDeviceSetup)
-                                .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value))
+                localBroadcastManager.sendBroadcast(
+                    Intent(WearableHelper.IsSetupPath)
+                        .putExtra(EXTRA_DEVICESETUPSTATUS, isDeviceSetup)
+                        .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+                )
             }
         }
     }
@@ -229,18 +228,16 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                 }
             }
 
-            LocalBroadcastManager.getInstance(this@WearableListenerActivity)
-                .sendBroadcast(
-                    Intent(ACTION_UPDATECONNECTIONSTATUS)
-                        .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
-                )
+            localBroadcastManager.sendBroadcast(
+                Intent(ACTION_UPDATECONNECTIONSTATUS)
+                    .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+            )
         }
     }
 
     protected suspend fun sendSetupStatusRequest() {
         if (!connect()) {
-            LocalBroadcastManager.getInstance(this@WearableListenerActivity).sendBroadcast(
-                    Intent(WearableHelper.ErrorPath))
+            localBroadcastManager.sendBroadcast(Intent(WearableHelper.ErrorPath))
             return
         }
 
@@ -256,9 +253,10 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     protected suspend fun updateConnectionStatus() {
         checkConnectionStatus()
 
-        LocalBroadcastManager.getInstance(this@WearableListenerActivity)
-                .sendBroadcast(Intent(ACTION_UPDATECONNECTIONSTATUS)
-                        .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value))
+        localBroadcastManager.sendBroadcast(
+            Intent(ACTION_UPDATECONNECTIONSTATUS)
+                .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+        )
     }
 
     protected suspend fun checkConnectionStatus() {
@@ -347,11 +345,10 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
                 if (apiException?.statusCode == WearableStatusCodes.TARGET_NODE_NOT_CONNECTED) {
                     mConnectionStatus = WearConnectionStatus.DISCONNECTED
 
-                    LocalBroadcastManager.getInstance(this@WearableListenerActivity)
-                        .sendBroadcast(
-                            Intent(ACTION_UPDATECONNECTIONSTATUS)
-                                .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
-                        )
+                    localBroadcastManager.sendBroadcast(
+                        Intent(ACTION_UPDATECONNECTIONSTATUS)
+                            .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+                    )
                 }
             }
 
@@ -400,10 +397,9 @@ abstract class WearableListenerActivity : UserLocaleActivity(), OnMessageReceive
     protected fun setConnectionStatus(status: WearConnectionStatus) {
         mConnectionStatus = status
 
-        LocalBroadcastManager.getInstance(this@WearableListenerActivity)
-            .sendBroadcast(
-                Intent(ACTION_UPDATECONNECTIONSTATUS)
-                    .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
-            )
+        localBroadcastManager.sendBroadcast(
+            Intent(ACTION_UPDATECONNECTIONSTATUS)
+                .putExtra(EXTRA_CONNECTIONSTATUS, mConnectionStatus.value)
+        )
     }
 }

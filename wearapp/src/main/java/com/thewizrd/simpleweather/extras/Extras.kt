@@ -5,8 +5,8 @@ package com.thewizrd.simpleweather.extras
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thewizrd.extras.extrasModule
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
@@ -22,7 +22,7 @@ fun isWeatherAPISupported(api: String?): Boolean {
 fun SettingsActivity.SettingsFragment.navigateToPremiumFragment() {
     // Navigate to premium page
     showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
-    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(
+    localBroadcastManager.sendBroadcast(
         Intent(WearableListenerActivity.ACTION_OPENONPHONE)
             .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
     )
@@ -32,7 +32,7 @@ fun SettingsActivity.SettingsFragment.navigateToPremiumFragment() {
 fun SettingsActivity.IconsFragment.navigateUnsupportedIconPack() {
     // Navigate to premium page
     showToast(R.string.message_premium_required, Toast.LENGTH_SHORT);
-    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(
+    localBroadcastManager.sendBroadcast(
         Intent(WearableListenerActivity.ACTION_OPENONPHONE)
             .putExtra(WearableListenerActivity.EXTRA_SHOWANIMATION, true)
     )
