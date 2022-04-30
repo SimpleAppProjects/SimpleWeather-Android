@@ -50,4 +50,8 @@
     <string name="weather_clearsky">Clear sky</string>
     <string name="weather_heavyrain">Heavy rain</string>
 
+    <string name="weather_mostlyclear">Mostly Clear</string>
+    <string name="weather_lightfog">Light Fog</string>
+    <string name="weather_drizzle">Drizzle</string>
+
 </resources>

@@ -82,14 +82,14 @@ class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
 
         if (isMainProcess) {
             sharedDeps = object : SharedModule() {
-                override val context = appLib.context
+                override val context = appLib.context // keep same context as applib
             }
 
             initializeFirebase(applicationContext)
 
             // Initialize CommonModule: Version migrations (depends on SharedModule, Firebase)
             commonModule = object : CommonModule() {
-                override val context = appLib.context
+                override val context = appLib.context // keep same context as applib
             }
 
             registerCommonReceiver()

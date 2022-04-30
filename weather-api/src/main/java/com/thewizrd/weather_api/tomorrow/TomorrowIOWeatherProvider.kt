@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
+import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
@@ -70,7 +71,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
     }
 
     override fun supportsWeatherLocale(): Boolean {
-        return false
+        return true
     }
 
     override fun supportsAlerts(): Boolean {
@@ -918,6 +919,178 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
             weatherIcon = WeatherIcons.NA
         }
         return weatherIcon
+    }
+
+    override fun getWeatherCondition(icon: String?): String {
+        val conditionCode = icon?.toIntOrNull() ?: return super.getWeatherCondition(icon)
+
+        return when (conditionCode) {
+            /* Clear */
+            1000, 10000, 10001 -> context.getString(R.string.weather_clear)
+            /* Mostly Clear */
+            1100, 11000, 11001 -> context.getString(R.string.weather_mostlyclear)
+            /* Partly Cloudy */
+            1101, 11010, 11011 -> context.getString(R.string.weather_partlycloudy)
+            /* Mostly Cloudy */
+            1102, 11020, 11021 -> context.getString(R.string.weather_mostlycloudy)
+            /* Cloudy */
+            1001, 10010, 10011 -> context.getString(R.string.weather_cloudy)
+            /* Mostly Clear */
+            1103, 11030, 11031 -> context.getString(R.string.weather_mostlyclear)
+            /* Light Fog */
+            2100, 21000, 21001,
+            2101, 21010, 21011,
+            2102, 21020, 21021,
+            2103, 21030, 21031 -> context.getString(R.string.weather_lightfog)
+            /* Fog */
+            2000, 20000, 20001,
+            2106, 21060, 21061,
+            2107, 21070, 21071,
+            2108, 21080, 21081 -> context.getString(R.string.weather_fog)
+            /* Drizzle */
+            4000, 40000, 40001,
+            4203, 42030, 42031,
+            4204, 42040, 42041,
+            4205, 42050, 42051 -> context.getString(R.string.weather_drizzle)
+            /* Light Rain */
+            4200, 42000, 42001,
+            4213, 42130, 42131,
+            4214, 42140, 42141,
+            4215, 42150, 42151 -> context.getString(R.string.weather_lightrain)
+            /* Rain */
+            4001, 40010, 40011,
+            4209, 42090, 42091,
+            4208, 42080, 42081,
+            4210, 42100, 42101 -> context.getString(R.string.weather_rain)
+            /* Heavy Rain */
+            4201, 42010, 42011,
+            4211, 42110, 42111 -> context.getString(R.string.weather_heavyrain)
+            /* Flurries */
+            5001, 50010, 50011,
+            5115, 51150, 51151,
+            5116, 51160, 51161,
+            5117, 51170, 51171 -> context.getString(R.string.weather_snowflurries)
+            /* Light Snow */
+            5100, 51000, 51001,
+            5102, 51020, 51021,
+            5103, 51030, 51031,
+            5104, 51040, 51041 -> context.getString(R.string.weather_lightsnowshowers)
+            /* Snow */
+            5000, 50000, 50001,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Snow
+                 */
+            5105, 51050, 51051,
+            5106, 51060, 51061,
+            5107, 51070, 51071 -> context.getString(R.string.weather_snow)
+            /* Heavy Snow */
+            5101, 51010, 51011,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Snow
+                 */
+            5119, 51190, 51191,
+            5120, 51200, 51201,
+            5121, 51210, 51211 -> context.getString(R.string.weather_heavysnow)
+            /*
+             * Mixed conditions:
+             * Condition 1: Drizzle / Rain
+             * Condition 2: Light Snow / Snow
+             */
+            5122, 51220, 51221,
+            5110, 51100, 51101,
+            5108, 51080, 51081 -> context.getString(R.string.weather_rainandsnow)
+            /*
+             * Mixed conditions:
+             * Condition 1: Snow
+             * Condition 2: Freezing Rain
+             */
+            5114, 51140, 51141,
+                /* Freezing Drizzle / Light Freezing Drizzle / Freezing Rain / Heavy Freezing Rain */
+            6000, 60000, 60001,
+            6200, 62000, 62001,
+            6001, 60010, 60011,
+            6201, 62010, 62011,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Freezing Drizzle / Light Freezing Rain / Freezing Rain
+                 */
+            6003, 60030, 60031,
+            6002, 60020, 60021,
+            6004, 60040, 60041,
+            6204, 62040, 62041,
+            6206, 62060, 62061,
+            6205, 62050, 62051,
+            6203, 62030, 62031,
+            6209, 62090, 62091,
+            6213, 62130, 62131,
+            6214, 62140, 62141,
+            6215, 62150, 62151,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Drizzle / Light Rain / Rain
+                 * Condition 2: Freezing Rain
+                 */
+            6212, 62120, 62121,
+            6222, 62220, 62221,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Heavy Freezing Rain
+                 */
+            6207, 62070, 62071,
+            6202, 62020, 62021,
+            6208, 62080, 62081 -> context.getString(R.string.weather_freezingrain)
+            /*
+             * Mixed conditions:
+             * Condition 1: Snow
+             * Condition 2: Ice Pellets
+             */
+            5112, 51120, 51121 -> context.getString(R.string.weather_snowandsleet)
+            /* Light Ice Pellets / Ice Pellets / Heavy Ice Pellets / [Sleet] */
+            7102, 71020, 71021,
+            7000, 70000, 70001,
+            7101, 71010, 71011,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Light Ice Pellets / Ice Pellets / Heavy Ice Pellets
+                 */
+            7110, 71100, 71101,
+            7111, 71110, 71111,
+            7112, 71120, 71121,
+            7108, 71080, 71081,
+            7107, 71070, 71071,
+            7109, 71090, 71091,
+            7113, 71130, 71131,
+            7114, 71140, 71141,
+            7116, 71160, 71161 -> context.getString(R.string.weather_sleet)
+            /*
+             * Mixed conditions:
+             * Condition 1: Drizzle / Light Rain / Rain / Freezing Rain
+             * Condition 2: Light Ice Pellets / Ice Pellets / Heavy Ice Pellets
+             */
+            7105, 71050, 71051,
+            7115, 71150, 71151,
+            7117, 71170, 71171,
+            7106, 71060, 71061,
+            7103, 71030, 71031 -> context.getString(R.string.weather_rainandsleet)
+            /* Thunderstorm */
+            8000, 80000, 80001,
+                /*
+                 * Mixed conditions:
+                 * Condition 1: Mostly Clear / Partly Cloudy / Mostly Cloudy
+                 * Condition 2: Thunderstorm
+                 */
+            8001, 80010, 80011,
+            8003, 80030, 80031,
+            8002, 80020, 80021 -> context.getString(R.string.weather_tstorms)
+            else -> context.getString(R.string.weather_notavailable)
+        }
     }
 
     // Some conditions can be for any time of day

@@ -75,6 +75,15 @@ public class Values {
     @SerializedName("weedIndex")
     private Integer weedIndex;
 
+    @SerializedName("weatherCodeDay")
+    private Integer weatherCodeDay;
+
+    @SerializedName("weatherCodeFullDay")
+    private Integer weatherCodeFullDay;
+
+    @SerializedName("weatherCodeNight")
+    private Integer weatherCodeNight;
+
     public void setPrecipitationProbability(Float precipitationProbability) {
         this.precipitationProbability = precipitationProbability;
     }
@@ -257,5 +266,29 @@ public class Values {
 
     public Integer getWeedIndex() {
         return weedIndex;
+    }
+
+    public Integer getWeatherCodeDay() {
+        return weatherCodeDay;
+    }
+
+    public void setWeatherCodeDay(Integer weatherCodeDay) {
+        this.weatherCodeDay = weatherCodeDay;
+    }
+
+    public Integer getWeatherCodeFullDay() {
+        return weatherCodeFullDay;
+    }
+
+    public void setWeatherCodeFullDay(Integer weatherCodeFullDay) {
+        this.weatherCodeFullDay = weatherCodeFullDay;
+    }
+
+    public Integer getWeatherCodeNight() {
+        return weatherCodeNight;
+    }
+
+    public void setWeatherCodeNight(Integer weatherCodeNight) {
+        this.weatherCodeNight = weatherCodeNight;
     }
 }

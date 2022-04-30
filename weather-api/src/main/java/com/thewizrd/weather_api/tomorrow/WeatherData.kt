@@ -19,26 +19,35 @@ fun createWeatherData(root: Rootobject, minutelyRoot: Rootobject?, alertRoot: Al
         updateTime = ZonedDateTime.now(ZoneOffset.UTC)
 
         for (timeline in root.data.timelines) {
-            if (timeline.timestep == "1h") {
-                hrForecast = ArrayList(timeline.intervals.size)
+            when (timeline.timestep) {
+                "1h" -> {
+                    hrForecast = ArrayList(timeline.intervals.size)
 
-                for (interval in timeline.intervals) {
-                    hrForecast.add(createHourlyForecast(interval))
-                }
-            } else if (timeline.timestep == "1d") {
-                forecast = ArrayList(timeline.intervals.size)
-
-                for (interval in timeline.intervals) {
-                    if (astronomy == null && updateTime.truncatedTo(ChronoUnit.DAYS).isEqual(ZonedDateTime.parse(interval.startTime).truncatedTo(ChronoUnit.DAYS))) {
-                        astronomy = createAstronomy(interval)
+                    for (interval in timeline.intervals) {
+                        hrForecast.add(createHourlyForecast(interval))
                     }
-
-                    forecast.add(createForecast(interval))
                 }
-            } else if (timeline.timestep == "current") {
-                condition = createCondition(timeline.intervals[0])
-                atmosphere = createAtmosphere(timeline.intervals[0])
-                precipitation = createPrecipitation(timeline.intervals[0])
+                "1d" -> {
+                    forecast = ArrayList(timeline.intervals.size)
+                    txtForecast = ArrayList(timeline.intervals.size)
+
+                    for (interval in timeline.intervals) {
+                        if (astronomy == null && updateTime.truncatedTo(ChronoUnit.DAYS).isEqual(
+                                ZonedDateTime.parse(interval.startTime).truncatedTo(ChronoUnit.DAYS)
+                            )
+                        ) {
+                            astronomy = createAstronomy(interval)
+                        }
+
+                        forecast.add(createForecast(interval))
+                        txtForecast.add(createTextForecast(interval))
+                    }
+                }
+                "current" -> {
+                    condition = createCondition(timeline.intervals[0])
+                    atmosphere = createAtmosphere(timeline.intervals[0])
+                    precipitation = createPrecipitation(timeline.intervals[0])
+                }
             }
         }
 
@@ -91,7 +100,7 @@ fun createForecast(item: IntervalsItem): Forecast {
             lowC = it
         }
 
-        icon = item.values.weatherCode?.toString()
+        icon = (item.values.weatherCodeFullDay ?: item.values.weatherCode)?.toString()
 
         // Extras
         extras = ForecastExtras()
@@ -143,6 +152,16 @@ fun createForecast(item: IntervalsItem): Forecast {
             extras.visibilityKm = it
             extras.visibilityMi = ConversionMethods.kmToMi(it)
         }
+    }
+}
+
+fun createTextForecast(item: IntervalsItem): TextForecast {
+    return TextForecast().apply {
+        date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
+
+        // TODO: code -> weather condition for day + night
+        fcttext = item.values.weatherCode.toString()
+        fcttextMetric = item.values.weatherCode.toString()
     }
 }
 
