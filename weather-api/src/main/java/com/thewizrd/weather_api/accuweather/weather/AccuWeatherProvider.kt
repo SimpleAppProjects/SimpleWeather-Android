@@ -285,118 +285,99 @@ class AccuWeatherProvider : WeatherProviderImpl() {
     override fun getWeatherIcon(isNight: Boolean, icon: String?): String {
         var weatherIcon = ""
 
-        if (icon == null) return WeatherIcons.NA
+        val conditionCode = icon?.toIntOrNull() ?: return WeatherIcons.NA
 
-        when (icon.toIntOrNull()) {
-            /*
-             *  1: Sunny
-             * 33: Clear
-             */
-            1, 33 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_CLEAR
-            else
-                WeatherIcons.DAY_SUNNY
+        when (conditionCode) {
+            /* Sunny */
+            1 -> WeatherIcons.DAY_SUNNY
             /*
              *  2: Mostly Sunny
              *  3: Partly Sunny
-             * 34: Mostly Clear
-             * 35: Partly Cloudy
-             */
-            2, 3, 34, 35 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
-            else
-                WeatherIcons.DAY_PARTLY_CLOUDY
-            /*
              *  4: Intermittent Clouds
-             *  6: Mostly Cloudy
-             *  7: Cloudy
-             * 36: Intermittent Clouds
-             * 38: Mostly Cloudy
              */
-            4, 6, 7, 36, 38 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_CLOUDY
-            else
-                WeatherIcons.DAY_CLOUDY
+            2, 3, 4 -> weatherIcon = WeatherIcons.DAY_PARTLY_CLOUDY
+            /* 5: Hazy Sunshine */
+            5 -> weatherIcon = WeatherIcons.DAY_HAZE
+            /* 6: Mostly Cloudy */
+            6 -> weatherIcon = WeatherIcons.DAY_CLOUDY
+            /* 7: Cloudy */
+            7 -> weatherIcon = WeatherIcons.CLOUDY
             /* 8: Dreary (Overcast) */
             8 -> weatherIcon = if (isNight)
                 WeatherIcons.NIGHT_OVERCAST
             else
                 WeatherIcons.DAY_SUNNY_OVERCAST
-            /*
-             *  5: Hazy Sunshine
-             * 37: Hazy Moonlight
-             */
-            5, 37 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_FOG
-            else
-                WeatherIcons.DAY_HAZE
             /* 11: Fog */
-            11 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_FOG
-            else
-                WeatherIcons.DAY_FOG
+            11 -> weatherIcon = WeatherIcons.FOG
+            /* 12: Showers */
+            12 -> weatherIcon = WeatherIcons.SHOWERS
             /*
-             * 12: Showers
              * 13: Mostly Cloudy w/ Showers
              * 14: Partly Sunny w/ Showers
-             * 39: Partly Cloudy w/ Showers
-             * 40: Mostly Cloudy w/ Showers
              */
-            12, 13, 14, 39, 40 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_SHOWERS
-            else
-                WeatherIcons.DAY_SHOWERS
+            13, 14 -> weatherIcon = WeatherIcons.DAY_SHOWERS
+            /* 15: T-Storms */
+            15 -> weatherIcon = WeatherIcons.THUNDERSTORM
             /*
-             * 15: T-Storms
              * 16: Mostly Cloudy w/ T-Storms
              * 17: Partly Sunny w/ T-Storms
-             * 41: Partly Cloudy w/ T-Storms
-             * 42: Mostly Cloudy w/ T-Storms
              */
-            15, 16, 17, 41, 42 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_THUNDERSTORM
-            else
-                WeatherIcons.DAY_THUNDERSTORM
+            16, 17 -> weatherIcon = WeatherIcons.DAY_THUNDERSTORM
             /* 18: Rain */
-            18 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_RAIN
-            else
-                WeatherIcons.DAY_RAIN
+            18 -> weatherIcon = WeatherIcons.RAIN
+            /* 19: Flurries */
+            19 -> weatherIcon = WeatherIcons.SNOW
             /*
-             * 19: Flurries
              * 20: Mostly Cloudy w/ Flurries
              * 21: Partly Sunny w/ Flurries
-             * 22: Snow
              * 23: Mostly Cloudy w/ Snow
-             * 43: Mostly Cloudy w/ Flurries
-             * 44: Mostly Cloudy w/ Snow
              */
-            19, 20, 21, 22, 23, 43, 44 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_SNOW
-            else
-                WeatherIcons.DAY_SNOW
+            20, 21, 23 -> weatherIcon = WeatherIcons.DAY_SNOW
+            /* 22: Snow */
+            22 -> weatherIcon = WeatherIcons.SNOW
             /*
              * 24: Ice
              * 31: Cold
              */
             24, 31 -> weatherIcon = WeatherIcons.SNOWFLAKE_COLD
             /* 25: Sleet */
-            25 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_SLEET
-            else
-                WeatherIcons.DAY_SLEET
+            25 -> weatherIcon = WeatherIcons.SLEET
             /*
              * 26: Freezing Rain
              * 29: Rain and Snow
              */
-            26, 29 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_ALT_RAIN_MIX
-            else
-                WeatherIcons.DAY_RAIN_MIX
+            26, 29 -> weatherIcon = WeatherIcons.RAIN_MIX
             /* 30: Hot */
             30 -> weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_HOT
             /* 32: Windy */
-            32 -> weatherIcon = if (isNight) WeatherIcons.WINDY else WeatherIcons.DAY_WINDY
+            32 -> weatherIcon = WeatherIcons.WINDY
+            /* 33: Clear */
+            33 -> weatherIcon = WeatherIcons.NIGHT_CLEAR
+            /*
+             * 34: Mostly Clear
+             * 35: Partly Cloudy
+             * 36: Intermittent Clouds
+             */
+            34, 35, 36 -> weatherIcon = WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
+            /* 37: Hazy Moonlight */
+            37 -> weatherIcon = WeatherIcons.NIGHT_FOG
+            /* 38: Mostly Cloudy */
+            38 -> weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY
+            /*
+             * 39: Partly Cloudy w/ Showers
+             * 40: Mostly Cloudy w/ Showers
+             */
+            39, 40 -> weatherIcon = WeatherIcons.NIGHT_ALT_SHOWERS
+            /*
+             * 41: Partly Cloudy w/ T-Storms
+             * 42: Mostly Cloudy w/ T-Storms
+             */
+            41, 42 -> weatherIcon = WeatherIcons.NIGHT_ALT_THUNDERSTORM
+            /*
+             * 43: Mostly Cloudy w/ Flurries
+             * 44: Mostly Cloudy w/ Snow
+             */
+            43, 44 -> weatherIcon = WeatherIcons.NIGHT_ALT_SNOW
         }
 
         if (weatherIcon.isBlank()) {
