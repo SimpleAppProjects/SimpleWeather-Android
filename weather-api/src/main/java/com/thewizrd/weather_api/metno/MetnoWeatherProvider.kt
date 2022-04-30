@@ -190,12 +190,15 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         }
 
         for (hr_forecast in weather.hrForecast) {
-            val hrf_date = hr_forecast.date.withZoneSameInstant(offset)
-            hr_forecast.date = hrf_date
+            val hrfDate = hr_forecast.date.withZoneSameInstant(offset)
+            hr_forecast.date = hrfDate
 
-            val hrf_localTime = hrf_date.toLocalTime()
+            val hrfLocalTime = hrfDate.toLocalTime()
             hr_forecast.condition = getWeatherCondition(hr_forecast.icon)
-            hr_forecast.icon = getWeatherIcon(hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset), hr_forecast.icon)
+            hr_forecast.icon = getWeatherIcon(
+                hrfLocalTime.isBefore(sunrise) || hrfLocalTime.isAfter(sunset),
+                hr_forecast.icon
+            )
         }
     }
 
@@ -221,68 +224,104 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
 
         if (icon == null) return WeatherIcons.NA
 
-        val icon = getNeutralIconName(icon)
+        //val isNeutral = icon.split("_").size == 1
+        val isDay = icon.endsWith("day")
+        val isNight = icon.endsWith("night")
+        //val isPolarTwilight = icon.endsWith("polartwilight")
 
-        when (icon) {
+        when (getNeutralIconName(icon)) {
             "clearsky" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
-            }
-            "fair", "partlycloudy" -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
+                weatherIcon = when {
+                    isNight -> WeatherIcons.NIGHT_CLEAR
+                    else -> WeatherIcons.DAY_SUNNY
+                }
             }
             "cloudy" -> weatherIcon = WeatherIcons.CLOUDY
-            "rainshowers" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
-            }
-            "rainshowersandthunder" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
-            }
-            "sleetshowers",
-            "lightsleetshowers",
-            "heavysleetshowers" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
-            }
-            "snowshowers",
-            "lightsnowshowers",
-            "heavysnowshowers" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
-            }
-            "rain", "lightrain" -> weatherIcon = WeatherIcons.SPRINKLE
-            "heavyrain" -> weatherIcon = WeatherIcons.RAIN
-            "heavyrainandthunder" -> weatherIcon = WeatherIcons.THUNDERSTORM
-            "sleet",
-            "lightsleet",
-            "heavysleet" -> weatherIcon = WeatherIcons.SLEET
-            "snow", "lightsnow" -> weatherIcon = WeatherIcons.SNOW
-            "snowandthunder",
-            "snowshowersandthunder",
-            "lightssnowshowersandthunder",
-            "heavysnowshowersandthunder",
-            "lightsnowandthunder",
-            "heavysnowandthunder" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM else WeatherIcons.DAY_SNOW_THUNDERSTORM
+            "fair", "partlycloudy" -> {
+                weatherIcon = when {
+                    isNight -> WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
+                    else -> WeatherIcons.DAY_PARTLY_CLOUDY
+                }
             }
             "fog" -> weatherIcon = WeatherIcons.FOG
-            "sleetshowersandthunder",
-            "sleetandthunder",
-            "lightssleetshowersandthunder",
-            "heavysleetshowersandthunder",
-            "lightsleetandthunder",
-            "heavysleetandthunder" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SLEET_STORM else WeatherIcons.DAY_SLEET_STORM
-            }
-            "rainandthunder",
-            "lightrainandthunder",
-            "lightrainshowersandthunder",
-            "heavyrainshowersandthunder" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
-            }
-            "lightrainshowers",
+            "heavyrain" -> weatherIcon = WeatherIcons.RAIN_WIND
+            "heavyrainandthunder" -> weatherIcon = WeatherIcons.THUNDERSTORM
             "heavyrainshowers" -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_RAIN_WIND
+                    isNight -> WeatherIcons.NIGHT_ALT_RAIN_WIND
+                    else -> WeatherIcons.RAIN_WIND
+                }
+            }
+            "heavyrainshowersandthunder", "lightrainshowersandthunder" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_STORM_SHOWERS
+                    isNight -> WeatherIcons.NIGHT_ALT_STORM_SHOWERS
+                    else -> WeatherIcons.STORM_SHOWERS
+                }
+            }
+            "heavysleet", "lightsleet", "sleet" -> weatherIcon = WeatherIcons.SLEET
+            "heavysleetandthunder", "heavysleetshowersandthunder", "lightsleetandthunder",
+            "lightssleetshowersandthunder", "sleetandthunder", "sleetshowersandthunder" -> {
+                weatherIcon = when {
+                    isNight -> WeatherIcons.NIGHT_ALT_SLEET_STORM
+                    else -> WeatherIcons.DAY_SLEET_STORM
+                }
+            }
+            "heavysleetshowers" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SLEET
+                    isNight -> WeatherIcons.NIGHT_ALT_SLEET
+                    else -> WeatherIcons.SLEET
+                }
             }
             "heavysnow" -> weatherIcon = WeatherIcons.SNOW_WIND
+            "heavysnowandthunder", "heavysnowshowersandthunder", "lightsnowandthunder",
+            "lightssnowshowersandthunder", "snowandthunder", "snowshowersandthunder" -> {
+                weatherIcon = when {
+                    isNight -> WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM
+                    else -> WeatherIcons.DAY_SNOW_THUNDERSTORM
+                }
+            }
+            "heavysnowshowers" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SNOW_WIND
+                    isNight -> WeatherIcons.NIGHT_ALT_SNOW_WIND
+                    else -> WeatherIcons.SNOW_WIND
+                }
+            }
+            "lightrain" -> weatherIcon = WeatherIcons.SPRINKLE
+            "lightrainandthunder", "rainandthunder" -> weatherIcon = WeatherIcons.STORM_SHOWERS
+            "lightrainshowers", "rainshowers" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SHOWERS
+                    isNight -> WeatherIcons.NIGHT_ALT_SHOWERS
+                    else -> WeatherIcons.SHOWERS
+                }
+            }
+            "lightsleetshowers", "sleetshowers" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SLEET
+                    isNight -> WeatherIcons.NIGHT_ALT_SLEET
+                    else -> WeatherIcons.SLEET
+                }
+            }
+            "lightsnow", "snow" -> weatherIcon = WeatherIcons.SNOW
+            "lightsnowshowers", "snowshowers" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SNOW
+                    isNight -> WeatherIcons.NIGHT_ALT_SNOW
+                    else -> WeatherIcons.SNOW
+                }
+            }
+            "rain" -> weatherIcon = WeatherIcons.RAIN
+            "rainshowersandthunder" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_THUNDERSTORM
+                    isNight -> WeatherIcons.NIGHT_ALT_THUNDERSTORM
+                    else -> WeatherIcons.THUNDERSTORM
+                }
+            }
         }
 
         if (weatherIcon.isBlank()) {
@@ -297,27 +336,63 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         if (icon == null) return context.getString(R.string.weather_notavailable)
 
         return when (val neutralIcon = getNeutralIconName(icon)) {
-            "clearsky" -> context.getString(R.string.weather_clearsky)
-            "fair" -> context.getString(R.string.weather_fair)
-            "partlycloudy" -> context.getString(R.string.weather_partlycloudy)
-            "cloudy" -> context.getString(R.string.weather_cloudy)
-            "rainshowers" -> context.getString(R.string.weather_rainshowers)
-            "rainshowersandthunder" -> context.getString(R.string.weather_tstorms)
-            "sleetshowers", "lightsleetshowers", "sleet", "lightsleet", "heavysleet", "heavysleetshowers" -> context.getString(
-                R.string.weather_sleet
-            )
-            "snow", "snowshowers" -> context.getString(R.string.weather_snow)
-            "lightsnowshowers", "lightsnow" -> context.getString(R.string.weather_lightsnowshowers)
-            "heavysnowshowers", "heavysnow" -> context.getString(R.string.weather_heavysnow)
-            "rain" -> context.getString(R.string.weather_rain)
-            "lightrain" -> context.getString(R.string.weather_lightrain)
-            "heavyrain" -> context.getString(R.string.weather_heavyrain)
-            "rainandthunder", "lightrainandthunder", "lightrainshowersandthunder", "heavyrainshowersandthunder", "heavyrainandthunder" -> context.getString(R.string.weather_tstorms)
-            "snowandthunder", "snowshowersandthunder", "lightssnowshowersandthunder", "heavysnowshowersandthunder", "lightsnowandthunder", "heavysnowandthunder" -> context.getString(R.string.weather_snow_tstorms)
-            "fog" -> context.getString(R.string.weather_fog)
-            "sleetshowersandthunder", "sleetandthunder", "lightssleetshowersandthunder", "heavysleetshowersandthunder", "lightsleetandthunder", "heavysleetandthunder" -> context.getString(R.string.weather_sleet_tstorms)
-            "lightrainshowers", "heavyrainshowers" -> context.getString(R.string.weather_rainshowers)
-            else -> super.getWeatherCondition(neutralIcon)
+            "clearsky" -> {
+                context.getString(R.string.weather_clearsky)
+            }
+            "cloudy" -> {
+                context.getString(R.string.weather_cloudy)
+            }
+            "fair" -> {
+                context.getString(R.string.weather_fair)
+            }
+            "fog" -> {
+                context.getString(R.string.weather_fog)
+            }
+            "heavyrain" -> {
+                context.getString(R.string.weather_heavyrain)
+            }
+            "heavyrainandthunder", "heavyrainshowersandthunder", "lightrainandthunder",
+            "lightrainshowersandthunder", "rainandthunder", "rainshowersandthunder" -> {
+                context.getString(R.string.weather_tstorms)
+            }
+            "heavyrainshowers", "lightrainshowers", "rainshowers" -> {
+                context.getString(R.string.weather_rainshowers)
+            }
+            "heavysleet", "heavysleetshowers" -> {
+                context.getString(R.string.weather_sleet)
+            }
+            "heavysleetandthunder", "heavysleetshowersandthunder", "lightsleetandthunder",
+            "lightssleetshowersandthunder", "sleetandthunder", "sleetshowersandthunder" -> {
+                context.getString(R.string.weather_sleet_tstorms)
+            }
+            "heavysnow", "heavysnowshowers" -> {
+                context.getString(R.string.weather_heavysnow)
+            }
+            "heavysnowandthunder", "heavysnowshowersandthunder", "lightsnowandthunder",
+            "lightssnowshowersandthunder", "snowandthunder", "snowshowersandthunder" -> {
+                context.getString(R.string.weather_snow_tstorms)
+            }
+            "lightrain" -> {
+                context.getString(R.string.weather_lightrain)
+            }
+            "lightsleet", "lightsleetshowers", "sleet", "sleetshowers" -> {
+                context.getString(R.string.weather_sleet)
+            }
+            "lightsnow", "lightsnowshowers" -> {
+                context.getString(R.string.weather_lightsnowshowers)
+            }
+            "partlycloudy" -> {
+                context.getString(R.string.weather_partlycloudy)
+            }
+            "rain" -> {
+                context.getString(R.string.weather_rain)
+            }
+            "snow", "snowshowers" -> {
+                context.getString(R.string.weather_snow)
+            }
+            else -> {
+                super.getWeatherCondition(neutralIcon)
+            }
         }
     }
 
