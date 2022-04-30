@@ -400,26 +400,34 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
         val sunrise = weather.astronomy.sunrise.toLocalTime()
         val sunset = weather.astronomy.sunset.toLocalTime()
 
-        weather.condition.icon =
-            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
-        weather.condition.weather = getWeatherCondition(weather.condition.icon)
+        weather.condition.icon.let {
+            weather.condition.icon =
+                getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), it)
+            weather.condition.weather = getWeatherCondition(it)
+        }
 
         for (forecast in weather.forecast) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
-            forecast.icon = getWeatherIcon(forecast.icon)
-            forecast.condition = getWeatherCondition(forecast.icon)
+
+            forecast.icon.let {
+                forecast.icon = getWeatherIcon(it)
+                forecast.condition = getWeatherCondition(it)
+            }
         }
 
         for (hr_forecast in weather.hrForecast) {
-            val hrf_date = hr_forecast.date.withZoneSameInstant(offset)
-            hr_forecast.date = hrf_date
+            val hrfDate = hr_forecast.date.withZoneSameInstant(offset)
+            hr_forecast.date = hrfDate
 
-            val hrf_localTime = hrf_date.toLocalTime()
-            hr_forecast.icon = getWeatherIcon(
-                hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset),
-                hr_forecast.icon
-            )
-            hr_forecast.condition = getWeatherCondition(hr_forecast.icon)
+            val hrfLocalTime = hrfDate.toLocalTime()
+
+            hr_forecast.icon.let {
+                hr_forecast.icon = getWeatherIcon(
+                    hrfLocalTime.isBefore(sunrise) || hrfLocalTime.isAfter(sunset),
+                    it
+                )
+                hr_forecast.condition = getWeatherCondition(it)
+            }
         }
 
         if (!weather.minForecast.isNullOrEmpty()) {
