@@ -1,11 +1,14 @@
 package com.thewizrd.weather_api.tomorrow
 
 import android.annotation.SuppressLint
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.weather_api.R
+import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -159,9 +162,30 @@ fun createTextForecast(item: IntervalsItem): TextForecast {
     return TextForecast().apply {
         date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
 
-        // TODO: code -> weather condition for day + night
-        fcttext = item.values.weatherCode.toString()
-        fcttextMetric = item.values.weatherCode.toString()
+        val fcastStr = StringBuilder().apply {
+            val ctx = sharedDeps.context
+            val provider =
+                weatherModule.weatherProviderFactory.getWeatherProvider(WeatherAPI.TOMORROWIO)
+
+            append(
+                String.format(
+                    "%s - %s",
+                    ctx.getString(R.string.label_day),
+                    provider.getWeatherCondition(item.values.weatherCodeDay?.toString())
+                )
+            )
+            appendLine()
+            append(
+                String.format(
+                    "%s - %s",
+                    ctx.getString(R.string.label_night),
+                    provider.getWeatherCondition(item.values.weatherCodeNight?.toString())
+                )
+            )
+        }.toString()
+
+        fcttext = fcastStr
+        fcttextMetric = fcastStr
     }
 }
 
