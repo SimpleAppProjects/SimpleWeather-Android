@@ -302,36 +302,58 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
         if (icon == null) return WeatherIcons.NA
 
-        if (icon.startsWith("p10") || icon.startsWith("p11")) {
+        if (icon.startsWith("p10bis")) {
+            // Sprinkle
+            weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+        } else if (icon.startsWith("p10")) {
             // Light rain?
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
-        } else if (icon.startsWith("p12") || icon.startsWith("p13") || icon.startsWith("p14") || icon.startsWith(
-                "p15"
-            )
-        ) {
-            // Scattered Rain / Showers / Rain
+        } else if (icon.startsWith("p11")) {
+            // Light rain?
+            weatherIcon = WeatherIcons.SHOWERS
+        } else if (icon.startsWith("p12")) {
+            // Rain
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
-        } else if (icon.startsWith("p16") || icon.startsWith("p24") || icon.startsWith("p25")) {
-            // Thundershowers / T-storms
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
-        } else if (icon.startsWith("p17") || icon.startsWith("p18") || icon.startsWith("p19") || icon.startsWith(
-                "p20"
-            )
-        ) {
+        } else if (icon.startsWith("p13") || icon.startsWith("p14")) {
+            // Rain
+            weatherIcon = WeatherIcons.RAIN
+        } else if (icon.startsWith("p15")) {
+            // Heavy Rain
+            weatherIcon = WeatherIcons.RAIN_WIND
+        } else if (icon.startsWith("p16") || icon.startsWith("p25")) {
+            // Storm Showers
+            weatherIcon = WeatherIcons.STORM_SHOWERS
+        } else if (icon.startsWith("p17") || icon.startsWith("p21")) {
+            // Flurries?
+            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+        } else if (icon.startsWith("p18") || icon.startsWith("p22")) {
+            // Flurries?
+            weatherIcon = WeatherIcons.SNOW
+        } else if (icon.startsWith("p19")) {
             // Sleet / Rain mix
             weatherIcon =
                 if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
+        } else if (icon.startsWith("p20")) {
+            // Sleet / Rain mix
+            weatherIcon = WeatherIcons.RAIN_MIX
         } else if (icon.startsWith("p21") || icon.startsWith("p22") || icon.startsWith("p23")) {
             // Snow
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
-        } else if (icon.startsWith("p26") || icon.startsWith("p27") || icon.startsWith("p28") || icon.startsWith(
-                "p29"
-            )
-        ) {
+        } else if (icon.startsWith("p23")) {
+            // Heavy Snow
+            weatherIcon = WeatherIcons.SNOW_WIND
+        } else if (icon.startsWith("p24") || icon.startsWith("p25")) {
+            // Thundershowers / T-storms
+            weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
+        } else if (icon.startsWith("p26") || icon.startsWith("p28")) {
             // Thunder
             weatherIcon =
                 if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
+        } else if (icon.startsWith("p27") || icon.startsWith("p29")) {
+            // Thunder
+            weatherIcon = WeatherIcons.LIGHTNING
         } else if (icon.startsWith("p30")) {
             // Snow/Thunder
             weatherIcon =
@@ -342,26 +364,31 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         } else if (icon.startsWith("p34")) {
             // Hurricane
             weatherIcon = WeatherIcons.HURRICANE
-        } else if (icon == "p1" || icon == "p1j" || icon == "p1n" || icon.startsWith("p1bis")) {
+        } else if (icon == "p1" || icon == "p1j" || icon == "p1n") {
             // Clear
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
-        } else if (icon.startsWith("p2")) {
+        } else if (icon.startsWith("p1bis") || icon.startsWith("p2")) {
             // Partly Cloudy
             weatherIcon =
                 if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
-        } else if (icon.startsWith("p3")) {
+        } else if (icon.startsWith("p2")) {
             // Mostly Cloudy
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
-        } else if (icon.startsWith("p4") || icon.startsWith("p5")) {
+        } else if (icon.startsWith("p3")) {
+            // Mostly Cloudy
+            weatherIcon = WeatherIcons.CLOUDY
+        } else if (icon.startsWith("p4")) {
             // Haze
             weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_HAZE
-        } else if (icon.startsWith("p6") || icon.startsWith("p7") || icon.startsWith("p8")) {
+        } else if (icon.startsWith("p5")) {
             // Fog
             weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
+        } else if (icon.startsWith("p6") || icon.startsWith("p7") || icon.startsWith("p8")) {
+            // Fog / Heavy Fog
+            weatherIcon = WeatherIcons.FOG
         } else if (icon.startsWith("p9")) {
             // Sprinkle
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            weatherIcon = WeatherIcons.SPRINKLE
         } else {
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         }
