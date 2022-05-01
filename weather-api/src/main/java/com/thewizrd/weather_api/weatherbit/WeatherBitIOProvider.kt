@@ -410,39 +410,40 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             // d01: 300	Light Drizzle
             // d02: 301	Drizzle
             // d03: 302	Heavy Drizzle
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            weatherIcon = WeatherIcons.SPRINKLE
         } else if (icon.startsWith("r01") || icon.startsWith("r02") || icon.startsWith("u00")) {
             // r01: 500	Light Rain
             // r02: 501	Moderate Rain
             // u00: 900	Unknown Precipitation
-            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
+            weatherIcon = WeatherIcons.RAIN
         } else if (icon.startsWith("r03")) {
             // r03: 502	Heavy Rain
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
-        } else if (icon.startsWith("f01") || icon.startsWith("s04")) {
+            weatherIcon = WeatherIcons.RAIN_WIND
+        } else if (icon.startsWith("f01")) {
             // f01: 511	Freezing rain
-            // s04: 610	Mix snow/rain
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
-        } else if (icon.startsWith("r04") || icon.startsWith("r05") || icon.startsWith("r06")) {
+            weatherIcon = WeatherIcons.RAIN_MIX
+        } else if (icon.startsWith("r04") || icon.startsWith("r06")) {
             // r04: 520	Light shower rain
-            // r05: 521	Shower rain
             // r06: 522	Heavy shower rain
+            weatherIcon = WeatherIcons.SHOWERS
+        } else if (icon.startsWith("r05")) {
+            // r05: 521	Shower rain
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
-        } else if (icon.startsWith("s01") || icon.startsWith("s02") || icon.startsWith("s03") || icon.startsWith(
-                "s06"
-            )
-        ) {
+        } else if (icon.startsWith("s01")) {
             // s01: 600	Light snow | 621 Snow shower
+            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+        } else if (icon.startsWith("s02") || icon.startsWith("s03") || icon.startsWith("s06")) {
             // s02: 601	Snow | 622 Heavy snow shower
             // s03: 602	Heavy Snow
             // s06: 623	Flurries
-            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+            weatherIcon = WeatherIcons.SNOW
+        } else if (icon.startsWith("s04")) {
+            // s04: 610	Mix snow/rain
+            weatherIcon =
+                if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
         } else if (icon.startsWith("s05")) {
             // s05: 611	Sleet | 612	Heavy sleet
-            weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
+            weatherIcon = WeatherIcons.SLEET
         } else if (icon.startsWith("a01") || icon.startsWith("a05") || icon.startsWith("a06")) {
             // a01: 700	Mist
             // a05: 741	Fog
@@ -460,7 +461,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
         } else if (icon.startsWith("c01")) {
             // c01: 800	Clear sky
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
-        } else if (icon.startsWith("c01") || icon.startsWith("c02")) {
+        } else if (icon.startsWith("c02")) {
             // c02: 801	Few clouds
             // c03: 802	Scattered clouds
             weatherIcon =
