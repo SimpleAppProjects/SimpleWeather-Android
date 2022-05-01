@@ -506,7 +506,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
             "711" -> weatherIcon = WeatherIcons.SMOKE
 
             // haze
-            "721" -> weatherIcon = if (isNight) WeatherIcons.WINDY else WeatherIcons.DAY_HAZE
+            "721" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_HAZE
 
             "731", // sand/ dust whirls
             "761", /* dust */
