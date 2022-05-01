@@ -335,16 +335,15 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
             }
 
+            /* Cloudy */
+            1006 -> {
+                weatherIcon = WeatherIcons.CLOUDY
+            }
+
             /* Overcast */
             1009 -> {
                 weatherIcon =
                     if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
-            }
-
-            /* Cloudy */
-            1006 -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
             }
 
             /*
@@ -353,65 +352,77 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
              * 1147: Freezing fog
              */
             1030, 1135, 1147 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
+                weatherIcon = WeatherIcons.FOG
             }
 
             /*
              * 1063: Patchy rain possible
              * 1186: Moderate rain at times
-             * 1189: Moderate rain
              */
-            1063, 1186, 1189 -> {
+            1063, 1186 -> {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
             }
 
             /*
              * 1066: Patchy snow possible
              * 1210: Patchy light snow
-             * 1213: Light snow
-             * 1216: Patchy moderate snow
-             * 1219: Moderate snow
-             * 1255: Light snow showers
-             * 1258: Moderate or heavy snow showers
              */
-            1066, 1210, 1213, 1216, 1219, 1255, 1258 -> {
+            1066, 1210 -> {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
             }
 
             /*
              * 1069: Patchy sleet possible
-             * 1204: Light sleet
-             * 1207: Moderate or heavy sleet
              * 1249: Light sleet showers
              * 1252: Moderate or heavy sleet showers
              */
-            1069, 1204, 1207, 1249, 1252 -> {
+            1069, 1249, 1252 -> {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
             }
 
             /*
              * 1072: Patchy freezing drizzle possible
-             * 1168: Freezing drizzle
-             * 1171: Heavy freezing drizzle
-             * 1198: Light freezing rain
-             * 1201: Moderate or heavy freezing rain
              */
-            1072, 1168, 1171, 1198, 1201 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
+            1072 -> {
+                weatherIcon = WeatherIcons.RAIN_MIX
             }
 
             /* Thundery outbreaks possible */
             1087 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
             }
 
             /*
              * 1114: Blowing snow
              * 1117: Blizzard
-             * 1222: Patchy heavy snow
              * 1225: Heavy snow
              */
-            1114, 1117, 1222, 1225 -> {
+            1114, 1117, 1225 -> {
+                weatherIcon = WeatherIcons.SNOW_WIND
+            }
+
+            /*
+             * 1213: Light snow
+             * 1219: Moderate snow
+             */
+            1213, 1219 -> {
+                weatherIcon = WeatherIcons.SNOW
+            }
+
+            /*
+             * 1216: Patchy moderate snow
+             * 1255: Light snow showers
+             */
+            1216, 1255 -> {
+                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+            }
+
+            /*
+             * 1222: Patchy heavy snow
+             * 1258: Moderate or heavy snow showers
+             */
+            1222, 1258 -> {
                 weatherIcon =
                     if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
             }
@@ -419,45 +430,92 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
             /*
              * 1150: Patchy light drizzle
              * 1153: Light drizzle
-             * 1180: Patchy light rain
              * 1183: Light rain
              */
-            1150, 1153, 1180, 1183 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            1150, 1153, 1183 -> {
+                weatherIcon = WeatherIcons.SPRINKLE
+            }
+
+            /*
+             * 1168: Freezing drizzle
+             * 1171: Heavy freezing drizzle
+             * 1198: Light freezing rain
+             * 1201: Moderate or heavy freezing rain
+             */
+            1168, 1171, 1198, 1201 -> {
+                weatherIcon = WeatherIcons.RAIN_MIX
+            }
+
+            /*
+             * 1180: Patchy light rain
+             */
+            1180 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            }
+
+            /*
+             * 1189: Moderate rain
+             */
+            1189 -> {
+                weatherIcon = WeatherIcons.RAIN
             }
 
             /*
              * 1192: Heavy rain at times
-             * 1195: Heavy rain
              * 1243: Moderate or heavy rain shower
              * 1246: Torrential rain shower
              */
-            1192, 1195, 1243, 1246 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
+            1192, 1243, 1246 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
+            }
+
+            /*
+             * 1195: Heavy rain
+             */
+            1195 -> {
+                weatherIcon = WeatherIcons.RAIN_WIND
+            }
+
+            /*
+             * 1204: Light sleet
+             * 1207: Moderate or heavy sleet
+             */
+            1204, 1207 -> {
+                weatherIcon = WeatherIcons.SLEET
             }
 
             /*
              * 1237: Ice pellets
-             * 1261: Light showers of ice pellets
-             * 1264: Moderate or heavy showers of ice pellets
              */
-            1237, 1261, 1264 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_HAIL else WeatherIcons.DAY_HAIL
+            1237 -> {
+                weatherIcon = WeatherIcons.HAIL
             }
 
             /* 1240: Light rain shower */
             1240 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
+            }
+
+            /*
+             * 1261: Light showers of ice pellets
+             * 1264: Moderate or heavy showers of ice pellets
+             */
+            1261, 1264 -> {
+                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_HAIL else WeatherIcons.DAY_HAIL
             }
 
             /* Patchy light rain with thunder */
             1273 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
             }
 
             /* Moderate or heavy rain with thunder */
             1276 -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
+                weatherIcon = WeatherIcons.THUNDERSTORM
             }
 
             /*
