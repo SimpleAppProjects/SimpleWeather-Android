@@ -279,92 +279,103 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
     override fun getWeatherIcon(isNight: Boolean, icon: String?): String {
         var weatherIcon = ""
 
-        try {
-            val code = icon!!.toInt()
+        val code = icon?.toIntOrNull() ?: return WeatherIcons.NA;
 
-            weatherIcon = when (code) {
-                0 /* Sunny skies/Clear skies */ -> {
-                    if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
-                }
-                1 /* Partly cloudy skies */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
-                }
-                2 /* Cloudy skies */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
-                }
-                3  /* Overcast skies */ -> {
-                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
-                }
-                10, // Mist
-                45, // Fog
-                49  /* Freezing fog */ -> {
-                    if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
-                }
-                21, // Patchy rain possible
-                50, // Patchy light drizzle
-                51, // Light drizzle
-                60, // Patchy light rain
-                61  /* Light rain */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
-                }
-                22, // Patchy snow possible
-                70, // Patchy snow possible
-                71, // Light snow
-                72, // Patchy moderate snow
-                73, // Moderate snow
-                85, // Light snow showers
-                86  /* Moderate or heavy snow showers */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
-                }
-                23, // Patchy sleet possible
-                24, // Patchy freezing drizzle possible
-                56, // Freezing drizzle
-                57, // Heavy freezing drizzle
-                68, // Light sleet
-                69, // Moderate or heavy sleet
-                79, // Ice pellets
-                83, // Light sleet showers
-                84, // Moderate or heavy sleet showers
-                87, // Light showers of ice pellets
-                88  /* Moderate or heavy showers of ice pellets */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
-                }
-                29  /* Thundery outbreaks possible */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
-                }
-                38, // Blowing snow
-                39, // Blizzard
-                74, // Patchy heavy snow
-                75  /* Heavy snow */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
-                }
-                62, // Moderate rain at times
-                63, // Moderate rain
-                64, // Heavy rain at times
-                65  /* Heavy rain */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
-                }
-                66, // Light freezing rain
-                67  /* Moderate or heavy freezing rain */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
-                }
-                80, // Light rain shower
-                81, // Moderate or heavy rain shower
-                82  /* Torrential rain shower */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
-                }
-                91, // Patchy light rain with thunder
-                92  /* Moderate or heavy rain with thunder */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
-                }
-                93, // Patchy light snow with thunder
-                94  /* Moderate or heavy snow with thunder */ -> {
-                    if (isNight) WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM else WeatherIcons.DAY_SNOW_THUNDERSTORM
-                }
-                else -> WeatherIcons.NA
+        weatherIcon = when (code) {
+            0 /* Sunny skies/Clear skies */ -> {
+                if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
             }
-        } catch (ex: NumberFormatException) {
-            // DO nothing
+            1 /* Partly cloudy skies */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
+            }
+            2 /* Cloudy skies */ -> {
+                WeatherIcons.CLOUDY
+            }
+            3  /* Overcast skies */ -> {
+                // TODO: Overcast neutral
+                if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+            }
+            10, // Mist
+            45, // Fog
+            49  /* Freezing fog */ -> {
+                WeatherIcons.FOG
+            }
+            21, // Patchy rain possible
+            50, // Patchy light drizzle
+            51, // Light drizzle
+            60, // Patchy light rain
+            61  /* Light rain */ -> {
+                WeatherIcons.SPRINKLE
+            }
+            22, // Patchy snow possible
+            70, // Patchy snow possible
+            71, // Light snow
+            72, // Patchy moderate snow
+            73, /* Moderate snow */
+            -> {
+                WeatherIcons.SNOW
+            }
+            23, // Patchy sleet possible
+            68, // Light sleet
+            69, /* Moderate or heavy sleet */
+            -> {
+                WeatherIcons.SLEET
+            }
+            24, // Patchy freezing drizzle possible
+            56, // Freezing drizzle
+            57, // Heavy freezing drizzle
+            66, // Light freezing rain
+            67  /* Moderate or heavy freezing rain */ -> {
+                WeatherIcons.RAIN_MIX
+            }
+            29  /* Thundery outbreaks possible */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
+            }
+            38, // Blowing snow
+            39, // Blizzard
+            74, // Patchy heavy snow
+            75  /* Heavy snow */ -> {
+                WeatherIcons.SNOW_WIND
+            }
+            62, // Moderate rain at times
+            63, /* Moderate rain */
+            -> {
+                WeatherIcons.RAIN
+            }
+            64, // Heavy rain at times
+            65  /* Heavy rain */ -> {
+                WeatherIcons.RAIN_WIND
+            }
+            79 /* Ice pellets*/ -> {
+                WeatherIcons.HAIL
+            }
+            80, // Light rain shower
+            81, // Moderate or heavy rain shower
+            82  /* Torrential rain shower */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
+            }
+            83, // Light sleet showers
+            84, /* Moderate or heavy sleet showers*/
+            -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
+            }
+            85, // Light snow showers
+            86  /* Moderate or heavy snow showers */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+            }
+            87, // Light showers of ice pellets
+            88  /* Moderate or heavy showers of ice pellets */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_HAIL else WeatherIcons.DAY_HAIL
+            }
+            91, // Patchy light rain with thunder
+            92  /* Moderate or heavy rain with thunder */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
+            }
+            93, // Patchy light snow with thunder
+            94  /* Moderate or heavy snow with thunder */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM else WeatherIcons.DAY_SNOW_THUNDERSTORM
+            }
+            else -> WeatherIcons.NA
         }
 
         if (weatherIcon.isBlank()) {
