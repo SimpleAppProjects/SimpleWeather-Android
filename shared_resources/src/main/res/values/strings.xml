@@ -67,6 +67,7 @@
     <string name="label_morning">Morning</string>
     <string name="label_night">Night</string>
     <string name="label_temp">Temp</string>
+    <string name="label_minutelyforecast">Minutely</string>
     <!-- Units -->
     <string name="label_temperature">Temperature</string>
     <string name="label_speed">Speed</string>

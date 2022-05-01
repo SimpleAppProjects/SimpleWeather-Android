@@ -84,10 +84,12 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import com.google.android.material.snackbar.Snackbar as materialSnackbar
 
 class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
@@ -688,7 +690,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             graphTypePref.isVisible = true
 
             val graphType = WidgetUtils.getWidgetGraphType(mAppWidgetId)
-            graphTypePref.setValueIndex(graphType.value)
+            graphTypePref.value = graphType.value.toString()
             graphTypePref.callChangeListener(graphTypePref.value)
         } else {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.value)
@@ -1481,6 +1483,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                             visibilityMi = 10f
                             visibilityKm = 16.1f
                         }
+                    }
+                }
+                minForecast = List(10) {
+                    val now = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES).let {
+                        it.withMinute(it.minute - (it.minute % 10))
+                    }
+
+                    MinutelyForecast().apply {
+                        date = now.plusMinutes(it.toLong() * 10)
+                        rainMm = Random.nextFloat()
                     }
                 }
                 aqiForecast = List(6) {

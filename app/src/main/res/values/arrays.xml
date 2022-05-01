@@ -43,6 +43,7 @@
     <string-array name="widgetgraphtype_entries">
         <item>@string/label_fcast_daily</item>
         <item>@string/label_hourlyforecast</item>
+        <item>@string/label_minutelyforecast</item>
         <item>@string/label_precipitation</item>
         <item>@string/label_wind</item>
         <item>@string/label_humidity</item>
@@ -52,6 +53,7 @@
     <string-array name="widgetgraphtype_values">
         <item>0</item>
         <item>1</item>
+        <item>7</item>
         <item>2</item>
         <item>3</item>
         <item>4</item>

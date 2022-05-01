@@ -9,7 +9,8 @@ enum class WidgetGraphType(val value: Int) {
     Wind(3),
     Humidity(4),
     UVIndex(5),
-    AirQuality(6);
+    AirQuality(6),
+    Minutely(7);
 
     companion object {
         private val map = SparseArray<WidgetGraphType>()

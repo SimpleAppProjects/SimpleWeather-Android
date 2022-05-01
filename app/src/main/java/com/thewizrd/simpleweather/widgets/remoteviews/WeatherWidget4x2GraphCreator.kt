@@ -208,6 +208,12 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
                         context.getString(R.string.label_airquality_short)
                     )
                 }
+                WidgetGraphType.Minutely -> {
+                    updateViews.setTextViewText(
+                        R.id.graph_label,
+                        context.getString(R.string.label_precipitation)
+                    )
+                }
             }
 
             val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
@@ -299,6 +305,59 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
 
                     data = it.createAQIGraphData(viewCtx)
                 }
+            }
+        } else if (graphType == WidgetGraphType.Minutely) {
+            val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
+                .truncatedTo(ChronoUnit.MINUTES).let {
+                it.withMinute(it.minute - (it.minute % 10))
+            }
+            val minutelyData = (
+                    weather?.minForecast
+                        ?: settingsManager.getWeatherForecastData(locData.query)?.minForecast
+                    )?.filter { !it.date.isBefore(now) }
+                ?.filter { it.date.minute % 10 == 0 }
+
+            if (minutelyData.isNullOrEmpty()) {
+                return null
+            }
+
+            val graphData = ForecastGraphViewModel().apply {
+                setMinutelyForecastData(minutelyData)
+            }.graphData
+
+            return if (!graphData.isEmpty && !graphData.getDataSetByIndex(0).isNullOrEmpty()) {
+                if (graphData is LineViewData) {
+                    LineView(viewCtx).apply {
+                        setDrawGridLines(false)
+                        setDrawDotLine(false)
+                        setDrawDataLabels(true)
+                        setDrawIconLabels(false)
+                        setDrawGraphBackground(true)
+                        setDrawDotPoints(false)
+                        setFillParentWidth(false)
+                        setBottomTextColor(textColor)
+
+                        setBottomTextSize(graphTextSize)
+                        setIconSize(graphIconSize)
+
+                        data = graphData
+                    }
+                } else if (graphData is BarGraphData) {
+                    BarGraphView(viewCtx).apply {
+                        setDrawDataLabels(true)
+                        setDrawIconLabels(false)
+                        setBottomTextColor(textColor)
+
+                        setBottomTextSize(graphTextSize)
+                        setIconSize(graphIconSize)
+
+                        data = graphData
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
             }
         } else {
             val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
