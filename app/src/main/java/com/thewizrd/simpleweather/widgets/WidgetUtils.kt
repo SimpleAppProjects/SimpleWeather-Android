@@ -856,39 +856,6 @@ object WidgetUtils {
     }
 
     @ColorInt
-    fun getTextColor(appWidgetId: Int, background: WidgetBackground): Int {
-        return if (background == WidgetBackground.CUSTOM) {
-            getTextColor(appWidgetId)
-        } else {
-            Colors.WHITE
-        }
-    }
-
-    @ColorInt
-    fun getPanelTextColor(
-        appWidgetId: Int,
-        background: WidgetBackground,
-        style: WidgetBackgroundStyle?
-    ): Int {
-        return if (background == WidgetBackground.CUSTOM) {
-            getTextColor(appWidgetId)
-        } else if (style == WidgetBackgroundStyle.LIGHT) {
-            Colors.BLACK
-        } else {
-            Colors.WHITE
-        }
-    }
-
-    @ColorInt
-    fun getBackgroundColor(appWidgetId: Int, background: WidgetBackground): Int {
-        return if (background == WidgetBackground.CUSTOM) {
-            getBackgroundColor(appWidgetId)
-        } else {
-            Colors.TRANSPARENT
-        }
-    }
-
-    @ColorInt
     fun getBackgroundColor(widgetId: Int): Int {
         val prefs = getPreferences(widgetId)
         val value = prefs.getInt(KEY_BGCOLORCODE, Int.MAX_VALUE)

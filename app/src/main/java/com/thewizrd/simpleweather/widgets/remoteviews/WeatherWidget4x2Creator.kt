@@ -25,6 +25,7 @@ import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.buildForecast
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSizes
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.*
 
 class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) :
     CustomBackgroundWidgetRemoteViewCreator(context, loadBackground) {
@@ -61,12 +62,23 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         // Background
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
-        val textColor = WidgetUtils.getTextColor(appWidgetId, background)
+        val background = newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+            ?: WidgetUtils.getWidgetBackground(appWidgetId)
+        val textColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
+        } else {
+            Colors.WHITE
+        }
 
         // WeatherIcon
         val wim = sharedDeps.weatherIconsManager
@@ -90,7 +102,9 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         } else {
             val backgroundColor =
                 if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                    WidgetUtils.getBackgroundColor(appWidgetId)
+                    newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                        appWidgetId
+                    )
                 } else {
                     Colors.BLACK
                 }
@@ -250,8 +264,14 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         val forceSmallHeight = cellHeight == maxCellHeight
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         val maxHeightSize = context.dpToPx(60f).toInt()
 
@@ -309,7 +329,10 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         // Update clock widgets
         val timeStr12hr = SpannableString(context.getText(R.string.clock_12_hours_ampm_format))
@@ -345,7 +368,10 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         views.setTextViewTextSize(
             R.id.date_panel,

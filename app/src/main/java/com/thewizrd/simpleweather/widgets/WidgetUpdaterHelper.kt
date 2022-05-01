@@ -32,6 +32,7 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
+import com.thewizrd.simpleweather.widgets.preferences.*
 import com.thewizrd.simpleweather.widgets.remoteviews.CustomBackgroundWidgetRemoteViewCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WidgetRemoteViewCreator
 import com.thewizrd.weather_api.weatherModule
@@ -211,21 +212,37 @@ object WidgetUpdaterHelper {
     ) {
         if (WidgetUtils.isForecastWidget(info.widgetType)) {
             // Background & Text Color
-            val background = WidgetUtils.getWidgetBackground(appWidgetId)
-            val style = WidgetUtils.getBackgroundStyle(appWidgetId)
-            val textColor =
-                WidgetUtils.getPanelTextColor(appWidgetId, background, style)
+            val background =
+                newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+                    ?: WidgetUtils.getWidgetBackground(appWidgetId)
+            val style =
+                newOptions.getSerializable(KEY_BGSTYLE) as? WidgetUtils.WidgetBackgroundStyle
+                    ?: WidgetUtils.getBackgroundStyle(appWidgetId)
+            val panelTextColor: Int = when {
+                background == WidgetUtils.WidgetBackground.CUSTOM -> {
+                    newOptions.get(KEY_TXTCOLORCODE) as? Int
+                        ?: WidgetUtils.getTextColor(appWidgetId)
+                }
+                style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
+                    Colors.BLACK
+                }
+                else -> {
+                    Colors.WHITE
+                }
+            }
 
             var forecastPanel: RemoteViews? = null
             var hrForecastPanel: RemoteViews? = null
 
             val forecasts = getForecasts(locData, weather?.forecast, MAX_FORECASTS)
             val hourlyForecasts = getHourlyForecasts(locData, weather?.hrForecast, MAX_FORECASTS)
-            val forecastOption = if (info.widgetType == WidgetType.Widget4x2MaterialYou) {
-                WidgetUtils.ForecastOption.HOURLY
-            } else {
-                WidgetUtils.getForecastOption(appWidgetId)
-            }
+            val forecastOption: WidgetUtils.ForecastOption =
+                if (info.widgetType == WidgetType.Widget4x2MaterialYou) {
+                    WidgetUtils.ForecastOption.HOURLY
+                } else {
+                    newOptions.getSerializable(KEY_FORECASTOPTION) as? WidgetUtils.ForecastOption
+                        ?: WidgetUtils.getForecastOption(appWidgetId)
+                }
 
             val forecastLayoutId: Int
             val hrForecastLayoutId: Int
@@ -267,7 +284,8 @@ object WidgetUpdaterHelper {
                         style,
                         forecasts[i],
                         i,
-                        textColor
+                        panelTextColor,
+                        newOptions
                     )
                 }
 
@@ -281,7 +299,8 @@ object WidgetUpdaterHelper {
                         style,
                         hourlyForecasts[i],
                         i,
-                        textColor
+                        panelTextColor,
+                        newOptions
                     )
                 }
 
@@ -333,7 +352,8 @@ object WidgetUpdaterHelper {
         style: WidgetUtils.WidgetBackgroundStyle,
         forecast: BaseForecastItemViewModel,
         forecastIdx: Int,
-        textColor: Int
+        textColor: Int,
+        newOptions: Bundle
     ) {
         val prefix = if (forecast is HourlyForecastItemViewModel) "hrforecast" else "forecast"
 
@@ -390,8 +410,10 @@ object WidgetUpdaterHelper {
             forecastPanel.setImageViewResource(iconId, weatherIconResId)
         } else {
             // Custom background color
-            val backgroundColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                WidgetUtils.getBackgroundColor(appWidgetId)
+            val backgroundColor: Int = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+                newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                    appWidgetId
+                )
             } else {
                 if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) Colors.WHITE else Colors.BLACK
             }
@@ -430,8 +452,14 @@ object WidgetUpdaterHelper {
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
         val hasExtraWidth = (maxCellWidth - cellWidth) > 0
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier: Float =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier: Float =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         if (info.widgetType == WidgetType.Widget4x2MaterialYou || info.widgetType == WidgetType.Widget4x4MaterialYou) {
             val topHeight = 170 // dp

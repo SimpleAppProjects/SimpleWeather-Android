@@ -15,6 +15,8 @@ import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.buildForecast
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSizes
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 
 class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(context) {
     override val info: WidgetProviderInfo
@@ -53,7 +55,8 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
             RemoteViews(context.packageName, R.layout.app_widget_4x1)
         }
 
-        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val textColor =
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
 
         if (!hideLocationName) {
             updateViews.setTextViewText(R.id.location_name, weather.location)
@@ -63,7 +66,10 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
         // original icon size: 24dp
         val scaledIconSize = (context.dpToPx(16f) * txtSizeMultiplier).toInt()
 
@@ -145,7 +151,10 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
         val isSmallWidth = maxCellWidth.toFloat() / cellWidth <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         if (!WidgetUtils.isLocationNameHidden(appWidgetId)) {
             var locTextSize = 12f

@@ -25,6 +25,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider2x2
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.*
 import java.util.*
 
 class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) :
@@ -55,15 +56,23 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier: Float =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier: Float =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         // Background
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
+        val background = newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+            ?: WidgetUtils.getWidgetBackground(appWidgetId)
         var style: WidgetUtils.WidgetBackgroundStyle? = null
 
         if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            style = WidgetUtils.getBackgroundStyle(appWidgetId)
+            style = (newOptions.getSerializable(KEY_BGSTYLE) as? WidgetUtils.WidgetBackgroundStyle)
+                ?: WidgetUtils.getBackgroundStyle(appWidgetId)
         }
 
         // Add notification layout
@@ -97,7 +106,9 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             val panelBackgroundColor =
                 when {
                     background == WidgetUtils.WidgetBackground.CUSTOM -> {
-                        WidgetUtils.getBackgroundColor(appWidgetId)
+                        newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                            appWidgetId
+                        )
                     }
                     style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
                         Colors.WHITE
@@ -120,8 +131,23 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             )
         }
 
-        val textColor = WidgetUtils.getTextColor(appWidgetId, background)
-        val panelTextColor = WidgetUtils.getPanelTextColor(appWidgetId, background, style)
+        val textColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
+        } else {
+            Colors.WHITE
+        }
+
+        val panelTextColor = when {
+            background == WidgetUtils.WidgetBackground.CUSTOM -> {
+                textColor
+            }
+            style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
+                Colors.BLACK
+            }
+            else -> {
+                Colors.WHITE
+            }
+        }
 
         if (style != WidgetUtils.WidgetBackgroundStyle.PANDA) {
             updateViews.setTextColor(
@@ -205,9 +231,15 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             } else {
                 // Custom background color
                 val backgroundColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                    WidgetUtils.getBackgroundColor(appWidgetId)
+                    newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                        appWidgetId
+                    )
                 } else {
-                    if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) Colors.WHITE else Colors.BLACK
+                    if (style == WidgetUtils.WidgetBackgroundStyle.LIGHT) {
+                        Colors.WHITE
+                    } else {
+                        Colors.BLACK
+                    }
                 }
 
                 updateViews.setImageViewBitmap(
@@ -256,7 +288,9 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             } else {
                 // Custom background color
                 val backgroundColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                    WidgetUtils.getBackgroundColor(appWidgetId)
+                    newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                        appWidgetId
+                    )
                 } else {
                     Colors.BLACK
                 }
@@ -436,7 +470,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val cellHeight = WidgetUtils.getCellsForSize(minHeight)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         val largeText = cellHeight > 2
 
@@ -490,7 +527,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         // Update clock widgets
         val timeStr12hr = SpannableString(context.getText(R.string.clock_12_hours_ampm_format))
@@ -532,7 +572,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         var dateTextSize =
             context.resources.getDimensionPixelSize(R.dimen.date_text_size).toFloat() // 16sp

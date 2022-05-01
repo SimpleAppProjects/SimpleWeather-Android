@@ -21,6 +21,10 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x2Huawei
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_ICONSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import java.util.*
 
 class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(context) {
@@ -51,14 +55,22 @@ class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
-        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
-        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val backgroundColor =
+            newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor =
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
         val viewCtx = context.getThemeContextOverride(
             ColorsUtils.isSuperLight(backgroundColor)
         )
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         // WeatherIcon
         val wim = sharedDeps.weatherIconsManager
@@ -218,7 +230,10 @@ class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(
         val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         // Update clock widgets
         val timeStr12hr = SpannableString(context.getText(R.string.clock_12_hours_format))
@@ -248,7 +263,10 @@ class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
         val isSmallHeight = maxCellHeight.toFloat() / cellHeight <= 1.5f
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         var dateTextSize =
             context.resources.getDimensionPixelSize(R.dimen.date_text_size).toFloat() // 16sp

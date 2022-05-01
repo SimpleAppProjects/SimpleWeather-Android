@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
 
 abstract class WidgetRemoteViewCreator(context: Context) :
     AbstractWidgetRemoteViewCreator(context) {
@@ -40,7 +41,10 @@ abstract class WidgetRemoteViewCreator(context: Context) :
         newOptions: Bundle
     ) {
         if (WidgetUtils.isBackgroundCustomOnlyWidget(WidgetUtils.getWidgetTypeFromID(appWidgetId))) {
-            val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+            val backgroundColor =
+                newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                    appWidgetId
+                )
 
             if (backgroundColor == Colors.TRANSPARENT) {
                 updateViews.setImageViewBitmap(R.id.widgetBackground, null)
@@ -77,7 +81,10 @@ abstract class WidgetRemoteViewCreator(context: Context) :
         newOptions: Bundle
     ) {
         if (WidgetUtils.isBackgroundCustomOnlyWidget(WidgetUtils.getWidgetTypeFromID(appWidgetId))) {
-            val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
+            val backgroundColor =
+                newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                    appWidgetId
+                )
 
             if (backgroundColor != Colors.TRANSPARENT && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 // Widget dimensions

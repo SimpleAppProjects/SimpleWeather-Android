@@ -28,6 +28,7 @@ import com.thewizrd.simpleweather.widgets.WidgetGraphType
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
+import com.thewizrd.simpleweather.widgets.preferences.*
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -63,9 +64,13 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         // Build an update that holds the updated widget contents
         val updateViews = RemoteViews(context.packageName, info.widgetLayoutId)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
-        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val textColor =
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
 
         updateViews.setTextColor(
             R.id.location_name,
@@ -149,12 +154,26 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
             height = context.dpToPx(minHeight.toFloat()).toInt()
         }
 
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
-        val textColor = WidgetUtils.getTextColor(appWidgetId, background)
+        val background = newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+            ?: WidgetUtils.getWidgetBackground(appWidgetId)
+        val textColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
+        } else {
+            Colors.WHITE
+        }
 
-        val graphType = WidgetUtils.getWidgetGraphType(appWidgetId)
-        val graphView =
-            buildGraphView(context, appWidgetId, locData, weather, graphType, background, textColor)
+        val graphType = newOptions.getSerializable(KEY_GRAPHTYPEOPTION) as? WidgetGraphType
+            ?: WidgetUtils.getWidgetGraphType(appWidgetId)
+        val graphView = buildGraphView(
+            context,
+            appWidgetId,
+            locData,
+            weather,
+            graphType,
+            background,
+            textColor,
+            newOptions
+        )
 
         if (graphView != null) {
             val specWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
@@ -216,7 +235,10 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
                 }
             }
 
-            val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+            val txtSizeMultiplier =
+                newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                    appWidgetId
+                )
 
             updateViews.setTextViewTextSize(
                 R.id.graph_label,
@@ -248,11 +270,14 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         weather: Weather?,
         graphType: WidgetGraphType,
         background: WidgetUtils.WidgetBackground,
-        @ColorInt textColor: Int
+        @ColorInt textColor: Int,
+        newOptions: Bundle
     ): View? {
         val backgroundColor =
             if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-                WidgetUtils.getBackgroundColor(appWidgetId)
+                newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(
+                    appWidgetId
+                )
             } else {
                 Colors.BLACK
             }
@@ -260,8 +285,14 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
             ColorsUtils.isSuperLight(backgroundColor)
         )
 
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
         val graphTextSize =
             context.resources.getDimensionPixelSize(R.dimen.forecast_condition_size) * txtSizeMultiplier

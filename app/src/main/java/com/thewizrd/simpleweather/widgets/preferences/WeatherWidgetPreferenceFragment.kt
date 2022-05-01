@@ -417,7 +417,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideLocNamePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setLocationNameHidden(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_HIDELOCNAME, newValue as Boolean)
                 hideLocNamePref.isChecked = newValue
                 updateWidgetView()
                 true
@@ -425,7 +425,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideSettingsBtnPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setSettingsButtonHidden(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_HIDESETTINGSBTN, newValue as Boolean)
                 hideSettingsBtnPref.isChecked = newValue
                 updateWidgetView()
                 true
@@ -433,7 +433,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         hideRefreshBtnPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setRefreshButtonHidden(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_HIDEREFRESHBTN, newValue as Boolean)
                 hideRefreshBtnPref.isChecked = newValue
                 updateWidgetView()
                 true
@@ -490,7 +490,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
         useTimeZonePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setUseTimeZone(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_USETIMEZONE, newValue as Boolean)
                 updateWidgetView()
                 true
             }
@@ -527,43 +527,46 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 val value = newValue.toString().toInt()
 
                 val mWidgetBackground = WidgetBackground.valueOf(value)
-                WidgetUtils.setWidgetBackground(mAppWidgetId, value)
+                mWidgetOptions.putSerializable(KEY_BGCOLOR, mWidgetBackground)
 
                 updateWidgetView()
 
                 bgColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
                 txtColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
 
-            if (mWidgetBackground == WidgetBackground.CURRENT_CONDITIONS) {
-                if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
-                    bgStylePref.isVisible = true
-                    return@OnPreferenceChangeListener true
+                if (mWidgetBackground == WidgetBackground.CURRENT_CONDITIONS) {
+                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                        bgStylePref.isVisible = true
+                        return@OnPreferenceChangeListener true
+                    }
                 }
-            }
 
-            bgStylePref.setValueIndex(0)
-            bgStylePref.callChangeListener(bgStylePref.value)
-            bgStylePref.isVisible = false
-            true
-        }
+                bgStylePref.setValueIndex(0)
+                bgStylePref.callChangeListener(bgStylePref.value)
+                bgStylePref.isVisible = false
+                true
+            }
 
         bgStylePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setBackgroundStyle(mAppWidgetId, newValue.toString().toInt())
+                mWidgetOptions.putSerializable(
+                    KEY_BGSTYLE,
+                    WidgetBackgroundStyle.valueOf(newValue.toString().toInt())
+                )
                 updateWidgetView()
                 true
             }
 
         bgColorPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setBackgroundColor(mAppWidgetId, (newValue as Int))
+                mWidgetOptions.putInt(KEY_BGCOLORCODE, newValue as Int)
                 updateWidgetView()
                 true
             }
 
         txtColorPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setTextColor(mAppWidgetId, (newValue as Int))
+                mWidgetOptions.putInt(KEY_TXTCOLORCODE, newValue as Int)
                 updateWidgetView()
                 true
             }
@@ -622,20 +625,16 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         textSizePref = findPreference(KEY_TEXTSIZE)!!
         textSizePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                val value = newValue as Float
-                WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, value)
+                mWidgetOptions.putFloat(KEY_TEXTSIZE, newValue as Float)
                 updateWidgetView()
-
                 true
             }
 
         iconSizePref = findPreference(KEY_ICONSIZE)!!
         iconSizePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                val value = newValue as Float
-                WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, value)
+                mWidgetOptions.putFloat(KEY_ICONSIZE, newValue as Float)
                 updateWidgetView()
-
                 true
             }
 
@@ -655,7 +654,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         fcastOptPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
                 val fcastOptValue = newValue.toString().toInt()
-                WidgetUtils.setForecastOption(mAppWidgetId, fcastOptValue)
+                mWidgetOptions.putSerializable(
+                    KEY_FORECASTOPTION,
+                    WidgetUtils.ForecastOption.valueOf(fcastOptValue)
+                )
                 updateWidgetView()
 
                 tap2switchPref.isVisible = (fcastOptValue == WidgetUtils.ForecastOption.FULL.value)
@@ -666,7 +668,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         tap2switchPref = findPreference(KEY_TAP2SWITCH)!!
         tap2switchPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setTap2Switch(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_TAP2SWITCH, newValue as Boolean)
                 true
             }
 
@@ -683,7 +685,10 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             graphTypePref = findPreference(KEY_GRAPHTYPEOPTION)!!
             graphTypePref.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _, newValue ->
-                    WidgetUtils.setWidgetGraphType(mAppWidgetId, newValue.toString().toInt())
+                    mWidgetOptions.putSerializable(
+                        KEY_GRAPHTYPEOPTION,
+                        WidgetGraphType.valueOf(newValue.toString().toInt())
+                    )
                     updateWidgetView()
                     true
                 }

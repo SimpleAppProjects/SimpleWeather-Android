@@ -29,6 +29,9 @@ import com.thewizrd.simpleweather.controls.getImageData
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLOR
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGSTYLE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -46,11 +49,13 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         newOptions: Bundle
     ) {
         // Background
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
+        val background = newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+            ?: WidgetUtils.getWidgetBackground(appWidgetId)
         var style: WidgetUtils.WidgetBackgroundStyle? = null
 
         if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-            style = WidgetUtils.getBackgroundStyle(appWidgetId)
+            style = (newOptions.getSerializable(KEY_BGSTYLE) as? WidgetUtils.WidgetBackgroundStyle)
+                ?: WidgetUtils.getBackgroundStyle(appWidgetId)
         }
 
         setWidgetBackground(
@@ -72,7 +77,11 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         newOptions: Bundle,
         weather: WeatherNowViewModel
     ) {
-        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId, background)
+        val backgroundColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(appWidgetId)
+        } else {
+            Colors.TRANSPARENT
+        }
 
         if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
             var imageData: ImageDataViewModel? = null
@@ -293,14 +302,13 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
 
         // Background
-        val background = WidgetUtils.getWidgetBackground(appWidgetId)
+        val background = newOptions.getSerializable(KEY_BGCOLOR) as? WidgetUtils.WidgetBackground
+            ?: WidgetUtils.getWidgetBackground(appWidgetId)
 
         if (background == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
             // Widget dimensions
             val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
             val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-            val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-            val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
 
             val imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
             val imgHeight = context.dpToPx(minHeight.toFloat()).toInt()

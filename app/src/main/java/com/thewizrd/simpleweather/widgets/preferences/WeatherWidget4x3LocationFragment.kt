@@ -362,7 +362,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         hideSettingsBtnPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setSettingsButtonHidden(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_HIDESETTINGSBTN, newValue as Boolean)
                 hideSettingsBtnPref.isChecked = newValue
                 updateWidgetView()
                 true
@@ -370,7 +370,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         hideRefreshBtnPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setRefreshButtonHidden(mAppWidgetId, newValue as Boolean)
+                mWidgetOptions.putBoolean(KEY_HIDEREFRESHBTN, newValue as Boolean)
                 hideRefreshBtnPref.isChecked = newValue
                 updateWidgetView()
                 true
@@ -447,7 +447,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 val value = newValue.toString().toInt()
 
                 val mWidgetBackground = WidgetUtils.WidgetBackground.valueOf(value)
-                WidgetUtils.setWidgetBackground(mAppWidgetId, value)
+                mWidgetOptions.putSerializable(KEY_BGCOLOR, mWidgetBackground)
 
                 updateWidgetView()
 
@@ -469,21 +469,24 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         bgStylePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setBackgroundStyle(mAppWidgetId, newValue.toString().toInt())
+                mWidgetOptions.putSerializable(
+                    KEY_BGSTYLE,
+                    WidgetUtils.WidgetBackgroundStyle.valueOf(newValue.toString().toInt())
+                )
                 updateWidgetView()
                 true
             }
 
         bgColorPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setBackgroundColor(mAppWidgetId, (newValue as Int))
+                mWidgetOptions.putInt(KEY_BGCOLORCODE, newValue as Int)
                 updateWidgetView()
                 true
             }
 
         txtColorPref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                WidgetUtils.setTextColor(mAppWidgetId, (newValue as Int))
+                mWidgetOptions.putInt(KEY_TXTCOLORCODE, newValue as Int)
                 updateWidgetView()
                 true
             }
@@ -546,8 +549,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         textSizePref = findPreference(KEY_TEXTSIZE)!!
         textSizePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                val value = newValue as Float
-                WidgetUtils.setCustomTextSizeMultiplier(mAppWidgetId, value)
+                mWidgetOptions.putFloat(KEY_TEXTSIZE, newValue as Float)
                 updateWidgetView()
 
                 true
@@ -556,10 +558,8 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         iconSizePref = findPreference(KEY_ICONSIZE)!!
         iconSizePref.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                val value = newValue as Float
-                WidgetUtils.setCustomIconSizeMultiplier(mAppWidgetId, value)
+                mWidgetOptions.putFloat(KEY_ICONSIZE, newValue as Float)
                 updateWidgetView()
-
                 true
             }
 

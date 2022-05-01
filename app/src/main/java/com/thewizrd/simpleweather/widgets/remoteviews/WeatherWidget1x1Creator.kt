@@ -17,6 +17,10 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider1x1
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_ICONSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import com.thewizrd.weather_api.weatherModule
 
 class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(context) {
@@ -42,8 +46,10 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()
 
-        val backgroundColor = WidgetUtils.getBackgroundColor(appWidgetId)
-        val textColor = WidgetUtils.getTextColor(appWidgetId)
+        val backgroundColor =
+            newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(appWidgetId)
+        val textColor =
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
         val viewCtx = context.getThemeContextOverride(
             ColorsUtils.isSuperLight(backgroundColor)
         )
@@ -52,10 +58,16 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         val wim = sharedDeps.weatherIconsManager
         val weatherIconResId = wim.getWeatherIconResource(weather.weatherIcon)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
-        // icon size: 36dp
-        val icoSizeMultiplier = WidgetUtils.getCustomIconSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
+        val icoSizeMultiplier =
+            newOptions.get(KEY_ICONSIZE) as? Float ?: WidgetUtils.getCustomIconSizeMultiplier(
+                appWidgetId
+            )
 
+        // icon size: 36dp
         val maxIconSize = context.dpToPx(36f) * icoSizeMultiplier
         updateViews.setImageViewBitmap(
             R.id.weather_icon,
@@ -66,6 +78,9 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
                 maxIconSize
             )
         )
+        if (wim.isFontIcon) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        }
         updateViews.setContentDescription(
             R.id.weather_icon,
             weatherModule.weatherManager.getWeatherCondition(weather.weatherIcon)
@@ -149,7 +164,10 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         val cellHeight = WidgetUtils.getCellsForSize(minHeight)
         val cellWidth = WidgetUtils.getCellsForSize(minWidth)
 
-        val txtSizeMultiplier = WidgetUtils.getCustomTextSizeMultiplier(appWidgetId)
+        val txtSizeMultiplier: Float =
+            newOptions.get(KEY_TEXTSIZE) as? Float ?: WidgetUtils.getCustomTextSizeMultiplier(
+                appWidgetId
+            )
 
         if (cellWidth > 1 && cellHeight > 1) {
             updateViews.setTextViewTextSize(
