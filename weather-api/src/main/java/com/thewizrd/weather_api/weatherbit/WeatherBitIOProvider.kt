@@ -454,7 +454,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             weatherIcon = WeatherIcons.SMOKE
         } else if (icon.startsWith("a03")) {
             // a03: 721	Haze
-            weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_HAZE
+            weatherIcon = if (isNight) WeatherIcons.NIGHT_HAZE else WeatherIcons.DAY_HAZE
         } else if (icon.startsWith("a04")) {
             // a04: 731	Sand/dust
             weatherIcon = WeatherIcons.DUST
@@ -471,12 +471,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY else WeatherIcons.DAY_CLOUDY
         } else if (icon.startsWith("c04")) {
             // c04: 804	Overcast clouds
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
-        } else if (icon.startsWith("u00")) {
-            // c04: 804	Overcast clouds
-            weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+            weatherIcon = WeatherIcons.OVERCAST
         } else {
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         }

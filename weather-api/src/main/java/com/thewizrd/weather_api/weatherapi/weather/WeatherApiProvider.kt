@@ -342,8 +342,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
             /* Overcast */
             1009 -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon = WeatherIcons.OVERCAST
             }
 
             /*

@@ -303,10 +303,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
             /* 7: Cloudy */
             7 -> weatherIcon = WeatherIcons.CLOUDY
             /* 8: Dreary (Overcast) */
-            8 -> weatherIcon = if (isNight)
-                WeatherIcons.NIGHT_OVERCAST
-            else
-                WeatherIcons.DAY_SUNNY_OVERCAST
+            8 -> weatherIcon = WeatherIcons.OVERCAST
             /* 11: Fog */
             11 -> weatherIcon = WeatherIcons.FOG
             /* 12: Showers */
@@ -348,7 +345,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
              */
             26, 29 -> weatherIcon = WeatherIcons.RAIN_MIX
             /* 30: Hot */
-            30 -> weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_HOT
+            30 -> weatherIcon = if (isNight) WeatherIcons.NIGHT_HOT else WeatherIcons.DAY_HOT
             /* 32: Windy */
             32 -> weatherIcon = WeatherIcons.WINDY
             /* 33: Clear */
@@ -360,7 +357,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
              */
             34, 35, 36 -> weatherIcon = WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
             /* 37: Hazy Moonlight */
-            37 -> weatherIcon = WeatherIcons.NIGHT_FOG
+            37 -> weatherIcon = WeatherIcons.NIGHT_HAZE
             /* 38: Mostly Cloudy */
             38 -> weatherIcon = WeatherIcons.NIGHT_ALT_CLOUDY
             /*

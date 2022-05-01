@@ -353,7 +353,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 weatherIcon = WeatherIcons.FOG
             }
             "night_haze", "night_low_level_haze" -> {
-                weatherIcon = WeatherIcons.NIGHT_FOG
+                weatherIcon = WeatherIcons.NIGHT_HAZE
             }
             "night_widely_scattered_tstorms", "night_isolated_tstorms", "night_a_few_tstorms",
             "night_scattered_tstorms", "night_tstorms" -> {
@@ -366,8 +366,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 weatherIcon = WeatherIcons.CLOUDY
             }
             "overcast" -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon = WeatherIcons.OVERCAST
             }
             "hail" -> {
                 weatherIcon = WeatherIcons.HAIL

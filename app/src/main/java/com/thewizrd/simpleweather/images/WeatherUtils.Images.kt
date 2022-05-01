@@ -32,6 +32,7 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
 
     // Apply background based on weather condition
     backgroundCode = when (icon) {
+        WeatherIcons.DAY_HAIL,
         WeatherIcons.DAY_RAIN,
         WeatherIcons.DAY_RAIN_MIX,
         WeatherIcons.DAY_RAIN_WIND,
@@ -63,6 +64,7 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
         WeatherIcons.DAY_STORM_SHOWERS,
         WeatherIcons.DAY_SLEET_STORM,
         WeatherIcons.STORM_SHOWERS,
+        WeatherIcons.SLEET_STORM,
         WeatherIcons.NIGHT_ALT_STORM_SHOWERS,
         WeatherIcons.NIGHT_ALT_SLEET_STORM,
         WeatherIcons.HAIL,
@@ -74,18 +76,21 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
         WeatherIcons.DAY_FOG,
         WeatherIcons.DAY_HAZE,
         WeatherIcons.FOG,
+        WeatherIcons.HAZE,
         WeatherIcons.NIGHT_FOG,
+        WeatherIcons.NIGHT_HAZE,
         WeatherIcons.SMOG,
         WeatherIcons.SMOKE -> WeatherBackground.FOG
 
         WeatherIcons.DAY_SNOW,
         WeatherIcons.DAY_SNOW_THUNDERSTORM,
+        WeatherIcons.DAY_SNOW_WIND,
         WeatherIcons.NIGHT_ALT_SNOW,
         WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM,
+        WeatherIcons.NIGHT_ALT_SNOW_WIND,
         WeatherIcons.SNOW,
-        WeatherIcons.SNOW_WIND,
-        WeatherIcons.DAY_SNOW_WIND,
-        WeatherIcons.NIGHT_ALT_SNOW_WIND -> WeatherBackground.SNOW
+        WeatherIcons.SNOW_THUNDERSTORM,
+        WeatherIcons.SNOW_WIND -> WeatherBackground.SNOW
 
         WeatherIcons.CLOUD,
         WeatherIcons.CLOUDY,
@@ -98,14 +103,18 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
         WeatherIcons.NIGHT_ALT_CLOUDY,
         WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,
         WeatherIcons.NIGHT_ALT_CLOUDY_HIGH,
-        WeatherIcons.NIGHT_ALT_CLOUDY_WINDY -> {
+        WeatherIcons.NIGHT_ALT_CLOUDY_WINDY,
+        WeatherIcons.DAY_SUNNY_OVERCAST,
+        WeatherIcons.NIGHT_OVERCAST,
+        WeatherIcons.OVERCAST -> {
             if (wm.isNight(this))
                 WeatherBackground.MOSTLYCLOUDY_NIGHT
             else
                 WeatherBackground.MOSTLYCLOUDY_DAY
         }
 
-        WeatherIcons.DAY_SUNNY_OVERCAST, WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> {
+        WeatherIcons.DAY_PARTLY_CLOUDY,
+        WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> {
             if (wm.isNight(this))
                 WeatherBackground.PARTLYCLOUDY_NIGHT
             else
@@ -117,7 +126,14 @@ suspend fun Weather.getImageData(): ImageDataViewModel? {
         WeatherIcons.NIGHT_CLEAR,
         WeatherIcons.SNOWFLAKE_COLD,
         WeatherIcons.DAY_HOT,
+        WeatherIcons.NIGHT_HOT,
+        WeatherIcons.HOT,
+        WeatherIcons.DAY_WINDY,
+        WeatherIcons.NIGHT_WINDY,
         WeatherIcons.WINDY,
+        WeatherIcons.DAY_LIGHT_WIND,
+        WeatherIcons.NIGHT_LIGHT_WIND,
+        WeatherIcons.LIGHT_WIND,
         WeatherIcons.STRONG_WIND -> {
             // Set background based using sunset/rise times
             if (wm.isNight(this)) WeatherBackground.NIGHT else WeatherBackground.DAY
@@ -176,6 +192,7 @@ fun Weather.getBackgroundColor(): Int {
 
     // Apply background based on weather condition
     rgb = when (icon) {
+        WeatherIcons.DAY_HAIL,
         WeatherIcons.DAY_RAIN,
         WeatherIcons.DAY_RAIN_MIX,
         WeatherIcons.DAY_RAIN_WIND,
@@ -197,7 +214,8 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.SLEET,
         WeatherIcons.SPRINKLE -> 0xFF181010.toInt()
 
-        WeatherIcons.DAY_LIGHTNING, WeatherIcons.DAY_THUNDERSTORM -> 0xFF283848.toInt()
+        WeatherIcons.DAY_LIGHTNING,
+        WeatherIcons.DAY_THUNDERSTORM -> 0xFF283848.toInt()
 
         WeatherIcons.NIGHT_ALT_LIGHTNING,
         WeatherIcons.NIGHT_ALT_THUNDERSTORM,
@@ -207,6 +225,7 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.DAY_STORM_SHOWERS,
         WeatherIcons.DAY_SLEET_STORM,
         WeatherIcons.STORM_SHOWERS,
+        WeatherIcons.SLEET_STORM,
         WeatherIcons.NIGHT_ALT_STORM_SHOWERS,
         WeatherIcons.NIGHT_ALT_SLEET_STORM,
         WeatherIcons.HAIL,
@@ -218,7 +237,9 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.DAY_FOG,
         WeatherIcons.DAY_HAZE,
         WeatherIcons.FOG,
+        WeatherIcons.HAZE,
         WeatherIcons.NIGHT_FOG,
+        WeatherIcons.NIGHT_HAZE,
         WeatherIcons.SMOG,
         WeatherIcons.SMOKE -> 0xFF252524.toInt()
 
@@ -226,7 +247,8 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.DAY_SNOW_THUNDERSTORM,
         WeatherIcons.NIGHT_ALT_SNOW,
         WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM,
-        WeatherIcons.SNOW -> 0xFF646464.toInt()
+        WeatherIcons.SNOW,
+        WeatherIcons.SNOW_THUNDERSTORM -> 0xFF646464.toInt()
 
         WeatherIcons.SNOW_WIND,
         WeatherIcons.DAY_SNOW_WIND,
@@ -245,14 +267,19 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.NIGHT_ALT_CLOUDY,
         WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,
         WeatherIcons.NIGHT_ALT_CLOUDY_HIGH,
-        WeatherIcons.NIGHT_ALT_CLOUDY_WINDY -> {
+        WeatherIcons.NIGHT_ALT_CLOUDY_WINDY,
+        WeatherIcons.DAY_SUNNY_OVERCAST,
+        WeatherIcons.NIGHT_OVERCAST,
+        WeatherIcons.OVERCAST -> {
             if (wm.isNight(this))
                 0xFF182020.toInt()
             else
                 0xFF5080A8.toInt()
         }
 
-        WeatherIcons.DAY_SUNNY_OVERCAST, WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> {
+
+        WeatherIcons.DAY_PARTLY_CLOUDY,
+        WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> {
             if (wm.isNight(this))
                 0xFF181820.toInt()
             else
@@ -264,7 +291,14 @@ fun Weather.getBackgroundColor(): Int {
         WeatherIcons.NIGHT_CLEAR,
         WeatherIcons.SNOWFLAKE_COLD,
         WeatherIcons.DAY_HOT,
+        WeatherIcons.NIGHT_HOT,
+        WeatherIcons.HOT,
+        WeatherIcons.DAY_WINDY,
+        WeatherIcons.NIGHT_WINDY,
         WeatherIcons.WINDY,
+        WeatherIcons.DAY_LIGHT_WIND,
+        WeatherIcons.NIGHT_LIGHT_WIND,
+        WeatherIcons.LIGHT_WIND,
         WeatherIcons.STRONG_WIND -> {
             // Set background based using sunset/rise times
             if (wm.isNight(this))

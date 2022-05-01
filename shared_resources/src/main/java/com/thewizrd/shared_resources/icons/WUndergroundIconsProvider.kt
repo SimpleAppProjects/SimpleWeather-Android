@@ -45,7 +45,9 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
                 R.drawable.wui_day_partlycloudy
 
             // Night
-            WeatherIcons.NIGHT_CLEAR -> weatherIcon =
+            WeatherIcons.NIGHT_CLEAR,
+            WeatherIcons.NIGHT_HOT,
+            WeatherIcons.NIGHT_LIGHT_WIND -> weatherIcon =
                 R.drawable.wui_nt_clear
 
             WeatherIcons.NIGHT_ALT_CLOUDY,
@@ -63,7 +65,9 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.DAY_FOG,
             WeatherIcons.DAY_HAZE,
             WeatherIcons.NIGHT_FOG,
-            WeatherIcons.FOG -> weatherIcon = R.drawable.wui_fog
+            WeatherIcons.NIGHT_HAZE,
+            WeatherIcons.FOG,
+            WeatherIcons.HAZE -> weatherIcon = R.drawable.wui_fog
 
             WeatherIcons.DAY_LIGHTNING,
             WeatherIcons.NIGHT_ALT_LIGHTNING,
@@ -76,7 +80,8 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.NIGHT_ALT_HAIL,
             WeatherIcons.NIGHT_ALT_SLEET,
             WeatherIcons.NIGHT_ALT_SLEET_STORM,
-            WeatherIcons.SLEET -> weatherIcon = R.drawable.wui_sleet
+            WeatherIcons.SLEET,
+            WeatherIcons.SLEET_STORM -> weatherIcon = R.drawable.wui_sleet
 
             WeatherIcons.DAY_RAIN_MIX,
             WeatherIcons.NIGHT_ALT_RAIN_MIX,
@@ -100,9 +105,9 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM,
             WeatherIcons.NIGHT_ALT_SNOW_WIND,
             WeatherIcons.SNOW,
+            WeatherIcons.SNOW_THUNDERSTORM,
             WeatherIcons.SNOW_WIND,
-            WeatherIcons.SNOWFLAKE_COLD -> weatherIcon =
-                R.drawable.wui_snow
+            WeatherIcons.SNOWFLAKE_COLD -> weatherIcon = R.drawable.wui_snow
 
             WeatherIcons.DAY_SPRINKLE,
             WeatherIcons.NIGHT_ALT_SPRINKLE,
@@ -117,18 +122,20 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.THUNDERSTORM -> weatherIcon =
                 R.drawable.wui_tstorms
 
-            WeatherIcons.DAY_WINDY -> weatherIcon = R.drawable.wi_windy
+            WeatherIcons.DAY_WINDY, WeatherIcons.NIGHT_WINDY -> weatherIcon = R.drawable.wi_windy
 
             WeatherIcons.CLOUD,
             WeatherIcons.CLOUDY,
             WeatherIcons.CLOUDY_GUSTS,
-            WeatherIcons.CLOUDY_WINDY -> weatherIcon =
-                R.drawable.wui_cloudy
+            WeatherIcons.CLOUDY_WINDY,
+            WeatherIcons.OVERCAST -> weatherIcon = R.drawable.wui_cloudy
 
+            WeatherIcons.HOT -> weatherIcon = R.drawable.wi_thermometer_up
             WeatherIcons.SMOG -> weatherIcon = R.drawable.wi_smog
             WeatherIcons.SMOKE -> weatherIcon = R.drawable.wi_smoke
             WeatherIcons.DUST -> weatherIcon = R.drawable.wi_dust
-            WeatherIcons.WINDY -> weatherIcon = R.drawable.wi_windy
+            WeatherIcons.WINDY,
+            WeatherIcons.LIGHT_WIND -> weatherIcon = R.drawable.wi_windy
             WeatherIcons.STRONG_WIND -> weatherIcon = R.drawable.wi_strong_wind
             WeatherIcons.SANDSTORM -> weatherIcon = R.drawable.wi_sandstorm
             WeatherIcons.HURRICANE -> weatherIcon = R.drawable.wi_hurricane

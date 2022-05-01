@@ -261,11 +261,18 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 }
             }
             "heavysleet", "lightsleet", "sleet" -> weatherIcon = WeatherIcons.SLEET
-            "heavysleetandthunder", "heavysleetshowersandthunder", "lightsleetandthunder",
-            "lightssleetshowersandthunder", "sleetandthunder", "sleetshowersandthunder" -> {
+            "heavysleetandthunder", "lightsleetandthunder", "sleetandthunder" -> {
                 weatherIcon = when {
                     isNight -> WeatherIcons.NIGHT_ALT_SLEET_STORM
                     else -> WeatherIcons.DAY_SLEET_STORM
+                }
+            }
+            "heavysleetshowersandthunder", "lightssleetshowersandthunder",
+            "sleetshowersandthunder" -> {
+                weatherIcon = when {
+                    isDay -> WeatherIcons.DAY_SLEET_STORM
+                    isNight -> WeatherIcons.NIGHT_ALT_SLEET_STORM
+                    else -> WeatherIcons.SLEET_STORM
                 }
             }
             "heavysleetshowers" -> {

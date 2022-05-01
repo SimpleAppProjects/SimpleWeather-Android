@@ -13,7 +13,9 @@ import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.LocationUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -318,8 +320,8 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
     /**
      * Returns the locale code supported by this weather provider
      *
-     * @param iso See [ULocale.getLanguage]
-     * @param name See [ULocale.toLanguageTag]
+     * @param iso See [com.ibm.icu.util.ULocale.getLanguage]
+     * @param name See [com.ibm.icu.util.ULocale.toLanguageTag]
      * @return The locale code supported by this provider
      */
     override fun localeToLangCode(iso: String, name: String): String {
@@ -348,7 +350,8 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 context.getString(R.string.weather_clear)
             }
             WeatherIcons.DAY_SUNNY_OVERCAST,
-            WeatherIcons.NIGHT_OVERCAST -> {
+            WeatherIcons.NIGHT_OVERCAST,
+            WeatherIcons.OVERCAST -> {
                 context.getString(R.string.weather_overcast)
             }
             WeatherIcons.DAY_PARTLY_CLOUDY,
@@ -393,7 +396,8 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 context.getString(R.string.weather_heavysnow)
             }
             WeatherIcons.DAY_SNOW_THUNDERSTORM,
-            WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM -> {
+            WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM,
+            WeatherIcons.SNOW_THUNDERSTORM -> {
                 context.getString(R.string.weather_snow_tstorms)
             }
             WeatherIcons.HAIL,
@@ -412,12 +416,21 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 context.getString(R.string.weather_fog)
             }
             WeatherIcons.DAY_SLEET_STORM,
-            WeatherIcons.NIGHT_ALT_SLEET_STORM -> {
+            WeatherIcons.NIGHT_ALT_SLEET_STORM,
+            WeatherIcons.SLEET_STORM -> {
                 context.getString(R.string.weather_sleet_tstorms)
             }
             WeatherIcons.SNOWFLAKE_COLD -> context.getString(R.string.weather_cold)
-            WeatherIcons.DAY_HOT -> context.getString(R.string.weather_hot)
-            WeatherIcons.DAY_HAZE -> context.getString(R.string.weather_haze)
+            WeatherIcons.DAY_HOT,
+            WeatherIcons.NIGHT_HOT,
+            WeatherIcons.HOT -> {
+                context.getString(R.string.weather_hot)
+            }
+            WeatherIcons.DAY_HAZE,
+            WeatherIcons.NIGHT_HAZE,
+            WeatherIcons.HAZE -> {
+                context.getString(R.string.weather_haze)
+            }
             WeatherIcons.SMOKE -> context.getString(R.string.weather_smoky)
             WeatherIcons.SANDSTORM, WeatherIcons.DUST -> context.getString(R.string.weather_dust)
             WeatherIcons.TORNADO -> context.getString(R.string.weather_tornado)
@@ -427,11 +440,14 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 context.getString(R.string.weather_rainandsnow)
             }
             WeatherIcons.DAY_WINDY,
+            WeatherIcons.NIGHT_WINDY,
             WeatherIcons.WINDY,
             WeatherIcons.DAY_CLOUDY_WINDY,
             WeatherIcons.NIGHT_ALT_CLOUDY_WINDY,
+            WeatherIcons.CLOUDY_WINDY,
             WeatherIcons.DAY_CLOUDY_GUSTS,
             WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,
+            WeatherIcons.CLOUDY_GUSTS,
             WeatherIcons.STRONG_WIND -> {
                 context.getString(R.string.weather_windy)
             }
@@ -444,7 +460,13 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
         var isNight = false
 
         when (weather.condition.icon) {
+            WeatherIcons.NIGHT_CLEAR,
+            WeatherIcons.NIGHT_ALT_CLOUDY,
+            WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,
+            WeatherIcons.NIGHT_ALT_CLOUDY_WINDY,
+            WeatherIcons.NIGHT_FOG,
             WeatherIcons.NIGHT_ALT_HAIL,
+            WeatherIcons.NIGHT_HAZE,
             WeatherIcons.NIGHT_ALT_LIGHTNING,
             WeatherIcons.NIGHT_ALT_RAIN,
             WeatherIcons.NIGHT_ALT_RAIN_MIX,
@@ -457,15 +479,13 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             WeatherIcons.NIGHT_ALT_SNOW_WIND,
             WeatherIcons.NIGHT_ALT_SPRINKLE,
             WeatherIcons.NIGHT_ALT_STORM_SHOWERS,
-            WeatherIcons.NIGHT_ALT_THUNDERSTORM,
-            WeatherIcons.NIGHT_FOG,
-            WeatherIcons.NIGHT_CLEAR,
             WeatherIcons.NIGHT_OVERCAST,
-            WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY,
-            WeatherIcons.NIGHT_ALT_CLOUDY,
-            WeatherIcons.NIGHT_ALT_CLOUDY_GUSTS,
-            WeatherIcons.NIGHT_ALT_CLOUDY_WINDY,
-            WeatherIcons.NIGHT_ALT_CLOUDY_HIGH -> isNight = true
+            WeatherIcons.NIGHT_ALT_THUNDERSTORM,
+            WeatherIcons.NIGHT_WINDY,
+            WeatherIcons.NIGHT_HOT,
+            WeatherIcons.NIGHT_ALT_CLOUDY_HIGH,
+            WeatherIcons.NIGHT_LIGHT_WIND,
+            WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY -> isNight = true
         }
 
         return isNight

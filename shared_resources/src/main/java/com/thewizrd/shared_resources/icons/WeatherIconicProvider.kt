@@ -27,6 +27,7 @@ class WeatherIconicProvider : WeatherIconProvider() {
     @DrawableRes
     override fun getWeatherIconResource(icon: String): Int {
         var weatherIcon = -1
+
         when (icon) {
             WeatherIcons.DAY_SUNNY -> weatherIcon = R.drawable.wic_sun
             WeatherIcons.DAY_CLOUDY -> weatherIcon = R.drawable.wic_sun_cloud
@@ -50,10 +51,10 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.DAY_STORM_SHOWERS -> weatherIcon = R.drawable.wic_sun_cloud_lightning
             WeatherIcons.DAY_SUNNY_OVERCAST -> weatherIcon = R.drawable.wic_sun_cloud
             WeatherIcons.DAY_THUNDERSTORM -> weatherIcon = R.drawable.wic_sun_cloud_lightning
-            WeatherIcons.DAY_WINDY -> weatherIcon = R.drawable.wic_sun_cloud_wind
+            WeatherIcons.DAY_WINDY -> weatherIcon = R.drawable.wic_wind
             WeatherIcons.DAY_HOT -> weatherIcon = R.drawable.wic_sun
             WeatherIcons.DAY_CLOUDY_HIGH -> weatherIcon = R.drawable.wic_sun_cloud
-            WeatherIcons.DAY_LIGHT_WIND -> weatherIcon = R.drawable.wic_sun_cloud_wind
+            WeatherIcons.DAY_LIGHT_WIND -> weatherIcon = R.drawable.wic_wind
 
             WeatherIcons.NIGHT_CLEAR -> weatherIcon = R.drawable.wic_moon
             WeatherIcons.NIGHT_ALT_CLOUDY -> weatherIcon = R.drawable.wic_moon_cloud
@@ -78,6 +79,10 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.NIGHT_ALT_CLOUDY_HIGH -> weatherIcon = R.drawable.wic_moon_cloud
             WeatherIcons.NIGHT_FOG -> weatherIcon = R.drawable.wic_moon_fog
             WeatherIcons.NIGHT_OVERCAST -> weatherIcon = R.drawable.wic_moon_cloud
+            WeatherIcons.NIGHT_HAZE -> weatherIcon = R.drawable.wic_moon_fog
+            WeatherIcons.NIGHT_WINDY -> weatherIcon = R.drawable.wic_wind
+            WeatherIcons.NIGHT_HOT -> weatherIcon = R.drawable.wic_moon
+            WeatherIcons.NIGHT_LIGHT_WIND -> weatherIcon = R.drawable.wic_wind
 
             WeatherIcons.CLOUD -> weatherIcon = R.drawable.wic_cloud
             WeatherIcons.CLOUDY -> weatherIcon = R.drawable.wic_clouds
@@ -85,12 +90,18 @@ class WeatherIconicProvider : WeatherIconProvider() {
             WeatherIcons.CLOUDY_WINDY -> weatherIcon = R.drawable.wic_cloud_wind
             WeatherIcons.FOG -> weatherIcon = R.drawable.wic_fog
             WeatherIcons.HAIL -> weatherIcon = R.drawable.wic_hail
+            WeatherIcons.HAZE -> weatherIcon = R.drawable.wic_fog
+            WeatherIcons.HOT -> weatherIcon = R.drawable.wic_thermometer_hot
+            WeatherIcons.LIGHT_WIND -> weatherIcon = R.drawable.wic_wind
             WeatherIcons.RAIN -> weatherIcon = R.drawable.wic_cloud_rain
             WeatherIcons.RAIN_MIX -> weatherIcon = R.drawable.wic_cloud_rain
             WeatherIcons.RAIN_WIND -> weatherIcon = R.drawable.wic_cloud_rain
+            WeatherIcons.OVERCAST -> weatherIcon = R.drawable.wic_clouds
             WeatherIcons.SHOWERS -> weatherIcon = R.drawable.wic_cloud_rain
             WeatherIcons.SLEET -> weatherIcon = R.drawable.wic_cloud_rain
+            WeatherIcons.SLEET_STORM -> weatherIcon = R.drawable.wic_cloud_rain
             WeatherIcons.SNOW -> weatherIcon = R.drawable.wic_cloud_snow
+            WeatherIcons.SNOW_THUNDERSTORM -> weatherIcon = R.drawable.wic_cloud_snow
             WeatherIcons.SPRINKLE -> weatherIcon = R.drawable.wic_cloud_rain_single
             WeatherIcons.STORM_SHOWERS -> weatherIcon = R.drawable.wic_lightning
             WeatherIcons.THUNDERSTORM -> weatherIcon = R.drawable.wic_lightning

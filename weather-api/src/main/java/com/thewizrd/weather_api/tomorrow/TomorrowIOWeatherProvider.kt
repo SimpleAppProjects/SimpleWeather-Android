@@ -514,11 +514,17 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
             /*
              * 3000: Light Wind
+             */
+            3000 -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_LIGHT_WIND else WeatherIcons.DAY_LIGHT_WIND
+            }
+
+            /*
              * 3001: Wind
              */
-            3000, 3001 -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_WINDY else WeatherIcons.DAY_CLOUDY_WINDY
+            3001 -> {
+                weatherIcon = if (isNight) WeatherIcons.NIGHT_WINDY else WeatherIcons.DAY_WINDY
             }
 
             /* Strong Wind */

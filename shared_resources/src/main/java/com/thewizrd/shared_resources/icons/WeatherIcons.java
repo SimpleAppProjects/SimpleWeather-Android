@@ -34,12 +34,12 @@ public final class WeatherIcons {
 
     // NIGHT_ALT
     public static final String NIGHT_CLEAR = "\uf02e";
-    public static final String NIGHT_FOG = "\uf04a";
-    public static final String NIGHT_OVERCAST = "\uf00c-nt";
     public static final String NIGHT_ALT_CLOUDY = "\uf086";
     public static final String NIGHT_ALT_CLOUDY_GUSTS = "\uf022";
     public static final String NIGHT_ALT_CLOUDY_WINDY = "\uf023";
+    public static final String NIGHT_FOG = "\uf04a";
     public static final String NIGHT_ALT_HAIL = "\uf024";
+    public static final String NIGHT_HAZE = "\uf0b6-nt";
     public static final String NIGHT_ALT_LIGHTNING = "\uf025";
     public static final String NIGHT_ALT_RAIN = "\uf028";
     public static final String NIGHT_ALT_RAIN_MIX = "\uf026";
@@ -52,9 +52,13 @@ public final class WeatherIcons {
     public static final String NIGHT_ALT_SNOW_WIND = "\uf067";
     public static final String NIGHT_ALT_SPRINKLE = "\uf02b";
     public static final String NIGHT_ALT_STORM_SHOWERS = "\uf02c";
+    public static final String NIGHT_OVERCAST = "\uf00c-nt";
     public static final String NIGHT_ALT_THUNDERSTORM = "\uf02d";
-    public static final String NIGHT_ALT_PARTLY_CLOUDY = "\uf081";
+    public static final String NIGHT_WINDY = "\uf085-nt";
+    public static final String NIGHT_HOT = "\uf072-nt";
     public static final String NIGHT_ALT_CLOUDY_HIGH = "\uf07e";
+    public static final String NIGHT_LIGHT_WIND = "\uf0c4-nt";
+    public static final String NIGHT_ALT_PARTLY_CLOUDY = "\uf081";
 
     // NEUTRAL
     public static final String CLOUD = "\uf041";
@@ -63,22 +67,29 @@ public final class WeatherIcons {
     public static final String CLOUDY_WINDY = "\uf012";
     public static final String FOG = "\uf014";
     public static final String HAIL = "\uf015";
+    public static final String HAZE = "\uf0b6-neutral";
+    public static final String LIGHTNING = "\uf016";
     public static final String RAIN = "\uf019";
     public static final String RAIN_MIX = "\uf017";
     public static final String RAIN_WIND = "\uf018";
     public static final String SHOWERS = "\uf01a";
     public static final String SLEET = "\uf0b5";
+    public static final String SLEET_STORM = "\uf0b5-storm";
     public static final String SNOW = "\uf01b";
+    public static final String SNOW_THUNDERSTORM = "\uf01b-tstorms";
+    public static final String SNOW_WIND = "\uf064";
     public static final String SPRINKLE = "\uf01c";
     public static final String STORM_SHOWERS = "\uf01d";
+    public static final String OVERCAST = "\uf00c-neutral";
     public static final String THUNDERSTORM = "\uf01e";
-    public static final String SNOW_WIND = "\uf064";
+    public static final String WINDY = "\uf021";
+    public static final String HOT = "\uf072-neutral";
+    public static final String LIGHT_WIND = "\uf0c4-neutral";
+
     public static final String SMOG = "\uf074";
     public static final String SMOKE = "\uf062";
-    public static final String LIGHTNING = "\uf016";
     public static final String DUST = "\uf063";
     public static final String SNOWFLAKE_COLD = "\uf076";
-    public static final String WINDY = "\uf021";
     public static final String STRONG_WIND = "\uf050";
     public static final String SANDSTORM = "\uf082";
     public static final String HURRICANE = "\uf073";

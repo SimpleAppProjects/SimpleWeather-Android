@@ -292,8 +292,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 WeatherIcons.CLOUDY
             }
             3  /* Overcast skies */ -> {
-                // TODO: Overcast neutral
-                if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                WeatherIcons.OVERCAST
             }
             10, // Mist
             45, // Fog
@@ -302,31 +301,21 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             }
             21, // Patchy rain possible
             50, // Patchy light drizzle
-            51, // Light drizzle
-            60, // Patchy light rain
-            61  /* Light rain */ -> {
-                WeatherIcons.SPRINKLE
+            60, /* Patchy light rain */
+            -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
             }
             22, // Patchy snow possible
-            70, // Patchy snow possible
-            71, // Light snow
-            72, // Patchy moderate snow
-            73, /* Moderate snow */
+            70, // Patchy light snow
+            72, /* Patchy moderate snow */
             -> {
-                WeatherIcons.SNOW
+                if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
             }
-            23, // Patchy sleet possible
-            68, // Light sleet
-            69, /* Moderate or heavy sleet */
-            -> {
-                WeatherIcons.SLEET
+            23 /* Patchy sleet possible */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
             }
-            24, // Patchy freezing drizzle possible
-            56, // Freezing drizzle
-            57, // Heavy freezing drizzle
-            66, // Light freezing rain
-            67  /* Moderate or heavy freezing rain */ -> {
-                WeatherIcons.RAIN_MIX
+            24 /* Patchy freezing drizzle possible */ -> {
+                if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
             }
             29  /* Thundery outbreaks possible */ -> {
                 if (isNight) WeatherIcons.NIGHT_ALT_LIGHTNING else WeatherIcons.DAY_LIGHTNING
@@ -337,6 +326,16 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             75  /* Heavy snow */ -> {
                 WeatherIcons.SNOW_WIND
             }
+            51, // Light drizzle
+            61  /* Light rain */ -> {
+                WeatherIcons.SPRINKLE
+            }
+            56, // Freezing drizzle
+            57, // Heavy freezing drizzle
+            66, // Light freezing rain
+            67  /* Moderate or heavy freezing rain */ -> {
+                WeatherIcons.RAIN_MIX
+            }
             62, // Moderate rain at times
             63, /* Moderate rain */
             -> {
@@ -345,6 +344,16 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             64, // Heavy rain at times
             65  /* Heavy rain */ -> {
                 WeatherIcons.RAIN_WIND
+            }
+            68, // Light sleet
+            69, /* Moderate or heavy sleet */
+            -> {
+                WeatherIcons.SLEET
+            }
+            71, // Light snow
+            73, /* Moderate snow */
+            -> {
+                WeatherIcons.SNOW
             }
             79 /* Ice pellets*/ -> {
                 WeatherIcons.HAIL
@@ -367,13 +376,17 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             88  /* Moderate or heavy showers of ice pellets */ -> {
                 if (isNight) WeatherIcons.NIGHT_ALT_HAIL else WeatherIcons.DAY_HAIL
             }
-            91, // Patchy light rain with thunder
-            92  /* Moderate or heavy rain with thunder */ -> {
+            91 /* Patchy light rain with thunder */ -> {
                 if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
             }
-            93, // Patchy light snow with thunder
-            94  /* Moderate or heavy snow with thunder */ -> {
+            92  /* Moderate or heavy rain with thunder */ -> {
+                WeatherIcons.THUNDERSTORM
+            }
+            93 /* Patchy light snow with thunder */ -> {
                 if (isNight) WeatherIcons.NIGHT_ALT_SNOW_THUNDERSTORM else WeatherIcons.DAY_SNOW_THUNDERSTORM
+            }
+            94  /* Moderate or heavy snow with thunder */ -> {
+                WeatherIcons.SNOW_THUNDERSTORM
             }
             else -> WeatherIcons.NA
         }

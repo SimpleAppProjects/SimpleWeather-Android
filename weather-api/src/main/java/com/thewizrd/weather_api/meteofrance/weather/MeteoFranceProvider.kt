@@ -379,7 +379,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             weatherIcon = WeatherIcons.CLOUDY
         } else if (icon.startsWith("p4")) {
             // Haze
-            weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_HAZE
+            weatherIcon = if (isNight) WeatherIcons.NIGHT_HAZE else WeatherIcons.DAY_HAZE
         } else if (icon.startsWith("p5")) {
             // Fog
             weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
