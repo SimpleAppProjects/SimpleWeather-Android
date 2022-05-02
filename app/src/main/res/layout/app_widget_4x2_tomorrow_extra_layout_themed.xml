@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="4dp"
+    tools:ignore="UselessParent">
+
+    <LinearLayout
+        android:id="@+id/precipitation_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/precipitation_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:maxHeight="24dp"
+            android:maxWidth="24dp"
+            android:contentDescription="@string/label_qpf_rain"
+            android:src="@drawable/wi_umbrella" />
+
+        <TextView
+            android:id="@+id/precipitation_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingEnd="0dp"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorOnSurface"
+            tools:text="Rain starting in 1 min" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/aqi_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/aqi_dot_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:maxWidth="24dp"
+            android:maxHeight="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dot"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            tools:layout_width="24dp"
+            tools:layout_height="24dp" />
+
+        <TextView
+            android:id="@+id/aqi_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="0dp"
+            android:text="@string/label_airquality_short"
+            android:textColor="@color/colorOnSurface"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/aqi_level"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingEnd="0dp"
+            android:textColor="@color/colorOnSurface"
+            tools:text="46 - Good" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/label_updatetime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:paddingEnd="2dp"
+        android:paddingStart="0dp"
+        android:paddingBottom="2dp"
+        android:maxLines="1"
+        android:gravity="center_vertical|end"
+        android:textSize="11sp"
+        android:textColor="@color/colorOnSurface"
+        android:alpha="0.7"
+        tools:text="Updated at 12:00PM" />
+
+</LinearLayout>

@@ -535,7 +535,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 txtColorPref.isVisible = mWidgetBackground == WidgetBackground.CUSTOM
 
                 if (mWidgetBackground == WidgetBackground.CURRENT_CONDITIONS) {
-                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                    if (WidgetUtils.isPandaWidget(mWidgetType)) {
                         bgStylePref.isVisible = true
                         return@OnPreferenceChangeListener true
                     }
@@ -853,6 +853,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x3Locations -> 3
                         WidgetType.Widget3x1MaterialYou -> 1
                         WidgetType.Widget4x2Graph -> 2
+                        WidgetType.Widget4x2Tomorrow -> 2
                     }.toFloat()
                 ).toInt()
                 width = mWidgetViewCtx.dpToPx(
@@ -873,6 +874,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                         WidgetType.Widget4x3Locations -> 4
                         WidgetType.Widget3x1MaterialYou -> 3
                         WidgetType.Widget4x2Graph -> 4
+                        WidgetType.Widget4x2Tomorrow -> 4
                     }.toFloat()
                 ).toInt()
                 gravity = Gravity.CENTER
@@ -1517,6 +1519,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     lowF = 60f
                     lowC = 15f
                     icon = WeatherIcons.DAY_SUNNY
+                    airQuality = AirQuality().apply {
+                        index = 46
+                    }
                 }
                 atmosphere = Atmosphere()
                 precipitation = Precipitation().apply {

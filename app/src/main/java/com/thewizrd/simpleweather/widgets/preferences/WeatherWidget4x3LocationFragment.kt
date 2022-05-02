@@ -455,7 +455,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 txtColorPref.isVisible = mWidgetBackground == WidgetUtils.WidgetBackground.CUSTOM
 
                 if (mWidgetBackground == WidgetUtils.WidgetBackground.CURRENT_CONDITIONS) {
-                    if (mWidgetType == WidgetType.Widget4x2 || mWidgetType == WidgetType.Widget2x2) {
+                    if (WidgetUtils.isPandaWidget(mWidgetType)) {
                         bgStylePref.isVisible = true
                         return@OnPreferenceChangeListener true
                     }
@@ -1183,6 +1183,9 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                     lowF = 60f
                     lowC = 15f
                     icon = WeatherIcons.DAY_SUNNY
+                    airQuality = AirQuality().apply {
+                        index = 46
+                    }
                 }
                 atmosphere = Atmosphere()
                 precipitation = Precipitation().apply {

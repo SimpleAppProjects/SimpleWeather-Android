@@ -269,6 +269,9 @@ object WidgetUtils {
             WidgetType.Widget4x2Graph -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x2ForecastGraph.Info.getInstance().componentName
             )
+            WidgetType.Widget4x2Tomorrow -> mAppWidgetManager.getAppWidgetIds(
+                WeatherWidgetProvider4x2Tomorrow.Info.getInstance().componentName
+            )
         }
     }
 
@@ -290,6 +293,7 @@ object WidgetUtils {
             WidgetType.Widget4x3Locations -> WeatherWidgetProvider4x3Locations.Info.getInstance()
             WidgetType.Widget3x1MaterialYou -> WeatherWidgetProvider3x1MaterialYou.Info.getInstance()
             WidgetType.Widget4x2Graph -> WeatherWidgetProvider4x2ForecastGraph.Info.getInstance()
+            WidgetType.Widget4x2Tomorrow -> WeatherWidgetProvider4x2Tomorrow.Info.getInstance()
         }
     }
 
@@ -620,6 +624,7 @@ object WidgetUtils {
             WidgetType.Widget4x3Locations -> 96 * 4
             WidgetType.Widget3x1MaterialYou -> 96 * 3
             WidgetType.Widget4x2Graph -> 96 * 4
+            WidgetType.Widget4x2Tomorrow -> 96 * 4
         }
 
         val widgetHeight = when (widgetType) {
@@ -639,6 +644,7 @@ object WidgetUtils {
             WidgetType.Widget4x3Locations -> 96 * 3
             WidgetType.Widget3x1MaterialYou -> 96 * 1
             WidgetType.Widget4x2Graph -> 96 * 2
+            WidgetType.Widget4x2Tomorrow -> 96 * 2
         }
 
         if (!options.containsKey(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)) {
@@ -746,6 +752,9 @@ object WidgetUtils {
                 WeatherWidgetProvider4x2ForecastGraph.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget4x2Graph
                 }
+                WeatherWidgetProvider4x2Tomorrow.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget4x2Tomorrow
+                }
             }
         }
 
@@ -770,6 +779,7 @@ object WidgetUtils {
             WidgetType.Widget4x3Locations -> WeatherWidget4x3LocationsCreator(context)
             WidgetType.Widget3x1MaterialYou -> WeatherWidget3x1MaterialYouCreator(context)
             WidgetType.Widget4x2Graph -> WeatherWidget4x2GraphCreator(context)
+            WidgetType.Widget4x2Tomorrow -> WeatherWidget4x2TomorrowCreator(context)
         }
     }
 
@@ -813,11 +823,11 @@ object WidgetUtils {
     }
 
     fun isClockWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations || widgetType == WidgetType.Widget4x2Tomorrow
     }
 
     fun isDateWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Huawei || widgetType == WidgetType.Widget4x3Locations || widgetType == WidgetType.Widget4x2Tomorrow
     }
 
     fun isForecastWidget(widgetType: WidgetType): Boolean {
@@ -829,7 +839,11 @@ object WidgetUtils {
     }
 
     fun isBackgroundCustomOnlyWidget(widgetType: WidgetType): Boolean {
-        return !isMaterialYouWidget(widgetType) && widgetType != WidgetType.Widget2x2 && widgetType != WidgetType.Widget4x2
+        return !isMaterialYouWidget(widgetType) && widgetType != WidgetType.Widget2x2 && widgetType != WidgetType.Widget4x2 && widgetType != WidgetType.Widget4x2Tomorrow
+    }
+
+    fun isPandaWidget(widgetType: WidgetType): Boolean {
+        return widgetType == WidgetType.Widget2x2 || widgetType == WidgetType.Widget4x2 || widgetType == WidgetType.Widget4x2Tomorrow
     }
 
     fun isLocationNameOptionalWidget(widgetType: WidgetType): Boolean {
