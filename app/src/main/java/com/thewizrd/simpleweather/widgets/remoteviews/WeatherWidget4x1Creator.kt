@@ -15,8 +15,7 @@ import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.buildForecast
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSizes
 import com.thewizrd.simpleweather.widgets.WidgetUtils
-import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
-import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.*
 
 class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(context) {
     override val info: WidgetProviderInfo
@@ -47,7 +46,10 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         newOptions: Bundle
     ): RemoteViews {
         // Build an update that holds the updated widget contents
-        val hideLocationName = WidgetUtils.isLocationNameHidden(appWidgetId)
+        val hideLocationName =
+            newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                appWidgetId
+            )
 
         val updateViews = if (hideLocationName) {
             RemoteViews(context.packageName, R.layout.app_widget_4x1_nolocation)
@@ -92,16 +94,21 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         if (!hideLocationName) {
             updateViews.setViewVisibility(
                 R.id.location_name,
-                if (WidgetUtils.isLocationNameHidden(appWidgetId)) View.GONE else View.VISIBLE
+                if (hideLocationName) View.GONE else View.VISIBLE
             )
         }
         updateViews.setViewVisibility(
             R.id.settings_button,
-            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDESETTINGSBTN) as? Boolean
+                    ?: WidgetUtils.isSettingsButtonHidden(appWidgetId)
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.refresh_button,
-            if (WidgetUtils.isRefreshButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDEREFRESHBTN) as? Boolean ?: WidgetUtils.isRefreshButtonHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
 
         // Resizing
@@ -120,11 +127,15 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        val updateViews = if (WidgetUtils.isLocationNameHidden(appWidgetId)) {
-            RemoteViews(context.packageName, R.layout.app_widget_4x1_nolocation)
-        } else {
-            RemoteViews(context.packageName, R.layout.app_widget_4x1)
-        }
+        val updateViews =
+            if (newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                    appWidgetId
+                )
+            ) {
+                RemoteViews(context.packageName, R.layout.app_widget_4x1_nolocation)
+            } else {
+                RemoteViews(context.packageName, R.layout.app_widget_4x1)
+            }
 
         updateViewSizes(updateViews, appWidgetId, newOptions)
         updateForecastSizes(context, info, appWidgetId, updateViews, newOptions)
@@ -156,7 +167,10 @@ class WeatherWidget4x1Creator(context: Context) : WidgetRemoteViewCreator(contex
                 appWidgetId
             )
 
-        if (!WidgetUtils.isLocationNameHidden(appWidgetId)) {
+        if (!(newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                appWidgetId
+            ))
+        ) {
             var locTextSize = 12f
             if (cellHeight > 1 && (!isSmallWidth || cellWidth > 4)) locTextSize = 14f
 

@@ -183,15 +183,23 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
 
         updateViews.setViewVisibility(
             R.id.location_name,
-            if (WidgetUtils.isLocationNameHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.settings_button,
-            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDESETTINGSBTN) as? Boolean
+                    ?: WidgetUtils.isSettingsButtonHidden(appWidgetId)
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.refresh_button,
-            if (WidgetUtils.isRefreshButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDEREFRESHBTN) as? Boolean ?: WidgetUtils.isRefreshButtonHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
 
         setOnClickIntent(location, updateViews)
@@ -211,7 +219,9 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
     ) {
         updateClockSize(updateViews, appWidgetId, newOptions)
 
-        if (location != null && WidgetUtils.useTimeZone(appWidgetId)) {
+        if (location != null && (newOptions.get(KEY_USETIMEZONE) as? Boolean
+                ?: WidgetUtils.useTimeZone(appWidgetId))
+        ) {
             updateViews.setString(R.id.clock_panel, "setTimeZone", location.tzLong)
         } else {
             updateViews.setString(R.id.clock_panel, "setTimeZone", null)
@@ -226,7 +236,9 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
     ) {
         updateDateSize(updateViews, appWidgetId, newOptions)
 
-        if (location != null && WidgetUtils.useTimeZone(appWidgetId)) {
+        if (location != null && (newOptions.get(KEY_USETIMEZONE) as? Boolean
+                ?: WidgetUtils.useTimeZone(appWidgetId))
+        ) {
             updateViews.setString(R.id.date_panel, "setTimeZone", location.tzLong)
         } else {
             updateViews.setString(R.id.date_panel, "setTimeZone", null)

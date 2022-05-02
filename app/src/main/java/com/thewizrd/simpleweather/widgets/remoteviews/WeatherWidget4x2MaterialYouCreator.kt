@@ -18,6 +18,8 @@ import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.buildForecast
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSizes
 import com.thewizrd.simpleweather.widgets.WidgetUtils
+import com.thewizrd.simpleweather.widgets.preferences.KEY_HIDELOCNAME
+import com.thewizrd.simpleweather.widgets.preferences.KEY_HIDESETTINGSBTN
 
 class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCreator(context) {
     private fun generateRemoteViews(): RemoteViews {
@@ -113,11 +115,16 @@ class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCre
 
         updateViews.setViewVisibility(
             R.id.location_name,
-            if (WidgetUtils.isLocationNameHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.settings_button,
-            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDESETTINGSBTN) as? Boolean
+                    ?: WidgetUtils.isSettingsButtonHidden(appWidgetId)
+            ) View.GONE else View.VISIBLE
         )
 
         setOnClickIntent(location, updateViews)

@@ -109,15 +109,23 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
 
         updateViews.setViewVisibility(
             R.id.location_name,
-            if (WidgetUtils.isLocationNameHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDELOCNAME) as? Boolean ?: WidgetUtils.isLocationNameHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.settings_button,
-            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDESETTINGSBTN) as? Boolean
+                    ?: WidgetUtils.isSettingsButtonHidden(appWidgetId)
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.refresh_button,
-            if (WidgetUtils.isRefreshButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDEREFRESHBTN) as? Boolean ?: WidgetUtils.isRefreshButtonHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
 
         setOnClickIntent(location, updateViews)

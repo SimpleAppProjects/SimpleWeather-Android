@@ -25,10 +25,7 @@ import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider4x3Locations
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.getResIdentifier
 import com.thewizrd.simpleweather.widgets.WidgetUtils
-import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
-import com.thewizrd.simpleweather.widgets.preferences.KEY_ICONSIZE
-import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
-import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -253,11 +250,16 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
         updateViews.setViewVisibility(
             R.id.settings_button,
-            if (WidgetUtils.isSettingsButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDESETTINGSBTN) as? Boolean
+                    ?: WidgetUtils.isSettingsButtonHidden(appWidgetId)
+            ) View.GONE else View.VISIBLE
         )
         updateViews.setViewVisibility(
             R.id.refresh_button,
-            if (WidgetUtils.isRefreshButtonHidden(appWidgetId)) View.GONE else View.VISIBLE
+            if (newOptions.get(KEY_HIDEREFRESHBTN) as? Boolean ?: WidgetUtils.isRefreshButtonHidden(
+                    appWidgetId
+                )
+            ) View.GONE else View.VISIBLE
         )
 
         setOnClickIntent(null, updateViews)
