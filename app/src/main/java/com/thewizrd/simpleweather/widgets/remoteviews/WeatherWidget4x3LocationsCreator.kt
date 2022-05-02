@@ -196,8 +196,8 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
             val weatherIconSize = context.dpToPx(36f) * icoSizeMultiplier
 
-            updateViews.setInt(R.id.weather_icon, "setMaxWidth", weatherIconSize.toInt())
-            updateViews.setInt(R.id.weather_icon, "setMaxHeight", weatherIconSize.toInt())
+            updateViews.setInt(forecastIconId, "setMaxWidth", weatherIconSize.toInt())
+            updateViews.setInt(forecastIconId, "setMaxHeight", weatherIconSize.toInt())
 
             updateViews.setImageViewBitmap(
                 forecastIconId,
