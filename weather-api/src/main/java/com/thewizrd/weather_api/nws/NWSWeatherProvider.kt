@@ -439,23 +439,23 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         } else if (icon.contains("rain_showers") || icon.contains("shra") || icon.contains("shwrs")) {
             if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
         } else if (icon.contains("fzra") || icon.contains("rain_sleet") || icon.contains("rain_snow") || icon.contains("ra_sn")) {
-            if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
+            WeatherIcons.RAIN_MIX
         } else if (icon.contains("sleet") || icon.contains("raip")) {
-            if (isNight) WeatherIcons.NIGHT_ALT_SLEET else WeatherIcons.DAY_SLEET
+            WeatherIcons.SLEET
         } else if (icon.contains("minus_ra")) {
             if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
         } else if (icon.contains("rain") || icon == "ra.png" || icon == "nra.png" || icon.contains("nra") || icon.matches(".*([/]?)([n]?)ra([0-9]{0,3})((.png)?).*".toRegex())) {
-            if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
+            WeatherIcons.RAIN
         } else if (icon.contains("snow") || icon == "sn.png" || icon == "nsn.png" || icon.contains("nsn") || icon.matches(".*([/]?)([n]?)sn([0-9]{0,3})((.png)?).*".toRegex())) {
-            if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+            WeatherIcons.SNOW
         } else if (icon.contains("snip") || icon == "ip.png" || icon == "nip.png" || icon.contains("nip") || icon.matches(".*([/]?)([n]?)ip([0-9]{0,3})((.png)?).*".toRegex())) {
-            if (isNight) WeatherIcons.NIGHT_ALT_HAIL else WeatherIcons.DAY_HAIL
+            WeatherIcons.HAIL
         } else if (icon.contains("wind_bkn") || icon.contains("wind_ovc") || icon.contains("wind_sct")) {
             if (isNight) WeatherIcons.NIGHT_ALT_CLOUDY_WINDY else WeatherIcons.DAY_CLOUDY_WINDY
         } else if (icon.contains("wind_skc") || icon.contains("wind_few") || icon.contains("wind")) {
             if (isNight) WeatherIcons.NIGHT_WINDY else WeatherIcons.DAY_WINDY
         } else if (icon.contains("ovc")) {
-            if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+            WeatherIcons.OVERCAST
         } else if (icon.contains("sct") || icon.contains("few")) {
             if (isNight) WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY else WeatherIcons.DAY_PARTLY_CLOUDY
         } else if (icon.contains("bkn")) {
@@ -477,7 +477,14 @@ class NWSWeatherProvider : WeatherProviderImpl() {
     override fun getWeatherCondition(icon: String?): String {
         if (icon == null) return context.getString(R.string.weather_notavailable)
 
-        return if (icon.contains("fog") || icon == "fg.png" || icon == "nfg.png" || icon.contains("nfg") || icon.matches(".*([/]?)([n]?)fg([0-9]{0,3})((.png)?).*".toRegex())) {
+        if (!icon.contains(".png") && !icon.contains("weather.gov")) {
+            return super.getWeatherCondition(icon)
+        }
+
+        return if (icon.contains("fog") || icon == "fg.png" || icon == "nfg.png" || icon.contains("nfg") || icon.matches(
+                ".*([/]?)([n]?)fg([0-9]{0,3})((.png)?).*".toRegex()
+            )
+        ) {
             context.getString(R.string.weather_fog)
         } else if (icon.contains("blizzard")) {
             context.getString(R.string.weather_blizzard)
@@ -554,26 +561,39 @@ class NWSWeatherProvider : WeatherProviderImpl() {
     override fun isNight(weather: Weather): Boolean {
         var isNight = super.isNight(weather)
 
-        // The following cases can be present at any time of day
-        if (WeatherIcons.SNOWFLAKE_COLD == weather.condition.icon) {
-            if (!isNight) {
-                // Fallback to sunset/rise time just in case
-                var tz: ZoneOffset? = null
-                if (!weather.location.tzLong.isNullOrBlank()) {
-                    val id = ZoneIdCompat.of(weather.location.tzLong)
-                    tz = id.rules.getOffset(Instant.now())
+        when (weather.condition.icon) {
+            // The following cases can be present at any time of day
+            WeatherIcons.SNOWFLAKE_COLD,
+            WeatherIcons.SMOKE,
+            WeatherIcons.DUST,
+            WeatherIcons.HURRICANE,
+            WeatherIcons.TORNADO,
+            WeatherIcons.RAIN_MIX,
+            WeatherIcons.SLEET,
+            WeatherIcons.RAIN,
+            WeatherIcons.SNOW,
+            WeatherIcons.HAIL,
+            WeatherIcons.OVERCAST -> {
+                if (!isNight) {
+                    // Fallback to sunset/rise time just in case
+                    var tz: ZoneOffset? = null
+                    if (!weather.location.tzLong.isNullOrBlank()) {
+                        val id = ZoneIdCompat.of(weather.location.tzLong)
+                        tz = id.rules.getOffset(Instant.now())
+                    }
+                    if (tz == null) {
+                        tz = weather.location.tzOffset
+                    }
+
+                    val sunrise = weather.astronomy?.sunrise?.toLocalTime() ?: LocalTime.of(6, 0)
+                    val sunset = weather.astronomy?.sunset?.toLocalTime() ?: LocalTime.of(18, 0)
+
+                    val now = ZonedDateTime.now(tz).toLocalTime()
+
+                    // Determine whether its night using sunset/rise times
+                    if (now.toNanoOfDay() < sunrise.toNanoOfDay() || now.toNanoOfDay() > sunset.toNanoOfDay()) isNight =
+                        true
                 }
-                if (tz == null) {
-                    tz = weather.location.tzOffset
-                }
-
-                val sunrise = weather.astronomy?.sunrise?.toLocalTime() ?: LocalTime.of(6, 0)
-                val sunset = weather.astronomy?.sunset?.toLocalTime() ?: LocalTime.of(18, 0)
-
-                val now = ZonedDateTime.now(tz).toLocalTime()
-
-                // Determine whether its night using sunset/rise times
-                if (now.toNanoOfDay() < sunrise.toNanoOfDay() || now.toNanoOfDay() > sunset.toNanoOfDay()) isNight = true
             }
         }
 
