@@ -28,8 +28,9 @@ import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import java.util.*
 
 class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x2_huawei)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x2_huawei)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x2Huawei.Info.getInstance()
@@ -90,6 +91,11 @@ class WeatherWidget4x2HuaweiCreator(context: Context) : WidgetRemoteViewCreator(
                 weatherIconSize
             )
         )
+        if (wim.isFontIcon) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
+        }
 
         // Condition text
         updateViews.setTextViewText(

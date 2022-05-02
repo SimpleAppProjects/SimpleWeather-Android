@@ -29,7 +29,9 @@ import com.thewizrd.simpleweather.widgets.preferences.*
 
 class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) :
     CustomBackgroundWidgetRemoteViewCreator(context, loadBackground) {
-    private fun generateRemoteViews() = RemoteViews(context.packageName, R.layout.app_widget_4x2)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x2)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x2.Info.getInstance()
@@ -135,6 +137,7 @@ class WeatherWidget4x2Creator(context: Context, loadBackground: Boolean = true) 
 
         updateViews.setTextColor(R.id.date_panel, textColor)
         updateViews.setTextColor(R.id.clock_panel, textColor)
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
 
         // Condition text

@@ -427,6 +427,11 @@ object WidgetUpdaterHelper {
                     weatherIconResId
                 )
             )
+            if (wim.isFontIcon) {
+                forecastPanel.setInt(iconId, "setColorFilter", textColor)
+            } else {
+                forecastPanel.setInt(iconId, "setColorFilter", 0)
+            }
         }
 
         if (forecast is HourlyForecastItemViewModel && info.widgetType != WidgetType.Widget4x2MaterialYou && info.widgetType != WidgetType.Widget4x4MaterialYou) {

@@ -24,7 +24,9 @@ import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import com.thewizrd.weather_api.weatherModule
 
 class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() = RemoteViews(context.packageName, info.widgetLayoutId)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, info.widgetLayoutId)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider1x1.Info.getInstance()
@@ -80,6 +82,8 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         )
         if (wim.isFontIcon) {
             updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
         }
         updateViews.setContentDescription(
             R.id.weather_icon,

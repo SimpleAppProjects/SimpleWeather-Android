@@ -28,8 +28,9 @@ class WeatherWidget4x1GoogleCreator(context: Context) : WidgetRemoteViewCreator(
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x1Google.Info.getInstance()
 
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x1_google)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x1_google)
+    }
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
@@ -88,6 +89,11 @@ class WeatherWidget4x1GoogleCreator(context: Context) : WidgetRemoteViewCreator(
                 weatherIconScaledSize
             )
         )
+        if (wim.isFontIcon) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
+        }
 
         updateViews.setTextViewText(R.id.condition_temp, weather.curTemp)
 

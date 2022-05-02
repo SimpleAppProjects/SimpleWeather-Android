@@ -27,8 +27,9 @@ import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import java.util.*
 
 class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x1_notification)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x1_notification)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x1Notification.Info.getInstance()
@@ -87,6 +88,11 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
                 weatherIconSize
             )
         )
+        if (wim.isFontIcon) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
+        }
 
         val tempArrowIconSize = context.dpToPx(16f) * txtSizeMultiplier
 

@@ -20,8 +20,9 @@ import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper.updateForecastSize
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 
 class WeatherWidget4x2MaterialYouCreator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x2_materialu)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x2_materialu)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x2MaterialYou.Info.getInstance()

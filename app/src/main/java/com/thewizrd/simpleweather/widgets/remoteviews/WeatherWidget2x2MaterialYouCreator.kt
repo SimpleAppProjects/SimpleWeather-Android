@@ -16,8 +16,9 @@ import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 
 class WeatherWidget2x2MaterialYouCreator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_2x2_materialu)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_2x2_materialu)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider2x2MaterialYou.Info.getInstance()

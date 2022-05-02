@@ -39,8 +39,9 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         private const val MAX_LOCATION_ITEMS = 5
     }
 
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x3_locations)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x3_locations)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x3Locations.Info.getInstance()
@@ -207,6 +208,11 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
                     weatherIconSize
                 )
             )
+            if (wim.isFontIcon) {
+                updateViews.setInt(forecastIconId, "setColorFilter", textColor)
+            } else {
+                updateViews.setInt(forecastIconId, "setColorFilter", 0)
+            }
 
             updateViews.setViewVisibility(locationItemId, View.VISIBLE)
         }

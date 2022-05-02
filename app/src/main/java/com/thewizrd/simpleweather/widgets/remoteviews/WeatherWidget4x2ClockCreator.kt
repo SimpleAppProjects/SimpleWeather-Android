@@ -26,8 +26,9 @@ import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
 import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 
 class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(context) {
-    private fun generateRemoteViews() =
-        RemoteViews(context.packageName, R.layout.app_widget_4x2_clock)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_4x2_clock)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider4x2Clock.Info.getInstance()
@@ -89,6 +90,11 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
                 weatherIconSize
             )
         )
+        if (wim.isFontIcon) {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+        } else {
+            updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
+        }
 
         // Condition text
         updateViews.setTextViewText(R.id.condition_weather, weather.curCondition)

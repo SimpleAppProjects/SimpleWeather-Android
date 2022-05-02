@@ -30,7 +30,9 @@ import java.util.*
 
 class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) :
     CustomBackgroundWidgetRemoteViewCreator(context, loadBackground) {
-    private fun generateRemoteViews() = RemoteViews(context.packageName, R.layout.app_widget_2x2)
+    private fun generateRemoteViews(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.app_widget_2x2)
+    }
 
     override val info: WidgetProviderInfo
         get() = WeatherWidgetProvider2x2.Info.getInstance()
@@ -100,6 +102,24 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         updateViews.setInt(R.id.weather_icon, "setMaxWidth", weatherIconSize.toInt())
         updateViews.setInt(R.id.weather_icon, "setMaxHeight", weatherIconSize.toInt())
 
+        val textColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
+            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
+        } else {
+            Colors.WHITE
+        }
+
+        val panelTextColor = when {
+            background == WidgetUtils.WidgetBackground.CUSTOM -> {
+                textColor
+            }
+            style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
+                Colors.BLACK
+            }
+            else -> {
+                Colors.WHITE
+            }
+        }
+
         if (style == WidgetUtils.WidgetBackgroundStyle.PANDA) {
             updateViews.setImageViewResource(R.id.weather_icon, weatherIconResId)
         } else {
@@ -129,23 +149,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
                     weatherIconSize
                 )
             )
-        }
-
-        val textColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
-            newOptions.get(KEY_TXTCOLORCODE) as? Int ?: WidgetUtils.getTextColor(appWidgetId)
-        } else {
-            Colors.WHITE
-        }
-
-        val panelTextColor = when {
-            background == WidgetUtils.WidgetBackground.CUSTOM -> {
-                textColor
-            }
-            style == WidgetUtils.WidgetBackgroundStyle.LIGHT -> {
-                Colors.BLACK
-            }
-            else -> {
-                Colors.WHITE
+            if (wim.isFontIcon) {
+                updateViews.setInt(R.id.weather_icon, "setColorFilter", textColor)
+            } else {
+                updateViews.setInt(R.id.weather_icon, "setColorFilter", 0)
             }
         }
 
@@ -314,7 +321,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             }
         }
 
+        updateViews.setTextColor(R.id.clock_panel, textColor)
+        updateViews.setTextColor(R.id.date_panel, textColor)
         updateViews.setInt(R.id.settings_button, "setColorFilter", textColor)
+        updateViews.setInt(R.id.refresh_button, "setColorFilter", textColor)
 
         // Condition text
         updateViews.setTextViewText(
