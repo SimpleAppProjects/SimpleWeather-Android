@@ -16,10 +16,9 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -38,31 +37,52 @@ object PoPChanceNotificationHelper {
         val lastPostTime = settingsManager.getLastPoPChanceNotificationTime()
 
         // We already posted today; post any chance tomorrow
-        if (now.toLocalDate().isEqual(lastPostTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDate())) return
+        if (now.toLocalDate()
+                .isEqual(lastPostTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDate())
+        ) return
 
         // Get the forecast for the next 12 hours
-        val location: LocationData?
-        val hrForecasts = withContext(Dispatchers.IO) {
-            location = settingsManager.getHomeData()
-            if (location == null) return@withContext null
+        val location = settingsManager.getHomeData() ?: return
+        val minForecasts =
+            settingsManager.getWeatherForecastData(location.query)?.minForecast?.filter {
+                !it.date.isBefore(now.withZoneSameInstant(location.tzOffset))
+            }
+
+        // Create minutely precipitation notification if possible
+        if (!createMinutelyNotification(context, location, minForecasts, now)) {
+            // If not fallback to PoP% notification
             val nowHour = now.withZoneSameInstant(location.tzOffset).truncatedTo(ChronoUnit.HOURS)
-            settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(location.query, 12, nowHour)
+            val hrForecasts =
+                settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                    location.query,
+                    12,
+                    nowHour
+                )
+
+            if (!createPoPNotification(context, location, hrForecasts, now)) {
+                return
+            }
         }
-
-        if (hrForecasts.isNullOrEmpty() || location == null) return
-
-        // Find the next hour with a 60% or higher chance of precipitation
-        val hrf = hrForecasts.find { it.extras?.pop != null && it.extras.pop >= 60 }
-
-        // Proceed if within the next 3hrs
-        if (hrf == null || Duration.between(now.truncatedTo(ChronoUnit.HOURS), hrf.date).toHours() > 3) return
-
-        createNotification(context, location, hrf, now.truncatedTo(ChronoUnit.HOURS))
 
         settingsManager.setLastPoPChanceNotificationTime(now)
     }
 
-    private fun createNotification(context: Context, location: LocationData, forecast: HourlyForecast, now: ZonedDateTime) {
+    private fun createPoPNotification(
+        context: Context,
+        location: LocationData,
+        hrForecasts: List<HourlyForecast>?,
+        now: ZonedDateTime
+    ): Boolean {
+        if (hrForecasts.isNullOrEmpty()) return false
+
+        // Find the next hour with a 60% or higher chance of precipitation
+        val forecast = hrForecasts.find { it.extras?.pop != null && it.extras.pop >= 60 }
+
+        // Proceed if within the next 3hrs
+        if (forecast == null || Duration.between(now.truncatedTo(ChronoUnit.HOURS), forecast.date)
+                .toHours() > 3
+        ) return false
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initChannel(context)
         }
@@ -99,6 +119,87 @@ object PoPChanceNotificationHelper {
 
         val notifMgr = context.getSystemService<NotificationManager>()!!
         notifMgr.notify(NOT_CHANNEL_ID, location.hashCode(), notifBuilder.build())
+
+        return true
+    }
+
+    private fun createMinutelyNotification(
+        context: Context,
+        location: LocationData,
+        minForecasts: List<MinutelyForecast>?,
+        now: ZonedDateTime
+    ): Boolean {
+        if (minForecasts.isNullOrEmpty()) return false
+
+        val isRainingMinute = minForecasts.firstOrNull {
+            Duration.between(
+                now.truncatedTo(ChronoUnit.MINUTES),
+                it.date.truncatedTo(ChronoUnit.MINUTES)
+            ).abs().toMinutes() <= 5 && it.rainMm > 0
+        }
+
+        val minute = if (isRainingMinute != null) {
+            // Find minute where rain stops
+            minForecasts.firstOrNull {
+                it.date.truncatedTo(ChronoUnit.MINUTES)
+                    .isAfter(isRainingMinute.date) && it.rainMm <= 0
+            }
+        } else {
+            // Find minute where rain starts
+            minForecasts.firstOrNull {
+                it.date.truncatedTo(ChronoUnit.MINUTES)
+                    .isAfter(now.truncatedTo(ChronoUnit.MINUTES)) && it.rainMm > 0
+            }
+        } ?: return false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            initChannel(context)
+        }
+
+        val wim = sharedDeps.weatherIconsManager
+
+        val formatStrResId = if (isRainingMinute != null) {
+            R.string.precipitation_minutely_stopping_text_format
+        } else {
+            R.string.precipitation_minutely_starting_text_format
+        }
+        val duration = Duration.between(now, minute.date).toMinutes()
+        val duraStr = when {
+            duration < 120 -> {
+                context.getString(
+                    formatStrResId,
+                    context.getString(R.string.refresh_30min).replace("30", duration.toString())
+                )
+            }
+            else -> {
+                context.getString(
+                    formatStrResId,
+                    context.getString(R.string.refresh_12hrs)
+                        .replace("12", (duration / 60).toString())
+                )
+            }
+        }
+
+        val notifBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
+            .setOnlyAlertOnce(true)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(getOnClickIntent(context, location))
+            .setContentTitle(duraStr)
+            .setContentText(location.name)
+
+        if (wim.isFontIcon) {
+            notifBuilder.setSmallIcon(wim.getWeatherIconResource(WeatherIcons.UMBRELLA))
+        } else {
+            // Use default icon pack here; animated icons are not supported here
+            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+            notifBuilder.setSmallIcon(wip.getWeatherIconResource(WeatherIcons.UMBRELLA))
+        }
+
+        val notifMgr = context.getSystemService<NotificationManager>()!!
+        notifMgr.notify(NOT_CHANNEL_ID, location.hashCode(), notifBuilder.build())
+
+        return true
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -108,7 +209,11 @@ object PoPChanceNotificationHelper {
         var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
         val notChannelName = context.getString(R.string.not_channel_name_precipnotification)
         if (mChannel == null) {
-            mChannel = NotificationChannel(NOT_CHANNEL_ID, notChannelName, NotificationManager.IMPORTANCE_DEFAULT)
+            mChannel = NotificationChannel(
+                NOT_CHANNEL_ID,
+                notChannelName,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
         }
 
         // Configure the notification channel.
