@@ -159,12 +159,18 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
             updateViews.setImageViewBitmap(R.id.widgetBackground, null)
             updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
             updateViews.setImageViewBitmap(R.id.panda_background, null)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                updateViews.setInt(R.id.panda_container, "setBackgroundResource", 0)
+            } else {
+                updateViews.removeAllViews(R.id.panda_container)
+            }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 updateViews.setImageViewBitmap(
                     R.id.widgetBackground,
                     ImageUtils.createColorBitmap(backgroundColor)
                 )
+                updateViews.setInt(R.id.panda_container, "setBackgroundResource", 0)
             } else {
                 val maxBitmapSize = context.getMaxBitmapSize()
 
@@ -194,6 +200,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
             }
             updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
             updateViews.setImageViewBitmap(R.id.panda_background, null)
+            updateViews.removeAllViews(R.id.panda_container)
         }
     }
 
