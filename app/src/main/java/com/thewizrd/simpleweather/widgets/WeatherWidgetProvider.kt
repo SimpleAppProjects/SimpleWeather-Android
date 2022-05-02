@@ -42,18 +42,24 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
             )
         }
 
-        if (ACTION_REFRESHWIDGET == intent?.action) {
-            val appWidgetId =
-                intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+        when (intent?.action) {
+            ACTION_REFRESHWIDGET -> {
+                val appWidgetId =
+                    intent.getIntExtra(EXTRA_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
 
-            Toast.makeText(
-                context,
-                context.getString(R.string.action_refresh) + "...",
-                Toast.LENGTH_SHORT
-            ).show()
-            refreshWidget(context, intArrayOf(appWidgetId))
-        } else {
-            super.onReceive(context, intent)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.action_refresh) + "...",
+                    Toast.LENGTH_SHORT
+                ).show()
+                refreshWidget(context, intArrayOf(appWidgetId))
+            }
+            Intent.ACTION_BOOT_COMPLETED -> {
+                showLoadingView(context)
+            }
+            else -> {
+                super.onReceive(context, intent)
+            }
         }
     }
 
