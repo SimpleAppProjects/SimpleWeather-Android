@@ -99,11 +99,11 @@ dependencies {
 
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
-    implementation 'androidx.room:room-runtime:2.4.2'
-    kapt 'androidx.room:room-compiler:2.4.2'
-    implementation 'androidx.room:room-ktx:2.4.2'
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     // Room migration testing
-    androidTestImplementation 'androidx.room:room-testing:2.4.2'
+    androidTestImplementation "androidx.room:room-testing:$room_version"
 
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.ibm.icu:icu4j:71.1'

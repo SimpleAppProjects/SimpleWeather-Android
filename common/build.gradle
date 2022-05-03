@@ -78,7 +78,7 @@ dependencies {
 
     fullgmsImplementation 'com.google.android.gms:play-services-auth:20.1.0'
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.1'
-    fullgmsImplementation 'com.google.android.gms:play-services-location:17.1.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-location:19.0.1'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 }
