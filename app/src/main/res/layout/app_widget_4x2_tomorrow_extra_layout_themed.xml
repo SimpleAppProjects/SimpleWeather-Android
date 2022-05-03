@@ -79,7 +79,7 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:paddingStart="8dp"
+            android:paddingStart="6dp"
             android:paddingEnd="0dp"
             android:textColor="@color/colorOnSurface"
             tools:text="46 - Good" />
