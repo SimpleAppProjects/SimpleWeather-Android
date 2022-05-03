@@ -8,8 +8,6 @@ import android.content.pm.ServiceInfo
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -45,7 +43,6 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
 
 class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -318,46 +315,8 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 }
 
                 if (location == null) {
-                    if (!isActive) return@withContext false
-
-                    val handlerThread = HandlerThread("location")
-                    handlerThread.start()
-                    // Handler for timeout callback
-                    val handler = Handler(handlerThread.looper)
-
-                    Timber.tag(TAG).i("Requesting location updates...")
-
-                    location = suspendCancellableCoroutine { continuation ->
-                        val locationCallback = object : LocationProvider.Callback {
-                            override fun onLocationChanged(location: Location?) {
-                                handler.removeCallbacksAndMessages(null)
-                                locationProvider.stopLocationUpdates()
-
-                                Timber.tag(TAG).i("Location update received...")
-                                if (continuation.isActive) {
-                                    continuation.resume(location)
-                                }
-                                handlerThread.quitSafely()
-                            }
-
-                            override fun onRequestTimedOut() {
-                                Timber.tag(TAG).i("Location update timed out...")
-                                continuation.cancel()
-                            }
-                        }
-
-                        continuation.invokeOnCancellation {
-                            locationProvider.stopLocationUpdates()
-                            handler.removeCallbacksAndMessages(null)
-                            handlerThread.quitSafely()
-                        }
-
-                        // Timeout after 60s
-                        locationProvider.requestSingleUpdate(
-                            locationCallback,
-                            handlerThread.looper,
-                            60000
-                        )
+                    location = withTimeoutOrNull(60000) {
+                        locationProvider.getCurrentLocation()
                     }
                 }
 

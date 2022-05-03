@@ -9,8 +9,6 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
@@ -40,7 +38,6 @@ import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
-import timber.log.Timber
 import kotlin.coroutines.coroutineContext
 
 class SetupActivity : UserLocaleActivity() {
@@ -54,12 +51,6 @@ class SetupActivity : UserLocaleActivity() {
     private lateinit var binding: FragmentSetupBinding
     private var mLocation: Location? = null
     private lateinit var locationProvider: LocationProvider
-    private lateinit var locationCallback: LocationProvider.Callback
-
-    /**
-     * Tracks the status of the location updates request.
-     */
-    private var mRequestingLocationUpdates = false
 
     private val wm = weatherModule.weatherManager
 
@@ -98,31 +89,6 @@ class SetupActivity : UserLocaleActivity() {
 
         // Location Listener
         locationProvider = LocationProvider(this)
-        locationCallback = object : LocationProvider.Callback {
-            override fun onLocationChanged(location: Location?) {
-                stopLocationUpdates()
-                mLocation = location
-
-                Timber.tag(TAG).i("Location update received...")
-
-                lifecycleScope.launch {
-                    if (mLocation == null) {
-                        enableControls(true)
-                        showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
-                    } else {
-                        fetchGeoLocation()
-                    }
-                }
-            }
-
-            override fun onRequestTimedOut() {
-                stopLocationUpdates()
-                enableControls(true)
-                showToast(R.string.error_retrieve_location, Toast.LENGTH_SHORT)
-            }
-        }
-
-        mRequestingLocationUpdates = false
 
         supportFragmentManager.setFragmentResultListener(
             Constants.KEY_DATA,
@@ -136,25 +102,6 @@ class SetupActivity : UserLocaleActivity() {
             )
             finishAffinity()
         }
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    private fun stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
-            Logger.writeLine(
-                Log.DEBUG,
-                "SetupActivity: stopLocationUpdates: updates never requested, no-op."
-            )
-            return
-        }
-
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        locationProvider.stopLocationUpdates()
-        mRequestingLocationUpdates = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -185,8 +132,6 @@ class SetupActivity : UserLocaleActivity() {
     override fun onPause() {
         AnalyticsLogger.logEvent("SetupActivity: onPause")
         job?.cancel()
-        // Remove location updates to save battery.
-        stopLocationUpdates()
         super.onPause()
     }
 
@@ -223,9 +168,6 @@ class SetupActivity : UserLocaleActivity() {
 
                     job!!.invokeOnCompletion { e ->
                         if (e != null) {
-                            // Cancel requests
-                            stopLocationUpdates()
-
                             lifecycleScope.launch(Dispatchers.Main.immediate) {
                                 if (mLocation == null) {
                                     // Restore controls
@@ -397,7 +339,7 @@ class SetupActivity : UserLocaleActivity() {
             throw CustomException(R.string.error_enable_location_services)
         }
 
-        val location = withContext(Dispatchers.IO) {
+        var location = withContext(Dispatchers.IO) {
             withTimeoutOrNull(5000) {
                 locationProvider.getLastLocation()
             }
@@ -405,20 +347,16 @@ class SetupActivity : UserLocaleActivity() {
 
         coroutineContext.ensureActive()
 
-        /*
-         * Request start of location updates. Does nothing if
-         * updates have already been requested.
-         */
-        if (location == null && !mRequestingLocationUpdates) {
-            Timber.tag(TAG).i("Requesting location updates...")
-
-            mRequestingLocationUpdates = true
-            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper(), 30000)
+        /* Get current location from provider */
+        if (location == null) {
+            location = withTimeoutOrNull(30000) {
+                locationProvider.getCurrentLocation()
+            }
         }
 
         coroutineContext.ensureActive()
 
-        if (location != null && !mRequestingLocationUpdates) {
+        if (location != null) {
             mLocation = location
             fetchGeoLocation()
         }

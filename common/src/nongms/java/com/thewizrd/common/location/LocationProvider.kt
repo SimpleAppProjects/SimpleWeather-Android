@@ -4,23 +4,23 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Criteria
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import androidx.core.location.LocationManagerCompat
-import androidx.core.os.postDelayed
+import androidx.core.os.CancellationSignal
 import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.utils.Logger
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.concurrent.Executors
+import kotlin.coroutines.resume
 
 @SuppressLint("MissingPermission")
 class LocationProvider(private val context: Context) {
+    companion object {
+        private const val TAG = "LocationProvider"
+    }
+
     private val mLocationMgr = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-    private var locationListener: LocationListener? = null
-
-    private val mMainHandler = Handler(Looper.getMainLooper())
-    private val handlerToken = Object()
 
     private fun checkPermissions(): Boolean {
         return LocationManagerCompat.isLocationEnabled(mLocationMgr) && context.locationPermissionEnabled()
@@ -39,10 +39,14 @@ class LocationProvider(private val context: Context) {
         return mLocationMgr.getLastKnownLocation(provider)
     }
 
-    fun requestSingleUpdate(callback: Callback, looper: Looper?, timeoutInMs: Long? = null) {
+    suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { continuation ->
         if (!checkPermissions()) {
-            callback.onLocationChanged(null)
-            return
+            Logger.writeLine(Log.INFO, "$TAG: Location permission denied...")
+
+            if (continuation.isActive) {
+                continuation.resume(null)
+            }
+            return@suspendCancellableCoroutine
         }
 
         val locCriteria = Criteria().apply {
@@ -51,47 +55,38 @@ class LocationProvider(private val context: Context) {
             powerRequirement = Criteria.POWER_LOW
         }
 
-        locationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                mMainHandler.removeCallbacksAndMessages(handlerToken)
-                callback.onLocationChanged(location)
-            }
+        val cancelSignal = CancellationSignal()
 
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                // no-op
-            }
-
-            override fun onProviderEnabled(provider: String) {
-                // no-op
-            }
-
-            override fun onProviderDisabled(provider: String) {
-                // no-op
-            }
-
+        continuation.invokeOnCancellation {
+            cancelSignal.cancel()
         }
 
         val provider = mLocationMgr.getBestProvider(locCriteria, true)
-            ?: return callback.onLocationChanged(null)
 
-        timeoutInMs?.let {
-            mMainHandler.postDelayed(it, handlerToken) {
-                stopLocationUpdates()
-                callback.onRequestTimedOut()
+        if (provider == null) {
+            if (continuation.isActive) {
+                continuation.resume(null)
+            }
+            return@suspendCancellableCoroutine
+        }
+
+        runCatching {
+            LocationManagerCompat.getCurrentLocation(
+                mLocationMgr,
+                provider,
+                cancelSignal,
+                Executors.newSingleThreadExecutor()
+            ) {
+                Logger.writeLine(Log.INFO, "$TAG: Location update received...")
+                if (continuation.isActive) {
+                    continuation.resume(it)
+                }
+            }
+        }.onFailure {
+            Logger.writeLine(Log.INFO, it, "$TAG: Error retrieving location...")
+            if (continuation.isActive) {
+                continuation.resume(null)
             }
         }
-
-        mLocationMgr.requestSingleUpdate(provider, locationListener!!, looper)
-    }
-
-    fun stopLocationUpdates() {
-        locationListener?.let {
-            mLocationMgr.removeUpdates(it)
-        }
-    }
-
-    interface Callback {
-        fun onLocationChanged(location: Location?)
-        fun onRequestTimedOut()
     }
 }

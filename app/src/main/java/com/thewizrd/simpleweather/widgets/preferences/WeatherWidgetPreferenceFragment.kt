@@ -13,8 +13,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
-import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
@@ -80,7 +78,6 @@ import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackgroundStyle
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -108,12 +105,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     private var query_vm: LocationQuery? = null
 
     private lateinit var locationProvider: LocationProvider
-    private lateinit var locationCallback: LocationProvider.Callback
-
-    /**
-     * Tracks the status of the location updates request.
-     */
-    private var mRequestingLocationUpdates = false
 
     private var job: Job? = null
 
@@ -276,61 +267,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         // Location Listener
         locationProvider = LocationProvider(requireActivity())
-        locationCallback = object : LocationProvider.Callback {
-            override fun onLocationChanged(location: Location?) {
-                stopLocationUpdates()
-
-                if (location != null) {
-                    Timber.tag("WidgetPrefFrag").i("Location update received...")
-                    prepareWidget()
-                } else {
-                    Timber.tag("WidgetPrefFrag").i("Location update unavailable...")
-
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_retrieve_location,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-            }
-
-            override fun onRequestTimedOut() {
-                stopLocationUpdates()
-                context?.let {
-                    showSnackbar(
-                        Snackbar.make(
-                            it,
-                            R.string.error_retrieve_location,
-                            Snackbar.Duration.SHORT
-                        ), null
-                    )
-                }
-            }
-        }
-        mRequestingLocationUpdates = false
 
         return root
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    @SuppressLint("MissingPermission")
-    private fun stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
-            Logger.writeLine(Log.DEBUG, "LocationsFragment: stopLocationUpdates: updates never requested, no-op.")
-            return
-        }
-
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        locationProvider.stopLocationUpdates()
-        mRequestingLocationUpdates = false
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -1290,7 +1228,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             throw CustomException(R.string.error_enable_location_services)
         }
 
-        val location = withContext(Dispatchers.IO) {
+        var location = withContext(Dispatchers.IO) {
             val result: Location? = try {
                 withTimeoutOrNull(5000) {
                     locationProvider.getLastLocation()
@@ -1303,13 +1241,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         if (!coroutineContext.isActive) return false
 
-        /*
-         * Request start of location updates. Does nothing if
-         * updates have already been requested.
-         */
-        if (location == null && !mRequestingLocationUpdates) {
-            mRequestingLocationUpdates = true
-            locationProvider.requestSingleUpdate(locationCallback, Looper.getMainLooper(), 30000)
+        /* Get current location from provider */
+        if (location == null) {
+            location = withTimeoutOrNull(30000) {
+                locationProvider.getCurrentLocation()
+            }
         }
 
         if (location != null && coroutineContext.isActive) {
