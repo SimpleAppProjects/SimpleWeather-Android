@@ -16,13 +16,13 @@
     <string name="weather_tstorms">"雷暴"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_rainandsnow">"雨和雪"</string>
+    <string name="weather_rainandsnow">"雨夹雪"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_rainandsleet">"雨和雨夹雪"</string>
+    <string name="weather_rainandsleet">"雨夹冻雹"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_snowandsleet">"雪和雨夹雪"</string>
+    <string name="weather_snowandsleet">"雪夹冻雹"</string>
 
     <!-- Fuzzy -->
     <string name="weather_freezingrain">"冻雨"</string>
@@ -43,24 +43,24 @@
     <string name="weather_dust">"灰尘"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_foggy">"有雾的"</string>
+    <string name="weather_foggy">"雾茫茫的"</string>
 
     <!-- Fuzzy -->
     <string name="weather_haze">"雾霾"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_smoky">"烟雾缭绕"</string>
+    <string name="weather_smoky">"严重雾霾"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_windy">"风大"</string>
+    <string name="weather_windy">"多风"</string>
     <string name="weather_cold">"冷"</string>
     <string name="weather_cloudy">"多云"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_mostlycloudy">"多云"</string>
+    <string name="weather_mostlycloudy">"大部多云"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_partlycloudy">"部分多云"</string>
+    <string name="weather_partlycloudy">"少部多云"</string>
     <string name="weather_clear">"无云"</string>
     <string name="weather_sunny">"阳光明媚"</string>
     <string name="weather_fair">"晴朗"</string>
@@ -70,10 +70,10 @@
     <string name="weather_hot">"热"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_isotstorms">"孤立的雷暴"</string>
+    <string name="weather_isotstorms">"局部雷暴"</string>
 
     <!-- Fuzzy -->
-    <string name="weather_scatteredtstorms">"分散的雷暴"</string>
+    <string name="weather_scatteredtstorms">"零星雷暴"</string>
 
     <!-- Fuzzy -->
     <string name="weather_scatteredshowers">"零星阵雨"</string>
@@ -108,4 +108,11 @@
 
     <!-- Fuzzy -->
     <string name="weather_heavyrain">"大雨"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_mostlyclear">"主要为晴"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightfog">"轻微的雾"</string>
+    <string name="weather_drizzle">"细雨"</string>
 </resources>

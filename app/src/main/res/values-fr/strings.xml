@@ -137,4 +137,12 @@
     <string name="pref_category_customsize">"Taille des icônes et de la police"</string>
     <string name="pref_title_textsize">"Taille de la police"</string>
     <string name="pref_title_iconsize">"Taille de l'icône"</string>
+
+    <!-- Example: Rain will start in about 20 minutes
+(%1$s) - Time in minutes or hours -->
+    <string name="precipitation_minutely_starting_text_format">"La pluie va commencer dans environ %1$s"</string>
+
+    <!-- Example: Rain will stop in about 20 minutes
+(%1$s) - Time in minutes or hours -->
+    <string name="precipitation_minutely_stopping_text_format">"La pluie s'arrêtera dans environ %1$s"</string>
 </resources>

@@ -45,4 +45,9 @@
     <string name="weather_snow_tstorms">"Hrmavica so snehom"</string>
     <string name="weather_clearsky">"Jasná obloha"</string>
     <string name="weather_heavyrain">"Silný dážď"</string>
+    <string name="weather_mostlyclear">"Väčšinou jasno"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightfog">"Mierna hmla"</string>
+    <string name="weather_drizzle">"Mrholenie"</string>
 </resources>

@@ -132,4 +132,6 @@
     <string name="pref_category_customsize">"Veľkosť ikony a písma"</string>
     <string name="pref_title_textsize">"Veľkosť písma"</string>
     <string name="pref_title_iconsize">"Veľkosť ikony"</string>
+    <string name="precipitation_minutely_starting_text_format">"Dážď začne približne za %1$s"</string>
+    <string name="precipitation_minutely_stopping_text_format">"Dážď ustane približne za %1$s"</string>
 </resources>

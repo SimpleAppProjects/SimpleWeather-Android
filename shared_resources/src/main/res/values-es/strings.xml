@@ -224,4 +224,7 @@
     <string name="wear_bg_location_permission_rationale">"Permitir el acceso a la actualización de la ubicación en segundo plano para los azulejos y las complicaciones"</string>
     <string name="wear_bg_location_permission_rationale_settings">"Para actualizar la ubicación en segundo plano para los mosaicos y las complicaciones, establezca el permiso de ubicación en '%1$s'"</string>
     <string name="time_current">"Actual"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_minutelyforecast">"Previsión de minutos"</string>
 </resources>

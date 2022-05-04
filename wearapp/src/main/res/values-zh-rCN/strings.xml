@@ -12,21 +12,21 @@
     <string name="status_connecting">"连接中…"</string>
 
     <!-- Fuzzy -->
-    <string name="status_notinstalled">"设备上未安装应用程序"</string>
+    <string name="status_notinstalled">"设备上未安装应用"</string>
     <string name="status_connected">"已连接"</string>
     <string name="status_node_unavailable">"设备未连接或设备上未安装应用程序…"</string>
-    <string name="status_node_notsupported">"不支持已连接的设备"</string>
+    <string name="status_node_notsupported">"已连接的设备不支持"</string>
 
     <!-- Setup -->
     <!-- Fuzzy -->
-    <string name="prompt_confirmsetup">"您想从您的手机/连接的设备设置和同步数据吗？"</string>
+    <string name="prompt_confirmsetup">"您想从您的手机 / 连接的设备设置并同步数据吗？"</string>
     <string name="message_gettingstatus">"获取连接状态…"</string>
 
     <!-- Fuzzy -->
     <string name="error_notinstalled">"在设备上安装应用程序并重试"</string>
 
     <!-- Fuzzy -->
-    <string name="message_continueondevice">"继续在连接的设备上进行设置"</string>
+    <string name="message_continueondevice">"继续在已连接的设备上进行设置"</string>
 
     <!-- Fuzzy -->
     <string name="message_retrievingdata">"从连接的设备中检索数据…"</string>

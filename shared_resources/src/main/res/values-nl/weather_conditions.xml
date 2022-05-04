@@ -45,4 +45,7 @@
     <string name="weather_snow_tstorms">"Sneeuw en Onweer"</string>
     <string name="weather_clearsky">"Heldere Lucht"</string>
     <string name="weather_heavyrain">"Zware Buien"</string>
+    <string name="weather_mostlyclear">"Voornamelijk helder"</string>
+    <string name="weather_lightfog">"Lichte Mist"</string>
+    <string name="weather_drizzle">"Motregen"</string>
 </resources>

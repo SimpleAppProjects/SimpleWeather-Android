@@ -45,4 +45,7 @@
     <string name="weather_snow_tstorms">"Śnieg i burza"</string>
     <string name="weather_clearsky">"Czyste niebo"</string>
     <string name="weather_heavyrain">"Silny deszcz"</string>
+    <string name="weather_mostlyclear">"Przeważnie bezchmurnie"</string>
+    <string name="weather_lightfog">"Lekka mgła"</string>
+    <string name="weather_drizzle">"Mżawka"</string>
 </resources>

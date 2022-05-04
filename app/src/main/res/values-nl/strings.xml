@@ -132,4 +132,6 @@
     <string name="pref_category_customsize">"Pictogramgrootte en tekengrootte"</string>
     <string name="pref_title_textsize">"Tekengrootte"</string>
     <string name="pref_title_iconsize">"Pictogramgrootte"</string>
+    <string name="precipitation_minutely_starting_text_format">"De regen zal over ongeveer %1$s beginnen"</string>
+    <string name="precipitation_minutely_stopping_text_format">"Regen zal stoppen in ongeveer %1$s"</string>
 </resources>

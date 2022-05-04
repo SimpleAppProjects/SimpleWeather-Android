@@ -133,4 +133,6 @@
     <string name="pref_category_customsize">"Rozmiar ikony i czcionki"</string>
     <string name="pref_title_textsize">"Rozmiar czcionki"</string>
     <string name="pref_title_iconsize">"Rozmiar ikony"</string>
+    <string name="precipitation_minutely_starting_text_format">"Deszcz zacznie padać za około %1$s"</string>
+    <string name="precipitation_minutely_stopping_text_format">"Deszcz przestanie padać za około %1$s"</string>
 </resources>

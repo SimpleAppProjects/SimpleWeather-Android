@@ -57,4 +57,11 @@
     <string name="weather_snow_tstorms">"Nieve y trueno"</string>
     <string name="weather_clearsky">"Cielo despejado"</string>
     <string name="weather_heavyrain">"Lluvias fuertes"</string>
+    <string name="weather_mostlyclear">"Principalmente claro"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightfog">"Ligera niebla"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_drizzle">"Llovizna"</string>
 </resources>

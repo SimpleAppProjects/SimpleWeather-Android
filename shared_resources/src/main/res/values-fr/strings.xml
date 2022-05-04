@@ -191,4 +191,7 @@
     <string name="wear_bg_location_permission_rationale">"Autoriser l'accès à la mise à jour de la localisation en arrière-plan pour les tuiles et les complications"</string>
     <string name="wear_bg_location_permission_rationale_settings">"Pour mettre à jour la localisation en arrière-plan pour les tuiles et les complications, veuillez définir l'autorisation de localisation sur '%1$s'"</string>
     <string name="time_current">"Actuel"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_minutelyforecast">"Prévisions à la minute"</string>
 </resources>

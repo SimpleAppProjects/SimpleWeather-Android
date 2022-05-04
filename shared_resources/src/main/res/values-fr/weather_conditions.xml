@@ -45,4 +45,11 @@
     <string name="weather_snow_tstorms">"Neige et tonnerre"</string>
     <string name="weather_clearsky">"Ciel clair"</string>
     <string name="weather_heavyrain">"Forte pluie"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_mostlyclear">"Belles éclaircies"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightfog">"Léger brouillard"</string>
+    <string name="weather_drizzle">"Bruine"</string>
 </resources>

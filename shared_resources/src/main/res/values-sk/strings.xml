@@ -195,4 +195,7 @@
     <string name="wear_bg_location_permission_rationale">"Povolenie prístupu k umiestneniu dlaždíc a komplikácií na pozadí"</string>
     <string name="wear_bg_location_permission_rationale_settings">"Ak chcete aktualizovať polohu na pozadí pre dlaždice a komplikácie, nastavte povolenie polohy na '%1$s'"</string>
     <string name="time_current">"Aktuálne"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_minutelyforecast">"Minútová predpoveď"</string>
 </resources>

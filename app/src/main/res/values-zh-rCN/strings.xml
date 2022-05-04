@@ -30,7 +30,7 @@
     <string name="label_style_panda">"默认"</string>
 
     <!-- Can be shortened to 'Color' -->
-    <string name="label_style_pendingcolor">"天气颜色"</string>
+    <string name="label_style_pendingcolor">"颜色"</string>
     <string name="label_style_light">"亮色"</string>
     <string name="label_style_dark">"暗色"</string>
 
@@ -60,7 +60,7 @@
     <string name="prompt_setup_app_first">"请先初始化应用"</string>
 
     <!-- LineView -->
-    <string name="label_series">"系列"</string>
+    <string name="label_series">"曲线"</string>
 
     <!-- In-App Updates -->
     <string name="not_channel_update_title">"软件更新"</string>
@@ -74,21 +74,21 @@
     <string name="pref_title_feedback">"反馈"</string>
 
     <!-- Fuzzy -->
-    <string name="pref_summary_feedback">"报告任何错误或建议以改进应用程序"</string>
+    <string name="pref_summary_feedback">"提交问题或建议以改进应用程序"</string>
 
     <!-- Rate / Review -->
     <!-- Fuzzy -->
-    <string name="pref_title_rateandreview">"打分和评论"</string>
+    <string name="pref_title_rateandreview">"评分 / 评论"</string>
 
     <!-- Fuzzy -->
-    <string name="pref_summary_rateandreview">"喜欢这个应用程序吗？通过提供评论来帮助支持"</string>
+    <string name="pref_summary_rateandreview">"喜欢这个应用吗？撰写评论来支持与帮助我们"</string>
 
     <!-- Translate -->
     <string name="pref_title_translate">"翻译"</string>
     <string name="pref_summary_translate">"帮助翻译这个软件"</string>
 
     <!-- Custom Color -->
-    <string name="label_color_custom">"自定义"</string>
+    <string name="label_color_custom">"自定义颜色"</string>
 
     <!-- Fuzzy -->
     <string name="pref_title_bgcolorcode">"背景颜色"</string>
@@ -118,21 +118,21 @@
     <string name="pref_title_ignore_batt_opts">"忽略电池优化"</string>
 
     <!-- Fuzzy -->
-    <string name="pref_summary_ignore_batt_opts">"如果小部件和通知未更新，则禁用后台服务限制"</string>
+    <string name="pref_summary_ignore_batt_opts">"如果小部件和通知无法更新，请禁用后台服务限制"</string>
 
     <!-- Fuzzy -->
-    <string name="pref_title_tap2switch">"点选动作"</string>
+    <string name="pref_title_tap2switch">"点按动作"</string>
 
     <!-- Fuzzy -->
     <string name="pref_tap2switch_summaryOn">"点按即可切换预测"</string>
 
     <!-- Fuzzy -->
-    <string name="pref_tap2switch_summaryOff">"打开应用程序"</string>
+    <string name="pref_tap2switch_summaryOff">"打开应用"</string>
 
     <!-- Daily Notification -->
     <!-- Fuzzy -->
     <string name="not_channel_name_dailynotification">"每日通知"</string>
-    <string name="pref_title_time">"世界"</string>
+    <string name="pref_title_time">"时间"</string>
     <string name="pref_summary_off">"关"</string>
     <string name="pref_summary_on">"开"</string>
 
@@ -142,8 +142,8 @@
 
     <!-- Example: 80% chance of rain in 2 hours
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
-    <string name="precipitation_text_format">"%2$s内有%1$d%%的机会下雨"</string>
-    <string name="precipitation_nexthour_text_format">"未来一小时内有%1$d%%的机会下雨"</string>
+    <string name="precipitation_text_format">"%2$s内有%1$d%%的可能会下雨"</string>
+    <string name="precipitation_nexthour_text_format">"未来一小时内有%1$d%%的可能会下雨"</string>
 
     <!-- Weather Summary or Weather Overview -->
     <!-- Fuzzy -->
@@ -192,10 +192,14 @@
 
     <!-- Fuzzy -->
     <string name="label_widget_weather_forecast_4x2">"天气预报 (4x2)"</string>
-    <string name="widget_loading_prompt">"负载…"</string>
+    <string name="widget_loading_prompt">"加载中…"</string>
     <string name="refreshbtn_pref_title">"刷新按钮"</string>
     <string name="refreshbtn_pref_summary">"从小部件中隐藏刷新按钮"</string>
-    <string name="pref_category_customsize">"图标和文字大小"</string>
+    <string name="pref_category_customsize">"图标和字体大小"</string>
     <string name="pref_title_textsize">"字体大小"</string>
     <string name="pref_title_iconsize">"图标大小"</string>
+
+    <!-- Fuzzy -->
+    <string name="precipitation_minutely_starting_text_format">"大约%1$s后将开始下雨"</string>
+    <string name="precipitation_minutely_stopping_text_format">"雨将在大约%1$s后停止"</string>
 </resources>

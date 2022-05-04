@@ -200,4 +200,7 @@
     <!-- Fuzzy -->
     <string name="wear_bg_location_permission_rationale_settings">"Aby aktualizować lokalizację w tle dla kafelków i komplikacji, należy ustawić uprawnienie lokalizacji na '%1$s'"</string>
     <string name="time_current">"Aktualny"</string>
+
+    <!-- Fuzzy -->
+    <string name="label_minutelyforecast">"Prognoza minutowa"</string>
 </resources>

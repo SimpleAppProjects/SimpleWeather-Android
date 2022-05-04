@@ -156,4 +156,6 @@
     <string name="pref_category_customsize">"Tamaño de los iconos y de la letra"</string>
     <string name="pref_title_textsize">"Tamaño de la letra"</string>
     <string name="pref_title_iconsize">"Tamaño de ícono"</string>
+    <string name="precipitation_minutely_starting_text_format">"La lluvia comenzará en unos %1$s"</string>
+    <string name="precipitation_minutely_stopping_text_format">"La lluvia cesará en unos %1$s"</string>
 </resources>

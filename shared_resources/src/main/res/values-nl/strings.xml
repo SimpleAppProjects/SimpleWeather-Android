@@ -197,4 +197,5 @@
     <!-- Fuzzy -->
     <string name="wear_bg_location_permission_rationale_settings">"Om de locatie op de achtergrond te updaten voor tiles en complicaties, stel de locatietoestemming in op '%1$s'"</string>
     <string name="time_current">"Huidige"</string>
+    <string name="label_minutelyforecast">"Minuut Voorspelling"</string>
 </resources>

@@ -235,4 +235,9 @@
     <string name="wear_bg_location_permission_rationale">"Standortzugriff im Hintergrund für Kacheln und Komplikationen zulassen"</string>
     <string name="wear_bg_location_permission_rationale_settings">"Um den Standort im Hintergrund für Kacheln und Komplikationen zu aktualisieren, setzen Sie bitte die Standortberechtigung auf '%1$s'"</string>
     <string name="time_current">"Aktuell"</string>
+
+    <!-- Minutely
+Minute-by-Minute Forecast -->
+    <!-- Fuzzy -->
+    <string name="label_minutelyforecast">"Vorhersage im Minutentakt"</string>
 </resources>

@@ -80,4 +80,9 @@
     <string name="weather_snow_tstorms">"Schnee und Donner"</string>
     <string name="weather_clearsky">"Klarer Himmel"</string>
     <string name="weather_heavyrain">"Starker Regen"</string>
+    <string name="weather_mostlyclear">"Überwiegend klar"</string>
+
+    <!-- Fuzzy -->
+    <string name="weather_lightfog">"Leichter Nebel"</string>
+    <string name="weather_drizzle">"Nieselregen"</string>
 </resources>

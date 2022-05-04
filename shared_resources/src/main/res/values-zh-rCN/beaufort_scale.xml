@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Standard from https://www.renrendoc.com/paper/102496606.html :) -->
     <!-- Fuzzy -->
     <string name="beaufort_0">"无风"</string>
 
@@ -21,9 +22,7 @@
 
     <!-- Fuzzy -->
     <string name="beaufort_6">"强风"</string>
-
-    <!-- Fuzzy -->
-    <string name="beaufort_7">"劲风"</string>
+    <string name="beaufort_7">"疾风"</string>
 
     <!-- Fuzzy -->
     <string name="beaufort_8">"大风"</string>

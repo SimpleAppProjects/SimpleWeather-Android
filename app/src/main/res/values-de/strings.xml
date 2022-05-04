@@ -148,4 +148,10 @@
     <string name="pref_category_customsize">"Symbolgröße und Schriftgröße"</string>
     <string name="pref_title_textsize">"Schriftgröße"</string>
     <string name="pref_title_iconsize">"Symbolgröße"</string>
+
+    <!-- Fuzzy -->
+    <string name="precipitation_minutely_starting_text_format">"Regen wird in etwa %1$s einsetzen"</string>
+
+    <!-- Fuzzy -->
+    <string name="precipitation_minutely_stopping_text_format">"Der Regen wird in etwa %1$s aufhören"</string>
 </resources>
