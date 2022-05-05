@@ -169,6 +169,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     // If were under rate limit, deny request
                     checkRateLimit()
 
+                    if (key.isNullOrBlank()) {
+                        throw WeatherException(ErrorStatus.INVALIDAPIKEY)
+                    }
+
                     val request = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
                         .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))

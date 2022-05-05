@@ -169,6 +169,10 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
                     // If were under rate limit, deny request
                     checkRateLimit()
 
+                    if (key.isNullOrBlank()) {
+                        throw WeatherException(ErrorStatus.INVALIDAPIKEY)
+                    }
+
                     val currentRequest = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(CURRENT_QUERY_URL, query, key, locale))

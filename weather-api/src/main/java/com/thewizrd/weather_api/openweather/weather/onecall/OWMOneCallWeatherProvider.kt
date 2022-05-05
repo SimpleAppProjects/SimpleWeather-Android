@@ -181,6 +181,10 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                     // If were under rate limit, deny request
                     checkRateLimit()
 
+                    if (key.isNullOrBlank()) {
+                        throw WeatherException(ErrorStatus.INVALIDAPIKEY)
+                    }
+
                     val request = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                         .url(String.format(WEATHER_QUERY_URL, query, key, locale))

@@ -176,6 +176,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     // If were under rate limit, deny request
                     checkRateLimit()
 
+                    if (key.isNullOrBlank()) {
+                        throw WeatherException(ErrorStatus.INVALIDAPIKEY)
+                    }
+
                     val requestUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter("apikey", key)
                         .appendQueryParameter("location", location_query)
