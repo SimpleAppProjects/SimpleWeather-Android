@@ -119,12 +119,12 @@
     <string name="werror_unknown">"Wystąpił nieznany błąd"</string>
 
     <!-- Refresh Intervals -->
-    <string name="pref_title_refreshinterval">"Częstotliwość odświeżania"</string>
-    <string name="refresh_60min">"Co godzinę"</string>
-    <string name="refresh_2hrs">"Co 2 godziny"</string>
-    <string name="refresh_3hrs">"Co 3 godziny"</string>
-    <string name="refresh_6hrs">"Co 4 godziny"</string>
-    <string name="refresh_12hrs">"Co 12 godzin"</string>
+    <string name="pref_title_refreshinterval">"Interwał odświeżania"</string>
+    <string name="refresh_60min">"1 godz."</string>
+    <string name="refresh_2hrs">"2 godz."</string>
+    <string name="refresh_3hrs">"3 godz."</string>
+    <string name="refresh_6hrs">"6 godz."</string>
+    <string name="refresh_12hrs">"12 godz."</string>
     <string name="update_prefix">"Zaktualizowano"</string>
     <string name="update_prefix_day">"Zaktualizowano o"</string>
 
@@ -152,7 +152,7 @@
     <string name="pref_title_userthememode">"Motyw"</string>
     <string name="userthememode_default">"Domyślny systemowy"</string>
     <string name="userthememode_dark">"Ciemny"</string>
-    <string name="userthememode_black">"Ciemny (AMOLED) "</string>
+    <string name="userthememode_black">"Ciemny (AMOLED)"</string>
     <string name="userthememode_light">"Jasny"</string>
     <string name="summary_default">"Domyślne"</string>
     <string name="action_refresh">"Odśwież"</string>
@@ -170,7 +170,7 @@
 
     <!-- Icons -->
     <string name="pref_title_icons">"Ikony"</string>
-    <string name="refresh_30min">"30 minut"</string>
+    <string name="refresh_30min">"30 min."</string>
     <string name="label_day">"Dzień"</string>
 
     <!-- Pollen -->
