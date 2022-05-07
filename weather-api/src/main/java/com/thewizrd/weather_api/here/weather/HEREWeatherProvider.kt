@@ -291,7 +291,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
         if (icon == null)
             return WeatherIcons.NA
 
-        if (icon.startsWith("N_") || icon.contains("night_"))
+        if (icon.contains("night_"))
             isNight = true
 
         return getWeatherIcon(isNight, icon)

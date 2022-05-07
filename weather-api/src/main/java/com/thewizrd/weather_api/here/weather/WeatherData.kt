@@ -86,7 +86,7 @@ fun createForecast(forecast: ForecastItem): Forecast {
         }
         condition = forecast.description.toPascalCase()
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
-            .getWeatherIcon(String.format("%s_%s", forecast.daylight, forecast.iconName))
+            .getWeatherIcon(forecast.daylight == "N", forecast.iconName)
 
         // Extras
         extras = ForecastExtras()
@@ -163,7 +163,7 @@ fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
         condition = hr_forecast.description.toPascalCase()
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
-            .getWeatherIcon(String.format("%s_%s", hr_forecast.daylight, hr_forecast.iconName))
+            .getWeatherIcon(hr_forecast.daylight == "N", hr_forecast.iconName)
 
         val windDeg = NumberUtils.tryParseInt(hr_forecast.windDirection)
         if (windDeg != null) {
@@ -264,7 +264,7 @@ fun createCondition(
         }
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
-            .getWeatherIcon(String.format("%s_%s", observation.daylight, observation.iconName))
+            .getWeatherIcon(observation.daylight == "N", observation.iconName)
 
         if (todaysForecast?.extras?.uvIndex != null) {
             uv = UV(todaysForecast.extras.uvIndex)
