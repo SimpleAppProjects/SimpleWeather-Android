@@ -15,7 +15,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.simpleweather.R
 
-class BarGraphPanel : LinearLayout {
+class BarGraphPanel : LinearLayout, GraphPanel {
     private lateinit var barChartView: BarGraphView
 
     private var graphData: BarGraphData? = null
@@ -110,23 +110,43 @@ class BarGraphPanel : LinearLayout {
         resetView()
     }
 
-    fun setMaxWidth(maxWidth: Int) {
+    override fun setDrawIconLabels(drawIconsLabels: Boolean) {
+        barChartView.setDrawIconLabels(drawIconsLabels)
+    }
+
+    override fun setDrawDataLabels(drawDataLabels: Boolean) {
+        barChartView.setDrawDataLabels(drawDataLabels)
+    }
+
+    override fun setScrollingEnabled(enabled: Boolean) {
+        barChartView.isScrollingEnabled = enabled
+    }
+
+    override fun getItemPositionFromPoint(xCoordinate: Float): Int {
+        return barChartView.getItemPositionFromPoint(xCoordinate)
+    }
+
+    override fun setBottomTextSize(@Px textSize: Float) {
+        barChartView.setBottomTextSize(textSize)
+    }
+
+    override fun setIconSize(iconSize: Float) {
+        barChartView.setIconSize(iconSize)
+    }
+
+    override fun setGraphMaxWidth(maxWidth: Int) {
         barChartView.setGraphMaxWidth(maxWidth)
     }
 
-    fun setDrawIconLabels(enable: Boolean) {
-        barChartView.setDrawIconLabels(enable)
+    override fun setFillParentWidth(fillParentWidth: Boolean) {
+        barChartView.setFillParentWidth(fillParentWidth)
     }
 
-    fun setDrawDataLabels(enable: Boolean) {
-        barChartView.setDrawDataLabels(enable)
+    override fun setBottomTextColor(color: Int) {
+        barChartView.setBottomTextColor(color)
     }
 
-    fun setScrollingEnabled(enable: Boolean) {
-        barChartView.isScrollingEnabled = enable
-    }
-
-    fun setBottomTextSize(@Px textSize: Float) {
-        barChartView.setBottomTextSize(textSize)
+    override fun requestGraphLayout() {
+        barChartView.requestGraphLayout()
     }
 }

@@ -262,6 +262,10 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
         getGraph().resetData(invalidate);
     }
 
+    public final void requestGraphLayout() {
+        getGraph().requestLayout();
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

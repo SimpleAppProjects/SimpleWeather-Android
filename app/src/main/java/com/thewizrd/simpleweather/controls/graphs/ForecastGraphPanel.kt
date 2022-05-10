@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.LinearLayout
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewGroupCompat
@@ -17,7 +18,7 @@ import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.simpleweather.R
 
-class ForecastGraphPanel : LinearLayout {
+class ForecastGraphPanel : LinearLayout, GraphPanel {
     private lateinit var lineView: LineView
 
     private var graphData: LineViewData? = null
@@ -140,11 +141,43 @@ class ForecastGraphPanel : LinearLayout {
         resetView()
     }
 
-    fun setDrawIconLabels(enable: Boolean) {
-        lineView.setDrawIconLabels(enable)
+    override fun setDrawIconLabels(drawIconsLabels: Boolean) {
+        lineView.setDrawIconLabels(drawIconsLabels)
     }
 
-    fun setDrawDataLabels(enable: Boolean) {
-        lineView.setDrawDataLabels(enable)
+    override fun setDrawDataLabels(drawDataLabels: Boolean) {
+        lineView.setDrawDataLabels(drawDataLabels)
+    }
+
+    override fun setScrollingEnabled(enabled: Boolean) {
+        lineView.isScrollingEnabled = enabled
+    }
+
+    override fun getItemPositionFromPoint(xCoordinate: Float): Int {
+        return lineView.getItemPositionFromPoint(xCoordinate)
+    }
+
+    override fun setBottomTextSize(@Px textSize: Float) {
+        lineView.setBottomTextSize(textSize)
+    }
+
+    override fun setIconSize(iconSize: Float) {
+        lineView.setIconSize(iconSize)
+    }
+
+    override fun setGraphMaxWidth(maxWidth: Int) {
+        lineView.setGraphMaxWidth(maxWidth)
+    }
+
+    override fun setFillParentWidth(fillParentWidth: Boolean) {
+        lineView.setFillParentWidth(fillParentWidth)
+    }
+
+    override fun setBottomTextColor(color: Int) {
+        lineView.setBottomTextColor(color)
+    }
+
+    override fun requestGraphLayout() {
+        lineView.requestGraphLayout()
     }
 }

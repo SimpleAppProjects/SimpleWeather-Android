@@ -9,12 +9,13 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.LinearLayout
+import androidx.annotation.Px
 import androidx.core.view.ViewGroupCompat
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.simpleweather.R
 
-class RangeBarGraphPanel : LinearLayout {
+class RangeBarGraphPanel : LinearLayout, GraphPanel {
     private lateinit var barChartView: RangeBarGraphView
 
     private var graphData: RangeBarGraphData? = null
@@ -108,5 +109,45 @@ class RangeBarGraphPanel : LinearLayout {
         this.graphData = data
         barChartView.data = data
         resetView()
+    }
+
+    override fun setDrawIconLabels(drawIconsLabels: Boolean) {
+        barChartView.setDrawIconLabels(drawIconsLabels)
+    }
+
+    override fun setDrawDataLabels(drawDataLabels: Boolean) {
+        barChartView.setDrawDataLabels(drawDataLabels)
+    }
+
+    override fun setScrollingEnabled(enabled: Boolean) {
+        barChartView.isScrollingEnabled = enabled
+    }
+
+    override fun getItemPositionFromPoint(xCoordinate: Float): Int {
+        return barChartView.getItemPositionFromPoint(xCoordinate)
+    }
+
+    override fun setBottomTextSize(@Px textSize: Float) {
+        barChartView.setBottomTextSize(textSize)
+    }
+
+    override fun setIconSize(iconSize: Float) {
+        barChartView.setIconSize(iconSize)
+    }
+
+    override fun setGraphMaxWidth(maxWidth: Int) {
+        barChartView.setGraphMaxWidth(maxWidth)
+    }
+
+    override fun setFillParentWidth(fillParentWidth: Boolean) {
+        barChartView.setFillParentWidth(fillParentWidth)
+    }
+
+    override fun setBottomTextColor(color: Int) {
+        barChartView.setBottomTextColor(color)
+    }
+
+    override fun requestGraphLayout() {
+        barChartView.requestGraphLayout()
     }
 }
