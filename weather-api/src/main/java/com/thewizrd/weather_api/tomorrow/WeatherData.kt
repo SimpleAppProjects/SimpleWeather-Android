@@ -2,6 +2,13 @@ package com.thewizrd.weather_api.tomorrow
 
 import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIO3
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM10
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIPM2_5
+import com.thewizrd.shared_resources.utils.AirQualityUtils.AQISO2
+import com.thewizrd.shared_resources.utils.AirQualityUtils.getIndexFromData
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
@@ -33,6 +40,7 @@ fun createWeatherData(root: Rootobject, minutelyRoot: Rootobject?, alertRoot: Al
                 "1d" -> {
                     forecast = ArrayList(timeline.intervals.size)
                     txtForecast = ArrayList(timeline.intervals.size)
+                    aqiForecast = ArrayList(timeline.intervals.size)
 
                     for (interval in timeline.intervals) {
                         if (astronomy == null && updateTime.truncatedTo(ChronoUnit.DAYS).isEqual(
@@ -44,6 +52,10 @@ fun createWeatherData(root: Rootobject, minutelyRoot: Rootobject?, alertRoot: Al
 
                         forecast.add(createForecast(interval))
                         txtForecast.add(createTextForecast(interval))
+
+                        if (interval.values.epaIndex != null) {
+                            aqiForecast.add(createAQIForecast(interval))
+                        }
                     }
                 }
                 "current" -> {
@@ -66,7 +78,7 @@ fun createWeatherData(root: Rootobject, minutelyRoot: Rootobject?, alertRoot: Al
             }
         }
 
-        if ((condition.highF == null || condition.highC == null) && forecast.isNotEmpty()) {
+        if ((condition.highF == null || condition.highC == null || condition.highF == condition.lowF) && forecast.isNotEmpty()) {
             condition.highF = forecast[0].highF
             condition.highC = forecast[0].highC
             condition.lowF = forecast[0].lowF
@@ -301,6 +313,12 @@ fun createCondition(item: IntervalsItem): Condition {
 
         airQuality = AirQuality().apply {
             index = item.values.epaIndex
+            pm25 = item.values.particulateMatter25?.let { runCatching { AQIPM2_5(it) }.getOrNull() }
+            pm10 = item.values.particulateMatter10?.let { runCatching { AQIPM10(it) }.getOrNull() }
+            o3 = item.values.pollutantO3?.let { runCatching { AQIO3(it) }.getOrNull() }
+            no2 = item.values.pollutantNO2?.let { runCatching { AQINO2(it) }.getOrNull() }
+            co = item.values.pollutantCO?.let { runCatching { AQICO(it) }.getOrNull() }
+            so2 = item.values.pollutantSO2?.let { runCatching { AQISO2(it) }.getOrNull() }
         }
 
         pollen = Pollen().apply {
@@ -401,5 +419,18 @@ fun createPrecipitation(item: IntervalsItem): Precipitation {
             qpfRainMm = it
             qpfRainIn = ConversionMethods.mmToIn(it)
         }
+    }
+}
+
+fun createAQIForecast(item: IntervalsItem): AirQuality {
+    return AirQuality().apply {
+        date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC).toLocalDate()
+        pm25 = item.values.particulateMatter25?.let { runCatching { AQIPM2_5(it) }.getOrNull() }
+        pm10 = item.values.particulateMatter10?.let { runCatching { AQIPM10(it) }.getOrNull() }
+        o3 = item.values.pollutantO3?.let { runCatching { AQIO3(it) }.getOrNull() }
+        no2 = item.values.pollutantNO2?.let { runCatching { AQINO2(it) }.getOrNull() }
+        co = item.values.pollutantCO?.let { runCatching { AQICO(it) }.getOrNull() }
+        so2 = item.values.pollutantSO2?.let { runCatching { AQISO2(it) }.getOrNull() }
+        index = item.values.epaIndex ?: getIndexFromData()
     }
 }

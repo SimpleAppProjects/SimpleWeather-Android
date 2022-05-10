@@ -1,7 +1,9 @@
 package com.thewizrd.weather_api.tomorrow;
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
+@UseStag(UseStag.FieldOption.ALL)
 public class WarningsItem {
 
     @SerializedName("code")
