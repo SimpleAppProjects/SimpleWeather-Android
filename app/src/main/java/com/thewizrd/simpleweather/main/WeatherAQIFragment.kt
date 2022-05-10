@@ -170,7 +170,8 @@ class WeatherAQIFragment : ToolbarFragment() {
 
             aqiForecastAdapter.let { adapter ->
                 if (adapter is AQIForecastAdapter) {
-                    adapter.submitList(forecastList?.map { item -> AirQualityViewModel(item) })
+                    adapter.submitList(forecastList?.filter { it.index != null }
+                        ?.map { item -> AirQualityViewModel(item) })
                 } else if (adapter is AQIForecastGraphAdapter) {
                     adapter.submitList(forecastList?.createGraphData(requireContext()))
                 }
