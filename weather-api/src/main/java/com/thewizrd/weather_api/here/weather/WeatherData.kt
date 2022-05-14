@@ -145,12 +145,20 @@ fun createForecast(forecast: ForecastItem): Forecast {
 fun createTextForecast(forecast: ForecastItem): TextForecast {
     return TextForecast().apply {
         date = ZonedDateTime.parse(forecast.utcTime)
-        fcttext = String.format(
-            Locale.ROOT, "%s - %s %s",
-            forecast.weekday,
-            forecast.description.toPascalCase(),
-            forecast.beaufortDescription.toPascalCase()
-        )
+        fcttext = StringBuilder(
+            String.format(
+                Locale.ROOT, "%s - %s",
+                forecast.weekday,
+                forecast.description.toPascalCase()
+            )
+        ).apply {
+            if (forecast.beaufortDescription.isNotBlank() && !forecast.beaufortDescription.equals("*")) {
+                append(". ${forecast.beaufortDescription}")
+            }
+            if (forecast.airDescription.isNotBlank() && !forecast.airDescription.equals("*")) {
+                append(". ${forecast.airDescription}")
+            }
+        }.toString()
         fcttextMetric = fcttext
     }
 }
