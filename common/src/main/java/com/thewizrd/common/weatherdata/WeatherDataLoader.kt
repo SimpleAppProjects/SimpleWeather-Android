@@ -485,22 +485,22 @@ class WeatherDataLoader(private val location: LocationData) {
     }
 
     private suspend fun saveWeatherData() = withContext(Dispatchers.IO) {
-        if (weather != null) {
+        weather?.let { w ->
             // Save location query
-            weather!!.query = location.query
+            w.query = location.query
 
-            settingsMgr.saveWeatherData(weather!!)
+            settingsMgr.saveWeatherData(w)
 
             if (!appLib.isPhone) {
                 settingsMgr.setUpdateTime(
-                    weather!!.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
+                    w.updateTime.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
                 )
             }
         }
     }
 
     private suspend fun saveWeatherAlerts() = withContext(Dispatchers.IO) {
-        if (weatherAlerts != null) {
+        weatherAlerts?.let { alerts ->
             // Check for previously saved alerts
             val previousAlerts = settingsMgr.getWeatherAlertData(location.query)
 
@@ -508,7 +508,7 @@ class WeatherDataLoader(private val location: LocationData) {
                 // If any previous alerts were flagged before as notified
                 // make sure to set them here as such
                 // bc notified flag gets reset when retrieving weatherdata
-                for (alert in weatherAlerts!!) {
+                for (alert in alerts) {
                     for (prevAlert in previousAlerts) {
                         if (prevAlert == alert && prevAlert.isNotified) {
                             alert.isNotified = prevAlert.isNotified
@@ -518,19 +518,19 @@ class WeatherDataLoader(private val location: LocationData) {
                 }
             }
 
-            settingsMgr.saveWeatherAlerts(location, weatherAlerts)
+            settingsMgr.saveWeatherAlerts(location, alerts)
         }
     }
 
     private suspend fun saveWeatherForecasts() = withContext(Dispatchers.IO) {
-        if (weather != null) {
-            val forecasts = Forecasts(weather!!)
+        weather?.let { w ->
+            val forecasts = Forecasts(w)
             settingsMgr.saveWeatherForecasts(forecasts)
             val hrForecasts = ArrayList<HourlyForecasts>()
-            if (weather?.hrForecast != null) {
-                hrForecasts.ensureCapacity(weather!!.hrForecast.size)
-                for (f in weather!!.hrForecast) {
-                    hrForecasts.add(HourlyForecasts(weather!!.query, f!!))
+            if (w.hrForecast != null) {
+                hrForecasts.ensureCapacity(w.hrForecast.size)
+                for (f in w.hrForecast) {
+                    hrForecasts.add(HourlyForecasts(w.query, f!!))
                 }
             }
             settingsMgr.saveWeatherForecasts(location.query, hrForecasts)
