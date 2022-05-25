@@ -29,7 +29,7 @@
     <dimen name="detail_card_size">100dp</dimen>
     <dimen name="detail_grid_column_width">110dp</dimen>
     <dimen name="moonriseset_text_size">16sp</dimen>
-    <dimen name="moonriseset_image_size">36dp</dimen>
+    <dimen name="moonriseset_image_size">24dp</dimen>
     <dimen name="sun_phase_view_height">200dp</dimen>
     <dimen name="wnow_max_view_width">1366dp</dimen>
     <dimen name="aqi_forecast_textsize">14sp</dimen>

@@ -190,15 +190,15 @@
                     android:id="@+id/weather_icon"
                     android:layout_width="0dp"
                     android:layout_height="88dp"
-                    android:gravity="end|center_vertical"
+                    android:layout_alignParentEnd="true"
                     android:layout_marginEnd="16dp"
-                    android:padding="4dp"
+                    android:layout_toEndOf="@id/weather_hilo_layout"
                     android:adjustViewBounds="true"
+                    android:gravity="end|center_vertical"
+                    android:padding="8dp"
                     android:scaleType="fitEnd"
                     app:animate="true"
                     app:weatherIcon="@{weatherView.weatherIcon}"
-                    android:layout_toEndOf="@id/weather_hilo_layout"
-                    android:layout_alignParentEnd="true"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>

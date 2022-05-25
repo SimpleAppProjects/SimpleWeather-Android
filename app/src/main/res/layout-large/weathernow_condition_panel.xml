@@ -228,7 +228,7 @@
                     android:layout_toEndOf="@id/weather_hilo_layout"
                     android:adjustViewBounds="true"
                     android:gravity="end|center_vertical"
-                    android:padding="4dp"
+                    android:padding="8dp"
                     android:scaleType="fitEnd"
                     app:animate="true"
                     app:forceDarkMode="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"

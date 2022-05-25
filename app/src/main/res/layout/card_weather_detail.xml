@@ -43,6 +43,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:scrollbars="none"
+            android:paddingVertical="4dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:rotation="@{viewModel.iconRotation}"
