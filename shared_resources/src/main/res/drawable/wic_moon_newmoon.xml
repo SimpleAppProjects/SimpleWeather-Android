@@ -3,7 +3,15 @@
     android:height="48dp"
     android:viewportWidth="32"
     android:viewportHeight="32">
-    <path
-        android:pathData="M16.672,8.48c-4.16,0 -7.52,3.36 -7.52,7.52s3.392,7.52 7.52,7.52c4.16,0 7.52,-3.392 7.52,-7.52s-3.36,-7.52 -7.52,-7.52zM16.672,21.696c-3.136,0 -5.696,-2.56 -5.696,-5.696s2.56,-5.696 5.696,-5.696c3.168,0 5.728,2.56 5.728,5.696s-2.592,5.696 -5.728,5.696z"
-        android:fillColor="@color/wicon_color" />
+    <group
+        android:pivotX="16"
+        android:pivotY="16"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        android:translateY="0.0"
+        android:translateX="-1.0">
+        <path
+            android:pathData="M16.672,8.48c-4.16,0 -7.52,3.36 -7.52,7.52s3.392,7.52 7.52,7.52c4.16,0 7.52,-3.392 7.52,-7.52s-3.36,-7.52 -7.52,-7.52zM16.672,21.696c-3.136,0 -5.696,-2.56 -5.696,-5.696s2.56,-5.696 5.696,-5.696c3.168,0 5.728,2.56 5.728,5.696s-2.592,5.696 -5.728,5.696z"
+            android:fillColor="@color/wicon_color" />
+    </group>
 </vector>

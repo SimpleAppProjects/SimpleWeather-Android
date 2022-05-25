@@ -3,7 +3,14 @@
     android:height="40dp"
     android:viewportWidth="30"
     android:viewportHeight="30">
-    <path
-        android:fillColor="@color/wicon_color"
-        android:pathData="M9.76,24.6V7.45h1.13V24.6H9.76zM11.7,14.05v-6.6h8.55v6.6H11.7zM14.06,12.05h3.81v-2.5h-3.81V12.05z" />
+    <group
+        android:pivotX="15"
+        android:pivotY="15"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:translateY="0.5">
+        <path
+            android:fillColor="@color/wicon_color"
+            android:pathData="M9.76,24.6V7.45h1.13V24.6H9.76zM11.7,14.05v-6.6h8.55v6.6H11.7zM14.06,12.05h3.81v-2.5h-3.81V12.05z" />
+    </group>
 </vector>
