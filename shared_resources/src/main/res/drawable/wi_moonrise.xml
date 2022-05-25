@@ -6,8 +6,8 @@
     <group
         android:pivotX="15"
         android:pivotY="15"
-        android:scaleX="1.2"
-        android:scaleY="1.2"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
         android:translateY="0.5">
         <path
             android:fillColor="@color/wicon_color"
