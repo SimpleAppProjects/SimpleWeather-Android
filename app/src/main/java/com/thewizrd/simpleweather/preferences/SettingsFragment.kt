@@ -879,8 +879,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
             }
 
-            fragment.setTargetFragment(this, 0)
-            fragment.show(parentFragmentManager, KeyEntryPreferenceDialogFragment::class.java.name)
+            runWithView {
+                fragment.setTargetFragment(this@SettingsFragment, 0)
+                fragment.show(
+                    parentFragmentManager,
+                    KeyEntryPreferenceDialogFragment::class.java.name
+                )
+            }
         } else if (preference is TimePickerPreference) {
             val TAG = MaterialTimePicker::class.java.name
 
@@ -892,18 +897,28 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
             val f = MaterialTimePicker.Builder()
                     .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
-                    .setHour(preference.hourOfDay)
-                    .setMinute(preference.minute)
-                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                    .build()
+                .setHour(preference.hourOfDay)
+                .setMinute(preference.minute)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .build()
             f.addOnPositiveButtonClickListener {
-                if (preference.callChangeListener(String.format(Locale.ROOT, "%02d:%02d", f.hour, f.minute))) {
+                if (preference.callChangeListener(
+                        String.format(
+                            Locale.ROOT,
+                            "%02d:%02d",
+                            f.hour,
+                            f.minute
+                        )
+                    )
+                ) {
                     preference.setTime(f.hour, f.minute)
                 }
             }
 
-            f.setTargetFragment(this, 0)
-            f.show(parentFragmentManager, TAG)
+            runWithView {
+                f.setTargetFragment(this@SettingsFragment, 0)
+                f.show(parentFragmentManager, TAG)
+            }
         } else {
             super.onDisplayPreferenceDialog(preference)
         }
