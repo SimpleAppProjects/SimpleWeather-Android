@@ -118,8 +118,10 @@ class EarthWindMapViewProvider(context: Context, rootView: ViewGroup) : RadarVie
         return runCatching {
             WebView(context).apply {
                 // WebView
-                restrictWebView()
-                enableJS(true)
+                runCatching {
+                    restrictWebView()
+                    enableJS(true)
+                }
 
                 settings.setRenderPriority(WebSettings.RenderPriority.HIGH)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
