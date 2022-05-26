@@ -29,7 +29,6 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
@@ -38,6 +37,7 @@ import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.stag.generated.Stag
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
+import com.thewizrd.weather_api.utils.RateLimitedRequest
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -206,7 +206,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                 mProcessingFrames = true
 
                 // Remove already added tile overlays
-                val overlaysToDelete = ArrayList(radarLayers.values)
+                val overlaysToDelete = radarLayers.values.toList()
                 radarLayers.clear()
                 for (overlay in overlaysToDelete) {
                     mMainHandler.post { overlay.remove() }
@@ -255,6 +255,8 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
     }
 
     private fun addLayer(mapFrame: RadarFrame) {
+        if (mProcessingFrames) return
+
         if (!radarLayers.containsKey(mapFrame.timeStamp)) {
             val overlay = googleMap!!.addTileOverlay(
                 TileOverlayOptions().tileProvider(RainViewTileProvider(context, mapFrame))

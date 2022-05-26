@@ -174,7 +174,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
                 mProcessingFrames = true
 
                 // Remove already added tile overlays
-                val overlaysToDelete = ArrayList(radarLayers.values)
+                val overlaysToDelete = radarLayers.values.toList()
                 radarLayers.clear()
                 for (overlay in overlaysToDelete) {
                     mMainHandler.post {
@@ -221,8 +221,15 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     }
 
     private fun addLayer(mapFrame: RadarFrame) {
+        if (mProcessingFrames) return
+
         if (!radarLayers.containsKey(mapFrame.timeStamp)) {
-            val overlay = TilesOverlay(MapTileProviderBasic(context, RainViewTileProvider(mapFrame)), context, false, false)
+            val overlay = TilesOverlay(
+                MapTileProviderBasic(context, RainViewTileProvider(mapFrame)),
+                context,
+                false,
+                false
+            )
             overlay.isEnabled = false
             mapView.overlays.add(overlay)
             radarLayers[mapFrame.timeStamp] = overlay
