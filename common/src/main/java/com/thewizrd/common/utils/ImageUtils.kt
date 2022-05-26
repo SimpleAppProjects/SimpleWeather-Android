@@ -373,12 +373,16 @@ object ImageUtils {
         bottomLeft: Float,
         bottomRight: Float
     ): Bitmap {
-        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bmpWidth = if (width <= 0) 1 else width
+        val bmpHeight = if (height <= 0) 1 else height
+
+        val result = Bitmap.createBitmap(bmpWidth, bmpHeight, Bitmap.Config.ARGB_8888)
         result.setHasAlpha(true)
 
-        val paint = Paint()
-        paint.isAntiAlias = true
-        paint.color = fillColor
+        val paint = Paint().apply {
+            isAntiAlias = true
+            color = fillColor
+        }
 
         val rect = RectF(
             0f, 0f,
