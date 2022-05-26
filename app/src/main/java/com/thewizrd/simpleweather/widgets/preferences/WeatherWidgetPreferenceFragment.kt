@@ -72,6 +72,7 @@ import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreferenceDia
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder.OnAppSelectedListener
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
@@ -330,7 +331,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
                     // Setup search UI
                     view?.findNavController()
-                        ?.navigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2())
+                        ?.safeNavigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2())
                     query_vm = null
                     binding.bgLocationLayout.visibility = View.GONE
                     return@OnPreferenceChangeListener false

@@ -65,7 +65,7 @@ fun SettingsFragment.navigateToPremiumFragment() {
     // Navigate to premium page
     if (isPremiumSupported()) {
         rootView.findNavController()
-            .navigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
+            .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
     } else {
         showSnackbar(
             Snackbar.make(
