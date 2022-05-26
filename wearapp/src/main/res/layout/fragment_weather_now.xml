@@ -7,6 +7,7 @@
 
         <import type="android.text.TextUtils" />
         <import type="android.view.View" />
+        <import type="androidx.core.view.ViewKt" />
         <import type="com.thewizrd.shared_resources.utils.WeatherUtils" />
 
         <variable
@@ -84,10 +85,9 @@
                     android:textAppearance="?attr/textAppearanceBody1"
                     android:visibility="gone"
                     app:drawableTopCompat="@drawable/ic_location_off_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/timerTextGuide"
                     tools:visibility="gone" />
 
                 <com.thewizrd.common.controls.TextViewDrawableCompat
@@ -109,6 +109,13 @@
                     app:layout_constraintTop_toBottomOf="@id/timerTextGuide"
                     tools:visibility="gone" />
 
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/error_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="no_locations_prompt,disconnected_view" />
+
                 <FrameLayout
                     android:id="@+id/alert_button"
                     android:layout_width="match_parent"
@@ -119,7 +126,7 @@
                     app:hideIfEmpty="@{alertsView.alerts}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/disconnected_view"
+                    app:layout_constraintTop_toBottomOf="@id/error_view"
                     tools:visibility="gone">
 
                     <androidx.appcompat.widget.AppCompatImageView
@@ -192,6 +199,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/location_header"
                     app:weatherIcon="@{weatherView.weatherIcon}"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -209,6 +217,7 @@
                     app:autoSizeMaxTextSize="42sp"
                     app:autoSizeTextType="uniform"
                     app:fontFamily="@font/roboto_light"
+                    app:hideIfNullOrWhitespace="@{weatherView.location}"
                     app:layout_constraintBottom_toTopOf="@id/weather_condition"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/weather_icon"
@@ -364,6 +373,14 @@
                     tools:drawableStartCompat="@drawable/wi_wind_direction"
                     tools:text="10 mph" />
 
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/condition_panel_barrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:barrierAllowsGoneWidgets="true"
+                    app:constraint_referenced_ids="no_locations_prompt,condition_details" />
+
                 <View
                     android:id="@+id/summary_divider"
                     android:layout_width="48dp"
@@ -374,7 +391,7 @@
                     app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/condition_details" />
+                    app:layout_constraintTop_toBottomOf="@id/condition_panel_barrier" />
 
                 <TextView
                     android:id="@+id/weather_summary"
@@ -483,6 +500,10 @@
                     android:layout_gravity="center_horizontal"
                     android:alpha="0.75"
                     android:background="@drawable/wear_divider"
+                    app:showIfNotEmpty="@{forecastsView.forecasts}"
+                    app:showIfNotEmpty1="@{forecastsView.hourlyForecasts}"
+                    app:showIfNotEmpty2="@{forecastsView.minutelyForecasts}"
+                    app:showIfNotEmpty3="@{weatherView.weatherDetailsMap.entrySet()}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/weather_credit" />

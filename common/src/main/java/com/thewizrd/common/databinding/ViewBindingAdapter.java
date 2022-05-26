@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.databinding.BindingAdapter;
@@ -108,5 +109,10 @@ public class ViewBindingAdapter {
     @BindingAdapter(value = {"showIfTrue", "showIfNotEmpty1", "showIfNotEmpty2"}, requireAll = true)
     public static void showIfTrueArgs(@NonNull View view, boolean show, Map<?, ?> m1, Map<?, ?> m2) {
         view.setVisibility(show && ((m1 != null && !m1.isEmpty()) || (m2 != null && !m2.isEmpty())) ? View.VISIBLE : View.GONE);
+    }
+
+    @BindingAdapter(value = {"showIfNotEmpty", "showIfNotEmpty1", "showIfNotEmpty2", "showIfNotEmpty3"}, requireAll = false)
+    public static void showIfNotEmpty(@NonNull View view, @Nullable Collection<?> c, @Nullable Collection<?> c1, @Nullable Collection<?> c2, @Nullable Collection<?> c3) {
+        view.setVisibility((c != null && !c.isEmpty()) || (c1 != null && !c1.isEmpty()) || (c2 != null && !c2.isEmpty()) || (c3 != null && !c3.isEmpty()) ? View.VISIBLE : View.GONE);
     }
 }

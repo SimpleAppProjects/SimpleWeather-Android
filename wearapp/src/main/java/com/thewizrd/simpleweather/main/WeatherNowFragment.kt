@@ -13,10 +13,7 @@ import android.view.View.OnGenericMotionListener
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
-import androidx.core.view.InputDeviceCompat
-import androidx.core.view.MotionEventCompat
-import androidx.core.view.ViewConfigurationCompat
-import androidx.core.view.postOnAnimationDelayed
+import androidx.core.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
@@ -251,19 +248,23 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                                 binding.swipeRefreshLayout.isRefreshing = true
                             }
 
-                            launch(Dispatchers.IO) {
-                                supervisorScope {
-                                    wLoader = WeatherDataLoader(locationData!!)
-                                    val weather = wLoader!!.loadWeatherData(
-                                        WeatherRequest.Builder()
-                                            .forceLoadSavedData()
-                                            .loadAlerts()
-                                            .setErrorListener(this@WeatherNowFragment)
-                                            .build()
-                                    )
+                            if (locationData?.isValid == true) {
+                                launch(Dispatchers.IO) {
+                                    supervisorScope {
+                                        wLoader = WeatherDataLoader(locationData!!)
+                                        val weather = wLoader!!.loadWeatherData(
+                                            WeatherRequest.Builder()
+                                                .forceLoadSavedData()
+                                                .loadAlerts()
+                                                .setErrorListener(this@WeatherNowFragment)
+                                                .build()
+                                        )
 
-                                    weatherLiveData.postValue(weather)
+                                        weatherLiveData.postValue(weather)
+                                    }
                                 }
+                            } else {
+                                cancelDataSync()
                             }
 
                             weatherDataReceived = false
@@ -599,23 +600,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     if (locationData?.isValid == true) {
                         wLoader = WeatherDataLoader(locationData!!)
                     } else {
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(locationData, LocationData::class.java)
-                        )
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Home: %s",
-                            JSONParser.serializer(
-                                settingsManager.getHomeData(),
-                                LocationData::class.java
-                            )
-                        )
-                        Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
-
-                        // Show error prompt
-                        binding.noLocationsPrompt.visibility = View.VISIBLE
+                        checkInvalidLocation()
                         this.cancel()
                     }
                     forceRefresh
@@ -873,24 +858,28 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
                 binding.swipeRefreshLayout.isRefreshing = true
 
-                runWithView(Dispatchers.IO) {
-                    supervisorScope {
-                        wLoader = WeatherDataLoader(locationData!!)
-                        val weather = wLoader!!.loadWeatherData(
-                            WeatherRequest.Builder()
-                                .forceLoadSavedData()
-                                .loadAlerts()
-                                .setErrorListener(this@WeatherNowFragment)
-                                .build()
-                        )
+                if (locationData?.isValid == true) {
+                    runWithView(Dispatchers.IO) {
+                        supervisorScope {
+                            wLoader = WeatherDataLoader(locationData!!)
+                            val weather = wLoader!!.loadWeatherData(
+                                WeatherRequest.Builder()
+                                    .forceLoadSavedData()
+                                    .loadAlerts()
+                                    .setErrorListener(this@WeatherNowFragment)
+                                    .build()
+                            )
 
-                        if (weather != null) {
-                            weatherLiveData.postValue(weather)
-                        } else {
-                            // Data is null; restore
-                            dataSyncRestore()
+                            if (weather != null) {
+                                weatherLiveData.postValue(weather)
+                            } else {
+                                // Data is null; restore
+                                dataSyncRestore()
+                            }
                         }
                     }
+                } else {
+                    checkInvalidLocation()
                 }
             }
         }
@@ -906,7 +895,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 locationData = settingsManager.getHomeData()
             }
 
-            if (locationData != null) {
+            if (locationData?.isValid == true) {
                 binding.swipeRefreshLayout.isRefreshing = true
 
                 runWithView(Dispatchers.IO) {
@@ -925,7 +914,42 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 }
             } else {
                 binding.swipeRefreshLayout.isRefreshing = false
-                showToast(R.string.error_syncing, Toast.LENGTH_LONG)
+
+                if (locationData != null) {
+                    checkInvalidLocation()
+                } else {
+                    showToast(R.string.error_syncing, Toast.LENGTH_LONG)
+                }
+            }
+        }
+    }
+
+    private fun checkInvalidLocation() {
+        if (locationData?.isValid != true) {
+            lifecycleScope.launch {
+                withContext(Dispatchers.Default) {
+                    Logger.writeLine(
+                        Log.WARN,
+                        "Location: %s",
+                        JSONParser.serializer(locationData, LocationData::class.java)
+                    )
+                    Logger.writeLine(
+                        Log.WARN,
+                        "Home: %s",
+                        JSONParser.serializer(
+                            settingsManager.getHomeData(),
+                            LocationData::class.java
+                        )
+                    )
+
+                    Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
+                }
+
+                // Show error prompt
+                if (!binding.scrollView.isVisible) {
+                    binding.scrollView.visibility = View.VISIBLE
+                }
+                binding.noLocationsPrompt.visibility = View.VISIBLE
             }
         }
     }
