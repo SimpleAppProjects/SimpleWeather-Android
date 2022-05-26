@@ -202,71 +202,71 @@ class WeatherAQIFragment : ToolbarFragment() {
             }
 
             if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
-                runWithView(Dispatchers.Default) {
-                    supervisorScope {
-                        val weather = WeatherDataLoader(locationData!!).loadWeatherData(
-                            WeatherRequest.Builder()
-                                .forceLoadSavedData()
-                                .setErrorListener { wEx ->
-                                    when (wEx.errorStatus) {
-                                        ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                                                    // Show error message and prompt to refresh
-                                                    showSnackbar(
-                                                            Snackbar.make(
-                                                                binding.root.context,
-                                                                wEx.message,
-                                                                Snackbar.Duration.LONG
-                                                            )
+                locationData?.let { locData ->
+                    runWithView(Dispatchers.Default) {
+                        supervisorScope {
+                            val weather = WeatherDataLoader(locData).loadWeatherData(
+                                WeatherRequest.Builder()
+                                    .forceLoadSavedData()
+                                    .setErrorListener { wEx ->
+                                        when (wEx.errorStatus) {
+                                            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
+                                                // Show error message and prompt to refresh
+                                                showSnackbar(
+                                                    Snackbar.make(
+                                                        binding.root.context,
+                                                        wEx.message,
+                                                        Snackbar.Duration.LONG
                                                     )
-                                                }
-                                                ErrorStatus.QUERYNOTFOUND -> {
-                                                    if (locationData?.countryCode?.let {
-                                                            !wm.isRegionSupported(
-                                                                it
-                                                            )
-                                                        } == true) {
-                                                        showSnackbar(
-                                                            Snackbar.make(
-                                                                binding.root.context,
-                                                                R.string.error_message_weather_region_unsupported,
-                                                                Snackbar.Duration.LONG
-                                                            )
-                                                        )
-                                                        return@setErrorListener
-                                                    }
-                                                    // Show error message
-                                                    showSnackbar(
-                                                            Snackbar.make(
-                                                                binding.root.context,
-                                                                wEx.message,
-                                                                Snackbar.Duration.LONG
-                                                            )
-                                                    )
-                                                }
-                                                else -> {
-                                                    showSnackbar(
-                                                            Snackbar.make(
-                                                                binding.root.context,
-                                                                wEx.message,
-                                                                Snackbar.Duration.LONG
-                                                            )
-                                                    )
-                                                }
+                                                )
                                             }
-                                        }.build()
-                        )
+                                            ErrorStatus.QUERYNOTFOUND -> {
+                                                if (!wm.isRegionSupported(locData.countryCode)) {
+                                                    showSnackbar(
+                                                        Snackbar.make(
+                                                            binding.root.context,
+                                                            R.string.error_message_weather_region_unsupported,
+                                                            Snackbar.Duration.LONG
+                                                        )
+                                                    )
+                                                    return@setErrorListener
+                                                }
+                                                // Show error message
+                                                showSnackbar(
+                                                    Snackbar.make(
+                                                        binding.root.context,
+                                                        wEx.message,
+                                                        Snackbar.Duration.LONG
+                                                    )
+                                                )
+                                            }
+                                            else -> {
+                                                showSnackbar(
+                                                    Snackbar.make(
+                                                        binding.root.context,
+                                                        wEx.message,
+                                                        Snackbar.Duration.LONG
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }.build()
+                            )
 
-                        ensureActive()
+                            ensureActive()
 
-                        launch(Dispatchers.Main) {
-                            weatherView.updateView(weather)
-                            aqiView.updateForecasts(locationData!!)
-                            headerBinding.locationName.text = weatherView.location
+                            launch(Dispatchers.Main) {
+                                weatherView.updateView(weather)
+                                aqiView.updateForecasts(locData)
+                                headerBinding.locationName.text = weatherView.location
+                            }
                         }
                     }
                 }
             } else {
-                aqiView.updateForecasts(locationData!!)
+                locationData?.let {
+                    aqiView.updateForecasts(it)
+                }
                 headerBinding.locationName.text = weatherView.location
             }
 
