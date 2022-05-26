@@ -152,6 +152,7 @@
                     android:adjustViewBounds="true"
                     android:maxWidth="66dp"
                     android:maxHeight="66dp"
+                    android:padding="4dp"
                     android:scaleType="fitCenter"
                     tools:src="@drawable/wi_night_alt_snow_thunderstorm" />
 

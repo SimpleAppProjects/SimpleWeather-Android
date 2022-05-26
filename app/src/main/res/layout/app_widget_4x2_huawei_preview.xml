@@ -102,6 +102,7 @@
                     android:layout_width="66dp"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
+                    android:padding="4dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/wi_night_alt_snow_thunderstorm"
                     android:tint="?android:attr/textColorPrimary" />

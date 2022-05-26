@@ -94,9 +94,10 @@
                 android:adjustViewBounds="true"
                 android:maxWidth="36dp"
                 android:maxHeight="36dp"
+                android:padding="4dp"
                 android:scaleType="fitCenter"
-                tools:src="@drawable/wi_night_alt_partly_cloudy"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"
+                tools:src="@drawable/wi_night_alt_partly_cloudy" />
 
             <TextView
                 android:id="@+id/condition_temp"
