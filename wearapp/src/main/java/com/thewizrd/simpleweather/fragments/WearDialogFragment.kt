@@ -49,7 +49,7 @@ public class WearDialogFragment private constructor(private val params: WearDial
         swipeLayoutBinding.swipeLayout.isSwipeable = true
         swipeLayoutBinding.swipeLayout.addCallback(object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout?) {
-                dismiss()
+                dismissAllowingStateLoss()
             }
         })
 
