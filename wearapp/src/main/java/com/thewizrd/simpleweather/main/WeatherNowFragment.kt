@@ -16,6 +16,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.core.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.ibm.icu.util.ULocale
@@ -88,6 +89,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     private lateinit var weatherLiveData: MutableLiveData<Weather>
 
     // View Models
+    private val wNowViewModel: WeatherNowFragmentStateModel by viewModels()
     private val weatherView: WeatherNowViewModel by activityViewModels()
     private val forecastsView: ForecastsListViewModel by activityViewModels()
     private val forecastPanelsView: ForecastPanelsViewModel by activityViewModels()
@@ -113,11 +115,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 forecastPanelsView.updateForecasts(locationData!!)
                 forecastsView.updateForecasts(locationData!!)
             }
-            if (locationData?.locationType == LocationType.GPS) {
-                binding.gpsIcon.visibility = View.VISIBLE
-            } else {
-                binding.gpsIcon.visibility = View.GONE
-            }
+
+            wNowViewModel.isGPSLocation.postValue(locationData?.locationType == LocationType.GPS)
 
             binding.swipeRefreshLayout.isRefreshing = false
             binding.scrollView.visibility = View.VISIBLE
@@ -318,6 +317,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weather_now, container, false)
         binding.weatherView = weatherView
+        binding.weatherNowState = wNowViewModel
         binding.alertsView = alertsView
         binding.forecastsView = forecastPanelsView
         binding.lifecycleOwner = this
@@ -998,5 +998,9 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     binding.disconnectedView.visibility = View.GONE
                 }
         }
+    }
+
+    class WeatherNowFragmentStateModel : ViewModel() {
+        var isGPSLocation = MutableLiveData(false)
     }
 }
