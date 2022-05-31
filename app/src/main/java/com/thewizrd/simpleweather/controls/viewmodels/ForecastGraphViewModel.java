@@ -107,9 +107,9 @@ public class ForecastGraphViewModel {
                     break;
                 case Units.MILLIMETERS:
                     if (graphType == ForecastGraphType.SNOW) {
-                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 0.5f));
-                    } else {
                         series.setSeriesMinMax(0f, Math.max(series.getYMax(), 12.7f));
+                    } else {
+                        series.setSeriesMinMax(0f, Math.max(series.getYMax(), 7.6f));
                     }
                     break;
             }
