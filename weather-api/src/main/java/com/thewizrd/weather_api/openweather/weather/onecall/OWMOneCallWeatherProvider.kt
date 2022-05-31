@@ -443,9 +443,9 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
             "201", // thunderstorm w/ rain
             "210", // light thunderstorm
             "230", // thunderstorm w/ light drizzle
-            "231", // thunderstorm w/ drizzle
-            "531" /* ragged shower rain */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_STORM_SHOWERS else WeatherIcons.DAY_STORM_SHOWERS
+            "231", /* thunderstorm w/ drizzle */
+            -> {
+                weatherIcon = WeatherIcons.STORM_SHOWERS
             }
 
             "211", // thunderstorm
@@ -453,28 +453,40 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
             "221", // ragged thunderstorm
             "202", // thunderstorm w/ heavy rain
             "232" /* thunderstorm w/ heavy drizzle */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_THUNDERSTORM else WeatherIcons.DAY_THUNDERSTORM
+                weatherIcon = WeatherIcons.THUNDERSTORM
             }
 
             "300", // light intensity drizzle
             "301", // drizzle
-            "321", // shower drizzle
-            "500" /* light rain */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            "310", // light intensity drizzle rain
+            "321" /* shower drizzle */ -> {
+                weatherIcon = WeatherIcons.SPRINKLE
             }
 
             "302", // heavy intensity drizzle
             "311", // drizzle rain
             "312", // heavy intensity drizzle rain
-            "314", // heavy shower rain and drizzle
-            "501", // moderate rain
-            "502", // heavy intensity rain
-            "503", // very heavy rain
-            "504" /* extreme rain */ -> {
+            "314", /* heavy shower rain and drizzle */
+            -> {
+                weatherIcon = WeatherIcons.RAIN
+            }
+
+            "500" /* light rain */ -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_SPRINKLE else WeatherIcons.DAY_SPRINKLE
+            }
+
+            "501" /* moderate rain */ -> {
                 weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_RAIN else WeatherIcons.DAY_RAIN
             }
 
-            "310", // light intensity drizzle rain
+            "502", // heavy intensity rain
+            "503", // very heavy rain
+            "504" /* extreme rain */ -> {
+                weatherIcon =
+                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_WIND else WeatherIcons.DAY_RAIN_WIND
+            }
+
             "511", // freezing rain
             "611", // sleet
             "612", // light shower sleet
@@ -482,29 +494,28 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
             "615", // light rain and snow
             "616", // rain and snow
             "620" /* light shower snow */ -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_ALT_RAIN_MIX else WeatherIcons.DAY_RAIN_MIX
+                weatherIcon = WeatherIcons.RAIN_MIX
             }
 
             "313", // shower rain and drizzle
             "520", // light intensity shower rain
             "521", // shower rain
             "522", /* heavy intensity shower rain */
-            -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_ALT_SHOWERS else WeatherIcons.DAY_SHOWERS
+            "531" /* ragged shower rain */ -> {
+                weatherIcon = WeatherIcons.SHOWERS
             }
 
             "600", // light snow
             "601", // snow
-            "621", // shower snow
-            "622" /* heavy shower snow */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_ALT_SNOW else WeatherIcons.DAY_SNOW
+            "621", /* shower snow */
+            -> {
+                weatherIcon = WeatherIcons.SNOW
             }
 
-            // heavy snow
-            "602" -> weatherIcon =
-                if (isNight) WeatherIcons.NIGHT_ALT_SNOW_WIND else WeatherIcons.DAY_SNOW_WIND
+            "602", /* heavy snow */
+            "622" /* heavy shower snow */ -> {
+                weatherIcon = WeatherIcons.SNOW_WIND
+            }
 
             // smoke
             "711" -> weatherIcon = WeatherIcons.SMOKE
@@ -518,9 +529,10 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                 weatherIcon = WeatherIcons.DUST
             }
 
-            "741", // fog
-            "701" /* mist */ -> {
-                weatherIcon = if (isNight) WeatherIcons.NIGHT_FOG else WeatherIcons.DAY_FOG
+            "701", // mist
+            "741", /* fog */
+            -> {
+                weatherIcon = WeatherIcons.FOG
             }
 
             // Sand
@@ -559,8 +571,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
             /* overcast clouds */
             "804" -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon = WeatherIcons.OVERCAST
             }
 
             "901", // tropical storm
@@ -598,11 +609,21 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
         when (weather.condition.icon) {
             // The following cases can be present at any time of day
+            WeatherIcons.STORM_SHOWERS,
+            WeatherIcons.THUNDERSTORM,
+            WeatherIcons.SPRINKLE,
+            WeatherIcons.RAIN,
+            WeatherIcons.RAIN_MIX,
+            WeatherIcons.SHOWERS,
+            WeatherIcons.SNOW,
+            WeatherIcons.SNOW_WIND,
             WeatherIcons.SMOKE,
             WeatherIcons.DUST,
+            WeatherIcons.FOG,
             WeatherIcons.SANDSTORM,
             WeatherIcons.VOLCANO,
             WeatherIcons.TORNADO,
+            WeatherIcons.OVERCAST,
             WeatherIcons.HURRICANE,
             WeatherIcons.SNOWFLAKE_COLD,
             WeatherIcons.WINDY,

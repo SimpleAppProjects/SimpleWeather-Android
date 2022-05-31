@@ -446,7 +446,7 @@ class OpenWeatherMapProvider : WeatherProviderImpl() {
             "711" -> weatherIcon = WeatherIcons.SMOKE
 
             // haze
-            "721" -> weatherIcon = if (isNight) WeatherIcons.HAZE else WeatherIcons.DAY_HAZE
+            "721" -> weatherIcon = if (isNight) WeatherIcons.NIGHT_HAZE else WeatherIcons.DAY_HAZE
 
             "731", // sand/ dust whirls
             "761", /* dust */

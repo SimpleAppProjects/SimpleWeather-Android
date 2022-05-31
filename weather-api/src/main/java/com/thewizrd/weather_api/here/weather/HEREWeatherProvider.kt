@@ -298,8 +298,6 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
     }
 
     override fun getWeatherIcon(isNight: Boolean, icon: String?): String {
-        var weatherIcon = ""
-
         if (icon == null) return WeatherIcons.NA
 
         val neutralIcon = if (icon.startsWith("night_")) {
@@ -308,9 +306,9 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             icon
         }
 
-        when (neutralIcon) {
+        var weatherIcon = when (neutralIcon) {
             "sunny", "clear" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_CLEAR
                 } else {
                     WeatherIcons.DAY_SUNNY
@@ -319,7 +317,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             "mostly_sunny", "passing_clounds", "passing_clouds", "more_sun_than_clouds",
             "mostly_clear", "scattered_clouds", "partly_cloudy", "decreasing_cloudiness",
             "clearing_skies" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_PARTLY_CLOUDY
                 } else {
                     WeatherIcons.DAY_PARTLY_CLOUDY
@@ -328,122 +326,123 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             "a_mixture_of_sun_and_clouds", "increasing_cloudiness", "breaks_of_sun_late",
             "afternoon_clouds", "morning_clouds", "partly_sunny", "more_clouds_than_sun",
             "broken_clouds", "mostly_cloudy" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_CLOUDY
                 } else {
                     WeatherIcons.DAY_CLOUDY
                 }
             }
             "high_level_clouds", "high_clouds" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_CLOUDY_HIGH
                 } else {
                     WeatherIcons.DAY_CLOUDY_HIGH
                 }
             }
             "rain_early", "rain", "rain_late" -> {
-                weatherIcon = WeatherIcons.RAIN
+                WeatherIcons.RAIN
             }
             "strong_thunderstorms", "severe_thunderstorms", "thunderstorms", "tstorms_early",
             "isolated_tstorms_late", "tstorms", "tstorms_late" -> {
-                weatherIcon = WeatherIcons.THUNDERSTORM
+                WeatherIcons.THUNDERSTORM
             }
             "widely_scattered_tstorms", "isolated_tstorms", "a_few_tstorms",
             "scattered_tstorms", "scattered_tstorms_late" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_THUNDERSTORM
                 } else {
                     WeatherIcons.DAY_THUNDERSTORM
                 }
             }
             "thundershowers" -> {
-                weatherIcon = WeatherIcons.STORM_SHOWERS
+                WeatherIcons.STORM_SHOWERS
             }
             "ice_fog" -> {
-                weatherIcon = WeatherIcons.FOG
+                WeatherIcons.FOG
             }
             "scattered_showers", "a_few_showers", "light_showers", "passing_showers", "rain_showers",
             "showers", "numerous_showers", "showery", "showers_early", "showers_late" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_SHOWERS
                 } else {
                     WeatherIcons.DAY_SHOWERS
                 }
             }
             "hazy_sunshine", "haze", "low_level_haze" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_HAZE
                 } else {
                     WeatherIcons.DAY_HAZE
                 }
             }
             "smoke" -> {
-                weatherIcon = WeatherIcons.SMOKE
+                WeatherIcons.SMOKE
             }
             "early_fog_followed_by_sunny_skies", "early_fog", "light_fog" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_FOG
                 } else {
                     WeatherIcons.DAY_FOG
                 }
             }
             "fog", "dense_fog" -> {
-                weatherIcon = WeatherIcons.FOG
+                WeatherIcons.FOG
             }
             "cloudy", "low_clouds" -> {
-                weatherIcon = WeatherIcons.CLOUDY
+                WeatherIcons.CLOUDY
             }
             "overcast" -> {
-                weatherIcon = WeatherIcons.OVERCAST
+                WeatherIcons.OVERCAST
             }
             "hail" -> {
-                weatherIcon = WeatherIcons.HAIL
+                WeatherIcons.HAIL
             }
             "sleet" -> {
-                weatherIcon = WeatherIcons.SLEET
+                WeatherIcons.SLEET
             }
             "light_mixture_of_precip", "icy_mix", "mixture_of_precip", "heavy_mixture_of_precip",
             "snow_changing_to_rain", "snow_changing_to_an_icy_mix", "an_icy_mix_changing_to_snow",
             "an_icy_mix_changing_to_rain", "rain_changing_to_snow", "rain_changing_to_an_icy_mix",
             "light_icy_mix_early", "icy_mix_early", "light_icy_mix_late", "icy_mix_late",
             "snow_rain_mix", "light_freezing_rain", "freezing_rain" -> {
-                weatherIcon = WeatherIcons.RAIN_MIX
+                WeatherIcons.RAIN_MIX
             }
             "scattered_flurries", "snow_flurries", "light_snow_showers", "snow_showers", "light_snow",
             "flurries_early", "snow_showers_early", "light_snow_early", "flurries_late", "snow_showers_late",
             "light_snow_late", "snow", "moderate_snow", "snow_early", "snow_late" -> {
-                weatherIcon = WeatherIcons.SNOW
+                WeatherIcons.SNOW
             }
             "heavy_rain_early", "heavy_rain", "lots_of_rain", "tons_of_rain", "heavy_rain_late",
             "flash_floods", "flood" -> {
-                weatherIcon = WeatherIcons.RAIN_WIND
+                WeatherIcons.RAIN_WIND
             }
             "drizzle", "light_rain", "sprinkles_early", "light_rain_early", "sprinkles_late",
             "light_rain_late", "sprinkles" -> {
-                weatherIcon = if (isNight) {
+                if (isNight) {
                     WeatherIcons.NIGHT_ALT_SPRINKLE
                 } else {
                     WeatherIcons.DAY_SPRINKLE
                 }
             }
             "heavy_snow", "heavy_snow_early", "heavy_snow_late", "snowstorm", "blizzard" -> {
-                weatherIcon = WeatherIcons.SNOW_WIND
+                WeatherIcons.SNOW_WIND
             }
             "tornado" -> {
-                weatherIcon = WeatherIcons.TORNADO
+                WeatherIcons.TORNADO
             }
             "tropical_storm" -> {
-                weatherIcon = WeatherIcons.SHOWERS
+                WeatherIcons.SHOWERS
             }
             "hurricane" -> {
-                weatherIcon = WeatherIcons.HURRICANE
+                WeatherIcons.HURRICANE
             }
             "sandstorm" -> {
-                weatherIcon = WeatherIcons.SANDSTORM
+                WeatherIcons.SANDSTORM
             }
             "duststorm" -> {
-                weatherIcon = WeatherIcons.DUST
+                WeatherIcons.DUST
             }
+            else -> ""
         }
 
         // Fallback
