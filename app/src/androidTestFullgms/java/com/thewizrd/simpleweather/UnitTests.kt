@@ -495,6 +495,18 @@ class UnitTests {
         }
     }
 
+    @Throws(WeatherException::class)
+    @Test
+    fun getMeteomaticsWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METEOMATICS)
+            val weather =
+                getWeather(provider, Coordinate(52.22, 20.97))
+            assertTrue(weather.isValid && WeatherNowViewModel(weather).isValid)
+        }
+    }
+
     @Test
     fun tzdbTest() {
         val tzLong = "Asia/Qostanay" // tzdb - 2018h

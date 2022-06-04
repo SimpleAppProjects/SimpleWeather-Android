@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.weather_api.accuweather.weather.AccuWeatherProvider
 import com.thewizrd.weather_api.here.weather.HEREWeatherProvider
 import com.thewizrd.weather_api.meteofrance.weather.MeteoFranceProvider
+import com.thewizrd.weather_api.meteomatics.weather.MeteomaticsWeatherProvider
 import com.thewizrd.weather_api.metno.MetnoWeatherProvider
 import com.thewizrd.weather_api.nws.NWSWeatherProvider
 import com.thewizrd.weather_api.openweather.location.OpenWeatherMapLocationProvider
@@ -44,6 +45,7 @@ class WeatherProviderFactoryImpl : WeatherProviderFactory {
             WeatherAPI.TOMORROWIO -> TomorrowIOWeatherProvider()
             WeatherAPI.ACCUWEATHER -> AccuWeatherProvider()
             WeatherAPI.WEATHERBITIO -> WeatherBitIOProvider()
+            WeatherAPI.METEOMATICS -> MeteomaticsWeatherProvider()
             else -> {
                 if (!BuildConfig.DEBUG) {
                     if (!BuildConfig.IS_NONGMS)

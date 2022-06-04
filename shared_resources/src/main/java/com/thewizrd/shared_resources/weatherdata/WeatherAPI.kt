@@ -19,6 +19,7 @@ object WeatherAPI {
     const val TOMORROWIO = "tomorrowio"
     const val ACCUWEATHER = "accuweather"
     const val WEATHERBITIO = "weatherbitio"
+    const val METEOMATICS = "meteomatics"
 
     // Location APIs
     const val ANDROID = "android"
@@ -32,7 +33,7 @@ object WeatherAPI {
      * 2) Add constructor for Weather data objects
      * 3) Update LocationQuery (if needed)
      * 4) Add API to provider list below
-     * 5) Add API to WeatherProviderManager
+     * 5) Add API to WeatherProviderManager / WeatherProviderFactory
      * 6) Add to remote_config_defaults.xml
      */
     @StringDef(
@@ -46,7 +47,8 @@ object WeatherAPI {
         METEOFRANCE,
         TOMORROWIO,
         ACCUWEATHER,
-        WEATHERBITIO
+        WEATHERBITIO,
+        METEOMATICS
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
@@ -161,6 +163,12 @@ object WeatherAPI {
             ProviderEntry(
                 "AccuWeather", ACCUWEATHER,
                 "https://www.accuweather.com/", "https://developer.accuweather.com/"
+            ),
+            ProviderEntry(
+                "Meteomatics",
+                METEOMATICS,
+                "https://www.meteomatics.com/",
+                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }

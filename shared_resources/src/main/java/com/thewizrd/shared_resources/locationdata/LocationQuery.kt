@@ -78,7 +78,8 @@ class LocationQuery {
             WeatherAPI.WEATHERUNLOCKED,
             WeatherAPI.WEATHERAPI,
             WeatherAPI.TOMORROWIO,
-            WeatherAPI.ACCUWEATHER -> {
+            WeatherAPI.ACCUWEATHER,
+            WeatherAPI.METEOMATICS -> {
                 String.format(
                     Locale.ROOT,
                     "%s,%s",
