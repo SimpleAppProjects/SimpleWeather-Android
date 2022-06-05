@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.PollenProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -84,6 +85,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
     override fun isKeyRequired(): Boolean {
         return true
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.APIKEY
     }
 
     override fun getHourlyForecastInterval(): Int {

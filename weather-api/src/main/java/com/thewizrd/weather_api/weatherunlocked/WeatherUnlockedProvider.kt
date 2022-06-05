@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
@@ -81,6 +82,10 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
 
     override fun getAPIKey(): String? {
         return null
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.APPID_APPCODE
     }
 
     override fun getRetryTime(): Long {

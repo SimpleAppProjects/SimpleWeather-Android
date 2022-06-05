@@ -12,6 +12,7 @@ import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
@@ -92,6 +93,10 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
     override fun getAPIKey(): String? {
         return Keys.getMeteoFranceKey()
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.APIKEY
     }
 
     override fun getRetryTime(): Long {

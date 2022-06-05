@@ -14,6 +14,7 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.AirQualityData
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -85,6 +86,10 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
     override fun isKeyRequired(): Boolean {
         return true
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.APIKEY
     }
 
     override fun getHourlyForecastInterval(): Int {

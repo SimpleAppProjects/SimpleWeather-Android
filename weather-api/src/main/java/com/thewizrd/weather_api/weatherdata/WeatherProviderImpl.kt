@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.weather_api.aqicn.AQICNData
 import com.thewizrd.weather_api.aqicn.AQICNProvider
@@ -65,6 +66,10 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
 
     override fun getRetryTime(): Long {
         return 5000
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.NONE
     }
 
     /**

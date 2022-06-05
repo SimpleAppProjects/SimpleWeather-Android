@@ -39,18 +39,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="@string/message_enter_apikey" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/keyentry1_layout"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@android:id/edit"
+                android:id="@+id/keyentry1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                tools:hint="@string/key_hint" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

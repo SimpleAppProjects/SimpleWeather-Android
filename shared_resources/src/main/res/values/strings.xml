@@ -220,4 +220,10 @@
 
     <string name="action_refresh">Refresh</string>
 
+    <!-- Credentials -->
+    <string name="hint_appid" translatable="false">App ID</string>
+    <string name="hint_appcode" translatable="false">App Code/Key</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+
 </resources>

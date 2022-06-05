@@ -51,8 +51,21 @@
                 android:id="@+id/keyentry1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                tools:hint="@string/key_hint" />
+                tools:hint="App ID" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/keyentry2_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/keyentry2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:hint="App Code" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -83,6 +84,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
     override fun isKeyRequired(): Boolean {
         return true
+    }
+
+    override fun getAuthType(): AuthType {
+        return AuthType.APIKEY
     }
 
     override fun getHourlyForecastInterval(): Int {

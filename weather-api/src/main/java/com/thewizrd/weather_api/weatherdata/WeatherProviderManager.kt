@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.weather_api.weatherModule
@@ -44,6 +45,11 @@ class WeatherProviderManager internal constructor() : WeatherProvider {
         return withContext(Dispatchers.Default) {
             provider.isKeyValid(key)
         }
+    }
+
+    fun getAuthType(API: String): AuthType {
+        val provider = getWeatherProvider(API)
+        return provider.getAuthType()
     }
 
     /* WeatherProvider proxy methods */
@@ -153,5 +159,9 @@ class WeatherProviderManager internal constructor() : WeatherProvider {
 
     override fun isNight(weather: Weather): Boolean {
         return _weatherProvider!!.isNight(weather)
+    }
+
+    override fun getAuthType(): AuthType {
+        return _weatherProvider!!.getAuthType()
     }
 }

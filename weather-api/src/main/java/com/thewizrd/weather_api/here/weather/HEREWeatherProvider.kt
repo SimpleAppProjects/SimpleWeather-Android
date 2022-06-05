@@ -13,6 +13,7 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -86,15 +87,19 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
         return null
     }
 
+    override fun getAuthType(): AuthType {
+        return AuthType.INTERNAL // or AppID/AppCode
+    }
+
     @Throws(WeatherException::class)
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val client = sharedDeps.httpClient
+            val client = sharedDeps.httpClient
                 var response: Response? = null
                 var wEx: WeatherException? = null
 

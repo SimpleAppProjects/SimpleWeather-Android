@@ -14,6 +14,8 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
+import com.thewizrd.shared_resources.weatherdata.auth.BasicAuthProviderKey
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.R
@@ -71,9 +73,11 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
     }
 
     override suspend fun isKeyValid(key: String?): Boolean = withContext(Dispatchers.IO) {
-        val credentials = JSONParser.deserializer<Credentials>(key, Credentials::class.java)
+        val providerKey = BasicAuthProviderKey().apply {
+            fromString(key ?: "")
+        }
 
-        if (credentials == null || credentials.username.isBlank() || credentials.password.isBlank()) {
+        if (providerKey.username.isBlank() || providerKey.password.isBlank()) {
             throw WeatherException(ErrorStatus.INVALIDAPIKEY)
         }
 
@@ -95,10 +99,7 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                 )
                 .url(String.format(BASE_QUERY_URL, key))
                 .post("".toRequestBody("application/json".toMediaTypeOrNull()))
-                .header(
-                    "Authorization",
-                    okhttp3.Credentials.basic(credentials.username, credentials.password)
-                )
+                .header("Authorization", key!!)
                 .build()
 
             // Connect to webstream
@@ -138,6 +139,10 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
         return null
     }
 
+    override fun getAuthType(): AuthType {
+        return AuthType.BASIC
+    }
+
     override suspend fun getWeather(location_query: String, country_code: String): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
@@ -145,9 +150,11 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             val key =
                 if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
 
-            val credentials = JSONParser.deserializer<Credentials>(key, Credentials::class.java)
+            val providerKey = BasicAuthProviderKey().apply {
+                fromString(key ?: "")
+            }
 
-            if (credentials == null || credentials.username.isBlank() || credentials.password.isBlank()) {
+            if (providerKey.username.isBlank() || providerKey.password.isBlank()) {
                 throw WeatherException(ErrorStatus.INVALIDAPIKEY)
             }
 
@@ -161,34 +168,22 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
                     .url(createCurrentRequestUri(location_query).toString())
-                    .header(
-                        "Authorization",
-                        okhttp3.Credentials.basic(credentials.username, credentials.password)
-                    )
+                    .header("Authorization", key!!)
                     .build()
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                     .url(createDailyRequestUri(location_query).toString())
-                    .header(
-                        "Authorization",
-                        okhttp3.Credentials.basic(credentials.username, credentials.password)
-                    )
+                    .header("Authorization", key)
                     .build()
                 val hourlyRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 3, TimeUnit.HOURS)
                     .url(createHourlyRequestUri(ZonedDateTime.now(), location_query).toString())
-                    .header(
-                        "Authorization",
-                        okhttp3.Credentials.basic(credentials.username, credentials.password)
-                    )
+                    .header("Authorization", key)
                     .build()
                 val minutelyRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                     .url(createMinutelyRequestUri(ZonedDateTime.now(), location_query).toString())
-                    .header(
-                        "Authorization",
-                        okhttp3.Credentials.basic(credentials.username, credentials.password)
-                    )
+                    .header("Authorization", key)
                     .build()
 
                 // Connect to webstream
@@ -459,7 +454,7 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
     }
 
     override fun getWeatherCondition(icon: String?): String {
-        val symbolId = icon?.toIntOrNull() ?: return WeatherIcons.NA
+        val symbolId = icon?.toIntOrNull() ?: return super.getWeatherCondition(icon)
 
         return when (symbolId) {
             1, 101 -> context.getString(R.string.weather_clearsky)

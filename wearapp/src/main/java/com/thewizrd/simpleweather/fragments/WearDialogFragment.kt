@@ -112,8 +112,7 @@ public class WearDialogFragment private constructor(private val params: WearDial
 
         binding.content.removeAllViews()
         if (params.mContentViewLayoutResId != 0) {
-            LayoutInflater.from(requireContext())
-                .inflate(params.mContentViewLayoutResId, binding.content, true)
+            layoutInflater.inflate(params.mContentViewLayoutResId, binding.content, true)
             binding.content.visibility = View.VISIBLE
         } else if (params.mContentView != null) {
             binding.content.addView(params.mContentView)

@@ -6,6 +6,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 
@@ -47,6 +48,8 @@ interface WeatherProvider {
     fun getWeatherIcon(isNight: Boolean, icon: String?): String
 
     fun getWeatherCondition(icon: String?): String
+
+    fun getAuthType(): AuthType
 
     @Throws(WeatherException::class)
     suspend fun isKeyValid(key: String?): Boolean
