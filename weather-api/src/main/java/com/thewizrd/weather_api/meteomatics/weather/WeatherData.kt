@@ -301,7 +301,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
 
     foreRoot.data?.forEach {
         when (it?.parameter) {
-            MAX_TEMP_24H_C -> {
+            MAX_TEMP_12H_C -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -315,7 +315,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MIN_TEMP_24H_C -> {
+            MIN_TEMP_12H_C -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -345,7 +345,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MEAN_RELATIVE_HUMIDITY_24H -> {
+            MEAN_RELATIVE_HUMIDITY_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -360,7 +360,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MEAN_DEW_POINT_24H_C -> {
+            MEAN_DEW_POINT_12H_C -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -392,7 +392,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MEAN_WIND_SPEED_24H_MS -> {
+            MEAN_WIND_SPEED_12H_MS -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -408,7 +408,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MEAN_WIND_DIR_24H -> {
+            MEAN_WIND_DIR_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -423,7 +423,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MEAN_WIND_GUSTS_24H_MS -> {
+            MEAN_WIND_GUSTS_12H_MS -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -454,7 +454,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            PROB_PRECIP_24H -> {
+            PROB_PRECIP_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -469,7 +469,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            PRECIP_24H_MM -> {
+            PRECIP_12H_MM -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -485,7 +485,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            PRECIP_TYPE_24H -> {
+            PRECIP_TYPE_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -516,7 +516,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            MAX_UV_24H -> {
+            MAX_UV_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -531,7 +531,7 @@ fun createForecast(foreRoot: WeatherResponse): List<Forecast> {
                     forecastMap[dateStr] = forecast
                 }
             }
-            WEATHER_SYMBOL_24H -> {
+            WEATHER_SYMBOL_12H -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 
@@ -820,7 +820,7 @@ fun createMinutelyForecast(minutelyRoot: WeatherResponse): List<MinutelyForecast
 
     minutelyRoot.data?.forEach {
         when (it?.parameter) {
-            PRECIP_1H_MM -> {
+            PRECIP_5MIN_MM -> {
                 it.coordinates?.firstOrNull()?.dates?.forEach { datesItem ->
                     val dateStr = datesItem?.date
 

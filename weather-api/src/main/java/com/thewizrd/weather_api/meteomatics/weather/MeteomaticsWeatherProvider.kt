@@ -289,26 +289,26 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
 
     private fun createDailyRequestUri(location_query: String): Uri {
         return Uri.parse(BASE_QUERY_URL).buildUpon()
-            .appendPath("todayT00:00:00ZP10D:P1D") // time interval
+            .appendPath("todayT16:00:00ZP8D:P1D") // time interval
             .appendPath(
                 listOf(
-                    "t_max_2m_24h:C",
-                    "t_min_2m_24h:C",
+                    "t_max_2m_12h:C",
+                    "t_min_2m_12h:C",
                     "t_apparent:C",
-                    "relative_humidity_mean_2m_24h:p",
-                    "dew_point_mean_2m_24h:C",
+                    "relative_humidity_mean_2m_12h:p",
+                    "dew_point_mean_2m_12h:C",
                     "msl_pressure:hPa",
-                    "wind_speed_mean_10m_24h:ms",
-                    "wind_dir_mean_10m_24h:d",
-                    "wind_gusts_10m_24h:ms",
+                    "wind_speed_mean_10m_12h:ms",
+                    "wind_dir_mean_10m_12h:d",
+                    "wind_gusts_10m_12h:ms",
                     "total_cloud_cover:p",
-                    "prob_precip_24h:p",
-                    "precip_24h:mm",
-                    "precip_type_24h:idx",
-                    "uv_max_24h:idx",
+                    "prob_precip_12h:p",
+                    "precip_12h:mm",
+                    "precip_type_12h:idx",
+                    "uv_max_12h:idx",
                     "is_night:idx",
-                    "weather_symbol_24h:idx",
-                    "weather_code_24h:idx"
+                    "weather_symbol_12h:idx",
+                    "weather_code_12h:idx"
                 ).joinToString(separator = ",")
             ) // parameters
             .appendPath(location_query) // location
