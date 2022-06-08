@@ -2,6 +2,7 @@ package com.thewizrd.weather_api.meteomatics.weather
 
 import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.weather_api.weatherModule
@@ -240,34 +241,30 @@ private fun Weather.updateWeather(currRoot: WeatherResponse) {
             }
             MOONRISE -> {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
-                    runCatching {
-                        astronomy.moonrise =
-                            LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }
+                    astronomy.moonrise = runCatching {
+                        LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
+                    }.getOrDefault(DateTimeUtils.getLocalDateTimeMIN())
                 }
             }
             MOONSET -> {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
-                    runCatching {
-                        astronomy.moonset =
-                            LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }
+                    astronomy.moonset = runCatching {
+                        LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
+                    }.getOrDefault(DateTimeUtils.getLocalDateTimeMIN())
                 }
             }
             SUNRISE -> {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
-                    runCatching {
-                        astronomy.sunrise =
-                            LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }
+                    astronomy.sunrise = runCatching {
+                        LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
+                    }.getOrDefault(LocalDateTime.now().plusYears(1).minusNanos(1))
                 }
             }
             SUNSET -> {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
-                    runCatching {
-                        astronomy.sunset =
-                            LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }
+                    astronomy.sunset = runCatching {
+                        LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
+                    }.getOrDefault(LocalDateTime.now().plusYears(1).minusNanos(1))
                 }
             }
             UV_IDX -> {
