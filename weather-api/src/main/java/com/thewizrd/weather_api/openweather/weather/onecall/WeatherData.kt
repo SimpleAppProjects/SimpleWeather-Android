@@ -345,10 +345,10 @@ fun createAstronomy(current: Current): Astronomy {
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
         }
         if (moonrise == null) {
-            moonrise = DateTimeUtils.getLocalDateTimeMIN()
+            moonrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonset == null) {
-            moonset = DateTimeUtils.getLocalDateTimeMIN()
+            moonset = DateTimeUtils.LOCALDATETIME_MIN
         }
     }
 }
@@ -390,10 +390,10 @@ fun createAstronomy(day: DailyItem): Astronomy {
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
         }
         if (moonrise == null) {
-            moonrise = DateTimeUtils.getLocalDateTimeMIN()
+            moonrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonset == null) {
-            moonset = DateTimeUtils.getLocalDateTimeMIN()
+            moonset = DateTimeUtils.LOCALDATETIME_MIN
         }
     }
 }

@@ -32,12 +32,12 @@ public class MoonPhaseViewModel {
             formatter = DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
         }
 
-        if (astronomy.getMoonrise() != null && !Objects.equals(astronomy.getMoonrise(), DateTimeUtils.getLocalDateTimeMIN())) {
+        if (astronomy.getMoonrise() != null && !Objects.equals(astronomy.getMoonrise(), DateTimeUtils.getLOCALDATETIME_MIN())) {
             moonriseTime = astronomy.getMoonrise().toLocalTime();
             moonrise = moonriseTime.format(formatter);
         }
 
-        if (astronomy.getMoonset() != null && !Objects.equals(astronomy.getMoonset(), DateTimeUtils.getLocalDateTimeMIN())) {
+        if (astronomy.getMoonset() != null && !Objects.equals(astronomy.getMoonset(), DateTimeUtils.getLOCALDATETIME_MIN())) {
             moonsetTime = astronomy.getMoonset().toLocalTime();
             moonset = moonsetTime.format(formatter);
         }

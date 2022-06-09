@@ -195,7 +195,10 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
         weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(location.tzOffset)
 
         val old = weather.astronomy
-        if (old.moonset.isEqual(DateTimeUtils.getLocalDateTimeMIN()) || old.moonrise.isEqual(DateTimeUtils.getLocalDateTimeMIN())) {
+        if (old.moonset.isEqual(DateTimeUtils.LOCALDATETIME_MIN) || old.moonrise.isEqual(
+                DateTimeUtils.LOCALDATETIME_MIN
+            )
+        ) {
             runCatching {
                 val newAstro = SunMoonCalcProvider().getAstronomyData(
                     location,

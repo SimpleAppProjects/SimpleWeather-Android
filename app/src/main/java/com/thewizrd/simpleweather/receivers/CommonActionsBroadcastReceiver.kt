@@ -42,7 +42,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 // Reset notification time for new location
                 settingsManager.setLastPoPChanceNotificationTime(
                     ZonedDateTime.of(
-                        DateTimeUtils.getLocalDateTimeMIN(),
+                        DateTimeUtils.LOCALDATETIME_MIN,
                         ZoneOffset.UTC
                     )
                 )
@@ -75,7 +75,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 // Reset notification time for new location
                 settingsManager.setLastPoPChanceNotificationTime(
                     ZonedDateTime.of(
-                        DateTimeUtils.getLocalDateTimeMIN(),
+                        DateTimeUtils.LOCALDATETIME_MIN,
                         ZoneOffset.UTC
                     )
                 )

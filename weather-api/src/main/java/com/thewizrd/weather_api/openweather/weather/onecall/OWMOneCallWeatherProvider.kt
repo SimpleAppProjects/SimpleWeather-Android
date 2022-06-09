@@ -257,7 +257,10 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
         weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
         weather.astronomy.sunset = weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
 
-        if (weather.astronomy.moonrise.isEqual(DateTimeUtils.getLocalDateTimeMIN()) || weather.astronomy.moonset.isEqual(DateTimeUtils.getLocalDateTimeMIN())) {
+        if (weather.astronomy.moonrise.isEqual(DateTimeUtils.LOCALDATETIME_MIN) || weather.astronomy.moonset.isEqual(
+                DateTimeUtils.LOCALDATETIME_MIN
+            )
+        ) {
             runCatching {
                 val old = weather.astronomy
                 val newAstro = SunMoonCalcProvider().getAstronomyData(

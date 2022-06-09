@@ -37,7 +37,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             CommonActions.ACTION_SETTINGS_UPDATEDATASYNC -> {
                 val settingsMgr = SettingsManager(context.applicationContext)
                 // Reset UpdateTime value to force a refresh
-                settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+                settingsMgr.setUpdateTime(DateTimeUtils.LOCALDATETIME_MIN)
             }
         }
         Logger.writeLine(Log.INFO, "%s: Intent Action = %s", TAG, intent?.action)

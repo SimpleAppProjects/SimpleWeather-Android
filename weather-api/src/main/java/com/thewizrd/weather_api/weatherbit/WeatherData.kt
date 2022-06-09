@@ -267,10 +267,10 @@ fun createAstronomy(current: CurrentDataItem, foreRoot: ForecastResponse): Astro
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
         }
         if (moonrise == null) {
-            moonrise = DateTimeUtils.getLocalDateTimeMIN()
+            moonrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonset == null) {
-            moonset = DateTimeUtils.getLocalDateTimeMIN()
+            moonset = DateTimeUtils.LOCALDATETIME_MIN
         }
     }
 }

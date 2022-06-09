@@ -16,6 +16,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -38,7 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.time.Duration
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -221,7 +221,7 @@ class UnitTests {
             val fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
             Log.d("SolCalc", String.format(Locale.ROOT,
                     "Sunrise: %s; Sunset: %s", astro.sunrise.format(fmt), astro.sunset.format(fmt)))
-            assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN)
+            assertTrue(astro.sunrise != DateTimeUtils.LOCALDATETIME_MIN && astro.sunset != DateTimeUtils.LOCALDATETIME_MIN)
         }
     }
 
@@ -247,7 +247,7 @@ class UnitTests {
                         "Moonphase: %s", astro.moonPhase.phase.name))
             }
 
-            assertTrue(astro.sunrise !== LocalDateTime.MIN && astro.sunset !== LocalDateTime.MIN && astro.moonrise !== LocalDateTime.MIN && astro.moonset !== LocalDateTime.MIN)
+            assertTrue(astro.sunrise != DateTimeUtils.LOCALDATETIME_MIN && astro.sunset != DateTimeUtils.LOCALDATETIME_MIN && astro.moonrise != DateTimeUtils.LOCALDATETIME_MIN && astro.moonset != DateTimeUtils.LOCALDATETIME_MIN)
         }
     }
 

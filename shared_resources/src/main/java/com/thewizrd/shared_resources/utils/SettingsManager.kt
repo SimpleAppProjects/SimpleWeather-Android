@@ -20,6 +20,8 @@ import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_FORMATTER
+import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_MIN
 import com.thewizrd.shared_resources.utils.Units.*
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -595,15 +597,17 @@ class SettingsManager(context: Context) {
 
     fun getUpdateTime(): LocalDateTime {
         return if (!preferences.contains(KEY_UPDATETIME)) {
-            DateTimeUtils.getLocalDateTimeMIN()
+            DateTimeUtils.LOCALDATETIME_MIN
         } else {
-            LocalDateTime.parse(preferences.getString(KEY_UPDATETIME, "1/1/1900 12:00:00 AM"),
-                    DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a", Locale.ROOT))
+            LocalDateTime.parse(
+                preferences.getString(KEY_UPDATETIME, LOCAL_DATE_TIME_MIN),
+                LOCAL_DATE_TIME_FORMATTER
+            )
         }
     }
 
     fun setUpdateTime(value: LocalDateTime) {
-        editor.putString(KEY_UPDATETIME, value.format(DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a", Locale.ROOT)))
+        editor.putString(KEY_UPDATETIME, value.format(LOCAL_DATE_TIME_FORMATTER))
         editor.commit()
     }
 

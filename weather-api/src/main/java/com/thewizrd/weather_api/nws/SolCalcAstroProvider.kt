@@ -22,9 +22,10 @@ class SolCalcAstroProvider : AstroDataProvider, AstroDataDateProvider {
         val astronomy = Astronomy()
         astronomy.sunrise =
             astroData.sunriseUTC!!.plusSeconds(location.tzOffset.totalSeconds.toLong())
-        astronomy.sunset = astroData.sunsetUTC!!.plusSeconds(location.tzOffset.totalSeconds.toLong())
-        astronomy.moonrise = DateTimeUtils.getLocalDateTimeMIN()
-        astronomy.moonset = DateTimeUtils.getLocalDateTimeMIN()
+        astronomy.sunset =
+            astroData.sunsetUTC!!.plusSeconds(location.tzOffset.totalSeconds.toLong())
+        astronomy.moonrise = DateTimeUtils.LOCALDATETIME_MIN
+        astronomy.moonset = DateTimeUtils.LOCALDATETIME_MIN
         return astronomy
     }
 

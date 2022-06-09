@@ -33,7 +33,7 @@ fun createWeatherData(foreRoot: Response, astroRoot: AstroResponse): Weather {
         var dayMax = Float.NaN
         var dayMin = Float.NaN
 
-        var currentDate = LocalDateTime.MIN
+        var currentDate = DateTimeUtils.LOCALDATETIME_MIN
         var fcast: Forecast? = null
 
         // Metno data is troublesome to parse thru
@@ -311,10 +311,10 @@ fun createAstronomy(astroRoot: AstroResponse): Astronomy {
             sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
         }
         if (moonrise == null) {
-            moonrise = DateTimeUtils.getLocalDateTimeMIN()
+            moonrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonset == null) {
-            moonset = DateTimeUtils.getLocalDateTimeMIN()
+            moonset = DateTimeUtils.LOCALDATETIME_MIN
         }
 
         val moonPhaseType = if (moonPhaseValue >= 2 && moonPhaseValue < 23) {

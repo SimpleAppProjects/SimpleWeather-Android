@@ -77,7 +77,7 @@ public class AirQualityViewModel {
         this.pm10Index = aqi.getPm10();
         this.coIndex = aqi.getCo();
 
-        if (aqi.getDate() != null && !aqi.getDate().isEqual(DateTimeUtils.getLocalDateTimeMIN().toLocalDate())) {
+        if (aqi.getDate() != null && !aqi.getDate().isEqual(DateTimeUtils.getLOCALDATETIME_MIN().toLocalDate())) {
             this.date = aqi.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeConstants.DAY_OF_THE_WEEK));
         }
     }

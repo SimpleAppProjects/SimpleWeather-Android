@@ -56,7 +56,7 @@ class SettingsListener(@NonNull private val app: ApplicationLib) :
                         "0"
                     )!!.toInt()
                 )
-                settingsMgr.setUpdateTime(DateTimeUtils.getLocalDateTimeMIN())
+                settingsMgr.setUpdateTime(DateTimeUtils.LOCALDATETIME_MIN)
                 // Reset interval if setting is off
                 if (dataSync == WearableDataSync.OFF) {
                     settingsMgr.setRefreshInterval(SettingsManager.DEFAULT_INTERVAL)

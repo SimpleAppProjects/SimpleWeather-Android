@@ -608,7 +608,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
             if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null) {
                 if (DateFormat.is24HourFormat(context)) {
-                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
                         weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
                             WeatherDetailsType.MOONRISE,
                             weatherData!!.astronomy.moonrise.format(
@@ -618,7 +618,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
                             )
                         )
                     }
-                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
                         weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
                             WeatherDetailsType.MOONSET,
                             weatherData!!.astronomy.moonset.format(
@@ -629,7 +629,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
                         )
                     }
                 } else {
-                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
                         weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
                             WeatherDetailsType.MOONRISE,
                             weatherData!!.astronomy.moonrise.format(
@@ -639,7 +639,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
                             )
                         )
                     }
-                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.getLocalDateTimeMIN())) {
+                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
                         weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
                             WeatherDetailsType.MOONSET,
                             weatherData!!.astronomy.moonset.format(

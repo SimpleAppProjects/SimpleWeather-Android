@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
@@ -165,14 +166,22 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         // The time of day is set to max if the sun never sets/rises and
         // DateTime is set to min if not found
         // Don't change this if its set that way
-        if (weather.astronomy.sunrise.isAfter(LocalDateTime.MIN) &&
-            weather.astronomy.sunrise.toLocalTime().isBefore(LocalTime.MAX)) weather.astronomy.sunrise = weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
-        if (weather.astronomy.sunset.isAfter(LocalDateTime.MIN) &&
-            weather.astronomy.sunset.toLocalTime().isBefore(LocalTime.MAX)) weather.astronomy.sunset = weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
-        if (weather.astronomy.moonrise.isAfter(LocalDateTime.MIN) &&
-            weather.astronomy.moonrise.toLocalTime().isBefore(LocalTime.MAX)) weather.astronomy.moonrise = weather.astronomy.moonrise.plusSeconds(offset.totalSeconds.toLong())
-        if (weather.astronomy.moonset.isAfter(LocalDateTime.MIN) &&
-            weather.astronomy.moonset.toLocalTime().isBefore(LocalTime.MAX)) weather.astronomy.moonset = weather.astronomy.moonset.plusSeconds(offset.totalSeconds.toLong())
+        if (weather.astronomy.sunrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
+            weather.astronomy.sunrise.toLocalTime().isBefore(LocalTime.MAX)
+        ) weather.astronomy.sunrise =
+            weather.astronomy.sunrise.plusSeconds(offset.totalSeconds.toLong())
+        if (weather.astronomy.sunset.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
+            weather.astronomy.sunset.toLocalTime().isBefore(LocalTime.MAX)
+        ) weather.astronomy.sunset =
+            weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
+        if (weather.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
+            weather.astronomy.moonrise.toLocalTime().isBefore(LocalTime.MAX)
+        ) weather.astronomy.moonrise =
+            weather.astronomy.moonrise.plusSeconds(offset.totalSeconds.toLong())
+        if (weather.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
+            weather.astronomy.moonset.toLocalTime().isBefore(LocalTime.MAX)
+        ) weather.astronomy.moonset =
+            weather.astronomy.moonset.plusSeconds(offset.totalSeconds.toLong())
 
         // Set condition here
         val now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime()

@@ -243,14 +243,14 @@ private fun Weather.updateWeather(currRoot: WeatherResponse) {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
                     astronomy.moonrise = runCatching {
                         LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }.getOrDefault(DateTimeUtils.getLocalDateTimeMIN())
+                    }.getOrDefault(DateTimeUtils.LOCALDATETIME_MIN)
                 }
             }
             MOONSET -> {
                 it.coordinates?.firstOrNull()?.dates?.firstOrNull()?.value?.let { value ->
                     astronomy.moonset = runCatching {
                         LocalDateTime.ofInstant(Instant.parse(value), ZoneOffset.UTC)
-                    }.getOrDefault(DateTimeUtils.getLocalDateTimeMIN())
+                    }.getOrDefault(DateTimeUtils.LOCALDATETIME_MIN)
                 }
             }
             SUNRISE -> {
