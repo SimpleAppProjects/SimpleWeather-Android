@@ -105,7 +105,7 @@ dependencies {
     // Room migration testing
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.ibm.icu:icu4j:71.1'
     implementation 'com.google.code.gson:gson:2.9.0'
 

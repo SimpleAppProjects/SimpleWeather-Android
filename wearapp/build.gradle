@@ -138,7 +138,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
 
     implementation 'com.google.android.gms:play-services-base:18.0.1'
-    implementation 'com.google.android.gms:play-services-location:19.0.1'
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
 
     // WearOS
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'
