@@ -41,12 +41,22 @@ object GraphBindingAdapter {
             val vm = ForecastGraphViewModel().apply {
                 setForecastData(
                     forecastData,
-                    ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+                    forecastData.getRecommendedGraphType()
                 )
             }
             view.setGraphData(vm.graphData as LineViewData?)
         } else {
             view.setGraphData(null)
+        }
+    }
+
+    private fun List<HourlyForecast>.getRecommendedGraphType(): ForecastGraphViewModel.ForecastGraphType {
+        return if (this.firstOrNull()?.extras?.pop != null && this.lastOrNull()?.extras?.pop != null) {
+            ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+        } else if (this.firstOrNull()?.extras?.qpfRainMm != null && this.lastOrNull()?.extras?.qpfRainMm != null) {
+            ForecastGraphViewModel.ForecastGraphType.RAIN
+        } else {
+            ForecastGraphViewModel.ForecastGraphType.WIND
         }
     }
 

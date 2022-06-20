@@ -251,7 +251,7 @@ class WeatherChartsFragment : ToolbarFragment() {
         }
     }
 
-    override fun createSnackManager(activity: Activity): SnackbarManager? {
+    override fun createSnackManager(activity: Activity): SnackbarManager {
         return SnackbarManager(binding.root).apply {
             setSwipeDismissEnabled(true)
             setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -286,15 +286,17 @@ class WeatherChartsFragment : ToolbarFragment() {
 
                 if (i == 0) {
                     //tempData = ForecastGraphViewModel()
-                    popData = ForecastGraphViewModel()
 
+                    if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
+                        popData = ForecastGraphViewModel()
+                    }
                     if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
-                            hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
+                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
                     ) {
                         windData = ForecastGraphViewModel()
                     }
                     if (hrfcasts.firstOrNull()?.extras?.qpfRainIn != null && hrfcasts.firstOrNull()?.extras?.qpfRainMm != null ||
-                            hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null
+                        hrfcasts.lastOrNull()?.extras?.qpfRainIn != null && hrfcasts.lastOrNull()?.extras?.qpfRainMm != null
                     ) {
                         rainData = ForecastGraphViewModel()
                     }
@@ -312,15 +314,19 @@ class WeatherChartsFragment : ToolbarFragment() {
                 }
 
                 //tempData?.addForecastData(hrfcast, ForecastGraphViewModel.ForecastGraphType.TEMPERATURE)
-                popData?.addForecastData(
-                        hrfcast,
-                        ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
-                )
+                if (popData != null) {
+                    if (hrfcast.extras?.pop != null) {
+                        popData.addForecastData(
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.PRECIPITATION
+                        )
+                    }
+                }
                 if (windData != null) {
                     if (hrfcast.windMph != null && hrfcast.windKph != null) {
                         windData.addForecastData(
-                                hrfcast,
-                                ForecastGraphViewModel.ForecastGraphType.WIND
+                            hrfcast,
+                            ForecastGraphViewModel.ForecastGraphType.WIND
                         )
                     }
                 }
@@ -363,19 +369,19 @@ class WeatherChartsFragment : ToolbarFragment() {
                 data.add(tempData!!)
             }
              */
-            if (popData?.graphData?.dataCount ?: 0 > 0) {
+            if ((popData?.graphData?.dataCount ?: 0) > 0) {
                 data.add(popData!!)
             }
-            if (windData?.graphData?.dataCount ?: 0 > 0) {
+            if ((windData?.graphData?.dataCount ?: 0) > 0) {
                 data.add(windData!!)
             }
-            if (humidityData?.graphData?.dataCount ?: 0 > 0) {
+            if ((humidityData?.graphData?.dataCount ?: 0) > 0) {
                 data.add(humidityData!!)
             }
-            if (uviData?.graphData?.dataCount ?: 0 > 0) {
+            if ((uviData?.graphData?.dataCount ?: 0) > 0) {
                 data.add(uviData!!)
             }
-            if (rainData?.graphData?.dataCount ?: 0 > 0) {
+            if ((rainData?.graphData?.dataCount ?: 0) > 0) {
                 rainData?.graphData?.dataSets?.forEach {
                     if (it is LineDataSeries) {
                         // Heavy rain — rate is >= 7.6 mm (0.30 in) per hr
@@ -389,7 +395,7 @@ class WeatherChartsFragment : ToolbarFragment() {
                 rainData?.graphData?.notifyDataChanged()
                 data.add(rainData!!)
             }
-            if (snowData?.graphData?.dataCount ?: 0 > 0) {
+            if ((snowData?.graphData?.dataCount ?: 0) > 0) {
                 snowData?.graphData?.dataSets?.forEach {
                     if (it is LineDataSeries) {
                         // Snow will often accumulate at a rate of 0.5in (12.7mm) an hour
