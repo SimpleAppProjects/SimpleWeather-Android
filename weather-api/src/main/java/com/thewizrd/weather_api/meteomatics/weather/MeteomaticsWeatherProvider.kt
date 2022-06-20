@@ -22,6 +22,7 @@ import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
+import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
@@ -184,11 +185,6 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                     .url(createHourlyRequestUri(ZonedDateTime.now(), location_query).toString())
                     .header("Authorization", key)
                     .build()
-                val minutelyRequest = Request.Builder()
-                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
-                    .url(createMinutelyRequestUri(ZonedDateTime.now(), location_query).toString())
-                    .header("Authorization", key)
-                    .build()
 
                 // Connect to webstream
                 val currentResponse = client.newCall(currentRequest).await()
@@ -199,9 +195,6 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
 
                 val hourlyResponse = client.newCall(hourlyRequest).await()
                 checkForErrors(hourlyResponse)
-
-                val minutelyResponse = client.newCall(minutelyRequest).await()
-                checkForErrors(minutelyResponse)
 
                 val currentRoot = currentResponse.use { r ->
                     r.getStream().use { s ->
@@ -218,13 +211,8 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                         JSONParser.deserializer<WeatherResponse>(s, WeatherResponse::class.java)
                     }
                 }
-                val minutelyRoot = minutelyResponse.use { r ->
-                    r.getStream().use { s ->
-                        JSONParser.deserializer<WeatherResponse>(s, WeatherResponse::class.java)
-                    }
-                }
 
-                weather = createWeatherData(currentRoot, forecastRoot, hourlyRoot, minutelyRoot)
+                weather = createWeatherData(currentRoot, forecastRoot, hourlyRoot)
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {
@@ -258,32 +246,15 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             .appendPath(
                 listOf(
                     "t_2m:C",
-                    "t_max_2m_1h:C",
-                    "t_min_2m_1h:C",
-                    "t_apparent:C",
-                    "relative_humidity_2m:p",
-                    "dew_point_2m:C",
                     "msl_pressure:hPa",
-                    "wind_speed_2m:ms",
-                    "wind_dir_2m:d",
-                    "wind_gusts_2m_1h:ms",
-                    "total_cloud_cover:p",
-                    "prob_precip_1h:p",
+                    "wind_speed_10m:ms",
+                    "wind_dir_10m:d",
+                    "wind_gusts_10m_1h:ms",
                     "precip_1h:mm",
-                    "precip_type_1h:idx",
-                    "visibility:km",
-                    "birch_pollen:grainsm3",
-                    "grass_pollen:grainsm3",
-                    "ragweed_pollen:grainsm3",
-                    "moon_phase:idx",
-                    "moonrise:sql",
-                    "moonset:sql",
                     "sunrise:sql",
                     "sunset:sql",
                     "uv:idx",
-                    "is_night:idx",
                     "weather_symbol_1h:idx",
-                    "weather_code_1h:idx"
                 ).joinToString(separator = ",")
             ) // parameters
             .appendPath(location_query) // location
@@ -293,26 +264,15 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
 
     private fun createDailyRequestUri(location_query: String): Uri {
         return Uri.parse(BASE_QUERY_URL).buildUpon()
-            .appendPath("todayT16:00:00ZP8D:P1D") // time interval
+            .appendPath("todayT23:59:59ZP8D:P1D") // time interval
             .appendPath(
                 listOf(
-                    "t_max_2m_12h:C",
-                    "t_min_2m_12h:C",
-                    "t_apparent:C",
-                    "relative_humidity_mean_2m_12h:p",
-                    "dew_point_mean_2m_12h:C",
+                    "t_max_2m_24h:C",
+                    "t_min_2m_24h:C",
                     "msl_pressure:hPa",
-                    "wind_speed_mean_10m_12h:ms",
-                    "wind_dir_mean_10m_12h:d",
-                    "wind_gusts_10m_12h:ms",
-                    "total_cloud_cover:p",
-                    "prob_precip_12h:p",
-                    "precip_12h:mm",
-                    "precip_type_12h:idx",
-                    "uv_max_12h:idx",
-                    "is_night:idx",
-                    "weather_symbol_12h:idx",
-                    "weather_code_12h:idx"
+                    "wind_gusts_10m_24h:ms",
+                    "precip_24h:mm",
+                    "weather_symbol_24h:idx",
                 ).joinToString(separator = ",")
             ) // parameters
             .appendPath(location_query) // location
@@ -328,34 +288,15 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             .appendPath(
                 listOf(
                     "t_2m:C",
-                    "t_apparent:C",
-                    "relative_humidity_mean_2m_1h:p",
-                    "dew_point_mean_2m_1h:C",
                     "msl_pressure:hPa",
-                    "wind_speed_mean_10m_1h:ms",
-                    "wind_dir_mean_10m_1h:d",
+                    "wind_speed_10m:ms",
+                    "wind_dir_10m:d",
                     "wind_gusts_10m_1h:ms",
-                    "total_cloud_cover:p",
-                    "prob_precip_1h:p",
                     "precip_1h:mm",
-                    "precip_type_1h:idx",
-                    "uv_max_1h:idx",
-                    "is_night:idx",
+                    "uv:idx",
                     "weather_symbol_1h:idx",
-                    "weather_code_1h:idx"
                 ).joinToString(separator = ",")
             ) // parameters
-            .appendPath(location_query) // location
-            .appendPath("json") // format
-            .build()
-    }
-
-    private fun createMinutelyRequestUri(date: ZonedDateTime, location_query: String): Uri {
-        val requestDate = date.truncatedTo(ChronoUnit.HOURS).format(DateTimeFormatter.ISO_INSTANT)
-
-        return Uri.parse(BASE_QUERY_URL).buildUpon()
-            .appendPath("${requestDate}PT12H:PT5M") // time interval
-            .appendPath("precip_5min:mm") // parameters
             .appendPath(location_query) // location
             .appendPath("json") // format
             .build()
@@ -378,17 +319,24 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             weather.astronomy.sunset.toLocalTime().isBefore(LocalTime.MAX)
         ) weather.astronomy.sunset =
             weather.astronomy.sunset.plusSeconds(offset.totalSeconds.toLong())
-        if (weather.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
-            weather.astronomy.moonrise.toLocalTime().isBefore(LocalTime.MAX)
-        ) weather.astronomy.moonrise =
-            weather.astronomy.moonrise.plusSeconds(offset.totalSeconds.toLong())
-        if (weather.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN) &&
-            weather.astronomy.moonset.toLocalTime().isBefore(LocalTime.MAX)
-        ) weather.astronomy.moonset =
-            weather.astronomy.moonset.plusSeconds(offset.totalSeconds.toLong())
+
+        val old = weather.astronomy
+        runCatching {
+            val newAstro = SunMoonCalcProvider().getAstronomyData(
+                location,
+                weather.condition.observationTime
+            )
+            newAstro.sunrise = old.sunrise
+            newAstro.sunset = old.sunset
+            weather.astronomy = newAstro
+        }.onFailure {
+            Logger.writeLine(Log.ERROR, it)
+        }
 
         for (forecast in weather.forecast) {
-            forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
+            // NOTE: forecast looks at weather from the past 24hrs at midnight the next day
+            // which is why a day is subtracted here
+            forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong()).minusDays(1)
         }
 
         for (hr_forecast in weather.hrForecast) {
