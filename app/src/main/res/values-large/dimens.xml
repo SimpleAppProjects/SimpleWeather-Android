@@ -6,6 +6,7 @@
     <dimen name="moonriseset_image_size">36dp</dimen>
     <dimen name="aqi_forecast_textsize">16sp</dimen>
     <!-- Forecast -->
+    <dimen name="forecast_date_size">18sp</dimen>
     <dimen name="forecast_condition_size">16sp</dimen>
     <dimen name="weather_summary_text_size">14sp</dimen>
     <dimen name="weather_detail_item_textSize">16sp</dimen>

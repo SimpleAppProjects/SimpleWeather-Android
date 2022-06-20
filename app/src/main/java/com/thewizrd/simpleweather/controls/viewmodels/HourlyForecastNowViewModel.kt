@@ -21,6 +21,9 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
     var windSpeed: String = ""
     var windDirection: Int = 0
 
+    val popChanceIcon = WeatherIcons.RAINDROP
+    val windIcon = WeatherIcons.DIRECTION_UP
+
     init {
         val context = appLib.context
         val settingsManager = appLib.settingsManager
@@ -95,5 +98,33 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
         if (forecast.extras.pop != null && forecast.extras.pop >= 0) {
             popChance = forecast.extras.pop.toString() + "%"
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as HourlyForecastNowViewModel
+
+        if (date != other.date) return false
+        if (icon != other.icon) return false
+        if (temperature != other.temperature) return false
+        if (condition != other.condition) return false
+        if (popChance != other.popChance) return false
+        if (windSpeed != other.windSpeed) return false
+        if (windDirection != other.windDirection) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = date.hashCode()
+        result = 31 * result + icon.hashCode()
+        result = 31 * result + temperature.hashCode()
+        result = 31 * result + condition.hashCode()
+        result = 31 * result + popChance.hashCode()
+        result = 31 * result + windSpeed.hashCode()
+        result = 31 * result + windDirection
+        return result
     }
 }

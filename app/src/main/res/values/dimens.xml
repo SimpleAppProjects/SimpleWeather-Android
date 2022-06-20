@@ -34,12 +34,13 @@
     <dimen name="wnow_max_view_width">1366dp</dimen>
     <dimen name="aqi_forecast_textsize">14sp</dimen>
     <dimen name="hr_forecast_item_width">100dp</dimen>
-    <dimen name="hr_forecast_item_height">150dp</dimen>
+    <dimen name="hr_forecast_item_height">160dp</dimen>
     <dimen name="hr_forecast_item_icon_size">36dp</dimen>
     <dimen name="hr_forecast_item_temp_size">18sp</dimen>
-    <dimen name="hr_forecast_item_extra_icon_size">24dp</dimen>
+    <dimen name="hr_forecast_item_extra_icon_size">20dp</dimen>
     <dimen name="weather_summary_text_size">12sp</dimen>
     <!-- Forecast -->
+    <dimen name="forecast_date_size">14sp</dimen>
     <dimen name="forecast_condition_size">12sp</dimen>
     <dimen name="weather_detail_item_textSize">14sp</dimen>
     <!-- Locations -->
