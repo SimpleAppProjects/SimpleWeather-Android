@@ -60,12 +60,12 @@ public class ViewBindingAdapter {
     }
 
     @BindingAdapter("drawableTint")
-    public static void setDrawableTint(TextView view, int color) {
+    public static void setDrawableTint(@NonNull TextView view, int color) {
         TextViewCompat.setCompoundDrawableTintList(view, ColorStateList.valueOf(color));
     }
 
     @BindingAdapter(value = {"weatherIconStart", "weatherIconTop", "weatherIconEnd", "weatherIconBottom"}, requireAll = false)
-    public static void setWeatherIconCompoundDrawablesRelative(TextView view, String start, String top, String end, String bottom) {
+    public static void setWeatherIconCompoundDrawablesRelative(@NonNull TextView view, String start, String top, String end, String bottom) {
         final WeatherIconsManager wim = SharedModuleKt.getSharedDeps().getWeatherIconsManager();
 
         final Drawable[] oldDrwbls = TextViewCompat.getCompoundDrawablesRelative(view);
@@ -81,10 +81,10 @@ public class ViewBindingAdapter {
             drawableTop = ContextCompat.getDrawable(view.getContext(), wim.getWeatherIconResource(top));
         }
         if (!StringUtils.isNullOrWhitespace(end)) {
-            drawableBottom = ContextCompat.getDrawable(view.getContext(), wim.getWeatherIconResource(end));
+            drawableEnd = ContextCompat.getDrawable(view.getContext(), wim.getWeatherIconResource(end));
         }
         if (!StringUtils.isNullOrWhitespace(bottom)) {
-            drawableEnd = ContextCompat.getDrawable(view.getContext(), wim.getWeatherIconResource(bottom));
+            drawableBottom = ContextCompat.getDrawable(view.getContext(), wim.getWeatherIconResource(bottom));
         }
 
         TextViewCompat.setCompoundDrawablesRelative(view, drawableStart, drawableTop, drawableEnd, drawableBottom);

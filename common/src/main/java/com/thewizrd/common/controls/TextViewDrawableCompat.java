@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
-import com.thewizrd.shared_resources.R;
+import com.thewizrd.common.R;
 
 /**
  * TextView which allows setting the size of the compound drawables
@@ -59,7 +59,7 @@ public class TextViewDrawableCompat extends AppCompatTextView {
         super.setCompoundDrawablesRelative(drawables[0], drawables[1], drawables[2], drawables[3]);
     }
 
-    private void scaleDrawables(Drawable... drawables) {
+    private void scaleDrawables(@NonNull Drawable... drawables) {
         for (Drawable drawable : drawables) {
             if (drawable == null) {
                 continue;
@@ -93,6 +93,12 @@ public class TextViewDrawableCompat extends AppCompatTextView {
 
             drawable.setBounds(realBounds);
         }
+    }
+
+    @Override
+    public void setCompoundDrawables(@Nullable Drawable left, @Nullable Drawable top, @Nullable Drawable right, @Nullable Drawable bottom) {
+        scaleDrawables(left, top, right, bottom);
+        super.setCompoundDrawables(left, top, right, bottom);
     }
 
     @Override

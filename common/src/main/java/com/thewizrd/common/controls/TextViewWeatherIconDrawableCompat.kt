@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.RotateDrawable
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
+import com.thewizrd.common.controls.TextViewDrawableCompatUtils.wrapInRotateDrawableIfNeeded
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
@@ -210,49 +210,10 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             }
 
             if (mIconRotation != 0) {
-                drawableStart = drawableStart?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableTop = drawableTop?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableEnd = drawableEnd?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableBottom = drawableBottom?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
+                drawableStart = drawableStart?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableTop = drawableTop?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableEnd = drawableEnd?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableBottom = drawableBottom?.wrapInRotateDrawableIfNeeded(mIconRotation)
             }
 
             this.setCompoundDrawablesRelative(
@@ -301,49 +262,10 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
             }
 
             if (mIconRotation != 0) {
-                drawableStart = drawableStart?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableTop = drawableTop?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableEnd = drawableEnd?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
-
-                drawableBottom = drawableBottom?.let {
-                    RotateDrawable().apply {
-                        fromDegrees = mIconRotation.toFloat()
-                        toDegrees = mIconRotation.toFloat()
-                        drawable = it
-                        level = 10000
-                    }.apply {
-                        level = 0
-                    }
-                }
+                drawableStart = drawableStart?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableTop = drawableTop?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableEnd = drawableEnd?.wrapInRotateDrawableIfNeeded(mIconRotation)
+                drawableBottom = drawableBottom?.wrapInRotateDrawableIfNeeded(mIconRotation)
             }
 
             this.setCompoundDrawablesRelative(
@@ -385,5 +307,33 @@ class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
                 it.stop()
             }
         }
+    }
+
+    override fun setCompoundDrawables(
+        left: Drawable?,
+        top: Drawable?,
+        right: Drawable?,
+        bottom: Drawable?
+    ) {
+        super.setCompoundDrawables(
+            left?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            top?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            right?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            bottom?.wrapInRotateDrawableIfNeeded(mIconRotation)
+        )
+    }
+
+    override fun setCompoundDrawablesRelative(
+        start: Drawable?,
+        top: Drawable?,
+        end: Drawable?,
+        bottom: Drawable?
+    ) {
+        super.setCompoundDrawablesRelative(
+            start?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            top?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            end?.wrapInRotateDrawableIfNeeded(mIconRotation),
+            bottom?.wrapInRotateDrawableIfNeeded(mIconRotation)
+        )
     }
 }
