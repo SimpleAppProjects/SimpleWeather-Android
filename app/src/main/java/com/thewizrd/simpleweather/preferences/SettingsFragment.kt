@@ -99,7 +99,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var aboutCategory: PreferenceCategory
 
     // Intent queue
-    private lateinit var intentQueue: HashSet<FilterComparison>
+    private val intentQueue = mutableSetOf<FilterComparison>()
     private var mThemeChangeListeners: MutableList<OnThemeChangeListener>? = null
     private var splitInstallRequest: InstallRequest? = null
 
@@ -188,9 +188,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         registerOnThemeChangeListener(this)
         registerOnThemeChangeListener(requireActivity() as OnThemeChangeListener)
 
-        // Initialize queue
-        intentQueue = HashSet()
-
         batteryOptsPref.isVisible =
             !(Build.VERSION.SDK_INT < Build.VERSION_CODES.M || PowerUtils.isBackgroundOptimizationDisabled(
                 requireContext()
@@ -220,7 +217,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         unregisterOnThemeChangeListener(requireActivity() as OnThemeChangeListener)
         unregisterOnThemeChangeListener(this)
 
-        for (filter: FilterComparison in intentQueue) {
+        intentQueue.forEach { filter ->
             when {
                 CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action -> {
                     weatherModule.weatherManager.updateAPI()
@@ -278,6 +275,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
             }
         }
+
+        intentQueue.clear()
 
         super.onPause()
     }

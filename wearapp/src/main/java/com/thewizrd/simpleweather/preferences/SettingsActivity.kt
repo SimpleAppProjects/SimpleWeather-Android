@@ -149,7 +149,7 @@ class SettingsActivity : WearableListenerActivity() {
         private lateinit var apiCategory: PreferenceCategory
 
         // Intent queue
-        private var intentQueue: HashSet<FilterComparison>? = null
+        private val intentQueue = mutableSetOf<FilterComparison>()
 
         // Wearable status
         private var mConnectionStatus = WearConnectionStatus.DISCONNECTED
@@ -186,8 +186,6 @@ class SettingsActivity : WearableListenerActivity() {
             // Register listener
             appLib.unregisterAppSharedPreferenceListener()
             appLib.registerAppSharedPreferenceListener(this)
-            // Initialize queue
-            intentQueue = HashSet()
 
             statusReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
@@ -236,7 +234,7 @@ class SettingsActivity : WearableListenerActivity() {
 
             localBroadcastManager.unregisterReceiver(statusReceiver!!)
 
-            for (filter in intentQueue!!) {
+            intentQueue.forEach { filter ->
                 when (filter.intent.action) {
                     CommonActions.ACTION_SETTINGS_UPDATEAPI -> {
                         weatherModule.weatherManager.updateAPI()
@@ -274,6 +272,8 @@ class SettingsActivity : WearableListenerActivity() {
                     }
                 }
             }
+
+            intentQueue.clear()
 
             super.onPause()
         }
@@ -764,7 +764,9 @@ class SettingsActivity : WearableListenerActivity() {
         }
 
         private fun enqueueIntent(intent: Intent?): Boolean {
-            return if (intent == null) false else intentQueue!!.add(FilterComparison(intent))
+            return intent?.let {
+                intentQueue.add(FilterComparison(it))
+            } ?: false
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
