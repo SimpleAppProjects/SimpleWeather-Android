@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.setup
 
-import android.Manifest
 import android.app.Activity
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -15,7 +14,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
-import com.thewizrd.common.helpers.openAppSettingsActivity
 import com.thewizrd.common.helpers.requestBackgroundLocationPermission
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -95,11 +93,7 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                         Snackbar.Duration.VERY_LONG
                     ).apply {
                         setAction(android.R.string.ok) {
-                            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                requireActivity().openAppSettingsActivity()
-                            } else {
-                                requestBackgroundLocationPermission(0)
-                            }
+                            requestBackgroundLocationPermission(0)
                         }
                     }
                     showSnackbar(snackbar)

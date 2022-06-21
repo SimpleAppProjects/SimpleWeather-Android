@@ -49,18 +49,19 @@ import com.thewizrd.shared_resources.controls.ComboBoxItem
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
-import com.thewizrd.shared_resources.helpers.*
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isLandscape
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
-import com.thewizrd.shared_resources.weatherdata.*
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
@@ -83,7 +84,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -253,11 +253,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (!ctx.backgroundLocationPermissionEnabled()) {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        ctx.openAppSettingsActivity()
-                    } else {
-                        requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
-                    }
+                    requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
                 }
             }
         }
@@ -1024,13 +1020,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                                     Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
-                                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                        ctx.openAppSettingsActivity()
-                                    } else {
-                                        requestBackgroundLocationPermission(
-                                            PERMISSION_BGLOCATION_REQUEST_CODE
-                                        )
-                                    }
+                                    requestBackgroundLocationPermission(
+                                        PERMISSION_BGLOCATION_REQUEST_CODE
+                                    )
                                 }
                                 showSnackbar(snackbar, object : materialSnackbar.Callback() {
                                     override fun onDismissed(

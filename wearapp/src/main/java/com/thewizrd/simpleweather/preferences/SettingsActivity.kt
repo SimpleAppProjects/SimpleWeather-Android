@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.preferences
 
-import android.Manifest
 import android.content.*
 import android.content.Intent.FilterComparison
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -324,13 +323,9 @@ class SettingsActivity : WearableListenerActivity() {
                                             it
                                         ) { d: DialogInterface?, which: Int ->
                                             if (which == DialogInterface.BUTTON_POSITIVE) {
-                                                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                                    it.openAppSettingsActivity()
-                                                } else {
-                                                    requestBackgroundLocationPermission(
-                                                        PERMISSION_BGLOCATION_REQUEST_CODE
-                                                    )
-                                                }
+                                                requestBackgroundLocationPermission(
+                                                    PERMISSION_BGLOCATION_REQUEST_CODE
+                                                )
                                             }
                                         }
                                             .setMessage(it.getBackgroundLocationRationale())
@@ -352,13 +347,9 @@ class SettingsActivity : WearableListenerActivity() {
                     settingsManager.useFollowGPS()
             bgLocationPref.setOnPreferenceClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        it.context.openAppSettingsActivity()
-                    } else {
-                        requestBackgroundLocationPermission(
-                            PERMISSION_BGLOCATION_REQUEST_CODE
-                        )
-                    }
+                    requestBackgroundLocationPermission(
+                        PERMISSION_BGLOCATION_REQUEST_CODE
+                    )
                 }
                 true
             }

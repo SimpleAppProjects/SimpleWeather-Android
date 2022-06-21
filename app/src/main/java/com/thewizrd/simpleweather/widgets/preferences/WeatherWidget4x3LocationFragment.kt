@@ -220,11 +220,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (!ctx.backgroundLocationPermissionEnabled()) {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        ctx.openAppSettingsActivity()
-                    } else {
-                        requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
-                    }
+                    requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
                 }
             }
         }
@@ -819,13 +815,9 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                                     Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
-                                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                        ctx.openAppSettingsActivity()
-                                    } else {
-                                        requestBackgroundLocationPermission(
-                                            PERMISSION_BGLOCATION_REQUEST_CODE
-                                        )
-                                    }
+                                    requestBackgroundLocationPermission(
+                                        PERMISSION_BGLOCATION_REQUEST_CODE
+                                    )
                                 }
                                 showSnackbar(snackbar, object : MaterialSnackbar.Callback() {
                                     override fun onDismissed(

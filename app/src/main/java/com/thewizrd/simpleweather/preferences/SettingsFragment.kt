@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.preferences
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -359,13 +358,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                                         Snackbar.Duration.VERY_LONG
                                     )
                                     snackbar.setAction(android.R.string.ok) { v ->
-                                        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                                            it.openAppSettingsActivity()
-                                        } else {
-                                            requestBackgroundLocationPermission(
-                                                PERMISSION_BGLOCATION_REQUEST_CODE
-                                            )
-                                        }
+                                        requestBackgroundLocationPermission(
+                                            PERMISSION_BGLOCATION_REQUEST_CODE
+                                        )
                                     }
                                     showSnackbar(snackbar, null)
                                     settingsManager.setRequestBGAccess(true)
@@ -1078,13 +1073,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     Snackbar.Duration.VERY_LONG
                 )
                 snackbar.setAction(android.R.string.ok) { v ->
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        it.openAppSettingsActivity()
-                    } else {
-                        requestBackgroundLocationPermission(
-                            PERMISSION_BGLOCATION_REQUEST_CODE
-                        )
-                    }
+                    requestBackgroundLocationPermission(
+                        PERMISSION_BGLOCATION_REQUEST_CODE
+                    )
                 }
                 showSnackbar(snackbar, null)
                 settingsManager.setRequestBGAccess(true)
