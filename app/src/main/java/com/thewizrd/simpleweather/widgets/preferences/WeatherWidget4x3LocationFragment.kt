@@ -17,6 +17,8 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -37,7 +39,10 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.common.controls.WeatherNowViewModel
-import com.thewizrd.common.helpers.*
+import com.thewizrd.common.helpers.LocationPermissionLauncher
+import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
+import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.preferences.SliderPreference
 import com.thewizrd.common.utils.glide.TransparentOverlay
@@ -90,6 +95,9 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private var resultValue: Intent? = null
 
     private lateinit var locationProvider: LocationProvider
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
+
+    private lateinit var wallpaperPermissionLauncher: ActivityResultLauncher<String>
 
     private var job: Job? = null
     private var initializeWidgetJob: Job? = null
@@ -120,9 +128,6 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var iconSizePref: SliderPreference
 
     companion object {
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
-        private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
-        private const val PERMISSION_WALLPAPER_REQUEST_CODE = 2
         private const val SETUP_REQUEST_CODE = 10
 
         fun newInstance(widgetID: Int): WeatherWidget4x3LocationFragment {
@@ -160,8 +165,59 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
         super.onCreate(savedInstanceState)
 
-        mWidgetViewCtx =
-            requireContext().applicationContext.getThemeContextOverride(!requireContext().isNightMode())
+        mWidgetViewCtx = requireContext().applicationContext.run {
+            this.getThemeContextOverride(!this.isNightMode())
+        }
+
+        // Location Listener
+        locationProvider = LocationProvider(requireActivity())
+
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    prepareWidget()
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
+                }
+            },
+            bgLocationCallback = { granted ->
+                if (granted) {
+                    binding.bgLocationLayout.visibility = View.GONE
+                } else {
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
+                }
+            }
+        )
+
+        wallpaperPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) {
+                    runWithView(Dispatchers.Default) {
+                        loadWallpaperBackground(true)
+                    }
+                }
+            }
 
         lifecycleScope.launchWhenCreated {
             if (!settingsManager.isWeatherLoaded() && isActive) {
@@ -220,7 +276,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (!ctx.backgroundLocationPermissionEnabled()) {
-                    requestBackgroundLocationPermission(PERMISSION_BGLOCATION_REQUEST_CODE)
+                    locationPermissionLauncher.requestBackgroundLocationPermission()
                 }
             }
         }
@@ -228,9 +284,6 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         lifecycleScope.launch(Dispatchers.Default) {
             loadWallpaperBackground(true)
         }
-
-        // Location Listener
-        locationProvider = LocationProvider(requireActivity())
 
         return root
     }
@@ -800,9 +853,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                         if (containsGps) {
                             // Changing location to GPS
                             if (!ctx.locationPermissionEnabled()) {
-                                this@WeatherWidget4x3LocationFragment.requestLocationPermission(
-                                    PERMISSION_LOCATION_REQUEST_CODE
-                                )
+                                locationPermissionLauncher.requestLocationPermission()
                                 return@async false
                             }
 
@@ -815,9 +866,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                                     Snackbar.Duration.VERY_LONG
                                 )
                                 snackbar.setAction(android.R.string.ok) {
-                                    requestBackgroundLocationPermission(
-                                        PERMISSION_BGLOCATION_REQUEST_CODE
-                                    )
+                                    locationPermissionLauncher.requestBackgroundLocationPermission()
                                 }
                                 showSnackbar(snackbar, object : MaterialSnackbar.Callback() {
                                     override fun onDismissed(
@@ -1001,57 +1050,6 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         return locationChanged
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE ->
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    prepareWidget()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-            PERMISSION_BGLOCATION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    binding.bgLocationLayout.visibility = View.GONE
-                } else {
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-            }
-            PERMISSION_WALLPAPER_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    runWithView(Dispatchers.Default) {
-                        loadWallpaperBackground(true)
-                    }
-                }
-            }
-        }
-    }
-
     @SuppressLint("RestrictedApi")
     private fun buildMockData() {
         if (mockLocData == null) {
@@ -1131,10 +1129,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                PERMISSION_WALLPAPER_REQUEST_CODE
-            )
+            wallpaperPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             return
         }
 

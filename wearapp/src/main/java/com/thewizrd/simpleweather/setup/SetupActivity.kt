@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -13,8 +12,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
+import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.utils.ActivityUtils.showToast
 import com.thewizrd.shared_resources.Constants
@@ -25,7 +24,10 @@ import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
@@ -43,7 +45,6 @@ import kotlin.coroutines.coroutineContext
 class SetupActivity : UserLocaleActivity() {
     companion object {
         private const val TAG = "SetupFragment"
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val REQUEST_CODE_SYNC_ACTIVITY = 10
     }
 
@@ -55,6 +56,8 @@ class SetupActivity : UserLocaleActivity() {
     private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
+
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +92,24 @@ class SetupActivity : UserLocaleActivity() {
 
         // Location Listener
         locationProvider = LocationProvider(this)
+
+        locationPermissionLauncher = LocationPermissionLauncher(
+            this,
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    fetchGeoLocation()
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    lifecycleScope.launch {
+                        enableControls(true)
+                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
+                    }
+                }
+            }
+        )
 
         supportFragmentManager.setFragmentResultListener(
             Constants.KEY_DATA,
@@ -329,7 +350,7 @@ class SetupActivity : UserLocaleActivity() {
     @Throws(CustomException::class)
     private suspend fun updateLocation() {
         if (!locationPermissionEnabled()) {
-            requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+            locationPermissionLauncher.requestLocationPermission()
             return
         }
 
@@ -359,32 +380,6 @@ class SetupActivity : UserLocaleActivity() {
         if (location != null) {
             mLocation = location
             fetchGeoLocation()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    fetchGeoLocation()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    lifecycleScope.launch {
-                        enableControls(true)
-                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
-                    }
-                }
-            }
         }
     }
 }

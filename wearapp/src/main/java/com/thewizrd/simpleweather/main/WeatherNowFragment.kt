@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.main
 import android.annotation.SuppressLint
 import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -21,9 +20,9 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.ibm.icu.util.ULocale
 import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.common.wearable.WearableHelper
@@ -72,7 +71,6 @@ import kotlin.math.roundToInt
 
 class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, WeatherErrorListener {
     companion object {
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
         private const val TAG_SYNCRECEIVER = "SyncDataReceiver"
     }
 
@@ -98,6 +96,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     // GPS location
     private var mLocation: Location? = null
     private lateinit var locationProvider: LocationProvider
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     // Data sync
     private lateinit var syncDataReceiver: BroadcastReceiver
@@ -216,6 +215,28 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
 
         locationProvider = LocationProvider(requireActivity())
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    runWithView {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
+                            // Setup loader from updated location
+                            wLoader = WeatherDataLoader(locationData!!)
+
+                            refreshWeather(false)
+                        }
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    settingsManager.setFollowGPS(false)
+                    showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
+                }
+            }
+        )
 
         syncDataReceiver = object : BroadcastReceiver() {
             private var locationDataReceived = false
@@ -673,7 +694,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
             context?.let {
                 if (!it.locationPermissionEnabled()) {
-                    requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                    locationPermissionLauncher.requestLocationPermission()
                     return@updateLocation false
                 }
             }
@@ -763,31 +784,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         }
 
         return locationChanged
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    runWithView {
-                        if (settingsManager.useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
-
-                            refreshWeather(false)
-                        }
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    settingsManager.setFollowGPS(false)
-                    showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
-                }
-            }
-        }
     }
 
     /* Data Sync */

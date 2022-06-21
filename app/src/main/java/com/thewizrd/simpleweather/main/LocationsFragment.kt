@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
@@ -90,7 +89,6 @@ import kotlin.coroutines.coroutineContext
 class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     companion object {
         private const val TAG = "LocationsFragment"
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
     }
 
     private var mEditMode = false
@@ -107,6 +105,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     // GPS Location
     private lateinit var locationProvider: LocationProvider
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     private val mMainHandler = Handler(Looper.getMainLooper())
 
@@ -261,6 +260,42 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         mErrorCounter = BooleanArray(ErrorStatus.values().size)
 
         locationProvider = LocationProvider(requireActivity())
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    runWithView(Dispatchers.Default) {
+                        // permission was granted, yay!
+                        // Do the task you need to do.
+                        val locData = updateLocation()
+                        if (locData != null) {
+                            settingsManager.saveLastGPSLocData(locData)
+                            refreshLocations()
+                            Timber.tag("LocationsFragment").d("Location changed; sending update")
+                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                        } else {
+                            launch(Dispatchers.Main) {
+                                removeGPSPanel()
+                            }
+                        }
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    settingsManager.setFollowGPS(false)
+                    removeGPSPanel()
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
+                }
+            }
+        )
 
         onBackPressedCallback = object : OnBackPressedCallback(mEditMode) {
             override fun handleOnBackPressed() {
@@ -782,7 +817,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         if (settingsManager.useFollowGPS()) {
             context?.let {
                 if (!it.locationPermissionEnabled()) {
-                    this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                    locationPermissionLauncher.requestLocationPermission()
                     return@updateLocation null
                 }
             }
@@ -844,46 +879,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
 
         return locationData
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    runWithView(Dispatchers.Default) {
-                        // permission was granted, yay!
-                        // Do the task you need to do.
-                        val locData = updateLocation()
-                        if (locData != null) {
-                            settingsManager.saveLastGPSLocData(locData)
-                            refreshLocations()
-                            Timber.tag("LocationsFragment").d("Location changed; sending update")
-                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-                        } else {
-                            launch(Dispatchers.Main) {
-                                removeGPSPanel()
-                            }
-                        }
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    settingsManager.setFollowGPS(false)
-                    removeGPSPanel()
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-                return
-            }
-        }
     }
 
     private val onListChangedListener = object : OnListChangedListener<LocationPanelViewModel>() {

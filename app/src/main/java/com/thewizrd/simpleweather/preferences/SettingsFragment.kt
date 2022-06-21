@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.Intent.FilterComparison
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
@@ -30,7 +29,10 @@ import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.thewizrd.common.helpers.*
+import com.thewizrd.common.helpers.LocationPermissionLauncher
+import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
+import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -102,10 +104,9 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private var mThemeChangeListeners: MutableList<OnThemeChangeListener>? = null
     private var splitInstallRequest: InstallRequest? = null
 
-    companion object {
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
-        private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
+    companion object {
         // Preference Keys
         private const val KEY_UNITS = "key_units"
         private const val KEY_ICONS = "key_icons"
@@ -175,6 +176,32 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SettingsFragment: onCreate")
+
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    followGps.isChecked = true
+                    settingsManager.setFollowGPS(true)
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    followGps.isChecked = false
+                    settingsManager.setFollowGPS(false)
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
+                }
+            }
+        )
     }
 
     override fun onResume() {
@@ -329,9 +356,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 AnalyticsLogger.logEvent("Settings: followGps toggled")
                 if (newValue as Boolean) {
                     if (!preference.context.locationPermissionEnabled()) {
-                        this@SettingsFragment.requestLocationPermission(
-                            PERMISSION_LOCATION_REQUEST_CODE
-                        )
+                        locationPermissionLauncher.requestLocationPermission()
                         return false
                     } else {
                         activity?.let {
@@ -358,9 +383,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                                         Snackbar.Duration.VERY_LONG
                                     )
                                     snackbar.setAction(android.R.string.ok) { v ->
-                                        requestBackgroundLocationPermission(
-                                            PERMISSION_BGLOCATION_REQUEST_CODE
-                                        )
+                                        locationPermissionLauncher.requestBackgroundLocationPermission()
                                     }
                                     showSnackbar(snackbar, null)
                                     settingsManager.setRequestBGAccess(true)
@@ -952,41 +975,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         alertNotification.summary = if (enable) getString(R.string.pref_summary_alerts) else getString(R.string.pref_summary_alerts_disabled)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty()
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    followGps.isChecked = true
-                    settingsManager.setFollowGPS(true)
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    followGps.isChecked = false
-                    settingsManager.setFollowGPS(false)
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-                return
-            }
-            PERMISSION_BGLOCATION_REQUEST_CODE -> {
-                // no-op
-            }
-        }
-    }
-
     private fun enqueueIntent(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -1073,9 +1061,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     Snackbar.Duration.VERY_LONG
                 )
                 snackbar.setAction(android.R.string.ok) { v ->
-                    requestBackgroundLocationPermission(
-                        PERMISSION_BGLOCATION_REQUEST_CODE
-                    )
+                    locationPermissionLauncher.requestBackgroundLocationPermission()
                 }
                 showSnackbar(snackbar, null)
                 settingsManager.setRequestBGAccess(true)

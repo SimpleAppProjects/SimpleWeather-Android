@@ -12,9 +12,9 @@ import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
+import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
-import com.thewizrd.common.helpers.requestBackgroundLocationPermission
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -28,12 +28,15 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager
 
 class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
     private lateinit var binding: FragmentSetupSettingsBinding
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
+
+        locationPermissionLauncher = LocationPermissionLauncher(requireActivity())
     }
 
     @NonNull
@@ -93,7 +96,7 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                         Snackbar.Duration.VERY_LONG
                     ).apply {
                         setAction(android.R.string.ok) {
-                            requestBackgroundLocationPermission(0)
+                            locationPermissionLauncher.requestBackgroundLocationPermission()
                         }
                     }
                     showSnackbar(snackbar)

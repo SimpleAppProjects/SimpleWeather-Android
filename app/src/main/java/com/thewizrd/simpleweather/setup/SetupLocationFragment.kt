@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.setup
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -19,8 +18,8 @@ import androidx.navigation.fragment.FragmentNavigator
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
+import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
@@ -50,7 +49,6 @@ import kotlin.coroutines.coroutineContext
 class SetupLocationFragment : CustomFragment() {
     companion object {
         private const val TAG = "SetupLocationFragment"
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
     }
 
     // Views
@@ -63,6 +61,8 @@ class SetupLocationFragment : CustomFragment() {
     private val wm = weatherModule.weatherManager
 
     private var job: Job? = null
+
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     override fun createSnackManager(activity: Activity): SnackbarManager? {
         val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
@@ -85,6 +85,30 @@ class SetupLocationFragment : CustomFragment() {
 
         // Location Listener
         locationProvider = LocationProvider(requireActivity())
+
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    fetchGeoLocation()
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    runWithView {
+                        enableControls(true)
+                        showSnackbar(
+                            Snackbar.make(
+                                requireContext(),
+                                R.string.error_location_denied,
+                                Snackbar.Duration.SHORT
+                            )
+                        )
+                    }
+                }
+            }
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -415,7 +439,7 @@ class SetupLocationFragment : CustomFragment() {
     private suspend fun updateLocation() {
         context?.let {
             if (!it.locationPermissionEnabled()) {
-                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                locationPermissionLauncher.requestLocationPermission()
                 return
             }
         }
@@ -446,33 +470,6 @@ class SetupLocationFragment : CustomFragment() {
         if (location != null) {
             mLocation = location
             fetchGeoLocation()
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    fetchGeoLocation()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    runWithView {
-                        enableControls(true)
-                        showSnackbar(
-                            Snackbar.make(
-                                requireContext(),
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-            }
         }
     }
 }

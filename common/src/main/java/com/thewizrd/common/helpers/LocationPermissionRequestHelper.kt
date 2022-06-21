@@ -14,7 +14,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.thewizrd.shared_resources.R
 
 fun Context.locationPermissionEnabled(): Boolean {
@@ -56,23 +55,6 @@ fun Activity.requestLocationPermission(locationRequestCode: Int) {
     ActivityCompat.requestPermissions(this, permList, locationRequestCode)
 }
 
-fun Fragment.requestLocationPermission(locationRequestCode: Int) {
-    val permList = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-        arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        )
-    } else {
-        arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-    }
-
-    this.requestPermissions(permList, locationRequestCode)
-}
-
 @RequiresApi(Build.VERSION_CODES.M)
 @Suppress("DEPRECATION")
 fun android.app.Fragment.requestLocationPermission(locationRequestCode: Int) {
@@ -96,14 +78,6 @@ fun android.app.Fragment.requestLocationPermission(locationRequestCode: Int) {
 fun Activity.requestBackgroundLocationPermission(locationRequestCode: Int) {
     ActivityCompat.requestPermissions(
         this,
-        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-        locationRequestCode
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-fun Fragment.requestBackgroundLocationPermission(locationRequestCode: Int) {
-    this.requestPermissions(
         arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
         locationRequestCode
     )

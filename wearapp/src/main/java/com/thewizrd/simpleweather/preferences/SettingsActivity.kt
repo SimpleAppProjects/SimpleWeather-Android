@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.preferences
 import android.content.*
 import android.content.Intent.FilterComparison
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
 import android.net.Uri
@@ -118,9 +117,6 @@ class SettingsActivity : WearableListenerActivity() {
     class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener,
         OnBackPressedFragmentListener {
         companion object {
-            private const val PERMISSION_LOCATION_REQUEST_CODE = 0
-            private const val PERMISSION_BGLOCATION_REQUEST_CODE = 1
-
             // Preference Keys
             private const val KEY_ABOUTAPP = "key_aboutapp"
             private const val KEY_BGLOCATIONACCESS = "key_bglocationaccess"
@@ -156,12 +152,31 @@ class SettingsActivity : WearableListenerActivity() {
 
         protected lateinit var remoteActivityHelper: RemoteActivityHelper
 
+        private lateinit var locationPermissionLauncher: LocationPermissionLauncher
+
         override val titleResId: Int
             get() = R.string.title_activity_settings
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             remoteActivityHelper = RemoteActivityHelper(requireContext())
+            locationPermissionLauncher = LocationPermissionLauncher(
+                requireActivity(),
+                locationCallback = { granted ->
+                    if (granted) {
+                        // permission was granted, yay!
+                        // Do the task you need to do.
+                        followGps.isChecked = true
+                        settingsManager.setFollowGPS(true)
+                    } else {
+                        // permission denied, boo! Disable the
+                        // functionality that depends on this permission.
+                        followGps.isChecked = false
+                        settingsManager.setFollowGPS(false)
+                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
+                    }
+                }
+            )
         }
 
         override fun onBackPressed(): Boolean {
@@ -207,6 +222,8 @@ class SettingsActivity : WearableListenerActivity() {
             localBroadcastManager.sendBroadcast(
                 Intent(ACTION_SENDCONNECTIONSTATUS)
             )
+
+            updateBGLocationPrefState()
         }
 
         override fun onPause() {
@@ -299,7 +316,7 @@ class SettingsActivity : WearableListenerActivity() {
 
                     if (newValue as Boolean) {
                         if (!preference.context.locationPermissionEnabled()) {
-                            requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                            locationPermissionLauncher.requestLocationPermission()
                             return@OnPreferenceChangeListener false
                         } else {
                             activity?.let {
@@ -323,9 +340,7 @@ class SettingsActivity : WearableListenerActivity() {
                                             it
                                         ) { d: DialogInterface?, which: Int ->
                                             if (which == DialogInterface.BUTTON_POSITIVE) {
-                                                requestBackgroundLocationPermission(
-                                                    PERMISSION_BGLOCATION_REQUEST_CODE
-                                                )
+                                                locationPermissionLauncher.requestBackgroundLocationPermission()
                                             }
                                         }
                                             .setMessage(it.getBackgroundLocationRationale())
@@ -342,17 +357,13 @@ class SettingsActivity : WearableListenerActivity() {
                 }
 
             bgLocationPref = findPreference(KEY_BGLOCATIONACCESS)!!
-            bgLocationPref.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                    !requireContext().backgroundLocationPermissionEnabled() &&
-                    settingsManager.useFollowGPS()
             bgLocationPref.setOnPreferenceClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    requestBackgroundLocationPermission(
-                        PERMISSION_BGLOCATION_REQUEST_CODE
-                    )
+                    locationPermissionLauncher.requestBackgroundLocationPermission()
                 }
                 true
             }
+            updateBGLocationPrefState()
 
             iconsPref = findPreference(KEY_ICONS)!!
             iconsPref.setOnPreferenceClickListener {
@@ -598,6 +609,12 @@ class SettingsActivity : WearableListenerActivity() {
             connStatusPref = findPreference(KEY_CONNSTATUS)!!
         }
 
+        private fun updateBGLocationPrefState() {
+            bgLocationPref.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                    !requireContext().backgroundLocationPermissionEnabled() &&
+                    settingsManager.useFollowGPS()
+        }
+
         override fun onDisplayPreferenceDialog(preference: Preference) {
             if (preference is WearEditTextPreference && (SettingsManager.KEY_APIKEY == preference.getKey())) {
                 val TAG = KeyEntryPreferenceDialogFragment::class.java.name
@@ -726,31 +743,6 @@ class SettingsActivity : WearableListenerActivity() {
             if (prov != null) {
                 registerPref.intent = Intent(Intent.ACTION_VIEW)
                         .setData(Uri.parse(prov.apiRegisterURL))
-            }
-        }
-
-        override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-            when (requestCode) {
-                PERMISSION_LOCATION_REQUEST_CODE -> {
-                    // If request is cancelled, the result arrays are empty.
-                    if (grantResults.isNotEmpty()
-                            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        // permission was granted, yay!
-                        // Do the task you need to do.
-                        followGps.isChecked = true
-                        settingsManager.setFollowGPS(true)
-                    } else {
-                        // permission denied, boo! Disable the
-                        // functionality that depends on this permission.
-                        followGps.isChecked = false
-                        settingsManager.setFollowGPS(false)
-                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
-                    }
-                    return
-                }
-                PERMISSION_BGLOCATION_REQUEST_CODE -> {
-                    // no-op
-                }
             }
         }
 

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -61,8 +60,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.ibm.icu.util.ULocale
 import com.thewizrd.common.controls.*
+import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.helpers.requestLocationPermission
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
@@ -127,10 +126,6 @@ import kotlin.math.ln
 import kotlin.math.min
 
 class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
-    companion object {
-        private const val PERMISSION_LOCATION_REQUEST_CODE = 0
-    }
-
     init {
         arguments = Bundle()
     }
@@ -173,6 +168,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     // GPS location
     private var mLocation: Location? = null
     private lateinit var locationProvider: LocationProvider
+    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     private val weatherObserver = Observer<Weather> { weather ->
         if (weather != null && weather.isValid) {
@@ -367,12 +363,43 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
         if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
-            locationData = JSONParser.deserializer(savedInstanceState.getString(Constants.KEY_DATA), LocationData::class.java)
+            locationData = JSONParser.deserializer(
+                savedInstanceState.getString(Constants.KEY_DATA),
+                LocationData::class.java
+            )
         } else if (args.data != null) {
             locationData = JSONParser.deserializer(args.data, LocationData::class.java)
         }
 
         locationProvider = LocationProvider(requireActivity())
+        locationPermissionLauncher = LocationPermissionLauncher(
+            requireActivity(),
+            locationCallback = { granted ->
+                if (granted) {
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    runWithView {
+                        if (settingsManager.useFollowGPS() && updateLocation()) {
+                            // Setup loader from updated location
+                            wLoader = WeatherDataLoader(locationData!!)
+
+                            refreshWeather(false)
+                        }
+                    }
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    settingsManager.setFollowGPS(false)
+                    showSnackbar(
+                        Snackbar.make(
+                            binding.rootView.context,
+                            R.string.error_location_denied,
+                            Snackbar.Duration.SHORT
+                        ), null
+                    )
+                }
+            }
+        )
 
         // Live Data
         weatherLiveData = MutableLiveData()
@@ -1627,7 +1654,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (context != null && settingsManager.useFollowGPS() && locationData?.locationType == LocationType.GPS) {
             if (!context.locationPermissionEnabled()) {
-                this.requestLocationPermission(PERMISSION_LOCATION_REQUEST_CODE)
+                locationPermissionLauncher.requestLocationPermission()
                 return false
             }
 
@@ -1719,37 +1746,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
 
         return locationChanged
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSION_LOCATION_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    runWithView {
-                        if (settingsManager.useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
-
-                            refreshWeather(false)
-                        }
-                    }
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    settingsManager.setFollowGPS(false)
-                    showSnackbar(
-                        Snackbar.make(
-                            binding.rootView.context,
-                            R.string.error_location_denied,
-                            Snackbar.Duration.SHORT
-                        ), null
-                    )
-                }
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
