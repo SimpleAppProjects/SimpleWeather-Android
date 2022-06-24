@@ -13,7 +13,11 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
     }
 
     override val supportedComplicationTypes: Set<ComplicationType> =
-        setOf(ComplicationType.RANGED_VALUE)
+        setOf(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.LONG_TEXT
+        )
     private val complicationIconResId = R.drawable.wi_umbrella
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
@@ -25,7 +29,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     50f, 0f, 100f,
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
+                    PlainComplicationText.Builder("Chance: 50%").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -33,6 +37,32 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("50%").build()
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("50%").build(),
+                    PlainComplicationText.Builder("Chance: 50%").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("Chance").build(),
+                    PlainComplicationText.Builder("Chance: 50%").build()
+                ).setTitle(
+                    PlainComplicationText.Builder("50%").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).build()
             }
             else -> {
@@ -64,6 +94,40 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("$popChance%").build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("${popChance}%").build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_chance)}: ${popChance}%"
+                    ).build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder(getString(R.string.label_chance)).build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_chance)}: ${popChance}%"
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder("${popChance}%").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

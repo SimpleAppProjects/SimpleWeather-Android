@@ -21,7 +21,12 @@ class AQIComplicationService : BaseWeatherComplicationService() {
         private const val TAG = "AQIComplicationService"
     }
 
-    override val supportedComplicationTypes = setOf(ComplicationType.RANGED_VALUE)
+    override val supportedComplicationTypes: Set<ComplicationType> =
+        setOf(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.LONG_TEXT
+        )
     private val complicationIconResId = R.drawable.wi_cloud
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
@@ -85,8 +90,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     57f, 0f, 301f,
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
-                        .build()
+                    PlainComplicationText.Builder("Air Quality: 57, Moderate").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -97,6 +101,33 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_airquality_short))
                         .build()
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("57").build(),
+                    PlainComplicationText.Builder("Air Quality: 57, Moderate").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
+                        .build()
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("Air Quality").build(),
+                    PlainComplicationText.Builder("Air Quality: 57, Moderate").build()
+                ).setTitle(
+                    PlainComplicationText.Builder("57, Moderate").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).build()
             }
             else -> {
@@ -118,7 +149,9 @@ class AQIComplicationService : BaseWeatherComplicationService() {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     aqiModel.progress.toFloat(), 0f, aqiModel.progressMax.toFloat(),
-                    PlainComplicationText.Builder(aqiModel.description).build()
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_airquality_short)}: $aqiIndex, ${aqiModel.level}"
+                    ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -129,6 +162,42 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_airquality_short))
                         .build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder(aqiIndex.toString()).build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_airquality_short)}: $aqiIndex, ${aqiModel.level}"
+                    ).build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
+                        .build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
+                        .build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_airquality_short)}: $aqiIndex, ${aqiModel.level}"
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder("$aqiIndex, ${aqiModel.level}").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

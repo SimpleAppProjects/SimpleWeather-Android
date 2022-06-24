@@ -13,7 +13,11 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
     }
 
     override val supportedComplicationTypes: Set<ComplicationType> =
-        setOf(ComplicationType.RANGED_VALUE)
+        setOf(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.LONG_TEXT
+        )
     private val complicationIconResId = R.drawable.wi_humidity
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
@@ -25,7 +29,8 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     75f, 0f, 100f,
-                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
+                    PlainComplicationText.Builder("${getString(R.string.label_humidity)}: 75%")
+                        .build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -33,6 +38,34 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("75%").build()
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("75%").build(),
+                    PlainComplicationText.Builder("${getString(R.string.label_humidity)}: 75%")
+                        .build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build(),
+                    PlainComplicationText.Builder("${getString(R.string.label_humidity)}: 75%")
+                        .build()
+                ).setTitle(
+                    PlainComplicationText.Builder("75%").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).build()
             }
             else -> {
@@ -57,7 +90,9 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     humidityPct.toFloat(), 0f, 100f,
-                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_humidity)}: ${humidityPct}%"
+                    ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -65,6 +100,40 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("$humidityPct%").build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.SHORT_TEXT -> {
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("${humidityPct}%").build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_humidity)}: ${humidityPct}%"
+                    ).build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.LONG_TEXT -> {
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder(getString(R.string.label_humidity)).build(),
+                    PlainComplicationText.Builder(
+                        "${getString(R.string.label_humidity)}: ${humidityPct}%"
+                    ).build()
+                ).setTitle(
+                    PlainComplicationText.Builder("${humidityPct}%").build()
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
