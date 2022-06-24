@@ -117,7 +117,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
             wNowViewModel.isGPSLocation.postValue(locationData?.locationType == LocationType.GPS)
 
-            binding.swipeRefreshLayout.isRefreshing = false
+            binding.refreshLayout.isRefreshing = false
+            binding.progressBar.hide()
             binding.scrollView.visibility = View.VISIBLE
             binding.scrollView.requestFocus() // View is now visible; take focus
 
@@ -147,7 +148,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             }
         } else {
             showToast(R.string.werror_noweather, Toast.LENGTH_LONG)
-            binding.swipeRefreshLayout.isRefreshing = false
+            binding.refreshLayout.isRefreshing = false
+            binding.progressBar.hide()
         }
     }
 
@@ -158,20 +160,25 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     }
 
     override fun onWeatherError(wEx: WeatherException) {
-        if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
-            Logger.writeLine(
-                Log.WARN,
-                "Location: %s",
-                JSONParser.serializer(locationData, LocationData::class.java)
-            )
-            Logger.writeLine(
-                Log.WARN,
-                CustomException(R.string.error_message_weather_region_unsupported)
-            )
+        runWithView {
+            if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
+                Logger.writeLine(
+                    Log.WARN,
+                    "Location: %s",
+                    JSONParser.serializer(locationData, LocationData::class.java)
+                )
+                Logger.writeLine(
+                    Log.WARN,
+                    CustomException(R.string.error_message_weather_region_unsupported)
+                )
 
-            showToast(R.string.error_message_weather_region_unsupported, Toast.LENGTH_LONG)
-        } else {
-            showToast(wEx.message, Toast.LENGTH_LONG)
+                showToast(R.string.error_message_weather_region_unsupported, Toast.LENGTH_LONG)
+            } else {
+                showToast(wEx.message, Toast.LENGTH_LONG)
+            }
+
+            binding.refreshLayout.isRefreshing = false
+            binding.progressBar.hide()
         }
     }
 
@@ -264,8 +271,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                             Timber.tag(TAG_SYNCRECEIVER).d("Loading data...")
 
                             // We got all our data; now load the weather
-                            if (!binding.swipeRefreshLayout.isRefreshing) {
-                                binding.swipeRefreshLayout.isRefreshing = true
+                            if (!binding.refreshLayout.isRefreshing) {
+                                binding.refreshLayout.isRefreshing = true
                             }
 
                             if (locationData?.isValid == true) {
@@ -346,11 +353,12 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
         val view = binding.root
 
         // SwipeRefresh
-        binding.swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
+        binding.progressBar.show()
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(
             requireContext().getAttrColor(R.attr.colorSurface)
         )
-        binding.swipeRefreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
-        binding.swipeRefreshLayout.setOnRefreshListener {
+        binding.refreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
+        binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
 
             runWithView {
@@ -589,6 +597,10 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun restore() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            launch(Dispatchers.Main.immediate) {
+                binding.progressBar.show()
+            }
+
             supervisorScope {
                 val task = async(Dispatchers.IO) {
                     var forceRefresh = false
@@ -633,7 +645,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                         refreshWeather(task.getCompleted())
                     } else {
                         runWithView {
-                            binding.swipeRefreshLayout.isRefreshing = false
+                            binding.refreshLayout.isRefreshing = false
+                            binding.progressBar.hide()
                             binding.scrollView.visibility = View.VISIBLE
                         }
                     }
@@ -644,8 +657,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     private fun refreshWeather(forceRefresh: Boolean) {
         runWithView {
-            binding.swipeRefreshLayout.isRefreshing = true
-
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                 val task = launch(Dispatchers.IO) {
                     supervisorScope {
@@ -675,7 +686,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 task.invokeOnCompletion {
                     if (it != null) {
                         runWithView {
-                            binding.swipeRefreshLayout.isRefreshing = false
+                            binding.refreshLayout.isRefreshing = false
+                            binding.progressBar.hide()
                             binding.scrollView.visibility = View.VISIBLE
                         }
                     }
@@ -812,9 +824,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
     private fun dataSyncRestore(forceRefresh: Boolean = false) {
         runWithView {
-            // Send request to service to get weather data
-            binding.swipeRefreshLayout.isRefreshing = true
-
             // Check data map if data is available to load
             wLoader = null
             locationData = null
@@ -852,8 +861,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                 if (locationData == null || locationData != settingsManager.getHomeData())
                     locationData = settingsManager.getHomeData()
 
-                binding.swipeRefreshLayout.isRefreshing = true
-
                 if (locationData?.isValid == true) {
                     runWithView(Dispatchers.IO) {
                         supervisorScope {
@@ -876,6 +883,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     }
                 } else {
                     checkInvalidLocation()
+                    binding.refreshLayout.isRefreshing = false
+                    binding.progressBar.hide()
                 }
             }
         }
@@ -892,8 +901,6 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
             }
 
             if (locationData?.isValid == true) {
-                binding.swipeRefreshLayout.isRefreshing = true
-
                 runWithView(Dispatchers.IO) {
                     supervisorScope {
                         wLoader = WeatherDataLoader(locationData!!)
@@ -909,7 +916,8 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
                     }
                 }
             } else {
-                binding.swipeRefreshLayout.isRefreshing = false
+                binding.refreshLayout.isRefreshing = false
+                binding.progressBar.hide()
 
                 if (locationData != null) {
                     checkInvalidLocation()

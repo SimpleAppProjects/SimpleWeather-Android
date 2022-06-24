@@ -1402,6 +1402,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun restore() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             launch(Dispatchers.Main.immediate) {
@@ -1469,7 +1470,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                                         WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
                                     )
                                 }
-                            })
+                            }
+                        )
                         this.cancel()
                     }
                     forceRefresh
