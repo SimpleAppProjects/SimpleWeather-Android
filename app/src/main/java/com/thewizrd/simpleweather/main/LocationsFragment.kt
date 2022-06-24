@@ -261,7 +261,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
         locationProvider = LocationProvider(requireActivity())
         locationPermissionLauncher = LocationPermissionLauncher(
-            requireActivity(),
+            this,
             locationCallback = { granted ->
                 if (granted) {
                     runWithView(Dispatchers.Default) {

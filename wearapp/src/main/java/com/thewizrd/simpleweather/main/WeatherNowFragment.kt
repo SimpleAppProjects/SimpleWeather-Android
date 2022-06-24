@@ -223,7 +223,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
         locationProvider = LocationProvider(requireActivity())
         locationPermissionLauncher = LocationPermissionLauncher(
-            requireActivity(),
+            this,
             locationCallback = { granted ->
                 if (granted) {
                     // permission was granted, yay!

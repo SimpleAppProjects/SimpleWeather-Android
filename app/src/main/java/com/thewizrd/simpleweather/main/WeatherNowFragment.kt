@@ -373,7 +373,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         locationProvider = LocationProvider(requireActivity())
         locationPermissionLauncher = LocationPermissionLauncher(
-            requireActivity(),
+            this,
             locationCallback = { granted ->
                 if (granted) {
                     // permission was granted, yay!

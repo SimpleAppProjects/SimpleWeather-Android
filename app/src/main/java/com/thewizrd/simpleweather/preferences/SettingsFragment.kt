@@ -178,7 +178,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         AnalyticsLogger.logEvent("SettingsFragment: onCreate")
 
         locationPermissionLauncher = LocationPermissionLauncher(
-            requireActivity(),
+            this,
             locationCallback = { granted ->
                 if (granted) {
                     // permission was granted, yay!

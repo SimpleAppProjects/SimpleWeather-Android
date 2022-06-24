@@ -161,7 +161,7 @@ class SettingsActivity : WearableListenerActivity() {
             super.onCreate(savedInstanceState)
             remoteActivityHelper = RemoteActivityHelper(requireContext())
             locationPermissionLauncher = LocationPermissionLauncher(
-                requireActivity(),
+                this,
                 locationCallback = { granted ->
                     if (granted) {
                         // permission was granted, yay!

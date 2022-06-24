@@ -36,7 +36,7 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
 
-        locationPermissionLauncher = LocationPermissionLauncher(requireActivity())
+        locationPermissionLauncher = LocationPermissionLauncher(this)
     }
 
     @NonNull
