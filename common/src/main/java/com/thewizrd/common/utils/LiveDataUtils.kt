@@ -2,6 +2,7 @@ package com.thewizrd.common.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import com.thewizrd.shared_resources.appLib
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 
@@ -19,7 +20,7 @@ object LiveDataUtils {
                 observeForever(observer)
 
                 it.invokeOnCancellation {
-                    GlobalScope.launch(Dispatchers.Main.immediate) {
+                    appLib.appScope.launch(Dispatchers.Main.immediate) {
                         removeObserver(observer)
                     }
                 }

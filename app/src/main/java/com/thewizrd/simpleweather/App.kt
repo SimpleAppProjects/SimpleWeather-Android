@@ -28,7 +28,7 @@ import com.thewizrd.simpleweather.extras.initializeExtras
 import com.thewizrd.simpleweather.extras.initializeFirebase
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
@@ -135,7 +135,7 @@ class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
 
         if (isMainProcess) {
             // Load data if needed
-            GlobalScope.launch(Dispatchers.Default) {
+            appLib.appScope.launch(Dispatchers.Default) {
                 appLib.settingsManager.loadIfNeeded()
             }
 
@@ -206,6 +206,7 @@ class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
             // Shutdown logger
             Logger.shutdown()
         }
+        appLib.appScope.cancel()
         super.onTerminate()
     }
 

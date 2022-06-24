@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDAO
@@ -27,7 +28,6 @@ import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -252,7 +252,7 @@ class SettingsManager(context: Context) {
             getWeatherDAO().insertWeatherData(weather)
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        appLib.appScope.launch(Dispatchers.IO) {
             if (getWeatherDAO().getWeatherDataCount() > CACHE_LIMIT) cleanupWeatherData()
         }
     }
@@ -263,7 +263,7 @@ class SettingsManager(context: Context) {
             getWeatherDAO().insertWeatherAlertData(alertData)
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        appLib.appScope.launch(Dispatchers.IO) {
             if (getWeatherDAO().getWeatherAlertDataCount() > CACHE_LIMIT) cleanupWeatherAlertData()
         }
     }
@@ -273,7 +273,7 @@ class SettingsManager(context: Context) {
             getWeatherDAO().insertForecast(forecasts)
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        appLib.appScope.launch(Dispatchers.IO) {
             if (getWeatherDAO().getForecastDataCountGroupedByQuery() > CACHE_LIMIT / 2) cleanupWeatherForecastData()
         }
     }
@@ -284,7 +284,7 @@ class SettingsManager(context: Context) {
             getWeatherDAO().insertAllHourlyForecasts(forecasts)
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        appLib.appScope.launch(Dispatchers.IO) {
             if (getWeatherDAO().getHourlyForecastCountGroupedByQuery() > CACHE_LIMIT / 2) cleanupWeatherForecastData()
         }
     }

@@ -14,6 +14,7 @@ import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.toLocationData
@@ -50,7 +51,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    GlobalScope.launch(Dispatchers.Default) {
+                    appLib.appScope.launch(Dispatchers.Default) {
                         if (onBoot || !isWorkScheduled(context.applicationContext)) {
                             startWork(context.applicationContext)
                         }

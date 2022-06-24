@@ -21,7 +21,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
@@ -93,7 +93,7 @@ class App : Application(), ActivityLifecycleCallbacks {
         }
 
         // Load data if needed
-        GlobalScope.launch(Dispatchers.Default) {
+        appLib.appScope.launch(Dispatchers.Default) {
             appLib.settingsManager.loadIfNeeded()
         }
 
@@ -120,6 +120,7 @@ class App : Application(), ActivityLifecycleCallbacks {
 
     override fun onTerminate() {
         unregisterCommonReceiver()
+        appLib.appScope.cancel()
         super.onTerminate()
         unregisterActivityLifecycleCallbacks(this)
         // Shutdown logger

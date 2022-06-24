@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.thewizrd.shared_resources.utils.SettingsManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 
 public lateinit var appLib: ApplicationLib
 
@@ -18,4 +20,5 @@ abstract class ApplicationLib {
     abstract val isPhone: Boolean
     abstract val properties: Bundle
     abstract val settingsManager: SettingsManager
+    open val appScope: CoroutineScope = MainScope()
 }

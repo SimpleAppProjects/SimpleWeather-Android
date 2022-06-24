@@ -210,7 +210,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             if (locationData != null) {
                 forecastsView.updateForecasts(locationData!!)
 
-                GlobalScope.launch(Dispatchers.Default) {
+                appLib.appScope.launch(Dispatchers.Default) {
                     val context = appLib.context
 
                     if (settingsManager.getHomeData() == locationData) {
@@ -1527,7 +1527,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         if (wm.supportsAlerts() && locationData != null) {
                             if (!weatherAlerts.isNullOrEmpty()) {
                                 // Alerts are posted to the user here. Set them as notified.
-                                GlobalScope.launch(Dispatchers.Default) {
+                                appLib.appScope.launch(Dispatchers.Default) {
                                     if (BuildConfig.DEBUG) {
                                         WeatherAlertHandler.postAlerts(
                                             locationData!!,

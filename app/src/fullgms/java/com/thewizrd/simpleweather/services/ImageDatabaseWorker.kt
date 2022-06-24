@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Logger
@@ -14,7 +15,6 @@ import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_CHE
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_STARTALARM
 import com.thewizrd.simpleweather.services.ImageDatabaseWorkerActions.ACTION_UPDATEALARM
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -30,7 +30,7 @@ class ImageDatabaseWorker(context: Context, workerParams: WorkerParameters) :
             when (intentAction) {
                 ACTION_UPDATEALARM -> enqueueWork(context.applicationContext)
                 ACTION_STARTALARM -> {
-                    GlobalScope.launch(Dispatchers.Default) {
+                    appLib.appScope.launch(Dispatchers.Default) {
                         if (onBoot || !isWorkScheduled(context.applicationContext)) {
                             startWork(context.applicationContext)
                         }

@@ -51,6 +51,7 @@ import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
@@ -1071,7 +1072,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         val query = view.locationData!!.query
         var dataPosition = mAdapter.getDataset().indexOf(view)
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
-        GlobalScope.launch(Dispatchers.Default) {
+        appLib.appScope.launch(Dispatchers.Default) {
             settingsManager.moveLocation(query, pos)
         }
     }

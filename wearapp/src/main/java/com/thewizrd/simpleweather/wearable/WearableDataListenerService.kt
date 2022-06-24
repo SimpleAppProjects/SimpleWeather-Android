@@ -3,10 +3,14 @@ package com.thewizrd.simpleweather.wearable
 import android.util.Log
 import com.google.android.gms.wearable.*
 import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeout
 
 class WearableDataListenerService : WearableListenerService() {
     private lateinit var settingsMgr: SettingsManager
@@ -39,7 +43,7 @@ class WearableDataListenerService : WearableListenerService() {
                     when (item.uri.path) {
                         WearableHelper.SettingsPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
-                            GlobalScope.launch(Dispatchers.Default) {
+                            appLib.appScope.launch(Dispatchers.Default) {
                                 runCatching {
                                     supervisorScope {
                                         withTimeout(15000) {
@@ -56,7 +60,7 @@ class WearableDataListenerService : WearableListenerService() {
                         }
                         WearableHelper.LocationPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
-                            GlobalScope.launch(Dispatchers.Default) {
+                            appLib.appScope.launch(Dispatchers.Default) {
                                 runCatching {
                                     supervisorScope {
                                         withTimeout(15000) {
@@ -73,7 +77,7 @@ class WearableDataListenerService : WearableListenerService() {
                         }
                         WearableHelper.WeatherPath -> {
                             val dataMap = DataMapItem.fromDataItem(item).dataMap
-                            GlobalScope.launch(Dispatchers.Default) {
+                            appLib.appScope.launch(Dispatchers.Default) {
                                 runCatching {
                                     supervisorScope {
                                         withTimeout(15000) {

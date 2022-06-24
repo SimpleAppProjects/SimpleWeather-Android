@@ -16,7 +16,6 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 object VersionMigrations {
@@ -85,7 +84,7 @@ object VersionMigrations {
                 // v5.3.0: Clear Glide cache
                 // Changed default decode format for Glide
                 if (appLib.isPhone) {
-                    GlobalScope.launch(Dispatchers.IO) {
+                    appLib.appScope.launch(Dispatchers.IO) {
                         com.bumptech.glide.Glide.get(context.applicationContext)
                             .clearDiskCache()
                     }

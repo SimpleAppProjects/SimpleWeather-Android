@@ -21,7 +21,6 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.widgets.remoteviews.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
@@ -456,7 +455,7 @@ object WidgetUtils {
     }
 
     fun cleanupWidgetIds() {
-        GlobalScope.launch(Dispatchers.Default) {
+        appLib.appScope.launch(Dispatchers.Default) {
             val locs = ArrayList(settingsManager.getLocationData())
             settingsManager.getLastGPSLocData()?.let {
                 locs.add(it)
@@ -480,7 +479,7 @@ object WidgetUtils {
     }
 
     fun cleanupWidgetData() {
-        GlobalScope.launch(Dispatchers.IO) {
+        appLib.appScope.launch(Dispatchers.IO) {
             val currentIds = getAllWidgetIds()
 
             val context = appLib.context

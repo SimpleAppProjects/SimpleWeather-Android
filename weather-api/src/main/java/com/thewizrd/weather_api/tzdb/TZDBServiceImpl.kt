@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.tzdb
 
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.TZDatabase
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.tzdb.TZDB
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class TZDBServiceImpl : TZDBService {
@@ -26,7 +26,7 @@ class TZDBServiceImpl : TZDBService {
 
             if (!result.isNullOrBlank()) {
                 // Cache result
-                GlobalScope.launch(Dispatchers.IO) {
+                appLib.appScope.launch(Dispatchers.IO) {
                     val tzdb = TZDB(latitude, longitude, result)
                     tzDB.insertTZData(tzdb)
                 }

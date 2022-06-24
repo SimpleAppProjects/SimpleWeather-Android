@@ -3,8 +3,8 @@ package com.thewizrd.shared_resources.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import com.thewizrd.shared_resources.appLib
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -65,7 +65,7 @@ class FileLoggingTree(private val context: Context) : Timber.Tree() {
 
             // Cleanup old logs if they exist
             if (!ranCleanup) {
-                GlobalScope.launch(Dispatchers.IO) {
+                appLib.appScope.launch(Dispatchers.IO) {
                     try {
                         // Only keep a weeks worth of logs
                         val daysToKeep = 7

@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
@@ -14,7 +15,6 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -46,7 +46,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    GlobalScope.launch(Dispatchers.Default) {
+                    appLib.appScope.launch(Dispatchers.Default) {
                         if (onBoot || !isWorkScheduled(context.applicationContext)) {
                             startWork(context.applicationContext)
                         }

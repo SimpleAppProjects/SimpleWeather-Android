@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
@@ -14,7 +15,6 @@ import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -38,7 +38,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             when (intentAction) {
                 ACTION_REQUEUEWORK -> enqueueWork(context.applicationContext)
                 ACTION_ENQUEUEWORK ->
-                    GlobalScope.launch(Dispatchers.Default) {
+                    appLib.appScope.launch(Dispatchers.Default) {
                         if (onBoot || !isWorkScheduled(context.applicationContext)) {
                             startWork(context.applicationContext)
                         }

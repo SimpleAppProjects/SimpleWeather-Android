@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
@@ -15,7 +16,6 @@ import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import com.thewizrd.simpleweather.widgets.WidgetType
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -84,7 +84,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 val oldKey = intent.getStringExtra(Constants.WIDGETKEY_OLDKEY)
                 val locationJson = intent.getStringExtra(Constants.WIDGETKEY_LOCATION)
 
-                GlobalScope.launch(Dispatchers.Default) {
+                appLib.appScope.launch(Dispatchers.Default) {
                     val location = JSONParser.deserializer(locationJson, LocationData::class.java)
 
                     if (WidgetUtils.exists(oldKey)) {
@@ -125,7 +125,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
             CommonActions.ACTION_WEATHER_LOCATIONREMOVED -> {
                 val query = intent.getStringExtra(Constants.WIDGETKEY_LOCATIONQUERY)
 
-                GlobalScope.launch(Dispatchers.Default) {
+                appLib.appScope.launch(Dispatchers.Default) {
                     // Get widgets associated with key
                     val ids = WidgetUtils.getWidgetIds(query)
 

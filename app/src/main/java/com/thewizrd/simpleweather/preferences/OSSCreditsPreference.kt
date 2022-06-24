@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.SettingsManager
@@ -41,7 +42,7 @@ class OSSCreditsPreference : Preference {
         val progressBar = holder.itemView.findViewById<ProgressBar>(R.id.progressBar)
 
         loadJob?.cancel()
-        loadJob = GlobalScope.launch(Dispatchers.Main.immediate) {
+        loadJob = appLib.appScope.launch(Dispatchers.Main.immediate) {
             supervisorScope {
                 progressBar.visibility = View.VISIBLE
 
