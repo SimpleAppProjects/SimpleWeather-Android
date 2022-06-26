@@ -3,8 +3,10 @@ package com.thewizrd.shared_resources.weatherdata
 import androidx.annotation.StringDef
 import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 
 object WeatherAPI {
     // APIs
@@ -29,9 +31,9 @@ object WeatherAPI {
 
     /**
      * Note to self: Common steps to adding a new weather provider
-     * 1) Implement WeatherProvider class
-     * 2) Add constructor for Weather data objects
-     * 3) Update LocationQuery (if needed)
+     * 1) Implement [WeatherProvider] class
+     * 2) Add constructor for [Weather] data objects
+     * 3) Update [LocationQuery] (if needed)
      * 4) Add API to provider list below
      * 5) Add API to WeatherProviderManager / WeatherProviderFactory
      * 6) Add to remote_config_defaults.xml

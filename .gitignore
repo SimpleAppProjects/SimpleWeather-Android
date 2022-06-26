@@ -32,3 +32,4 @@ API_KEY.txt
 /extras/
 *.7z
 google-services.json
+/.privado/
