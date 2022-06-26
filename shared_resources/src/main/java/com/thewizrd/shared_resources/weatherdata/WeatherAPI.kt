@@ -125,6 +125,12 @@ object WeatherAPI {
             ProviderEntry(
                 "Weatherbit.io", WEATHERBITIO,
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
+            ),
+            ProviderEntry(
+                "Meteomatics",
+                METEOMATICS,
+                "https://www.meteomatics.com/",
+                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }
@@ -154,6 +160,12 @@ object WeatherAPI {
             ProviderEntry(
                 "Weatherbit.io", WEATHERBITIO,
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
+            ),
+            ProviderEntry(
+                "Meteomatics",
+                METEOMATICS,
+                "https://www.meteomatics.com/",
+                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }
@@ -163,12 +175,6 @@ object WeatherAPI {
             ProviderEntry(
                 "AccuWeather", ACCUWEATHER,
                 "https://www.accuweather.com/", "https://developer.accuweather.com/"
-            ),
-            ProviderEntry(
-                "Meteomatics",
-                METEOMATICS,
-                "https://www.meteomatics.com/",
-                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }
