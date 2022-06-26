@@ -84,7 +84,14 @@ fun createForecast(forecast: ForecastItem): Forecast {
             lowF = low_f
             lowC = ConversionMethods.FtoC(low_f)
         }
-        condition = forecast.description.toPascalCase()
+        condition = StringBuilder(forecast.description.toPascalCase()).apply {
+            if (forecast.airDescription.isNotBlank() && !forecast.airDescription.equals("*")) {
+                if (!endsWith('.')) {
+                    append('.')
+                }
+                append(" ${forecast.airDescription}.")
+            }
+        }.toString()
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
             .getWeatherIcon(
                 forecast.daylight == "N" || forecast.iconName.startsWith("night_"),
@@ -153,10 +160,16 @@ fun createTextForecast(forecast: ForecastItem): TextForecast {
             )
         ).apply {
             if (forecast.beaufortDescription.isNotBlank() && !forecast.beaufortDescription.equals("*")) {
-                append(". ${forecast.beaufortDescription}")
+                if (!this.endsWith('.')) {
+                    append('.')
+                }
+                append(" ${forecast.beaufortDescription}.")
             }
             if (forecast.airDescription.isNotBlank() && !forecast.airDescription.equals("*")) {
-                append(". ${forecast.airDescription}")
+                if (!this.endsWith('.')) {
+                    append('.')
+                }
+                append(" ${forecast.airDescription}.")
             }
         }.toString()
         fcttextMetric = fcttext
@@ -171,7 +184,14 @@ fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
             highF = high_f
             highC = ConversionMethods.FtoC(high_f)
         }
-        condition = hr_forecast.description.toPascalCase()
+        condition = StringBuilder(hr_forecast.description.toPascalCase()).apply {
+            if (hr_forecast.airDescription.isNotBlank() && !hr_forecast.airDescription.equals("*")) {
+                if (!endsWith('.')) {
+                    append('.')
+                }
+                append(" ${hr_forecast.airDescription}.")
+            }
+        }.toString()
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
             .getWeatherIcon(
@@ -295,10 +315,14 @@ fun createCondition(
             val df = DecimalFormat.getInstance(locale) as DecimalFormat
             df.applyPattern("#.##")
 
-            val summaryStr = StringBuilder()
-            summaryStr.append(todaysTxtForecast.fcttext) // fcttext & fcttextMetric are the same
-            if (todaysForecast.extras?.pop != null) {
-                summaryStr.append(" ${ctx.getString(R.string.label_chance)}: ${todaysForecast.extras.pop}%")
+            // fcttext & fcttextMetric are the same
+            val summaryStr = StringBuilder(todaysTxtForecast.fcttext).apply {
+                if (todaysForecast.extras?.pop != null) {
+                    if (!endsWith('.')) {
+                        append('.')
+                    }
+                    append(" ${ctx.getString(R.string.label_chance)}: ${todaysForecast.extras.pop}%")
+                }
             }
 
             summary = summaryStr.toString()
