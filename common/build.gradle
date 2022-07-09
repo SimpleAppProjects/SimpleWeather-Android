@@ -76,8 +76,8 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.13.2'
     implementation 'com.ibm.icu:icu4j:71.1'
 
-    fullgmsImplementation 'com.google.android.gms:play-services-basement:18.0.2'
-    fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.1'
+    fullgmsImplementation 'com.google.android.gms:play-services-basement:18.1.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.2'
     fullgmsImplementation 'com.google.android.gms:play-services-location:20.0.0'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:17.1.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"

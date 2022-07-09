@@ -97,12 +97,12 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.ibm.icu:icu4j:71.1'
 
-    fullgmsImplementation 'com.google.android.gms:play-services-base:18.0.1'
+    fullgmsImplementation 'com.google.android.gms:play-services-base:18.1.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 
     // Firebase
