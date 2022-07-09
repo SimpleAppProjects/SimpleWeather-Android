@@ -3,6 +3,7 @@ package com.thewizrd.weather_api.smc
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.AstroDataDateProvider
 import com.thewizrd.shared_resources.weatherdata.AstroDataProvider
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy
@@ -12,6 +13,7 @@ import com.thewizrd.weather_api.smc.SunMoonCalculator.Ephemeris
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatterBuilder
@@ -32,39 +34,93 @@ class SunMoonCalcProvider : AstroDataProvider, AstroDataDateProvider {
                 try {
                     val utc = date.withZoneSameInstant(ZoneOffset.UTC)
 
-                    val smc = SunMoonCalculator(utc.year, utc.monthValue, utc.dayOfMonth,
-                            utc.hour, utc.minute, utc.second,
-                            location.longitude * SunMoonCalculator.DEG_TO_RAD, location.latitude * SunMoonCalculator.DEG_TO_RAD, 0)
+                    val smc = SunMoonCalculator(
+                        utc.year, utc.monthValue, utc.dayOfMonth,
+                        utc.hour, utc.minute, utc.second,
+                        location.longitude * SunMoonCalculator.DEG_TO_RAD,
+                        location.latitude * SunMoonCalculator.DEG_TO_RAD
+                    )
 
                     smc.calcSunAndMoon()
 
                     // "YYYY/MM/DD HH:MM:SS UT"
                     val fmt = DateTimeFormatterBuilder()
-                            .appendValue(ChronoField.YEAR, 4)
-                            .appendLiteral('/')
-                            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-                            .appendLiteral('/')
-                            .appendValue(ChronoField.DAY_OF_MONTH, 2)
-                            .appendLiteral(' ')
-                            .appendValue(ChronoField.HOUR_OF_DAY, 2)
-                            .appendLiteral(':')
-                            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
-                            .appendLiteral(':')
-                            .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
-                            .appendLiteral(" UT")
-                            .toFormatter(Locale.ROOT)
+                        .appendValue(ChronoField.YEAR, 4)
+                        .appendLiteral('/')
+                        .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                        .appendLiteral('/')
+                        .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                        .appendLiteral(' ')
+                        .appendValue(ChronoField.HOUR_OF_DAY, 2)
+                        .appendLiteral(':')
+                        .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+                        .appendLiteral(':')
+                        .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+                        .appendLiteral(" UT")
+                        .toFormatter(Locale.ROOT)
 
-                    val sunrise = LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.sun.rise), fmt)
-                    val sunset = LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.sun.set), fmt)
-                    val moonrise = LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.moon.rise), fmt)
-                    val moonset = LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.moon.set), fmt)
+                    val sunrise = runCatching {
+                        LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.sun.rise), fmt)
+                    }.getOrElse {
+                        LocalDateTime.now().plusYears(1).minusNanos(1)
+                    }
+
+                    val sunset = runCatching {
+                        LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.sun.set), fmt)
+                    }.getOrElse {
+                        LocalDateTime.now().plusYears(1).minusNanos(1)
+                    }
+
+                    val moonrise = runCatching {
+                        LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.moon.rise), fmt)
+                    }.getOrElse {
+                        DateTimeUtils.LOCALDATETIME_MIN
+                    }
+
+                    val moonset = runCatching {
+                        LocalDateTime.parse(SunMoonCalculator.getDateAsString(smc.moon.set), fmt)
+                    }.getOrElse {
+                        DateTimeUtils.LOCALDATETIME_MIN
+                    }
 
                     val offsetSecs = location.tzOffset.totalSeconds
 
-                    astroData.sunrise = sunrise.plusSeconds(offsetSecs.toLong())
-                    astroData.sunset = sunset.plusSeconds(offsetSecs.toLong())
-                    astroData.moonrise = moonrise.plusSeconds(offsetSecs.toLong())
-                    astroData.moonset = moonset.plusSeconds(offsetSecs.toLong())
+                    astroData.sunrise = sunrise.let {
+                        if (it.isAfter(DateTimeUtils.LOCALDATETIME_MIN) && it.toLocalTime()
+                                .isBefore(LocalTime.MAX)
+                        ) {
+                            it.plusSeconds(offsetSecs.toLong())
+                        } else {
+                            it
+                        }
+                    }
+                    astroData.sunset = sunset.let {
+                        if (it.isAfter(DateTimeUtils.LOCALDATETIME_MIN) && it.toLocalTime()
+                                .isBefore(LocalTime.MAX)
+                        ) {
+                            it.plusSeconds(offsetSecs.toLong())
+                        } else {
+                            it
+                        }
+                    }
+                    astroData.moonrise = moonrise.let {
+                        if (it.isAfter(DateTimeUtils.LOCALDATETIME_MIN) && it.toLocalTime()
+                                .isBefore(LocalTime.MAX)
+                        ) {
+                            it.plusSeconds(offsetSecs.toLong())
+                        } else {
+                            it
+                        }
+                    }
+                    astroData.moonset = moonset.let {
+                        if (it.isAfter(DateTimeUtils.LOCALDATETIME_MIN) && it.toLocalTime()
+                                .isBefore(LocalTime.MAX)
+                        ) {
+                            it.plusSeconds(offsetSecs.toLong())
+                        } else {
+                            it
+                        }
+                    }
 
                     val moonPhaseType = getMoonPhase(smc.moonAge)
                     astroData.moonPhase = MoonPhase(moonPhaseType)

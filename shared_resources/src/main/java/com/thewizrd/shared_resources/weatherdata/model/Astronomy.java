@@ -145,28 +145,33 @@ public class Astronomy extends CustomJsonObject {
             writer.beginObject();
 
             // "sunrise" : ""
-            writer.name("sunrise");
-            writer.value(sunrise.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            if (sunrise != null) {
+                writer.name("sunrise");
+                writer.value(sunrise.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
 
             // "sunset" : ""
-            writer.name("sunset");
-            writer.value(sunset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            if (sunset != null) {
+                writer.name("sunset");
+                writer.value(sunset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
 
             // "moonrise" : ""
-            writer.name("moonrise");
-            writer.value(moonrise.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            if (moonrise != null) {
+                writer.name("moonrise");
+                writer.value(moonrise.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
 
             // "moonset" : ""
-            writer.name("moonset");
-            writer.value(moonset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            if (moonset != null) {
+                writer.name("moonset");
+                writer.value(moonset.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
 
             // "moonphase" : ""
             if (moonPhase != null) {
                 writer.name("moonphase");
-                if (moonPhase == null)
-                    writer.nullValue();
-                else
-                    moonPhase.toJson(writer);
+                moonPhase.toJson(writer);
             }
 
             // }

@@ -13,38 +13,35 @@ import com.thewizrd.common.CommonModule
 import com.thewizrd.common.commonModule
 import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.*
-import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.weather_api.google.location.GoogleLocationProvider
-import com.thewizrd.weather_api.google.location.createLocationModel
-import com.thewizrd.weather_api.tzdb.TimeZoneProviderImpl
-import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.weather_api.smc.SunMoonCalcProvider
-import com.thewizrd.simpleweather.images.ImageDatabase
-import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherProvider
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.simpleweather.images.ImageDatabase
+import com.thewizrd.weather_api.aqicn.AQICNProvider
+import com.thewizrd.weather_api.google.location.GoogleLocationProvider
+import com.thewizrd.weather_api.google.location.createLocationModel
 import com.thewizrd.weather_api.here.auth.hereOAuthService
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
+import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.time.Duration
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -300,9 +297,9 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val date = ZonedDateTime.now()
             val locationData = LocationData().apply {
-                latitude = 47.6721646
-                longitude = -122.1706614
-                tzLong = "America/Los_Angeles"
+                latitude = 71.17
+                longitude = -156.47
+                tzLong = "America/Anchorage"
             }
             val astro = withContext(Dispatchers.Default) {
                 SunMoonCalcProvider().getAstronomyData(locationData, date)
