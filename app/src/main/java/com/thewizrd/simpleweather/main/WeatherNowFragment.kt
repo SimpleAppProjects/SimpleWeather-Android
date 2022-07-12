@@ -418,7 +418,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
-                if (!wasStarted) onStart()
+                if (!wasStarted) this.onStart(owner)
             }
 
             override fun onPause(owner: LifecycleOwner) {
