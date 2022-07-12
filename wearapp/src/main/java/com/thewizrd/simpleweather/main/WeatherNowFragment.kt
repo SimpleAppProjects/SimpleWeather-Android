@@ -179,6 +179,7 @@ class WeatherNowFragment : CustomFragment(), OnSharedPreferenceChangeListener, W
 
             binding.refreshLayout.isRefreshing = false
             binding.progressBar.hide()
+            binding.scrollView.visibility = View.VISIBLE
         }
     }
 
