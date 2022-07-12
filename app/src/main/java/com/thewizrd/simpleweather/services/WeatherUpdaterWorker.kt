@@ -211,31 +211,36 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                     WidgetUpdaterHelper.refreshWidgets(context)
                 }
 
+                if (settingsManager.showOngoingNotification()) {
+                    WeatherNotificationWorker.refreshNotification(context)
+                }
+
+                if (settingsManager.isPoPChanceNotificationEnabled()) {
+                    PoPChanceNotificationHelper.postNotification(context)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    ShortcutCreatorWorker.updateShortcuts(context)
+                }
+
                 if (weather != null) {
-                    if (settingsManager.showOngoingNotification()) {
-                        WeatherNotificationWorker.refreshNotification(context)
-                    }
-
                     if (settingsManager.useAlerts() && wm.supportsAlerts()) {
-                        WeatherAlertHandler.postAlerts(settingsManager.getHomeData()!!, weather.weatherAlerts)
-                    }
-
-                    if (settingsManager.isPoPChanceNotificationEnabled()) {
-                        PoPChanceNotificationHelper.postNotification(context)
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                        ShortcutCreatorWorker.updateShortcuts(context)
+                        WeatherAlertHandler.postAlerts(
+                            settingsManager.getHomeData()!!,
+                            weather.weatherAlerts
+                        )
                     }
 
                     // Update data for Wearables
                     if (locationChanged) {
                         LocalBroadcastManager.getInstance(context)
-                                .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
-                                        .putExtra(CommonActions.EXTRA_FORCEUPDATE, false))
+                            .sendBroadcast(
+                                Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
+                                    .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
+                            )
                     }
                     LocalBroadcastManager.getInstance(context)
-                            .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
+                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                 } else {
                     Timber.tag(TAG).i("Work failed...")
                     return false

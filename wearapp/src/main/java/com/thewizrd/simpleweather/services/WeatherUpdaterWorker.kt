@@ -177,12 +177,15 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
                 // Update for home
                 val weather = getWeather()
 
-                if (weather != null) {
-                    WidgetUpdaterWorker.requestWidgetUpdate(context)
-                } else {
+                WidgetUpdaterWorker.requestWidgetUpdate(context)
+
+                if (weather == null) {
                     if (settingsManager.getDataSync() != WearableDataSync.OFF) {
                         // Check if data has been updated
-                        WearableWorker.enqueueAction(context, WearableWorker.ACTION_REQUESTWEATHERUPDATE)
+                        WearableWorker.enqueueAction(
+                            context,
+                            WearableWorker.ACTION_REQUESTWEATHERUPDATE
+                        )
                     }
                     Timber.tag(TAG).i("Work failed...")
                     return false
