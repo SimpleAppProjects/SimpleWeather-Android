@@ -292,6 +292,14 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".receivers.DebugModeReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="SimpleWeather.Droid.action.DEBUG_MODE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".notifications.WeatherAlertNotificationService"

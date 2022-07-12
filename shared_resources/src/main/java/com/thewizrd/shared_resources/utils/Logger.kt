@@ -22,6 +22,20 @@ object Logger {
         }
     }
 
+    fun enableDebugLogger(context: Context, enable: Boolean) {
+        if (enable) {
+            if (!Timber.forest().any { it is FileLoggingTree }) {
+                Timber.plant(FileLoggingTree(context.applicationContext))
+            }
+        } else {
+            Timber.forest().forEach {
+                if (it is FileLoggingTree) {
+                    Timber.uproot(it)
+                }
+            }
+        }
+    }
+
     @JvmStatic
     fun registerLogger(tree: Timber.Tree) {
         Timber.plant(tree)
