@@ -138,6 +138,9 @@ class WeatherListFragment : SwipeDismissFragment() {
             alertsView.updateAlerts(locationData!!)
             forecastsPanelView.updateForecasts(locationData!!)
 
+            binding.recyclerView.isEdgeItemsCenteringEnabled =
+                weatherListType == WeatherListType.ALERTS
+
             // specify an adapter (see also next example)
             when (weatherListType) {
                 WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> {
