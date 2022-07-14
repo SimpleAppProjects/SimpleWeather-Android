@@ -113,5 +113,9 @@ dependencies {
     fullgmsImplementation 'com.google.firebase:firebase-firestore'
     fullgmsImplementation 'com.google.firebase:firebase-storage'
     fullgmsImplementation 'com.google.firebase:firebase-database'
-    fullgmsImplementation 'com.google.firebase:firebase-config'
+    fullgmsImplementation ('com.google.firebase:firebase-config') {
+        version {
+            strictly '21.0.2'
+        }
+    }
 }

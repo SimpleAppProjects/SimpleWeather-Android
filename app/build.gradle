@@ -181,7 +181,11 @@ dependencies {
     fullgmsImplementation 'com.google.firebase:firebase-messaging'
     fullgmsImplementation 'com.google.firebase:firebase-storage'
     fullgmsImplementation 'com.google.firebase:firebase-database'
-    fullgmsImplementation 'com.google.firebase:firebase-config'
+    fullgmsImplementation ('com.google.firebase:firebase-config') {
+        version {
+            strictly '21.0.2'
+        }
+    }
     fullgmsImplementation 'com.google.firebase:firebase-perf'
 
     fullgmsImplementation 'com.google.android.gms:play-services-base:18.1.0'
