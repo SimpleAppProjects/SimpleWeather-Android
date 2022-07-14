@@ -7,7 +7,7 @@ buildscript {
     }
 
     ext.kotlin_version = '1.6.21'
-    ext.kotlinx_version = '1.6.3'
+    ext.kotlinx_version = '1.6.4'
     ext.firebase_version = '30.2.0'
     ext.room_version = '2.4.2'
     ext.okhttp_version = '4.10.0'
