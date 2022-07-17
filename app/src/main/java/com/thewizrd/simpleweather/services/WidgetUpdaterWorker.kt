@@ -6,9 +6,13 @@ import android.util.Log
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
@@ -16,6 +20,7 @@ import com.thewizrd.simpleweather.utils.PowerUtils
 import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -132,6 +137,11 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             val settingsManager = SettingsManager(context.applicationContext)
 
             if (settingsManager.isWeatherLoaded()) {
+                // If saved data DNE (for current location), refresh weather
+                if (getWeather() == null) {
+                    getWeather(true)
+                }
+
                 if (WidgetUpdaterHelper.widgetsExist()) {
                     WidgetUpdaterHelper.refreshWidgets(context)
                 }
@@ -151,5 +161,32 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
             Timber.tag(TAG).i("Work completed successfully...")
         }
+
+        private suspend fun getWeather(forceRefresh: Boolean = false): Weather? =
+            withContext(Dispatchers.IO) {
+                Timber.tag(TAG).d("Getting weather data for home...")
+
+                val weather = try {
+                    val locData = settingsManager.getHomeData() ?: return@withContext null
+                    WeatherDataLoader(locData)
+                        .loadWeatherData(
+                            WeatherRequest.Builder()
+                                .run {
+                                    if (forceRefresh) {
+                                        this.forceRefresh(false)
+                                            .loadAlerts()
+                                            .loadForecasts()
+                                    } else {
+                                        this.forceLoadSavedData()
+                                    }
+                                }
+                                .build()
+                        )
+                } catch (ex: Exception) {
+                    Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
+                    null
+                }
+                weather
+            }
     }
 }

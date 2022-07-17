@@ -6,16 +6,23 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.wearable.WearableDataSync
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
+import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
 import com.thewizrd.simpleweather.wearable.WeatherTileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -29,15 +36,11 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         const val ACTION_REQUEUEWORK = "SimpleWeather.Droid.action.UPDATE_ALARM"
 
         suspend fun requestWidgetUpdate(context: Context) {
-            if (settingsManager.isWeatherLoaded()) {
-                Timber.tag(TAG).i("Requesting widget update...")
+            WidgetUpdaterWork.requestWidgetUpdate(context.applicationContext)
+        }
 
-                // Update complications
-                WeatherComplicationHelper.requestComplicationUpdateAll(context.applicationContext)
-
-                // Update tiles
-                WeatherTileHelper.requestTileUpdateAll(context.applicationContext)
-            }
+        suspend fun executeWork(context: Context) {
+            WidgetUpdaterWork.executeWork(context.applicationContext)
         }
 
         @JvmStatic
@@ -130,7 +133,66 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
     }
 
     override suspend fun doWork(): Result {
-        requestWidgetUpdate(applicationContext)
+        WidgetUpdaterWork.executeWork(applicationContext)
         return Result.success()
+    }
+
+    private object WidgetUpdaterWork {
+        suspend fun executeWork(context: Context) {
+            val settingsManager = SettingsManager(context.applicationContext)
+
+            if (settingsManager.isWeatherLoaded()) {
+                // If saved data DNE (for current location), refresh weather
+                if (getWeather() == null) {
+                    if (settingsManager.getDataSync() != WearableDataSync.OFF) {
+                        // Check if data has been updated
+                        WearableWorker.enqueueAction(
+                            context,
+                            WearableWorker.ACTION_REQUESTWEATHERUPDATE
+                        )
+                    } else {
+                        getWeather(true)
+                    }
+                }
+
+                requestWidgetUpdate(context)
+            }
+
+            Timber.tag(TAG).i("Work completed successfully...")
+        }
+
+        fun requestWidgetUpdate(context: Context) {
+            // Update complications
+            WeatherComplicationHelper.requestComplicationUpdateAll(context.applicationContext)
+
+            // Update tiles
+            WeatherTileHelper.requestTileUpdateAll(context.applicationContext)
+        }
+
+        private suspend fun getWeather(forceRefresh: Boolean = false): Weather? =
+            withContext(Dispatchers.IO) {
+                Timber.tag(TAG).d("Getting weather data...")
+
+                val weather = try {
+                    val locData = settingsManager.getHomeData() ?: return@withContext null
+                    WeatherDataLoader(locData)
+                        .loadWeatherData(
+                            WeatherRequest.Builder()
+                                .run {
+                                    if (forceRefresh && settingsManager.getDataSync() == WearableDataSync.OFF) {
+                                        this.forceRefresh(false)
+                                            .loadAlerts()
+                                    } else {
+                                        this.forceLoadSavedData()
+                                    }
+                                }
+                                .build()
+                        )
+                } catch (ex: Exception) {
+                    Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
+                    null
+                }
+                weather
+            }
     }
 }

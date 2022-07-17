@@ -53,12 +53,25 @@ abstract class AbstractWidgetRemoteViewCreator(protected val context: Context) {
         locData: LocationData
     ): Weather? {
         return try {
-            WeatherDataLoader(locData)
-                .loadWeatherData(
+            // If saved data DNE (for current location), refresh weather
+            val wLoader = WeatherDataLoader(locData)
+            var weather = wLoader.loadWeatherData(
+                WeatherRequest.Builder()
+                    .forceLoadSavedData()
+                    .build()
+            )
+
+            if (weather == null) {
+                weather = wLoader.loadWeatherData(
                     WeatherRequest.Builder()
-                        .forceLoadSavedData()
+                        .forceRefresh(false)
+                        .loadAlerts()
+                        .loadForecasts()
                         .build()
                 )
+            }
+
+            weather
         } catch (e: Exception) {
             null
         }

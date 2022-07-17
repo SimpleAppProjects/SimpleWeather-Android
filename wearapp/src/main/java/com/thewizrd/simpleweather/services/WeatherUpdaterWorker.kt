@@ -201,14 +201,19 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
             val weather = try {
                 val locData = settingsManager.getHomeData() ?: return@withContext null
-                val wloader = WeatherDataLoader(locData)
-                val request = WeatherRequest.Builder()
-                if (settingsManager.getDataSync() == WearableDataSync.OFF) {
-                    request.forceRefresh(false).loadAlerts()
-                } else {
-                    request.forceLoadSavedData()
-                }
-                wloader.loadWeatherData(request.build())
+                WeatherDataLoader(locData)
+                    .loadWeatherData(
+                        WeatherRequest.Builder()
+                            .run {
+                                if (settingsManager.getDataSync() == WearableDataSync.OFF) {
+                                    this.forceRefresh(false)
+                                        .loadAlerts()
+                                } else {
+                                    this.forceLoadSavedData()
+                                }
+                            }
+                            .build()
+                    )
             } catch (ex: Exception) {
                 Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
                 null

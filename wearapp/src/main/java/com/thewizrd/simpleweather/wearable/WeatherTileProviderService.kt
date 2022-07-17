@@ -10,6 +10,7 @@ import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
+import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.simpleweather.LaunchActivity
@@ -87,12 +88,25 @@ abstract class WeatherTileProviderService : TileProviderService() {
         val weather = withContext(Dispatchers.IO) {
             try {
                 val locData = settingsManager.getHomeData() ?: return@withContext null
-                WeatherDataLoader(locData)
-                    .loadWeatherData(
+                // If saved data DNE (for current location), refresh weather
+                val wLoader = WeatherDataLoader(locData)
+                var weather = wLoader.loadWeatherData(
+                    WeatherRequest.Builder()
+                        .forceLoadSavedData()
+                        .build()
+                )
+
+                if (weather == null && settingsManager.getDataSync() == WearableDataSync.OFF) {
+                    weather = wLoader.loadWeatherData(
                         WeatherRequest.Builder()
-                            .forceLoadSavedData()
+                            .forceRefresh(false)
+                            .loadAlerts()
+                            .loadForecasts()
                             .build()
                     )
+                }
+
+                weather
             } catch (e: Exception) {
                 null
             }

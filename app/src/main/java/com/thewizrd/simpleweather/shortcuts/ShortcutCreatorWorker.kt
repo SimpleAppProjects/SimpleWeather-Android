@@ -14,6 +14,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.common.weatherdata.WeatherDataLoader
+import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -93,7 +95,16 @@ class ShortcutCreatorWorker(context: Context, workerParams: WorkerParameters) : 
             var i = 0
             while (i < MAX_SHORTCUTS) {
                 val location = locations[i]
-                val weather = settingsManager.getWeatherData(location.query)
+                val weather = try {
+                    WeatherDataLoader(location)
+                        .loadWeatherData(
+                            WeatherRequest.Builder()
+                                .forceLoadSavedData()
+                                .build()
+                        )
+                } catch (e: Exception) {
+                    null
+                }
 
                 if (weather == null || !weather.isValid || (location.name == null && weather.location?.name == null)) {
                     locations.removeAt(i)
