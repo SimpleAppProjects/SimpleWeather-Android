@@ -16,6 +16,8 @@ import android.webkit.WebView
 import androidx.annotation.RequiresApi
 import androidx.core.util.ObjectsCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -24,6 +26,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionManager
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.thewizrd.common.helpers.OnBackPressedFragmentListener
 import com.thewizrd.common.utils.ActivityUtils.setFullScreen
@@ -34,8 +37,10 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
+import com.thewizrd.shared_resources.utils.ContextUtils.isWidth
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
@@ -65,6 +70,10 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private var appUpdateManager: InAppUpdateManager? = null
 
+    private fun getNavBar(): NavigationBarView? {
+        return binding.bottomNavBar ?: binding.navigationRail
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -73,7 +82,21 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.bottomNavBar.setOnItemSelectedListener { item ->
+        if (isWidth(600)) {
+            binding.fragmentContainer.outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    val cornerRadius = view.context.dpToPx(28f)
+                    outline.setRoundRect(
+                        0, 0,
+                        view.width, view.height + cornerRadius.toInt(),
+                        cornerRadius
+                    )
+                }
+            }
+            binding.fragmentContainer.clipToOutline = true
+        }
+
+        getNavBar()?.setOnItemSelectedListener { item ->
             // Handle navigation view item clicks here.
             val id = item.itemId
 
@@ -84,9 +107,17 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             return@setOnItemSelectedListener true
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets -> insets }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            if (isWidth(600)) {
+                binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+                }
+            }
 
-        binding.bottomNavBar.outlineProvider = object : ViewOutlineProvider() {
+            insets
+        }
+
+        binding.bottomNavBar?.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRect(
                     view.paddingLeft,
@@ -192,18 +223,19 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         lifecycleScope.launchWhenStarted {
             mNavController = getNavController()
 
-            binding.bottomNavBar.setupWithNavController(mNavController!!)
+            getNavBar()?.setupWithNavController(mNavController!!)
             mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
                 refreshNavViewCheckedItem()
 
                 if (destination.id == R.id.weatherNowFragment || destination.id == R.id.locationsFragment) {
-                    binding.bottomNavBar.visibility = View.VISIBLE
+                    getNavBar()?.visibility = View.VISIBLE
                 } else {
-                    binding.bottomNavBar.postOnAnimationDelayed({
+                    getNavBar()?.postOnAnimationDelayed({
                         if (destination.id == R.id.locationSearchFragment3 || destination.id == R.id.weatherNowFragment) {
                             TransitionManager.beginDelayedTransition((binding.root as ViewGroup))
                         }
-                        binding.bottomNavBar.visibility = if (destination.id == R.id.locationSearchFragment) View.GONE else View.VISIBLE
+                        getNavBar()?.visibility =
+                            if (destination.id == R.id.locationSearchFragment) View.GONE else View.VISIBLE
                     }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
                 }
             }
@@ -350,7 +382,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
                 checkedItemId = R.id.settingsFragment
             }
 
-            val item = binding.bottomNavBar.menu.findItem(checkedItemId)
+            val item = getNavBar()?.menu?.findItem(checkedItemId)
             if (item != null) {
                 item.isChecked = true
             }
@@ -374,22 +406,22 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         }
 
         binding.root.setBackgroundColor(backgroundColor)
-        if (binding.bottomNavBar.background is MaterialShapeDrawable) {
-            val materialShapeDrawable = binding.bottomNavBar.background as MaterialShapeDrawable
+        if (getNavBar()?.background is MaterialShapeDrawable) {
+            val materialShapeDrawable = getNavBar()?.background as MaterialShapeDrawable
             materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
         } else {
-            binding.bottomNavBar.setBackgroundColor(navBarColor)
+            getNavBar()?.setBackgroundColor(navBarColor)
         }
 
         window.setTransparentWindow(
             backgroundColor, Colors.TRANSPARENT,
-            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT) {
+            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT || isWidth(600)) {
                 Colors.TRANSPARENT
             } else {
                 backgroundColor
             }
         )
-        window.setFullScreen(getOrientation() == Configuration.ORIENTATION_PORTRAIT)
+        window.setFullScreen(getOrientation() == Configuration.ORIENTATION_PORTRAIT || isWidth(600))
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

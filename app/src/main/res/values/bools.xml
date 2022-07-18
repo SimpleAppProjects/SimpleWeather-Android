@@ -2,4 +2,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <bool name="enable_alertnotifservice">true</bool>
     <bool name="config_materialPreferenceIconSpaceReserved" tools:override="true">true</bool>
+    <bool name="enable_fitsSystemWindows">true</bool>
 </resources>

@@ -53,6 +53,11 @@ object ContextUtils {
         return this.resources.configuration.smallestScreenWidthDp >= swdp
     }
 
+    @JvmStatic
+    fun Context.isWidth(dp: Int): Boolean {
+        return this.resources.configuration.screenWidthDp >= dp
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     @JvmStatic
     fun Context.isScreenRound(): Boolean {

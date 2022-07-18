@@ -5,14 +5,14 @@
     android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="@bool/enable_fitsSystemWindows"
     tools:context=".preferences.SettingsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="@bool/enable_fitsSystemWindows"
         app:liftOnScroll="true"
         tools:stateListAnimator="@null"
         tools:theme="@style/Theme.Material3.DayNight">

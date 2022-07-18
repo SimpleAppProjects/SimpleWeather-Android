@@ -246,15 +246,18 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         binding = FragmentWidgetSetupBinding.inflate(inflater, root, true)
 
         val layoutIdx = binding.layoutContainer.indexOfChild(binding.bgLocationLayout)
-        binding.layoutContainer.addView(inflatedView, layoutIdx + 1)
+        binding.layoutContainer.addView(inflatedView, layoutIdx)
 
         // For landscape orientation
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val sysBarInsets = insets.getInsets(WindowInsets.Type.systemBars())
+
             v.updatePaddingRelative(
-                start = insets.systemWindowInsetLeft,
-                end = insets.systemWindowInsetRight,
-                bottom = insets.systemWindowInsetBottom
+                start = sysBarInsets.left,
+                end = sysBarInsets.right,
+                bottom = sysBarInsets.bottom
             )
+
             insets
         }
 

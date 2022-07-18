@@ -1641,9 +1641,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             binding.rootView.setBackgroundColor(backgroundColor)
             if (binding.appBarLayout.background is MaterialShapeDrawable) {
                 val materialShapeDrawable = binding.appBarLayout.background as MaterialShapeDrawable
-                materialShapeDrawable.fillColor = ColorStateList.valueOf(navBarColor)
+                materialShapeDrawable.fillColor = ColorStateList.valueOf(statusBarColor)
             } else {
-                binding.appBarLayout.setBackgroundColor(navBarColor)
+                binding.appBarLayout.setBackgroundColor(statusBarColor)
             }
         }
     }

@@ -29,7 +29,7 @@
         android:id="@+id/root_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="@bool/enable_fitsSystemWindows"
         tools:context=".main.WeatherNowFragment">
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -38,6 +38,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             tools:src="#83808080" />
 
         <View
@@ -46,13 +47,14 @@
             android:layout_height="match_parent"
             android:background="@drawable/image_gradient_overlay"
             app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             tools:background="@android:color/transparent" />
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
+            android:fitsSystemWindows="@bool/enable_fitsSystemWindows"
             app:liftOnScroll="true"
             app:liftOnScrollTargetViewId="@id/scrollView">
 
