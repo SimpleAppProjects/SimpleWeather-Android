@@ -4,15 +4,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion '31.0.0'
+    compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {
         applicationId "com.thewizrd.simpleweather"
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        minSdkVersion 21
-        targetSdkVersion 31
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 00, WearOS: 01)
         versionCode 315610700
         versionName "5.6.1"

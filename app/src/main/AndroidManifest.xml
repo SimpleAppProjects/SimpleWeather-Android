@@ -44,7 +44,8 @@
             android:name=".setup.SetupActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/SetupTheme"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            android:resizeableActivity="true" />
         <activity
             android:name=".main.MainActivity"
             android:clearTaskOnLaunch="true"
@@ -53,14 +54,16 @@
             android:hardwareAccelerated="true"
             android:label="@string/title_activity_weather_now"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            android:resizeableActivity="true" />
         <activity
             android:name=".widgets.WeatherWidgetConfigActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
-            android:exported="true">
+            android:exported="true"
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
