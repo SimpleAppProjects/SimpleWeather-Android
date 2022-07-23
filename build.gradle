@@ -8,7 +8,7 @@ buildscript {
 
         kotlin_version = '1.6.21'
         kotlinx_version = '1.6.4'
-        firebase_version = '30.2.0'
+        firebase_version = '30.3.0'
         room_version = '2.4.2'
         okhttp_version = '4.10.0'
     }
