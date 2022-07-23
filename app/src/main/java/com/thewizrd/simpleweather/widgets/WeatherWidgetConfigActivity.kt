@@ -55,7 +55,9 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             if (isWidth(600)) {
                 binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+                    val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    topMargin = sysBarInsets.top
+                    bottomMargin = sysBarInsets.bottom
                 }
             }
 
