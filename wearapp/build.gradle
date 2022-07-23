@@ -153,11 +153,7 @@ dependencies {
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-crashlytics'
-    implementation ('com.google.firebase:firebase-config') {
-        version {
-            strictly '21.0.2'
-        }
-    }
+    implementation 'com.google.firebase:firebase-config'
     implementation 'com.google.firebase:firebase-perf'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
