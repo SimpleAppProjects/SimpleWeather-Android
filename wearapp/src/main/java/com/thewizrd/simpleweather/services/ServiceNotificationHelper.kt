@@ -39,7 +39,7 @@ internal object ServiceNotificationHelper {
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun getForegroundNotification(context: Context): Notification {
         return NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_logo_stroke)
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .setContentTitle(context.getString(R.string.not_title_weather_update))
             .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
             .setOnlyAlertOnce(true)
