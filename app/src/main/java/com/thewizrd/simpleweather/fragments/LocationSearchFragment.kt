@@ -436,32 +436,28 @@ class LocationSearchFragment : WindowColorFragment() {
                 private var mY = 0
                 private var shouldCloseKeyboard = false
 
-                override fun onDown(e: MotionEvent?): Boolean {
-                    e?.run {
-                        mY = y.toInt()
-                    }
+                override fun onDown(e: MotionEvent): Boolean {
+                    mY = e.y.toInt()
                     return super.onDown(e)
                 }
 
-                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                     navController.navigateUp()
                     return super.onSingleTapConfirmed(e)
                 }
 
                 override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
+                    e1: MotionEvent,
+                    e2: MotionEvent,
                     distanceX: Float,
                     distanceY: Float
                 ): Boolean {
-                    e2?.run {
-                        val newY = y.toInt()
-                        val dY = mY - newY
-                        mY = newY
-                        // Set flag to hide the keyboard if we're scrolling down
-                        // So we can see what's behind the keyboard
-                        shouldCloseKeyboard = dY > 0
-                    }
+                    val newY = e2.y.toInt()
+                    val dY = mY - newY
+                    mY = newY
+                    // Set flag to hide the keyboard if we're scrolling down
+                    // So we can see what's behind the keyboard
+                    shouldCloseKeyboard = dY > 0
 
                     if (shouldCloseKeyboard) {
                         hideInputMethod(v)
@@ -472,19 +468,17 @@ class LocationSearchFragment : WindowColorFragment() {
                 }
 
                 override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
+                    e1: MotionEvent,
+                    e2: MotionEvent,
                     velocityX: Float,
                     velocityY: Float
                 ): Boolean {
-                    e2?.run {
-                        val newY = y.toInt()
-                        val dY = mY - newY
-                        mY = newY
-                        // Set flag to hide the keyboard if we're scrolling down
-                        // So we can see what's behind the keyboard
-                        shouldCloseKeyboard = dY > 0
-                    }
+                    val newY = e2.y.toInt()
+                    val dY = mY - newY
+                    mY = newY
+                    // Set flag to hide the keyboard if we're scrolling down
+                    // So we can see what's behind the keyboard
+                    shouldCloseKeyboard = dY > 0
 
                     if (shouldCloseKeyboard) {
                         hideInputMethod(v)
