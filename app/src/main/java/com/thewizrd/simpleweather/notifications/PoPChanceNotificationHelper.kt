@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
+import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
@@ -31,7 +32,7 @@ object PoPChanceNotificationHelper {
     suspend fun postNotification(context: Context) {
         val settingsManager = SettingsManager(context.applicationContext)
 
-        if (!settingsManager.isPoPChanceNotificationEnabled() || !settingsManager.isWeatherLoaded()) return
+        if (!settingsManager.isPoPChanceNotificationEnabled() || !settingsManager.isWeatherLoaded() || !context.areNotificationsEnabled()) return
 
         val now = ZonedDateTime.now(ZoneOffset.UTC)
         val lastPostTime = settingsManager.getLastPoPChanceNotificationTime()

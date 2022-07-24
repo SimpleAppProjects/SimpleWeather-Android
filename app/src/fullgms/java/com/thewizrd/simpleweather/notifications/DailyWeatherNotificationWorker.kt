@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
+import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.R
@@ -128,7 +129,7 @@ class DailyWeatherNotificationWorker(appContext: Context, params: WorkerParamete
         suspend fun executeWork(context: Context) {
             val settingsMgr = SettingsManager(context)
 
-            if (!settingsMgr.isDailyNotificationEnabled()) return
+            if (!settingsMgr.isDailyNotificationEnabled() || !context.areNotificationsEnabled()) return
 
             val now = ZonedDateTime.now(Clock.systemDefaultZone())
 

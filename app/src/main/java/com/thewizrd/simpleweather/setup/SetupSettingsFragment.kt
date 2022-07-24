@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.setup
 
+import android.Manifest
 import android.app.Activity
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -7,6 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.NonNull
 import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
@@ -15,6 +18,7 @@ import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -29,6 +33,7 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager
 class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
     private lateinit var binding: FragmentSetupSettingsBinding
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +42,8 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
 
         locationPermissionLauncher = LocationPermissionLauncher(this)
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
     }
 
     @NonNull
@@ -74,6 +81,7 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
         val notIconPref = findPreference<ListPreference>(SettingsManager.KEY_NOTIFICATIONICON)!!
         val onGoingPref =
             findPreference<SwitchPreferenceCompat>(SettingsManager.KEY_ONGOINGNOTIFICATION)!!
+        val alertsPref = findPreference<SwitchPreferenceCompat>(SettingsManager.KEY_USEALERTS)!!
 
         if (enableAdditionalRefreshIntervals()) {
             intervalPref.setEntries(R.array.premium_refreshinterval_entries)
@@ -83,8 +91,16 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
             intervalPref.setEntryValues(R.array.refreshinterval_values)
         }
 
-        onGoingPref.setOnPreferenceChangeListener { _, newValue ->
+        onGoingPref.setOnPreferenceChangeListener { preference, newValue ->
             val value = newValue as Boolean
+
+            if (value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (!preference.context.notificationPermissionEnabled()) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return@setOnPreferenceChangeListener false
+                }
+            }
+
             notIconPref.isVisible = value
 
             if (value && settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() && requireActivity().backgroundLocationPermissionEnabled()) {
@@ -101,6 +117,19 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                     }
                     showSnackbar(snackbar)
                     settingsManager.setRequestBGAccess(true)
+                }
+            }
+
+            true
+        }
+
+        alertsPref.setOnPreferenceChangeListener { preference, newValue ->
+            val value = newValue as Boolean
+
+            if (value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (!preference.context.notificationPermissionEnabled()) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return@setOnPreferenceChangeListener false
                 }
             }
 

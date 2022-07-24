@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.preferences
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -20,6 +21,8 @@ import android.text.format.DateFormat
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.location.LocationManagerCompat
@@ -29,10 +32,7 @@ import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.thewizrd.common.helpers.LocationPermissionLauncher
-import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
-import com.thewizrd.common.helpers.getBackgroundLocationRationale
-import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.*
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -105,6 +105,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private var splitInstallRequest: InstallRequest? = null
 
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
     companion object {
         // Preference Keys
@@ -202,6 +203,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
             }
         )
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
     }
 
     override fun onResume() {
@@ -645,6 +648,13 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
             // On-going notification
             if (newValue as Boolean) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!preference.context.notificationPermissionEnabled()) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        return@OnPreferenceChangeListener false
+                    }
+                }
+
                 WeatherNotificationWorker.requestRefreshNotification(context)
 
                 if (notCategory.findPreference<Preference?>(SettingsManager.KEY_NOTIFICATIONICON) == null)
@@ -685,8 +695,17 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
             // Alert notification
             if (newValue as Boolean) {
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!preference.context.notificationPermissionEnabled()) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        return@OnPreferenceChangeListener false
+                    }
+                }
+
+                enqueueIntent(
+                    Intent(context, WeatherUpdaterWorker::class.java)
+                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                )
             } else {
                 enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))

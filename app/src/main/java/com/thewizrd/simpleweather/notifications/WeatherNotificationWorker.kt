@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import androidx.work.*
 import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.utils.Logger
@@ -96,7 +97,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
 
             val settingsManager = SettingsManager(context.applicationContext)
 
-            if (settingsManager.isWeatherLoaded()) {
+            if (settingsManager.isWeatherLoaded() && context.areNotificationsEnabled()) {
                 val weather = withContext(Dispatchers.IO) {
                     val locData = settingsManager.getHomeData() ?: return@withContext null
                     val wLoader = WeatherDataLoader(locData)

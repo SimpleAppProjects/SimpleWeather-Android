@@ -12,6 +12,7 @@ import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.thewizrd.common.controls.WeatherAlertViewModel
+import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
@@ -40,6 +41,9 @@ object WeatherAlertNotificationBuilder {
 
     suspend fun createNotifications(location: LocationData, alerts: Collection<WeatherAlert>) = withContext(Dispatchers.Default) {
         val context = appLib.context
+
+        if (!context.areNotificationsEnabled()) return@withContext
+
         // Gets an instance of the NotificationManager service
         val mNotifyMgr = NotificationManagerCompat.from(context)
         initChannel()

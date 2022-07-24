@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
+import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.preferences.UpdateSettings
@@ -86,7 +87,7 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
         val appUpdateManager = InAppUpdateManager.create(applicationContext)
 
         if (appUpdateManager.checkIfUpdateAvailable()) {
-            if (appUpdateManager.updatePriority > 3 && !UpdateSettings.isUpdateAvailable) {
+            if (appUpdateManager.updatePriority > 3 && !UpdateSettings.isUpdateAvailable && applicationContext.areNotificationsEnabled()) {
                 // Notify user of update availability
                 val mNotifyMgr =
                     applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
