@@ -13,6 +13,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
@@ -58,15 +59,12 @@ import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isLandscape
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
-import com.thewizrd.shared_resources.utils.CustomException
-import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
@@ -1477,6 +1475,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
         }
     }
 
+    // TODO: Find a fix for Android 13+ (READ_EXTERNAL_STORAGE is deprecated)
     private suspend fun loadWallpaperBackground(skipPermissions: Boolean = false) {
         if (!skipPermissions && ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -1496,6 +1495,8 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                     wallpaperLoaded = true
                 }
             }
+        }.onFailure {
+            Logger.writeLine(Log.DEBUG, it)
         }
     }
 }

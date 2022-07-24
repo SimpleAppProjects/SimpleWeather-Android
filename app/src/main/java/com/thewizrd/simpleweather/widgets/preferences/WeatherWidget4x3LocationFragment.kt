@@ -13,6 +13,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -62,6 +63,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.CustomException
 import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
@@ -1126,6 +1128,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
     }
 
+    // TODO: Find a fix for Android 13+ (READ_EXTERNAL_STORAGE is deprecated)
     private suspend fun loadWallpaperBackground(skipPermissions: Boolean = false) {
         if (!skipPermissions && ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -1145,6 +1148,8 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                     wallpaperLoaded = true
                 }
             }
+        }.onFailure {
+            Logger.writeLine(Log.DEBUG, it)
         }
     }
 }
