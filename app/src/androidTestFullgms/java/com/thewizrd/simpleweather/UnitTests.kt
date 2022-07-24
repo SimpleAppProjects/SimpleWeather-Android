@@ -25,6 +25,7 @@ import com.thewizrd.simpleweather.images.ImageDatabase
 import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.google.location.GoogleLocationProvider
 import com.thewizrd.weather_api.google.location.createLocationModel
+import com.thewizrd.weather_api.google.location.getFromLocationNameAsync
 import com.thewizrd.weather_api.here.auth.hereOAuthService
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
@@ -324,9 +325,9 @@ class UnitTests {
             assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
-                geocoder.getFromLocationName("Redmond", 5) // Redmond
+                geocoder.getFromLocationNameAsync("Redmond", 5) // Redmond
             }
-            assertFalse(addressList.isNullOrEmpty())
+            assertFalse(addressList.isEmpty())
         }
     }
 
@@ -356,7 +357,7 @@ class UnitTests {
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Berlin, Germany", null)
             }
-            assertFalse(locations.isNullOrEmpty())
+            assertFalse(locations.isEmpty())
 
             val queryVM = locations.firstOrNull()
             assertNotNull(queryVM)
@@ -400,7 +401,7 @@ class UnitTests {
             val locations = withContext(Dispatchers.IO) {
                 locationProvider.getLocations("Redmond, WA", WeatherAPI.WEATHERAPI)
             }
-            assertFalse(locations.isNullOrEmpty())
+            assertFalse(locations.isEmpty())
 
             val queryVM = locations.find { it.locationName?.startsWith("Redmond") == true }
             assertNotNull(queryVM)

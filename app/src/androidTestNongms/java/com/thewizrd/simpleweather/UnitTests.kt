@@ -258,7 +258,7 @@ class UnitTests {
             assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
-                geocoder.getFromLocationName("Redmond", 5) // Redmond
+                geocoder.getFromLocationNameAsync("Redmond", 5) // Redmond
             }
             assertFalse(addressList.isNullOrEmpty())
         }
@@ -270,9 +270,9 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             assertTrue(Geocoder.isPresent())
             val geocoder = Geocoder(context, Locale.getDefault())
-            //List<Address> addressList = geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington
+            //List<Address> addressList = geocoder.getFromLocationAsync(47.6721646, -122.1706614, 1); // Washington
             val addressList = withContext(Dispatchers.IO) {
-                geocoder.getFromLocation(51.5073884, -0.1334347, 1) // London
+                geocoder.getFromLocationAsync(51.5073884, -0.1334347, 1) // London
             }
             assertFalse(addressList.isNullOrEmpty())
             val result = addressList!![0]

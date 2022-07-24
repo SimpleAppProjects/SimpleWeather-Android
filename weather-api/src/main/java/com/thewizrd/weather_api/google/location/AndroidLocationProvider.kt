@@ -50,7 +50,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val addresses = weatherModule.geocoder.getFromLocationName(ac_query, 10)
+            val addresses = weatherModule.geocoder.getFromLocationNameAsync(ac_query!!, 10)
 
             locations = HashSet()
             for (result in addresses) {
@@ -93,7 +93,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val addresses = weatherModule.geocoder.getFromLocationName(model.locationName, 1)
+            val addresses = weatherModule.geocoder.getFromLocationNameAsync(model.locationName!!, 1)
 
             result = addresses[0]
         } catch (ex: Exception) {
@@ -127,7 +127,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val addresses = weatherModule.geocoder.getFromLocation(
+            val addresses = weatherModule.geocoder.getFromLocationAsync(
                 coordinate.latitude,
                 coordinate.longitude,
                 1

@@ -13,15 +13,15 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.thewizrd.weather_api.keys.Keys
-import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderImpl
 import com.thewizrd.weather_api.weatherModule
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -205,7 +205,7 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
         var wEx: WeatherException? = null
 
         try {
-            val addresses = weatherModule.geocoder.getFromLocationName(model.locationName, 1)
+            val addresses = weatherModule.geocoder.getFromLocationNameAsync(model.locationName!!, 1)
 
             result = addresses[0]
         } catch (ex: Exception) {
@@ -245,7 +245,11 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
 
         try {
             val addresses =
-                weatherModule.geocoder.getFromLocation(coordinate.latitude, coordinate.longitude, 1)
+                weatherModule.geocoder.getFromLocationAsync(
+                    coordinate.latitude,
+                    coordinate.longitude,
+                    1
+                )
 
             result = addresses[0]
         } catch (ex: Exception) {

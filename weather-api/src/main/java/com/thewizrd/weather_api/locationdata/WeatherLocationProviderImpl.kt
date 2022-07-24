@@ -13,6 +13,8 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.google.location.createLocationModel
+import com.thewizrd.weather_api.google.location.getFromLocationAsync
+import com.thewizrd.weather_api.google.location.getFromLocationNameAsync
 import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +86,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
 
             try {
                 val addresses =
-                    weatherModule.geocoder.getFromLocation(
+                    weatherModule.geocoder.getFromLocationAsync(
                         coordinate.latitude,
                         coordinate.longitude,
                         5
@@ -160,7 +162,8 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
             var wEx: WeatherException? = null
 
             try {
-                val addresses = weatherModule.geocoder.getFromLocationName(model.locationName, 1)
+                val addresses =
+                    weatherModule.geocoder.getFromLocationNameAsync(model.locationName!!, 1)
 
                 result = addresses[0]
             } catch (ex: Exception) {
