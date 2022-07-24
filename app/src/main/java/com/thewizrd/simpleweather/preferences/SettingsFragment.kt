@@ -21,11 +21,13 @@ import android.text.format.DateFormat
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.location.LocationManagerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
@@ -68,6 +70,7 @@ import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.simpleweather.wearable.WearableWorkerActions
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class SettingsFragment : ToolbarPreferenceFragmentCompat(),
@@ -106,6 +109,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     companion object {
         // Preference Keys
@@ -205,6 +210,35 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         )
         notificationPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
+        onBackPressedCallback = object : OnBackPressedCallback(isProviderAndKeyInvalid()) {
+            override fun handleOnBackPressed() {
+                if (isProviderAndKeyInvalid()) {
+                    // Set keyentrypref color to red
+                    context?.let {
+                        showSnackbar(
+                            Snackbar.make(
+                                it,
+                                R.string.message_enter_apikey,
+                                Snackbar.Duration.LONG
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+    }
+
+    private fun checkBackPressedCallback() {
+        onBackPressedCallback.isEnabled = isProviderAndKeyInvalid()
+    }
+
+    private fun isProviderAndKeyInvalid(): Boolean {
+        return settingsManager.usePersonalKey() &&
+                settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
+                weatherModule.weatherManager.isKeyRequired(providerPref.value)
     }
 
     override fun onResume() {
@@ -225,10 +259,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
     override fun onPause() {
         AnalyticsLogger.logEvent("SettingsFragment: onPause")
-        if (settingsManager.usePersonalKey() &&
-            settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-            weatherModule.weatherManager.isKeyRequired(providerPref.value)
-        ) {
+        if (isProviderAndKeyInvalid()) {
             // Fallback to supported weather provider
             val API = remoteConfigService.getDefaultWeatherProvider()
             providerPref.value = API
@@ -308,27 +339,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         intentQueue.clear()
 
         super.onPause()
-    }
-
-    override fun onBackPressed(): Boolean {
-        if ((settingsManager.usePersonalKey() &&
-                    settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                    weatherModule.weatherManager.isKeyRequired(providerPref.value))
-        ) {
-            // Set keyentrypref color to red
-            context?.let {
-                showSnackbar(
-                    Snackbar.make(
-                        it,
-                        R.string.message_enter_apikey,
-                        Snackbar.Duration.LONG
-                    )
-                )
-            }
-            return true
-        }
-
-        return false
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -572,6 +582,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
 
                 updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
+
+                lifecycleScope.launch(Dispatchers.Main) {
+                    checkBackPressedCallback()
+                }
 
                 return true
             }

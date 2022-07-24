@@ -31,7 +31,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher"
-        tools:targetApi="n">
+        tools:targetApi="33">
         <activity
             android:name=".LaunchActivity"
             android:theme="@style/AppTheme.Launcher"

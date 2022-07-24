@@ -110,7 +110,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
     private val mMainHandler = Handler(Looper.getMainLooper())
 
-    private var onBackPressedCallback: OnBackPressedCallback? = null
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     private val wm = weatherModule.weatherManager
 
@@ -306,7 +306,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
             }
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback!!)
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override val scrollTargetViewId: Int
@@ -945,7 +945,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
     private fun toggleEditMode() {
         // Toggle EditMode
         mEditMode = !mEditMode
-        onBackPressedCallback!!.isEnabled = mEditMode
+        onBackPressedCallback.isEnabled = mEditMode
         mAdapter.setInEditMode(mEditMode)
 
         // Set Drag & Swipe ability

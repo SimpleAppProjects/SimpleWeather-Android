@@ -14,13 +14,17 @@ import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
-import com.thewizrd.common.helpers.*
+import com.thewizrd.common.helpers.LocationPermissionLauncher
+import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
+import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -63,6 +67,7 @@ class SettingsActivity : WearableListenerActivity() {
 
     override lateinit var broadcastReceiver: BroadcastReceiver
     override lateinit var intentFilter: IntentFilter
+    private lateinit var fragmentOnBackPressedCallback: OnBackPressedCallback
 
     override fun attachBaseContext(newBase: Context) {
         // Use night mode resources (needed for external weather icons)
@@ -86,6 +91,19 @@ class SettingsActivity : WearableListenerActivity() {
 
         remoteActivityHelper = RemoteActivityHelper(this)
 
+        fragmentOnBackPressedCallback =
+            object : OnBackPressedCallback(supportFragmentManager.backStackEntryCount > 0) {
+                override fun handleOnBackPressed() {
+                    if (supportFragmentManager.backStackEntryCount > 0) {
+                        supportFragmentManager.popBackStack()
+                    }
+                }
+            }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            fragmentOnBackPressedCallback.isEnabled = supportFragmentManager.backStackEntryCount > 0
+        }
+
         // Display the fragment as the main content.
         val fragment = supportFragmentManager.findFragmentById(android.R.id.content)
 
@@ -97,25 +115,7 @@ class SettingsActivity : WearableListenerActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        val current = supportFragmentManager.findFragmentById(android.R.id.content)
-
-        var fragBackPressedListener: OnBackPressedFragmentListener? = null
-        if (current is OnBackPressedFragmentListener)
-            fragBackPressedListener = current
-
-        // If fragment doesn't handle onBackPressed event fallback to this impl
-        if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
-            if (supportFragmentManager.backStackEntryCount > 0) {
-                supportFragmentManager.popBackStack()
-            } else {
-                super.onBackPressed()
-            }
-        }
-    }
-
-    class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener,
-        OnBackPressedFragmentListener {
+    class SettingsFragment : SwipeDismissPreferenceFragment(), OnSharedPreferenceChangeListener {
         companion object {
             // Preference Keys
             private const val KEY_ABOUTAPP = "key_aboutapp"
@@ -154,6 +154,8 @@ class SettingsActivity : WearableListenerActivity() {
 
         private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
+        private lateinit var onBackPressedCallback: OnBackPressedCallback
+
         override val titleResId: Int
             get() = R.string.title_activity_settings
 
@@ -177,19 +179,27 @@ class SettingsActivity : WearableListenerActivity() {
                     }
                 }
             )
-        }
 
-        override fun onBackPressed(): Boolean {
-            if (settingsManager.usePersonalKey() &&
-                settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                weatherModule.weatherManager.isKeyRequired(providerPref.value)
-            ) {
-                // Set keyentrypref color to red
-                showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT)
-                return true
+            onBackPressedCallback = object : OnBackPressedCallback(isProviderAndKeyInvalid()) {
+                override fun handleOnBackPressed() {
+                    if (isProviderAndKeyInvalid()) {
+                        // Set keyentrypref color to red
+                        showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT)
+                    }
+                }
             }
 
-            return false
+            requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        }
+
+        private fun checkBackPressedCallback() {
+            onBackPressedCallback.isEnabled = isProviderAndKeyInvalid()
+        }
+
+        private fun isProviderAndKeyInvalid(): Boolean {
+            return settingsManager.usePersonalKey() &&
+                    settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
+                    weatherModule.weatherManager.isKeyRequired(providerPref.value)
         }
 
         override fun onResume() {
@@ -229,10 +239,7 @@ class SettingsActivity : WearableListenerActivity() {
         override fun onPause() {
             AnalyticsLogger.logEvent("SettingsFragment: onPause")
 
-            if (settingsManager.usePersonalKey() &&
-                settingsManager.getAPIKey(providerPref.value).isNullOrBlank() &&
-                weatherModule.weatherManager.isKeyRequired(providerPref.value)
-            ) {
+            if (isProviderAndKeyInvalid()) {
                 // Fallback to supported weather provider
                 val API = remoteConfigService.getDefaultWeatherProvider()
                 providerPref.value = API
@@ -530,6 +537,10 @@ class SettingsActivity : WearableListenerActivity() {
                     apiCategory.removePreference(registerPref)
                     updateKeySummary()
                     updateRegisterLink()
+                }
+
+                lifecycleScope.launch(Dispatchers.Main) {
+                    checkBackPressedCallback()
                 }
 
                 true

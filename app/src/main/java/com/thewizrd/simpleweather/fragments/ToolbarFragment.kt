@@ -14,7 +14,6 @@ import androidx.navigation.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.transition.MaterialFadeThrough
-import com.thewizrd.common.helpers.OnBackPressedFragmentListener
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -22,7 +21,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding
 
-abstract class ToolbarFragment : WindowColorFragment(), OnBackPressedFragmentListener {
+abstract class ToolbarFragment : WindowColorFragment() {
     // Views
     private lateinit var binding: FragmentToolbarLayoutBinding
 
@@ -32,10 +31,6 @@ abstract class ToolbarFragment : WindowColorFragment(), OnBackPressedFragmentLis
         get() = binding.rootView
     val toolbar: Toolbar
         get() = binding.toolbar
-
-    override fun onBackPressed(): Boolean {
-        return false
-    }
 
     @get:StringRes
     protected abstract val titleResId: Int

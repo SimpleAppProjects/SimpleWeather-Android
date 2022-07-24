@@ -28,7 +28,6 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.shape.MaterialShapeDrawable
-import com.thewizrd.common.helpers.OnBackPressedFragmentListener
 import com.thewizrd.common.utils.ActivityUtils.setFullScreen
 import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.Constants
@@ -292,19 +291,6 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             }
             args.putSerializable(Constants.ARGS_WEATHERLISTTYPE, WeatherListType.ALERTS)
             mNavController?.navigate(R.id.weatherListFragment, args)
-        }
-    }
-
-    override fun onBackPressed() {
-        val current = supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.primaryNavigationFragment
-
-        var fragBackPressedListener: OnBackPressedFragmentListener? = null
-        if (current is OnBackPressedFragmentListener)
-            fragBackPressedListener = current
-
-        // If fragment doesn't handle onBackPressed event fallback to this impl
-        if (fragBackPressedListener == null || !fragBackPressedListener.onBackPressed()) {
-            super.onBackPressed()
         }
     }
 
