@@ -23,6 +23,7 @@
     <application
         android:name=".App"
         android:allowBackup="${allowBackup}"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
