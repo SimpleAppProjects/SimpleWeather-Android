@@ -1,5 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.thewizrd.shared_resources">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:localeConfig="@xml/locales_config"
+        tools:targetApi="33">
+        <receiver
+            android:name=".receivers.LocaleChangeReceiver"
+            android:enabled="@bool/enable_localeservice"
+            android:exported="@bool/enable_localeservice">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

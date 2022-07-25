@@ -1,18 +1,18 @@
 package com.thewizrd.common.migrations
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.UpdateSettings
-import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.shared_resources.utils.Units
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
@@ -125,6 +125,21 @@ object VersionMigrations {
             }
 
             settingsMgr.setVersionCode(versionCode)
+        }
+
+        if (settingsMgr.getSDKVersionCode() < Build.VERSION.SDK_INT) {
+            val start = settingsMgr.getSDKVersionCode()
+            val end = Build.VERSION.SDK_INT
+
+            for (i in start..end) {
+                when (i) {
+                    Build.VERSION_CODES.TIRAMISU -> {
+                        AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(LocaleUtils.getLocale()))
+                    }
+                }
+            }
+
+            settingsMgr.setSDKVersionCode(end)
         }
     }
 }

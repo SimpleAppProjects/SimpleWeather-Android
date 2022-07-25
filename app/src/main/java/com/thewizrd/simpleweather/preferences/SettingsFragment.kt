@@ -15,6 +15,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -768,10 +769,22 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
 
         languagePref.setDefaultValue("")
         languagePref.value = LocaleUtils.getLocaleCode()
-        languagePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val requestedLang = newValue.toString()
-            splitInstallRequest = LocaleInstaller.installLocale(requireActivity(), requestedLang)
-            false
+        languagePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                val requestedLang = newValue.toString()
+                LocaleUtils.setLocaleCode(requestedLang)
+                true
+            }
+        languagePref.setOnPreferenceClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                runCatching {
+                    it.context.startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                        data = Uri.parse("package:${it.context.packageName}")
+                    })
+                }
+            }
+
+            true
         }
 
         if (isPremiumSupported()) {
@@ -946,7 +959,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             val is24hour = DateFormat.is24HourFormat(preference.getContext())
 
             val f = MaterialTimePicker.Builder()
-                    .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
+                .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
                 .setHour(preference.hourOfDay)
                 .setMinute(preference.minute)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
@@ -969,6 +982,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 f.setTargetFragment(this@SettingsFragment, 0)
                 f.show(parentFragmentManager, TAG)
             }
+        } else if (preference.key == LocaleUtils.KEY_LANGUAGE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Disable dialog for SDK 33+
         } else {
             super.onDisplayPreferenceDialog(preference)
         }

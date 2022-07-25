@@ -79,6 +79,7 @@ class SettingsManager(context: Context) {
         const val KEY_USEALERTS = "key_usealerts"
         const val KEY_USEPERSONALKEY = "key_usepersonalkey"
         private const val KEY_CURRENTVERSION = "key_currentversion"
+        private const val KEY_CURRENT_SDK_VERSION = "key_current_sdk_version"
         const val KEY_TEMPUNIT = "key_tempunit"
         const val KEY_SPEEDUNIT = "key_speedunit"
         const val KEY_DISTANCEUNIT = "key_distanceunit"
@@ -742,6 +743,16 @@ class SettingsManager(context: Context) {
         val versionEditor = versionPrefs.edit()
         versionEditor.putString(KEY_CURRENTVERSION, value.toString())
         versionEditor.apply()
+    }
+
+    fun getSDKVersionCode(): Int {
+        return versionPrefs.getInt(KEY_CURRENT_SDK_VERSION, 0)
+    }
+
+    fun setSDKVersionCode(value: Int) {
+        versionPrefs.edit {
+            putInt(KEY_CURRENT_SDK_VERSION, value)
+        }
     }
 
     fun getMaxLocations(): Int {

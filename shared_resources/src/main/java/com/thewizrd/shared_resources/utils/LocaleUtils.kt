@@ -3,10 +3,15 @@ package com.thewizrd.shared_resources.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.LocaleManagerCompat
 import androidx.core.content.edit
+import androidx.core.os.LocaleListCompat
 import androidx.preference.PreferenceManager
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.sharedDeps
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 object LocaleUtils {
@@ -42,8 +47,7 @@ object LocaleUtils {
         return appLib.preferences.getString(KEY_LANGUAGE, "")
     }
 
-    @JvmStatic
-    fun getLocaleCode(context: Context): String? {
+    private fun getLocaleCode(context: Context): String? {
         return getPreferences(context).getString(KEY_LANGUAGE, "")
     }
 
@@ -54,6 +58,11 @@ object LocaleUtils {
         }
         updateLocale(localeCode)
         updateAppContextLocale()
+
+        // TODO: NOTE: bug when app is restarted appContext locale is reset
+        appLib.appScope.launch(Dispatchers.Main.immediate) {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(getLocale()))
+        }
     }
 
     private fun getPreferences(context: Context): SharedPreferences {
@@ -78,7 +87,7 @@ object LocaleUtils {
     }
 
     private fun updateLocale(localeCode: String?) {
-        sLocale = getLocaleForCode(localeCode)
+        sLocale = getLocaleForTag(localeCode)
     }
 
     @JvmStatic
@@ -88,22 +97,21 @@ object LocaleUtils {
         }
     }
 
-    private fun getLocaleForCode(localeCode: String?): Locale {
-        return if (!localeCode.isNullOrBlank()) {
-            Locale(localeCode)
-        } else {
-            Locale.getDefault()
-        }
-    }
-
     @JvmStatic
     fun getLocaleForTag(localeCode: String?): Locale {
         return if (localeCode.isNullOrBlank()) {
-            Locale.getDefault()
+            getDefault()
         } else if (localeCode.contains('-') || localeCode.contains('_')) {
             Locale.forLanguageTag(localeCode)
         } else {
             Locale(localeCode)
         }
+    }
+
+    @JvmStatic
+    fun getDefault(): Locale {
+        return runCatching {
+            LocaleManagerCompat.getSystemLocales(appLib.context).get(0) ?: Locale.getDefault()
+        }.getOrDefault(Locale.getDefault())
     }
 }

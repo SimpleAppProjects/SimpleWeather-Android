@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
+import android.app.LocaleManager
 import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences
@@ -14,6 +15,7 @@ import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.work.Configuration
@@ -165,6 +167,22 @@ class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
             appLib.registerAppSharedPreferenceListener()
 
             DynamicColors.applyToActivitiesIfAvailable(this)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val localeMgr = getSystemService(LocaleManager::class.java)
+            val locales = localeMgr.applicationLocales
+            if (!locales.isEmpty) {
+                val locale = locales.get(0)
+                if (locale != LocaleUtils.getLocale()) {
+                    val tag = locale.toLanguageTag()
+                    LocaleUtils.setLocaleCode(tag)
+                }
+            } else {
+                LocaleUtils.setLocaleCode("")
+            }
+        } else {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(LocaleUtils.getLocale()))
         }
     }
 
