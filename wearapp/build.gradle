@@ -40,6 +40,7 @@ android {
     }
 
     buildFeatures {
+        compose true
         dataBinding true
         viewBinding true
     }
@@ -60,6 +61,10 @@ android {
         // Sets Java compatibility to Java 8
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
     }
 
     kotlinOptions {
@@ -148,6 +153,22 @@ dependencies {
     implementation 'androidx.wear:wear-remote-interactions:1.0.0'
     implementation 'androidx.wear.watchface:watchface-complications-data:1.1.0'
     implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.1.0'
+
+    // WearOS Compose
+    implementation "androidx.activity:activity-compose:$appcompat_version"
+    implementation "androidx.compose.compiler:compiler:$compose_compiler_version"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0'
+    implementation "androidx.wear.compose:compose-foundation:1.1.0-alpha01"
+    implementation "androidx.wear.compose:compose-material:1.1.0-alpha01"
+    implementation "androidx.wear.compose:compose-navigation:1.1.0-alpha01"
+
+    implementation "com.google.accompanist:accompanist-drawablepainter:0.24.13-rc"
+    implementation "com.google.android.horologist:horologist-compose-layout:0.0.29"
+
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
     // Firebase
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
