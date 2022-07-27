@@ -17,13 +17,14 @@ buildscript {
         nav_version = '2.5.0'
         room_version = '2.5.0-alpha02'
 
-        moshi_version = '1.10.0'
+        moshi_version = '1.13.0'
         okhttp_version = '4.10.0'
     }
 
     repositories {
         mavenCentral()
         google()
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
@@ -43,6 +44,7 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+        maven { url 'https://jitpack.io' }
     }
 }
 

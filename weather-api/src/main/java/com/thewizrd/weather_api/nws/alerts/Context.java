@@ -2,7 +2,7 @@ package com.thewizrd.weather_api.nws.alerts;
 
 import com.squareup.moshi.Json;
 
-//@JsonClass(generateAdapter = true)
+//@JsonClass(generateAdapter = true, generator = "java")
 public class Context {
 
     @Json(name = "wx")

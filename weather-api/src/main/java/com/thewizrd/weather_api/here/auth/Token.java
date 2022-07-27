@@ -5,7 +5,7 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 
 import java.time.ZonedDateTime;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 class Token {
     private String access_token;
     private String expiration_date;

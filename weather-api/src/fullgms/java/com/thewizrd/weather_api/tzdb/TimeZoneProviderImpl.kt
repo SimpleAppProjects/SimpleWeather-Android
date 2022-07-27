@@ -79,8 +79,7 @@ class TimeZoneProviderImpl : TimeZoneProvider, RateLimitedRequest {
                 val stream = response.getStream()
 
                 // Load data
-                val root =
-                    JSONParser.deserializer<TimeZoneData>(stream, TimeZoneData::class.java)
+                val root: TimeZoneData = JSONParser.deserializer(stream, TimeZoneData::class.java)!!
                 tzLong = root.tzLong
 
                 // End Stream

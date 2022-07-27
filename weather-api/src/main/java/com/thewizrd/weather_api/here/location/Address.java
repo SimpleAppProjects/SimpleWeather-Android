@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class Address {
 
     @Json(name = "additionalData")

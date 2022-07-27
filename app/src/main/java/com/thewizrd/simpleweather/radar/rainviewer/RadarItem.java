@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.radar.rainviewer;
 import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonClass;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class RadarItem {
 
     @Json(name = "path")

@@ -35,6 +35,5 @@ class WeatherModule internal constructor() {
     val tzdbService: TZDBService by lazy { TZDBServiceImpl() }
 
     internal fun init() {
-        //JSONParser.registerTypeAdapterFactory(Stag.Factory())
     }
 }

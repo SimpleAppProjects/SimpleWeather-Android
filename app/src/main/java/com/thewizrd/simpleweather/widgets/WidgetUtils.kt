@@ -10,10 +10,11 @@ import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.ColorInt
 import androidx.core.content.edit
-import com.google.gson.reflect.TypeToken
+import com.google.common.reflect.TypeToken
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.json.mutableListType
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
@@ -302,8 +303,8 @@ object WidgetUtils {
             val newlist = listOf(widgetId)
             saveIds(location_query, newlist)
         } else {
-            val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-            val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+            val intArrListType = mutableListType<Int>()
+            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, intArrListType)
             if (idList != null && !idList.contains(widgetId)) {
                 idList.add(widgetId)
                 saveIds(location_query, idList)
@@ -317,8 +318,8 @@ object WidgetUtils {
     fun removeWidgetId(location_query: String, widgetId: Int) {
         val listJson = widgetPrefs.getString(location_query, "")
         if (!listJson.isNullOrBlank()) {
-            val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-            val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+            val intArrListType = mutableListType<Int>()
+            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, intArrListType)
             if (idList?.contains(widgetId) == true) {
                 idList.remove(Integer.valueOf(widgetId))
                 if (idList.size == 0) {

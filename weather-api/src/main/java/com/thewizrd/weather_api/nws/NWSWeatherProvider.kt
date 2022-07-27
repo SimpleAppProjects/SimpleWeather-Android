@@ -120,7 +120,8 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     val observationStream = observationResponse.getStream()
 
                     // Load point json data
-                    val observationData = JSONParser.deserializer<ForecastResponse>(observationStream, ForecastResponse::class.java)
+                    val observationData: ForecastResponse =
+                        JSONParser.deserializer(observationStream, ForecastResponse::class.java)!!
 
                     // End Stream
                     observationStream.closeQuietly()

@@ -3,7 +3,7 @@ package com.thewizrd.weather_api.here.auth;
 import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonClass;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class TokenRootobject {
 
     @Json(name = "access_token")

@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.core.app.SafeJobIntentService;
 
-import com.google.gson.reflect.TypeToken;
+import com.squareup.moshi.Types;
 import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -34,7 +34,7 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
 
     private static final int JOB_ID = 1001;
 
-    private static HashMap<Integer, String> mNotifications;
+    private static Map<Integer, String> mNotifications;
 
     // Shared Settings
     private static final SharedPreferences notifPrefs = ApplicationLibKt.getAppLib().getContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
@@ -50,9 +50,8 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
         if (mNotifications == null) {
             String listJson = notifPrefs.getString(KEY_NOTIFS, "");
             if (!StringUtils.isNullOrWhitespace(listJson)) {
-                Type mapKeyValue = new TypeToken<HashMap<Integer, String>>() {
-                }.getType();
-                HashMap<Integer, String> map = JSONParser.deserializer(listJson, mapKeyValue);
+                Type mapKeyValue = Types.newParameterizedType(Map.class, Integer.class, String.class);
+                Map<Integer, String> map = JSONParser.deserializer(listJson, mapKeyValue);
                 if (map != null) {
                     mNotifications = map;
                 }

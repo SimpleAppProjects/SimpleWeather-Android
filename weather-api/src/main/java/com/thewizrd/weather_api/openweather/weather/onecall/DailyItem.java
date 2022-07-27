@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class DailyItem {
 
     @Json(name = "sunrise")

@@ -3,7 +3,7 @@ package com.thewizrd.weather_api.locationiq;
 import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonClass;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class Address {
 
     @Json(name = "country")

@@ -4,7 +4,7 @@ import com.squareup.moshi.Json;
 
 import java.util.List;
 
-//@JsonClass(generateAdapter = true)
+//@JsonClass(generateAdapter = true, generator = "java")
 public class Geocode {
 
     @Json(name = "UGC")

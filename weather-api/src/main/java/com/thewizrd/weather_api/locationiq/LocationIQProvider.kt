@@ -1,10 +1,10 @@
 package com.thewizrd.weather_api.locationiq
 
 import android.util.Log
-import com.google.gson.reflect.TypeToken
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.json.listType
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -103,8 +103,10 @@ class LocationIQProvider : WeatherLocationProviderImpl() {
 
             // Load data
             locations = HashSet() // Use HashSet to avoid duplicate location (names)
-            val arrListType = object : TypeToken<ArrayList<AutoCompleteQuery>>() {}.type
+            val arrListType = listType<AutoCompleteQuery>()
             val root = JSONParser.deserializer<List<AutoCompleteQuery>>(stream, arrListType)
+
+            requireNotNull(root)
 
             for (result in root) {
                 // Filter: only store city results

@@ -3,7 +3,7 @@ package com.thewizrd.weather_api.metno;
 import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonClass;
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class Units {
 
     @Json(name = "cloud_area_fraction_high")

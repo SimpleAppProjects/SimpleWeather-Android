@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass;
 import java.util.List;
 
 // Forecast / Daily
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "java")
 public class ForecastRootobject {
 
     @Json(name = "city")

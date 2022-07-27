@@ -17,14 +17,6 @@ android {
         versionName "5.7.0"
 
         vectorDrawables.useSupportLibrary true
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += [
-                        "stagGeneratedPackageName": "com.thewizrd.simpleweather.stag.generated"
-                ]
-            }
-        }
     }
 
     buildTypes {
@@ -164,6 +156,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
+    kapt "com.github.nename0:moshi-java-codegen:1.1.1"
 
     // Firebase
     fullgmsImplementation platform("com.google.firebase:firebase-bom:$firebase_version")

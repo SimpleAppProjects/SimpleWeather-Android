@@ -2,11 +2,11 @@ package com.thewizrd.weather_api.accuweather.weather
 
 import android.net.Uri
 import android.util.Log
-import com.google.gson.reflect.TypeToken
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.json.listType
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -212,18 +212,28 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     }
                     val hourlyRoot = hourlyResponse.use { r ->
                         r.getStream().use { s ->
-                            JSONParser.deserializer<List<HourlyResponseItem>>(s, object : TypeToken<List<HourlyResponseItem>>() {}.type)
+                            JSONParser.deserializer<List<HourlyResponseItem>>(
+                                s,
+                                listType<HourlyResponseItem>()
+                            )
                         }
-                    }.let {
+                    }?.let {
                         HourlyResponse(it)
                     }
                     val currentRoot = currentResponse.use { r ->
                         r.getStream().use { s ->
-                            JSONParser.deserializer<List<CurrentsResponseItem>>(s, object : TypeToken<List<CurrentsResponseItem>>() {}.type)
+                            JSONParser.deserializer<List<CurrentsResponseItem>>(
+                                s,
+                                listType<CurrentsResponseItem>()
+                            )
                         }
-                    }.let {
+                    }?.let {
                         CurrentsResponse(it)
                     }
+
+                    requireNotNull(dailyRoot)
+                    requireNotNull(hourlyRoot)
+                    requireNotNull(currentRoot)
 
                     weather = createWeatherData(dailyRoot, hourlyRoot, currentRoot)
                 } catch (ex: Exception) {

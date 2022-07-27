@@ -14,7 +14,7 @@ import com.google.android.play.core.install.model.InstallErrorCode
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.requestAppUpdateInfo
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.reflect.TypeToken
+import com.thewizrd.shared_resources.json.listType
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.JSONParser
@@ -51,7 +51,8 @@ class InAppUpdateManager private constructor(context: Context) {
 
                 // Check priority of update
                 val remoteUpdateInfo = getRemoteUpdateInfo()
-                configUpdateinfo = remoteUpdateInfo.find { input -> input.versionCode == appUpdateInfo?.availableVersionCode() }
+                configUpdateinfo =
+                    remoteUpdateInfo?.find { input -> input.versionCode == appUpdateInfo?.availableVersionCode() }
                 if (configUpdateinfo != null) {
                     return true
                 }
@@ -75,14 +76,14 @@ class InAppUpdateManager private constructor(context: Context) {
     }
 
     // TODO: until this is implemented in Play Console, use Firebase RemoteConfig
-    private suspend fun getRemoteUpdateInfo(): List<UpdateInfo> {
+    private suspend fun getRemoteUpdateInfo(): List<UpdateInfo>? {
         return withContext(Dispatchers.IO) {
             val mConfig = FirebaseRemoteConfig.getInstance()
             mConfig.fetchAndActivate().await()
 
             val json = mConfig.getString("android_updates")
 
-            val updateTypeToken = object : TypeToken<ArrayList<UpdateInfo>?>() {}.type
+            val updateTypeToken = listType<UpdateInfo>()
             return@withContext JSONParser.deserializer(json, updateTypeToken)
         }
     }
@@ -90,7 +91,7 @@ class InAppUpdateManager private constructor(context: Context) {
     private suspend fun checkIfUpdateAvailableFallback(): Boolean {
         try {
             val remoteUpdateInfo = getRemoteUpdateInfo()
-            val lastUpdate = remoteUpdateInfo.lastOrNull()
+            val lastUpdate = remoteUpdateInfo?.lastOrNull()
 
             if (lastUpdate != null) {
                 return settingsManager.getVersionCode() < lastUpdate.versionCode
