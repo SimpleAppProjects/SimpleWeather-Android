@@ -1,129 +1,129 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ObservationItem {
 
-    @SerializedName("barometerTrend")
+    @Json(name = "barometerTrend")
     private String barometerTrend;
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("ageMinutes")
+    @Json(name = "ageMinutes")
     private String ageMinutes;
 
-    @SerializedName("distance")
+    @Json(name = "distance")
     private float distance;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private String city;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private float latitude;
 
-    @SerializedName("icon")
+    @Json(name = "icon")
     private String icon;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("windDesc")
+    @Json(name = "windDesc")
     private String windDesc;
 
-    @SerializedName("airInfo")
+    @Json(name = "airInfo")
     private String airInfo;
 
-    @SerializedName("lowTemperature")
+    @Json(name = "lowTemperature")
     private String lowTemperature;
 
-    @SerializedName("precipitation6H")
+    @Json(name = "precipitation6H")
     private String precipitation6H;
 
-    @SerializedName("airDescription")
+    @Json(name = "airDescription")
     private String airDescription;
 
-    @SerializedName("iconLink")
+    @Json(name = "iconLink")
     private String iconLink;
 
-    @SerializedName("precipitationDesc")
+    @Json(name = "precipitationDesc")
     private String precipitationDesc;
 
-    @SerializedName("utcTime")
+    @Json(name = "utcTime")
     private String utcTime;
 
-    @SerializedName("temperature")
+    @Json(name = "temperature")
     private String temperature;
 
-    @SerializedName("humidity")
+    @Json(name = "humidity")
     private String humidity;
 
-    @SerializedName("barometerPressure")
+    @Json(name = "barometerPressure")
     private String barometerPressure;
 
-    @SerializedName("windDirection")
+    @Json(name = "windDirection")
     private String windDirection;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("windSpeed")
+    @Json(name = "windSpeed")
     private String windSpeed;
 
-    @SerializedName("windDescShort")
+    @Json(name = "windDescShort")
     private String windDescShort;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private float longitude;
 
-    @SerializedName("skyInfo")
+    @Json(name = "skyInfo")
     private String skyInfo;
 
-    @SerializedName("skyDescription")
+    @Json(name = "skyDescription")
     private String skyDescription;
 
-    @SerializedName("temperatureDesc")
+    @Json(name = "temperatureDesc")
     private String temperatureDesc;
 
-    @SerializedName("elevation")
+    @Json(name = "elevation")
     private float elevation;
 
-    @SerializedName("precipitation3H")
+    @Json(name = "precipitation3H")
     private String precipitation3H;
 
-    @SerializedName("precipitation1H")
+    @Json(name = "precipitation1H")
     private String precipitation1H;
 
-    @SerializedName("visibility")
+    @Json(name = "visibility")
     private String visibility;
 
-    @SerializedName("iconName")
+    @Json(name = "iconName")
     private String iconName;
 
-    @SerializedName("highTemperature")
+    @Json(name = "highTemperature")
     private String highTemperature;
 
-    @SerializedName("dewPoint")
+    @Json(name = "dewPoint")
     private String dewPoint;
 
-    @SerializedName("comfort")
+    @Json(name = "comfort")
     private String comfort;
 
-    @SerializedName("snowCover")
+    @Json(name = "snowCover")
     private String snowCover;
 
-    @SerializedName("daylight")
+    @Json(name = "daylight")
     private String daylight;
 
-    @SerializedName("precipitation12H")
+    @Json(name = "precipitation12H")
     private String precipitation12H;
 
-    @SerializedName("activeAlerts")
+    @Json(name = "activeAlerts")
     private String activeAlerts;
 
-    @SerializedName("precipitation24H")
+    @Json(name = "precipitation24H")
     private String precipitation24H;
 
     public void setBarometerTrend(String barometerTrend) {

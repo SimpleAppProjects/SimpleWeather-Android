@@ -1,19 +1,19 @@
 package com.thewizrd.shared_resources.remoteconfig;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 public final class WeatherProviderConfig {
 
-    @SerializedName("locSource")
+    @Json(name = "locSource")
     @WeatherAPI.LocationProviders
     private String locSource;
 
-    @SerializedName("newWeatherSource")
+    @Json(name = "newWeatherSource")
     @WeatherAPI.WeatherProviders
     private String newWeatherSource;
 
-    @SerializedName("enabled")
+    @Json(name = "enabled")
     private boolean enabled;
 
     public void setLocSource(@WeatherAPI.LocationProviders String locSource) {

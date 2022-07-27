@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Clouds {
 
-    @SerializedName("all")
+    @Json(name = "all")
     private int all;
 
     public void setAll(int all) {

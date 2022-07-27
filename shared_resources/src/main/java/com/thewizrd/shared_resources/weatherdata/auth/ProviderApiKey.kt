@@ -1,9 +1,9 @@
 package com.thewizrd.shared_resources.weatherdata.auth
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 class ProviderApiKey : ProviderKey {
-    @SerializedName("key")
+    @Json(name = "key")
     var key: String = ""
 
     constructor() : super()

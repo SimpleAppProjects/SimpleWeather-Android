@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Summary {
 
-    @SerializedName("symbol_code")
+    @Json(name = "symbol_code")
     private String symbolCode;
 
     public void setSymbolCode(String symbolCode) {

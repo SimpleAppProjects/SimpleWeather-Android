@@ -1,17 +1,17 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Response {
 
-    @SerializedName("metaInfo")
+    @Json(name = "metaInfo")
     private MetaInfo metaInfo;
 
-    @SerializedName("view")
+    @Json(name = "view")
     private List<ViewItem> view;
 
     public void setMetaInfo(MetaInfo metaInfo) {

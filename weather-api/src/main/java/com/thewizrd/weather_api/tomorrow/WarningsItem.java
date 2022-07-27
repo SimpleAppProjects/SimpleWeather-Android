@@ -1,21 +1,21 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class WarningsItem {
 
-    @SerializedName("code")
+    @Json(name = "code")
     private int code;
 
-    @SerializedName("meta")
+    @Json(name = "meta")
     private Meta meta;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
-    @SerializedName("message")
+    @Json(name = "message")
     private String message;
 
     public void setCode(int code) {

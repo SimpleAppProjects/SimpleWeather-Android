@@ -1,11 +1,11 @@
 package com.thewizrd.simpleweather.updates
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 class UpdateInfo {
-    @SerializedName("version")
+    @Json(name = "version")
     var versionCode = 0
 
-    @SerializedName("updatePriority")
+    @Json(name = "updatePriority")
     var updatePriority = 0
 }

@@ -1,20 +1,20 @@
 package com.thewizrd.weather_api.nws.alerts;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AlertRootobject {
 
-    @SerializedName("@graph")
+    @Json(name = "@graph")
     private List<GraphItem> graph;
 
-    @SerializedName("title")
+    @Json(name = "title")
     private String title;
 
-    //@SerializedName("@context")
+    //@Json(name = "@context")
     //private Context context;
 
     public void setGraph(List<GraphItem> graph) {

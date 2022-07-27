@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Meta {
 
-    @SerializedName("updated_at")
+    @Json(name = "updated_at")
     private String updatedAt;
 
-    @SerializedName("units")
+    @Json(name = "units")
     private Units units;
 
     public void setUpdatedAt(String updatedAt) {

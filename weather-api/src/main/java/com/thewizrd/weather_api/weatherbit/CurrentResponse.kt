@@ -1,210 +1,210 @@
 package com.thewizrd.weather_api.weatherbit
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentResponse(
 
-    @field:SerializedName("alerts")
+    @field:Json(name = "alerts")
 	var alerts: List<AlertsItem?>? = null,
 
-    @field:SerializedName("data")
+    @field:Json(name = "data")
 	var data: List<CurrentDataItem?>? = null,
 
-    @field:SerializedName("count")
+    @field:Json(name = "count")
 	var count: Int? = null,
 
-    @field:SerializedName("minutely")
+    @field:Json(name = "minutely")
 	var minutely: List<MinutelyItem?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentDataItem(
 
-    @field:SerializedName("sunrise")
+    @field:Json(name = "sunrise")
 	var sunrise: String? = null,
 
-    @field:SerializedName("pod")
+    @field:Json(name = "pod")
 	var pod: String? = null,
 
-    @field:SerializedName("pres")
+    @field:Json(name = "pres")
 	var pres: Float? = null,
 
-    @field:SerializedName("timezone")
+    @field:Json(name = "timezone")
 	var timezone: String? = null,
 
-    @field:SerializedName("ob_time")
+    @field:Json(name = "ob_time")
 	var obTime: String? = null,
 
-    @field:SerializedName("wind_cdir")
+    @field:Json(name = "wind_cdir")
 	var windCdir: String? = null,
 
-    @field:SerializedName("lon")
+    @field:Json(name = "lon")
 	var lon: Float? = null,
 
-    @field:SerializedName("clouds")
+    @field:Json(name = "clouds")
 	var clouds: Int? = null,
 
-    @field:SerializedName("wind_spd")
+    @field:Json(name = "wind_spd")
 	var windSpd: Float? = null,
 
-    @field:SerializedName("city_name")
+    @field:Json(name = "city_name")
 	var cityName: String? = null,
 
-    @field:SerializedName("h_angle")
+    @field:Json(name = "h_angle")
 	var hAngle: Float? = null,
 
-    @field:SerializedName("datetime")
+    @field:Json(name = "datetime")
 	var datetime: String? = null,
 
-    @field:SerializedName("precip")
+    @field:Json(name = "precip")
 	var precip: Float? = null,
 
-    @field:SerializedName("weather")
+    @field:Json(name = "weather")
 	var weather: CurrentWeather? = null,
 
-    @field:SerializedName("station")
+    @field:Json(name = "station")
 	var station: String? = null,
 
-    @field:SerializedName("elev_angle")
+    @field:Json(name = "elev_angle")
 	var elevAngle: Float? = null,
 
-    @field:SerializedName("dni")
+    @field:Json(name = "dni")
 	var dni: Float? = null,
 
-    @field:SerializedName("lat")
+    @field:Json(name = "lat")
 	var lat: Float? = null,
 
-    @field:SerializedName("vis")
+    @field:Json(name = "vis")
 	var vis: Float? = null,
 
-    @field:SerializedName("uv")
+    @field:Json(name = "uv")
 	var uv: Float? = null,
 
-    @field:SerializedName("temp")
+    @field:Json(name = "temp")
 	var temp: Float? = null,
 
-    @field:SerializedName("dhi")
+    @field:Json(name = "dhi")
 	var dhi: Float? = null,
 
-    @field:SerializedName("ghi")
+    @field:Json(name = "ghi")
 	var ghi: Float? = null,
 
-    @field:SerializedName("app_temp")
+    @field:Json(name = "app_temp")
 	var appTemp: Float? = null,
 
-    @field:SerializedName("dewpt")
+    @field:Json(name = "dewpt")
 	var dewpt: Float? = null,
 
-    @field:SerializedName("wind_dir")
+    @field:Json(name = "wind_dir")
 	var windDir: Int? = null,
 
-    @field:SerializedName("solar_rad")
+    @field:Json(name = "solar_rad")
 	var solarRad: Float? = null,
 
-    @field:SerializedName("country_code")
+    @field:Json(name = "country_code")
 	var countryCode: String? = null,
 
-    @field:SerializedName("rh")
+    @field:Json(name = "rh")
 	var rh: Float? = null,
 
-    @field:SerializedName("slp")
+    @field:Json(name = "slp")
 	var slp: Float? = null,
 
-    @field:SerializedName("snow")
+    @field:Json(name = "snow")
 	var snow: Float? = null,
 
-    @field:SerializedName("sunset")
+    @field:Json(name = "sunset")
 	var sunset: String? = null,
 
-    @field:SerializedName("aqi")
+    @field:Json(name = "aqi")
 	var aqi: Int? = null,
 
-    @field:SerializedName("state_code")
+    @field:Json(name = "state_code")
 	var stateCode: String? = null,
 
-    @field:SerializedName("wind_cdir_full")
+    @field:Json(name = "wind_cdir_full")
 	var windCdirFull: String? = null,
 
-    @field:SerializedName("ts")
+    @field:Json(name = "ts")
 	var ts: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AlertsItem(
 
-	@field:SerializedName("severity")
+    @field:Json(name = "severity")
 	var severity: String? = null,
 
-	@field:SerializedName("ends_local")
+    @field:Json(name = "ends_local")
 	var endsLocal: String? = null,
 
-	@field:SerializedName("regions")
+    @field:Json(name = "regions")
 	var regions: List<String?>? = null,
 
-	@field:SerializedName("expires_local")
+    @field:Json(name = "expires_local")
 	var expiresLocal: String? = null,
 
-	@field:SerializedName("description")
+    @field:Json(name = "description")
 	var description: String? = null,
 
-	@field:SerializedName("onset_utc")
+    @field:Json(name = "onset_utc")
 	var onsetUtc: String? = null,
 
-	@field:SerializedName("title")
+    @field:Json(name = "title")
 	var title: String? = null,
 
-	@field:SerializedName("expires_utc")
+    @field:Json(name = "expires_utc")
 	var expiresUtc: String? = null,
 
-	@field:SerializedName("uri")
+    @field:Json(name = "uri")
 	var uri: String? = null,
 
-	@field:SerializedName("onset_local")
+    @field:Json(name = "onset_local")
 	var onsetLocal: String? = null,
 
-	@field:SerializedName("effective_local")
+    @field:Json(name = "effective_local")
 	var effectiveLocal: String? = null,
 
-	@field:SerializedName("ends_utc")
+    @field:Json(name = "ends_utc")
 	var endsUtc: String? = null,
 
-	@field:SerializedName("effective_utc")
+    @field:Json(name = "effective_utc")
 	var effectiveUtc: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class MinutelyItem(
 
-	@field:SerializedName("temp")
+    @field:Json(name = "temp")
 	var temp: Float? = null,
 
-	@field:SerializedName("timestamp_local")
+    @field:Json(name = "timestamp_local")
 	var timestampLocal: String? = null,
 
-	@field:SerializedName("precip")
+    @field:Json(name = "precip")
 	var precip: Float? = null,
 
-	@field:SerializedName("timestamp_utc")
+    @field:Json(name = "timestamp_utc")
 	var timestampUtc: String? = null,
 
-	@field:SerializedName("snow")
+    @field:Json(name = "snow")
 	var snow: Float? = null,
 
-	@field:SerializedName("ts")
+    @field:Json(name = "ts")
 	var ts: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentWeather(
 
-	@field:SerializedName("code")
+    @field:Json(name = "code")
 	var code: Int? = null,
 
-	@field:SerializedName("icon")
+    @field:Json(name = "icon")
 	var icon: String? = null,
 
-	@field:SerializedName("description")
+    @field:Json(name = "description")
 	var description: String? = null
 )

@@ -1,33 +1,33 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class EventsItem {
 
-    @SerializedName("severity")
+    @Json(name = "severity")
     private String severity;
 
-    @SerializedName("insight")
+    @Json(name = "insight")
     private String insight;
 
-    @SerializedName("urgency")
+    @Json(name = "urgency")
     private String urgency;
 
-    @SerializedName("certainty")
+    @Json(name = "certainty")
     private String certainty;
 
-    @SerializedName("startTime")
+    @Json(name = "startTime")
     private String startTime;
 
-    @SerializedName("updateTime")
+    @Json(name = "updateTime")
     private String updateTime;
 
-    @SerializedName("endTime")
+    @Json(name = "endTime")
     private String endTime;
 
-    @SerializedName("eventValues")
+    @Json(name = "eventValues")
     private EventValues eventValues;
 
     public void setSeverity(String severity) {

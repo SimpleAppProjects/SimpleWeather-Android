@@ -1,179 +1,179 @@
 package com.thewizrd.weather_api.accuweather.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class HourlyResponse(
 
         var hourlyResponse: List<HourlyResponseItem?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class WetBulbTemperature(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class DewPoint(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Visibility(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Temperature(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class HourlyResponseItem(
 
-    @field:SerializedName("RainProbability")
+    @field:Json(name = "RainProbability")
         var rainProbability: Int? = null,
 
-    @field:SerializedName("Wind")
+    @field:Json(name = "Wind")
         var wind: Wind? = null,
 
-    @field:SerializedName("Temperature")
+    @field:Json(name = "Temperature")
         var temperature: Temperature? = null,
 
-    @field:SerializedName("SnowProbability")
+    @field:Json(name = "SnowProbability")
         var snowProbability: Int? = null,
 
-    @field:SerializedName("Snow")
+    @field:Json(name = "Snow")
         var snow: Snow? = null,
 
-    @field:SerializedName("TotalLiquid")
+    @field:Json(name = "TotalLiquid")
         var totalLiquid: TotalLiquid? = null,
 
-    @field:SerializedName("Ceiling")
+    @field:Json(name = "Ceiling")
         var ceiling: Ceiling? = null,
 
-    @field:SerializedName("DateTime")
+    @field:Json(name = "DateTime")
         var dateTime: String? = null,
 
-    @field:SerializedName("RealFeelTemperature")
+    @field:Json(name = "RealFeelTemperature")
         var realFeelTemperature: RealFeelTemperature? = null,
 
-    @field:SerializedName("Rain")
+    @field:Json(name = "Rain")
         var rain: Rain? = null,
 
-    @field:SerializedName("PrecipitationProbability")
+    @field:Json(name = "PrecipitationProbability")
         var precipitationProbability: Int? = null,
 
-    @field:SerializedName("HasPrecipitation")
+    @field:Json(name = "HasPrecipitation")
         var hasPrecipitation: Boolean? = null,
 
-    @field:SerializedName("RelativeHumidity")
+    @field:Json(name = "RelativeHumidity")
         var relativeHumidity: Int? = null,
 
-    @field:SerializedName("UVIndexText")
+    @field:Json(name = "UVIndexText")
         var uVIndexText: String? = null,
 
-    @field:SerializedName("IconPhrase")
+    @field:Json(name = "IconPhrase")
         var iconPhrase: String? = null,
 
-    @field:SerializedName("CloudCover")
+    @field:Json(name = "CloudCover")
         var cloudCover: Int? = null,
 
-    @field:SerializedName("WindGust")
+    @field:Json(name = "WindGust")
         var windGust: WindGust? = null,
 
-    @field:SerializedName("UVIndex")
+    @field:Json(name = "UVIndex")
         var uVIndex: Float? = null,
 
-    @field:SerializedName("WeatherIcon")
+    @field:Json(name = "WeatherIcon")
         var weatherIcon: Int? = null,
 
-    @field:SerializedName("Ice")
+    @field:Json(name = "Ice")
         var ice: Ice? = null,
 
-    @field:SerializedName("DewPoint")
+    @field:Json(name = "DewPoint")
         var dewPoint: DewPoint? = null,
 
-    @field:SerializedName("IndoorRelativeHumidity")
+    @field:Json(name = "IndoorRelativeHumidity")
         var indoorRelativeHumidity: Int? = null,
 
-    @field:SerializedName("IceProbability")
+    @field:Json(name = "IceProbability")
         var iceProbability: Int? = null,
 
-    @field:SerializedName("EpochDateTime")
+    @field:Json(name = "EpochDateTime")
         var epochDateTime: Long? = null,
 
-    @field:SerializedName("WetBulbTemperature")
+    @field:Json(name = "WetBulbTemperature")
         var wetBulbTemperature: WetBulbTemperature? = null,
 
-    @field:SerializedName("Visibility")
+    @field:Json(name = "Visibility")
         var visibility: Visibility? = null,
 
-    @field:SerializedName("IsDaylight")
+    @field:Json(name = "IsDaylight")
         var isDaylight: Boolean? = null,
 
-    @field:SerializedName("Link")
+    @field:Json(name = "Link")
         var link: String? = null,
 
-    @field:SerializedName("MobileLink")
+    @field:Json(name = "MobileLink")
         var mobileLink: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Ceiling(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class RealFeelTemperature(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Float? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )

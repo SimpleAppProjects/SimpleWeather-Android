@@ -1,10 +1,10 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 public class ResponseItem {
 
-    @SerializedName("instruction")
+    @Json(name = "instruction")
     private String instruction;
 
     public void setInstruction(String instruction) {

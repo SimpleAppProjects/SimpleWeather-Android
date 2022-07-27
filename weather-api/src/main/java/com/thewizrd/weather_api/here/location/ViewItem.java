@@ -1,20 +1,20 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ViewItem {
 
-    @SerializedName("_type")
+    @Json(name = "_type")
     private String type;
 
-    @SerializedName("viewId")
+    @Json(name = "viewId")
     private int viewId;
 
-    @SerializedName("result")
+    @Json(name = "result")
     private List<ResultItem> result;
 
     public void setType(String type) {

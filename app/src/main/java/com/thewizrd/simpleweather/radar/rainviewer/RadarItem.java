@@ -1,15 +1,15 @@
 package com.thewizrd.simpleweather.radar.rainviewer;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class RadarItem {
 
-    @SerializedName("path")
+    @Json(name = "path")
     private String path;
 
-    @SerializedName("time")
+    @Json(name = "time")
     private int time;
 
     public void setPath(String path) {

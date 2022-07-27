@@ -1,132 +1,132 @@
 package com.thewizrd.weather_api.weatherunlocked;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class TimeframesItem {
 
-    @SerializedName("date")
+    @Json(name = "date")
     private String date;
 
-    @SerializedName("windspd_mph")
+    @Json(name = "windspd_mph")
     private float windspdMph;
 
-    @SerializedName("feelslike_c")
+    @Json(name = "feelslike_c")
     private float feelslikeC;
 
-    @SerializedName("feelslike_f")
+    @Json(name = "feelslike_f")
     private float feelslikeF;
 
-    @SerializedName("vis_mi")
+    @Json(name = "vis_mi")
     private float visMi;
 
-    @SerializedName("cloud_low_pct")
+    @Json(name = "cloud_low_pct")
     private float cloudLowPct;
 
-    @SerializedName("temp_c")
+    @Json(name = "temp_c")
     private float tempC;
 
-    @SerializedName("slp_in")
+    @Json(name = "slp_in")
     private float slpIn;
 
-    @SerializedName("temp_f")
+    @Json(name = "temp_f")
     private float tempF;
 
-    @SerializedName("windspd_kts")
+    @Json(name = "windspd_kts")
     private float windspdKts;
 
-    @SerializedName("windgst_kts")
+    @Json(name = "windgst_kts")
     private float windgstKts;
 
-    @SerializedName("snow_in")
+    @Json(name = "snow_in")
     private float snowIn;
 
-    @SerializedName("winddir_compass")
+    @Json(name = "winddir_compass")
     private String winddirCompass;
 
-    @SerializedName("winddir_deg")
+    @Json(name = "winddir_deg")
     private float winddirDeg;
 
-    @SerializedName("snow_accum_in")
+    @Json(name = "snow_accum_in")
     private float snowAccumIn;
 
-    @SerializedName("dewpoint_f")
+    @Json(name = "dewpoint_f")
     private float dewpointF;
 
-    @SerializedName("wx_desc")
+    @Json(name = "wx_desc")
     private String wxDesc;
 
-    @SerializedName("windgst_mph")
+    @Json(name = "windgst_mph")
     private float windgstMph;
 
-    @SerializedName("snow_accum_cm")
+    @Json(name = "snow_accum_cm")
     private float snowAccumCm;
 
-    @SerializedName("utcdate")
+    @Json(name = "utcdate")
     private String utcdate;
 
-    @SerializedName("wx_icon")
+    @Json(name = "wx_icon")
     private String wxIcon;
 
-    @SerializedName("windspd_kmh")
+    @Json(name = "windspd_kmh")
     private float windspdKmh;
 
-    @SerializedName("prob_precip_pct")
+    @Json(name = "prob_precip_pct")
     private String probPrecipPct;
 
-    @SerializedName("cloud_mid_pct")
+    @Json(name = "cloud_mid_pct")
     private float cloudMidPct;
 
-    @SerializedName("utctime")
+    @Json(name = "utctime")
     private int utctime;
 
-    @SerializedName("humid_pct")
+    @Json(name = "humid_pct")
     private float humidPct;
 
-    @SerializedName("dewpoint_c")
+    @Json(name = "dewpoint_c")
     private float dewpointC;
 
-    @SerializedName("snow_mm")
+    @Json(name = "snow_mm")
     private float snowMm;
 
-    @SerializedName("precip_in")
+    @Json(name = "precip_in")
     private float precipIn;
 
-    @SerializedName("rain_mm")
+    @Json(name = "rain_mm")
     private float rainMm;
 
-    @SerializedName("precip_mm")
+    @Json(name = "precip_mm")
     private float precipMm;
 
-    @SerializedName("cloud_high_pct")
+    @Json(name = "cloud_high_pct")
     private float cloudHighPct;
 
-    @SerializedName("cloudtotal_pct")
+    @Json(name = "cloudtotal_pct")
     private float cloudtotalPct;
 
-    @SerializedName("windgst_ms")
+    @Json(name = "windgst_ms")
     private float windgstMs;
 
-    @SerializedName("rain_in")
+    @Json(name = "rain_in")
     private float rainIn;
 
-    @SerializedName("vis_km")
+    @Json(name = "vis_km")
     private float visKm;
 
-    @SerializedName("windspd_ms")
+    @Json(name = "windspd_ms")
     private float windspdMs;
 
-    @SerializedName("time")
+    @Json(name = "time")
     private int time;
 
-    @SerializedName("windgst_kmh")
+    @Json(name = "windgst_kmh")
     private float windgstKmh;
 
-    @SerializedName("slp_mb")
+    @Json(name = "slp_mb")
     private float slpMb;
 
-    @SerializedName("wx_code")
+    @Json(name = "wx_code")
     private int wxCode;
 
     public void setDate(String date) {

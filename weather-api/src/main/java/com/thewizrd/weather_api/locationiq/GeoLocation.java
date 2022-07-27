@@ -1,38 +1,38 @@
 package com.thewizrd.weather_api.locationiq;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class GeoLocation {
 
-    @SerializedName("osm_type")
+    @Json(name = "osm_type")
     private String osmType;
 
-    @SerializedName("osm_id")
+    @Json(name = "osm_id")
     private String osmId;
 
-    @SerializedName("licence")
+    @Json(name = "licence")
     private String licence;
 
-    @SerializedName("boundingbox")
+    @Json(name = "boundingbox")
     private List<String> boundingbox;
 
-    @SerializedName("address")
+    @Json(name = "address")
     private Address address;
 
-    @SerializedName("lon")
+    @Json(name = "lon")
     private String lon;
 
-    @SerializedName("display_name")
+    @Json(name = "display_name")
     private String displayName;
 
-    @SerializedName("place_id")
+    @Json(name = "place_id")
     private String placeId;
 
-    @SerializedName("lat")
+    @Json(name = "lat")
     private String lat;
 
     public void setOsmType(String osmType) {

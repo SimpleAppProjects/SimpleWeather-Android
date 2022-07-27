@@ -1,27 +1,27 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ResultItem {
 
-    @SerializedName("relevance")
+    @Json(name = "relevance")
     private double relevance;
 
-    @SerializedName("matchLevel")
+    @Json(name = "matchLevel")
     private String matchLevel;
 
-    @SerializedName("matchQuality")
+    @Json(name = "matchQuality")
     private MatchQuality matchQuality;
 
-    @SerializedName("matchType")
+    @Json(name = "matchType")
     private String matchType;
 
-    @SerializedName("distance")
+    @Json(name = "distance")
     private double distance;
 
-    @SerializedName("location")
+    @Json(name = "location")
     private Location location;
 
     public void setRelevance(double relevance) {

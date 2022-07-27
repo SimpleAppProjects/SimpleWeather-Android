@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class IntervalsItem {
 
-	@SerializedName("values")
+    @Json(name = "values")
 	private Values values;
 
-	@SerializedName("startTime")
+    @Json(name = "startTime")
 	private String startTime;
 
 	public void setValues(Values values) {

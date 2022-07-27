@@ -1,74 +1,74 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class DailyItem {
 
-    @SerializedName("sunrise")
+    @Json(name = "sunrise")
     private long sunrise;
 
-    @SerializedName("temp")
+    @Json(name = "temp")
     private Temp temp;
 
-    @SerializedName("uvi")
+    @Json(name = "uvi")
     private float uvi;
 
-    @SerializedName("pressure")
+    @Json(name = "pressure")
     private float pressure;
 
-    @SerializedName("clouds")
+    @Json(name = "clouds")
     private int clouds;
 
-    @SerializedName("pop")
+    @Json(name = "pop")
     private Float pop;
 
-    @SerializedName("feels_like")
+    @Json(name = "feels_like")
     private FeelsLike feelsLike;
 
-    @SerializedName("dt")
+    @Json(name = "dt")
     private long dt;
 
-    @SerializedName("wind_deg")
+    @Json(name = "wind_deg")
     private int windDeg;
 
-    @SerializedName("dew_point")
+    @Json(name = "dew_point")
     private float dewPoint;
 
-    @SerializedName("sunset")
+    @Json(name = "sunset")
     private long sunset;
 
-    @SerializedName("weather")
+    @Json(name = "weather")
     private List<WeatherItem> weather;
 
-    @SerializedName("humidity")
+    @Json(name = "humidity")
     private int humidity;
 
-    @SerializedName("wind_speed")
+    @Json(name = "wind_speed")
     private float windSpeed;
 
-    @SerializedName("wind_gust")
+    @Json(name = "wind_gust")
     private Float windGust;
 
-    @SerializedName("rain")
+    @Json(name = "rain")
     private Float rain;
 
-    @SerializedName("snow")
+    @Json(name = "snow")
     private Float snow;
 
-    @SerializedName("visibility")
+    @Json(name = "visibility")
     private Integer visibility;
 
-    @SerializedName("moonrise")
+    @Json(name = "moonrise")
     private Long moonrise;
 
-    @SerializedName("moonset")
+    @Json(name = "moonset")
     private Long moonset;
 
-    @SerializedName("moon_phase")
+    @Json(name = "moon_phase")
     private Float moon_phase;
 
     public long getSunrise() {

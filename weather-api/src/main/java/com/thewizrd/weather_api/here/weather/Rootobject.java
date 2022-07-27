@@ -1,41 +1,41 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Rootobject {
 
-    @SerializedName("alerts")
+    @Json(name = "alerts")
     private Alerts alerts;
 
-    @SerializedName("nwsAlerts")
+    @Json(name = "nwsAlerts")
     private NwsAlerts nwsAlerts;
 
-    @SerializedName("hourlyForecasts")
+    @Json(name = "hourlyForecasts")
     private HourlyForecasts hourlyForecasts;
 
-    @SerializedName("metric")
+    @Json(name = "metric")
     private boolean metric;
 
-    @SerializedName("observations")
+    @Json(name = "observations")
     private Observations observations;
 
-    @SerializedName("astronomy")
+    @Json(name = "astronomy")
     private Astronomy astronomy;
 
-    @SerializedName("feedCreation")
+    @Json(name = "feedCreation")
     private String feedCreation;
 
-    @SerializedName("dailyForecasts")
+    @Json(name = "dailyForecasts")
     private DailyForecasts dailyForecasts;
 
-    @SerializedName("Type")
+    @Json(name = "Type")
     private String type;
 
-    @SerializedName("Message")
+    @Json(name = "Message")
     private List<String> message;
 
     public void setAlerts(Alerts alerts) {

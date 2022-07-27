@@ -1,11 +1,11 @@
 package com.thewizrd.weather_api.here.auth;
 
+import com.squareup.moshi.JsonClass;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
-import com.vimeo.stag.UseStag;
 
 import java.time.ZonedDateTime;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 class Token {
     private String access_token;
     private String expiration_date;

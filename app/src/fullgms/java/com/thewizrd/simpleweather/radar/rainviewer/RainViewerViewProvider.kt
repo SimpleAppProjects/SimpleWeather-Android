@@ -20,14 +20,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.material.slider.Slider
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.stream.JsonReader
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
@@ -35,7 +33,6 @@ import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import com.thewizrd.simpleweather.radar.RadarProvider
-import com.thewizrd.simpleweather.stag.generated.Stag
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.RateLimitedRequest
 import okhttp3.Call
@@ -45,7 +42,6 @@ import okhttp3.Request
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
-import java.io.InputStreamReader
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -64,16 +60,10 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
     private var mProcessingFrames: Boolean = false
     private var mFrameCall: Call? = null
 
-    private val gson: Gson
-
     init {
         availableRadarFrames = ArrayList()
         radarLayers = HashMap()
         mMainHandler = Handler(Looper.getMainLooper())
-
-        gson = GsonBuilder()
-                .registerTypeAdapterFactory(Stag.Factory())
-                .create()
     }
 
     override fun onCreateView(savedInstanceState: Bundle?) {
@@ -196,10 +186,8 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                 if (call.isCanceled()) return
 
                 // Load data
-                val root = gson.fromJson<WeatherMapsResponse>(
-                    JsonReader(InputStreamReader(stream)),
-                    WeatherMapsResponse::class.java
-                )
+                val root: WeatherMapsResponse? =
+                    JSONParser.deserializer(stream, WeatherMapsResponse::class.java)
 
                 if (call.isCanceled()) return
 

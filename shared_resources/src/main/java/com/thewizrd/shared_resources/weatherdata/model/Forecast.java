@@ -2,31 +2,32 @@ package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+import okio.Buffer;
+
 public class Forecast extends BaseForecast {
 
-    @SerializedName("date")
+    @Json(name = "date")
     private LocalDateTime date;
 
-    @SerializedName("low_f")
+    @Json(name = "low_f")
     private Float lowF;
 
-    @SerializedName("low_c")
+    @Json(name = "low_c")
     private Float lowC;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
@@ -59,13 +60,13 @@ public class Forecast extends BaseForecast {
     }
 
     @Override
-    public void fromJson(JsonReader extReader) {
+    public void fromJson(@NonNull JsonReader extReader) {
 
         try {
             JsonReader reader;
             String jsonValue;
 
-            if (extReader.peek() == JsonToken.STRING) {
+            if (extReader.peek() == JsonReader.Token.STRING) {
                 jsonValue = extReader.nextString();
             } else {
                 jsonValue = null;
@@ -74,17 +75,17 @@ public class Forecast extends BaseForecast {
             if (jsonValue == null)
                 reader = extReader;
             else {
-                reader = new JsonReader(new StringReader(jsonValue));
+                reader = JsonReader.of(new Buffer().writeUtf8(jsonValue));
                 reader.beginObject(); // StartObject
             }
 
-            while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT)
+            while (reader.hasNext() && reader.peek() != JsonReader.Token.END_OBJECT) {
+                if (reader.peek() == JsonReader.Token.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
 
                 String property = reader.nextName();
 
-                if (reader.peek() == JsonToken.NULL) {
+                if (reader.peek() == JsonReader.Token.NULL) {
                     reader.nextNull();
                     continue;
                 }
@@ -121,7 +122,7 @@ public class Forecast extends BaseForecast {
                 }
             }
 
-            if (reader.peek() == JsonToken.END_OBJECT)
+            if (reader.peek() == JsonReader.Token.END_OBJECT)
                 reader.endObject();
 
         } catch (Exception ignored) {
@@ -129,7 +130,7 @@ public class Forecast extends BaseForecast {
     }
 
     @Override
-    public void toJson(JsonWriter writer) {
+    public void toJson(@NonNull JsonWriter writer) {
         try {
             // {
             writer.beginObject();

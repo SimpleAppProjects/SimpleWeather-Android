@@ -1,45 +1,45 @@
 package com.thewizrd.weather_api.nws.observation;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Location {
 
-    @SerializedName("elevation")
+    @Json(name = "elevation")
     private String elevation;
 
-    @SerializedName("wfo")
+    @Json(name = "wfo")
     private String wfo;
 
-    @SerializedName("radar")
+    @Json(name = "radar")
     private String radar;
 
-    @SerializedName("metar")
+    @Json(name = "metar")
     private String metar;
 
-    @SerializedName("zone")
+    @Json(name = "zone")
     private String zone;
 
-    @SerializedName("firezone")
+    @Json(name = "firezone")
     private String firezone;
 
-    @SerializedName("timezone")
+    @Json(name = "timezone")
     private String timezone;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private String latitude;
 
-    @SerializedName("areaDescription")
+    @Json(name = "areaDescription")
     private String areaDescription;
 
-    @SerializedName("county")
+    @Json(name = "county")
     private String county;
 
-    @SerializedName("region")
+    @Json(name = "region")
     private String region;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private String longitude;
 
     public void setElevation(String elevation) {

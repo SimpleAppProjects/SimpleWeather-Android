@@ -2,22 +2,23 @@ package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
 
 import java.io.IOException;
-import java.io.StringReader;
+
+import okio.Buffer;
 
 public class UV extends CustomJsonObject {
 
-    @SerializedName("index")
+    @Json(name = "index")
     private Float index;
 
     @RestrictTo({RestrictTo.Scope.LIBRARY})
@@ -38,12 +39,12 @@ public class UV extends CustomJsonObject {
     }
 
     @Override
-    public void fromJson(JsonReader extReader) {
+    public void fromJson(@NonNull JsonReader extReader) {
         try {
             JsonReader reader;
             String jsonValue;
 
-            if (extReader.peek() == JsonToken.STRING) {
+            if (extReader.peek() == JsonReader.Token.STRING) {
                 jsonValue = extReader.nextString();
             } else {
                 jsonValue = null;
@@ -52,17 +53,17 @@ public class UV extends CustomJsonObject {
             if (jsonValue == null)
                 reader = extReader;
             else {
-                reader = new JsonReader(new StringReader(jsonValue));
+                reader = JsonReader.of(new Buffer().writeUtf8(jsonValue));
                 reader.beginObject(); // StartObject
             }
 
-            while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT)
+            while (reader.hasNext() && reader.peek() != JsonReader.Token.END_OBJECT) {
+                if (reader.peek() == JsonReader.Token.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
 
                 String property = reader.nextName();
 
-                if (reader.peek() == JsonToken.NULL) {
+                if (reader.peek() == JsonReader.Token.NULL) {
                     reader.nextNull();
                     continue;
                 }
@@ -77,7 +78,7 @@ public class UV extends CustomJsonObject {
                 }
             }
 
-            if (reader.peek() == JsonToken.END_OBJECT)
+            if (reader.peek() == JsonReader.Token.END_OBJECT)
                 reader.endObject();
 
         } catch (Exception ignored) {
@@ -85,7 +86,7 @@ public class UV extends CustomJsonObject {
     }
 
     @Override
-    public void toJson(JsonWriter writer) {
+    public void toJson(@NonNull JsonWriter writer) {
         try {
             // {
             writer.beginObject();

@@ -1,201 +1,201 @@
 package com.thewizrd.weather_api.accuweather.location
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class GeopositionResponse(
 
-    @field:SerializedName("AdministrativeArea")
+    @field:Json(name = "AdministrativeArea")
         var administrativeArea: AdministrativeArea? = null,
 
-    @field:SerializedName("ParentCity")
+    @field:Json(name = "ParentCity")
         var parentCity: ParentCity? = null,
 
-    @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-    @field:SerializedName("SupplementalAdminAreas")
+    @field:Json(name = "SupplementalAdminAreas")
         var supplementalAdminAreas: List<SupplementalAdminAreasItem?>? = null,
 
-    @field:SerializedName("DataSets")
+    @field:Json(name = "DataSets")
         var dataSets: List<String?>? = null,
 
-    @field:SerializedName("Rank")
+    @field:Json(name = "Rank")
         var rank: Int? = null,
 
-    @field:SerializedName("IsAlias")
+    @field:Json(name = "IsAlias")
         var isAlias: Boolean? = null,
 
-    @field:SerializedName("Type")
+    @field:Json(name = "Type")
         var type: String? = null,
 
-    @field:SerializedName("TimeZone")
+    @field:Json(name = "TimeZone")
         var timeZone: TimeZone? = null,
 
-    @field:SerializedName("Version")
+    @field:Json(name = "Version")
         var version: Int? = null,
 
-    @field:SerializedName("PrimaryPostalCode")
+    @field:Json(name = "PrimaryPostalCode")
         var primaryPostalCode: String? = null,
 
-    @field:SerializedName("Region")
+    @field:Json(name = "Region")
         var region: Region? = null,
 
-    @field:SerializedName("Country")
+    @field:Json(name = "Country")
         var country: Country? = null,
 
-    @field:SerializedName("GeoPosition")
+    @field:Json(name = "GeoPosition")
         var geoPosition: GeoPosition? = null,
 
-    @field:SerializedName("Key")
+    @field:Json(name = "Key")
         var key: String? = null,
 
-    @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ParentCity(
 
-        @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-        @field:SerializedName("Key")
+    @field:Json(name = "Key")
         var key: String? = null,
 
-        @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class SupplementalAdminAreasItem(
 
-        @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-        @field:SerializedName("Level")
+    @field:Json(name = "Level")
         var level: Int? = null,
 
-        @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Imperial(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Int? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AdministrativeArea(
 
-        @field:SerializedName("CountryID")
+    @field:Json(name = "CountryID")
         var countryID: String? = null,
 
-        @field:SerializedName("LocalizedType")
+    @field:Json(name = "LocalizedType")
         var localizedType: String? = null,
 
-        @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-        @field:SerializedName("Level")
+    @field:Json(name = "Level")
         var level: Int? = null,
 
-        @field:SerializedName("ID")
+    @field:Json(name = "ID")
         var iD: String? = null,
 
-        @field:SerializedName("EnglishType")
+    @field:Json(name = "EnglishType")
         var englishType: String? = null,
 
-        @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class TimeZone(
 
-        @field:SerializedName("NextOffsetChange")
+    @field:Json(name = "NextOffsetChange")
         var nextOffsetChange: String? = null,
 
-        @field:SerializedName("GmtOffset")
+    @field:Json(name = "GmtOffset")
         var gmtOffset: Int? = null,
 
-        @field:SerializedName("Code")
+    @field:Json(name = "Code")
         var code: String? = null,
 
-        @field:SerializedName("IsDaylightSaving")
+    @field:Json(name = "IsDaylightSaving")
         var isDaylightSaving: Boolean? = null,
 
-        @field:SerializedName("Name")
+    @field:Json(name = "Name")
         var name: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class GeoPosition(
 
-    @field:SerializedName("Elevation")
+    @field:Json(name = "Elevation")
         var elevation: Elevation? = null,
 
-    @field:SerializedName("Latitude")
+    @field:Json(name = "Latitude")
         var latitude: Double? = null,
 
-    @field:SerializedName("Longitude")
+    @field:Json(name = "Longitude")
         var longitude: Double? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Region(
 
-        @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-        @field:SerializedName("ID")
+    @field:Json(name = "ID")
         var iD: String? = null,
 
-        @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Country(
 
-        @field:SerializedName("LocalizedName")
+    @field:Json(name = "LocalizedName")
         var localizedName: String? = null,
 
-        @field:SerializedName("ID")
+    @field:Json(name = "ID")
         var iD: String? = null,
 
-        @field:SerializedName("EnglishName")
+    @field:Json(name = "EnglishName")
         var englishName: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Metric(
 
-        @field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
         var unitType: Int? = null,
 
-        @field:SerializedName("Value")
+    @field:Json(name = "Value")
         var value: Int? = null,
 
-        @field:SerializedName("Unit")
+    @field:Json(name = "Unit")
         var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Elevation(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
         var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
         var imperial: Imperial? = null
 )

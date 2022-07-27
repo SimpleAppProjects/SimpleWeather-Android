@@ -1,147 +1,147 @@
 package com.thewizrd.weather_api.openweather.location
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ResponseItem(
 
-    @field:SerializedName("local_names")
+    @field:Json(name = "local_names")
 	var localNames: LocalNames? = null,
 
-    @field:SerializedName("country")
+    @field:Json(name = "country")
 	var country: String? = null,
 
-    @field:SerializedName("name")
+    @field:Json(name = "name")
 	var name: String? = null,
 
-    @field:SerializedName("lon")
+    @field:Json(name = "lon")
 	var lon: Double? = null,
 
-    @field:SerializedName("state")
+    @field:Json(name = "state")
 	var state: String? = null,
 
-    @field:SerializedName("lat")
+    @field:Json(name = "lat")
 	var lat: Double? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class LocalNames(
 
-	@field:SerializedName("feature_name")
+    @field:Json(name = "feature_name")
 	var featureName: String? = null,
 
-	@field:SerializedName("en")
+    @field:Json(name = "en")
 	var en: String? = null,
 
-	@field:SerializedName("ascii")
+    @field:Json(name = "ascii")
 	var ascii: String? = null,
 
-	@field:SerializedName("ca")
+    @field:Json(name = "ca")
 	var ca: String? = null,
 
-	@field:SerializedName("ar")
+    @field:Json(name = "ar")
 	var ar: String? = null,
 
-	@field:SerializedName("fa")
+    @field:Json(name = "fa")
 	var fa: String? = null,
 
-	@field:SerializedName("sr")
+    @field:Json(name = "sr")
 	var sr: String? = null,
 
-	@field:SerializedName("de")
+    @field:Json(name = "de")
 	var de: String? = null,
 
-	@field:SerializedName("fi")
+    @field:Json(name = "fi")
 	var fi: String? = null,
 
-	@field:SerializedName("ru")
+    @field:Json(name = "ru")
 	var ru: String? = null,
 
-	@field:SerializedName("pt")
+    @field:Json(name = "pt")
 	var pt: String? = null,
 
-	@field:SerializedName("bg")
+    @field:Json(name = "bg")
 	var bg: String? = null,
 
-	@field:SerializedName("lt")
+    @field:Json(name = "lt")
 	var lt: String? = null,
 
-	@field:SerializedName("fr")
+    @field:Json(name = "fr")
 	var fr: String? = null,
 
-	@field:SerializedName("ja")
+    @field:Json(name = "ja")
 	var ja: String? = null,
 
-	@field:SerializedName("pl")
+    @field:Json(name = "pl")
 	var pl: String? = null,
 
-	@field:SerializedName("he")
+    @field:Json(name = "he")
 	var he: String? = null,
 
-	@field:SerializedName("nl")
+    @field:Json(name = "nl")
 	var nl: String? = null,
 
-	@field:SerializedName("hi")
+    @field:Json(name = "hi")
 	var hi: String? = null,
 
-	@field:SerializedName("no")
+    @field:Json(name = "no")
 	var no: String? = null,
 
-	@field:SerializedName("hr")
+    @field:Json(name = "hr")
 	var hr: String? = null,
 
-	@field:SerializedName("hu")
+    @field:Json(name = "hu")
 	var hu: String? = null,
 
-	@field:SerializedName("sk")
+    @field:Json(name = "sk")
 	var sk: String? = null,
 
-	@field:SerializedName("sl")
+    @field:Json(name = "sl")
 	var sl: String? = null,
 
-	@field:SerializedName("id")
+    @field:Json(name = "id")
 	var id: String? = null,
 
-	@field:SerializedName("mk")
+    @field:Json(name = "mk")
 	var mk: String? = null,
 
-	@field:SerializedName("af")
+    @field:Json(name = "af")
 	var af: String? = null,
 
-	@field:SerializedName("gl")
+    @field:Json(name = "gl")
 	var gl: String? = null,
 
-	@field:SerializedName("el")
+    @field:Json(name = "el")
 	var el: String? = null,
 
-	@field:SerializedName("it")
+    @field:Json(name = "it")
 	var it: String? = null,
 
-	@field:SerializedName("eu")
+    @field:Json(name = "eu")
 	var eu: String? = null,
 
-	@field:SerializedName("vi")
+    @field:Json(name = "vi")
 	var vi: String? = null,
 
-	@field:SerializedName("th")
+    @field:Json(name = "th")
 	var th: String? = null,
 
-	@field:SerializedName("la")
+    @field:Json(name = "la")
 	var la: String? = null,
 
-	@field:SerializedName("az")
+    @field:Json(name = "az")
 	var az: String? = null,
 
-	@field:SerializedName("zu")
+    @field:Json(name = "zu")
 	var zu: String? = null,
 
-	@field:SerializedName("da")
+    @field:Json(name = "da")
 	var da: String? = null,
 
-	@field:SerializedName("ro")
+    @field:Json(name = "ro")
 	var ro: String? = null,
 
-	@field:SerializedName("tr")
+    @field:Json(name = "tr")
 	var tr: String? = null
 )

@@ -1,10 +1,10 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 public class Main {
 
-    @SerializedName("aqi")
+    @Json(name = "aqi")
     private int aqi;
 
     public void setAqi(int aqi) {

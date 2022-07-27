@@ -1,30 +1,30 @@
 package com.thewizrd.weather_api.weatherapi.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class LocationItem {
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
-    @SerializedName("lon")
+    @Json(name = "lon")
     private double lon;
 
-    @SerializedName("id")
+    @Json(name = "id")
     private int id;
 
-    @SerializedName("region")
+    @Json(name = "region")
     private String region;
 
-    @SerializedName("lat")
+    @Json(name = "lat")
     private double lat;
 
-    @SerializedName("url")
+    @Json(name = "url")
     private String url;
 
     public void setCountry(String country) {

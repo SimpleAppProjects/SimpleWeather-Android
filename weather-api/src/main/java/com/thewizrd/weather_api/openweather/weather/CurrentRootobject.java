@@ -1,56 +1,56 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class CurrentRootobject {
 
-    @SerializedName("dt")
+    @Json(name = "dt")
     private long dt;
 
-    @SerializedName("coord")
+    @Json(name = "coord")
     private Coord coord;
 
-    @SerializedName("visibility")
+    @Json(name = "visibility")
     private int visibility;
 
-    @SerializedName("weather")
+    @Json(name = "weather")
     private List<WeatherItem> weather;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
-    @SerializedName("cod")
+    @Json(name = "cod")
     private int cod;
 
-    @SerializedName("main")
+    @Json(name = "main")
     private Main main;
 
-    @SerializedName("clouds")
+    @Json(name = "clouds")
     private Clouds clouds;
 
-    @SerializedName("id")
+    @Json(name = "id")
     private int id;
 
-    @SerializedName("sys")
+    @Json(name = "sys")
     private CurrentSys sys;
 
-    @SerializedName("timezone")
+    @Json(name = "timezone")
     private int timezone;
 
-    @SerializedName("base")
+    @Json(name = "base")
     private String base;
 
-    @SerializedName("wind")
+    @Json(name = "wind")
     private Wind wind;
 
-    @SerializedName("rain")
+    @Json(name = "rain")
     private Rain rain;
 
-    @SerializedName("snow")
+    @Json(name = "snow")
     private Snow snow;
 
     public void setDt(long dt) {

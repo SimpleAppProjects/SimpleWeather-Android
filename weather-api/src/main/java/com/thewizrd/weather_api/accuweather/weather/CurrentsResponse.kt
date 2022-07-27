@@ -1,477 +1,477 @@
 package com.thewizrd.weather_api.accuweather.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentsResponse(
 
 		var currentsResponse: List<CurrentsResponseItem?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentMinimum(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Precip1hr(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past6HourRange(
 
-    @field:SerializedName("Minimum")
+    @field:Json(name = "Minimum")
 		var minimum: CurrentMinimum? = null,
 
-    @field:SerializedName("Maximum")
+    @field:Json(name = "Maximum")
 		var maximum: CurrentMaximum? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class PastHour(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Metric(
 
-		@field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
 		var unitType: Int? = null,
 
-		@field:SerializedName("Value")
+    @field:Json(name = "Value")
 		var value: Float? = null,
 
-		@field:SerializedName("Unit")
+    @field:Json(name = "Unit")
 		var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentSpeed(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class TemperatureSummary(
 
-    @field:SerializedName("Past6HourRange")
+    @field:Json(name = "Past6HourRange")
 		var past6HourRange: Past6HourRange? = null,
 
-    @field:SerializedName("Past24HourRange")
+    @field:Json(name = "Past24HourRange")
 		var past24HourRange: Past24HourRange? = null,
 
-    @field:SerializedName("Past12HourRange")
+    @field:Json(name = "Past12HourRange")
 		var past12HourRange: Past12HourRange? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past12Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentMaximum(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Pressure(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class WindChillTemperature(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class PrecipitationSummary(
 
-    @field:SerializedName("Past6Hours")
+    @field:Json(name = "Past6Hours")
 		var past6Hours: Past6Hours? = null,
 
-    @field:SerializedName("Precipitation")
+    @field:Json(name = "Precipitation")
 		var precipitation: Precipitation? = null,
 
-    @field:SerializedName("Past9Hours")
+    @field:Json(name = "Past9Hours")
 		var past9Hours: Past9Hours? = null,
 
-    @field:SerializedName("Past3Hours")
+    @field:Json(name = "Past3Hours")
 		var past3Hours: Past3Hours? = null,
 
-    @field:SerializedName("PastHour")
+    @field:Json(name = "PastHour")
 		var pastHour: PastHour? = null,
 
-    @field:SerializedName("Past18Hours")
+    @field:Json(name = "Past18Hours")
 		var past18Hours: Past18Hours? = null,
 
-    @field:SerializedName("Past24Hours")
+    @field:Json(name = "Past24Hours")
 		var past24Hours: Past24Hours? = null,
 
-    @field:SerializedName("Past12Hours")
+    @field:Json(name = "Past12Hours")
 		var past12Hours: Past12Hours? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past3Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentDirection(
 
-		@field:SerializedName("English")
+    @field:Json(name = "English")
 		var english: String? = null,
 
-		@field:SerializedName("Degrees")
+    @field:Json(name = "Degrees")
 		var degrees: Int? = null,
 
-		@field:SerializedName("Localized")
+    @field:Json(name = "Localized")
 		var localized: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentCeiling(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past12HourRange(
 
-    @field:SerializedName("Minimum")
+    @field:Json(name = "Minimum")
 		var minimum: CurrentMinimum? = null,
 
-    @field:SerializedName("Maximum")
+    @field:Json(name = "Maximum")
 		var maximum: CurrentMaximum? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past6Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past24Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Imperial(
 
-		@field:SerializedName("UnitType")
+    @field:Json(name = "UnitType")
 		var unitType: Int? = null,
 
-		@field:SerializedName("Value")
+    @field:Json(name = "Value")
 		var value: Float? = null,
 
-		@field:SerializedName("Unit")
+    @field:Json(name = "Unit")
 		var unit: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentRealFeelTemperature(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentDewPoint(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past18Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class PressureTendency(
 
-		@field:SerializedName("Code")
+    @field:Json(name = "Code")
 		var code: String? = null,
 
-		@field:SerializedName("LocalizedText")
+    @field:Json(name = "LocalizedText")
 		var localizedText: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentWetBulbTemperature(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentVisibility(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentTemperature(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentWindGust(
 
-		@field:SerializedName("Speed")
+    @field:Json(name = "Speed")
 		var speed: CurrentSpeed? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentWind(
 
-    @field:SerializedName("Speed")
+    @field:Json(name = "Speed")
 		var speed: CurrentSpeed? = null,
 
-    @field:SerializedName("Direction")
+    @field:Json(name = "Direction")
 		var direction: CurrentDirection? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Precipitation(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ApparentTemperature(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past24HourRange(
 
-    @field:SerializedName("Minimum")
+    @field:Json(name = "Minimum")
 		var minimum: CurrentMinimum? = null,
 
-    @field:SerializedName("Maximum")
+    @field:Json(name = "Maximum")
 		var maximum: CurrentMaximum? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past24HourTemperatureDeparture(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Past9Hours(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentsResponseItem(
 
-    @field:SerializedName("Wind")
+    @field:Json(name = "Wind")
 		var wind: CurrentWind? = null,
 
-    @field:SerializedName("Temperature")
+    @field:Json(name = "Temperature")
 		var temperature: CurrentTemperature? = null,
 
-    @field:SerializedName("Past24HourTemperatureDeparture")
+    @field:Json(name = "Past24HourTemperatureDeparture")
 		var past24HourTemperatureDeparture: Past24HourTemperatureDeparture? = null,
 
-    @field:SerializedName("PressureTendency")
+    @field:Json(name = "PressureTendency")
 		var pressureTendency: PressureTendency? = null,
 
-    @field:SerializedName("ObstructionsToVisibility")
+    @field:Json(name = "ObstructionsToVisibility")
 		var obstructionsToVisibility: String? = null,
 
-    @field:SerializedName("Ceiling")
+    @field:Json(name = "Ceiling")
 		var ceiling: CurrentCeiling? = null,
 
-    @field:SerializedName("RealFeelTemperatureShade")
+    @field:Json(name = "RealFeelTemperatureShade")
 		var realFeelTemperatureShade: CurrentRealFeelTemperatureShade? = null,
 
-    @field:SerializedName("EpochTime")
+    @field:Json(name = "EpochTime")
 		var epochTime: Long? = null,
 
-    @field:SerializedName("RealFeelTemperature")
+    @field:Json(name = "RealFeelTemperature")
 		var realFeelTemperature: CurrentRealFeelTemperature? = null,
 
-    @field:SerializedName("PrecipitationType")
+    @field:Json(name = "PrecipitationType")
 		var precipitationType: String? = null,
 
-    @field:SerializedName("HasPrecipitation")
+    @field:Json(name = "HasPrecipitation")
 		var hasPrecipitation: Boolean? = null,
 
-    @field:SerializedName("RelativeHumidity")
+    @field:Json(name = "RelativeHumidity")
 		var relativeHumidity: Int? = null,
 
-    @field:SerializedName("PrecipitationSummary")
+    @field:Json(name = "PrecipitationSummary")
 		var precipitationSummary: PrecipitationSummary? = null,
 
-    @field:SerializedName("TemperatureSummary")
+    @field:Json(name = "TemperatureSummary")
 		var temperatureSummary: TemperatureSummary? = null,
 
-    @field:SerializedName("LocalObservationDateTime")
+    @field:Json(name = "LocalObservationDateTime")
 		var localObservationDateTime: String? = null,
 
-    @field:SerializedName("UVIndexText")
+    @field:Json(name = "UVIndexText")
 		var uVIndexText: String? = null,
 
-    @field:SerializedName("WeatherText")
+    @field:Json(name = "WeatherText")
 		var weatherText: String? = null,
 
-    @field:SerializedName("CloudCover")
+    @field:Json(name = "CloudCover")
 		var cloudCover: Int? = null,
 
-    @field:SerializedName("WindGust")
+    @field:Json(name = "WindGust")
 		var windGust: CurrentWindGust? = null,
 
-    @field:SerializedName("UVIndex")
+    @field:Json(name = "UVIndex")
 		var uVIndex: Float? = null,
 
-    @field:SerializedName("Precip1hr")
+    @field:Json(name = "Precip1hr")
 		var precip1hr: Precip1hr? = null,
 
-    @field:SerializedName("WeatherIcon")
+    @field:Json(name = "WeatherIcon")
 		var weatherIcon: Int? = null,
 
-    @field:SerializedName("DewPoint")
+    @field:Json(name = "DewPoint")
 		var dewPoint: CurrentDewPoint? = null,
 
-    @field:SerializedName("Pressure")
+    @field:Json(name = "Pressure")
 		var pressure: Pressure? = null,
 
-    @field:SerializedName("IsDayTime")
+    @field:Json(name = "IsDayTime")
 		var isDayTime: Boolean? = null,
 
-    @field:SerializedName("IndoorRelativeHumidity")
+    @field:Json(name = "IndoorRelativeHumidity")
 		var indoorRelativeHumidity: Int? = null,
 
-    @field:SerializedName("ApparentTemperature")
+    @field:Json(name = "ApparentTemperature")
 		var apparentTemperature: ApparentTemperature? = null,
 
-    @field:SerializedName("WetBulbTemperature")
+    @field:Json(name = "WetBulbTemperature")
 		var wetBulbTemperature: CurrentWetBulbTemperature? = null,
 
-    @field:SerializedName("Visibility")
+    @field:Json(name = "Visibility")
 		var visibility: CurrentVisibility? = null,
 
-    @field:SerializedName("WindChillTemperature")
+    @field:Json(name = "WindChillTemperature")
 		var windChillTemperature: WindChillTemperature? = null,
 
-    @field:SerializedName("Link")
+    @field:Json(name = "Link")
 		var link: String? = null,
 
-    @field:SerializedName("MobileLink")
+    @field:Json(name = "MobileLink")
 		var mobileLink: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentRealFeelTemperatureShade(
 
-    @field:SerializedName("Metric")
+    @field:Json(name = "Metric")
 		var metric: Metric? = null,
 
-    @field:SerializedName("Imperial")
+    @field:Json(name = "Imperial")
 		var imperial: Imperial? = null
 )

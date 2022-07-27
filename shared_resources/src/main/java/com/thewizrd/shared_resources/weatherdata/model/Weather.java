@@ -11,9 +11,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -199,15 +198,15 @@ public class Weather extends CustomJsonObject {
     }
 
     @Override
-    public void fromJson(JsonReader reader) {
+    public void fromJson(@NonNull JsonReader reader) {
         try {
-            while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT)
+            while (reader.hasNext() && reader.peek() != JsonReader.Token.END_OBJECT) {
+                if (reader.peek() == JsonReader.Token.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
 
                 String property = reader.nextName();
 
-                if (reader.peek() == JsonToken.NULL) {
+                if (reader.peek() == JsonReader.Token.NULL) {
                     reader.nextNull();
                     continue;
                 }
@@ -237,11 +236,11 @@ public class Weather extends CustomJsonObject {
                         // Most provider forecasts are <= 10
                         List<Forecast> forecasts = new ArrayList<>(10);
 
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 Forecast fcast = new Forecast();
                                 fcast.fromJson(reader);
                                 forecasts.add(fcast);
@@ -249,7 +248,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.forecast = forecasts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -258,11 +257,11 @@ public class Weather extends CustomJsonObject {
                         // MetNo contains ~90 items, but HERE contains ~165
                         // If 90+ is needed, let the List impl allocate more
                         List<HourlyForecast> hr_forecasts = new ArrayList<>(90);
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 HourlyForecast hr_fcast = new HourlyForecast();
                                 hr_fcast.fromJson(reader);
                                 hr_forecasts.add(hr_fcast);
@@ -270,7 +269,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.hrForecast = hr_forecasts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -278,11 +277,11 @@ public class Weather extends CustomJsonObject {
                         // Set initial cap to 20
                         // Most provider forecasts are <= 10 (x2 for day & nt)
                         List<TextForecast> txt_forecasts = new ArrayList<>(20);
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 TextForecast txtFcast = new TextForecast();
                                 txtFcast.fromJson(reader);
                                 txt_forecasts.add(txtFcast);
@@ -290,7 +289,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.txtForecast = txt_forecasts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -299,11 +298,11 @@ public class Weather extends CustomJsonObject {
                         // Minutely forecasts are usually only for an hour
                         List<MinutelyForecast> minForecasts = new ArrayList<>(60);
 
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 MinutelyForecast fcast = new MinutelyForecast();
                                 fcast.fromJson(reader);
                                 minForecasts.add(fcast);
@@ -311,7 +310,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.minForecast = minForecasts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -320,11 +319,11 @@ public class Weather extends CustomJsonObject {
                         // Minutely forecasts are usually only for an hour
                         List<AirQuality> aqiForecasts = new ArrayList<>(10);
 
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 AirQuality fcast = new AirQuality();
                                 fcast.fromJson(reader);
                                 aqiForecasts.add(fcast);
@@ -332,7 +331,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.aqiForecast = aqiForecasts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -354,11 +353,11 @@ public class Weather extends CustomJsonObject {
                         break;
                     case "weather_alerts":
                         List<WeatherAlert> alerts = new ArrayList<>();
-                        if (reader.peek() == JsonToken.BEGIN_ARRAY)
+                        if (reader.peek() == JsonReader.Token.BEGIN_ARRAY)
                             reader.beginArray(); // StartArray
 
-                        while (reader.hasNext() && reader.peek() != JsonToken.END_ARRAY) {
-                            if (reader.peek() == JsonToken.STRING || reader.peek() == JsonToken.BEGIN_OBJECT) {
+                        while (reader.hasNext() && reader.peek() != JsonReader.Token.END_ARRAY) {
+                            if (reader.peek() == JsonReader.Token.STRING || reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
                                 @SuppressLint({"RestrictedApi", "VisibleForTests"})
                                 WeatherAlert alert = new WeatherAlert();
                                 alert.fromJson(reader);
@@ -367,7 +366,7 @@ public class Weather extends CustomJsonObject {
                         }
                         this.weather_alerts = alerts;
 
-                        if (reader.peek() == JsonToken.END_ARRAY)
+                        if (reader.peek() == JsonReader.Token.END_ARRAY)
                             reader.endArray(); // EndArray
 
                         break;
@@ -389,7 +388,7 @@ public class Weather extends CustomJsonObject {
                 }
             }
 
-            if (reader.peek() == JsonToken.END_OBJECT)
+            if (reader.peek() == JsonReader.Token.END_OBJECT)
                 reader.endObject();
 
         } catch (Exception ignored) {
@@ -397,7 +396,7 @@ public class Weather extends CustomJsonObject {
     }
 
     @Override
-    public void toJson(JsonWriter writer) {
+    public void toJson(@NonNull JsonWriter writer) {
         try {
             // {
             writer.beginObject();

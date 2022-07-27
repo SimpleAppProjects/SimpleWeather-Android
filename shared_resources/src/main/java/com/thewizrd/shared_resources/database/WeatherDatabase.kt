@@ -9,7 +9,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.google.gson.JsonParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
@@ -17,6 +16,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 
 @Database(
         entities = [Weather::class, WeatherAlerts::class, Forecasts::class, HourlyForecasts::class],
@@ -132,8 +132,8 @@ abstract class WeatherDatabase : RoomDatabase() {
                                     val jsonArr = JSONArray(blobs)
                                     for (i in 0 until jsonArr.length()) {
                                         val json = jsonArr.getString(i)
-                                        val child = JsonParser.parseString(json).asJsonObject
-                                        val date = child["date"].asString
+                                        val child = JSONObject(json)
+                                        val date = child.getString("date")
 
                                         if (!json.isNullOrBlank() && !date.isNullOrBlank()) {
                                             val dto =

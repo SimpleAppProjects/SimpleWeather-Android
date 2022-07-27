@@ -1,17 +1,17 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Geometry {
 
-    @SerializedName("coordinates")
+    @Json(name = "coordinates")
     private List<Float> coordinates;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
     public void setCoordinates(List<Float> coordinates) {

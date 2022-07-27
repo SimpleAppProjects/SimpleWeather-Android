@@ -1,24 +1,24 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AlertsItem {
 
-    @SerializedName("start")
+    @Json(name = "start")
     private long start;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("sender_name")
+    @Json(name = "sender_name")
     private String senderName;
 
-    @SerializedName("end")
+    @Json(name = "end")
     private long end;
 
-    @SerializedName("event")
+    @Json(name = "event")
     private String event;
 
     public void setStart(long start) {

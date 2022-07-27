@@ -1,27 +1,27 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class SuggestionsItem {
 
-    @SerializedName("address")
+    @Json(name = "address")
     private Address address;
 
-    @SerializedName("matchLevel")
+    @Json(name = "matchLevel")
     private String matchLevel;
 
-    @SerializedName("countryCode")
+    @Json(name = "countryCode")
     private String countryCode;
 
-    @SerializedName("locationId")
+    @Json(name = "locationId")
     private String locationId;
 
-    @SerializedName("language")
+    @Json(name = "language")
     private String language;
 
-    @SerializedName("label")
+    @Json(name = "label")
     private String label;
 
     public void setAddress(Address address) {

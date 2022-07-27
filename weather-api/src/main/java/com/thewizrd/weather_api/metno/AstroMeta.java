@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AstroMeta {
 
-    @SerializedName("licenseurl")
+    @Json(name = "licenseurl")
     private String licenseurl;
 
     public void setLicenseurl(String licenseurl) {

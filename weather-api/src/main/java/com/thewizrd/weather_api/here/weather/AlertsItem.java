@@ -1,20 +1,20 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AlertsItem {
 
-    @SerializedName("timeSegment")
+    @Json(name = "timeSegment")
     private List<TimeSegmentItem> timeSegment;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
     public void setTimeSegment(List<TimeSegmentItem> timeSegment) {

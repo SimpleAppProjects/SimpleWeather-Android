@@ -1,63 +1,63 @@
 package com.thewizrd.weather_api.locationiq;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Address {
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("country_code")
+    @Json(name = "country_code")
     private String countryCode;
 
-    @SerializedName("road")
+    @Json(name = "road")
     private String road;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private String city;
 
-    @SerializedName("county")
+    @Json(name = "county")
     private String county;
 
-    @SerializedName("postcode")
+    @Json(name = "postcode")
     private String postcode;
 
-    @SerializedName("suburb")
+    @Json(name = "suburb")
     private String suburb;
 
-    @SerializedName("house_number")
+    @Json(name = "house_number")
     private String houseNumber;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("city_district")
+    @Json(name = "city_district")
     private String cityDistrict;
 
-    @SerializedName("house")
+    @Json(name = "house")
     private String house;
 
-    @SerializedName("neighbourhood")
+    @Json(name = "neighbourhood")
     private String neighbourhood;
 
-    @SerializedName("hamlet")
+    @Json(name = "hamlet")
     private String hamlet;
 
-    @SerializedName("village")
+    @Json(name = "village")
     private String village;
 
-    @SerializedName("town")
+    @Json(name = "town")
     private String town;
 
-    @SerializedName("region")
+    @Json(name = "region")
     private String region;
 
-    @SerializedName("state_district")
+    @Json(name = "state_district")
     private String stateDistrict;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
     public void setCountry(String country) {

@@ -1,105 +1,105 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Values {
 
-    @SerializedName("precipitationProbability")
+    @Json(name = "precipitationProbability")
     private Float precipitationProbability;
 
-    @SerializedName("snowAccumulation")
+    @Json(name = "snowAccumulation")
     private Float snowAccumulation;
 
-    @SerializedName("visibility")
+    @Json(name = "visibility")
     private Float visibility;
 
-    @SerializedName("windGust")
+    @Json(name = "windGust")
     private Float windGust;
 
-    @SerializedName("precipitationIntensity")
+    @Json(name = "precipitationIntensity")
     private Float precipitationIntensity;
 
-    @SerializedName("temperatureApparent")
+    @Json(name = "temperatureApparent")
     private Float temperatureApparent;
 
-    @SerializedName("weatherCode")
+    @Json(name = "weatherCode")
     private Integer weatherCode;
 
-    @SerializedName("cloudCover")
+    @Json(name = "cloudCover")
     private Float cloudCover;
 
-    @SerializedName("dewPoint")
+    @Json(name = "dewPoint")
     private Float dewPoint;
 
-    @SerializedName("sunsetTime")
+    @Json(name = "sunsetTime")
     private String sunsetTime;
 
-    @SerializedName("temperature")
+    @Json(name = "temperature")
     private Float temperature;
 
-    @SerializedName("temperatureMin")
+    @Json(name = "temperatureMin")
     private Float temperatureMin;
 
-    @SerializedName("temperatureMax")
+    @Json(name = "temperatureMax")
     private Float temperatureMax;
 
-    @SerializedName("humidity")
+    @Json(name = "humidity")
     private Float humidity;
 
-    @SerializedName("windDirection")
+    @Json(name = "windDirection")
     private Float windDirection;
 
-    @SerializedName("windSpeed")
+    @Json(name = "windSpeed")
     private Float windSpeed;
 
-    @SerializedName("moonPhase")
+    @Json(name = "moonPhase")
     private Integer moonPhase;
 
-    @SerializedName("pressureSeaLevel")
+    @Json(name = "pressureSeaLevel")
     private Float pressureSeaLevel;
 
-    @SerializedName("sunriseTime")
+    @Json(name = "sunriseTime")
     private String sunriseTime;
 
-    @SerializedName("grassIndex")
+    @Json(name = "grassIndex")
     private Integer grassIndex;
 
-    @SerializedName("epaIndex")
+    @Json(name = "epaIndex")
     private Integer epaIndex;
 
-    @SerializedName("treeIndex")
+    @Json(name = "treeIndex")
     private Integer treeIndex;
 
-    @SerializedName("weedIndex")
+    @Json(name = "weedIndex")
     private Integer weedIndex;
 
-    @SerializedName("weatherCodeDay")
+    @Json(name = "weatherCodeDay")
     private Integer weatherCodeDay;
 
-    @SerializedName("weatherCodeFullDay")
+    @Json(name = "weatherCodeFullDay")
     private Integer weatherCodeFullDay;
 
-    @SerializedName("weatherCodeNight")
+    @Json(name = "weatherCodeNight")
     private Integer weatherCodeNight;
 
-    @SerializedName("particulateMatter25")
+    @Json(name = "particulateMatter25")
     private Double particulateMatter25;
 
-    @SerializedName("pollutantCO")
+    @Json(name = "pollutantCO")
     private Double pollutantCO;
 
-    @SerializedName("pollutantNO2")
+    @Json(name = "pollutantNO2")
     private Double pollutantNO2;
 
-    @SerializedName("pollutantSO2")
+    @Json(name = "pollutantSO2")
     private Double pollutantSO2;
 
-    @SerializedName("pollutantO3")
+    @Json(name = "pollutantO3")
     private Double pollutantO3;
 
-    @SerializedName("particulateMatter10")
+    @Json(name = "particulateMatter10")
     private Double particulateMatter10;
 
     public void setPrecipitationProbability(Float precipitationProbability) {

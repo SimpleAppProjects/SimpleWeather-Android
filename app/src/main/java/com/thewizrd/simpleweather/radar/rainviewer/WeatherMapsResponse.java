@@ -1,21 +1,21 @@
 package com.thewizrd.simpleweather.radar.rainviewer;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class WeatherMapsResponse {
 
-    @SerializedName("radar")
+    @Json(name = "radar")
     private Radar radar;
 
-    @SerializedName("generated")
+    @Json(name = "generated")
     private int generated;
 
-    @SerializedName("host")
+    @Json(name = "host")
     private String host;
 
-    @SerializedName("version")
+    @Json(name = "version")
     private String version;
 
     public void setRadar(Radar radar) {

@@ -1,89 +1,89 @@
 package com.thewizrd.weather_api.weatherunlocked;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class CurrentResponse {
 
-    @SerializedName("windspd_mph")
+    @Json(name = "windspd_mph")
     private float windspdMph;
 
-    @SerializedName("feelslike_c")
+    @Json(name = "feelslike_c")
     private float feelslikeC;
 
-    @SerializedName("feelslike_f")
+    @Json(name = "feelslike_f")
     private float feelslikeF;
 
-    @SerializedName("vis_mi")
+    @Json(name = "vis_mi")
     private float visMi;
 
-    @SerializedName("lon")
+    @Json(name = "lon")
     private float lon;
 
-    @SerializedName("alt_ft")
+    @Json(name = "alt_ft")
     private float altFt;
 
-    @SerializedName("temp_c")
+    @Json(name = "temp_c")
     private float tempC;
 
-    @SerializedName("slp_in")
+    @Json(name = "slp_in")
     private float slpIn;
 
-    @SerializedName("temp_f")
+    @Json(name = "temp_f")
     private float tempF;
 
-    @SerializedName("windspd_kts")
+    @Json(name = "windspd_kts")
     private float windspdKts;
 
-    @SerializedName("winddir_compass")
+    @Json(name = "winddir_compass")
     private String winddirCompass;
 
-    @SerializedName("winddir_deg")
+    @Json(name = "winddir_deg")
     private float winddirDeg;
 
-    @SerializedName("dewpoint_f")
+    @Json(name = "dewpoint_f")
     private float dewpointF;
 
-    @SerializedName("wx_desc")
+    @Json(name = "wx_desc")
     private String wxDesc;
 
-    @SerializedName("lat")
+    @Json(name = "lat")
     private float lat;
 
-    @SerializedName("alt_m")
+    @Json(name = "alt_m")
     private float altM;
 
-    @SerializedName("wx_icon")
+    @Json(name = "wx_icon")
     private String wxIcon;
 
-    @SerializedName("windspd_kmh")
+    @Json(name = "windspd_kmh")
     private float windspdKmh;
 
-    @SerializedName("humid_pct")
+    @Json(name = "humid_pct")
     private float humidPct;
 
-    @SerializedName("dewpoint_c")
+    @Json(name = "dewpoint_c")
     private float dewpointC;
 
 	/*
-	@SerializedName("vis_desc")
+	@Json(name = "vis_desc")
 	private Object visDesc;
 	 */
 
-    @SerializedName("cloudtotal_pct")
+    @Json(name = "cloudtotal_pct")
     private float cloudtotalPct;
 
-    @SerializedName("vis_km")
+    @Json(name = "vis_km")
     private float visKm;
 
-    @SerializedName("windspd_ms")
+    @Json(name = "windspd_ms")
     private float windspdMs;
 
-    @SerializedName("slp_mb")
+    @Json(name = "slp_mb")
     private float slpMb;
 
-    @SerializedName("wx_code")
+    @Json(name = "wx_code")
     private int wxCode;
 
     public void setWindspdMph(float windspdMph) {

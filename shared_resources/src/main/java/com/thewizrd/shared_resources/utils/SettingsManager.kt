@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.google.gson.stream.JsonReader
+import com.squareup.moshi.JsonReader
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.LocationsDAO
@@ -30,8 +30,8 @@ import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Buffer
 import timber.log.Timber
-import java.io.StringReader
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -136,7 +136,7 @@ class SettingsManager(context: Context) {
         if (!lastGPSLoc.isNullOrBlank()) {
             try {
                 withContext(Dispatchers.IO) {
-                    val reader = JsonReader(StringReader(lastGPSLoc))
+                    val reader = JsonReader.of(Buffer().writeUtf8(lastGPSLoc))
                     lastGPSLocData = LocationData().apply {
                         fromJson(reader)
                     }

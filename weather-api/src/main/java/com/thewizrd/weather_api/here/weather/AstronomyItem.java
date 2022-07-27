@@ -1,42 +1,42 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AstronomyItem {
 
-    @SerializedName("moonset")
+    @Json(name = "moonset")
     private String moonset;
 
-    @SerializedName("sunrise")
+    @Json(name = "sunrise")
     private String sunrise;
 
-    @SerializedName("moonPhaseDesc")
+    @Json(name = "moonPhaseDesc")
     private String moonPhaseDesc;
 
-    @SerializedName("iconName")
+    @Json(name = "iconName")
     private String iconName;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private String city;
 
-    @SerializedName("sunset")
+    @Json(name = "sunset")
     private String sunset;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private float latitude;
 
-    @SerializedName("utcTime")
+    @Json(name = "utcTime")
     private String utcTime;
 
-    @SerializedName("moonrise")
+    @Json(name = "moonrise")
     private String moonrise;
 
-    @SerializedName("moonPhase")
+    @Json(name = "moonPhase")
     private float moonPhase;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private float longitude;
 
     public void setMoonset(String moonset) {

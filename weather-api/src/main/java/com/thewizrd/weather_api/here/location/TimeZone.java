@@ -1,36 +1,36 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class TimeZone {
 
-    @SerializedName("nameDstShort")
+    @Json(name = "nameDstShort")
     private String nameDstShort;
 
-    @SerializedName("offset")
+    @Json(name = "offset")
     private int offset;
 
-    @SerializedName("dstSavings")
+    @Json(name = "dstSavings")
     private int dstSavings;
 
-    @SerializedName("rawOffset")
+    @Json(name = "rawOffset")
     private int rawOffset;
 
-    @SerializedName("nameLong")
+    @Json(name = "nameLong")
     private String nameLong;
 
-    @SerializedName("nameDstLong")
+    @Json(name = "nameDstLong")
     private String nameDstLong;
 
-    @SerializedName("id")
+    @Json(name = "id")
     private String id;
 
-    @SerializedName("nameShort")
+    @Json(name = "nameShort")
     private String nameShort;
 
-    @SerializedName("inDaylightTime")
+    @Json(name = "inDaylightTime")
     private boolean inDaylightTime;
 
     public void setNameDstShort(String nameDstShort) {

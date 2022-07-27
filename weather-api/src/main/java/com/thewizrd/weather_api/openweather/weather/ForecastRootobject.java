@@ -1,18 +1,18 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
 // Forecast / Daily
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ForecastRootobject {
 
-    @SerializedName("city")
+    @Json(name = "city")
     private City city;
 
-    @SerializedName("list")
+    @Json(name = "list")
     private List<ListItem> list;
 
     public void setCity(City city) {

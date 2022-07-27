@@ -1,247 +1,247 @@
 package com.thewizrd.weather_api.meteofrance.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastResponse(
 
-    @field:SerializedName("updated_on")
+    @field:Json(name = "updated_on")
     var updatedOn: Long? = null,
 
-    @field:SerializedName("probability_forecast")
+    @field:Json(name = "probability_forecast")
     var probabilityForecast: List<ProbabilityForecastItem?>? = null,
 
-    @field:SerializedName("forecast")
+    @field:Json(name = "forecast")
     var forecast: List<ForecastItem?>? = null,
 
-    @field:SerializedName("position")
+    @field:Json(name = "position")
     var position: ForecastPosition? = null,
 
-    @field:SerializedName("daily_forecast")
+    @field:Json(name = "daily_forecast")
     var dailyForecast: List<DailyForecastItem?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Rain(
 
-    @field:SerializedName("6h")
+    @field:Json(name = "6h")
     var jsonMember6h: Float? = null,
 
-    @field:SerializedName("3h")
+    @field:Json(name = "3h")
     var jsonMember3h: Float? = null,
 
-    @field:SerializedName("1h")
+    @field:Json(name = "1h")
     var jsonMember1h: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Weather12H(
 
-    @field:SerializedName("icon")
+    @field:Json(name = "icon")
     var icon: String? = null,
 
-    @field:SerializedName("desc")
+    @field:Json(name = "desc")
     var desc: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastItem(
 
-    @field:SerializedName("dt")
+    @field:Json(name = "dt")
     var dt: Long? = null,
 
-    @field:SerializedName("rain")
+    @field:Json(name = "rain")
     var rain: Rain? = null,
 
-    @field:SerializedName("T")
+    @field:Json(name = "T")
     var T: ForecastTemp? = null,
 
-    @field:SerializedName("snow")
+    @field:Json(name = "snow")
     var snow: Snow? = null,
 
-    @field:SerializedName("weather")
+    @field:Json(name = "weather")
     var weather: Weather? = null,
 
-    @field:SerializedName("humidity")
+    @field:Json(name = "humidity")
     var humidity: Int? = null,
 
-    @field:SerializedName("rain snow limit")
+    @field:Json(name = "rain snow limit")
     var rainSnowLimit: String? = null,
 
-    @field:SerializedName("iso0")
+    @field:Json(name = "iso0")
     var iso0: Int? = null,
 
-    @field:SerializedName("sea_level")
+    @field:Json(name = "sea_level")
     var seaLevel: Float? = null,
 
-    @field:SerializedName("clouds")
+    @field:Json(name = "clouds")
     var clouds: Int? = null,
 
-    @field:SerializedName("wind")
+    @field:Json(name = "wind")
     var wind: Wind? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastPosition(
 
-    @field:SerializedName("bulletin_cote")
+    @field:Json(name = "bulletin_cote")
     var bulletinCote: Int? = null,
 
-    @field:SerializedName("country")
+    @field:Json(name = "country")
     var country: String? = null,
 
-    @field:SerializedName("insee")
+    @field:Json(name = "insee")
     var insee: String? = null,
 
-    @field:SerializedName("timezone")
+    @field:Json(name = "timezone")
     var timezone: String? = null,
 
-    @field:SerializedName("name")
+    @field:Json(name = "name")
     var name: String? = null,
 
-    @field:SerializedName("lon")
+    @field:Json(name = "lon")
     var lon: Float? = null,
 
-    @field:SerializedName("dept")
+    @field:Json(name = "dept")
     var dept: String? = null,
 
-    @field:SerializedName("alti")
+    @field:Json(name = "alti")
     var alti: Int? = null,
 
-    @field:SerializedName("lat")
+    @field:Json(name = "lat")
     var lat: Float? = null,
 
-    @field:SerializedName("rain_product_available")
+    @field:Json(name = "rain_product_available")
     var rainProductAvailable: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Weather(
 
-    @field:SerializedName("icon")
+    @field:Json(name = "icon")
     var icon: String? = null,
 
-    @field:SerializedName("desc")
+    @field:Json(name = "desc")
     var desc: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Precipitation(
 
-    @field:SerializedName("24h")
+    @field:Json(name = "24h")
     var jsonMember24h: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class DailyForecastTemp(
 
-    @field:SerializedName("min")
+    @field:Json(name = "min")
     var min: Float? = null,
 
-    @field:SerializedName("max")
+    @field:Json(name = "max")
     var max: Float? = null,
 
-    @field:SerializedName("sea")
+    @field:Json(name = "sea")
     var sea: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastTemp(
 
-    @field:SerializedName("value")
+    @field:Json(name = "value")
     var value: Float? = null,
 
-    @field:SerializedName("windchill")
+    @field:Json(name = "windchill")
     var windchill: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Sun(
 
-    @field:SerializedName("set")
+    @field:Json(name = "set")
     var set: Long? = null,
 
-    @field:SerializedName("rise")
+    @field:Json(name = "rise")
     var rise: Long? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class DailyForecastItem(
 
-    @field:SerializedName("dt")
+    @field:Json(name = "dt")
     var dt: Long? = null,
 
-    @field:SerializedName("precipitation")
+    @field:Json(name = "precipitation")
     var precipitation: Precipitation? = null,
 
-    @field:SerializedName("uv")
+    @field:Json(name = "uv")
     var uv: Float? = null,
 
-    @field:SerializedName("T")
+    @field:Json(name = "T")
     var T: DailyForecastTemp? = null,
 
-    @field:SerializedName("weather12H")
+    @field:Json(name = "weather12H")
     var weather12H: Weather12H? = null,
 
-    @field:SerializedName("humidity")
+    @field:Json(name = "humidity")
     var humidity: Humidity? = null,
 
-    @field:SerializedName("sun")
+    @field:Json(name = "sun")
     var sun: Sun? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Snow(
 
-    @field:SerializedName("6h")
+    @field:Json(name = "6h")
     var jsonMember6h: Float? = null,
 
-    @field:SerializedName("3h")
+    @field:Json(name = "3h")
     var jsonMember3h: Float? = null,
 
-    @field:SerializedName("1h")
+    @field:Json(name = "1h")
     var jsonMember1h: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Humidity(
 
-    @field:SerializedName("min")
+    @field:Json(name = "min")
     var min: Int? = null,
 
-    @field:SerializedName("max")
+    @field:Json(name = "max")
     var max: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ProbabilityForecastItem(
 
-    @field:SerializedName("dt")
+    @field:Json(name = "dt")
     var dt: Long? = null,
 
-    @field:SerializedName("rain")
+    @field:Json(name = "rain")
     var rain: Rain? = null,
 
-    @field:SerializedName("freezing")
+    @field:Json(name = "freezing")
     var freezing: Int? = null,
 
-    @field:SerializedName("snow")
+    @field:Json(name = "snow")
     var snow: Snow? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Wind(
 
-    @field:SerializedName("icon")
+    @field:Json(name = "icon")
     var icon: String? = null,
 
-    @field:SerializedName("speed")
+    @field:Json(name = "speed")
     var speed: Float? = null,
 
-    @field:SerializedName("gust")
+    @field:Json(name = "gust")
     var gust: Float? = null,
 
-    @field:SerializedName("direction")
+    @field:Json(name = "direction")
     var direction: Int? = null
 )

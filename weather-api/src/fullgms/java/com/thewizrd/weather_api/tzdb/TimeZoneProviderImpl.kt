@@ -2,14 +2,14 @@ package com.thewizrd.weather_api.tzdb
 
 import android.net.Uri
 import android.util.Log
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
-import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.utils.APIRequestUtils
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.RateLimitedRequest
@@ -29,7 +29,7 @@ class TimeZoneProviderImpl : TimeZoneProvider, RateLimitedRequest {
     }
 
     private inner class TimeZoneData {
-        @SerializedName("tz_long")
+        @Json(name = "tz_long")
         var tzLong: String? = null
     }
 

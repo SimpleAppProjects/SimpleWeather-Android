@@ -1,103 +1,103 @@
 package com.thewizrd.weather_api.meteofrance.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AlertsResponse(
 
-    @field:SerializedName("domain_id")
+    @field:Json(name = "domain_id")
     var domainId: String? = null,
 
-    @field:SerializedName("update_time")
+    @field:Json(name = "update_time")
     var updateTime: Long? = null,
 
-    @field:SerializedName("text_avalanche")
+    @field:Json(name = "text_avalanche")
     var textAvalanche: Any? = null,
 
-    @field:SerializedName("comments")
+    @field:Json(name = "comments")
     var comments: Comments? = null,
 
-    @field:SerializedName("consequences")
+    @field:Json(name = "consequences")
     var consequences: Any? = null,
 
-    @field:SerializedName("advices")
+    @field:Json(name = "advices")
     var advices: Any? = null,
 
-    @field:SerializedName("text")
+    @field:Json(name = "text")
     var text: Any? = null,
 
-    @field:SerializedName("phenomenons_items")
+    @field:Json(name = "phenomenons_items")
     var phenomenonsItems: List<PhenomenonsItemsItem?>? = null,
 
-    @field:SerializedName("timelaps")
+    @field:Json(name = "timelaps")
     var timelaps: List<TimelapsItem?>? = null,
 
-    @field:SerializedName("max_count_items")
+    @field:Json(name = "max_count_items")
     var maxCountItems: Any? = null,
 
-    @field:SerializedName("end_validity_time")
+    @field:Json(name = "end_validity_time")
     var endValidityTime: Long? = null,
 
-    @field:SerializedName("color_max")
+    @field:Json(name = "color_max")
     var colorMax: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class TextBlocItemItem(
 
-    @field:SerializedName("title_html")
+    @field:Json(name = "title_html")
     var titleHtml: String? = null,
 
-    @field:SerializedName("text")
+    @field:Json(name = "text")
     var text: List<String?>? = null,
 
-    @field:SerializedName("title")
+    @field:Json(name = "title")
     var title: String? = null,
 
-    //@field:SerializedName("text_html")
+    //@field:Json(name = "text_html")
     //var textHtml: List<Any?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class PhenomenonsItemsItem(
 
-    @field:SerializedName("phenomenon_max_color_id")
+    @field:Json(name = "phenomenon_max_color_id")
     var phenomenonMaxColorId: Int? = null,
 
-    @field:SerializedName("phenomenon_id")
+    @field:Json(name = "phenomenon_id")
     var phenomenonId: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class TimelapsItemsItem(
 
-    @field:SerializedName("color_id")
+    @field:Json(name = "color_id")
     var colorId: Int? = null,
 
-    @field:SerializedName("begin_time")
+    @field:Json(name = "begin_time")
     var beginTime: Long? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class TimelapsItem(
 
-    @field:SerializedName("timelaps_items")
+    @field:Json(name = "timelaps_items")
     var timelapsItems: List<TimelapsItemsItem?>? = null,
 
-    @field:SerializedName("phenomenon_id")
+    @field:Json(name = "phenomenon_id")
     var phenomenonId: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Comments(
 
-    @field:SerializedName("end_time")
+    @field:Json(name = "end_time")
     var endTime: Long? = null,
 
-    @field:SerializedName("begin_time")
+    @field:Json(name = "begin_time")
     var beginTime: Long? = null,
 
-    @field:SerializedName("text_bloc_item")
+    @field:Json(name = "text_bloc_item")
     var textBlocItem: List<TextBlocItemItem?>? = null
 )

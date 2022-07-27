@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Coord {
 
-    @SerializedName("lon")
+    @Json(name = "lon")
     private float lon;
 
-    @SerializedName("lat")
+    @Json(name = "lat")
     private float lat;
 
     public void setLon(float lon) {

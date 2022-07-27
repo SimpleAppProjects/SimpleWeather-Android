@@ -1,21 +1,21 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Data {
 
-    @SerializedName("instant")
+    @Json(name = "instant")
     private Instant instant;
 
-    @SerializedName("next_6_hours")
+    @Json(name = "next_6_hours")
     private Next6Hours next6Hours;
 
-    @SerializedName("next_12_hours")
+    @Json(name = "next_12_hours")
     private Next12Hours next12Hours;
 
-    @SerializedName("next_1_hours")
+    @Json(name = "next_1_hours")
     private Next1Hours next1Hours;
 
     public void setInstant(Instant instant) {

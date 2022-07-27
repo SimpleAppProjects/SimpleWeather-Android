@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class MetaInfo {
 
-    @SerializedName("nextPageInformation")
+    @Json(name = "nextPageInformation")
     private String nextPageInformation;
 
-    @SerializedName("timestamp")
+    @Json(name = "timestamp")
     private String timestamp;
 
     public void setNextPageInformation(String nextPageInformation) {

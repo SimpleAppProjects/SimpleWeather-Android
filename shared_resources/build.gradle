@@ -101,8 +101,11 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation 'com.jakewharton.timber:timber:5.0.1'
-    implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.ibm.icu:icu4j:71.1'
+
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
 
     fullgmsImplementation 'com.google.android.gms:play-services-base:18.1.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"

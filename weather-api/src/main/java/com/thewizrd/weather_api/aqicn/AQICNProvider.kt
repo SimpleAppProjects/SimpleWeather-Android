@@ -84,7 +84,9 @@ class AQICNProvider : AirQualityProvider, RateLimitedRequest {
                     // Load data
                     val root = JSONParser.deserializer<Rootobject>(stream, Rootobject::class.java)
 
-                    aqiData = AQICNData(root)
+                    root?.let {
+                        aqiData = AQICNData(it)
+                    }
 
                     // End Stream
                     stream.closeQuietly()

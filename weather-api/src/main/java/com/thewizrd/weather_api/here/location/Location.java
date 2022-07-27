@@ -1,29 +1,29 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Location {
 
-    @SerializedName("displayPosition")
+    @Json(name = "displayPosition")
     private DisplayPosition displayPosition;
 
-    @SerializedName("address")
+    @Json(name = "address")
     private Address address;
 
-    @SerializedName("adminInfo")
+    @Json(name = "adminInfo")
     private AdminInfo adminInfo;
 
-    @SerializedName("locationId")
+    @Json(name = "locationId")
     private String locationId;
 
-    @SerializedName("navigationPosition")
+    @Json(name = "navigationPosition")
     private List<NavigationPositionItem> navigationPosition;
 
-    @SerializedName("locationType")
+    @Json(name = "locationType")
     private String locationType;
 
     public void setDisplayPosition(DisplayPosition displayPosition) {

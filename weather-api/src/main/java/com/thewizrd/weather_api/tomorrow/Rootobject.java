@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Rootobject {
 
-    @SerializedName("data")
+    @Json(name = "data")
     private Data data;
 
-    //@SerializedName("warnings")
+    //@Json(name = "warnings")
     //private List<WarningsItem> warnings;
 
     public void setData(Data data) {

@@ -17,6 +17,7 @@ buildscript {
         nav_version = '2.5.0'
         room_version = '2.5.0-alpha02'
 
+        moshi_version = '1.10.0'
         okhttp_version = '4.10.0'
     }
 

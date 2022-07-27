@@ -1,17 +1,17 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Properties {
 
-    @SerializedName("timeseries")
+    @Json(name = "timeseries")
     private List<TimeseriesItem> timeseries;
 
-    @SerializedName("meta")
+    @Json(name = "meta")
     private Meta meta;
 
     public void setTimeseries(List<TimeseriesItem> timeseries) {

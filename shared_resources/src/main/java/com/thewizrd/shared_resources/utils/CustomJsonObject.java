@@ -1,12 +1,14 @@
 package com.thewizrd.shared_resources.utils;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import androidx.annotation.NonNull;
+
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 
 public abstract class CustomJsonObject {
-    public abstract void fromJson(JsonReader reader);
+    public abstract void fromJson(@NonNull JsonReader reader);
 
-    public abstract void toJson(JsonWriter writer);
+    public abstract void toJson(@NonNull JsonWriter writer);
 }
 
 

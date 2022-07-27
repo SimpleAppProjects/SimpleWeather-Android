@@ -1,35 +1,35 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class MatchQuality {
 
-    @SerializedName("houseNumber")
+    @Json(name = "houseNumber")
     private double houseNumber;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private double state;
 
-    @SerializedName("country")
+    @Json(name = "country")
     private double country;
 
-    @SerializedName("street")
+    @Json(name = "street")
     private List<Double> street;
 
-    @SerializedName("postalCode")
+    @Json(name = "postalCode")
     private double postalCode;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private double city;
 
-    @SerializedName("county")
+    @Json(name = "county")
     private double county;
 
-    @SerializedName("district")
+    @Json(name = "district")
     private double district;
 
     public void setHouseNumber(double houseNumber) {

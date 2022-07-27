@@ -1,24 +1,24 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Details2 {
 
-    @SerializedName("precipitation_amount")
+    @Json(name = "precipitation_amount")
     private Float precipitationAmount;
 
-    @SerializedName("precipitation_amount_max")
+    @Json(name = "precipitation_amount_max")
     private Float precipitationAmountMax;
 
-    @SerializedName("probability_of_thunder")
+    @Json(name = "probability_of_thunder")
     private Float probabilityOfThunder;
 
-    @SerializedName("precipitation_amount_min")
+    @Json(name = "precipitation_amount_min")
     private Float precipitationAmountMin;
 
-    @SerializedName("probability_of_precipitation")
+    @Json(name = "probability_of_precipitation")
     private Float probabilityOfPrecipitation;
 
     public void setPrecipitationAmount(Float precipitationAmount) {

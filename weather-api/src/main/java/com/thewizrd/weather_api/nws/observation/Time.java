@@ -1,23 +1,23 @@
 package com.thewizrd.weather_api.nws.observation;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Time {
 
-    @SerializedName("startValidTime")
+    @Json(name = "startValidTime")
     private List<String> startValidTime;
 
-    @SerializedName("layoutKey")
+    @Json(name = "layoutKey")
     private String layoutKey;
 
-    @SerializedName("startPeriodName")
+    @Json(name = "startPeriodName")
     private List<String> startPeriodName;
 
-    @SerializedName("tempLabel")
+    @Json(name = "tempLabel")
     private List<String> tempLabel;
 
     public void setStartValidTime(List<String> startValidTime) {

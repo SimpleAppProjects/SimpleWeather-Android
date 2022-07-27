@@ -1,21 +1,21 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class WeatherItem {
 
-    @SerializedName("icon")
+    @Json(name = "icon")
     private String icon;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("main")
+    @Json(name = "main")
     private String main;
 
-    @SerializedName("id")
+    @Json(name = "id")
     private int id;
 
     public void setIcon(String icon) {

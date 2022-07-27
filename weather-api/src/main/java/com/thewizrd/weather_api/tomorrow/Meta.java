@@ -1,26 +1,26 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Meta {
 
-	@SerializedName("timesteps")
+    @Json(name = "timesteps")
 	private List<String> timesteps;
 
-	@SerializedName("timestep")
+    @Json(name = "timestep")
 	private String timestep;
 
-	@SerializedName("from")
+    @Json(name = "from")
 	private String from;
 
-	@SerializedName("to")
+    @Json(name = "to")
 	private String to;
 
-	@SerializedName("field")
+    @Json(name = "field")
 	private String field;
 
 	public void setTimesteps(List<String> timesteps) {

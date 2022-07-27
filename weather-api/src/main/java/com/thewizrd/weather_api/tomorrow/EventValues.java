@@ -1,51 +1,51 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class EventValues {
 
 	/*
-	@SerializedName("distance")
+	@Json(name = "distance")
 	private int distance;
 
-	@SerializedName("geocodeType")
+	@Json(name = "geocodeType")
 	private String geocodeType;
 	 */
 
-    @SerializedName("response")
+    @Json(name = "response")
     private List<ResponseItem> response;
 
-    @SerializedName("origin")
+    @Json(name = "origin")
     private String origin;
 
 	/*
-	@SerializedName("geocode")
+	@Json(name = "geocode")
 	private String geocode;
 
-	@SerializedName("link")
+	@Json(name = "link")
 	private String link;
 	 */
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
 	/*
-	@SerializedName("location")
+	@Json(name = "location")
 	private Location location;
 	 */
 
-    @SerializedName("title")
+    @Json(name = "title")
     private String title;
 
-    @SerializedName("headline")
+    @Json(name = "headline")
     private String headline;
 
 	/*
-	@SerializedName("direction")
+	@Json(name = "direction")
 	private double direction;
 
 	public void setDistance(int distance){

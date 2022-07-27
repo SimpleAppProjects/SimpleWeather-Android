@@ -1,45 +1,45 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class TimeItem {
 
-    @SerializedName("date")
+    @Json(name = "date")
     private String date;
 
-    @SerializedName("moonposition")
+    @Json(name = "moonposition")
     private Moonposition moonposition;
 
-    @SerializedName("solarnoon")
+    @Json(name = "solarnoon")
     private Solarnoon solarnoon;
 
-    @SerializedName("sunrise")
+    @Json(name = "sunrise")
     private Sunrise sunrise;
 
-    @SerializedName("moonphase")
+    @Json(name = "moonphase")
     private Moonphase moonphase;
 
-    @SerializedName("moonshadow")
+    @Json(name = "moonshadow")
     private Moonshadow moonshadow;
 
-    @SerializedName("sunset")
+    @Json(name = "sunset")
     private Sunset sunset;
 
-    @SerializedName("moonrise")
+    @Json(name = "moonrise")
     private Moonrise moonrise;
 
-    @SerializedName("solarmidnight")
+    @Json(name = "solarmidnight")
     private Solarmidnight solarmidnight;
 
-    @SerializedName("low_moon")
+    @Json(name = "low_moon")
     private LowMoon lowMoon;
 
-    @SerializedName("high_moon")
+    @Json(name = "high_moon")
     private HighMoon highMoon;
 
-    @SerializedName("moonset")
+    @Json(name = "moonset")
     private Moonset moonset;
 
     public void setDate(String date) {

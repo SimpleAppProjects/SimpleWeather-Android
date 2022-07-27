@@ -1,32 +1,32 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Alerts {
 
-    @SerializedName("alerts")
+    @Json(name = "alerts")
     private List<AlertsItem> alerts;
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private String city;
 
-    @SerializedName("timezone")
+    @Json(name = "timezone")
     private int timezone;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private float latitude;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private float longitude;
 
     public void setAlerts(List<AlertsItem> alerts) {

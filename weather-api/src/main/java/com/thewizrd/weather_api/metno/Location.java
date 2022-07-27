@@ -1,23 +1,23 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Location {
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private String latitude;
 
-    @SerializedName("time")
+    @Json(name = "time")
     private List<TimeItem> time;
 
-    @SerializedName("height")
+    @Json(name = "height")
     private String height;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private String longitude;
 
     public void setLatitude(String latitude) {

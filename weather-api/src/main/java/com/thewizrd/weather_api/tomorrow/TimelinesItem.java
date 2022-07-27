@@ -1,23 +1,23 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class TimelinesItem {
 
-    @SerializedName("intervals")
+    @Json(name = "intervals")
     private List<IntervalsItem> intervals;
 
-    @SerializedName("timestep")
+    @Json(name = "timestep")
     private String timestep;
 
-    @SerializedName("startTime")
+    @Json(name = "startTime")
     private String startTime;
 
-    @SerializedName("endTime")
+    @Json(name = "endTime")
     private String endTime;
 
     public void setIntervals(List<IntervalsItem> intervals) {

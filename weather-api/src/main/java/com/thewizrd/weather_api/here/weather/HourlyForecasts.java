@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class HourlyForecasts {
 
-    @SerializedName("forecastLocation")
+    @Json(name = "forecastLocation")
     private ForecastLocation1 forecastLocation;
 
     public void setForecastLocation(ForecastLocation1 forecastLocation) {

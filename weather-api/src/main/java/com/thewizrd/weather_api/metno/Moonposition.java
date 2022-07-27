@@ -1,27 +1,27 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Moonposition {
 
-    @SerializedName("phase")
+    @Json(name = "phase")
     private String phase;
 
-    @SerializedName("elevation")
+    @Json(name = "elevation")
     private String elevation;
 
-    @SerializedName("range")
+    @Json(name = "range")
     private String range;
 
-    @SerializedName("azimuth")
+    @Json(name = "azimuth")
     private String azimuth;
 
-    @SerializedName("time")
+    @Json(name = "time")
     private String time;
 
-    @SerializedName("desc")
+    @Json(name = "desc")
     private String desc;
 
     public void setPhase(String phase) {

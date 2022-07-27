@@ -1,44 +1,44 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ListItem {
 
-    @SerializedName("dt")
+    @Json(name = "dt")
     private long dt;
 
-    @SerializedName("rain")
+    @Json(name = "rain")
     private Rain rain;
 
-    @SerializedName("snow")
+    @Json(name = "snow")
     private Snow snow;
 
-    @SerializedName("dt_txt")
+    @Json(name = "dt_txt")
     private String dtTxt;
 
-    @SerializedName("weather")
+    @Json(name = "weather")
     private List<WeatherItem> weather;
 
-    @SerializedName("main")
+    @Json(name = "main")
     private Main main;
 
-    @SerializedName("clouds")
+    @Json(name = "clouds")
     private Clouds clouds;
 
-    @SerializedName("sys")
+    @Json(name = "sys")
     private ForecastSys sys;
 
-    @SerializedName("wind")
+    @Json(name = "wind")
     private Wind wind;
 
-    @SerializedName("visibility")
+    @Json(name = "visibility")
     private Integer visibility;
 
-    @SerializedName("pop")
+    @Json(name = "pop")
     private Float pop;
 
     public void setDt(long dt) {

@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Details1 {
 
-    @SerializedName("probability_of_precipitation")
+    @Json(name = "probability_of_precipitation")
     private Float probabilityOfPrecipitation;
 
     public void setProbabilityOfPrecipitation(Float probabilityOfPrecipitation) {

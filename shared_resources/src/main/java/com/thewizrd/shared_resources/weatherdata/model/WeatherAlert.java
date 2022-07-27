@@ -2,38 +2,39 @@ package com.thewizrd.shared_resources.weatherdata.model;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import okio.Buffer;
+
 public class WeatherAlert extends CustomJsonObject {
-    @SerializedName("Type")
+    @Json(name = "Type")
     private WeatherAlertType type = WeatherAlertType.SPECIALWEATHERALERT;
-    @SerializedName("Severity")
+    @Json(name = "Severity")
     private WeatherAlertSeverity severity = WeatherAlertSeverity.UNKNOWN;
-    @SerializedName("Title")
+    @Json(name = "Title")
     private String title;
-    @SerializedName("Message")
+    @Json(name = "Message")
     private String message;
-    @SerializedName("Attribution")
+    @Json(name = "Attribution")
     private String attribution;
-    @SerializedName("Date")
+    @Json(name = "Date")
     private ZonedDateTime date;
-    @SerializedName("ExpiresDate")
+    @Json(name = "ExpiresDate")
     private ZonedDateTime expiresDate;
-    @SerializedName("Notified")
+    @Json(name = "Notified")
     private boolean notified;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -107,12 +108,12 @@ public class WeatherAlert extends CustomJsonObject {
     }
 
     @Override
-    public void fromJson(JsonReader extReader) {
+    public void fromJson(@NonNull JsonReader extReader) {
         try {
             JsonReader reader;
             String jsonValue;
 
-            if (extReader.peek() == JsonToken.STRING) {
+            if (extReader.peek() == JsonReader.Token.STRING) {
                 jsonValue = extReader.nextString();
             } else {
                 jsonValue = null;
@@ -121,17 +122,17 @@ public class WeatherAlert extends CustomJsonObject {
             if (jsonValue == null)
                 reader = extReader;
             else {
-                reader = new JsonReader(new StringReader(jsonValue));
+                reader = JsonReader.of(new Buffer().writeUtf8(jsonValue));
                 reader.beginObject(); // StartObject
             }
 
-            while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT)
+            while (reader.hasNext() && reader.peek() != JsonReader.Token.END_OBJECT) {
+                if (reader.peek() == JsonReader.Token.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
 
                 String property = reader.nextName();
 
-                if (reader.peek() == JsonToken.NULL) {
+                if (reader.peek() == JsonReader.Token.NULL) {
                     reader.nextNull();
                     continue;
                 }
@@ -183,7 +184,7 @@ public class WeatherAlert extends CustomJsonObject {
                 }
             }
 
-            if (reader.peek() == JsonToken.END_OBJECT)
+            if (reader.peek() == JsonReader.Token.END_OBJECT)
                 reader.endObject();
 
         } catch (Exception ignored) {
@@ -191,7 +192,7 @@ public class WeatherAlert extends CustomJsonObject {
     }
 
     @Override
-    public void toJson(JsonWriter writer) {
+    public void toJson(@NonNull JsonWriter writer) {
         try {
             // {
             writer.beginObject();

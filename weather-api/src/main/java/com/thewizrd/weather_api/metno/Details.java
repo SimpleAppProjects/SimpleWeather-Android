@@ -1,69 +1,69 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Details {
 
-    @SerializedName("cloud_area_fraction_high")
+    @Json(name = "cloud_area_fraction_high")
     private Float cloudAreaFractionHigh;
 
-    @SerializedName("air_temperature")
+    @Json(name = "air_temperature")
     private Float airTemperature;
 
-    @SerializedName("air_pressure_at_sea_level")
+    @Json(name = "air_pressure_at_sea_level")
     private Float airPressureAtSeaLevel;
 
-    @SerializedName("wind_speed")
+    @Json(name = "wind_speed")
     private Float windSpeed;
 
-    @SerializedName("cloud_area_fraction_low")
+    @Json(name = "cloud_area_fraction_low")
     private Float cloudAreaFractionLow;
 
-    @SerializedName("cloud_area_fraction")
+    @Json(name = "cloud_area_fraction")
     private Float cloudAreaFraction;
 
-    @SerializedName("cloud_area_fraction_medium")
+    @Json(name = "cloud_area_fraction_medium")
     private Float cloudAreaFractionMedium;
 
-    @SerializedName("relative_humidity")
+    @Json(name = "relative_humidity")
     private Float relativeHumidity;
 
-    @SerializedName("wind_from_direction")
+    @Json(name = "wind_from_direction")
     private Float windFromDirection;
 
-    @SerializedName("dew_point_temperature")
+    @Json(name = "dew_point_temperature")
     private Float dewPointTemperature;
 
-    @SerializedName("air_temperature_max")
+    @Json(name = "air_temperature_max")
     private Float airTemperatureMax;
 
-    @SerializedName("precipitation_amount")
+    @Json(name = "precipitation_amount")
     private Float precipitationAmount;
 
-    @SerializedName("air_temperature_min")
+    @Json(name = "air_temperature_min")
     private Float airTemperatureMin;
 
-    @SerializedName("ultraviolet_index_clear_sky")
+    @Json(name = "ultraviolet_index_clear_sky")
     private Float ultravioletIndexClearSky;
 
-    @SerializedName("fog_area_fraction")
+    @Json(name = "fog_area_fraction")
     private Float fogAreaFraction;
 
-    @SerializedName("precipitation_amount_max")
+    @Json(name = "precipitation_amount_max")
     private Float precipitationAmountMax;
 
-    @SerializedName("probability_of_thunder")
+    @Json(name = "probability_of_thunder")
     private Float probabilityOfThunder;
 
-    @SerializedName("precipitation_amount_min")
+    @Json(name = "precipitation_amount_min")
     private Float precipitationAmountMin;
 
-    @SerializedName("probability_of_precipitation")
+    @Json(name = "probability_of_precipitation")
     private Float probabilityOfPrecipitation;
 
-    @SerializedName("wind_speed_of_gust")
+    @Json(name = "wind_speed_of_gust")
     private Float windSpeedOfGust;
 
     public void setCloudAreaFractionHigh(Float cloudAreaFractionHigh) {

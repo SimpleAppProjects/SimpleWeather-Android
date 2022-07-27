@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.tomorrow;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 import java.util.List;
 
 public class Location {
 
-    @SerializedName("coordinates")
+    @Json(name = "coordinates")
     private List<Double> coordinates;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
     public void setCoordinates(List<Double> coordinates) {

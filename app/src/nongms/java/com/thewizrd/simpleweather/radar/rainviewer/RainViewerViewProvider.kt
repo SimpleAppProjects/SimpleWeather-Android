@@ -14,7 +14,7 @@ import androidx.annotation.RequiresApi
 import com.google.android.material.slider.Slider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.stream.JsonReader
+import com.squareup.moshi.JsonReader
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
@@ -59,16 +59,10 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
     private var mProcessingFrames: Boolean = false
     private var mFrameCall: Call? = null
 
-    private val gson: Gson
-
     init {
         availableRadarFrames = ArrayList()
         radarLayers = HashMap()
         mMainHandler = Handler(Looper.getMainLooper())
-
-        gson = GsonBuilder()
-                .registerTypeAdapterFactory(Stag.Factory())
-                .create()
     }
 
     override fun onCreateView(savedInstanceState: Bundle?) {
@@ -166,11 +160,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
 
                 val stream = response.getStream()
 
+                if (call.isCanceled()) return
+
                 // Load data
-                val root = gson.fromJson<WeatherMapsResponse>(
-                    JsonReader(InputStreamReader(stream)),
-                    WeatherMapsResponse::class.java
-                )
+                val root: WeatherMapsResponse? =
+                    JSONParser.deserializer(stream, WeatherMapsResponse::class.java)
+
+                if (call.isCanceled()) return
+
                 mProcessingFrames = true
 
                 // Remove already added tile overlays
@@ -181,6 +178,11 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
                         overlay.onDetach(mapView)
                         mapView.overlays.remove(overlay)
                     }
+                }
+
+                if (call.isCanceled()) {
+                    mProcessingFrames = false
+                    return
                 }
 
                 availableRadarFrames.clear()

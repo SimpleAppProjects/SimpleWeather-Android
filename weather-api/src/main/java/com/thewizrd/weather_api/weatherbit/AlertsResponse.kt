@@ -1,73 +1,73 @@
 package com.thewizrd.weather_api.weatherbit
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AlertsResponse(
 
-    @field:SerializedName("alerts")
+    @field:Json(name = "alerts")
     var alerts: List<AlertsItem?>? = null,
 
-    @field:SerializedName("country_code")
+    @field:Json(name = "country_code")
     var countryCode: String? = null,
 
-    @field:SerializedName("city_name")
+    @field:Json(name = "city_name")
     var cityName: String? = null,
 
-    @field:SerializedName("timezone")
+    @field:Json(name = "timezone")
     var timezone: String? = null,
 
-    @field:SerializedName("lon")
+    @field:Json(name = "lon")
     var lon: Double? = null,
 
-    @field:SerializedName("state_code")
+    @field:Json(name = "state_code")
     var stateCode: String? = null,
 
-    @field:SerializedName("lat")
+    @field:Json(name = "lat")
     var lat: Double? = null
 )
 
 /*
 data class AlertsItem(
 
-	@field:SerializedName("severity")
+	@field:Json(name = "severity")
 	var severity: String? = null,
 
-	@field:SerializedName("ends_local")
+	@field:Json(name = "ends_local")
 	var endsLocal: String? = null,
 
-	@field:SerializedName("regions")
+	@field:Json(name = "regions")
 	var regions: List<String?>? = null,
 
-	@field:SerializedName("expires_local")
+	@field:Json(name = "expires_local")
 	var expiresLocal: String? = null,
 
-	@field:SerializedName("description")
+	@field:Json(name = "description")
 	var description: String? = null,
 
-	@field:SerializedName("onset_utc")
+	@field:Json(name = "onset_utc")
 	var onsetUtc: String? = null,
 
-	@field:SerializedName("title")
+	@field:Json(name = "title")
 	var title: String? = null,
 
-	@field:SerializedName("expires_utc")
+	@field:Json(name = "expires_utc")
 	var expiresUtc: String? = null,
 
-	@field:SerializedName("uri")
+	@field:Json(name = "uri")
 	var uri: String? = null,
 
-	@field:SerializedName("onset_local")
+	@field:Json(name = "onset_local")
 	var onsetLocal: String? = null,
 
-	@field:SerializedName("effective_local")
+	@field:Json(name = "effective_local")
 	var effectiveLocal: String? = null,
 
-	@field:SerializedName("ends_utc")
+	@field:Json(name = "ends_utc")
 	var endsUtc: String? = null,
 
-	@field:SerializedName("effective_utc")
+	@field:Json(name = "effective_utc")
 	var effectiveUtc: String? = null
 )
 */

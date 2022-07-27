@@ -1,26 +1,26 @@
 package com.thewizrd.weather_api.nws.alerts;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Parameters {
 
-    @SerializedName("PIL")
+    @Json(name = "PIL")
     private List<String> pIL;
 
-    @SerializedName("NWSheadline")
+    @Json(name = "NWSheadline")
     private List<String> nWSheadline;
 
-    @SerializedName("VTEC")
+    @Json(name = "VTEC")
     private List<String> vTEC;
 
-    @SerializedName("BLOCKCHANNEL")
+    @Json(name = "BLOCKCHANNEL")
     private List<String> bLOCKCHANNEL;
 
-    @SerializedName("eventEndingTime")
+    @Json(name = "eventEndingTime")
     private List<String> eventEndingTime;
 
     public void setPIL(List<String> pIL) {

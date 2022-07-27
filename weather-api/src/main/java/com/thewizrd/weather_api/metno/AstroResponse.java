@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AstroResponse {
 
-    @SerializedName("meta")
+    @Json(name = "meta")
     private AstroMeta meta;
 
-    @SerializedName("location")
+    @Json(name = "location")
     private Location location;
 
     public void setMeta(AstroMeta meta) {

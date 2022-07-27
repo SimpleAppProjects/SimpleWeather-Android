@@ -1,21 +1,21 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class TimeSegmentItem {
 
-    @SerializedName("segment")
+    @Json(name = "segment")
     private String segment;
 
-    @SerializedName("value")
+    @Json(name = "value")
     private String value;
 
-    //@SerializedName("otherAttributes")
+    //@Json(name = "otherAttributes")
     //private OtherAttributes otherAttributes;
 
-    @SerializedName("day_of_week")
+    @Json(name = "day_of_week")
     private String dayOfWeek;
 
     public void setSegment(String segment) {

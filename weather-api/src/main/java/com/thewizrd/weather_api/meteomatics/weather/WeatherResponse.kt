@@ -1,56 +1,56 @@
 package com.thewizrd.weather_api.meteomatics.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class WeatherResponse(
 
-	@field:SerializedName("dateGenerated")
+    @field:Json(name = "dateGenerated")
 	var dateGenerated: String? = null,
 
-	@field:SerializedName("data")
+    @field:Json(name = "data")
 	var data: List<DataItem?>? = null,
 
-	@field:SerializedName("version")
+    @field:Json(name = "version")
 	var version: String? = null,
 
-	@field:SerializedName("user")
+    @field:Json(name = "user")
 	var user: String? = null,
 
-	@field:SerializedName("status")
+    @field:Json(name = "status")
 	var status: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class DatesItem(
 
-	@field:SerializedName("date")
+    @field:Json(name = "date")
 	var date: String? = null,
 
-	@field:SerializedName("value")
+    @field:Json(name = "value")
 	var value: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class DataItem(
 
-	@field:SerializedName("parameter")
+    @field:Json(name = "parameter")
 	var parameter: String? = null,
 
-	@field:SerializedName("coordinates")
+    @field:Json(name = "coordinates")
 	var coordinates: List<CoordinatesItem?>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CoordinatesItem(
 
-	@field:SerializedName("lon")
+    @field:Json(name = "lon")
 	var lon: Double? = null,
 
-	@field:SerializedName("dates")
+    @field:Json(name = "dates")
 	var dates: List<DatesItem?>? = null,
 
-	@field:SerializedName("lat")
+    @field:Json(name = "lat")
 	var lat: Double? = null
 )

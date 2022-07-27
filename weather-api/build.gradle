@@ -107,14 +107,10 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation 'com.ibm.icu:icu4j:71.1'
-    implementation 'com.google.code.gson:gson:2.9.0'
 
-    implementation("com.vimeo.stag:stag-library:2.6.0") {
-        exclude group: "org.jetbrains", module: "annotations-java5"
-    }
-    kapt("com.vimeo.stag:stag-library-compiler:2.6.0") {
-        exclude group: "org.jetbrains", module: "annotations-java5"
-    }
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
 
     fullgmsImplementation 'com.google.android.libraries.places:places:2.6.0'
     fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^

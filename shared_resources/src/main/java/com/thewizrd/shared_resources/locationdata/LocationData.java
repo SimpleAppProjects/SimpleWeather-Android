@@ -8,10 +8,9 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.util.TimeZone;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
@@ -184,15 +183,15 @@ public class LocationData extends CustomJsonObject {
     }
 
     @Override
-    public void fromJson(JsonReader reader) {
+    public void fromJson(@NonNull JsonReader reader) {
         try {
-            while (reader.hasNext() && reader.peek() != JsonToken.END_OBJECT) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT)
+            while (reader.hasNext() && reader.peek() != JsonReader.Token.END_OBJECT) {
+                if (reader.peek() == JsonReader.Token.BEGIN_OBJECT)
                     reader.beginObject(); // StartObject
 
                 String property = reader.nextName();
 
-                if (reader.peek() == JsonToken.NULL) {
+                if (reader.peek() == JsonReader.Token.NULL) {
                     reader.nextNull();
                     continue;
                 }
@@ -228,7 +227,7 @@ public class LocationData extends CustomJsonObject {
                 }
             }
 
-            if (reader.peek() == JsonToken.END_OBJECT)
+            if (reader.peek() == JsonReader.Token.END_OBJECT)
                 reader.endObject();
 
         } catch (Exception ignored) {
@@ -236,7 +235,7 @@ public class LocationData extends CustomJsonObject {
     }
 
     @Override
-    public void toJson(JsonWriter writer) {
+    public void toJson(@NonNull JsonWriter writer) {
         try {
             // {
             writer.beginObject();

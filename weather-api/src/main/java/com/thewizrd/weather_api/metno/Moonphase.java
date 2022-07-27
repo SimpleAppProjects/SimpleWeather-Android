@@ -1,18 +1,18 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Moonphase {
 
-    @SerializedName("time")
+    @Json(name = "time")
     private String time;
 
-    @SerializedName("value")
+    @Json(name = "value")
     private String value;
 
-    @SerializedName("desc")
+    @Json(name = "desc")
     private String desc;
 
     public void setTime(String time) {

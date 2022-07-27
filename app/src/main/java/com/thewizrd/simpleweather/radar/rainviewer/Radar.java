@@ -1,17 +1,17 @@
 package com.thewizrd.simpleweather.radar.rainviewer;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Radar {
 
-    @SerializedName("past")
+    @Json(name = "past")
     private List<RadarItem> past;
 
-    @SerializedName("nowcast")
+    @Json(name = "nowcast")
     private List<RadarItem> nowcast;
 
     public void setPast(List<RadarItem> past) {

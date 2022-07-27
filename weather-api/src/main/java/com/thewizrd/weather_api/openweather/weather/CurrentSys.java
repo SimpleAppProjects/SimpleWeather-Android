@@ -1,18 +1,18 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class CurrentSys {
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("sunrise")
+    @Json(name = "sunrise")
     private Long sunrise;
 
-    @SerializedName("sunset")
+    @Json(name = "sunset")
     private Long sunset;
 
     public void setCountry(String country) {

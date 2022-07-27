@@ -1,15 +1,15 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Rootobject {
 
-    @SerializedName("cod")
+    @Json(name = "cod")
     private int cod;
 
-    @SerializedName("message")
+    @Json(name = "message")
     private String message;
 
     public int getCod() {

@@ -1,14 +1,14 @@
 package com.thewizrd.weather_api.nws.alerts;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
-//@UseStag(UseStag.FieldOption.ALL)
+//@JsonClass(generateAdapter = true)
 public class Context {
 
-    @SerializedName("wx")
+    @Json(name = "wx")
     private String wx;
 
-    @SerializedName("@vocab")
+    @Json(name = "@vocab")
     private String vocab;
 
     public void setWx(String wx) {

@@ -1,27 +1,27 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Temp {
 
-    @SerializedName("min")
+    @Json(name = "min")
     private float min;
 
-    @SerializedName("max")
+    @Json(name = "max")
     private float max;
 
-    @SerializedName("eve")
+    @Json(name = "eve")
     private float eve;
 
-    @SerializedName("night")
+    @Json(name = "night")
     private float night;
 
-    @SerializedName("day")
+    @Json(name = "day")
     private float day;
 
-    @SerializedName("morn")
+    @Json(name = "morn")
     private float morn;
 
     public float getMin() {

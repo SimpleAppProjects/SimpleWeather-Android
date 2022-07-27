@@ -1,86 +1,86 @@
 package com.thewizrd.weather_api.nws.alerts;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class GraphItem {
 
-    @SerializedName("expires")
+    @Json(name = "expires")
     private String expires;
 
-    //@SerializedName("@type")
+    //@Json(name = "@type")
     //private String type;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("effective")
+    @Json(name = "effective")
     private String effective;
 
-    @SerializedName("senderName")
+    @Json(name = "senderName")
     private String senderName;
 
-    @SerializedName("affectedZones")
+    @Json(name = "affectedZones")
     private List<String> affectedZones;
 
-    //@SerializedName("messageType")
+    //@Json(name = "messageType")
     //private String messageType;
 
-    //@SerializedName("urgency")
+    //@Json(name = "urgency")
     //private String urgency;
 
-    //@SerializedName("areaDesc")
+    //@Json(name = "areaDesc")
     //private String areaDesc;
 
-    //@SerializedName("@id")
+    //@Json(name = "@id")
     //private String atId;
 
-    //@SerializedName("id")
+    //@Json(name = "id")
     //private String id;
 
-    @SerializedName("event")
+    @Json(name = "event")
     private String event;
 
-    //@SerializedName("headline")
+    //@Json(name = "headline")
     //private String headline;
 
-    @SerializedName("severity")
+    @Json(name = "severity")
     private String severity;
 
-    //@SerializedName("certainty")
+    //@Json(name = "certainty")
     //private String certainty;
 
-    @SerializedName("onset")
+    @Json(name = "onset")
     private String onset;
 
-    @SerializedName("sent")
+    @Json(name = "sent")
     private String sent;
 
-    //@SerializedName("sender")
+    //@Json(name = "sender")
     //private String sender;
 
-    @SerializedName("instruction")
+    @Json(name = "instruction")
     private String instruction;
 
-    //@SerializedName("response")
+    //@Json(name = "response")
     //private String response;
 
-    //@SerializedName("geocode")
+    //@Json(name = "geocode")
     //private Geocode geocode;
 
-    //@SerializedName("geometry")
+    //@Json(name = "geometry")
     //private Object geometry;
 
-    //@SerializedName("category")
+    //@Json(name = "category")
     //private String category;
 
-    //@SerializedName("parameters")
+    //@Json(name = "parameters")
     //private Parameters parameters;
 
-    //@SerializedName("status")
+    //@Json(name = "status")
     //private String status;
 
     public void setExpires(String expires) {

@@ -1,48 +1,48 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class WatchItem {
 
-    @SerializedName("severity")
+    @Json(name = "severity")
     private int severity;
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private double latitude;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
-    @SerializedName("message")
+    @Json(name = "message")
     private String message;
 
-    @SerializedName("validFromTimeLocal")
+    @Json(name = "validFromTimeLocal")
     private String validFromTimeLocal;
 
-    @SerializedName("validUntilTimeLocal")
+    @Json(name = "validUntilTimeLocal")
     private String validUntilTimeLocal;
 
-    //@SerializedName("zone")
+    //@Json(name = "zone")
     //private List<ZoneItem> zone;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
-    //@SerializedName("location")
+    //@Json(name = "location")
     //private List<Object> location;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private double longitude;
 
     public void setSeverity(int severity) {

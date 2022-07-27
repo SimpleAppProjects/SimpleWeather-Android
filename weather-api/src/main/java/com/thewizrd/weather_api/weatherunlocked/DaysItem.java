@@ -1,104 +1,104 @@
 package com.thewizrd.weather_api.weatherunlocked;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class DaysItem {
 
-    @SerializedName("date")
+    @Json(name = "date")
     private String date;
 
-    @SerializedName("windgst_max_kts")
+    @Json(name = "windgst_max_kts")
     private float windgstMaxKts;
 
-    @SerializedName("sunset_time")
+    @Json(name = "sunset_time")
     private String sunsetTime;
 
-    @SerializedName("snow_total_in")
+    @Json(name = "snow_total_in")
     private float snowTotalIn;
 
-    @SerializedName("rain_total_mm")
+    @Json(name = "rain_total_mm")
     private float rainTotalMm;
 
-    @SerializedName("slp_max_mb")
+    @Json(name = "slp_max_mb")
     private float slpMaxMb;
 
-    @SerializedName("rain_total_in")
+    @Json(name = "rain_total_in")
     private float rainTotalIn;
 
-    @SerializedName("windspd_max_kts")
+    @Json(name = "windspd_max_kts")
     private float windspdMaxKts;
 
-    @SerializedName("temp_max_f")
+    @Json(name = "temp_max_f")
     private float tempMaxF;
 
-    @SerializedName("snow_total_mm")
+    @Json(name = "snow_total_mm")
     private float snowTotalMm;
 
-    @SerializedName("windspd_max_mph")
+    @Json(name = "windspd_max_mph")
     private float windspdMaxMph;
 
-    @SerializedName("windgst_max_ms")
+    @Json(name = "windgst_max_ms")
     private float windgstMaxMs;
 
-    @SerializedName("sunrise_time")
+    @Json(name = "sunrise_time")
     private String sunriseTime;
 
-    @SerializedName("windgst_max_mph")
+    @Json(name = "windgst_max_mph")
     private float windgstMaxMph;
 
-    @SerializedName("temp_min_f")
+    @Json(name = "temp_min_f")
     private float tempMinF;
 
-    @SerializedName("precip_total_mm")
+    @Json(name = "precip_total_mm")
     private float precipTotalMm;
 
-    @SerializedName("slp_min_mb")
+    @Json(name = "slp_min_mb")
     private float slpMinMb;
 
-    @SerializedName("prob_precip_pct")
+    @Json(name = "prob_precip_pct")
     private float probPrecipPct;
 
-    @SerializedName("temp_min_c")
+    @Json(name = "temp_min_c")
     private float tempMinC;
 
-    @SerializedName("windspd_max_ms")
+    @Json(name = "windspd_max_ms")
     private float windspdMaxMs;
 
-    @SerializedName("moonset_time")
+    @Json(name = "moonset_time")
     private String moonsetTime;
 
-    @SerializedName("humid_max_pct")
+    @Json(name = "humid_max_pct")
     private float humidMaxPct;
 
-    @SerializedName("precip_total_in")
+    @Json(name = "precip_total_in")
     private float precipTotalIn;
 
-    @SerializedName("windspd_max_kmh")
+    @Json(name = "windspd_max_kmh")
     private float windspdMaxKmh;
 
-    @SerializedName("slp_min_in")
+    @Json(name = "slp_min_in")
     private float slpMinIn;
 
-    @SerializedName("Timeframes")
+    @Json(name = "Timeframes")
     private List<TimeframesItem> timeframes;
 
-    @SerializedName("humid_min_pct")
+    @Json(name = "humid_min_pct")
     private float humidMinPct;
 
-    @SerializedName("moonrise_time")
+    @Json(name = "moonrise_time")
     private String moonriseTime;
 
-    @SerializedName("temp_max_c")
+    @Json(name = "temp_max_c")
     private float tempMaxC;
 
-    @SerializedName("slp_max_in")
+    @Json(name = "slp_max_in")
     private float slpMaxIn;
 
-    @SerializedName("windgst_max_kmh")
+    @Json(name = "windgst_max_kmh")
     private float windgstMaxKmh;
 
     public void setDate(String date) {

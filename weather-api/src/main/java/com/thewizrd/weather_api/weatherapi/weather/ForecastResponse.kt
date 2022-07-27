@@ -1,431 +1,431 @@
 package com.thewizrd.weather_api.weatherapi.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastResponse(
 
-    @field:SerializedName("alerts")
+    @field:Json(name = "alerts")
 		var alerts: Alerts? = null,
 
-    @field:SerializedName("current")
+    @field:Json(name = "current")
 		var current: Current? = null,
 
-    @field:SerializedName("location")
+    @field:Json(name = "location")
 		var location: Location? = null,
 
-    @field:SerializedName("forecast")
+    @field:Json(name = "forecast")
 		var forecast: Forecast? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AlertItem(
 
-		@field:SerializedName("severity")
+    @field:Json(name = "severity")
 		var severity: String? = null,
 
-		@field:SerializedName("note")
+    @field:Json(name = "note")
 		var note: String? = null,
 
-		@field:SerializedName("expires")
+    @field:Json(name = "expires")
 		var expires: String? = null,
 
-		@field:SerializedName("certainty")
+    @field:Json(name = "certainty")
 		var certainty: String? = null,
 
-		@field:SerializedName("areas")
+    @field:Json(name = "areas")
 		var areas: String? = null,
 
-		@field:SerializedName("effective")
+    @field:Json(name = "effective")
 		var effective: String? = null,
 
-		@field:SerializedName("urgency")
+    @field:Json(name = "urgency")
 		var urgency: String? = null,
 
-		@field:SerializedName("instruction")
+    @field:Json(name = "instruction")
 		var instruction: String? = null,
 
-		@field:SerializedName("category")
+    @field:Json(name = "category")
 		var category: String? = null,
 
-		@field:SerializedName("event")
+    @field:Json(name = "event")
 		var event: String? = null,
 
-		@field:SerializedName("headline")
+    @field:Json(name = "headline")
 		var headline: String? = null,
 
-		@field:SerializedName("msgtype")
+    @field:Json(name = "msgtype")
 		var msgtype: String? = null,
 
-		@field:SerializedName("desc")
+    @field:Json(name = "desc")
 		var desc: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class HourItem(
 
-    @field:SerializedName("feelslike_c")
+    @field:Json(name = "feelslike_c")
 		var feelslikeC: Float? = null,
 
-    @field:SerializedName("feelslike_f")
+    @field:Json(name = "feelslike_f")
 		var feelslikeF: Float? = null,
 
-    @field:SerializedName("wind_degree")
+    @field:Json(name = "wind_degree")
 		var windDegree: Int? = null,
 
-    @field:SerializedName("windchill_f")
+    @field:Json(name = "windchill_f")
 		var windchillF: Float? = null,
 
-    @field:SerializedName("windchill_c")
+    @field:Json(name = "windchill_c")
 		var windchillC: Float? = null,
 
-    @field:SerializedName("temp_c")
+    @field:Json(name = "temp_c")
 		var tempC: Float? = null,
 
-    @field:SerializedName("temp_f")
+    @field:Json(name = "temp_f")
 		var tempF: Float? = null,
 
-    @field:SerializedName("cloud")
+    @field:Json(name = "cloud")
 		var cloud: Int? = null,
 
-    @field:SerializedName("wind_kph")
+    @field:Json(name = "wind_kph")
 		var windKph: Float? = null,
 
-    @field:SerializedName("wind_mph")
+    @field:Json(name = "wind_mph")
 		var windMph: Float? = null,
 
-    @field:SerializedName("humidity")
+    @field:Json(name = "humidity")
 		var humidity: Int? = null,
 
-    @field:SerializedName("dewpoint_f")
+    @field:Json(name = "dewpoint_f")
 		var dewpointF: Float? = null,
 
-    @field:SerializedName("will_it_rain")
+    @field:Json(name = "will_it_rain")
 		var willItRain: Int? = null,
 
-    @field:SerializedName("uv")
+    @field:Json(name = "uv")
 		var uv: Float? = null,
 
-    @field:SerializedName("heatindex_f")
+    @field:Json(name = "heatindex_f")
 		var heatindexF: Float? = null,
 
-    @field:SerializedName("dewpoint_c")
+    @field:Json(name = "dewpoint_c")
 		var dewpointC: Float? = null,
 
-    @field:SerializedName("is_day")
+    @field:Json(name = "is_day")
     @get:JvmName("getIsDay")
 		@set:JvmName("setIsDay")
 		var isDay: Int? = null,
 
-    @field:SerializedName("precip_in")
+    @field:Json(name = "precip_in")
 		var precipIn: Float? = null,
 
-    @field:SerializedName("heatindex_c")
+    @field:Json(name = "heatindex_c")
 		var heatindexC: Float? = null,
 
-    @field:SerializedName("wind_dir")
+    @field:Json(name = "wind_dir")
 		var windDir: String? = null,
 
-    @field:SerializedName("gust_mph")
+    @field:Json(name = "gust_mph")
 		var gustMph: Float? = null,
 
-    @field:SerializedName("pressure_in")
+    @field:Json(name = "pressure_in")
 		var pressureIn: Float? = null,
 
-    @field:SerializedName("chance_of_rain")
+    @field:Json(name = "chance_of_rain")
 		var chanceOfRain: String? = null,
 
-    @field:SerializedName("gust_kph")
+    @field:Json(name = "gust_kph")
 		var gustKph: Float? = null,
 
-    @field:SerializedName("precip_mm")
+    @field:Json(name = "precip_mm")
 		var precipMm: Float? = null,
 
-    @field:SerializedName("condition")
+    @field:Json(name = "condition")
 		var condition: Condition? = null,
 
-    @field:SerializedName("will_it_snow")
+    @field:Json(name = "will_it_snow")
 		var willItSnow: Int? = null,
 
-    @field:SerializedName("vis_km")
+    @field:Json(name = "vis_km")
 		var visKm: Float? = null,
 
-    @field:SerializedName("time_epoch")
+    @field:Json(name = "time_epoch")
 		var timeEpoch: Int? = null,
 
-    @field:SerializedName("time")
+    @field:Json(name = "time")
 		var time: String? = null,
 
-    @field:SerializedName("chance_of_snow")
+    @field:Json(name = "chance_of_snow")
 		var chanceOfSnow: String? = null,
 
-    @field:SerializedName("pressure_mb")
+    @field:Json(name = "pressure_mb")
 		var pressureMb: Float? = null,
 
-    @field:SerializedName("vis_miles")
+    @field:Json(name = "vis_miles")
 		var visMiles: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Astro(
 
-		@field:SerializedName("moonset")
+    @field:Json(name = "moonset")
 		var moonset: String? = null,
 
-		@field:SerializedName("moon_illumination")
+    @field:Json(name = "moon_illumination")
 		var moonIllumination: String? = null,
 
-		@field:SerializedName("sunrise")
+    @field:Json(name = "sunrise")
 		var sunrise: String? = null,
 
-		@field:SerializedName("moon_phase")
+    @field:Json(name = "moon_phase")
 		var moonPhase: String? = null,
 
-		@field:SerializedName("sunset")
+    @field:Json(name = "sunset")
 		var sunset: String? = null,
 
-		@field:SerializedName("moonrise")
+    @field:Json(name = "moonrise")
 		var moonrise: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Alerts(
 
-		@field:SerializedName("alert")
+    @field:Json(name = "alert")
 		var alert: List<AlertItem>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Day(
 
-    @field:SerializedName("avgvis_km")
+    @field:Json(name = "avgvis_km")
 		var avgvisKm: Float? = null,
 
-    @field:SerializedName("uv")
+    @field:Json(name = "uv")
 		var uv: Float? = null,
 
-    @field:SerializedName("avgtemp_f")
+    @field:Json(name = "avgtemp_f")
 		var avgtempF: Float? = null,
 
-    @field:SerializedName("avgtemp_c")
+    @field:Json(name = "avgtemp_c")
 		var avgtempC: Float? = null,
 
-    @field:SerializedName("daily_chance_of_snow")
+    @field:Json(name = "daily_chance_of_snow")
 		var dailyChanceOfSnow: String? = null,
 
-    @field:SerializedName("maxtemp_c")
+    @field:Json(name = "maxtemp_c")
 		var maxtempC: Float? = null,
 
-    @field:SerializedName("maxtemp_f")
+    @field:Json(name = "maxtemp_f")
 		var maxtempF: Float? = null,
 
-    @field:SerializedName("mintemp_c")
+    @field:Json(name = "mintemp_c")
 		var mintempC: Float? = null,
 
-    @field:SerializedName("avgvis_miles")
+    @field:Json(name = "avgvis_miles")
 		var avgvisMiles: Float? = null,
 
-    @field:SerializedName("daily_will_it_rain")
+    @field:Json(name = "daily_will_it_rain")
 		var dailyWillItRain: Int? = null,
 
-    @field:SerializedName("mintemp_f")
+    @field:Json(name = "mintemp_f")
 		var mintempF: Float? = null,
 
-    @field:SerializedName("totalprecip_in")
+    @field:Json(name = "totalprecip_in")
 		var totalprecipIn: Float? = null,
 
-    @field:SerializedName("avghumidity")
+    @field:Json(name = "avghumidity")
 		var avghumidity: Float? = null,
 
-    @field:SerializedName("condition")
+    @field:Json(name = "condition")
 		var condition: Condition? = null,
 
-    @field:SerializedName("maxwind_kph")
+    @field:Json(name = "maxwind_kph")
 		var maxwindKph: Float? = null,
 
-    @field:SerializedName("maxwind_mph")
+    @field:Json(name = "maxwind_mph")
 		var maxwindMph: Float? = null,
 
-    @field:SerializedName("daily_chance_of_rain")
+    @field:Json(name = "daily_chance_of_rain")
 		var dailyChanceOfRain: String? = null,
 
-    @field:SerializedName("totalprecip_mm")
+    @field:Json(name = "totalprecip_mm")
 		var totalprecipMm: Float? = null,
 
-    @field:SerializedName("daily_will_it_snow")
+    @field:Json(name = "daily_will_it_snow")
 		var dailyWillItSnow: Int? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Forecast(
 
-		@field:SerializedName("forecastday")
+    @field:Json(name = "forecastday")
 		var forecastday: List<ForecastdayItem>? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Current(
 
-    @field:SerializedName("feelslike_c")
+    @field:Json(name = "feelslike_c")
 		var feelslikeC: Float? = null,
 
-    @field:SerializedName("uv")
+    @field:Json(name = "uv")
 		var uv: Float? = null,
 
-    @field:SerializedName("last_updated")
+    @field:Json(name = "last_updated")
 		var lastUpdated: String? = null,
 
-    @field:SerializedName("feelslike_f")
+    @field:Json(name = "feelslike_f")
 		var feelslikeF: Float? = null,
 
-    @field:SerializedName("wind_degree")
+    @field:Json(name = "wind_degree")
 		var windDegree: Int? = null,
 
-    @field:SerializedName("last_updated_epoch")
+    @field:Json(name = "last_updated_epoch")
 		var lastUpdatedEpoch: Int? = null,
 
-    @field:SerializedName("is_day")
+    @field:Json(name = "is_day")
     @get:JvmName("getIsDay")
 		@set:JvmName("setIsDay")
 		var isDay: Int? = null,
 
-    @field:SerializedName("precip_in")
+    @field:Json(name = "precip_in")
 		var precipIn: Float? = null,
 
-    @field:SerializedName("air_quality")
+    @field:Json(name = "air_quality")
 		var airQuality: AirQuality? = null,
 
-    @field:SerializedName("wind_dir")
+    @field:Json(name = "wind_dir")
 		var windDir: String? = null,
 
-    @field:SerializedName("gust_mph")
+    @field:Json(name = "gust_mph")
 		var gustMph: Float? = null,
 
-    @field:SerializedName("temp_c")
+    @field:Json(name = "temp_c")
 		var tempC: Float? = null,
 
-    @field:SerializedName("pressure_in")
+    @field:Json(name = "pressure_in")
 		var pressureIn: Float? = null,
 
-    @field:SerializedName("gust_kph")
+    @field:Json(name = "gust_kph")
 		var gustKph: Float? = null,
 
-    @field:SerializedName("temp_f")
+    @field:Json(name = "temp_f")
 		var tempF: Float? = null,
 
-    @field:SerializedName("precip_mm")
+    @field:Json(name = "precip_mm")
 		var precipMm: Float? = null,
 
-    @field:SerializedName("cloud")
+    @field:Json(name = "cloud")
 		var cloud: Int? = null,
 
-    @field:SerializedName("wind_kph")
+    @field:Json(name = "wind_kph")
 		var windKph: Float? = null,
 
-    @field:SerializedName("condition")
+    @field:Json(name = "condition")
 		var condition: Condition? = null,
 
-    @field:SerializedName("wind_mph")
+    @field:Json(name = "wind_mph")
 		var windMph: Float? = null,
 
-    @field:SerializedName("vis_km")
+    @field:Json(name = "vis_km")
 		var visKm: Float? = null,
 
-    @field:SerializedName("humidity")
+    @field:Json(name = "humidity")
 		var humidity: Int? = null,
 
-    @field:SerializedName("pressure_mb")
+    @field:Json(name = "pressure_mb")
 		var pressureMb: Float? = null,
 
-    @field:SerializedName("vis_miles")
+    @field:Json(name = "vis_miles")
 		var visMiles: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Condition(
 
-		@field:SerializedName("code")
+    @field:Json(name = "code")
 		var code: Int? = null,
 
-		@field:SerializedName("icon")
+    @field:Json(name = "icon")
 		var icon: String? = null,
 
-		@field:SerializedName("text")
+    @field:Json(name = "text")
 		var text: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class ForecastdayItem(
 
-    @field:SerializedName("date")
+    @field:Json(name = "date")
 		var date: String? = null,
 
-    @field:SerializedName("astro")
+    @field:Json(name = "astro")
 		var astro: Astro? = null,
 
-    @field:SerializedName("date_epoch")
+    @field:Json(name = "date_epoch")
 		var dateEpoch: Int? = null,
 
-    @field:SerializedName("hour")
+    @field:Json(name = "hour")
 		var hour: List<HourItem>? = null,
 
-    @field:SerializedName("day")
+    @field:Json(name = "day")
 		var day: Day? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Location(
 
-		@field:SerializedName("localtime")
+    @field:Json(name = "localtime")
 		var localtime: String? = null,
 
-		@field:SerializedName("country")
+    @field:Json(name = "country")
 		var country: String? = null,
 
-		@field:SerializedName("localtime_epoch")
+    @field:Json(name = "localtime_epoch")
 		var localtimeEpoch: Int? = null,
 
-		@field:SerializedName("name")
+    @field:Json(name = "name")
 		var name: String? = null,
 
-		@field:SerializedName("lon")
+    @field:Json(name = "lon")
 		var lon: Float? = null,
 
-		@field:SerializedName("region")
+    @field:Json(name = "region")
 		var region: String? = null,
 
-		@field:SerializedName("lat")
+    @field:Json(name = "lat")
 		var lat: Float? = null,
 
-		@field:SerializedName("tz_id")
+    @field:Json(name = "tz_id")
 		var tzId: String? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class AirQuality(
 
-		@field:SerializedName("no2")
+    @field:Json(name = "no2")
 		var no2: Double? = null,
 
-		@field:SerializedName("o3")
+    @field:Json(name = "o3")
 		var o3: Double? = null,
 
-		@field:SerializedName("us-epa-index")
+    @field:Json(name = "us-epa-index")
 		var usEpaIndex: Int? = null,
 
-		@field:SerializedName("so2")
+    @field:Json(name = "so2")
 		var so2: Double? = null,
 
-		@field:SerializedName("pm2_5")
+    @field:Json(name = "pm2_5")
 		var pm25: Double? = null,
 
-		@field:SerializedName("pm10")
+    @field:Json(name = "pm10")
 		var pm10: Double? = null,
 
-		@field:SerializedName("co")
+    @field:Json(name = "co")
 		var co: Double? = null,
 
-		@field:SerializedName("gb-defra-index")
+    @field:Json(name = "gb-defra-index")
 		var gbDefraIndex: Int? = null
 )

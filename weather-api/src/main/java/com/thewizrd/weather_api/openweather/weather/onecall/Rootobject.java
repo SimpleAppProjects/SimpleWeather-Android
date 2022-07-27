@@ -1,38 +1,38 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Rootobject {
 
-    @SerializedName("alerts")
+    @Json(name = "alerts")
     private List<AlertsItem> alerts;
 
-    @SerializedName("current")
+    @Json(name = "current")
     private Current current;
 
-    @SerializedName("timezone")
+    @Json(name = "timezone")
     private String timezone;
 
-    @SerializedName("timezone_offset")
+    @Json(name = "timezone_offset")
     private int timezoneOffset;
 
-	@SerializedName("daily")
+    @Json(name = "daily")
 	private List<DailyItem> daily;
 
-	@SerializedName("lon")
+    @Json(name = "lon")
 	private float lon;
 
-	@SerializedName("hourly")
+    @Json(name = "hourly")
 	private List<HourlyItem> hourly;
 
-	@SerializedName("minutely")
+    @Json(name = "minutely")
 	private List<MinutelyItem> minutely;
 
-	@SerializedName("lat")
+    @Json(name = "lat")
 	private float lat;
 
 	public List<AlertsItem> getAlerts() {

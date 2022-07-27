@@ -1,13 +1,13 @@
 package com.thewizrd.weather_api.nws.hourly;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 public class Location {
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private double latitude;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private double longitude;
 
     public void setLatitude(double latitude) {

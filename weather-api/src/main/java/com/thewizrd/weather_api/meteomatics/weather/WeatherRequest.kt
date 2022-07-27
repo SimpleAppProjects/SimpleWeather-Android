@@ -1,17 +1,17 @@
 package com.thewizrd.weather_api.meteomatics.weather
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class WeatherRequest(
-	@field:SerializedName("validdates")
+    @field:Json(name = "validdates")
 	val validdates: String,
 
-	@field:SerializedName("format")
+    @field:Json(name = "format")
 	val format: String,
 
-	@field:SerializedName("location")
+    @field:Json(name = "location")
 	val location: String,
 
-	@field:SerializedName("parameters")
+    @field:Json(name = "parameters")
 	val parameters: List<String>
 )

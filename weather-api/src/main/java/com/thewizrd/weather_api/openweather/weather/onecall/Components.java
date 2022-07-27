@@ -1,33 +1,33 @@
 package com.thewizrd.weather_api.openweather.weather.onecall;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Components {
 
-    @SerializedName("no2")
+    @Json(name = "no2")
     private Double no2;
 
-    @SerializedName("no")
+    @Json(name = "no")
     private Double no;
 
-    @SerializedName("o3")
+    @Json(name = "o3")
     private Double o3;
 
-    @SerializedName("so2")
+    @Json(name = "so2")
     private Double so2;
 
-    @SerializedName("pm2_5")
+    @Json(name = "pm2_5")
     private Double pm25;
 
-    @SerializedName("pm10")
+    @Json(name = "pm10")
     private Double pm10;
 
-    @SerializedName("nh3")
+    @Json(name = "nh3")
     private Double nh3;
 
-    @SerializedName("co")
+    @Json(name = "co")
     private Double co;
 
     public void setNo2(Double no2) {

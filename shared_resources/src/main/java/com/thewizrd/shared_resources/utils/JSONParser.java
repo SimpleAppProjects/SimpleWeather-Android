@@ -2,14 +2,18 @@ package com.thewizrd.shared_resources.utils;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.core.util.AtomicFile;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory;
+import com.thewizrd.shared_resources.json.CustomJsonConverter;
+import com.thewizrd.shared_resources.json.DateConverter;
+import com.thewizrd.shared_resources.json.LocalDateTimeConverter;
+import com.thewizrd.shared_resources.json.ZonedDateTimeConverter;
 import com.thewizrd.shared_resources.locationdata.LocationData;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 import com.thewizrd.shared_resources.weatherdata.model.Atmosphere;
@@ -28,56 +32,60 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
+
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.Okio;
 
 public class JSONParser {
 
-    private static Gson gson;
+    private static Moshi moshi;
 
     static {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeConverter())
-                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
-                .registerTypeAdapter(LocationData.class, new CustomJsonConverter<>(LocationData.class))
-                .registerTypeAdapter(Weather.class, new CustomJsonConverter<>(Weather.class))
-                .registerTypeAdapter(Location.class, new CustomJsonConverter<>(Location.class))
-                .registerTypeAdapter(Forecast.class, new CustomJsonConverter<>(Forecast.class))
-                .registerTypeAdapter(HourlyForecast.class, new CustomJsonConverter<>(HourlyForecast.class))
-                .registerTypeAdapter(TextForecast.class, new CustomJsonConverter<>(TextForecast.class))
-                .registerTypeAdapter(MinutelyForecast.class, new CustomJsonConverter<>(MinutelyForecast.class))
-                .registerTypeAdapter(Condition.class, new CustomJsonConverter<>(Condition.class))
-                .registerTypeAdapter(Atmosphere.class, new CustomJsonConverter<>(Atmosphere.class))
-                .registerTypeAdapter(Astronomy.class, new CustomJsonConverter<>(Astronomy.class))
-                .registerTypeAdapter(Precipitation.class, new CustomJsonConverter<>(Precipitation.class))
-                .registerTypeAdapter(WeatherAlert.class, new CustomJsonConverter<>(WeatherAlert.class))
-                .setDateFormat(DateTimeUtils.ZONED_DATETIME_FORMAT)
-                .serializeNulls()
-                .create();
+        moshi = new Moshi.Builder()
+                .add(Date.class, new DateConverter())
+                .add(LocalDateTime.class, new LocalDateTimeConverter())
+                .add(ZonedDateTime.class, new ZonedDateTimeConverter())
+                .add(LocationData.class, new CustomJsonConverter<>(LocationData.class))
+                .add(Weather.class, new CustomJsonConverter<>(Weather.class))
+                .add(Location.class, new CustomJsonConverter<>(Location.class))
+                .add(Forecast.class, new CustomJsonConverter<>(Forecast.class))
+                .add(HourlyForecast.class, new CustomJsonConverter<>(HourlyForecast.class))
+                .add(TextForecast.class, new CustomJsonConverter<>(TextForecast.class))
+                .add(MinutelyForecast.class, new CustomJsonConverter<>(MinutelyForecast.class))
+                .add(Condition.class, new CustomJsonConverter<>(Condition.class))
+                .add(Atmosphere.class, new CustomJsonConverter<>(Atmosphere.class))
+                .add(Astronomy.class, new CustomJsonConverter<>(Astronomy.class))
+                .add(Precipitation.class, new CustomJsonConverter<>(Precipitation.class))
+                .add(WeatherAlert.class, new CustomJsonConverter<>(WeatherAlert.class))
+                .add(new KotlinJsonAdapterFactory())
+                .build();
     }
 
-    public static void registerTypeAdapterFactory(TypeAdapterFactory factory) {
-        gson = gson.newBuilder()
-                .registerTypeAdapterFactory(factory)
-                .create();
+    public static void registerTypeAdapterFactory(JsonAdapter.Factory factory) {
+        moshi = moshi.newBuilder()
+                .add(factory)
+                .build();
     }
 
-    public static void registerTypeAdapter(Type type, Object typeAdapter) {
-        gson = gson.newBuilder()
-                .registerTypeAdapter(type, typeAdapter)
-                .create();
+    public static <T> void registerTypeAdapter(Type type, JsonAdapter<T> typeAdapter) {
+        moshi = moshi.newBuilder()
+                .add(type, typeAdapter)
+                .build();
     }
 
+    @Nullable
     public static <T> T deserializer(String response, Type type) {
         T object = null;
 
         try {
-            object = gson.fromJson(response, type);
+            JsonAdapter<T> adapter = moshi.adapter(type);
+            adapter = adapter.serializeNulls().nullSafe();
+            object = adapter.fromJson(response);
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex);
         }
@@ -85,52 +93,22 @@ public class JSONParser {
         return object;
     }
 
-    /*
-    public static <T> T deserializer(String response, Class<T> obj) {
-        T object = null;
-
-        try {
-            object = gson.fromJson(response, obj);
-        } catch (Exception ex) {
-            Logger.writeLine(Log.ERROR, ex);
-        }
-
-        return object;
-    }
-     */
-
+    @Nullable
     public static <T> T deserializer(InputStream stream, Type type) {
         T object = null;
-        InputStreamReader sReader = null;
-        JsonReader reader = null;
 
-        try {
-            sReader = new InputStreamReader(stream);
-            reader = new JsonReader(sReader);
-
-            object = gson.fromJson(reader, type);
+        try (BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+            JsonAdapter<T> adapter = moshi.adapter(type);
+            adapter = adapter.serializeNulls().nullSafe();
+            object = adapter.fromJson(buffer);
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
-            try {
-                if (sReader != null) {
-                    sReader.close();
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
         }
 
         return object;
     }
 
+    @Nullable
     public static <T> T deserializer(File file, Type type) {
         while (FileUtils.isFileLocked(file)) {
             try {
@@ -141,41 +119,23 @@ public class JSONParser {
         }
 
         T object = null;
-        FileInputStream stream = null;
-        InputStreamReader sReader = null;
-        JsonReader reader = null;
 
         AtomicFile mFile = new AtomicFile(file);
-        try {
-            stream = mFile.openRead();
-            sReader = new InputStreamReader(stream);
-            reader = new JsonReader(sReader);
-
-            object = gson.fromJson(reader, type);
+        try (
+                FileInputStream stream = mFile.openRead();
+                BufferedSource buffer = Okio.buffer(Okio.source(stream))
+        ) {
+            JsonAdapter<T> adapter = moshi.adapter(type);
+            adapter = adapter.serializeNulls().nullSafe();
+            object = adapter.fromJson(buffer);
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex);
-            object = null;
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (sReader != null) {
-                    sReader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         return object;
     }
 
-    public static void serializer(Object object, File file) {
+    public static <T> void serializer(T object, File file) {
         // Wait for file to be free
         while (FileUtils.isFileLocked(file)) {
             try {
@@ -186,55 +146,52 @@ public class JSONParser {
         }
 
         AtomicFile mFile = new AtomicFile(file);
-        FileOutputStream stream = null;
-        JsonWriter writer = null;
 
-        try {
-            stream = mFile.startWrite();
+        try (FileOutputStream stream = mFile.startWrite()) {
+            JsonAdapter<T> adapter = moshi.adapter((Type) object.getClass());
+            adapter = adapter.serializeNulls().nullSafe();
+            adapter.toJson(Okio.buffer(Okio.sink(stream)), object);
 
-            writer = new JsonWriter(new OutputStreamWriter(stream));
-
-            gson.toJson(object, object.getClass(), writer);
-            writer.flush();
             mFile.finishWrite(stream);
-            //FileUtils.writeToFile(gson.toJson(object), file);
         } catch (IOException ex) {
             Logger.writeLine(Log.ERROR, ex);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    public static String serializer(Object object, Type type) {
+    @Nullable
+    public static <T> String serializer(T object, Type type) {
         if (object == null) return null;
-        return gson.toJson(object, type);
+
+        JsonAdapter<T> adapter = moshi.adapter(type);
+        adapter = adapter.serializeNulls().nullSafe();
+        return adapter.toJson(object);
     }
 
     /* Custom [De]Serializers for CustomJsonObjects */
+    @Nullable
     public static <T extends CustomJsonObject> String serializer(T object, Type type) {
         if (object == null) return null;
-        StringWriter sw = new StringWriter();
+
+        Buffer buffer = new Buffer();
+        JsonWriter writer = JsonWriter.of(buffer);
+
         try {
-            object.toJson(gson.newJsonWriter(Streams.writerForAppendable(sw)));
-        } catch (IOException e) {
+            object.toJson(writer);
+        } catch (Exception e) {
+            Logger.writeLine(Log.ERROR, e);
             return null;
         }
-        return sw.toString();
+
+        return buffer.readUtf8();
     }
 
+    @Nullable
     public static <T extends CustomJsonObject> T deserializer(String response, Class<T> obj) {
         T object = null;
-        StringReader sr = new StringReader(response);
 
-        try {
+        try (JsonReader reader = JsonReader.of(new Buffer().writeUtf8(response))) {
             object = obj.newInstance();
-            object.fromJson(gson.newJsonReader(sr));
+            object.fromJson(reader);
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex);
         }
@@ -242,35 +199,15 @@ public class JSONParser {
         return object;
     }
 
+    @Nullable
     public static <T extends CustomJsonObject> T deserializer(InputStream stream, Class<T> obj) {
         T object = null;
-        InputStreamReader sReader = null;
-        JsonReader reader = null;
 
-        try {
-            sReader = new InputStreamReader(stream);
-            reader = new JsonReader(sReader);
-
+        try (JsonReader reader = JsonReader.of(Okio.buffer(Okio.source(stream)))) {
             object = obj.newInstance();
             object.fromJson(reader);
         } catch (Exception ex) {
             Logger.writeLine(Log.ERROR, ex);
-            object = null;
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
-            try {
-                if (sReader != null) {
-                    sReader.close();
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
         }
 
         return object;

@@ -1,50 +1,50 @@
 package com.thewizrd.weather_api.locationiq;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AutoCompleteQuery {
 
-    @SerializedName("osm_id")
+    @Json(name = "osm_id")
     private String osmId;
 
-    @SerializedName("licence")
+    @Json(name = "licence")
     private String licence;
 
-    @SerializedName("boundingbox")
+    @Json(name = "boundingbox")
     private List<String> boundingbox;
 
-    @SerializedName("address")
+    @Json(name = "address")
     private Address address;
 
-    @SerializedName("display_address")
+    @Json(name = "display_address")
     private String displayAddress;
 
-    @SerializedName("lon")
+    @Json(name = "lon")
     private String lon;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
-    @SerializedName("display_name")
+    @Json(name = "display_name")
     private String displayName;
 
-    @SerializedName("display_place")
+    @Json(name = "display_place")
     private String displayPlace;
 
-    @SerializedName("osm_type")
+    @Json(name = "osm_type")
     private String osmType;
 
-    @SerializedName("class")
+    @Json(name = "class")
     private String jsonMemberClass;
 
-    @SerializedName("place_id")
+    @Json(name = "place_id")
     private String placeId;
 
-    @SerializedName("lat")
+    @Json(name = "lat")
     private String lat;
 
     public void setOsmId(String osmId) {

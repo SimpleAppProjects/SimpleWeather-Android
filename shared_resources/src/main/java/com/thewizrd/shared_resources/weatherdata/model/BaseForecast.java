@@ -1,23 +1,23 @@
 package com.thewizrd.shared_resources.weatherdata.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 import com.thewizrd.shared_resources.utils.CustomJsonObject;
 
 public abstract class BaseForecast extends CustomJsonObject {
 
-    @SerializedName("high_f")
+    @Json(name = "high_f")
     protected Float highF;
 
-    @SerializedName("high_c")
+    @Json(name = "high_c")
     protected Float highC;
 
-    @SerializedName("condition")
+    @Json(name = "condition")
     protected String condition;
 
-    @SerializedName("icon")
+    @Json(name = "icon")
     protected String icon;
 
-    @SerializedName("extras")
+    @Json(name = "extras")
     protected ForecastExtras extras;
 
     public Float getHighF() {

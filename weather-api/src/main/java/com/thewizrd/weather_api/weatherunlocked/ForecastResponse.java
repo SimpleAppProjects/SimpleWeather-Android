@@ -1,14 +1,14 @@
 package com.thewizrd.weather_api.weatherunlocked;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ForecastResponse {
 
-    @SerializedName("Days")
+    @Json(name = "Days")
     private List<DaysItem> days;
 
     public void setDays(List<DaysItem> days) {

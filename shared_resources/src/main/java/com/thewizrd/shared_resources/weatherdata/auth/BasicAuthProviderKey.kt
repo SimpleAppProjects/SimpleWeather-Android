@@ -1,14 +1,14 @@
 package com.thewizrd.shared_resources.weatherdata.auth
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 import okio.ByteString.Companion.decodeBase64
 import java.nio.charset.StandardCharsets
 
 class BasicAuthProviderKey : ProviderKey {
-    @SerializedName("username")
+    @Json(name = "username")
     var username: String = ""
 
-    @SerializedName("password")
+    @Json(name = "password")
     var password: String = ""
 
     constructor() : super()

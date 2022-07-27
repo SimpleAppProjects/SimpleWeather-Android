@@ -1,24 +1,24 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class AdminInfo {
 
-    @SerializedName("timeZone")
+    @Json(name = "timeZone")
     private TimeZone timeZone;
 
-    @SerializedName("localTime")
+    @Json(name = "localTime")
     private String localTime;
 
-    @SerializedName("systemOfMeasure")
+    @Json(name = "systemOfMeasure")
     private String systemOfMeasure;
 
-    @SerializedName("currency")
+    @Json(name = "currency")
     private String currency;
 
-    @SerializedName("drivingSide")
+    @Json(name = "drivingSide")
     private String drivingSide;
 
     public void setTimeZone(TimeZone timeZone) {

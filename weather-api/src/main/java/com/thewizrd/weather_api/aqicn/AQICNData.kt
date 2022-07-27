@@ -23,7 +23,7 @@ class AQICNData internal constructor(root: Rootobject) : AirQualityData() {
         aqiForecast = root.createAQIForecasts()
     }
 
-    val uviForecast: List<UviItem>? = root.data?.forecast?.daily?.uvi
+    val uviForecast: List<UviItem?>? = root.data?.forecast?.daily?.uvi
 
     private fun Rootobject.createAQIForecasts(): List<AirQuality>? {
         val dailyData = this.data?.forecast?.daily
@@ -38,50 +38,56 @@ class AQICNData internal constructor(root: Rootobject) : AirQualityData() {
             val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT)
 
             dailyData.o3?.forEach {
-                // 2021-12-17
-                val itemDate = LocalDate.parse(it.day, dtf)
+                it?.let {
+                    // 2021-12-17
+                    val itemDate = LocalDate.parse(it.day, dtf)
 
-                val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
+                    val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
 
-                if (existing != null) {
-                    existing.o3 = it.avg
-                } else {
-                    aqiForecasts.add(AirQuality().apply {
-                        date = itemDate
-                        o3 = it.avg
-                    })
+                    if (existing != null) {
+                        existing.o3 = it.avg
+                    } else {
+                        aqiForecasts.add(AirQuality().apply {
+                            date = itemDate
+                            o3 = it.avg
+                        })
+                    }
                 }
             }
 
             dailyData.pm25?.forEach {
-                // 2021-12-17
-                val itemDate = LocalDate.parse(it.day, dtf)
+                it?.let {
+                    // 2021-12-17
+                    val itemDate = LocalDate.parse(it.day, dtf)
 
-                val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
+                    val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
 
-                if (existing != null) {
-                    existing.pm25 = it.avg
-                } else {
-                    aqiForecasts.add(AirQuality().apply {
-                        date = itemDate
-                        pm25 = it.avg
-                    })
+                    if (existing != null) {
+                        existing.pm25 = it.avg
+                    } else {
+                        aqiForecasts.add(AirQuality().apply {
+                            date = itemDate
+                            pm25 = it.avg
+                        })
+                    }
                 }
             }
 
             dailyData.pm10?.forEach {
-                // 2021-12-17
-                val itemDate = LocalDate.parse(it.day, dtf)
+                it?.let {
+                    // 2021-12-17
+                    val itemDate = LocalDate.parse(it.day, dtf)
 
-                val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
+                    val existing = aqiForecasts.find { aqi -> aqi.date.isEqual(itemDate) }
 
-                if (existing != null) {
-                    existing.pm10 = it.avg
-                } else {
-                    aqiForecasts.add(AirQuality().apply {
-                        date = itemDate
-                        pm10 = it.avg
-                    })
+                    if (existing != null) {
+                        existing.pm10 = it.avg
+                    } else {
+                        aqiForecasts.add(AirQuality().apply {
+                            date = itemDate
+                            pm10 = it.avg
+                        })
+                    }
                 }
             }
 

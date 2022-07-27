@@ -1,18 +1,18 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Response {
 
-    @SerializedName("geometry")
+    @Json(name = "geometry")
     private Geometry geometry;
 
-    @SerializedName("type")
+    @Json(name = "type")
     private String type;
 
-    @SerializedName("properties")
+    @Json(name = "properties")
     private Properties properties;
 
     public void setGeometry(Geometry geometry) {

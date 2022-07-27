@@ -1,16 +1,16 @@
 package com.thewizrd.weather_api.nws.alerts;
 
-import com.google.gson.annotations.SerializedName;
+import com.squareup.moshi.Json;
 
 import java.util.List;
 
-//@UseStag(UseStag.FieldOption.ALL)
+//@JsonClass(generateAdapter = true)
 public class Geocode {
 
-    @SerializedName("UGC")
+    @Json(name = "UGC")
     private List<String> uGC;
 
-    @SerializedName("SAME")
+    @Json(name = "SAME")
     private List<String> sAME;
 
     public void setUGC(List<String> uGC) {

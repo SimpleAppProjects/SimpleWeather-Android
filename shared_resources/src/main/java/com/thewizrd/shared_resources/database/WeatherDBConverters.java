@@ -5,8 +5,8 @@ import android.util.Log;
 
 import androidx.room.TypeConverter;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.JsonWriter;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.JSONParser;
 import com.thewizrd.shared_resources.utils.Logger;
@@ -23,8 +23,6 @@ import com.thewizrd.shared_resources.weatherdata.model.TextForecast;
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -33,6 +31,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import okio.Buffer;
 
 public class WeatherDBConverters {
     private static final DateTimeFormatter zDTF = DateTimeUtils.getZonedDateTimeFormatter();
@@ -73,8 +73,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             List<Forecast> result = new ArrayList<>(10);
 
             try {
@@ -100,8 +99,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -117,7 +116,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 
@@ -127,7 +126,7 @@ public class WeatherDBConverters {
             return null;
         else {
             HourlyForecast obj = new HourlyForecast();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -142,8 +141,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             List<HourlyForecast> result = new ArrayList<>(90);
 
             try {
@@ -169,8 +167,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -186,7 +184,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 
@@ -195,8 +193,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             ArrayList<TextForecast> result = new ArrayList<>(20);
 
             try {
@@ -222,8 +219,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -239,7 +236,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 
@@ -249,7 +246,7 @@ public class WeatherDBConverters {
             return null;
         else {
             MinutelyForecast obj = new MinutelyForecast();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -264,8 +261,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             List<MinutelyForecast> result = new ArrayList<>(90);
 
             try {
@@ -291,8 +287,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -308,7 +304,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 
@@ -318,7 +314,7 @@ public class WeatherDBConverters {
             return null;
         else {
             Condition obj = new Condition();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -334,7 +330,7 @@ public class WeatherDBConverters {
             return null;
         else {
             Atmosphere obj = new Atmosphere();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -350,7 +346,7 @@ public class WeatherDBConverters {
             return null;
         else {
             Astronomy obj = new Astronomy();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -366,7 +362,7 @@ public class WeatherDBConverters {
             return null;
         else {
             Precipitation obj = new Precipitation();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -381,8 +377,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             List<WeatherAlert> result = new ArrayList<>();
 
             try {
@@ -408,8 +403,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -425,7 +420,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 
@@ -435,7 +430,7 @@ public class WeatherDBConverters {
             return null;
         else {
             AirQuality obj = new AirQuality();
-            obj.fromJson(new JsonReader(new StringReader(value)));
+            obj.fromJson(JsonReader.of(new Buffer().writeUtf8(value)));
             return obj;
         }
     }
@@ -450,8 +445,7 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringReader sr = new StringReader(value);
-            JsonReader reader = new JsonReader(sr);
+            JsonReader reader = JsonReader.of(new Buffer().writeUtf8(value));
             List<AirQuality> result = new ArrayList<>(90);
 
             try {
@@ -477,8 +471,8 @@ public class WeatherDBConverters {
         if (value == null)
             return null;
         else {
-            StringWriter sw = new StringWriter();
-            JsonWriter writer = new JsonWriter(sw);
+            Buffer buffer = new Buffer();
+            JsonWriter writer = JsonWriter.of(buffer);
             writer.setSerializeNulls(true);
 
             try {
@@ -494,7 +488,7 @@ public class WeatherDBConverters {
                 Logger.writeLine(Log.ERROR, ex, "Error writing JSON");
             }
 
-            return sw.toString();
+            return buffer.readUtf8();
         }
     }
 }

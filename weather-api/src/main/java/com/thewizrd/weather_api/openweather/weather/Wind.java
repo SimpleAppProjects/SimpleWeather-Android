@@ -1,18 +1,18 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Wind {
 
-    @SerializedName("deg")
+    @Json(name = "deg")
     private float deg;
 
-    @SerializedName("speed")
+    @Json(name = "speed")
     private float speed;
 
-    @SerializedName("gust")
+    @Json(name = "gust")
     private Float gust;
 
     public void setDeg(float deg) {

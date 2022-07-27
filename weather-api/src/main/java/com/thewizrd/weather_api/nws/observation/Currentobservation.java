@@ -1,69 +1,69 @@
 package com.thewizrd.weather_api.nws.observation;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Currentobservation {
 
-    @SerializedName("Weatherimage")
+    @Json(name = "Weatherimage")
     private String weatherimage;
 
-    @SerializedName("timezone")
+    @Json(name = "timezone")
     private String timezone;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private String latitude;
 
-    @SerializedName("Windd")
+    @Json(name = "Windd")
     private String windd;
 
-    @SerializedName("Altimeter")
+    @Json(name = "Altimeter")
     private String altimeter;
 
-    @SerializedName("Relh")
+    @Json(name = "Relh")
     private String relh;
 
-    @SerializedName("WindChill")
+    @Json(name = "WindChill")
     private String windChill;
 
-    @SerializedName("Gust")
+    @Json(name = "Gust")
     private String gust;
 
-    @SerializedName("Date")
+    @Json(name = "Date")
     private String date;
 
-    @SerializedName("Winds")
+    @Json(name = "Winds")
     private String winds;
 
-    @SerializedName("Weather")
+    @Json(name = "Weather")
     private String weather;
 
-    @SerializedName("Temp")
+    @Json(name = "Temp")
     private String temp;
 
-    @SerializedName("SLP")
+    @Json(name = "SLP")
     private String sLP;
 
-    @SerializedName("elev")
+    @Json(name = "elev")
     private String elev;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
-    @SerializedName("Dewp")
+    @Json(name = "Dewp")
     private String dewp;
 
-    @SerializedName("Visibility")
+    @Json(name = "Visibility")
     private String visibility;
 
-    @SerializedName("id")
+    @Json(name = "id")
     private String id;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private String longitude;
 
     public void setWeatherimage(String weatherimage) {

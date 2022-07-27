@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Geo_Rootobject {
 
-    @SerializedName("response")
+    @Json(name = "response")
     private Response response;
 
     public void setResponse(Response response) {

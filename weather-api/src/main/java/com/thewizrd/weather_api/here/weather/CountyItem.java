@@ -1,33 +1,33 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class CountyItem {
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("stateName")
+    @Json(name = "stateName")
     private String stateName;
 
-    @SerializedName("latitude")
+    @Json(name = "latitude")
     private double latitude;
 
-    @SerializedName("name")
+    @Json(name = "name")
     private String name;
 
-    @SerializedName("countryName")
+    @Json(name = "countryName")
     private String countryName;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("value")
+    @Json(name = "value")
     private String value;
 
-    @SerializedName("longitude")
+    @Json(name = "longitude")
     private double longitude;
 
     public void setCountry(String country) {

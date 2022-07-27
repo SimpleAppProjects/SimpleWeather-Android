@@ -1,32 +1,32 @@
 package com.thewizrd.weather_api.nws.observation;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Data {
 
-    @SerializedName("pop")
+    @Json(name = "pop")
     private List<String> pop;
 
-    @SerializedName("iconLink")
+    @Json(name = "iconLink")
     private List<String> iconLink;
 
-    @SerializedName("hazard")
+    @Json(name = "hazard")
     private List<String> hazard;
 
-    @SerializedName("temperature")
+    @Json(name = "temperature")
     private List<String> temperature;
 
-    @SerializedName("weather")
+    @Json(name = "weather")
     private List<String> weather;
 
-    @SerializedName("text")
+    @Json(name = "text")
     private List<String> text;
 
-    @SerializedName("hazardUrl")
+    @Json(name = "hazardUrl")
     private List<String> hazardUrl;
 
     public void setPop(List<String> pop) {

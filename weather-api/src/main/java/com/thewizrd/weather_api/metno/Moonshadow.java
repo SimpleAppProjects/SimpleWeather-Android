@@ -1,21 +1,21 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Moonshadow {
 
-    @SerializedName("elevation")
+    @Json(name = "elevation")
     private String elevation;
 
-    @SerializedName("azimuth")
+    @Json(name = "azimuth")
     private String azimuth;
 
-    @SerializedName("time")
+    @Json(name = "time")
     private String time;
 
-    @SerializedName("desc")
+    @Json(name = "desc")
     private String desc;
 
     public void setElevation(String elevation) {

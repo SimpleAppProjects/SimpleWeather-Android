@@ -1,42 +1,42 @@
 package com.thewizrd.weather_api.nws.observation;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ForecastResponse {
 
-	@SerializedName("operationalMode")
+    @Json(name = "operationalMode")
 	private String operationalMode;
 
-	@SerializedName("srsName")
+    @Json(name = "srsName")
 	private String srsName;
 
-	@SerializedName("moreInformation")
+    @Json(name = "moreInformation")
 	private String moreInformation;
 
-	@SerializedName("data")
+    @Json(name = "data")
 	private Data data;
 
-	@SerializedName("location")
+    @Json(name = "location")
 	private Location location;
 
-	@SerializedName("time")
+    @Json(name = "time")
 	private Time time;
 
-	@SerializedName("creationDate")
+    @Json(name = "creationDate")
 	private String creationDate;
 
-	@SerializedName("creationDateLocal")
+    @Json(name = "creationDateLocal")
 	private String creationDateLocal;
 
-	@SerializedName("credit")
+    @Json(name = "credit")
 	private String credit;
 
-	@SerializedName("currentobservation")
+    @Json(name = "currentobservation")
 	private Currentobservation currentobservation;
 
-	@SerializedName("productionCenter")
+    @Json(name = "productionCenter")
 	private String productionCenter;
 
 	public void setOperationalMode(String operationalMode) {

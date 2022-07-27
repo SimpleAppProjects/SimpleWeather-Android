@@ -2,11 +2,9 @@ package com.thewizrd.weather_api
 
 import android.location.Geocoder
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderFactory
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderFactoryImpl
-import com.thewizrd.weather_api.stag.generated.Stag
 import com.thewizrd.weather_api.tzdb.TZDBService
 import com.thewizrd.weather_api.tzdb.TZDBServiceImpl
 import com.thewizrd.weather_api.tzdb.TimeZoneProvider
@@ -37,6 +35,6 @@ class WeatherModule internal constructor() {
     val tzdbService: TZDBService by lazy { TZDBServiceImpl() }
 
     internal fun init() {
-        JSONParser.registerTypeAdapterFactory(Stag.Factory())
+        //JSONParser.registerTypeAdapterFactory(Stag.Factory())
     }
 }

@@ -1,66 +1,66 @@
 package com.thewizrd.weather_api.meteofrance.weather
 
-import com.google.gson.annotations.SerializedName
-import com.vimeo.stag.UseStag
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentsResponse(
 
-    @field:SerializedName("updated_on")
+    @field:Json(name = "updated_on")
     var updatedOn: Long? = null,
 
-    @field:SerializedName("observation")
+    @field:Json(name = "observation")
     var observation: Observation? = null,
 
-    @field:SerializedName("position")
+    @field:Json(name = "position")
     var position: CurrentsPosition? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class CurrentsPosition(
 
-    @field:SerializedName("timezone")
+    @field:Json(name = "timezone")
     var timezone: String? = null,
 
-    @field:SerializedName("lon")
+    @field:Json(name = "lon")
     var lon: Float? = null,
 
-    @field:SerializedName("lat")
+    @field:Json(name = "lat")
     var lat: Float? = null
 )
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Observation(
 
-    @field:SerializedName("T")
+    @field:Json(name = "T")
     var T: Float? = null,
 
-    @field:SerializedName("weather")
+    @field:Json(name = "weather")
     var weather: Weather? = null,
 
-    @field:SerializedName("wind")
+    @field:Json(name = "wind")
     var wind: Wind? = null
 )
 /*
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Weather(
 
-	@field:SerializedName("icon")
+	@field:Json(name = "icon")
 	var icon: String? = null,
 
-	@field:SerializedName("desc")
+	@field:Json(name = "desc")
 	var desc: String? = null
 )
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 data class Wind(
 
-	@field:SerializedName("icon")
+	@field:Json(name = "icon")
 	var icon: String? = null,
 
-	@field:SerializedName("speed")
+	@field:Json(name = "speed")
 	var speed: Int? = null,
 
-	@field:SerializedName("direction")
+	@field:Json(name = "direction")
 	var direction: Int? = null
 )
 */

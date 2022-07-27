@@ -1,12 +1,12 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ForecastSys {
 
-    @SerializedName("pod")
+    @Json(name = "pod")
     private String pod;
 
     public String getPod() {

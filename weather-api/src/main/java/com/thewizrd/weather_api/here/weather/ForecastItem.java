@@ -1,102 +1,102 @@
 package com.thewizrd.weather_api.here.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class ForecastItem {
 
-    @SerializedName("precipitationProbability")
+    @Json(name = "precipitationProbability")
     private String precipitationProbability;
 
-    @SerializedName("beaufortDescription")
+    @Json(name = "beaufortDescription")
     private String beaufortDescription;
 
-    @SerializedName("icon")
+    @Json(name = "icon")
     private String icon;
 
-    @SerializedName("weekday")
+    @Json(name = "weekday")
     private String weekday;
 
-    @SerializedName("description")
+    @Json(name = "description")
     private String description;
 
-    @SerializedName("windDesc")
+    @Json(name = "windDesc")
     private String windDesc;
 
-    @SerializedName("airInfo")
+    @Json(name = "airInfo")
     private String airInfo;
 
-    @SerializedName("lowTemperature")
+    @Json(name = "lowTemperature")
     private String lowTemperature;
 
-    @SerializedName("airDescription")
+    @Json(name = "airDescription")
     private String airDescription;
 
-    @SerializedName("iconLink")
+    @Json(name = "iconLink")
     private String iconLink;
 
-    @SerializedName("dayOfWeek")
+    @Json(name = "dayOfWeek")
     private String dayOfWeek;
 
-    @SerializedName("uvDesc")
+    @Json(name = "uvDesc")
     private String uvDesc;
 
-    @SerializedName("precipitationDesc")
+    @Json(name = "precipitationDesc")
     private String precipitationDesc;
 
-    @SerializedName("utcTime")
+    @Json(name = "utcTime")
     private String utcTime;
 
-    @SerializedName("humidity")
+    @Json(name = "humidity")
     private String humidity;
 
-    @SerializedName("barometerPressure")
+    @Json(name = "barometerPressure")
     private String barometerPressure;
 
-    @SerializedName("windDirection")
+    @Json(name = "windDirection")
     private String windDirection;
 
-    @SerializedName("windSpeed")
+    @Json(name = "windSpeed")
     private String windSpeed;
 
-    @SerializedName("windDescShort")
+    @Json(name = "windDescShort")
     private String windDescShort;
 
-    @SerializedName("skyInfo")
+    @Json(name = "skyInfo")
     private String skyInfo;
 
-    @SerializedName("skyDescription")
+    @Json(name = "skyDescription")
     private String skyDescription;
 
-    @SerializedName("temperatureDesc")
+    @Json(name = "temperatureDesc")
     private String temperatureDesc;
 
-    @SerializedName("iconName")
+    @Json(name = "iconName")
     private String iconName;
 
-    @SerializedName("highTemperature")
+    @Json(name = "highTemperature")
     private String highTemperature;
 
-    @SerializedName("dewPoint")
+    @Json(name = "dewPoint")
     private String dewPoint;
 
-    @SerializedName("comfort")
+    @Json(name = "comfort")
     private String comfort;
 
-    @SerializedName("rainFall")
+    @Json(name = "rainFall")
     private String rainFall;
 
-    @SerializedName("snowFall")
+    @Json(name = "snowFall")
     private String snowFall;
 
-    @SerializedName("daylight")
+    @Json(name = "daylight")
     private String daylight;
 
-    @SerializedName("uvIndex")
+    @Json(name = "uvIndex")
     private String uvIndex;
 
-    @SerializedName("beaufortScale")
+    @Json(name = "beaufortScale")
     private String beaufortScale;
 
     public void setPrecipitationProbability(String precipitationProbability) {

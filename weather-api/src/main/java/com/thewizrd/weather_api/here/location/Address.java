@@ -1,41 +1,41 @@
 package com.thewizrd.weather_api.here.location;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
 import java.util.List;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Address {
 
-    @SerializedName("additionalData")
+    @Json(name = "additionalData")
     private List<AdditionalDataItem> additionalData;
 
-    @SerializedName("houseNumber")
+    @Json(name = "houseNumber")
     private String houseNumber;
 
-    @SerializedName("state")
+    @Json(name = "state")
     private String state;
 
-    @SerializedName("label")
+    @Json(name = "label")
     private String label;
 
-    @SerializedName("country")
+    @Json(name = "country")
     private String country;
 
-    @SerializedName("street")
+    @Json(name = "street")
     private String street;
 
-    @SerializedName("postalCode")
+    @Json(name = "postalCode")
     private String postalCode;
 
-    @SerializedName("city")
+    @Json(name = "city")
     private String city;
 
-    @SerializedName("county")
+    @Json(name = "county")
     private String county;
 
-    @SerializedName("district")
+    @Json(name = "district")
     private String district;
 
     public void setAdditionalData(List<AdditionalDataItem> additionalData) {

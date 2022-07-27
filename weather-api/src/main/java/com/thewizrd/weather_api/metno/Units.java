@@ -1,54 +1,54 @@
 package com.thewizrd.weather_api.metno;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Units {
 
-    @SerializedName("cloud_area_fraction_high")
+    @Json(name = "cloud_area_fraction_high")
     private String cloudAreaFractionHigh;
 
-    @SerializedName("precipitation_amount")
+    @Json(name = "precipitation_amount")
     private String precipitationAmount;
 
-    @SerializedName("cloud_area_fraction")
+    @Json(name = "cloud_area_fraction")
     private String cloudAreaFraction;
 
-    @SerializedName("cloud_area_fraction_medium")
+    @Json(name = "cloud_area_fraction_medium")
     private String cloudAreaFractionMedium;
 
-    @SerializedName("wind_from_direction")
+    @Json(name = "wind_from_direction")
     private String windFromDirection;
 
-    @SerializedName("air_temperature_min")
+    @Json(name = "air_temperature_min")
     private String airTemperatureMin;
 
-    @SerializedName("air_temperature")
+    @Json(name = "air_temperature")
     private String airTemperature;
 
-    @SerializedName("ultraviolet_index_clear_sky")
+    @Json(name = "ultraviolet_index_clear_sky")
     private String ultravioletIndexClearSky;
 
-    @SerializedName("fog_area_fraction")
+    @Json(name = "fog_area_fraction")
     private String fogAreaFraction;
 
-    @SerializedName("air_temperature_max")
+    @Json(name = "air_temperature_max")
     private String airTemperatureMax;
 
-    @SerializedName("air_pressure_at_sea_level")
+    @Json(name = "air_pressure_at_sea_level")
     private String airPressureAtSeaLevel;
 
-    @SerializedName("wind_speed")
+    @Json(name = "wind_speed")
     private String windSpeed;
 
-    @SerializedName("cloud_area_fraction_low")
+    @Json(name = "cloud_area_fraction_low")
     private String cloudAreaFractionLow;
 
-    @SerializedName("relative_humidity")
+    @Json(name = "relative_humidity")
     private String relativeHumidity;
 
-    @SerializedName("dew_point_temperature")
+    @Json(name = "dew_point_temperature")
     private String dewPointTemperature;
 
     public void setCloudAreaFractionHigh(String cloudAreaFractionHigh) {

@@ -1,33 +1,33 @@
 package com.thewizrd.weather_api.openweather.weather;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 
-@UseStag(UseStag.FieldOption.ALL)
+@JsonClass(generateAdapter = true)
 public class Main {
 
-    @SerializedName("temp")
+    @Json(name = "temp")
     private float temp;
 
-    @SerializedName("feels_like")
+    @Json(name = "feels_like")
     private Float feelsLike;
 
-    @SerializedName("temp_min")
+    @Json(name = "temp_min")
     private float tempMin;
 
-    @SerializedName("temp_max")
+    @Json(name = "temp_max")
     private float tempMax;
 
-    @SerializedName("humidity")
+    @Json(name = "humidity")
     private int humidity;
 
-    @SerializedName("pressure")
+    @Json(name = "pressure")
     private float pressure;
 
-    @SerializedName("sea_level")
+    @Json(name = "sea_level")
     private Float seaLevel;
 
-    @SerializedName("grnd_level")
+    @Json(name = "grnd_level")
     private Float grndLevel;
 
     public void setTemp(float temp) {
