@@ -1,45 +1,50 @@
 package com.thewizrd.simpleweather.main
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.RecyclerView
-import androidx.wear.widget.WearableLinearLayoutManager
+import androidx.lifecycle.lifecycleScope
+import androidx.wear.compose.material.*
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import com.google.android.horologist.compose.layout.fadeAwayScalingLazyList
 import com.thewizrd.common.BR
+import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.WeatherNowViewModel
-import com.thewizrd.common.helpers.SpacerItemDecoration
+import com.thewizrd.shared_resources.DateTimeConstants
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
-import com.thewizrd.simpleweather.adapters.DetailItemAdapter
-import com.thewizrd.simpleweather.adapters.DetailItemFooterAdapter
-import com.thewizrd.simpleweather.adapters.SpacerAdapter
-import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
-import com.thewizrd.simpleweather.helpers.CustomScrollingLayoutCallback
+import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
+import com.thewizrd.simpleweather.ui.theme.WearAppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class WeatherDetailsFragment : SwipeDismissFragment() {
     private val weatherView: WeatherNowViewModel by activityViewModels()
 
-    private lateinit var binding: FragmentWeatherListBinding
-    private lateinit var mAdapter: DetailItemAdapter
+    private val detailsFlow = MutableStateFlow<Collection<DetailItemViewModel>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherDetails: onCreate")
 
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mAdapter.submitList(weatherView.weatherDetailsMap.values.toList())
-            }
-        })
+        lifecycleScope.launchWhenStarted {
+            detailsFlow.emit(weatherView.weatherDetailsMap.values.toList())
+        }
     }
 
     override fun onCreateView(
@@ -49,34 +54,84 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
     ): View {
         // Use this to return your custom view for this Fragment
         val outerView = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
-        binding = FragmentWeatherListBinding.inflate(inflater, outerView)
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.layoutManager =
-            WearableLinearLayoutManager(requireContext(), CustomScrollingLayoutCallback())
-        binding.recyclerView.requestFocus()
+        outerView.addView(ComposeView(inflater.context).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val listState = rememberScalingLazyListState()
+                val detailsItems = detailsFlow.collectAsState()
+                val density = LocalDensity.current
 
-        mAdapter = DetailItemAdapter()
+                WearAppTheme {
+                    Scaffold(
+                        positionIndicator = {
+                            PositionIndicator(
+                                scalingLazyListState = listState,
+                                modifier = Modifier
+                            )
+                        },
+                        vignette = {
+                            Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                        },
+                        timeText = {
+                            TimeText(
+                                modifier = Modifier.fadeAwayScalingLazyList {
+                                    listState
+                                },
+                                timeSource = TimeTextDefaults.timeSource(
+                                    if (DateFormat.is24HourFormat(LocalContext.current)) {
+                                        TimeTextDefaults.TimeFormat24Hours
+                                    } else {
+                                        DateTimeConstants.CLOCK_FORMAT_12HR
+                                    }
+                                )
+                            )
+                        }
+                    ) {
+                        ScalingLazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            state = listState,
+                            anchorType = ScalingLazyListAnchorType.ItemStart
+                        ) {
+                            detailsItems.value.forEach {
+                                item {
+                                    val drawable = ContextCompat.getDrawable(
+                                        LocalContext.current,
+                                        sharedDeps.weatherIconsManager.getWeatherIconResource(it.icon)
+                                    )
 
-        binding.recyclerView.adapter = ConcatAdapter(
-            SpacerAdapter(requireContext().dpToPx(48f).toInt()),
-            mAdapter,
-            DetailItemFooterAdapter(),
-            SpacerAdapter(requireContext().dpToPx(48f).toInt())
-        )
-        binding.recyclerView.addItemDecoration(
-            SpacerItemDecoration(
-                requireContext().dpToPx(16f).toInt(),
-                requireContext().dpToPx(4f).toInt()
-            )
-        )
-
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                binding.timeText.apply {
-                    translationY = -recyclerView.computeVerticalScrollOffset().toFloat()
+                                    Chip(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        label = {
+                                            Text(
+                                                text = spannableStringToAnnotatedString(
+                                                    it.label,
+                                                    density
+                                                )
+                                            )
+                                        },
+                                        secondaryLabel = {
+                                            Text(
+                                                text = spannableStringToAnnotatedString(
+                                                    it.value,
+                                                    density
+                                                )
+                                            )
+                                        },
+                                        onClick = {},
+                                        colors = ChipDefaults.secondaryChipColors(),
+                                        icon = {
+                                            Icon(
+                                                painter = rememberDrawablePainter(drawable),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         })
@@ -100,7 +155,7 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             runWithView {
                 if (propertyId == BR.weatherDetailsMap) {
-                    mAdapter.submitList(weatherView.weatherDetailsMap.values.toList())
+                    detailsFlow.emit(weatherView.weatherDetailsMap.values.toList())
                 }
             }
         }
