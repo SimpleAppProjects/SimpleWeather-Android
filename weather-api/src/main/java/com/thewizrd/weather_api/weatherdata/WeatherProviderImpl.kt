@@ -210,7 +210,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             try {
                 if (!aqiData.uviForecast.isNullOrEmpty()) {
                     for (i in aqiData.uviForecast.indices) {
-                        val uviData = aqiData.uviForecast[i]
+                        val uviData = aqiData.uviForecast[i] ?: continue
                         val date = LocalDate.parse(
                             uviData.day,
                             DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT)
@@ -224,7 +224,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                                         weather.astronomy.sunset.toLocalTime()
                                     )
                                 ) {
-                                    weather.condition.uv = UV(uviData.min.toFloat())
+                                    weather.condition.uv = UV(uviData.min?.toFloat() ?: 0f)
                                 } else {
                                     val totalSunlightTime =
                                         weather.astronomy.sunset.toEpochSecond(location.tzOffset) - weather.astronomy.sunrise.toEpochSecond(
@@ -237,9 +237,9 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                                     if (Duration.between(solarNoon.toLocalTime(), obsLocalTime)
                                             .abs().toHours() <= 2
                                     ) {
-                                        weather.condition.uv = UV(uviData.max.toFloat())
+                                        weather.condition.uv = UV(uviData.max?.toFloat() ?: 0f)
                                     } else { // else uv avg
-                                        weather.condition.uv = UV(uviData.avg.toFloat())
+                                        weather.condition.uv = UV(uviData.avg?.toFloat() ?: 0f)
                                     }
                                 }
                             }
@@ -251,7 +251,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                             if (forecastObj.extras == null) {
                                 forecastObj.extras = ForecastExtras()
                             }
-                            forecastObj.extras.uvIndex = uviData.max.toFloat()
+                            forecastObj.extras.uvIndex = uviData.max?.toFloat()
                         }
                     }
                 }

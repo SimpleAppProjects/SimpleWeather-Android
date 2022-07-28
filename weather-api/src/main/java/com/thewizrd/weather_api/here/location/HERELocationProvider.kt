@@ -109,15 +109,18 @@ class HERELocationProvider  // Keep hidden for now
 
             // Load data
             locations = HashSet() // Use HashSet to avoid duplicate location (names)
-            val root =
-                JSONParser.deserializer<AutoCompleteQuery>(stream, AutoCompleteQuery::class.java)
+            val root: AutoCompleteQuery? =
+                JSONParser.deserializer(stream, AutoCompleteQuery::class.java)
+
+            requireNotNull(root)
 
             for (result in root.suggestions) {
                 var added = false
                 // Filter: only store city results
                 added = if ("city" == result.matchLevel
-                            || "district" == result.matchLevel
-                            || "postalCode" == result.matchLevel) {
+                    || "district" == result.matchLevel
+                    || "postalCode" == result.matchLevel
+                ) {
                     locations.add(createLocationModel(result!!, weatherAPI!!))
                 } else {
                     continue
@@ -207,10 +210,10 @@ class HERELocationProvider  // Keep hidden for now
             val stream = response.getStream()
 
             // Load data
-            val root = JSONParser.deserializer<Geo_Rootobject>(stream, Geo_Rootobject::class.java)
+            val root: Geo_Rootobject? = JSONParser.deserializer(stream, Geo_Rootobject::class.java)
 
-            if (!root.response.view.isNullOrEmpty() && !root.response.view[0]?.result.isNullOrEmpty())
-                result = root.response.view[0].result[0]
+            if (!root?.response?.view.isNullOrEmpty() && !root?.response?.view?.firstOrNull()?.result.isNullOrEmpty())
+                result = root?.response?.view?.firstOrNull()?.result?.firstOrNull()
 
             // End Stream
             stream.closeQuietly()
@@ -267,22 +270,22 @@ class HERELocationProvider  // Keep hidden for now
                         .addHeader("Authorization", authorization)
                         .build()
 
-                    // Connect to webstream
-                    response = client.newCall(request).await()
-                    checkForErrors(response)
+                // Connect to webstream
+                response = client.newCall(request).await()
+                checkForErrors(response)
 
-                    val stream = response.getStream()
+                val stream = response.getStream()
 
-                    // Load data
-                    val root =
-                        JSONParser.deserializer<Geo_Rootobject>(stream, Geo_Rootobject::class.java)
+                // Load data
+                val root: Geo_Rootobject? =
+                    JSONParser.deserializer(stream, Geo_Rootobject::class.java)
 
-                    if (!root.response.view.isNullOrEmpty() && !root.response.view[0]?.result.isNullOrEmpty())
-                        result = root.response.view[0].result[0]
+                if (!root?.response?.view.isNullOrEmpty() && !root?.response?.view?.firstOrNull()?.result.isNullOrEmpty())
+                    result = root?.response?.view?.firstOrNull()?.result?.firstOrNull()
 
-                    // End Stream
-                    stream.closeQuietly()
-                } catch (ex: Exception) {
+                // End Stream
+                stream.closeQuietly()
+            } catch (ex: Exception) {
                     result = null
                     if (ex is IOException) {
                         wEx = WeatherException(ErrorStatus.NETWORKERROR)

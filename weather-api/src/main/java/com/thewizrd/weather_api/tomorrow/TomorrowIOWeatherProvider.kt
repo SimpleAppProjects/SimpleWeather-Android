@@ -249,6 +249,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                         JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                     }
 
+                    requireNotNull(root)
+
                     var minutelyRoot: Rootobject? = null
                     var alertsRoot: AlertsRootobject? = null
 
@@ -256,7 +258,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                         minutelyResponse = client.newCall(minutelyRequest).await()
                         checkForErrors(minutelyResponse!!)
                         minutelyResponse!!.getStream().use {
-                            minutelyRoot = JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
+                            minutelyRoot =
+                                JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                         }
                     }
 
@@ -335,6 +338,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                 val root = response.getStream().use {
                     JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                 }
+
+                requireNotNull(root)
 
                 root.data.timelines.firstOrNull()?.intervals?.firstOrNull()?.let { item ->
                     pollenData = Pollen().apply {

@@ -132,22 +132,26 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     val stream = response.getStream()
 
                     // Load weather
-                    val root = JSONParser.deserializer<Rootobject>(stream, Rootobject::class.java)
+                    val root: Rootobject? = JSONParser.deserializer(stream, Rootobject::class.java)
 
                     // Check for errors
                     when (root?.type) {
-                        "Invalid Request" -> wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
-                        "Unauthorized" -> wEx = WeatherException(ErrorStatus.INVALIDAPIKEY)
+                        "Invalid Request" -> throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                        "Unauthorized" -> throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                     }
 
                     // End Stream
                     stream.closeQuietly()
 
+                    requireNotNull(root)
+
                     weather = createWeatherData(root)
 
                     // Add weather alerts if available
-                    weather.weatherAlerts = createWeatherAlerts(root,
-                            weather.location.latitude, weather.location.longitude)
+                    weather.weatherAlerts = createWeatherAlerts(
+                        root,
+                        weather.location.latitude, weather.location.longitude
+                    )
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
@@ -263,9 +267,13 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             // End Stream
             stream.closeQuietly()
 
+            requireNotNull(root)
+
             // Add weather alerts if available
-            alerts = createWeatherAlerts(root,
-                    location.latitude.toFloat(), location.longitude.toFloat())
+            alerts = createWeatherAlerts(
+                root,
+                location.latitude.toFloat(), location.longitude.toFloat()
+            )
         } catch (ex: Exception) {
             Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather alert data")
         } finally {

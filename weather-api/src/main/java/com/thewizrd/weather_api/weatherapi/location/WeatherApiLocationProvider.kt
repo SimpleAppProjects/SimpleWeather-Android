@@ -2,10 +2,10 @@ package com.thewizrd.weather_api.weatherapi.location
 
 import android.location.Geocoder
 import android.util.Log
-import com.google.gson.reflect.TypeToken
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.json.listType
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -93,8 +93,10 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
 
             // Load data
             locations = HashSet() // Use HashSet to avoid duplicate location (names)
-            val arrListType = object : TypeToken<ArrayList<LocationItem>>() {}.type
+            val arrListType = listType<LocationItem>()
             val root = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
+
+            requireNotNull(root)
 
             for (result in root) {
                 val added = locations.add(createLocationModel(result, weatherAPI!!))
@@ -194,8 +196,10 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
             val stream = response.getStream()
 
             // Load data
-            val arrListType = object : TypeToken<ArrayList<LocationItem>>() {}.type
+            val arrListType = listType<LocationItem>()
             val locations = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
+
+            requireNotNull(locations)
 
             for (item in locations) {
                 if (abs(

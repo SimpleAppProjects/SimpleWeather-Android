@@ -798,7 +798,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
                             JSONParser.deserializer(dataJson, LocationData::class.java)
                         }
 
-                        if (locData.locationType == LocationType.SEARCH) {
+                        if (locData?.locationType == LocationType.SEARCH) {
                             // Add location to adapter and select it
                             locationPref.addEntry(locData.name, locData.query)
                             locationPref.values = locationPref.values?.let {

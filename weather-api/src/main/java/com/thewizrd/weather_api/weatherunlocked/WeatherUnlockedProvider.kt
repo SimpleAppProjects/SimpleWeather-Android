@@ -165,6 +165,9 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                     currentStream.closeQuietly()
                     forecastStream.closeQuietly()
 
+                    requireNotNull(currRoot)
+                    requireNotNull(foreRoot)
+
                     weather = createWeatherData(currRoot, foreRoot)
                 } catch (ex: Exception) {
                     weather = null

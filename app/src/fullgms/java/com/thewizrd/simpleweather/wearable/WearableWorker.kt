@@ -5,14 +5,14 @@ import android.util.Log
 import androidx.work.*
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
+import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
-import com.thewizrd.common.wearable.WearableHelper
-import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -253,7 +253,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                     WearableSettings.KEY_WEATHERDATA,
                     Asset.createFromBytes(
                         JSONParser.serializer(weatherData, Weather::class.java)
-                            .toByteArray(Charset.forName("UTF-8"))
+                            ?.toByteArray(Charset.forName("UTF-8")) ?: byteArrayOf()
                     )
                 )
             }

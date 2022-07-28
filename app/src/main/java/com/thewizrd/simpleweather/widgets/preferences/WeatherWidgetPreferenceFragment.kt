@@ -1007,7 +1007,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                             JSONParser.deserializer(dataJson, LocationData::class.java)
                         }
 
-                        if (locData.locationType == LocationType.SEARCH) {
+                        if (locData?.locationType == LocationType.SEARCH) {
                             // Add location to adapter and select it
                             favorites.add(locData)
                             val idx = locationPref.entryCount - 1

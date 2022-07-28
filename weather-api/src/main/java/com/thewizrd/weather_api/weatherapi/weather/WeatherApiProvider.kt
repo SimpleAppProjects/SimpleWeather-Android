@@ -198,6 +198,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     // End Stream
                     stream.closeQuietly()
 
+                    requireNotNull(root)
+
                     weather = createWeatherData(root)
                 } catch (ex: Exception) {
                     weather = null
@@ -268,6 +270,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
                     // End Stream
                     stream.closeQuietly()
+
+                    requireNotNull(root)
 
                     alerts = createWeatherAlerts(root.alerts)
                 } catch (ex: Exception) {

@@ -133,6 +133,9 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     forecastStream.closeQuietly()
                     sunrisesetStream.closeQuietly()
 
+                    requireNotNull(foreRoot)
+                    requireNotNull(astroRoot)
+
                     weather = createWeatherData(foreRoot, astroRoot)
                 } catch (ex: Exception) {
                     weather = null

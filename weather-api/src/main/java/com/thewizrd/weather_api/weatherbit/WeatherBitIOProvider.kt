@@ -216,6 +216,9 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 currentStream.closeQuietly()
                 forecastStream.closeQuietly()
 
+                requireNotNull(currRoot)
+                requireNotNull(foreRoot)
+
                 weather = createWeatherData(currRoot, foreRoot)
             } catch (ex: Exception) {
                 weather = null
@@ -285,6 +288,8 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
                 // End Stream
                 stream.closeQuietly()
+
+                requireNotNull(root)
 
                 alerts = createWeatherAlerts(root.alerts, root.timezone!!)
             } catch (ex: Exception) {

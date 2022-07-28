@@ -87,7 +87,7 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 appLib.appScope.launch(Dispatchers.Default) {
                     val location = JSONParser.deserializer(locationJson, LocationData::class.java)
 
-                    if (WidgetUtils.exists(oldKey)) {
+                    if (WidgetUtils.exists(oldKey) && location != null) {
                         WidgetUtils.updateWidgetIds(oldKey, location)
                     }
                 }

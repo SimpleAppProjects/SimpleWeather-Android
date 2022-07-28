@@ -163,7 +163,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 )
                 var alertsRoot: AlertsResponse? = null
 
-                if (foreRoot.position?.dept != null) {
+                if (foreRoot?.position?.dept != null) {
                     val alertsRequest = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .url(String.format(ALERTS_QUERY_URL, foreRoot.position!!.dept, key))
@@ -181,6 +181,9 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 currentStream.closeQuietly()
                 forecastStream.closeQuietly()
                 alertStream?.closeQuietly()
+
+                requireNotNull(currRoot)
+                requireNotNull(foreRoot)
 
                 weather = createWeatherData(currRoot, foreRoot, alertsRoot)
             } catch (ex: Exception) {

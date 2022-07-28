@@ -83,6 +83,8 @@ class NWSAlertProvider : WeatherAlertProvider, RateLimitedRequest {
                 val root =
                     JSONParser.deserializer<AlertRootobject>(stream, AlertRootobject::class.java)
 
+                requireNotNull(root)
+
                 alerts = createWeatherAlerts(root)
 
                 // End Stream
