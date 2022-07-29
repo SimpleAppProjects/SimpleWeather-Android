@@ -2,13 +2,10 @@ package com.thewizrd.common.controls
 
 import android.app.Application
 import androidx.annotation.MainThread
-import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.*
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import androidx.paging.PositionalDataSource
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.*
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -19,13 +16,14 @@ import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
-@Suppress("DEPRECATION")
 class ForecastsListViewModel(app: Application) : AndroidViewModel(app) {
     private val settingsMgr = SettingsManager(app)
 
@@ -35,22 +33,20 @@ class ForecastsListViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private var forecasts: MutableLiveData<PagedList<ForecastItemViewModel>>?
-    private var hourlyForecasts: MutableLiveData<PagedList<HourlyForecastItemViewModel>>?
+    private val forecasts = MutableStateFlow<PagingData<ForecastItemViewModel>>(PagingData.empty())
+    private val hourlyForecasts =
+        MutableStateFlow<PagingData<HourlyForecastItemViewModel>>(PagingData.empty())
 
-    private var currentForecastsData: LiveData<PagedList<ForecastItemViewModel>>? = null
-    private var currentHrForecastsData: LiveData<PagedList<HourlyForecastItemViewModel>>? = null
+    private var currentForecastsData: Flow<PagingData<ForecastItemViewModel>> = emptyFlow()
+    private var currentHrForecastsData: Flow<PagingData<HourlyForecastItemViewModel>> = emptyFlow()
 
-    init {
-        forecasts = MutableLiveData()
-        hourlyForecasts = MutableLiveData()
-    }
+    private var flowScope: CoroutineScope? = null
 
-    fun getForecasts(): LiveData<PagedList<ForecastItemViewModel>>? {
+    fun getForecasts(): Flow<PagingData<ForecastItemViewModel>> {
         return forecasts
     }
 
-    fun getHourlyForecasts(): LiveData<PagedList<HourlyForecastItemViewModel>>? {
+    fun getHourlyForecasts(): Flow<PagingData<HourlyForecastItemViewModel>> {
         return hourlyForecasts
     }
 
@@ -64,43 +60,46 @@ class ForecastsListViewModel(app: Application) : AndroidViewModel(app) {
                 unitCode = settingsMgr.getUnitString()
                 localeCode = LocaleUtils.getLocaleCode()
 
-                currentForecastsData?.removeObserver(forecastObserver)
+                flowScope?.cancel()
 
-                currentForecastsData = LivePagedListBuilder(
-                    ForecastDataSourceFactory(
-                        viewModelScope,
-                        locationData!!,
-                        weatherDAO
-                    ),
-                    PagedList.Config.Builder()
-                        .setEnablePlaceholders(true)
-                        .setPageSize(7)
-                        .build()
-                ).build()
+                currentForecastsData = Pager(
+                    config = PagingConfig(pageSize = 7)
+                ) {
+                    ForecastDataSource(locationData!!, weatherDAO)
+                }.flow.cachedIn(viewModelScope)
 
-                currentForecastsData!!.observeForever(forecastObserver)
-                forecasts?.postValue(currentForecastsData!!.value)
+                flowScope = CoroutineScope(SupervisorJob())
+                flowScope?.launch {
+                    currentForecastsData.collect {
+                        forecasts.emit(it)
+                    }
+                }
 
-                val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
-                val hrFactory =
+                currentHrForecastsData = Pager(
+                    config = PagingConfig(
+                        prefetchDistance = 12,
+                        pageSize = 24,
+                        maxSize = 48,
+                    )
+                ) {
+                    val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+
                     weatherDAO.loadHourlyForecastsByQueryOrderByDateFilterByDate(
                         location.query,
                         ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong())
                             .truncatedTo(ChronoUnit.HOURS)
-                    ).map(Function(::HourlyForecastItemViewModel))
+                    )
+                }.flow.map { pagingData ->
+                    pagingData.map {
+                        HourlyForecastItemViewModel(it)
+                    }
+                }.cachedIn(viewModelScope)
 
-                currentHrForecastsData?.removeObserver(hrforecastObserver)
-                currentHrForecastsData = LivePagedListBuilder<Int, HourlyForecastItemViewModel>(
-                    hrFactory,
-                    PagedList.Config.Builder()
-                        .setEnablePlaceholders(true)
-                        .setPrefetchDistance(12)
-                        .setPageSize(24)
-                        .setMaxSize(48)
-                        .build()
-                ).build()
-                currentHrForecastsData!!.observeForever(hrforecastObserver)
-                hourlyForecasts?.postValue(currentHrForecastsData!!.value)
+                flowScope?.launch {
+                    currentHrForecastsData.collect {
+                        hourlyForecasts.emit(it)
+                    }
+                }
             }
         } else if (!ObjectsCompat.equals(unitCode, settingsMgr.getUnitString()) ||
             !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())
@@ -108,79 +107,117 @@ class ForecastsListViewModel(app: Application) : AndroidViewModel(app) {
             unitCode = settingsMgr.getUnitString()
             localeCode = LocaleUtils.getLocaleCode()
 
-            currentForecastsData?.value?.dataSource?.invalidate()
-            currentHrForecastsData?.value?.dataSource?.invalidate()
+            viewModelScope.launch {
+                currentForecastsData.lastOrNull()?.let {
+                    forecasts.emit(it)
+                }
+                currentHrForecastsData.lastOrNull()?.let {
+                    hourlyForecasts.emit(it)
+                }
+            }
         }
     }
-
-    private val forecastObserver =
-        Observer<PagedList<ForecastItemViewModel>?> { forecastItemViewModels ->
-            forecasts?.postValue(forecastItemViewModels)
-        }
-    private val hrforecastObserver =
-        Observer<PagedList<HourlyForecastItemViewModel>?> { forecastItemViewModels ->
-            hourlyForecasts?.postValue(forecastItemViewModels)
-        }
 
     override fun onCleared() {
         super.onCleared()
 
+        flowScope?.cancel()
         locationData = null
-
-        currentForecastsData?.removeObserver(forecastObserver)
-        currentHrForecastsData?.removeObserver(hrforecastObserver)
-
-        currentForecastsData = null
-        currentHrForecastsData = null
-
-        forecasts = null
-        hourlyForecasts = null
-    }
-
-    private class ForecastDataSourceFactory(
-        private val coroutineScope: CoroutineScope,
-        private val location: LocationData,
-        private val dao: WeatherDAO
-    ) : DataSource.Factory<Int, ForecastItemViewModel>() {
-        override fun create(): DataSource<Int, ForecastItemViewModel> {
-            return ForecastDataSource(coroutineScope, location, dao)
-        }
     }
 
     private class ForecastDataSource(
-        private val coroutineScope: CoroutineScope,
         private val location: LocationData,
-        private val dao: WeatherDAO
-    ) : PositionalDataSource<ForecastItemViewModel>() {
-        override fun loadInitial(
-            params: LoadInitialParams,
-            callback: LoadInitialCallback<ForecastItemViewModel>
-        ) {
-            coroutineScope.launch(Dispatchers.IO) {
-                val forecasts = dao.getForecastData(location.query)
+        private val dao: WeatherDAO,
+        private val PAGE_SIZE: Int = 7,
+    ) : PagingSource<Int, ForecastItemViewModel>() {
+        override fun getRefreshKey(state: PagingState<Int, ForecastItemViewModel>): Int? {
+            return state.anchorPosition
+        }
 
-                val totalCount = forecasts?.forecast?.size ?: 0
-                if (totalCount == 0) {
-                    callback.onResult(emptyList(), 0, 0)
-                    return@launch
-                }
-
-                val position = computeInitialLoadPosition(params, totalCount)
-                val loadSize = computeInitialLoadSize(params, position, totalCount)
-
-                callback.onResult(loadItems(forecasts, position, loadSize), position, totalCount)
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ForecastItemViewModel> {
+            return when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
+                else -> loadRange(params)
             }
         }
 
-        override fun loadRange(
-            params: LoadRangeParams,
-            callback: LoadRangeCallback<ForecastItemViewModel>
-        ) {
-            coroutineScope.launch(Dispatchers.IO) {
-                val forecasts = dao.getForecastData(location.query)
+        private suspend fun loadInitial(params: LoadParams<Int>): LoadResult<Int, ForecastItemViewModel> {
+            val forecasts = dao.getForecastData(location.query)
 
-                callback.onResult(loadItems(forecasts, params.startPosition, params.loadSize))
+            val totalCount = forecasts?.forecast?.size ?: 0
+            if (totalCount == 0) {
+                return LoadResult.Page(
+                    data = emptyList(),
+                    prevKey = null,
+                    nextKey = null
+                )
             }
+
+            var initialPosition = params.key ?: 0 // requestedStartPosition
+            var initialLoadSize = params.loadSize // requestedLoadSize
+
+            if (params.key != null) {
+                if (params.placeholdersEnabled) {
+                    // snap load size to page multiple (minimum two)
+                    initialLoadSize =
+                        maxOf(initialLoadSize / PAGE_SIZE, 2) * PAGE_SIZE
+
+                    // move start so the load is centered around the key, not starting at it
+                    val idealStart = initialPosition - initialLoadSize / 2
+                    initialPosition = maxOf(0, idealStart / PAGE_SIZE * PAGE_SIZE)
+                } else {
+                    // not tiled, so don't try to snap or force multiple of a page size
+                    initialPosition = maxOf(0, initialPosition - initialLoadSize / 2)
+                }
+            }
+
+            var pageStart = initialPosition / PAGE_SIZE * PAGE_SIZE
+
+            // maximum start pos is that which will encompass end of list
+            val maximumLoadPage =
+                (totalCount - initialLoadSize + PAGE_SIZE - 1) / PAGE_SIZE * PAGE_SIZE
+            pageStart = minOf(maximumLoadPage, pageStart)
+
+            // minimum start position is 0
+            val position = maxOf(0, pageStart)
+            val loadSize = minOf(totalCount - initialPosition, initialLoadSize)
+
+            val data = loadItems(forecasts, position, loadSize)
+
+            val nextKey = position + data.size
+
+            return LoadResult.Page(
+                data = data,
+                prevKey = if (position == 0) null else position,
+                nextKey = if (nextKey == totalCount) null else nextKey,
+                itemsBefore = position,
+                itemsAfter = totalCount - data.size - position
+            )
+        }
+
+        private suspend fun loadRange(params: LoadParams<Int>): LoadResult<Int, ForecastItemViewModel> {
+            var startIndex = params.key ?: 0
+            var loadSize = minOf(PAGE_SIZE, params.loadSize)
+            if (params is LoadParams.Prepend) {
+                // clamp load size to positive indices only, and shift start index by load size
+                loadSize = minOf(loadSize, startIndex)
+                startIndex -= loadSize
+            }
+
+            val forecasts = dao.getForecastData(location.query)
+
+            val data = loadItems(forecasts, startIndex, loadSize)
+
+            // skip passing prevKey if nothing else to load. We only do this for prepend
+            // direction, since 0 as first index is well defined, but max index may not be
+            val prevKey = if (startIndex == 0) null else params.key
+            val nextKey = startIndex + data.size
+
+            return LoadResult.Page(
+                data = data,
+                prevKey = if (data.isEmpty() && params is LoadParams.Prepend) null else prevKey,
+                nextKey = if (data.isEmpty() && params is LoadParams.Append) null else nextKey
+            )
         }
 
         private fun loadItems(

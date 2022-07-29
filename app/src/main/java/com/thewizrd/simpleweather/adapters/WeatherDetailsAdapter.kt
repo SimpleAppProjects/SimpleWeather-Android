@@ -3,17 +3,14 @@ package com.thewizrd.simpleweather.adapters
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.core.util.ObjectsCompat
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.thewizrd.common.controls.BaseForecastItemViewModel
 import com.thewizrd.simpleweather.controls.WeatherDetailItem
 
 class WeatherDetailsAdapter<T : BaseForecastItemViewModel> :
-    PagedListAdapter<T, WeatherDetailsAdapter<T>.ViewHolder> {
-    constructor() : super(diffCallback as DiffUtil.ItemCallback<T>)
-    constructor(config: AsyncDifferConfig<T>) : super(config)
+    PagingDataAdapter<T, WeatherDetailsAdapter<T>.ViewHolder>(diffCallback as DiffUtil.ItemCallback<T>) {
 
     companion object {
         private val diffCallback = object : DiffUtil.ItemCallback<BaseForecastItemViewModel>() {

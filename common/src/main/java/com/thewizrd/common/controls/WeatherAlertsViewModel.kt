@@ -17,15 +17,11 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private var alerts: MutableLiveData<List<WeatherAlertViewModel>>?
+    private val alerts = MutableLiveData<List<WeatherAlertViewModel>>()
 
     private var currentAlertsData: LiveData<List<WeatherAlertViewModel>>? = null
 
-    init {
-        alerts = MutableLiveData()
-    }
-
-    fun getAlerts(): LiveData<List<WeatherAlertViewModel>>? {
+    fun getAlerts(): LiveData<List<WeatherAlertViewModel>> {
         return alerts
     }
 
@@ -65,13 +61,13 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
 
                 currentAlertsData!!.observeForever(alertObserver)
 
-                alerts?.postValue(currentAlertsData!!.value)
+                alerts.postValue(currentAlertsData!!.value)
             }
         }
     }
 
     private val alertObserver = Observer<List<WeatherAlertViewModel>> { alertViewModels ->
-        alerts?.postValue(alertViewModels)
+        alerts.postValue(alertViewModels)
     }
 
     override fun onCleared() {
@@ -82,7 +78,5 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
         currentAlertsData?.removeObserver(alertObserver)
 
         currentAlertsData = null
-
-        alerts = null
     }
 }

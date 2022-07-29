@@ -30,28 +30,22 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private var forecasts: MutableLiveData<List<ForecastItemViewModel>>?
-    private var hourlyForecasts: MutableLiveData<List<HourlyForecastItemViewModel>>?
-    private var minutelyForecasts: MutableLiveData<List<MinutelyForecastViewModel>>?
+    private val forecasts = MutableLiveData<List<ForecastItemViewModel>>()
+    private val hourlyForecasts = MutableLiveData<List<HourlyForecastItemViewModel>>()
+    private val minutelyForecasts = MutableLiveData<List<MinutelyForecastViewModel>>()
 
     private var currentForecastsData: LiveData<Forecasts>? = null
     private var currentHrForecastsData: LiveData<List<HourlyForecast>>? = null
 
-    init {
-        forecasts = MutableLiveData()
-        hourlyForecasts = MutableLiveData()
-        minutelyForecasts = MutableLiveData()
-    }
-
-    fun getForecasts(): LiveData<List<ForecastItemViewModel>>? {
+    fun getForecasts(): LiveData<List<ForecastItemViewModel>> {
         return forecasts
     }
 
-    fun getHourlyForecasts(): LiveData<List<HourlyForecastItemViewModel>>? {
+    fun getHourlyForecasts(): LiveData<List<HourlyForecastItemViewModel>> {
         return hourlyForecasts
     }
 
-    fun getMinutelyForecasts(): LiveData<List<MinutelyForecastViewModel>>? {
+    fun getMinutelyForecasts(): LiveData<List<MinutelyForecastViewModel>> {
         return minutelyForecasts
     }
 
@@ -70,8 +64,8 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
                 currentForecastsData = weatherDAO.getLiveForecastData(location.query)
 
                 currentForecastsData!!.observeForever(forecastObserver)
-                forecasts?.postValue(forecastMapper.apply(currentForecastsData!!.value))
-                minutelyForecasts?.postValue(minForecastMapper.apply(currentForecastsData!!.value))
+                forecasts.postValue(forecastMapper.apply(currentForecastsData!!.value))
+                minutelyForecasts.postValue(minForecastMapper.apply(currentForecastsData!!.value))
 
                 currentHrForecastsData?.removeObserver(hrforecastObserver)
                 val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
@@ -82,7 +76,7 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
                             .truncatedTo(ChronoUnit.HOURS)
                     )
                 currentHrForecastsData!!.observeForever(hrforecastObserver)
-                hourlyForecasts?.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
+                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
             }
         } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
             !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
@@ -93,11 +87,11 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
             iconProvider = settingsManager.getIconsProvider()
 
             if (currentForecastsData?.value != null) {
-                forecasts?.postValue(forecastMapper.apply(currentForecastsData!!.value))
-                minutelyForecasts?.postValue(minForecastMapper.apply(currentForecastsData!!.value))
+                forecasts.postValue(forecastMapper.apply(currentForecastsData!!.value))
+                minutelyForecasts.postValue(minForecastMapper.apply(currentForecastsData!!.value))
             }
             if (currentHrForecastsData?.value != null) {
-                hourlyForecasts?.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
+                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
             }
         }
     }
@@ -148,12 +142,12 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
         }
 
     private val forecastObserver = Observer<Forecasts?> { forecastData ->
-        forecasts?.postValue(forecastMapper.apply(forecastData))
-        minutelyForecasts?.postValue(minForecastMapper.apply(forecastData))
+        forecasts.postValue(forecastMapper.apply(forecastData))
+        minutelyForecasts.postValue(minForecastMapper.apply(forecastData))
     }
 
     private val hrforecastObserver = Observer<List<HourlyForecast>?> { forecastData ->
-        hourlyForecasts?.postValue(hrForecastMapper.apply(forecastData))
+        hourlyForecasts.postValue(hrForecastMapper.apply(forecastData))
     }
 
     override fun onCleared() {
@@ -166,9 +160,5 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
 
         currentForecastsData = null
         currentHrForecastsData = null
-
-        forecasts = null
-        minutelyForecasts = null
-        hourlyForecasts = null
     }
 }

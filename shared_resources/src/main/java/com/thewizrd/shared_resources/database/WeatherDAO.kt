@@ -1,7 +1,7 @@
 package com.thewizrd.shared_resources.database
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.thewizrd.shared_resources.weatherdata.model.*
 import java.time.ZonedDateTime
@@ -150,13 +150,13 @@ interface WeatherDAO {
 
     @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key ORDER BY `dateblob`")
-    fun loadHourlyForecastsByQueryOrderByDate(key: String?): DataSource.Factory<Int, HourlyForecast>
+    fun loadHourlyForecastsByQueryOrderByDate(key: String?): PagingSource<Int, HourlyForecast>
 
     @Transaction
     @Query("SELECT `hrforecastblob` FROM hr_forecasts WHERE `query` = :key AND `dateblob` >= :date ORDER BY `dateblob`")
     fun loadHourlyForecastsByQueryOrderByDateFilterByDate(
         key: String?, @TypeConverters(SortableDateTimeConverters::class) date: ZonedDateTime
-    ): DataSource.Factory<Int, HourlyForecast>
+    ): PagingSource<Int, HourlyForecast>
 
     @Query("SELECT COUNT(*) FROM hr_forecasts WHERE `query` = :key")
     suspend fun getHourlyForecastCountByQuery(key: String?): Int
