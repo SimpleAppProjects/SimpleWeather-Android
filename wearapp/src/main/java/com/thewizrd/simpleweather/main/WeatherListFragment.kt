@@ -1,29 +1,40 @@
 package com.thewizrd.simpleweather.main
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import androidx.core.view.updatePadding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
-import com.thewizrd.common.controls.*
-import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.wear.compose.material.*
+import com.google.android.horologist.compose.layout.fadeAwayScalingLazyList
+import com.thewizrd.common.controls.ForecastsListViewModel
+import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.simpleweather.adapters.ForecastItemAdapter
-import com.thewizrd.simpleweather.adapters.MinutelyItemAdapter
 import com.thewizrd.simpleweather.controls.ForecastPanelsViewModel
-import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
+import com.thewizrd.simpleweather.ui.components.WeatherAlertPanel
+import com.thewizrd.simpleweather.ui.components.WeatherForecastPanel
+import com.thewizrd.simpleweather.ui.components.WeatherHourlyForecastPanel
+import com.thewizrd.simpleweather.ui.components.WeatherMinutelyForecastPanel
+import com.thewizrd.simpleweather.ui.paging.items
+import com.thewizrd.simpleweather.ui.theme.WearAppTheme
 
 class WeatherListFragment : SwipeDismissFragment() {
     companion object {
@@ -52,8 +63,6 @@ class WeatherListFragment : SwipeDismissFragment() {
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
     private var locationData: LocationData? = null
 
-    private lateinit var binding: FragmentWeatherListBinding
-
     private var weatherListType: WeatherListType? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +89,10 @@ class WeatherListFragment : SwipeDismissFragment() {
                 }
             }
         }
+
+        lifecycleScope.launchWhenResumed {
+            initialize()
+        }
     }
 
     override fun onCreateView(
@@ -89,37 +102,102 @@ class WeatherListFragment : SwipeDismissFragment() {
     ): View {
         // Use this to return your custom view for this Fragment
         val outerView = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
-        binding = FragmentWeatherListBinding.inflate(inflater, outerView)
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.requestFocus()
+        outerView.addView(
+            ComposeView(inflater.context).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    val listState = rememberScalingLazyListState(0)
+                    val forecasts = forecastsView.getForecasts().collectAsLazyPagingItems()
+                    val hourlyForecasts =
+                        forecastsView.getHourlyForecasts().collectAsLazyPagingItems()
+                    val minutelyForecasts =
+                        forecastsPanelView.getMinutelyForecasts().observeAsState()
+                    val alerts = alertsView.getAlerts().observeAsState()
+                    val scrollToPosition = remember {
+                        arguments?.getInt(Constants.KEY_POSITION, 0) ?: 0
+                    }
 
-        val verticalPadding = requireContext().dpToPx(48f).toInt()
-        binding.recyclerView.updatePadding(top = verticalPadding, bottom = verticalPadding)
-
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                binding.timeText.apply {
-                    translationY = -recyclerView.computeVerticalScrollOffset().toFloat()
+                    WearAppTheme {
+                        Scaffold(
+                            positionIndicator = {
+                                PositionIndicator(
+                                    scalingLazyListState = listState,
+                                    modifier = Modifier
+                                )
+                            },
+                            vignette = {
+                                Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                            },
+                            timeText = {
+                                TimeText(
+                                    modifier = Modifier.fadeAwayScalingLazyList {
+                                        listState
+                                    },
+                                    timeSource = TimeTextDefaults.timeSource(
+                                        if (DateFormat.is24HourFormat(LocalContext.current)) {
+                                            TimeTextDefaults.TimeFormat24Hours
+                                        } else {
+                                            DateTimeConstants.CLOCK_FORMAT_12HR
+                                        }
+                                    )
+                                )
+                            }
+                        ) {
+                            ScalingLazyColumn(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = listState,
+                                anchorType = ScalingLazyListAnchorType.ItemCenter,
+                                contentPadding = PaddingValues(vertical = 48.dp),
+                                autoCentering = if (scrollToPosition != 0) {
+                                    AutoCenteringParams(scrollToPosition)
+                                } else {
+                                    null
+                                }
+                            ) {
+                                when (weatherListType!!) {
+                                    WeatherListType.FORECAST -> {
+                                        items(forecasts) {
+                                            it?.let {
+                                                WeatherForecastPanel(model = it)
+                                            }
+                                        }
+                                    }
+                                    WeatherListType.HOURLYFORECAST -> {
+                                        items(hourlyForecasts) {
+                                            it?.let {
+                                                WeatherHourlyForecastPanel(model = it)
+                                            }
+                                        }
+                                    }
+                                    WeatherListType.ALERTS -> {
+                                        alerts.value?.let {
+                                            items(it) { alert ->
+                                                WeatherAlertPanel(alert)
+                                            }
+                                        }
+                                    }
+                                    WeatherListType.PRECIPITATION -> {
+                                        minutelyForecasts.value?.let { minFcasts ->
+                                            items(minFcasts) {
+                                                WeatherMinutelyForecastPanel(model = it)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        })
+        )
 
         return outerView
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.progressBar.visibility = View.VISIBLE
     }
 
     override fun onResume() {
         super.onResume()
         AnalyticsLogger.logEvent("WeatherList: onResume")
-        initialize()
     }
 
     override fun onPause() {
@@ -127,127 +205,14 @@ class WeatherListFragment : SwipeDismissFragment() {
         super.onPause()
     }
 
-    private fun initialize() {
-        runWithView {
-            binding.recyclerView.requestFocus()
-
-            if (locationData == null) {
-                locationData = settingsManager.getHomeData()
-            }
-            forecastsView.updateForecasts(locationData!!)
-            alertsView.updateAlerts(locationData!!)
-            forecastsPanelView.updateForecasts(locationData!!)
-
-            binding.recyclerView.isEdgeItemsCenteringEnabled =
-                weatherListType == WeatherListType.ALERTS
-
-            // specify an adapter (see also next example)
-            when (weatherListType) {
-                WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> {
-                    if (weatherListType == WeatherListType.FORECAST) {
-                        forecastsView.getForecasts()?.removeObservers(this@WeatherListFragment)
-                        forecastsView.getForecasts()
-                            ?.observe(this@WeatherListFragment, Observer { forecasts ->
-                                val detailsAdapter =
-                                    getForecastAdapter<ForecastItemViewModel>(binding.recyclerView)
-                                detailsAdapter.submitList(forecasts)
-                            })
-                    } else {
-                        forecastsView.getHourlyForecasts()
-                            ?.removeObservers(this@WeatherListFragment)
-                        forecastsView.getHourlyForecasts()
-                            ?.observe(this@WeatherListFragment, Observer { hrforecasts ->
-                                val detailsAdapter =
-                                    getForecastAdapter<HourlyForecastItemViewModel>(binding.recyclerView)
-                                detailsAdapter.submitList(hrforecasts)
-                            })
-                    }
-                }
-                WeatherListType.ALERTS -> {
-                    val alertAdapter = binding.recyclerView.adapter as? WeatherAlertPanelAdapter?
-                        ?: WeatherAlertPanelAdapter()
-                    if (binding.recyclerView.adapter !== alertAdapter) {
-                        binding.recyclerView.adapter = alertAdapter
-                    }
-
-                    alertAdapter.registerAdapterDataObserver(object :
-                        SimpleRecyclerViewAdapterObserver() {
-                        override fun onChanged() {
-                            alertAdapter.unregisterAdapterDataObserver(this)
-                            binding.progressBar.visibility = View.GONE
-                        }
-                    })
-
-                    alertsView.getAlerts()?.removeObservers(this@WeatherListFragment)
-                    alertsView.getAlerts()?.observe(this@WeatherListFragment, Observer { alerts ->
-                        alertAdapter.submitList(alerts)
-                    })
-                }
-                WeatherListType.PRECIPITATION -> {
-                    val minForecastAdapter = binding.recyclerView.adapter as? MinutelyItemAdapter?
-                        ?: MinutelyItemAdapter()
-                    if (binding.recyclerView.adapter !== minForecastAdapter) {
-                        binding.recyclerView.adapter = minForecastAdapter
-                    }
-
-                    minForecastAdapter.registerAdapterDataObserver(object :
-                        SimpleRecyclerViewAdapterObserver() {
-                        override fun onChanged() {
-                            minForecastAdapter.unregisterAdapterDataObserver(this)
-                            binding.progressBar.visibility = View.GONE
-                        }
-                    })
-
-                    forecastsPanelView.getMinutelyForecasts()
-                        ?.removeObservers(this@WeatherListFragment)
-                    forecastsPanelView.getMinutelyForecasts()
-                        ?.observe(this@WeatherListFragment, Observer {
-                            minForecastAdapter.submitList(it)
-                        })
-                }
-                else -> {
-                    binding.recyclerView.adapter = null
-                    binding.progressBar.visibility = View.GONE
-                }
-            }
-        }
-    }
-
-    private fun <T : BaseForecastItemViewModel> getForecastAdapter(
-        recyclerView: RecyclerView
-    ): ForecastItemAdapter<T> {
-        @Suppress("UNCHECKED_CAST")
-        val detailsAdapter: ForecastItemAdapter<T> =
-            recyclerView.adapter as? ForecastItemAdapter<T>?
-                ?: ForecastItemAdapter<T>()
-        if (recyclerView.adapter !== detailsAdapter) {
-            recyclerView.adapter = detailsAdapter
+    private suspend fun initialize() {
+        if (locationData == null) {
+            locationData = settingsManager.getHomeData()
         }
 
-        detailsAdapter.registerAdapterDataObserver(object : SimpleRecyclerViewAdapterObserver() {
-            val scrollToPosition = arguments?.getInt(Constants.KEY_POSITION, 0) ?: 0
-
-            override fun onChanged() {
-                if (detailsAdapter.currentList != null && detailsAdapter.itemCount > scrollToPosition) {
-                    detailsAdapter.unregisterAdapterDataObserver(this)
-                    detailsAdapter.currentList!!.loadAround(scrollToPosition)
-                    binding.recyclerView.viewTreeObserver.addOnGlobalLayoutListener(object :
-                        ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            binding.recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                            runWithView {
-                                val layoutMgr =
-                                    binding.recyclerView.layoutManager as? LinearLayoutManager
-                                layoutMgr?.scrollToPositionWithOffset(scrollToPosition, 0)
-                            }
-                        }
-                    })
-                    binding.progressBar.visibility = View.GONE
-                }
-            }
-        })
-
-        return detailsAdapter
+        forecastsView.updateForecasts(locationData!!)
+        alertsView.updateAlerts(locationData!!)
+        forecastsPanelView.updateForecasts(locationData!!)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

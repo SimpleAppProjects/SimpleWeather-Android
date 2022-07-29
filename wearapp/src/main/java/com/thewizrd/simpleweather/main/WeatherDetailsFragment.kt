@@ -6,30 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.databinding.Observable
 import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.*
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.horologist.compose.layout.fadeAwayScalingLazyList
 import com.thewizrd.common.BR
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
-import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.simpleweather.fragments.SwipeDismissFragment
-import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
+import com.thewizrd.simpleweather.ui.components.WeatherDetailItem
 import com.thewizrd.simpleweather.ui.theme.WearAppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -60,7 +54,6 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
             setContent {
                 val listState = rememberScalingLazyListState()
                 val detailsItems = detailsFlow.collectAsState()
-                val density = LocalDensity.current
 
                 WearAppTheme {
                     Scaffold(
@@ -95,39 +88,7 @@ class WeatherDetailsFragment : SwipeDismissFragment() {
                         ) {
                             detailsItems.value.forEach {
                                 item {
-                                    val drawable = ContextCompat.getDrawable(
-                                        LocalContext.current,
-                                        sharedDeps.weatherIconsManager.getWeatherIconResource(it.icon)
-                                    )
-
-                                    Chip(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        label = {
-                                            Text(
-                                                text = spannableStringToAnnotatedString(
-                                                    it.label,
-                                                    density
-                                                )
-                                            )
-                                        },
-                                        secondaryLabel = {
-                                            Text(
-                                                text = spannableStringToAnnotatedString(
-                                                    it.value,
-                                                    density
-                                                )
-                                            )
-                                        },
-                                        onClick = {},
-                                        colors = ChipDefaults.secondaryChipColors(),
-                                        icon = {
-                                            Icon(
-                                                painter = rememberDrawablePainter(drawable),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(24.dp)
-                                            )
-                                        }
-                                    )
+                                    WeatherDetailItem(model = it)
                                 }
                             }
                         }

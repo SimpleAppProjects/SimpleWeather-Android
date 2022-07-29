@@ -157,9 +157,11 @@ dependencies {
     // WearOS Compose
     implementation "androidx.activity:activity-compose:$appcompat_version"
     implementation "androidx.compose.compiler:compiler:$compose_compiler_version"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0'
+    implementation "androidx.paging:paging-compose:1.0.0-alpha15"
     implementation "androidx.wear.compose:compose-foundation:1.1.0-alpha01"
     implementation "androidx.wear.compose:compose-material:1.1.0-alpha01"
     implementation "androidx.wear.compose:compose-navigation:1.1.0-alpha01"
@@ -169,6 +171,9 @@ dependencies {
 
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0"
 
     // Firebase
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
