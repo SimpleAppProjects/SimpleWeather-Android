@@ -33,7 +33,7 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
 
     override suspend fun buildUpdate(weather: Weather): RemoteViews {
         val updateViews = RemoteViews(packageName, R.layout.tile_layout_weather)
-        val viewModel = WeatherNowViewModel(weather)
+        val viewModel = WeatherUiModel(weather)
         val mDarkIconCtx = applicationContext.getThemeContextOverride(false)
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(applicationContext))

@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
 import androidx.core.view.drawToBitmap
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
@@ -43,7 +43,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -57,7 +57,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
 
     private suspend fun buildLayout(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {

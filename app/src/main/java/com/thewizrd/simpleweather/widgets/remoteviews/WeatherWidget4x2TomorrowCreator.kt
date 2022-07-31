@@ -11,7 +11,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.DateTimeConstants
@@ -46,7 +46,7 @@ class WeatherWidget4x2TomorrowCreator(context: Context, loadBackground: Boolean 
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -55,7 +55,7 @@ class WeatherWidget4x2TomorrowCreator(context: Context, loadBackground: Boolean 
 
     private suspend fun buildLayout(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -320,7 +320,7 @@ class WeatherWidget4x2TomorrowCreator(context: Context, loadBackground: Boolean 
     private suspend fun buildPrecipitationForecast(
         updateViews: RemoteViews,
         location: LocationData,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         background: WidgetUtils.WidgetBackground,
         style: WidgetUtils.WidgetBackgroundStyle?,
         txtSizeMultiplier: Float,

@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.wearable
 
 import android.widget.RemoteViews
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.sharedDeps
@@ -21,7 +21,7 @@ class CurrentWeatherGoogleTileProviderService : WeatherTileProviderService() {
     override suspend fun buildUpdate(weather: Weather): RemoteViews {
         val wim = sharedDeps.weatherIconsManager
         val updateViews = RemoteViews(packageName, R.layout.tile_layout_currentweather_google)
-        val viewModel = WeatherNowViewModel(weather)
+        val viewModel = WeatherUiModel(weather)
         val mDarkIconCtx = getThemeContextOverride(false)
 
         updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(applicationContext))

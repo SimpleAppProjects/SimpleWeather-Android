@@ -1,10 +1,9 @@
 package com.thewizrd.common.controls
 
+import android.annotation.SuppressLint
 import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.core.util.ObjectsCompat
-import androidx.databinding.Bindable
-import com.thewizrd.common.BR
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
@@ -19,101 +18,76 @@ import com.thewizrd.weather_api.weatherModule
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
-class WeatherNowViewModel() : ObservableViewModel() {
-    @get:Bindable
+class WeatherUiModel() {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY, RestrictTo.Scope.TESTS)
     var location: String? = null
 
-    @get:Bindable
     var updateDate: String? = null
         private set
 
     // Current Condition
-    @get:Bindable
     var curTemp: String? = null
         private set
 
-    @get:Bindable
     var curCondition: String? = null
         private set
 
-    @get:Bindable
     var weatherIcon: String = WeatherIcons.NA
         private set
 
-    @get:Bindable
     var hiTemp: String? = null
         private set
 
-    @get:Bindable
     var loTemp: String? = null
         private set
 
-    @get:Bindable
     var isShowHiLo = false
         private set
 
-    @get:Bindable
     var weatherSummary: String? = null
         private set
 
     // Weather Details
-    @get:Bindable
     var sunPhase: SunPhaseViewModel? = null
         private set
 
-    @get:Bindable
     var uvIndex: UVIndexViewModel? = null
         private set
 
-    @get:Bindable
     var beaufort: BeaufortViewModel? = null
         private set
 
-    @get:Bindable
     var moonPhase: MoonPhaseViewModel? = null
         private set
 
-    @get:Bindable
     var airQuality: AirQualityViewModel? = null
         private set
 
-    @get:Bindable
     var pollen: PollenViewModel? = null
         private set
 
     // Radar
-    @get:Bindable
     val locationCoord: Coordinate
 
-    @get:Bindable
     var weatherCredit: String? = null
         private set
 
-    @get:Bindable
     var weatherSource: String? = null
         private set
 
-    @get:Bindable
     var weatherLocale: String? = null
         private set
 
-    @get:Bindable
     val weatherDetailsMap: MutableMap<WeatherDetailsType, DetailItemViewModel>
 
     val query: String?
-        get() = if (weatherData != null) {
-            weatherData!!.query
-        } else {
-            null
-        }
+        get() = weatherData?.query
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     var weatherData: Weather? = null
         private set
 
     @get:TemperatureUnits
-    @get:Bindable
     var tempUnit: String? = null
         private set
 
@@ -135,6 +109,7 @@ class WeatherNowViewModel() : ObservableViewModel() {
         updateView(weather)
     }
 
+    @SuppressLint("RestrictedApi")
     fun updateView(weather: Weather?) {
         if (weather != null && weather.isValid) {
             if (weatherData != weather) {
@@ -143,13 +118,11 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 // Location
                 if (location != weather.location.name) {
                     location = weather.location.name
-                    notifyPropertyChanged(BR.location)
                 }
 
                 // Summary
                 if (weatherSummary != weather.condition.summary) {
                     weatherSummary = weather.condition.summary
-                    notifyPropertyChanged(BR.weatherSummary)
                 }
 
                 // Additional Details
@@ -161,17 +134,14 @@ class WeatherNowViewModel() : ObservableViewModel() {
                 } else {
                     locationCoord.setCoordinate(0.0, 0.0)
                 }
-                notifyPropertyChanged(BR.locationCoord)
 
                 // Additional Details
                 if (weatherSource != weather.source) {
                     weatherSource = weather.source
-                    notifyPropertyChanged(BR.weatherSource)
                 }
 
                 // Language
                 weatherLocale = weather.locale
-                notifyPropertyChanged(BR.weatherLocale)
 
                 // Refresh locale/unit dependent values
                 refreshView(false)
@@ -195,7 +165,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
         tempUnit = settingsManager.getTemperatureUnit()
         unitCode = settingsManager.getUnitString()
-        notifyPropertyChanged(BR.tempUnit)
 
         localeCode = LocaleUtils.getLocaleCode()
         iconProvider = settingsManager.getIconsProvider()
@@ -203,7 +172,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
         // Date Updated
         if (updateDate != getLastBuildDate(weatherData!!)) {
             updateDate = getLastBuildDate(weatherData!!)
-            notifyPropertyChanged(BR.updateDate)
         }
 
         // Update current condition
@@ -217,18 +185,15 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
         if (curTemp != newCurTemp) {
             curTemp = newCurTemp
-            notifyPropertyChanged(BR.curTemp)
         }
 
         val weatherCondition = if (provider.supportsWeatherLocale()) weatherData!!.condition.weather else provider.getWeatherCondition(weatherData!!.condition.icon)
         val newCondition = if (weatherCondition.isNullOrBlank()) WeatherIcons.EM_DASH else weatherCondition
         if (curCondition != newCondition) {
             curCondition = newCondition
-            notifyPropertyChanged(BR.curCondition)
         }
         if (iconChanged || weatherIcon != weatherData!!.condition.icon) {
             weatherIcon = weatherData!!.condition.icon
-            notifyPropertyChanged(BR.weatherIcon)
         }
 
         run {
@@ -246,7 +211,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
             if (hiTemp != newHiTemp) {
                 hiTemp = newHiTemp
-                notifyPropertyChanged(BR.hiTemp)
             }
 
             val newLoTemp: String
@@ -260,11 +224,9 @@ class WeatherNowViewModel() : ObservableViewModel() {
 
             if (loTemp != newLoTemp) {
                 loTemp = newLoTemp
-                notifyPropertyChanged(BR.loTemp)
             }
 
             this.isShowHiLo = (!shouldHideHi || !shouldHideLo) && hiTemp != loTemp
-            notifyPropertyChanged(BR.showHiLo)
         }
 
         // WeatherDetails
@@ -448,7 +410,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
         } else {
             uvIndex = null
         }
-        notifyPropertyChanged(BR.uvIndex)
 
         // Additional Details
         if (weatherData?.condition?.airQuality?.index != null) {
@@ -461,7 +422,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
         } else {
             airQuality = null
         }
-        notifyPropertyChanged(BR.airQuality)
 
         if (weatherData?.condition?.feelslikeF != null &&
             weatherData!!.condition.feelslikeF != weatherData!!.condition.feelslikeC) {
@@ -567,7 +527,6 @@ class WeatherNowViewModel() : ObservableViewModel() {
         } else {
             beaufort = null
         }
-        notifyPropertyChanged(BR.beaufort)
 
         if (weatherData!!.condition?.pollen != null) {
             val pollenVM = PollenViewModel(weatherData!!.condition.pollen)
@@ -593,11 +552,10 @@ class WeatherNowViewModel() : ObservableViewModel() {
         } else {
             pollen = null
         }
-        notifyPropertyChanged(BR.pollen)
 
         // Astronomy
         if (weatherData?.astronomy != null) {
-            sunPhase = SunPhaseViewModel(weatherData!!.astronomy)
+            sunPhase = SunPhaseViewModel(weatherData!!.astronomy, weatherData!!.location.tzOffset)
 
             weatherDetailsMap[WeatherDetailsType.SUNRISE] =
                 DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise)
@@ -662,38 +620,19 @@ class WeatherNowViewModel() : ObservableViewModel() {
             sunPhase = null
             moonPhase = null
         }
-        notifyPropertyChanged(BR.sunPhase)
-        notifyPropertyChanged(BR.moonPhase)
-        notifyPropertyChanged(BR.weatherDetailsMap)
 
         val entry = WeatherAPI.APIs.find { wapi -> weatherSource == wapi.value }
-        weatherCredit = String.format("%s %s",
-                context.getString(R.string.credit_prefix),
-                entry?.toString() ?: WeatherIcons.EM_DASH)
-        notifyPropertyChanged(BR.weatherCredit)
-    }
-
-    fun reset() {
-        location = null
-        updateDate = null
-        curTemp = null
-        curCondition = null
-        weatherIcon = WeatherIcons.NA
-        sunPhase = null
-        weatherDetailsMap.clear()
-        weatherCredit = null
-        weatherSource = null
-        weatherLocale = null
-
-        weatherData = null
-        notifyChange()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        reset()
+        weatherCredit = String.format(
+            "%s %s",
+            context.getString(R.string.credit_prefix),
+            entry?.toString() ?: WeatherIcons.EM_DASH
+        )
     }
 
     val isValid: Boolean
         get() = weatherData?.isValid == true
+}
+
+fun Weather.toUiModel(): WeatherUiModel {
+    return WeatherUiModel(this)
 }

@@ -16,3 +16,11 @@ fun buildEmptyGPSLocation(): LocationData {
     return LocationQuery.buildEmptyModel(weatherSource)
         .toLocationData(Location(LocationManager.PASSIVE_PROVIDER))
 }
+
+fun LocationData.toLocation(): Location {
+    return Location(LocationManager.PASSIVE_PROVIDER).let {
+        it.latitude = this.latitude
+        it.longitude = this.longitude
+        it
+    }
+}

@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +19,8 @@ import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.common.controls.*
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
-import com.thewizrd.common.weatherdata.WeatherDataLoader
-import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
@@ -34,13 +33,13 @@ import com.thewizrd.simpleweather.adapters.WeatherDetailsAdapter
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
-import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.weather_api.weatherModule
-import kotlinx.coroutines.*
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class WeatherListFragment : ToolbarFragment() {
-    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private val forecastsView: ForecastsListViewModel by viewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
     private var locationData: LocationData? = null
@@ -53,8 +52,6 @@ class WeatherListFragment : ToolbarFragment() {
         private set
 
     private var args: WeatherListFragmentArgs? = null
-
-    private val wm = weatherModule.weatherManager
 
     private var dataJob: Job? = null
 
@@ -116,10 +113,6 @@ class WeatherListFragment : ToolbarFragment() {
                 locationData = JSONParser.deserializer(args?.data, LocationData::class.java)
             }
         }
-
-        lifecycleScope.launchWhenResumed {
-            initialize()
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -129,7 +122,10 @@ class WeatherListFragment : ToolbarFragment() {
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true)
         headerBinding = LayoutLocationHeaderBinding.inflate(inflater, appBarLayout, true)
+
         binding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.viewModel = wNowViewModel
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
@@ -154,6 +150,12 @@ class WeatherListFragment : ToolbarFragment() {
         args = WeatherListFragmentArgs.fromBundle(requireArguments())
 
         binding.progressBar.visibility = View.VISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                initialize()
+            }
+        }
     }
 
     override fun onResume() {
@@ -176,78 +178,12 @@ class WeatherListFragment : ToolbarFragment() {
 
     private suspend fun initialize() {
         if (locationData == null) {
-            locationData = settingsManager.getHomeData()
+            locationData = wNowViewModel.uiState.value.locationData
         }
 
-        if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
-            locationData?.let { locData ->
-                runWithView(Dispatchers.Default) {
-                    supervisorScope {
-                        val weather = WeatherDataLoader(locData).loadWeatherData(
-                            WeatherRequest.Builder()
-                                .forceLoadSavedData()
-                                .setErrorListener { wEx ->
-                                    when (wEx.errorStatus) {
-                                        ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                                            // Show error message and prompt to refresh
-                                            showSnackbar(
-                                                Snackbar.make(
-                                                    binding.root.context,
-                                                    wEx.message,
-                                                    Snackbar.Duration.LONG
-                                                )
-                                            )
-                                        }
-                                        ErrorStatus.QUERYNOTFOUND -> {
-                                            if (!wm.isRegionSupported(locData.countryCode)) {
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        R.string.error_message_weather_region_unsupported,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                                return@setErrorListener
-                                            }
-                                            // Show error message
-                                            showSnackbar(
-                                                Snackbar.make(
-                                                    binding.root.context,
-                                                    wEx.message,
-                                                    Snackbar.Duration.LONG
-                                                )
-                                            )
-                                        }
-                                        else -> {
-                                            showSnackbar(
-                                                Snackbar.make(
-                                                    binding.root.context,
-                                                    wEx.message,
-                                                    Snackbar.Duration.LONG
-                                                )
-                                            )
-                                        }
-                                    }
-                                }.build()
-                        )
-
-                        ensureActive()
-
-                        launch(Dispatchers.Main) {
-                            weatherView.updateView(weather)
-                            forecastsView.updateForecasts(locData)
-                            alertsView.updateAlerts(locData)
-                            headerBinding.locationName.text = weatherView.location
-                        }
-                    }
-                }
-            }
-        } else {
-            locationData?.let {
-                forecastsView.updateForecasts(it)
-                alertsView.updateAlerts(it)
-            }
-            headerBinding.locationName.text = weatherView.location
+        locationData?.let {
+            forecastsView.updateForecasts(it)
+            alertsView.updateAlerts(it)
         }
 
         dataJob?.cancel()
@@ -288,8 +224,8 @@ class WeatherListFragment : ToolbarFragment() {
                     }
                 })
 
-                alertsView.getAlerts().removeObservers(this@WeatherListFragment)
-                alertsView.getAlerts().observe(this@WeatherListFragment) { alerts ->
+                alertsView.getAlerts().removeObservers(viewLifecycleOwner)
+                alertsView.getAlerts().observe(viewLifecycleOwner) { alerts ->
                     alertAdapter.submitList(alerts)
                 }
             }

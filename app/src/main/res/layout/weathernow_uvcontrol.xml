@@ -10,15 +10,15 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.isUVEnabled || weatherView.uvIndex == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.isUVEnabled || viewModel.weather.uvIndex == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/uv_label"
@@ -48,7 +48,7 @@
             app:layout_constraintTop_toBottomOf="@id/uv_label"
             app:layout_constraintBottom_toTopOf="@id/uv_progressBar"
             app:tint="@color/sun_color"
-            app:weatherIcon="@{weatherView.uvIndex.icon}"
+            app:weatherIcon="@{viewModel.weather.uvIndex.icon}"
             tools:src="@drawable/wi_day_sunny" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -57,7 +57,7 @@
             android:layout_height="0dp"
             android:gravity="center_vertical"
             android:padding="6dp"
-            android:text="@{weatherView.uvIndex != null ? weatherView.uvIndex.index + `, ` + weatherView.uvIndex.description : null}"
+            android:text="@{viewModel.weather.uvIndex != null ? viewModel.weather.uvIndex.index + `, ` + viewModel.weather.uvIndex.description : null}"
             android:textAppearance="?textAppearanceBodyLarge"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintBottom_toTopOf="@id/uv_progressBar"
@@ -75,14 +75,14 @@
             android:layout_marginEnd="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="12dp"
-            android:max="@{weatherView.uvIndex.progressMax}"
+            android:max="@{viewModel.weather.uvIndex.progressMax}"
             android:maxHeight="4dp"
             android:minHeight="4dp"
-            android:progress="@{weatherView.uvIndex.progress}"
+            android:progress="@{viewModel.weather.uvIndex.progress}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/uv_icon"
-            app:progressColor="@{weatherView.uvIndex.progressColor}"
+            app:progressColor="@{viewModel.weather.uvIndex.progressColor}"
             app:trackCornerRadius="@dimen/shape_corner_radius"
             tools:max="11"
             tools:progress="7"

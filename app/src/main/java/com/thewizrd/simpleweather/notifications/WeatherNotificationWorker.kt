@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.work.*
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
@@ -123,7 +123,7 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
                     val mNotification = WeatherNotificationBuilder.updateNotification(
                         context,
                         NOT_CHANNEL_ID,
-                        WeatherNowViewModel(weather)
+                        WeatherUiModel(weather)
                     )
                     mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification)
                 } else if (!settingsManager.showOngoingNotification()) {

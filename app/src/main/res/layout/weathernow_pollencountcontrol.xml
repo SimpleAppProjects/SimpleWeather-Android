@@ -12,15 +12,15 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.pollenEnabled || weatherView.pollen == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.pollenEnabled || viewModel.weather.pollen == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/pollen_label"
@@ -60,7 +60,7 @@
             android:paddingEnd="12dp"
             android:paddingBottom="12dp"
             android:singleLine="true"
-            android:text="@{weatherView.pollen != null ? weatherView.pollen.treePollenDesc : null}"
+            android:text="@{viewModel.weather.pollen != null ? viewModel.weather.pollen.treePollenDesc : null}"
             android:textAppearance="?textAppearanceBodyMedium"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@id/treepollen_label"
@@ -96,7 +96,7 @@
             android:paddingEnd="12dp"
             android:paddingBottom="12dp"
             android:singleLine="true"
-            android:text="@{weatherView.pollen != null ? weatherView.pollen.grassPollenDesc : null}"
+            android:text="@{viewModel.weather.pollen != null ? viewModel.weather.pollen.grassPollenDesc : null}"
             android:textAppearance="?textAppearanceBodyMedium"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@id/grasspollen_label"
@@ -132,7 +132,7 @@
             android:paddingEnd="12dp"
             android:paddingBottom="12dp"
             android:singleLine="true"
-            android:text="@{weatherView.pollen != null ? weatherView.pollen.ragweedPollenDesc : null}"
+            android:text="@{viewModel.weather.pollen != null ? viewModel.weather.pollen.ragweedPollenDesc : null}"
             android:textAppearance="?textAppearanceBodyMedium"
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@id/ragweedpollenn_label"

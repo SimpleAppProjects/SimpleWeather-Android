@@ -8,7 +8,7 @@ import android.text.SpannableString
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
@@ -59,7 +59,7 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
             l?.let { loc ->
                 val w = loadWeather(loc)
                 w?.let { data ->
-                    WeatherNowViewModel(data)
+                    WeatherUiModel(data)
                 }
             }
         }
@@ -69,14 +69,14 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
 
     suspend fun buildUpdate(
         appWidgetId: Int, locations: List<LocationData?>,
-        weatherData: List<WeatherNowViewModel?>, newOptions: Bundle
+        weatherData: List<WeatherUiModel?>, newOptions: Bundle
     ): RemoteViews {
         return buildLayout(appWidgetId, locations, weatherData, newOptions)
     }
 
     private suspend fun buildLayout(
         appWidgetId: Int, locations: List<LocationData?>,
-        weatherData: List<WeatherNowViewModel?>, newOptions: Bundle
+        weatherData: List<WeatherUiModel?>, newOptions: Bundle
     ): RemoteViews {
         // Build an update that holds the updated widget contents
         val updateViews = generateRemoteViews()

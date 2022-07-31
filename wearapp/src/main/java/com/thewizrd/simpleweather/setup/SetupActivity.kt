@@ -277,7 +277,7 @@ class SetupActivity : UserLocaleActivity() {
                         ensureActive()
 
                         // Save weather data
-                        settingsManager.saveHomeData(location)
+                        settingsManager.updateLocation(location)
                         if (wm.supportsAlerts() && weather.weatherAlerts != null)
                             settingsManager.saveWeatherAlerts(location, weather.weatherAlerts)
                         settingsManager.saveWeatherData(weather)

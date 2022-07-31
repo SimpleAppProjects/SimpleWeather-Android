@@ -144,7 +144,7 @@ object DataSyncManager {
 
                     if (updateTimeMillis != getLocationDataUpdateTime(appContext) ||
                             locationData != settingsMgr.getHomeData()) {
-                        settingsMgr.saveHomeData(locationData)
+                        settingsMgr.updateLocation(locationData)
                     }
 
                     setLocationDataUpdateTime(appContext, updateTimeMillis)

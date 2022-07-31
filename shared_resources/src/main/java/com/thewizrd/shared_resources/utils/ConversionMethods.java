@@ -2,6 +2,8 @@ package com.thewizrd.shared_resources.utils;
 
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -137,7 +139,7 @@ public class ConversionMethods {
      * @param position2 The second location
      * @return The distance between the two locations in meters
      */
-    public static double calculateGeopositionDistance(Location position1, Location position2) {
+    public static double calculateGeopositionDistance(@NonNull Location position1, @NonNull Location position2) {
         double lat1 = position1.getLatitude();
         double lon1 = position1.getLongitude();
         double lat2 = position2.getLatitude();

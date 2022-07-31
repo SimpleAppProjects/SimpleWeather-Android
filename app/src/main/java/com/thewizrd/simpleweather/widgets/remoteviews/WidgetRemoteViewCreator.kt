@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
@@ -20,7 +20,7 @@ abstract class WidgetRemoteViewCreator(context: Context) :
     override suspend fun buildUpdate(appWidgetId: Int, newOptions: Bundle): RemoteViews? {
         val locData = getLocation(appWidgetId) ?: return null
         val weather = loadWeather(locData) ?: return null
-        val viewModel = WeatherNowViewModel(weather)
+        val viewModel = WeatherUiModel(weather)
 
         return buildUpdate(appWidgetId, viewModel, locData, newOptions).apply {
             buildExtras(appWidgetId, this, viewModel, locData, newOptions)
@@ -29,14 +29,14 @@ abstract class WidgetRemoteViewCreator(context: Context) :
 
     abstract suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel, location: LocationData,
+        weather: WeatherUiModel, location: LocationData,
         newOptions: Bundle
     ): RemoteViews
 
     open suspend fun buildExtras(
         appWidgetId: Int,
         updateViews: RemoteViews,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ) {

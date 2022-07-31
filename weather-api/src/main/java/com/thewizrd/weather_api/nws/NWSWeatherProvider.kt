@@ -11,7 +11,10 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocationUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -189,8 +192,8 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
             val periodNameList = fcastRoot.getAsJsonObject("PeriodNameList")
             val sortedKeys: SortedSet<String> = TreeSet(Comparator { o1, o2 ->
-                val x = NumberUtils.tryParseInt(o1)
-                val y = NumberUtils.tryParseInt(o2)
+                val x = o1.toIntOrNull()
+                val y = o2.toIntOrNull()
                 if (x != null && y != null) {
                     Integer.compare(x, y)
                 } else {

@@ -11,15 +11,15 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{FeatureSettings.radarEnabled &amp;&amp; weatherView.locationCoord.isValid ? View.VISIBLE : View.GONE}">
+        android:visibility="@{FeatureSettings.radarEnabled &amp;&amp; viewModel.weather.locationCoord.isValid ? View.VISIBLE : View.GONE}">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/radar_label"

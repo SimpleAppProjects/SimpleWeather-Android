@@ -3,8 +3,11 @@ package com.thewizrd.weather_api.here.weather
 import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.StringUtils.toPascalCase
+import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy
@@ -73,16 +76,15 @@ fun createLocationData(location: LocationItem): Location {
 
 fun createForecast(forecast: ForecastItem): Forecast {
     return Forecast().apply {
-        date = ZonedDateTime.parse(forecast.utcTime).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
-        val high_f = NumberUtils.tryParseFloat(forecast.highTemperature)
-        if (high_f != null) {
-            highF = high_f
-            highC = ConversionMethods.FtoC(high_f)
+        date = ZonedDateTime.parse(forecast.utcTime).withZoneSameInstant(ZoneOffset.UTC)
+            .toLocalDateTime()
+        forecast.highTemperature?.toFloatOrNull()?.let {
+            highF = it
+            highC = ConversionMethods.FtoC(it)
         }
-        val low_f = NumberUtils.tryParseFloat(forecast.lowTemperature)
-        if (low_f != null) {
-            lowF = low_f
-            lowC = ConversionMethods.FtoC(low_f)
+        forecast.lowTemperature?.toFloatOrNull()?.let {
+            lowF = it
+            lowC = ConversionMethods.FtoC(it)
         }
         condition = StringBuilder(forecast.description.toPascalCase()).apply {
             if (forecast.airDescription.isNotBlank() && !forecast.airDescription.equals("*")) {
@@ -100,52 +102,34 @@ fun createForecast(forecast: ForecastItem): Forecast {
 
         // Extras
         extras = ForecastExtras()
-        val comfortTempF = NumberUtils.tryParseFloat(forecast.comfort)
-        if (comfortTempF != null) {
-            extras.feelslikeF = comfortTempF
-            extras.feelslikeC = ConversionMethods.FtoC(comfortTempF)
+        forecast.comfort?.toFloatOrNull()?.let {
+            extras.feelslikeF = it
+            extras.feelslikeC = ConversionMethods.FtoC(it)
         }
-        val humidity = NumberUtils.tryParseInt(forecast.humidity)
-        if (humidity != null) {
-            extras.humidity = humidity
+        extras.humidity = forecast.humidity?.toIntOrNull()
+        forecast.dewPoint?.toFloatOrNull()?.let {
+            extras.dewpointF = it
+            extras.dewpointC = ConversionMethods.FtoC(it)
         }
-        val dewpointF = NumberUtils.tryParseFloat(forecast.dewPoint)
-        if (dewpointF != null) {
-            extras.dewpointF = dewpointF
-            extras.dewpointC = ConversionMethods.FtoC(dewpointF)
+        extras.pop = forecast.precipitationProbability?.toIntOrNull()
+        forecast.rainFall?.toFloatOrNull()?.let {
+            extras.qpfRainIn = it
+            extras.qpfRainMm = ConversionMethods.inToMM(it)
         }
-        val pop = NumberUtils.tryParseInt(forecast.precipitationProbability)
-        if (pop != null) {
-            extras.pop = pop
+        forecast.snowFall?.toFloatOrNull()?.let {
+            extras.qpfSnowIn = it
+            extras.qpfSnowCm = ConversionMethods.inToMM(it) / 10
         }
-        val rain_in = NumberUtils.tryParseFloat(forecast.rainFall)
-        if (rain_in != null) {
-            extras.qpfRainIn = rain_in
-            extras.qpfRainMm = ConversionMethods.inToMM(rain_in)
+        forecast.barometerPressure?.toFloatOrNull()?.let {
+            extras.pressureIn = it
+            extras.pressureMb = ConversionMethods.inHgToMB(it)
         }
-        val snow_in = NumberUtils.tryParseFloat(forecast.snowFall)
-        if (snow_in != null) {
-            extras.qpfSnowIn = snow_in
-            extras.qpfSnowCm = ConversionMethods.inToMM(snow_in) / 10
+        extras.windDegrees = forecast.windDirection?.toIntOrNull()
+        forecast.windSpeed?.toFloatOrNull()?.let {
+            extras.windMph = it
+            extras.windKph = ConversionMethods.mphTokph(it)
         }
-        val pressureIN = NumberUtils.tryParseFloat(forecast.barometerPressure)
-        if (pressureIN != null) {
-            extras.pressureIn = pressureIN
-            extras.pressureMb = ConversionMethods.inHgToMB(pressureIN)
-        }
-        val windDegrees = NumberUtils.tryParseInt(forecast.windDirection)
-        if (windDegrees != null) {
-            extras.windDegrees = windDegrees
-        }
-        val windSpeed = NumberUtils.tryParseFloat(forecast.windSpeed)
-        if (windSpeed != null) {
-            extras.windMph = windSpeed
-            extras.windKph = ConversionMethods.mphTokph(windSpeed)
-        }
-        val uv_index = NumberUtils.tryParseFloat(forecast.uvIndex)
-        if (uv_index != null) {
-            extras.uvIndex = uv_index
-        }
+        extras.uvIndex = forecast.uvIndex?.toFloatOrNull()
     }
 }
 
@@ -179,10 +163,9 @@ fun createTextForecast(forecast: ForecastItem): TextForecast {
 fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
     return HourlyForecast().apply {
         date = ZonedDateTime.parse(hr_forecast.utcTime)
-        val high_f = NumberUtils.tryParseFloat(hr_forecast.temperature)
-        if (high_f != null) {
-            highF = high_f
-            highC = ConversionMethods.FtoC(high_f)
+        hr_forecast.temperature?.toFloatOrNull()?.let {
+            highF = it
+            highC = ConversionMethods.FtoC(it)
         }
         condition = StringBuilder(hr_forecast.description.toPascalCase()).apply {
             if (hr_forecast.airDescription.isNotBlank() && !hr_forecast.airDescription.equals("*")) {
@@ -199,52 +182,41 @@ fun createHourlyForecast(hr_forecast: ForecastItem1): HourlyForecast {
                 hr_forecast.iconName
             )
 
-        val windDeg = NumberUtils.tryParseInt(hr_forecast.windDirection)
-        if (windDeg != null) {
-            windDegrees = windDeg
-        }
-        val windSpeed = NumberUtils.tryParseFloat(hr_forecast.windSpeed)
-        if (windSpeed != null) {
-            windMph = windSpeed
-            windKph = ConversionMethods.mphTokph(windSpeed)
+        windDegrees = hr_forecast.windDirection?.toIntOrNull()
+        hr_forecast.windSpeed?.toFloatOrNull()?.let {
+            windMph = it
+            windKph = ConversionMethods.mphTokph(it)
         }
 
         // Extras
         extras = ForecastExtras()
-        val comfortTempF = NumberUtils.tryParseFloat(hr_forecast.comfort)
-        if (comfortTempF != null) {
-            extras.feelslikeF = comfortTempF
-            extras.feelslikeC = ConversionMethods.FtoC(comfortTempF)
+        hr_forecast.comfort?.toFloatOrNull()?.let {
+            extras.feelslikeF = it
+            extras.feelslikeC = ConversionMethods.FtoC(it)
         }
-        val humidity = NumberUtils.tryParseInt(hr_forecast.humidity)
-        if (humidity != null) {
-            extras.humidity = humidity
+        hr_forecast.humidity?.toIntOrNull()?.let {
+            extras.humidity = it
         }
-        val dewpointF = NumberUtils.tryParseFloat(hr_forecast.dewPoint)
-        if (dewpointF != null) {
-            extras.dewpointF = dewpointF
-            extras.dewpointC = ConversionMethods.FtoC(dewpointF)
+        hr_forecast.dewPoint?.toFloatOrNull()?.let {
+            extras.dewpointF = it
+            extras.dewpointC = ConversionMethods.FtoC(it)
         }
-        val visibilityMI = NumberUtils.tryParseFloat(hr_forecast.visibility)
-        if (visibilityMI != null) {
-            extras.visibilityMi = visibilityMI
-            extras.visibilityKm = ConversionMethods.miToKm(visibilityMI)
+        hr_forecast.visibility?.toFloatOrNull()?.let {
+            extras.visibilityMi = it
+            extras.visibilityKm = ConversionMethods.miToKm(it)
         }
-        extras.pop = NumberUtils.tryParseInt(hr_forecast.precipitationProbability)
-        val rain_in = NumberUtils.tryParseFloat(hr_forecast.rainFall)
-        if (rain_in != null) {
-            extras.qpfRainIn = rain_in
-            extras.qpfRainMm = ConversionMethods.inToMM(rain_in)
+        extras.pop = hr_forecast.precipitationProbability?.toIntOrNull()
+        hr_forecast.rainFall?.toFloatOrNull()?.let {
+            extras.qpfRainIn = it
+            extras.qpfRainMm = ConversionMethods.inToMM(it)
         }
-        val snow_in = NumberUtils.tryParseFloat(hr_forecast.snowFall)
-        if (snow_in != null) {
-            extras.qpfSnowIn = snow_in
-            extras.qpfSnowCm = ConversionMethods.inToMM(snow_in) / 10
+        hr_forecast.snowFall?.toFloatOrNull()?.let {
+            extras.qpfSnowIn = it
+            extras.qpfSnowCm = ConversionMethods.inToMM(it) / 10
         }
-        val pressureIN = NumberUtils.tryParseFloat(hr_forecast.barometerPressure)
-        if (pressureIN != null) {
-            extras.pressureIn = pressureIN
-            extras.pressureMb = ConversionMethods.inHgToMB(pressureIN)
+        hr_forecast.barometerPressure?.toFloatOrNull()?.let {
+            extras.pressureIn = it
+            extras.pressureMb = ConversionMethods.inHgToMB(it)
         }
         extras.windDegrees = windDegrees
         extras.windMph = windMph
@@ -259,14 +231,13 @@ fun createCondition(
 ): Condition {
     return Condition().apply {
         weather = observation.description.toPascalCase()
-        val temp_F = NumberUtils.tryParseFloat(observation.temperature)
-        if (temp_F != null) {
-            tempF = temp_F
-            tempC = ConversionMethods.FtoC(temp_F)
+        observation.temperature?.toFloatOrNull()?.let {
+            tempF = it
+            tempC = ConversionMethods.FtoC(it)
         }
 
-        val highTempF = NumberUtils.tryParseFloat(observation.highTemperature)
-        val lowTempF = NumberUtils.tryParseFloat(observation.lowTemperature)
+        val highTempF = observation.highTemperature?.toFloatOrNull()
+        val lowTempF = observation.lowTemperature?.toFloatOrNull()
         if (highTempF != null && lowTempF != null) {
             highF = highTempF
             highC = ConversionMethods.FtoC(highTempF)
@@ -279,22 +250,17 @@ fun createCondition(
             lowC = todaysForecast?.lowC
         }
 
-        val windDeg = NumberUtils.tryParseInt(observation.windDirection)
-        if (windDeg != null) {
-            windDegrees = observation.windDirection.toInt()
+        windDegrees = observation.windDirection?.toIntOrNull()
+
+        observation.windSpeed?.toFloatOrNull()?.let {
+            windMph = it
+            windKph = ConversionMethods.mphTokph(it)
+            beaufort = Beaufort(getBeaufortScale(it.roundToInt()))
         }
 
-        val windSpeed = NumberUtils.tryParseFloat(observation.windSpeed)
-        if (windSpeed != null) {
-            windMph = windSpeed
-            windKph = ConversionMethods.mphTokph(windSpeed)
-            beaufort = Beaufort(getBeaufortScale(windSpeed.roundToInt()))
-        }
-
-        val comfortTempF = NumberUtils.tryParseFloat(observation.comfort)
-        if (comfortTempF != null) {
-            feelslikeF = comfortTempF
-            feelslikeC = ConversionMethods.FtoC(comfortTempF)
+        observation.comfort?.toFloatOrNull()?.let {
+            feelslikeF = it
+            feelslikeC = ConversionMethods.FtoC(it)
         }
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.HERE)
@@ -332,28 +298,22 @@ fun createCondition(
 
 fun createAtmosphere(observation: ObservationItem): Atmosphere {
     return Atmosphere().apply {
-        val Humidity = NumberUtils.tryParseInt(observation.humidity)
-        if (Humidity != null) {
-            humidity = Humidity
-        }
+        humidity = observation.humidity?.toIntOrNull()
 
-        val pressureIN = NumberUtils.tryParseFloat(observation.barometerPressure)
-        if (pressureIN != null) {
-            pressureIn = pressureIN
-            pressureMb = ConversionMethods.inHgToMB(pressureIN)
+        observation.barometerPressure?.toFloatOrNull()?.let {
+            pressureIn = it
+            pressureMb = ConversionMethods.inHgToMB(it)
         }
         pressureTrend = observation.barometerTrend
 
-        val visibilityMI = NumberUtils.tryParseFloat(observation.visibility)
-        if (visibilityMI != null) {
-            visibilityMi = visibilityMI
-            visibilityKm = ConversionMethods.miToKm(visibilityMI)
+        observation.visibility?.toFloatOrNull()?.let {
+            visibilityMi = it
+            visibilityKm = ConversionMethods.miToKm(it)
         }
 
-        val dewpoint_f = NumberUtils.tryParseFloat(observation.dewPoint)
-        if (dewpoint_f != null) {
-            dewpointF = dewpoint_f
-            dewpointC = ConversionMethods.FtoC(dewpoint_f)
+        observation.dewPoint?.toFloatOrNull()?.let {
+            dewpointF = it
+            dewpointC = ConversionMethods.FtoC(it)
         }
     }
 }

@@ -10,17 +10,27 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class SunPhaseViewModel {
+    @NonNull
     private final LocalDateTime sunriseTime;
+    @NonNull
     private final LocalDateTime sunsetTime;
 
+    @NonNull
     private final String sunrise;
+    @NonNull
     private final String sunset;
+    @NonNull
     private final DateTimeFormatter formatter;
 
-    public SunPhaseViewModel(@NonNull Astronomy astronomy) {
+    @NonNull
+    private final ZoneOffset tzOffset;
+
+    public SunPhaseViewModel(@NonNull Astronomy astronomy, @NonNull ZoneOffset offset) {
         sunriseTime = astronomy.getSunrise();
         sunsetTime = astronomy.getSunset();
 
@@ -31,43 +41,50 @@ public class SunPhaseViewModel {
         }
         sunrise = sunriseTime.format(formatter);
         sunset = sunsetTime.format(formatter);
+
+        tzOffset = offset;
     }
 
+    @NonNull
     public LocalDateTime getSunriseTime() {
         return sunriseTime;
     }
 
+    @NonNull
     public LocalDateTime getSunsetTime() {
         return sunsetTime;
     }
 
+    @NonNull
     public String getSunrise() {
         return sunrise;
     }
 
+    @NonNull
     public String getSunset() {
         return sunset;
     }
 
+    @NonNull
     public DateTimeFormatter getFormatter() {
         return formatter;
+    }
+
+    @NonNull
+    public ZoneOffset getTzOffset() {
+        return tzOffset;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         SunPhaseViewModel that = (SunPhaseViewModel) o;
-
-        if (sunrise != null ? !sunrise.equals(that.sunrise) : that.sunrise != null) return false;
-        return sunset != null ? sunset.equals(that.sunset) : that.sunset == null;
+        return sunrise.equals(that.sunrise) && sunset.equals(that.sunset) && tzOffset.equals(that.tzOffset);
     }
 
     @Override
     public int hashCode() {
-        int result = sunrise != null ? sunrise.hashCode() : 0;
-        result = 31 * result + (sunset != null ? sunset.hashCode() : 0);
-        return result;
+        return Objects.hash(sunrise, sunset, tzOffset);
     }
 }

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.controls
+package com.thewizrd.simpleweather.viewmodels
 
 import android.app.Application
 import androidx.annotation.MainThread

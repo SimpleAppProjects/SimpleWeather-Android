@@ -92,6 +92,7 @@ android {
             buildConfigField "boolean", "IS_NONGMS", "false"
         }
     }
+    namespace 'com.thewizrd.simpleweather'
 }
 
 dependencies {

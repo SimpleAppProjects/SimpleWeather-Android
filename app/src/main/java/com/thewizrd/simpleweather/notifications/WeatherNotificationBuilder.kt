@@ -12,7 +12,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils.bitmapFromDrawable
 import com.thewizrd.common.utils.ImageUtils.rotateBitmap
 import com.thewizrd.shared_resources.di.settingsManager
@@ -32,7 +32,7 @@ object WeatherNotificationBuilder {
     fun updateNotification(
         context: Context,
         notChannelID: String,
-        viewModel: WeatherNowViewModel
+        viewModel: WeatherUiModel
     ): Notification {
         val wim = sharedDeps.weatherIconsManager
         val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)

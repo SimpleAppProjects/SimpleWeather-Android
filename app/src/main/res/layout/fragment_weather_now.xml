@@ -12,12 +12,8 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
-
-        <variable
-            name="weatherNowState"
-            type="com.thewizrd.simpleweather.main.WeatherNowFragment.WeatherNowFragmentStateModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
@@ -56,7 +52,7 @@
                     android:layout_gravity="center_vertical"
                     app:srcCompat="@drawable/ic_place_white_24dp"
                     app:tint="?attr/colorOnSurface"
-                    app:showIfTrue="@{weatherNowState.isGPSLocation()}"
+                    app:showIfTrue="@{viewModel.uiState.GPSLocation}"
                     tools:visibility="visible"
                     tools:tint="?attr/colorOnSurface" />
 
@@ -67,7 +63,7 @@
                     android:layout_gravity="center_vertical"
                     android:gravity="center_horizontal"
                     android:maxLines="2"
-                    android:text="@{!StringUtils.isNullOrWhitespace(weatherView.location) ? weatherView.location : @string/title_activity_weather_now}"
+                    android:text="@{!StringUtils.isNullOrWhitespace(viewModel.weather.location) ? viewModel.weather.location : @string/title_activity_weather_now}"
                     android:textAppearance="?textAppearanceTitleLarge"
                     android:textColor="?attr/colorOnSurface"
                     tools:text="A Really Long String of Text, New York, United States" />
@@ -122,9 +118,9 @@
                         android:layout_height="wrap_content"
                         android:gravity="top|center_horizontal"
                         android:padding="12dp"
-                        android:text="@{weatherView.weatherCredit}"
+                        android:text="@{viewModel.weather.weatherCredit}"
                         android:textAppearance="?textAppearanceLabelMedium"
-                        app:hideIfNullOrWhitespace="@{weatherView.weatherCredit}"
+                        app:hideIfNullOrWhitespace="@{viewModel.weather.weatherCredit}"
                         tools:text="Data from WeatherUnderground" />
 
                 </GridLayout>

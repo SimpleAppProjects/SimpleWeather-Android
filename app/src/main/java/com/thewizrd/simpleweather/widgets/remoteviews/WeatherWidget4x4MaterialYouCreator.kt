@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.util.SizeF
 import android.view.View
 import android.widget.RemoteViews
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
@@ -31,7 +31,7 @@ class WeatherWidget4x4MaterialYouCreator(context: Context) : WidgetRemoteViewCre
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -60,7 +60,7 @@ class WeatherWidget4x4MaterialYouCreator(context: Context) : WidgetRemoteViewCre
 
     private suspend fun buildNormalUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -79,7 +79,7 @@ class WeatherWidget4x4MaterialYouCreator(context: Context) : WidgetRemoteViewCre
 
     private suspend fun buildLayout(
         appWidgetId: Int,
-        weather: WeatherNowViewModel, location: LocationData,
+        weather: WeatherUiModel, location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
         val updateViews = generateRemoteViews()

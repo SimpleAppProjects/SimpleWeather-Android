@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/location_name"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:textAppearance="?textAppearanceTitleMedium"
-    android:textSize="16sp"
-    app:autoSizeMaxTextSize="16sp"
-    app:autoSizeMinTextSize="6sp"
-    app:autoSizeTextType="uniform"
-    tools:text="New York, NY" />
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
+    </data>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/location_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textAppearance="?textAppearanceTitleMedium"
+        android:textSize="16sp"
+        android:text="@{viewModel.weather.location}"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="6sp"
+        app:autoSizeTextType="uniform"
+        tools:text="New York, NY" />
+</layout>

@@ -2,50 +2,29 @@ package com.thewizrd.simpleweather.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.hardware.SensorManager
-import android.location.Location
-import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.GridLayout
-import android.widget.GridView
-import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.view.*
 import androidx.core.widget.NestedScrollView
-import androidx.databinding.BindingAdapter
-import androidx.databinding.DataBindingComponent
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.Observable
-import androidx.databinding.Observable.OnPropertyChangedCallback
-import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
@@ -58,14 +37,12 @@ import com.bumptech.glide.request.target.Target
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
-import com.ibm.icu.util.ULocale
-import com.thewizrd.common.controls.*
+import com.thewizrd.common.controls.IconControl
+import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.location.LocationProvider
-import com.thewizrd.common.weatherdata.WeatherDataLoader
-import com.thewizrd.common.weatherdata.WeatherRequest
-import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
+import com.thewizrd.common.location.LocationResult
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -73,36 +50,30 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
-import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
-import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
-import com.thewizrd.shared_resources.utils.Units.TemperatureUnits
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
-import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.adapters.DetailsItemAdapter
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
 import com.thewizrd.simpleweather.banner.BannerManager
 import com.thewizrd.simpleweather.banner.BannerManagerInterface
 import com.thewizrd.simpleweather.controls.FlowLayout
-import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
-import com.thewizrd.simpleweather.controls.SunPhaseView
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.*
 import com.thewizrd.simpleweather.fragments.WindowColorFragment
-import com.thewizrd.simpleweather.images.getImageData
 import com.thewizrd.simpleweather.preferences.FeatureSettings
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
@@ -112,20 +83,23 @@ import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.weather_api.weatherModule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.min
 
-class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerManagerInterface {
+class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
     init {
         arguments = Bundle()
     }
@@ -133,7 +107,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     private lateinit var args: WeatherNowFragmentArgs
 
     private val wm = weatherModule.weatherManager
-    private var wLoader: WeatherDataLoader? = null
     private var radarViewProvider: RadarViewProvider? = null
 
     // Views
@@ -150,175 +123,19 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     private var moonphaseControlBinding: WeathernowMoonphasecontrolBinding? = null
     private var sunphaseControlBinding: WeathernowSunphasecontrolBinding? = null
     private var radarControlBinding: WeathernowRadarcontrolBinding? = null
-    private val dataBindingComponent = WeatherFragmentDataBindingComponent(this)
 
     private var mBannerMgr: BannerManager? = null
 
-    // Data
-    private var locationData: LocationData? = null
-    private lateinit var weatherLiveData: MutableLiveData<Weather>
-
     // View Models
-    private val wNowViewModel: WeatherNowFragmentStateModel by viewModels()
-    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val wNowViewModel: WeatherNowViewModel by activityViewModels()
+    private val stateModel: WeatherNowFragmentStateModel by viewModels()
     private val forecastsView: ForecastsNowViewModel by activityViewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
-    private val imageData = MutableLiveData<ImageDataViewModel?>()
 
     // GPS location
-    private var mLocation: Location? = null
-    private lateinit var locationProvider: LocationProvider
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
-    private val weatherObserver = Observer<Weather> { weather ->
-        if (weather != null && weather.isValid) {
-            weatherView.updateView(weather)
-
-            wNowViewModel.isGPSLocation.postValue(locationData?.locationType == LocationType.GPS)
-
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-                if (FeatureSettings.isBackgroundImageEnabled) {
-                    imageData.postValue(withContext(Dispatchers.Default) {
-                        weather.getImageData()
-                    })
-                } else {
-                    imageData.postValue(null)
-                }
-
-                launch(Dispatchers.Main) {
-                    val backgroundUri = imageData.value?.imageURI
-                    val imageView = conditionPanelBinding.imageView ?: binding.imageView
-
-                    if (imageView != null) {
-                        if (FeatureSettings.isBackgroundImageEnabled && (!ObjectsCompat.equals(
-                                imageView.tag,
-                                backgroundUri
-                            ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
-                        ) {
-                            loadBackgroundImage(backgroundUri, false)
-                        } else {
-                            binding.refreshLayout.isRefreshing = false
-                            binding.progressBar.hide()
-                            binding.scrollView.visibility = View.VISIBLE
-                        }
-                    }
-
-                    radarViewProvider?.updateCoordinates(weatherView.locationCoord, true)
-                }
-            }
-
-            if (locationData != null) {
-                forecastsView.updateForecasts(locationData!!)
-
-                appLib.appScope.launch(Dispatchers.Default) {
-                    val context = appLib.context
-
-                    if (settingsManager.getHomeData() == locationData) {
-                        // Update widgets if they haven't been already
-                        if (Duration.between(
-                                LocalDateTime.now(ZoneOffset.UTC),
-                                settingsManager.getUpdateTime()
-                            ).toMinutes() > settingsManager.getRefreshInterval()
-                        ) {
-                            WeatherUpdaterWorker.enqueueAction(
-                                context,
-                                WeatherUpdaterWorker.ACTION_UPDATEWEATHER
-                            )
-                        } else {
-                            // Update widgets
-                            WidgetUpdaterWorker.enqueueAction(
-                                context,
-                                WidgetUpdaterWorker.ACTION_UPDATEWIDGETS
-                            )
-                        }
-                    } else {
-                        // Update widgets anyway
-                        locationData?.let {
-                            WidgetWorker.enqueueRefreshWidgets(context, it)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private val alertsObserver = Observer<List<WeatherAlertViewModel>> { data ->
-        if (data?.isNotEmpty() == true) {
-            if (conditionPanelBinding.alertButton.visibility != View.VISIBLE) {
-                conditionPanelBinding.alertButton.visibility = View.VISIBLE
-            }
-        }
-        adjustConditionPanelLayout()
-    }
-
-    override fun onWeatherError(wEx: WeatherException) {
-        runWithView {
-            when (wEx.errorStatus) {
-                ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                    // Show error message and prompt to refresh
-                    val snackBar =
-                        Snackbar.make(binding.root.context, wEx.message, Snackbar.Duration.LONG)
-                    snackBar.setAction(R.string.action_retry) {
-                        binding.refreshLayout.isRefreshing = true
-                        refreshWeather(false)
-                    }
-                    showSnackbar(snackBar)
-                }
-                ErrorStatus.QUERYNOTFOUND -> {
-                    if (locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(locationData, LocationData::class.java)
-                        )
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Home: %s",
-                            JSONParser.serializer(
-                                settingsManager.getHomeData(),
-                                LocationData::class.java
-                            )
-                        )
-                        Logger.writeLine(
-                            Log.WARN,
-                            CustomException(R.string.error_message_weather_region_unsupported)
-                        )
-
-                        showSnackbar(
-                            Snackbar.make(
-                                binding.root.context,
-                                R.string.error_message_weather_region_unsupported,
-                                Snackbar.Duration.LONG
-                            )
-                        )
-                        return@runWithView
-                    }
-                    showSnackbar(
-                        Snackbar.make(
-                            binding.root.context,
-                            wEx.message,
-                            Snackbar.Duration.LONG
-                        )
-                    )
-                }
-                else -> {
-                    // Show error message
-                    showSnackbar(
-                        Snackbar.make(
-                            binding.root.context,
-                            wEx.message,
-                            Snackbar.Duration.LONG
-                        )
-                    )
-                }
-            }
-
-            binding.refreshLayout.isRefreshing = false
-            binding.progressBar.hide()
-        }
-    }
-
-    override fun createSnackManager(activity: Activity): SnackbarManager? {
+    override fun createSnackManager(activity: Activity): SnackbarManager {
         val mSnackMgr = SnackbarManager(binding.root)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -362,30 +179,26 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
-        if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
-            locationData = JSONParser.deserializer(
+        val locationData = if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
+            JSONParser.deserializer(
                 savedInstanceState.getString(Constants.KEY_DATA),
                 LocationData::class.java
             )
         } else if (args.data != null) {
-            locationData = JSONParser.deserializer(args.data, LocationData::class.java)
+            JSONParser.deserializer(args.data, LocationData::class.java)
+        } else {
+            null
         }
 
-        locationProvider = LocationProvider(requireActivity())
+        wNowViewModel.initialize(locationData)
+
         locationPermissionLauncher = LocationPermissionLauncher(
             this,
             locationCallback = { granted ->
                 if (granted) {
                     // permission was granted, yay!
                     // Do the task you need to do.
-                    runWithView {
-                        if (settingsManager.useFollowGPS() && updateLocation()) {
-                            // Setup loader from updated location
-                            wLoader = WeatherDataLoader(locationData!!)
-
-                            refreshWeather(false)
-                        }
-                    }
+                    wNowViewModel.refreshWeather()
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -400,56 +213,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                 }
             }
         )
-
-        // Live Data
-        weatherLiveData = MutableLiveData()
-        weatherLiveData.observe(this, weatherObserver)
-
-        alertsView.getAlerts()?.observe(this, alertsObserver)
-
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            private var wasStarted = false
-
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                resume()
-                wasStarted = true
-            }
-
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                if (!wasStarted) this.onStart(owner)
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                super.onPause(owner)
-                wasStarted = false
-            }
-        })
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_weather_now, container, false,
-            dataBindingComponent
-        )
+        binding = FragmentWeatherNowBinding.inflate(inflater, container, false)
 
-        binding.weatherNowState = wNowViewModel
-        binding.weatherView = weatherView
+        binding.viewModel = wNowViewModel
         binding.lifecycleOwner = viewLifecycleOwner
-
-        imageData.observe(viewLifecycleOwner, Observer {
-            binding.imageData = it
-
-            if (it != null) {
-                binding.listLayout.background?.alpha = 217 // 0.85% alpha
-            } else {
-                binding.listLayout.background?.alpha = 255
-            }
-        })
 
         val view = binding.root
         // Request focus away from RecyclerView
@@ -631,36 +404,18 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         binding.refreshLayout.setColorSchemeColors(requireContext().getAttrColor(R.attr.colorAccent))
         binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
-
-            runWithView {
-                if (settingsManager.useFollowGPS() && updateLocation()) {
-                    // Setup loader from updated location
-                    wLoader = WeatherDataLoader(locationData!!)
-                }
-
-                refreshWeather(true)
-            }
+            wNowViewModel.refreshWeather(true)
         }
 
         run {
             // Condition
-            conditionPanelBinding = DataBindingUtil.inflate(
-                    inflater,
-                    R.layout.weathernow_condition_panel,
-                    binding.listLayout,
-                    false,
-                    dataBindingComponent
-            )
+            conditionPanelBinding =
+                WeathernowConditionPanelBinding.inflate(inflater, binding.listLayout, false)
             conditionPanelBinding.alertsView = alertsView
-            conditionPanelBinding.weatherNowState = wNowViewModel
-            conditionPanelBinding.weatherView = weatherView
+            conditionPanelBinding.viewModel = wNowViewModel
             conditionPanelBinding.lifecycleOwner = viewLifecycleOwner
 
             conditionPanelBinding.bgAttribution.movementMethod = LinkMovementMethod.getInstance()
-
-            imageData.observe(viewLifecycleOwner, Observer {
-                conditionPanelBinding.imageData = it
-            })
 
             // Alerts
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -678,7 +433,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     // Show Alert Fragment
                     val args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                    .setData(JSONParser.serializer(locationData, LocationData::class.java))
                                     .setWeatherListType(WeatherListType.ALERTS)
                     v.findNavController().safeNavigate(args)
                 }
@@ -741,13 +495,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isForecastEnabled) {
             // Forecast
-            forecastPanelBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_forecastgraphpanel,
-                binding.listLayout,
-                false,
-                dataBindingComponent
-            )
+            forecastPanelBinding =
+                WeathernowForecastgraphpanelBinding.inflate(inflater, binding.listLayout, false)
             forecastPanelBinding!!.forecastsView = forecastsView
             forecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -759,12 +508,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         view.isEnabled = false
                         val args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                .setData(
-                                    JSONParser.serializer(
-                                        locationData,
-                                            LocationData::class.java
-                                    )
-                                )
                                     .setWeatherListType(WeatherListType.FORECAST)
                                     .setPosition(position)
                         view.findNavController().safeNavigate(args)
@@ -781,13 +524,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isHourlyForecastEnabled) {
             // Hourly Forecast
-            hrForecastPanelBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_hrforecastlistpanel,
-                binding.listLayout,
-                false,
-                dataBindingComponent
-            )
+            hrForecastPanelBinding =
+                WeathernowHrforecastlistpanelBinding.inflate(inflater, binding.listLayout, false)
             hrForecastPanelBinding!!.forecastsView = forecastsView
             hrForecastPanelBinding!!.lifecycleOwner = viewLifecycleOwner
 
@@ -816,12 +554,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         view.isEnabled = false
                         val args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                .setData(
-                                    JSONParser.serializer(
-                                        locationData,
-                                        LocationData::class.java
-                                    )
-                                )
                                     .setWeatherListType(WeatherListType.HOURLYFORECAST)
                                     .setPosition(position)
                         view.findNavController().safeNavigate(args)
@@ -840,12 +572,10 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isChartsEnabled) {
             // Precipitation graph
-            precipPanelBinding = DataBindingUtil.inflate(
+            precipPanelBinding = WeathernowPrecipitationgraphpanelBinding.inflate(
                 inflater,
-                R.layout.weathernow_precipitationgraphpanel,
                 binding.listLayout,
-                false,
-                dataBindingComponent
+                false
             )
             precipPanelBinding!!.forecastsView = forecastsView
             precipPanelBinding!!.lifecycleOwner = viewLifecycleOwner
@@ -857,12 +587,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                         view.isEnabled = false
                         val args =
                             WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
-                                .setData(
-                                        JSONParser.serializer(
-                                                locationData,
-                                                LocationData::class.java
-                                        )
-                                )
                         view.findNavController().safeNavigate(args)
                     }
                 }
@@ -882,16 +606,11 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
 
         if (FeatureSettings.isDetailsEnabled) {
-            detailsContainerBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_detailscontainer,
-                binding.listLayout,
-                false,
-                dataBindingComponent
-            )
+            detailsContainerBinding =
+                WeathernowDetailscontainerBinding.inflate(inflater, binding.listLayout, false)
 
             // Details
-            detailsContainerBinding!!.weatherView = weatherView
+            detailsContainerBinding!!.viewModel = wNowViewModel
             detailsContainerBinding!!.lifecycleOwner = viewLifecycleOwner
 
             detailsContainerBinding!!.detailsContainer.adapter = DetailsItemGridAdapter()
@@ -916,14 +635,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isUVEnabled) {
             // UV
-            uvControlBinding = DataBindingUtil.inflate(
+            uvControlBinding = WeathernowUvcontrolBinding.inflate(
                 inflater,
-                R.layout.weathernow_uvcontrol,
                 binding.detailsWrapLayout as ViewGroup,
-                true,
-                dataBindingComponent
+                true
             )
-            uvControlBinding!!.weatherView = weatherView
+            uvControlBinding!!.viewModel = wNowViewModel
             uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             uvControlBinding!!.uvIcon.setOnIconChangedListener(object :
@@ -949,14 +666,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isBeaufortEnabled) {
             // Beaufort
-            beaufortControlBinding = DataBindingUtil.inflate(
+            beaufortControlBinding = WeathernowBeaufortcontrolBinding.inflate(
                 inflater,
-                R.layout.weathernow_beaufortcontrol,
                 binding.detailsWrapLayout as ViewGroup,
-                true,
-                dataBindingComponent
+                true
             )
-            beaufortControlBinding!!.weatherView = weatherView
+            beaufortControlBinding!!.viewModel = wNowViewModel
             beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             beaufortControlBinding!!.beaufortIcon.setOnIconChangedListener(object :
@@ -982,14 +697,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isAQIndexEnabled) {
             // Air Quality
-            aqiControlBinding = DataBindingUtil.inflate(
+            aqiControlBinding = WeathernowAqicontrolBinding.inflate(
                 inflater,
-                R.layout.weathernow_aqicontrol,
                 binding.detailsWrapLayout as ViewGroup,
-                true,
-                dataBindingComponent
+                true
             )
-            aqiControlBinding!!.weatherView = weatherView
+            aqiControlBinding!!.viewModel = wNowViewModel
             aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             aqiControlBinding!!.root.setOnClickListener { v ->
@@ -998,7 +711,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     v.isEnabled = false
                     val args =
                         WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherAQIFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
                     view.findNavController().safeNavigate(args)
                 }
             }
@@ -1014,14 +726,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isPollenEnabled) {
             // Pollen
-            pollenCountControlBinding = DataBindingUtil.inflate(
+            pollenCountControlBinding = WeathernowPollencountcontrolBinding.inflate(
                 inflater,
-                R.layout.weathernow_pollencountcontrol,
                 binding.detailsWrapLayout as ViewGroup,
-                true,
-                dataBindingComponent
+                true
             )
-            pollenCountControlBinding!!.weatherView = weatherView
+            pollenCountControlBinding!!.viewModel = wNowViewModel
             pollenCountControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             val context = pollenCountControlBinding!!.root.context
@@ -1036,14 +746,12 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isMoonPhaseEnabled) {
             // Moon Phase
-            moonphaseControlBinding = DataBindingUtil.inflate(
+            moonphaseControlBinding = WeathernowMoonphasecontrolBinding.inflate(
                 inflater,
-                R.layout.weathernow_moonphasecontrol,
                 binding.detailsWrapLayout as ViewGroup,
-                true,
-                dataBindingComponent
+                true
             )
-            moonphaseControlBinding!!.weatherView = weatherView
+            moonphaseControlBinding!!.viewModel = wNowViewModel
             moonphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             val context = moonphaseControlBinding!!.root.context
@@ -1058,14 +766,9 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         if (FeatureSettings.isSunPhaseEnabled) {
             // Sun Phase
-            sunphaseControlBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_sunphasecontrol,
-                binding.listLayout,
-                false,
-                dataBindingComponent
-            )
-            sunphaseControlBinding!!.weatherView = weatherView
+            sunphaseControlBinding =
+                WeathernowSunphasecontrolBinding.inflate(inflater, binding.listLayout, false)
+            sunphaseControlBinding!!.viewModel = wNowViewModel
             sunphaseControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             binding.listLayout.addView(sunphaseControlBinding!!.root)
@@ -1077,13 +780,8 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
 
         // Radar
         if (FeatureSettings.isRadarEnabled) {
-            radarControlBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.weathernow_radarcontrol,
-                binding.listLayout,
-                false,
-                dataBindingComponent
-            )
+            radarControlBinding =
+                WeathernowRadarcontrolBinding.inflate(inflater, binding.listLayout, false)
 
             radarControlBinding!!.radarWebviewCover.setOnClickListener { v ->
                 runWithView {
@@ -1108,7 +806,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
              */
             radarControlBinding!!.radarWebviewCover.bringToFront()
 
-            radarControlBinding!!.weatherView = weatherView
+            radarControlBinding!!.viewModel = wNowViewModel
             radarControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
             binding.listLayout.addView(radarControlBinding!!.root)
@@ -1144,39 +842,150 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         adjustConditionPanelLayout()
         adjustViewsLayout()
 
-        // Set property change listeners
-        weatherView.addOnPropertyChangedCallback(object : OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                if (propertyId == 0 || propertyId == BR.location) {
-                    runWithView {
-                        adjustConditionPanelLayout()
-                    }
-                } else if (propertyId == BR.locationCoord) {
-                    // Restrict control to Kitkat+ for Chromium WebView
-                    if (FeatureSettings.isRadarEnabled) {
-                        radarViewProvider?.updateCoordinates(weatherView.locationCoord, true)
-                    }
-                } else if (propertyId == BR.weatherSummary) {
-                    runWithView {
-                        adjustConditionPanelLayout()
-                    }
-                }
-            }
-        })
-
-        binding.scrollView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        binding.scrollView.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 binding.scrollView.viewTreeObserver.removeOnPreDrawListener(this)
                 binding.scrollView.postOnAnimationDelayed({
-                    runWithView { binding.scrollView.smoothScrollTo(0, wNowViewModel.scrollViewPosition) }
+                    runWithView {
+                        binding.scrollView.smoothScrollTo(
+                            0,
+                            stateModel.scrollViewPosition
+                        )
+                    }
                 }, 100)
                 return true
             }
         })
 
-        if (radarViewProvider != null) {
-            radarViewProvider!!.onViewCreated(weatherView.locationCoord)
-            updateRadarView()
+        alertsView.getAlerts().observe(viewLifecycleOwner, Observer {
+            adjustConditionPanelLayout()
+        })
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                initializeState()
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.uiState.collectLatest {
+                adjustConditionPanelLayout()
+
+                if (FeatureSettings.isRadarEnabled) {
+                    it.weather?.locationCoord?.let { coords ->
+                        radarViewProvider?.updateCoordinates(coords, true)
+                    }
+                }
+
+                if (it.noLocationAvailable) {
+                    showBanner(
+                        Banner.make(
+                            binding.root.context,
+                            R.string.prompt_location_not_set
+                        ).apply {
+                            setBannerIcon(R.drawable.ic_location_off_24dp)
+                            setPrimaryAction(R.string.label_fab_add_location) {
+                                binding.root.findNavController().safeNavigate(
+                                    WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
+                                )
+                            }
+                        }
+                    )
+                } else {
+                    dismissBanner()
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.weather.collectLatest {
+                wNowViewModel.uiState.value.locationData?.let { locationData ->
+                    forecastsView.updateForecasts(locationData)
+                    alertsView.updateAlerts(locationData)
+
+                    appLib.appScope.launch(Dispatchers.Default) {
+                        val context = appLib.context
+
+                        if (settingsManager.getHomeData() == locationData) {
+                            // Update widgets if they haven't been already
+                            if (Duration.between(
+                                    LocalDateTime.now(ZoneOffset.UTC),
+                                    settingsManager.getUpdateTime()
+                                ).toMinutes() > settingsManager.getRefreshInterval()
+                            ) {
+                                WeatherUpdaterWorker.enqueueAction(
+                                    context,
+                                    WeatherUpdaterWorker.ACTION_UPDATEWEATHER
+                                )
+                            } else {
+                                // Update widgets
+                                WidgetUpdaterWorker.enqueueAction(
+                                    context,
+                                    WidgetUpdaterWorker.ACTION_UPDATEWIDGETS
+                                )
+                            }
+                        } else {
+                            // Update widgets anyway
+                            WidgetWorker.enqueueRefreshWidgets(context, locationData)
+                        }
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.alerts.collectLatest { weatherAlerts ->
+                val locationData = wNowViewModel.uiState.value.locationData
+
+                if (wm.supportsAlerts() && locationData != null) {
+                    if (!weatherAlerts.isNullOrEmpty()) {
+                        // Alerts are posted to the user here. Set them as notified.
+                        appLib.appScope.launch(Dispatchers.Default) {
+                            if (BuildConfig.DEBUG) {
+                                WeatherAlertHandler.postAlerts(
+                                    locationData,
+                                    weatherAlerts
+                                )
+                            }
+                            WeatherAlertHandler.setAsNotified(locationData, weatherAlerts)
+                        }
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.imageData.collectLatest {
+                val backgroundUri = it?.imageURI
+                val imageView = conditionPanelBinding.imageView ?: binding.imageView
+
+                if (imageView != null) {
+                    if (FeatureSettings.isBackgroundImageEnabled) {
+                        loadBackgroundImage(backgroundUri)
+                    } else {
+                        binding.refreshLayout.isRefreshing = false
+                        binding.progressBar.hide()
+                        binding.scrollView.visibility = View.VISIBLE
+                    }
+                }
+
+                if (it != null) {
+                    binding.listLayout.background?.alpha = 217 // 0.85% alpha
+                } else {
+                    binding.listLayout.background?.alpha = 255
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.errorMessages.collect {
+                val error = it.firstOrNull()
+
+                if (error != null) {
+                    onErrorMessage(error)
+                }
+            }
         }
     }
 
@@ -1213,9 +1022,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if (locationData != null) {
-            outState.putString(Constants.KEY_DATA, JSONParser.serializer(locationData, LocationData::class.java))
-        }
         radarViewProvider?.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
@@ -1225,18 +1031,16 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         radarViewProvider?.onDestroyView()
         radarViewProvider = null
 
-        wNowViewModel.scrollViewPosition = binding.scrollView.computeVerticalScrollOffset()
+        stateModel.scrollViewPosition = binding.scrollView.computeVerticalScrollOffset()
 
         super.onDestroyView()
     }
 
     override fun onDestroy() {
-        wLoader = null
         super.onDestroy()
     }
 
     override fun onDetach() {
-        wLoader = null
         super.onDetach()
     }
 
@@ -1249,8 +1053,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        weatherView.notifyChange()
-
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
             requireContext().getAttrColor(R.attr.colorSurface)
         )
@@ -1260,21 +1062,76 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         adjustConditionPanelLayout()
         adjustViewsLayout()
 
-        val backgroundUri = imageData.value?.imageURI
-        loadBackgroundImage(backgroundUri, true)
+        loadBackgroundImage(skipCache = true, forceReload = true)
 
         // Reload Webview
         radarViewProvider?.onConfigurationChanged()
     }
 
-    private fun loadBackgroundImage(imageURI: String?, skipCache: Boolean) {
-        runWithView {
-            val imageView =
-                conditionPanelBinding.imageView ?: binding.imageView ?: return@runWithView
+    private fun onErrorMessage(error: ErrorMessage) {
+        when (error) {
+            is ErrorMessage.Resource -> {
+                context?.let {
+                    showSnackbar(Snackbar.make(it, error.stringId, Snackbar.Duration.SHORT))
+                }
+            }
+            is ErrorMessage.String -> {
+                context?.let {
+                    showSnackbar(Snackbar.make(it, error.message, Snackbar.Duration.SHORT))
+                }
+            }
+            is ErrorMessage.WeatherError -> {
+                onWeatherError(error.exception)
+            }
+        }
 
+        wNowViewModel.setErrorMessageShown(error)
+    }
+
+    private fun onWeatherError(wEx: WeatherException) {
+        when (wEx.errorStatus) {
+            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
+                // Show error message and prompt to refresh
+                showSnackbar(
+                    Snackbar.make(
+                        binding.root.context,
+                        wEx.message,
+                        Snackbar.Duration.LONG
+                    ).apply {
+                        setAction(R.string.action_retry) {
+                            wNowViewModel.refreshWeather(false)
+                        }
+                    })
+            }
+            ErrorStatus.QUERYNOTFOUND -> {
+                showSnackbar(
+                    Snackbar.make(binding.root.context, wEx.message, Snackbar.Duration.LONG)
+                )
+            }
+            else -> {
+                // Show error message
+                showSnackbar(
+                    Snackbar.make(binding.root.context, wEx.message, Snackbar.Duration.LONG)
+                )
+            }
+        }
+    }
+
+    private fun loadBackgroundImage(
+        imageURI: String? = wNowViewModel.imageData.value?.imageURI,
+        skipCache: Boolean = false,
+        forceReload: Boolean = false
+    ) {
+        val imageView = conditionPanelBinding.imageView ?: binding.imageView ?: return
+
+        runWithView {
             // Reload background image
             if (FeatureSettings.isBackgroundImageEnabled) {
-                if (!ObjectsCompat.equals(imageView.tag, imageURI)) {
+                if (forceReload || (!ObjectsCompat.equals(
+                        imageView.tag,
+                        imageURI
+                    ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
+                ) {
                     imageView.tag = imageURI
                     if (!imageURI.isNullOrBlank()) {
                         Glide.with(this@WeatherNowFragment)
@@ -1319,36 +1176,27 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
                     } else {
                         Glide.with(this@WeatherNowFragment).clear(imageView)
                         imageView.tag = null
-                        if (weatherView.isValid) {
-                            binding.refreshLayout.isRefreshing = false
-                            binding.progressBar.hide()
-                            binding.scrollView.visibility = View.VISIBLE
-                        }
                     }
                 }
             } else {
                 Glide.with(this@WeatherNowFragment).clear(imageView)
                 imageView.tag = null
-                if (weatherView.isValid) {
-                    binding.refreshLayout.isRefreshing = false
-                    binding.progressBar.hide()
-                    binding.scrollView.visibility = View.VISIBLE
-                }
             }
         }
     }
 
-    private suspend fun verifyLocationData(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun verifyLocationData(): LocationResult = withContext(Dispatchers.IO) {
+        var locationData = wNowViewModel.uiState.value.locationData
         var locationChanged = false
 
         // Check if current location still exists (is valid)
         if (locationData?.locationType == LocationType.SEARCH) {
-            if (settingsManager.getLocation(locationData?.query) == null) {
+            if (settingsManager.getLocation(locationData.query) == null) {
                 locationData = null
-                wLoader = null
                 locationChanged = true
             }
         }
+
         // Load new favorite location if argument data is present
         if (args.home) {
             // Check if home location changed
@@ -1360,7 +1208,7 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         } else if (args.data != null) {
             val location = withContext(Dispatchers.IO) {
-                JSONParser.deserializer(args.data, LocationData::class.java)
+                JSONParser.deserializer<LocationData>(args.data)
             }
 
             if (!ObjectsCompat.equals(location, locationData)) {
@@ -1369,188 +1217,41 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             }
         }
 
-        locationChanged
-    }
-
-    private fun resume() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-            val locationChanged = verifyLocationData()
-
-            if (locationChanged || wLoader == null) {
-                restore()
+        if (locationChanged) {
+            if (locationData != null) {
+                LocationResult.Changed(locationData)
             } else {
-                // Refresh current fragment instance
-                val currentLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = wm.localeToLangCode(currentLocale.language, currentLocale.toLanguageTag())
-
-                // Check current weather source (API)
-                // Reset if source OR locale is different
-                if (settingsManager.getAPI() != weatherView.weatherSource
-                    || wm.supportsWeatherLocale() && locale != weatherView.weatherLocale
-                ) {
-                    restore()
-                } else {
-                    // Update weather if needed on resume
-                    if (settingsManager.useFollowGPS() && updateLocation()) {
-                        // Setup loader from updated location
-                        wLoader = WeatherDataLoader(locationData!!)
-                    }
-
-                    refreshWeather(false)
-                }
+                LocationResult.ChangedInvalid(null)
             }
+        } else {
+            LocationResult.NotChanged(locationData)
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun restore() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-            launch(Dispatchers.Main.immediate) {
-                // Reset position
-                wNowViewModel.scrollViewPosition = 0
+    private suspend fun initializeState() {
+        val result = verifyLocationData()
+
+        result.data?.let {
+            if (it.locationType == LocationType.GPS && settingsManager.useFollowGPS()) {
+                context?.run {
+                    if (!locationPermissionEnabled()) {
+                        locationPermissionLauncher.requestLocationPermission()
+                    }
+                }
+            }
+        }
+
+        if (result is LocationResult.Changed || result is LocationResult.ChangedInvalid) {
+            // Reset position
+            withContext(Dispatchers.Main.immediate) {
+                stateModel.scrollViewPosition = 0
                 binding.scrollView.smoothScrollTo(0, 0)
                 binding.progressBar.show()
             }
 
-            supervisorScope {
-                val task = async(Dispatchers.IO) {
-                    var forceRefresh = false
-
-                    // GPS Follow location
-                    if (settingsManager.useFollowGPS() && (locationData == null || locationData!!.locationType == LocationType.GPS)) {
-                        val locData = settingsManager.getLastGPSLocData()
-                        if (locData == null) {
-                            // Update location if not setup
-                            updateLocation()
-                            forceRefresh = true
-                        } else {
-                            // Reset locdata if source is different
-                            if (settingsManager.getAPI() != locData.weatherSource) {
-                                settingsManager.saveLastGPSLocData(buildEmptyGPSLocation())
-                            }
-                            if (updateLocation()) {
-                                // Setup loader from updated location
-                                forceRefresh = true
-                            } else {
-                                // Setup loader saved location data
-                                locationData = locData
-                            }
-                        }
-                    } else if (locationData == null && wLoader == null) {
-                        // Weather was loaded before. Lets load it up...
-                        locationData = settingsManager.getHomeData()
-                    }
-
-                    if (locationData?.isValid == true) {
-                        wLoader = WeatherDataLoader(locationData!!)
-                    } else {
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(locationData, LocationData::class.java)
-                        )
-                        Logger.writeLine(
-                            Log.WARN,
-                            "Home: %s",
-                            JSONParser.serializer(
-                                settingsManager.getHomeData(),
-                                LocationData::class.java
-                            )
-                        )
-                        Logger.writeLine(Log.WARN, IllegalStateException("Invalid location data"))
-
-                        showBanner(
-                            Banner.make(
-                                binding.root.context,
-                                R.string.prompt_location_not_set
-                            ).apply {
-                                setBannerIcon(R.drawable.ic_location_off_24dp)
-                                setPrimaryAction(R.string.label_fab_add_location) {
-                                    binding.root.findNavController().safeNavigate(
-                                        WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
-                                    )
-                                }
-                            }
-                        )
-                        this.cancel()
-                    }
-                    forceRefresh
-                }
-
-                task.invokeOnCompletion {
-                    val t = task.getCompletionExceptionOrNull()
-                    if (t == null) {
-                        refreshWeather(task.getCompleted())
-                    } else {
-                        runWithView {
-                            binding.refreshLayout.isRefreshing = false
-                            binding.progressBar.hide()
-                            binding.scrollView.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun refreshWeather(forceRefresh: Boolean) {
-        runWithView {
-            if (wLoader == null && locationData != null) {
-                wLoader = WeatherDataLoader(locationData!!)
-            }
-
-            val task = launch(Dispatchers.Default) {
-                supervisorScope {
-                    val result = wLoader?.loadWeatherResult(
-                        WeatherRequest.Builder()
-                            .forceRefresh(forceRefresh)
-                            .setErrorListener(this@WeatherNowFragment)
-                            .build()
-                    ) ?: throw CancellationException()
-
-                    weatherLiveData.postValue(result.weather)
-
-                    runWithView {
-                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                            conditionPanelBinding.alertButton.visibility = View.GONE
-                            adjustConditionPanelLayout()
-                        }
-                    }
-
-                    val weatherAlerts = wLoader?.loadWeatherAlerts(result.isSavedData)
-
-                    runWithView {
-                        if (locationData != null) {
-                            alertsView.updateAlerts(locationData!!)
-                        }
-
-                        if (wm.supportsAlerts() && locationData != null) {
-                            if (!weatherAlerts.isNullOrEmpty()) {
-                                // Alerts are posted to the user here. Set them as notified.
-                                appLib.appScope.launch(Dispatchers.Default) {
-                                    if (BuildConfig.DEBUG) {
-                                        WeatherAlertHandler.postAlerts(
-                                            locationData!!,
-                                            weatherAlerts
-                                        )
-                                    }
-                                    WeatherAlertHandler.setAsNotified(locationData!!, weatherAlerts)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            task.invokeOnCompletion {
-                if (it != null) {
-                    runWithView {
-                        binding.refreshLayout.isRefreshing = false
-                        binding.progressBar.hide()
-                        binding.scrollView.visibility = View.VISIBLE
-                    }
-                }
-            }
+            wNowViewModel.initialize(result.data)
+        } else {
+            wNowViewModel.refreshWeather()
         }
     }
 
@@ -1596,28 +1297,6 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
             setMaxWidthForView(it)
         }
 
-        /* NOTE: are within details wrap layout
-        uvControlBinding?.root?.doOnPreDraw {
-            setMaxWidthForView(it)
-        }
-
-        beaufortControlBinding?.root?.doOnPreDraw {
-            setMaxWidthForView(it)
-        }
-
-        aqiControlBinding?.root?.doOnPreDraw {
-            setMaxWidthForView(it)
-        }
-
-        pollenCountControlBinding?.root?.doOnPreDraw {
-            setMaxWidthForView(it)
-        }
-
-        moonphaseControlBinding?.root?.doOnPreDraw {
-            setMaxWidthForView(it)
-        }
-        */
-
         sunphaseControlBinding?.root?.doOnPreDraw {
             setMaxWidthForView(it)
         }
@@ -1648,207 +1327,13 @@ class WeatherNowFragment : WindowColorFragment(), WeatherErrorListener, BannerMa
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private suspend fun updateLocation(): Boolean {
-        var locationChanged = false
-
-        val context = context
-
-        if (context != null && settingsManager.useFollowGPS() && locationData?.locationType == LocationType.GPS) {
-            if (!context.locationPermissionEnabled()) {
-                locationPermissionLauncher.requestLocationPermission()
-                return false
+    class WeatherNowFragmentStateModel(private val state: SavedStateHandle) : ViewModel() {
+        var scrollViewPosition: Int
+            get() {
+                return state["scrollViewPosition"] ?: 0
             }
-
-            val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-
-            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                locationData = settingsManager.getLastGPSLocData()
-                return false
+            set(value) {
+                state["scrollViewPosition"] = value
             }
-
-            var location = withContext(Dispatchers.IO) {
-                val result: Location? = try {
-                    withTimeoutOrNull(5000) {
-                        locationProvider.getLastLocation()
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-                result
-            }
-
-            if (!coroutineContext.isActive) return false
-
-            /* Get current location from provider */
-            if (location == null) {
-                location = withTimeoutOrNull(30000) {
-                    locationProvider.getCurrentLocation()
-                }
-            }
-
-            if (!coroutineContext.isActive) return false
-
-            if (location != null) {
-                var lastGPSLocData = settingsManager.getLastGPSLocData()
-
-                // Check previous location difference
-                if (lastGPSLocData?.isValid == true &&
-                    mLocation != null && ConversionMethods.calculateGeopositionDistance(
-                        mLocation,
-                        location
-                    ) < 1600
-                ) {
-                    return false
-                }
-
-                if (lastGPSLocData?.isValid == true &&
-                    abs(
-                        ConversionMethods.calculateHaversine(
-                            lastGPSLocData.latitude, lastGPSLocData.longitude,
-                            location.latitude, location.longitude
-                        )
-                    ) < 1600
-                ) {
-                    return false
-                }
-
-                val view = try {
-                    withContext(Dispatchers.IO) {
-                        wm.getLocation(location)
-                    }
-                } catch (e: WeatherException) {
-                    showSnackbar(Snackbar.make(context, e.message, Snackbar.Duration.SHORT), null)
-                    return false
-                }
-
-                if (view == null || view.locationQuery.isNullOrBlank()) {
-                    // Stop since there is no valid query
-                    return false
-                } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId =
-                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
-                    if ("unknown" != tzId)
-                        view.locationTZLong = tzId
-                }
-
-                if (!coroutineContext.isActive) return false
-
-                // Save location as last known
-                lastGPSLocData = view.toLocationData(location)
-                settingsManager.saveLastGPSLocData(lastGPSLocData)
-
-                LocalBroadcastManager.getInstance(context)
-                        .sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-
-                locationData = lastGPSLocData
-                mLocation = location
-                locationChanged = true
-            }
-        }
-
-        return locationChanged
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun updateRadarView() {
-        runWithView {
-            if (!FeatureSettings.isRadarEnabled || radarViewProvider == null)
-                return@runWithView
-
-            radarViewProvider?.updateRadarView()
-        }
-    }
-
-    class WeatherNowFragmentStateModel : ViewModel() {
-        var scrollViewPosition = 0
-        var isGPSLocation = MutableLiveData(false)
-    }
-
-    class WeatherFragmentDataBindingComponent(fragment: WeatherNowFragment?) : DataBindingComponent {
-        private val mAdapter = WeatherNowFragmentBindingAdapter(fragment)
-
-        override fun getWeatherNowFragmentBindingAdapter(): WeatherNowFragmentBindingAdapter {
-            return mAdapter
-        }
-    }
-
-    class WeatherNowFragmentBindingAdapter(private val fragment: WeatherNowFragment?) {
-        @BindingAdapter("details_data")
-        fun updateDetailsContainer(
-            view: GridView,
-            map: Map<WeatherDetailsType, DetailItemViewModel>?
-        ) {
-            if (view.adapter is DetailsItemGridAdapter) {
-                (view.adapter as DetailsItemGridAdapter).updateItems(map?.values)
-            }
-        }
-
-        @BindingAdapter("details_data")
-        fun updateDetailsContainer(view: RecyclerView, models: List<DetailItemViewModel>?) {
-            if (view.adapter is DetailsItemAdapter) {
-                (view.adapter as DetailsItemAdapter).submitList(models)
-            }
-        }
-
-        @BindingAdapter("forecastData")
-        fun updateHrForecastView(view: RecyclerView, forecasts: List<HourlyForecastNowViewModel>?) {
-            if (view.adapter is HourlyForecastItemAdapter) {
-                (view.adapter as HourlyForecastItemAdapter).submitList(forecasts)
-            }
-        }
-
-        @BindingAdapter("sunPhase")
-        fun updateSunPhasePanel(view: SunPhaseView, sunPhase: SunPhaseViewModel?) {
-            if (sunPhase?.sunriseTime != null && sunPhase.sunsetTime != null && fragment?.locationData != null) {
-                view.setSunriseSetTimes(
-                    sunPhase.sunriseTime, sunPhase.sunsetTime,
-                    fragment.locationData?.tzOffset ?: ZoneOffset.UTC
-                )
-            }
-        }
-
-        @BindingAdapter("imageData")
-        fun getBackgroundAttribution(view: TextView, imageData: ImageDataViewModel?) {
-            if (imageData?.originalLink?.isNotBlank() == true) {
-                val text = SpannableString(String.format("%s %s (%s)",
-                        view.context.getString(R.string.attrib_prefix), imageData.artistName, imageData.siteName))
-                text.setSpan(UnderlineSpan(), 0, text.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-                view.text = text
-                view.setOnClickListener {
-                    val i = Intent(Intent.ACTION_VIEW, Uri.parse(imageData.originalLink))
-                    if (i.resolveActivity(view.context.packageManager) != null) {
-                        runCatching {
-                            view.context.startActivity(i)
-                        }.onFailure {
-                            // NOTE: possible exceptions: SecurityException, ActivityNotFoundException
-                            Logger.writeLine(Log.ERROR, it, "Error opening attribution link")
-                        }
-                    }
-                }
-            } else {
-                view.text = ""
-                view.setOnClickListener(null)
-            }
-        }
-
-        @BindingAdapter(value = ["tempTextColor", "tempUnit"], requireAll = false)
-        fun tempTextColor(view: TextView, temp: CharSequence?, @TemperatureUnits tempUnit: String?) {
-            val temp_str = temp?.removeNonDigitChars()?.toString()
-            var temp_f = temp_str?.toFloatOrNull()
-            if (temp_f != null) {
-                if (ObjectsCompat.equals(
-                        tempUnit,
-                        Units.CELSIUS
-                    ) || temp?.endsWith(Units.CELSIUS) == true
-                ) {
-                    temp_f = ConversionMethods.CtoF(temp_f)
-                }
-
-                view.setTextColor(getColorFromTempF(temp_f))
-            } else {
-                view.setTextColor(ContextCompat.getColor(view.context, R.color.colorTextPrimary))
-            }
-        }
     }
 }

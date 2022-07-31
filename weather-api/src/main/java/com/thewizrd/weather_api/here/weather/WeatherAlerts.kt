@@ -3,7 +3,7 @@ package com.thewizrd.weather_api.here.weather
 import androidx.annotation.IntRange
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.NumberUtils
+import com.thewizrd.shared_resources.utils.NumberUtils.tryParseInt
 import com.thewizrd.shared_resources.utils.StringUtils.unescapeUnicode
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
@@ -209,7 +209,7 @@ fun createWeatherAlert(alert: AlertsItem): WeatherAlert {
 // HERE NWS Alerts
 fun createWeatherAlert(alert: WatchItem): WeatherAlert {
     return WeatherAlert().apply {
-        type = getAlertType(NumberUtils.tryParseInt(alert.type, -1), alert.description)
+        type = getAlertType(alert.type.tryParseInt(-1), alert.description)
         severity = getAlertSeverity(alert.severity)
 
         title = alert.description
@@ -225,7 +225,7 @@ fun createWeatherAlert(alert: WatchItem): WeatherAlert {
 // HERE NWS Alerts
 fun createWeatherAlert(alert: WarningItem): WeatherAlert {
     return WeatherAlert().apply {
-        type = getAlertType(NumberUtils.tryParseInt(alert.type, -1), alert.description)
+        type = getAlertType(alert.type.tryParseInt(-1), alert.description)
         severity = getAlertSeverity(alert.severity)
 
         title = alert.description

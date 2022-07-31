@@ -17,11 +17,7 @@
 
         <variable
             name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
-
-        <variable
-            name="weatherNowState"
-            type="com.thewizrd.simpleweather.main.WeatherNowFragment.WeatherNowFragmentStateModel" />
+            type="com.thewizrd.common.controls.WeatherUiModel" />
 
         <variable
             name="alertsView"
@@ -29,7 +25,7 @@
 
         <variable
             name="forecastsView"
-            type="com.thewizrd.simpleweather.controls.ForecastPanelsViewModel" />
+            type="com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel" />
 
     </data>
 
@@ -188,7 +184,6 @@
                         android:layout_gravity="center_vertical"
                         android:visibility="gone"
                         app:srcCompat="@drawable/ic_place_white_24dp"
-                        app:showIfTrue="@{!StringUtils.isNullOrWhitespace(weatherView.location) &amp;&amp; weatherNowState.isGPSLocation()}"
                         tools:visibility="visible" />
 
                     <androidx.appcompat.widget.AppCompatTextView

@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.CustomJsonObject;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.NumberUtils;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -172,11 +173,12 @@ public class Weather extends CustomJsonObject {
         this.ttl = ttl;
     }
 
+    @WeatherAPI.WeatherProviders
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public void setSource(@WeatherAPI.WeatherProviders String source) {
         this.source = source;
     }
 
@@ -544,10 +546,7 @@ public class Weather extends CustomJsonObject {
     }
 
     public boolean isValid() {
-        if (location == null || condition == null || atmosphere == null)
-            return false;
-        else
-            return true;
+        return location != null && condition != null && atmosphere != null;
     }
 
     @Override

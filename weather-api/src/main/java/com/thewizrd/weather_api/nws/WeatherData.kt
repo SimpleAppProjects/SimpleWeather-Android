@@ -2,7 +2,11 @@ package com.thewizrd.weather_api.nws
 
 import android.annotation.SuppressLint
 import androidx.core.util.ObjectsCompat
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.NumberUtils.tryParseFloat
+import com.thewizrd.shared_resources.utils.getBeaufortScale
+import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.weather_api.nws.hourly.HourlyForecastResponse
@@ -16,6 +20,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.math.roundToInt
 
 @SuppressLint("VisibleForTests")
 fun createWeatherData(
@@ -173,19 +178,22 @@ fun createForecast(forecastItem: PeriodsItem): Forecast {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.NWS)
         val locale = LocaleUtils.getLocale()
 
-        date = ZonedDateTime.parse(forecastItem.startTime, DateTimeFormatter.ISO_ZONED_DATE_TIME).toLocalDateTime()
+        date = ZonedDateTime.parse(forecastItem.startTime, DateTimeFormatter.ISO_ZONED_DATE_TIME)
+            .toLocalDateTime()
 
-        val temp = NumberUtils.tryParseFloat(forecastItem.temperature)
-        if (forecastItem.isDaytime) {
-            highF = temp
-            highC = ConversionMethods.FtoC(highF)
-        } else {
-            lowF = temp
-            lowC = ConversionMethods.FtoC(lowF)
+        forecastItem.temperature?.toFloatOrNull()?.let {
+            if (forecastItem.isDaytime) {
+                highF = it
+                highC = ConversionMethods.FtoC(it)
+            } else {
+                lowF = it
+                lowC = ConversionMethods.FtoC(it)
+            }
         }
 
         condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
-                locale == Locale.ROOT) {
+            locale == Locale.ROOT
+        ) {
             forecastItem.shortForecast
         } else {
             provider.getWeatherCondition(forecastItem.icon)
@@ -193,7 +201,7 @@ fun createForecast(forecastItem: PeriodsItem): Forecast {
         icon = provider.getWeatherIcon(!forecastItem.isDaytime, forecastItem.icon)
 
         extras = ForecastExtras()
-        extras.pop = NumberUtils.tryParseInt(forecastItem.pop, 0)
+        extras.pop = forecastItem.pop?.toIntOrNull()
     }
 }
 
@@ -225,7 +233,7 @@ fun createForecast(forecastItem: PeriodsItem, nightForecastItem: PeriodsItem): F
         icon = provider.getWeatherIcon(false, forecastItem.icon)
 
         extras = ForecastExtras()
-        extras.pop = NumberUtils.tryParseInt(forecastItem.pop, 0)
+        extras.pop = forecastItem.pop?.toIntOrNull()
     }
 }
 
@@ -249,13 +257,14 @@ fun createHourlyForecast(forecastItem: PeriodItem, adjustDate: Boolean = false):
         if (adjustDate) date = date.minusDays(1)
         setDate(date)
 
-        val temp = NumberUtils.tryParseFloat(forecastItem.temperature)
-        if (temp != null) {
-            highF = temp
-            highC = ConversionMethods.FtoC(temp)
+        forecastItem.temperature?.toFloatOrNull()?.let {
+            highF = it
+            highC = ConversionMethods.FtoC(it)
         }
 
-        condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") || locale == Locale.ROOT) {
+        condition = if (locale.toString() == "en" || locale.toString()
+                .startsWith("en_") || locale == Locale.ROOT
+        ) {
             forecastItem.weather
         } else {
             provider.getWeatherCondition(forecastItem.iconLink)
@@ -265,8 +274,8 @@ fun createHourlyForecast(forecastItem: PeriodItem, adjustDate: Boolean = false):
         // Extras
         extras = ForecastExtras()
 
-        val windSpeed = NumberUtils.tryParseFloat(forecastItem.windSpeed)
-        val windDirection = NumberUtils.tryParseInt(forecastItem.windDirection)
+        val windSpeed = forecastItem.windSpeed?.toFloatOrNull()
+        val windDirection = forecastItem.windDirection?.toIntOrNull()
         if (windSpeed != null && windDirection != null) {
             windDegrees = windDirection
             windMph = windSpeed
@@ -277,31 +286,18 @@ fun createHourlyForecast(forecastItem: PeriodItem, adjustDate: Boolean = false):
             extras.windKph = windKph
         }
 
-        val windChill = NumberUtils.tryParseFloat(forecastItem.windChill)
-        if (windChill != null) {
-            extras.feelslikeF = windChill
-            extras.feelslikeC = ConversionMethods.FtoC(windChill)
+        forecastItem.windChill?.toFloatOrNull()?.let {
+            extras.feelslikeF = it
+            extras.feelslikeC = ConversionMethods.FtoC(it)
         }
 
-        val cloudiness = NumberUtils.tryParseInt(forecastItem.cloudAmount)
-        if (cloudiness != null) {
-            extras.cloudiness = cloudiness
-        }
+        extras.cloudiness = forecastItem.cloudAmount?.toIntOrNull()
+        extras.pop = forecastItem.pop?.toIntOrNull()
+        extras.humidity = forecastItem.relativeHumidity?.toIntOrNull()
 
-        val pop = NumberUtils.tryParseInt(forecastItem.pop)
-        if (pop != null) {
-            extras.pop = pop
-        }
-
-        val humidity = NumberUtils.tryParseInt(forecastItem.relativeHumidity)
-        if (humidity != null) {
-            extras.humidity = humidity
-        }
-
-        val windGust = NumberUtils.tryParseFloat(forecastItem.windGust)
-        if (windGust != null) {
-            extras.windGustMph = windGust
-            extras.windGustKph = ConversionMethods.mphTokph(windGust)
+        forecastItem.windGust?.toFloatOrNull()?.let {
+            extras.windGustMph = it
+            extras.windGustKph = ConversionMethods.mphTokph(it)
         }
     }
 }
@@ -311,44 +307,40 @@ fun createCondition(forecastResponse: ForecastResponse): Condition {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.NWS)
         val locale = LocaleUtils.getLocale()
 
-        weather = if (locale.toString() == "en" || locale.toString().startsWith("en_") || locale == Locale.ROOT) {
+        weather = if (locale.toString() == "en" || locale.toString()
+                .startsWith("en_") || locale == Locale.ROOT
+        ) {
             forecastResponse.currentobservation.weather
         } else {
             provider.getWeatherCondition(forecastResponse.currentobservation.weatherimage)
         }
         icon = forecastResponse.currentobservation.weatherimage
 
-        val temp = NumberUtils.tryParseFloat(forecastResponse.currentobservation.temp)
-        if (temp != null) {
-            tempF = temp
-            tempC = ConversionMethods.FtoC(temp)
+        forecastResponse.currentobservation.temp?.toFloatOrNull()?.let {
+            tempF = it
+            tempC = ConversionMethods.FtoC(it)
         }
 
-        val windDir = NumberUtils.tryParseInt(forecastResponse.currentobservation.windd)
-        if (windDir != null) {
-            windDegrees = windDir
+        windDegrees = forecastResponse.currentobservation.windd?.toIntOrNull()
+
+        forecastResponse.currentobservation.winds?.toFloatOrNull()?.let {
+            windMph = it
+            windKph = ConversionMethods.mphTokph(it)
         }
 
-        val windSpeed = NumberUtils.tryParseFloat(forecastResponse.currentobservation.winds)
-        if (windSpeed != null) {
-            windMph = windSpeed
-            windKph = ConversionMethods.mphTokph(windSpeed)
+        forecastResponse.currentobservation.gust?.toFloatOrNull()?.let {
+            windGustMph = it
+            windGustKph = ConversionMethods.mphTokph(it)
         }
 
-        val windGust = NumberUtils.tryParseFloat(forecastResponse.currentobservation.gust)
-        if (windGust != null) {
-            windGustMph = windGust
-            windGustKph = ConversionMethods.mphTokph(windGust)
-        }
-
-        val windChill = NumberUtils.tryParseFloat(forecastResponse.currentobservation.windChill)
+        val windChill = forecastResponse.currentobservation.windChill?.toFloatOrNull()
         if (windChill != null) {
             feelslikeF = windChill
             feelslikeC = ConversionMethods.FtoC(windChill)
         } else if (tempF != null && !ObjectsCompat.equals(tempF, tempC) && windMph != null) {
-            val humidity = NumberUtils.tryParseFloat(forecastResponse.currentobservation.relh, -1f)
+            val humidity = forecastResponse.currentobservation.relh.tryParseFloat(-1f)
             if (humidity >= 0) {
-                feelslikeF = getFeelsLikeTemp(tempF, windMph, Math.round(humidity))
+                feelslikeF = getFeelsLikeTemp(tempF, windMph, humidity.roundToInt())
                 feelslikeC = ConversionMethods.FtoC(feelslikeF)
             }
         }
@@ -363,28 +355,22 @@ fun createCondition(forecastResponse: ForecastResponse): Condition {
 
 fun createAtmosphere(forecastResponse: ForecastResponse): Atmosphere {
     return Atmosphere().apply {
-        val relh = NumberUtils.tryParseInt(forecastResponse.currentobservation.relh)
-        if (relh != null) {
-            humidity = relh
-        }
+        humidity = forecastResponse.currentobservation.relh?.toIntOrNull()
 
-        val pressure = NumberUtils.tryParseFloat(forecastResponse.currentobservation.slp)
-        if (pressure != null) {
-            pressureIn = pressure
-            pressureMb = ConversionMethods.inHgToMB(pressure)
+        forecastResponse.currentobservation.slp?.toFloatOrNull()?.let {
+            pressureIn = it
+            pressureMb = ConversionMethods.inHgToMB(it)
         }
         pressureTrend = ""
 
-        val visibility = NumberUtils.tryParseFloat(forecastResponse.currentobservation.visibility)
-        if (visibility != null) {
-            visibilityMi = visibility
-            visibilityKm = ConversionMethods.miToKm(visibility)
+        forecastResponse.currentobservation.visibility?.toFloatOrNull()?.let {
+            visibilityMi = it
+            visibilityKm = ConversionMethods.miToKm(it)
         }
 
-        val dewp = NumberUtils.tryParseFloat(forecastResponse.currentobservation.dewp)
-        if (dewp != null) {
-            dewpointF = dewp
-            dewpointC = ConversionMethods.FtoC(dewp)
+        forecastResponse.currentobservation.dewp?.toFloatOrNull()?.let {
+            dewpointF = it
+            dewpointC = ConversionMethods.FtoC(it)
         }
     }
 }

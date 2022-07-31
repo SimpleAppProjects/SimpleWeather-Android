@@ -1,7 +1,10 @@
 package com.thewizrd.weather_api.weatherunlocked
 
 import android.annotation.SuppressLint
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.calculateDewpointC
+import com.thewizrd.shared_resources.utils.getBeaufortScale
+import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.weather_api.weatherModule
@@ -150,7 +153,7 @@ fun createHourlyForecast(timeframe: TimeframesItem): HourlyForecast {
         extras.dewpointC = timeframe.dewpointC.roundToInt().toFloat()
         extras.feelslikeF = timeframe.feelslikeF.roundToInt().toFloat()
         extras.feelslikeC = timeframe.feelslikeC.roundToInt().toFloat()
-        extras.pop = NumberUtils.tryParseInt(timeframe.probPrecipPct, 0)
+        extras.pop = timeframe.probPrecipPct?.toIntOrNull()
         extras.windGustMph = timeframe.windgstMph.roundToInt().toFloat()
         extras.windGustKph = timeframe.windgstKmh.roundToInt().toFloat()
         extras.visibilityMi = timeframe.visMi

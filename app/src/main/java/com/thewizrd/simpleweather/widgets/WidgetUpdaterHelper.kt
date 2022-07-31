@@ -14,7 +14,7 @@ import android.widget.RemoteViews
 import com.thewizrd.common.controls.BaseForecastItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.Constants
@@ -165,7 +165,7 @@ object WidgetUpdaterHelper {
     internal suspend fun buildUpdate(
         context: Context, info: WidgetProviderInfo,
         appWidgetId: Int, location: LocationData,
-        weather: WeatherNowViewModel, newOptions: Bundle,
+        weather: WeatherUiModel, newOptions: Bundle,
         loadBackground: Boolean = true
     ): RemoteViews {
         val creator = WidgetUtils.getRemoteViewCreator(context, appWidgetId)

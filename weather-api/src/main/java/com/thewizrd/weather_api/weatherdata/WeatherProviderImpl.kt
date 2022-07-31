@@ -150,11 +150,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             }
 
             // Update DB here or somewhere else
-            if (appLib.isPhone) {
-                settingsManager.updateLocation(location)
-            } else {
-                settingsManager.saveHomeData(location)
-            }
+            settingsManager.updateLocation(location)
         }
 
         if (weather.location.tzLong.isNullOrBlank())

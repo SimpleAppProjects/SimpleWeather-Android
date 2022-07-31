@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.ui.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,7 +106,36 @@ fun WeatherAlertPanel(
     }
 }
 
-@Preview
+@Preview(
+    apiLevel = 26,
+    uiMode = Configuration.UI_MODE_TYPE_WATCH,
+    showSystemUi = true,
+    device = Devices.WEAR_OS_LARGE_ROUND,
+    widthDp = 360,
+    heightDp = 360,
+    showBackground = true,
+    backgroundColor = 0xFF000000
+)
+@Preview(
+    apiLevel = 26,
+    uiMode = Configuration.UI_MODE_TYPE_WATCH,
+    showSystemUi = true,
+    device = Devices.WEAR_OS_SQUARE,
+    widthDp = 360,
+    heightDp = 360,
+    showBackground = true,
+    backgroundColor = 0xFF000000
+)
+@Preview(
+    apiLevel = 26,
+    uiMode = Configuration.UI_MODE_TYPE_WATCH,
+    showSystemUi = true,
+    device = Devices.WEAR_OS_SMALL_ROUND,
+    widthDp = 320,
+    heightDp = 320,
+    showBackground = true,
+    backgroundColor = 0xFF000000
+)
 @Composable
 fun PreviewWeatherAlertPanel() {
     val scrollState = rememberScrollState()

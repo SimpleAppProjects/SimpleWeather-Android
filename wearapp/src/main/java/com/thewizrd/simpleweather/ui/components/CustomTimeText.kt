@@ -12,10 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.TimeTextDefaults
-import androidx.wear.compose.material.curvedText
+import androidx.wear.compose.material.*
 import com.thewizrd.simpleweather.BuildConfig
 
 /**
@@ -27,6 +24,7 @@ fun CustomTimeText(
     visible: Boolean,
     modifier: Modifier = Modifier,
     startText: String? = null,
+    timeSource: TimeSource = TimeTextDefaults.timeSource(TimeTextDefaults.timeFormat())
 ) {
     val textStyle = TimeTextDefaults.timeTextStyle()
     val debugWarning = remember {
@@ -47,6 +45,7 @@ fun CustomTimeText(
         val visibleText = startText != null
         TimeText(
             modifier = modifier,
+            timeSource = timeSource,
             startCurvedContent = if (visibleText) {
                 {
                     curvedText(

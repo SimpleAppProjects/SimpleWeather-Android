@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.controls
+package com.thewizrd.simpleweather.viewmodels
 
 import android.text.format.DateFormat
 import com.thewizrd.shared_resources.DateTimeConstants

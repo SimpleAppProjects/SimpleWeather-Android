@@ -68,7 +68,8 @@ fun WeatherDetailItem(
     device = Devices.WEAR_OS_LARGE_ROUND,
     widthDp = 360,
     heightDp = 360,
-    showBackground = true
+    showBackground = true,
+    backgroundColor = 0xFF000000
 )
 @Preview(
     apiLevel = 26,
@@ -77,7 +78,8 @@ fun WeatherDetailItem(
     device = Devices.WEAR_OS_SQUARE,
     widthDp = 360,
     heightDp = 360,
-    showBackground = true
+    showBackground = true,
+    backgroundColor = 0xFF000000
 )
 @Preview(
     apiLevel = 26,
@@ -86,7 +88,8 @@ fun WeatherDetailItem(
     device = Devices.WEAR_OS_SMALL_ROUND,
     widthDp = 320,
     heightDp = 320,
-    showBackground = true
+    showBackground = true,
+    backgroundColor = 0xFF000000
 )
 @Composable
 fun PreviewWeatherDetailItem() {

@@ -343,10 +343,14 @@ class SettingsManager(context: Context) {
     }
 
     suspend fun updateLocation(location: LocationData?) {
-        if (location?.locationType == LocationType.GPS && location.isValid) {
+        if (appLib.isPhone) {
+            if (location?.locationType == LocationType.GPS && location.isValid) {
+                saveLastGPSLocData(location)
+            } else if (location?.locationType == LocationType.SEARCH && location.isValid) {
+                getLocationsDAO().updateLocationData(location)
+            }
+        } else {
             saveLastGPSLocData(location)
-        } else if (location?.locationType == LocationType.SEARCH && location.isValid) {
-            getLocationsDAO().updateLocationData(location)
         }
     }
 
@@ -421,11 +425,6 @@ class SettingsManager(context: Context) {
     }
 
     // Android Wear specific members
-    @RequiresApi(Build.VERSION_CODES.M)
-    suspend fun saveHomeData(data: LocationData?) {
-        saveLastGPSLocData(data)
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     fun getDataSync(): WearableDataSync {
         return WearableDataSync.valueOf(preferences.getString(KEY_DATASYNC, "0")!!.toInt())

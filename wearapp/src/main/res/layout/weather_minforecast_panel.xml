@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.simpleweather.controls.MinutelyForecastViewModel" />
+            type="com.thewizrd.simpleweather.viewmodels.MinutelyForecastViewModel" />
     </data>
 
     <LinearLayout

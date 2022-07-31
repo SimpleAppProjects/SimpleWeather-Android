@@ -8,7 +8,7 @@ import android.util.SizeF
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
@@ -24,7 +24,7 @@ class WeatherWidget2x2PillMaterialYouCreator(context: Context) : WidgetRemoteVie
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -61,7 +61,7 @@ class WeatherWidget2x2PillMaterialYouCreator(context: Context) : WidgetRemoteVie
     private suspend fun buildLayout(
         @LayoutRes layoutId: Int,
         location: LocationData,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         newOptions: Bundle
     ): RemoteViews {
         // Widget dimensions

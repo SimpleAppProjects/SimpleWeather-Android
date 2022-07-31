@@ -14,7 +14,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.utils.glide.CustomRoundedCorners
 import com.thewizrd.common.utils.glide.TransparentOverlay
@@ -25,7 +25,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
-import com.thewizrd.simpleweather.controls.getImageData
+import com.thewizrd.simpleweather.viewmodels.getImageData
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
@@ -44,7 +44,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
     override suspend fun buildExtras(
         appWidgetId: Int,
         updateViews: RemoteViews,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ) {
@@ -75,7 +75,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
         background: WidgetUtils.WidgetBackground,
         style: WidgetUtils.WidgetBackgroundStyle?,
         newOptions: Bundle,
-        weather: WeatherNowViewModel
+        weather: WeatherUiModel
     ) {
         val backgroundColor = if (background == WidgetUtils.WidgetBackground.CUSTOM) {
             newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(appWidgetId)

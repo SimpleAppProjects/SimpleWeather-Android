@@ -231,11 +231,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
             location.locationSource = qview.locationSource
 
             // Update DB here or somewhere else
-            if (appLib.isPhone) {
-                settingsManager.updateLocation(location)
-            } else {
-                settingsManager.saveHomeData(location)
-            }
+            settingsManager.updateLocation(location)
         }
     }
 

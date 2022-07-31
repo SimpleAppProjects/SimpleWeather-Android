@@ -171,7 +171,10 @@ object JSONParser {
 
     /* Custom [De]Serializers for CustomJsonObjects */
     @JvmStatic
-    fun <T : CustomJsonObject?> serializer(`object`: T?, type: Type): String? {
+    inline fun <reified T : CustomJsonObject> serializer(
+        `object`: T?,
+        type: Type = T::class.java
+    ): String? {
         if (`object` == null) return null
 
         val buffer = Buffer()
@@ -188,7 +191,10 @@ object JSONParser {
     }
 
     @JvmStatic
-    fun <T : CustomJsonObject?> deserializer(response: String?, obj: Class<T>): T? {
+    inline fun <reified T : CustomJsonObject> deserializer(
+        response: String?,
+        obj: Class<T> = T::class.java
+    ): T? {
         if (response.isNullOrBlank()) return null
 
         var `object`: T? = null
@@ -206,7 +212,10 @@ object JSONParser {
     }
 
     @JvmStatic
-    fun <T : CustomJsonObject?> deserializer(stream: InputStream, obj: Class<T>): T? {
+    inline fun <reified T : CustomJsonObject> deserializer(
+        stream: InputStream,
+        obj: Class<T> = T::class.java
+    ): T? {
         var `object`: T? = null
 
         try {

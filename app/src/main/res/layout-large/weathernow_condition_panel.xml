@@ -12,20 +12,12 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
-
-        <variable
-            name="weatherNowState"
-            type="com.thewizrd.simpleweather.main.WeatherNowFragment.WeatherNowFragmentStateModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
         <variable
             name="alertsView"
             type="com.thewizrd.common.controls.WeatherAlertsViewModel" />
-
-        <variable
-            name="imageData"
-            type="com.thewizrd.simpleweather.controls.ImageDataViewModel" />
 
     </data>
 
@@ -50,8 +42,8 @@
                 android:layout_margin="8dp"
                 android:layout_gravity="center_vertical"
                 app:srcCompat="@drawable/ic_place_white_24dp"
-                app:showIfTrue="@{weatherNowState.isGPSLocation()}"
-                app:tint="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                app:showIfTrue="@{viewModel.uiState.GPSLocation}"
+                app:tint="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                 tools:tint="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -61,9 +53,9 @@
                 android:layout_gravity="center_vertical"
                 android:gravity="center_horizontal"
                 android:maxLines="2"
-                android:text="@{weatherView.location}"
+                android:text="@{viewModel.weather.location}"
                 android:textAppearance="?textAppearanceHeadline6"
-                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                 tools:text="A Really Long String of Text, New York, United States"
                 tools:textColor="@color/colorOnSurface" />
 
@@ -78,10 +70,10 @@
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:padding="4dp"
-            android:text="@{weatherView.updateDate}"
+            android:text="@{viewModel.weather.updateDate}"
             android:textSize="12sp"
             android:textAppearance="?textAppearanceTitleMedium"
-            android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+            android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
             tools:text="Updated on 11:12 PM"
             tools:ignore="MissingConstraints" />
 
@@ -131,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
+            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
             tools:layout_height="360dp" />
 
         <LinearLayout
@@ -140,7 +132,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical"
-            app:hideIfNullOrWhitespace="@{weatherView.location}"
+            app:hideIfNullOrWhitespace="@{viewModel.weather.location}"
             tools:layout_height="wrap_content">
 
             <RelativeLayout
@@ -160,9 +152,9 @@
                     android:gravity="start|center_vertical"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:text="@{weatherView.curTemp}"
+                    android:text="@{viewModel.weather.curTemp}"
                     android:textAppearance="@style/TextAppearance.WeatherNow.Temperature"
-                    app:tempTextColor="@{weatherView.curTemp}"
+                    app:tempTextColor="@{viewModel.weather.curTemp}"
                     tools:text="70°F" />
 
                 <LinearLayout
@@ -178,7 +170,7 @@
                     android:layout_toEndOf="@id/weather_temp"
                     android:layout_alignTop="@id/weather_temp"
                     android:layout_alignBottom="@id/weather_temp"
-                    app:showIfTrue="@{weatherView.showHiLo}"
+                    app:showIfTrue="@{viewModel.weather.showHiLo}"
                     tools:visibility="visible">
 
                     <com.thewizrd.common.controls.TextViewDrawableCompat
@@ -189,9 +181,9 @@
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
-                        android:text="@{weatherView.hiTemp}"
+                        android:text="@{viewModel.weather.hiTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
-                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_up"
@@ -207,9 +199,9 @@
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
-                        android:text="@{weatherView.loTemp}"
+                        android:text="@{viewModel.weather.loTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
-                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                        android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
                         app:drawableEndCompat="@drawable/wi_direction_down"
@@ -231,8 +223,8 @@
                     android:padding="8dp"
                     android:scaleType="fitEnd"
                     app:animate="true"
-                    app:forceDarkMode="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
-                    app:weatherIcon="@{weatherView.weatherIcon}"
+                    app:forceDarkMode="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
+                    app:weatherIcon="@{viewModel.weather.weatherIcon}"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>
@@ -250,9 +242,9 @@
                 android:gravity="start|bottom"
                 android:maxLines="2"
                 android:padding="4dp"
-                android:text="@{weatherView.curCondition}"
+                android:text="@{viewModel.weather.curCondition}"
                 android:textAppearance="@style/TextAppearance.WeatherNow.ConditionText"
-                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                 tools:text="Sunny" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -267,12 +259,12 @@
                 android:layout_marginBottom="8dp"
                 android:alpha="0.75"
                 android:padding="4dp"
-                android:text="@{weatherView.weatherSummary}"
+                android:text="@{viewModel.weather.weatherSummary}"
                 android:textSize="@dimen/weather_summary_text_size"
                 android:textAppearance="?textAppearanceTitleMedium"
-                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null ? @android:color/white : @color/colorOnSurface}"
+                android:textColor="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null ? @android:color/white : @color/colorOnSurface}"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
-                app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
+                app:hideIfNullOrWhitespace="@{viewModel.weather.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -291,7 +283,7 @@
                 android:textColor="@android:color/white"
                 android:textColorLink="@android:color/white"
                 android:textSize="12sp"
-                app:imageData="@{imageData}"
+                app:imageData="@{viewModel.imageData}"
                 tools:text="Attribution text goes here" />
 
         </LinearLayout>

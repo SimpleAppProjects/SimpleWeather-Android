@@ -8,6 +8,7 @@ import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
+import com.thewizrd.shared_resources.utils.NumberUtils.getValueOrDefault
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.weather_api.weatherModule
 import java.text.DecimalFormat
@@ -90,7 +91,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
                 }
             }
 
-            windDirection = NumberUtils.getValueOrDefault(forecast.windDegrees, 0) + 180
+            windDirection = forecast.windDegrees.getValueOrDefault(0) + 180
 
             windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit)
         }

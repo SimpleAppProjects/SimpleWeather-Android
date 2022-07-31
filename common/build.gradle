@@ -49,6 +49,7 @@ android {
             dimension 'gms'
         }
     }
+    namespace 'com.thewizrd.common'
 }
 
 dependencies {

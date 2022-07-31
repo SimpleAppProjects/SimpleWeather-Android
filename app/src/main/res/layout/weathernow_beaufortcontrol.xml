@@ -11,15 +11,15 @@
         <import type="com.thewizrd.simpleweather.R" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.beaufortEnabled || weatherView.beaufort == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.beaufortEnabled || viewModel.weather.beaufort == null ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:id="@+id/beaufort_label"
@@ -49,7 +49,7 @@
             app:layout_constraintTop_toBottomOf="@id/beaufort_label"
             app:layout_constraintBottom_toTopOf="@id/beaufort_progressBar"
             app:tint="@color/beaufort_color"
-            app:weatherIcon="@{weatherView.beaufort.beaufort.icon}"
+            app:weatherIcon="@{viewModel.weather.beaufort.beaufort.icon}"
             tools:src="@drawable/wi_wind_beaufort_11" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -58,7 +58,7 @@
             android:layout_height="0dp"
             android:gravity="center_vertical"
             android:padding="6dp"
-            android:text="@{weatherView.beaufort.beaufort.value}"
+            android:text="@{viewModel.weather.beaufort.beaufort.value}"
             android:textAppearance="?textAppearanceBodyLarge"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintEnd_toEndOf="parent"
@@ -76,14 +76,14 @@
             android:layout_marginEnd="12dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="12dp"
-            android:max="@{weatherView.beaufort.progressMax}"
+            android:max="@{viewModel.weather.beaufort.progressMax}"
             android:maxHeight="4dp"
             android:minHeight="4dp"
-            android:progress="@{weatherView.beaufort.progress}"
+            android:progress="@{viewModel.weather.beaufort.progress}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/beaufort_icon"
-            app:progressColor="@{weatherView.beaufort.progressColor}"
+            app:progressColor="@{viewModel.weather.beaufort.progressColor}"
             app:trackCornerRadius="@dimen/shape_corner_radius"
             tools:max="12"
             tools:progress="11"

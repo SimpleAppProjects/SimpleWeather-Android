@@ -16,7 +16,6 @@ import androidx.navigation.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
-import com.thewizrd.common.controls.WeatherNowViewModel
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.simpleweather.R
@@ -25,10 +24,11 @@ import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.radar.RadarProvider.getRadarViewProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class WeatherRadarFragment : ToolbarFragment() {
-    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private lateinit var binding: FragmentWeatherRadarBinding
 
     private var radarViewProvider: RadarViewProvider? = null
@@ -67,8 +67,8 @@ class WeatherRadarFragment : ToolbarFragment() {
         toolbar.setOnMenuItemClickListener(Toolbar.OnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_refresh -> {
-                    if (radarViewProvider != null && weatherView.locationCoord != null) {
-                        radarViewProvider!!.updateCoordinates(weatherView.locationCoord, true)
+                    wNowViewModel.weather.value?.let {
+                        radarViewProvider?.updateCoordinates(it.locationCoord, true)
                     }
                     return@OnMenuItemClickListener true
                 }
@@ -85,8 +85,9 @@ class WeatherRadarFragment : ToolbarFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (weatherView.locationCoord != null) {
-            radarViewProvider?.onViewCreated(weatherView.locationCoord)
+
+        wNowViewModel.weather.value?.let {
+            radarViewProvider?.onViewCreated(it.locationCoord)
         }
     }
 

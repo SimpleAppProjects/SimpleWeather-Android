@@ -66,6 +66,7 @@ android {
             buildConfigField "boolean", "IS_NONGMS", "false"
         }
     }
+    namespace 'com.thewizrd.shared_resources'
 }
 
 dependencies {

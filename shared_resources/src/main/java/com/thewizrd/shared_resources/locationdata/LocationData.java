@@ -19,6 +19,7 @@ import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.shared_resources.utils.SettingsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
 import com.thewizrd.shared_resources.utils.ZoneIdCompat;
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 import com.thewizrd.shared_resources.weatherdata.model.LocationType;
 import com.thewizrd.shared_resources.weatherdata.model.Weather;
 
@@ -122,19 +123,21 @@ public class LocationData extends CustomJsonObject {
         this.locationType = locationType;
     }
 
+    @WeatherAPI.WeatherProviders
     public String getWeatherSource() {
         return weatherSource;
     }
 
-    public void setWeatherSource(String source) {
+    public void setWeatherSource(@WeatherAPI.WeatherProviders String source) {
         this.weatherSource = source;
     }
 
+    @WeatherAPI.LocationProviders
     public String getLocationSource() {
         return locationSource;
     }
 
-    public void setLocationSource(String locationSource) {
+    public void setLocationSource(@WeatherAPI.LocationProviders String locationSource) {
         this.locationSource = locationSource;
     }
 

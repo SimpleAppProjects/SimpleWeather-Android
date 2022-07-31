@@ -10,8 +10,8 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
         <variable
             name="alertsView"
@@ -72,7 +72,7 @@
             android:layout_margin="8dp"
             app:cardCornerRadius="@dimen/shape_corner_radius"
             app:cardUseCompatPadding="false"
-            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; imageData != null}"
+            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
             tools:layout_height="360dp">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -98,7 +98,7 @@
                 android:textColor="@android:color/white"
                 android:textColorLink="@android:color/white"
                 android:textSize="12sp"
-                app:imageData="@{imageData}"
+                app:imageData="@{viewModel.imageData}"
                 tools:text="Attribution text goes here" />
 
         </androidx.cardview.widget.CardView>
@@ -109,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical"
-            app:hideIfNullOrWhitespace="@{weatherView.location}"
+            app:hideIfNullOrWhitespace="@{viewModel.weather.location}"
             tools:layout_height="wrap_content">
 
             <RelativeLayout
@@ -129,9 +129,9 @@
                     android:gravity="start|center_vertical"
                     android:padding="4dp"
                     android:scrollbars="none"
-                    android:text="@{weatherView.curTemp}"
+                    android:text="@{viewModel.weather.curTemp}"
                     android:textAppearance="@style/TextAppearance.WeatherNow.Temperature"
-                    app:tempTextColor="@{weatherView.curTemp}"
+                    app:tempTextColor="@{viewModel.weather.curTemp}"
                     tools:text="70°F" />
 
                 <LinearLayout
@@ -147,7 +147,7 @@
                     android:layout_toEndOf="@id/weather_temp"
                     android:layout_alignTop="@id/weather_temp"
                     android:layout_alignBottom="@id/weather_temp"
-                    app:showIfTrue="@{weatherView.showHiLo}"
+                    app:showIfTrue="@{viewModel.weather.showHiLo}"
                     tools:visibility="visible">
 
                     <com.thewizrd.common.controls.TextViewDrawableCompat
@@ -158,7 +158,7 @@
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
-                        android:text="@{weatherView.hiTemp}"
+                        android:text="@{viewModel.weather.hiTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
@@ -175,7 +175,7 @@
                         android:layout_gravity="end"
                         android:minWidth="60dp"
                         android:scrollbars="none"
-                        android:text="@{weatherView.loTemp}"
+                        android:text="@{viewModel.weather.loTemp}"
                         android:textAppearance="@style/TextAppearance.WeatherNow.HiLoTemp"
                         app:drawableHeight="30dp"
                         app:drawableWidth="30dp"
@@ -198,7 +198,7 @@
                     android:padding="8dp"
                     android:scaleType="fitEnd"
                     app:animate="true"
-                    app:weatherIcon="@{weatherView.weatherIcon}"
+                    app:weatherIcon="@{viewModel.weather.weatherIcon}"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>
@@ -216,7 +216,7 @@
                 android:gravity="start|bottom"
                 android:maxLines="2"
                 android:padding="4dp"
-                android:text="@{weatherView.curCondition}"
+                android:text="@{viewModel.weather.curCondition}"
                 android:textAppearance="@style/TextAppearance.WeatherNow.ConditionText"
                 tools:text="Sunny" />
 
@@ -228,11 +228,11 @@
                 android:layout_marginVertical="4dp"
                 android:alpha="0.75"
                 android:padding="4dp"
-                android:text="@{weatherView.weatherSummary}"
+                android:text="@{viewModel.weather.weatherSummary}"
                 android:textSize="@dimen/weather_summary_text_size"
                 android:textAppearance="?textAppearanceTitleMedium"
                 app:showIfTrue="@{FeatureSettings.isSummaryEnabled}"
-                app:hideIfNullOrWhitespace="@{weatherView.weatherSummary}"
+                app:hideIfNullOrWhitespace="@{viewModel.weather.weatherSummary}"
                 tools:text="Rain, some heavy, to affect the area tonight" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -244,7 +244,7 @@
                 android:layout_marginBottom="8dp"
                 android:alpha="0.75"
                 android:padding="4dp"
-                android:text="@{weatherView.updateDate}"
+                android:text="@{viewModel.weather.updateDate}"
                 android:textSize="12sp"
                 android:textAppearance="?textAppearanceTitleMedium"
                 tools:text="Updated on 11:12 PM"

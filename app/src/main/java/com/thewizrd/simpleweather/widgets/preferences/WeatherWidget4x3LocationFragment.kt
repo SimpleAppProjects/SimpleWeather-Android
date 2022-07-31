@@ -39,7 +39,7 @@ import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
@@ -111,7 +111,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
     private lateinit var binding: FragmentWidgetSetupBinding
     private var wallpaperLoaded = false
     private var mockLocData: LocationData? = null
-    private var mockWeatherModel: WeatherNowViewModel? = null
+    private var mockWeatherModel: WeatherUiModel? = null
     private var mockWeatherData: Weather? = null
 
     private lateinit var locationPref: ArrayMultiSelectListPreference
@@ -1071,7 +1071,7 @@ class WeatherWidget4x3LocationFragment : ToolbarPreferenceFragmentCompat() {
         }
 
         if (mockWeatherModel == null) {
-            mockWeatherModel = WeatherNowViewModel(Weather().apply {
+            mockWeatherModel = WeatherUiModel(Weather().apply {
                 location = Location().apply {
                     name = mockLocData?.name
                     tzLong = "UTC"

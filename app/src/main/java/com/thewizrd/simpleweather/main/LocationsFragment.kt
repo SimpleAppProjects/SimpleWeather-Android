@@ -49,7 +49,7 @@ import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.utils.ActivityUtils.setLightStatusBar
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
-import com.thewizrd.common.weatherdata.WeatherRequest.WeatherErrorListener
+import com.thewizrd.common.weatherdata.WeatherResult
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -87,7 +87,7 @@ import java.lang.Runnable
 import java.util.*
 import kotlin.coroutines.coroutineContext
 
-class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
+class LocationsFragment : ToolbarFragment() {
     companion object {
         private const val TAG = "LocationsFragment"
     }
@@ -169,7 +169,7 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
         }
     }
 
-    override fun onWeatherError(wEx: WeatherException) {
+    private fun onWeatherError(wEx: WeatherException) {
         runWithView(Dispatchers.Main) {
             when (wEx.errorStatus) {
                 ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER ->
@@ -654,15 +654,25 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
                     launch(Dispatchers.Default) {
                         supervisorScope {
-                            val weather = WeatherDataLoader(location)
-                                .loadWeatherData(
+                            val result = WeatherDataLoader(location)
+                                .loadWeatherResult(
                                     WeatherRequest.Builder()
                                         .forceRefresh(false)
-                                        .setErrorListener(this@LocationsFragment)
                                         .build()
                                 )
 
-                            onWeatherLoaded(location, weather)
+                            when (result) {
+                                is WeatherResult.Error -> {
+                                    onWeatherError(result.exception)
+                                }
+                                is WeatherResult.WeatherWithError -> {
+                                    onWeatherError(result.exception)
+                                }
+                                is WeatherResult.NoWeather -> {}
+                                is WeatherResult.Success -> {}
+                            }
+
+                            onWeatherLoaded(location, result.data)
                         }
                     }
                 }
@@ -751,7 +761,6 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
                                 .loadWeatherData(
                                     WeatherRequest.Builder()
                                         .forceRefresh(false)
-                                        .setErrorListener(this@LocationsFragment)
                                         .build()
                                 )
 
@@ -790,15 +799,25 @@ class LocationsFragment : ToolbarFragment(), WeatherErrorListener {
 
             if (gpsData != null) {
                 launch(Dispatchers.Default) {
-                    val weather = WeatherDataLoader(gpsData)
-                        .loadWeatherData(
+                    val result = WeatherDataLoader(gpsData)
+                        .loadWeatherResult(
                             WeatherRequest.Builder()
                                 .forceRefresh(false)
-                                .setErrorListener(this@LocationsFragment)
                                 .build()
                         )
 
-                    onWeatherLoaded(gpsData, weather)
+                    when (result) {
+                        is WeatherResult.Error -> {
+                            onWeatherError(result.exception)
+                        }
+                        is WeatherResult.WeatherWithError -> {
+                            onWeatherError(result.exception)
+                        }
+                        is WeatherResult.NoWeather -> {}
+                        is WeatherResult.Success -> {}
+                    }
+
+                    onWeatherLoaded(gpsData, result.data)
                 }
             }
         }

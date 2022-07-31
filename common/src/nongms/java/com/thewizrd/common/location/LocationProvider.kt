@@ -8,11 +8,23 @@ import android.location.LocationManager
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import androidx.core.os.CancellationSignal
+import com.thewizrd.common.R
 import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.exceptions.WeatherException
+import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.toLocation
+import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.weather_api.weatherModule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
+import kotlin.math.abs
 
 @SuppressLint("MissingPermission")
 class LocationProvider(private val context: Context) {
@@ -88,5 +100,79 @@ class LocationProvider(private val context: Context) {
                 continuation.resume(null)
             }
         }
+    }
+
+    suspend fun getLatestLocationData(previousLocation: LocationData? = null): LocationResult {
+        if (!checkPermissions()) return LocationResult.PermissionDenied()
+
+        var location = withContext(Dispatchers.IO) {
+            val result: Location? = try {
+                withTimeoutOrNull(5000) {
+                    getLastLocation()
+                }
+            } catch (e: Exception) {
+                null
+            }
+            result
+        }
+
+        /* Get current location from provider */
+        if (location == null) {
+            location = withTimeoutOrNull(30000) {
+                getCurrentLocation()
+            }
+        }
+
+        if (location != null) {
+            var lastGPSLocData = settingsManager.getLastGPSLocData()
+
+            // Check previous location difference
+            if (lastGPSLocData?.isValid == true && previousLocation != null && ConversionMethods.calculateGeopositionDistance(
+                    previousLocation.toLocation(),
+                    location
+                ) < 1600
+            ) {
+                return LocationResult.NotChanged(previousLocation)
+            }
+
+            if (lastGPSLocData?.isValid == true &&
+                abs(
+                    ConversionMethods.calculateHaversine(
+                        lastGPSLocData.latitude, lastGPSLocData.longitude,
+                        location.latitude, location.longitude
+                    )
+                ) < 1600
+            ) {
+                return LocationResult.NotChanged(previousLocation)
+            }
+
+            val wm = weatherModule.weatherManager
+
+            val view = try {
+                withContext(Dispatchers.IO) {
+                    wm.getLocation(location)
+                }
+            } catch (e: WeatherException) {
+                return LocationResult.Error(errorMessage = mContext.getString(R.string.error_retrieve_location))
+            }
+
+            if (view == null || view.locationQuery.isNullOrBlank()) {
+                // Stop since there is no valid query
+                return LocationResult.Error(errorMessage = mContext.getString(R.string.error_retrieve_location))
+            } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
+                val tzId =
+                    weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
+                if ("unknown" != tzId)
+                    view.locationTZLong = tzId
+            }
+
+            // Save location as last known
+            lastGPSLocData = view.toLocationData(location)
+            settingsManager.updateLocation(lastGPSLocData)
+
+            return LocationResult.Changed(lastGPSLocData, true)
+        }
+
+        return LocationResult.NotChanged(previousLocation, false)
     }
 }

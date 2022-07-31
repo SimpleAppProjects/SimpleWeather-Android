@@ -5,21 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.Observable
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.common.controls.AirQualityViewModel
-import com.thewizrd.common.controls.WeatherNowViewModel
-import com.thewizrd.common.weatherdata.WeatherDataLoader
-import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
@@ -28,7 +24,6 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
-import com.thewizrd.simpleweather.BR
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.AQIForecastAdapter
 import com.thewizrd.simpleweather.adapters.AQIForecastGraphAdapter
@@ -38,19 +33,15 @@ import com.thewizrd.simpleweather.controls.viewmodels.createGraphData
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
-import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.weather_api.weatherModule
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import de.twoid.ui.decoration.InsetItemDecoration
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import java.time.LocalDate
 import java.time.ZoneOffset
 
 class WeatherAQIFragment : ToolbarFragment() {
-    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private val aqiView: AirQualityForecastViewModel by viewModels()
     private var locationData: LocationData? = null
 
@@ -60,8 +51,6 @@ class WeatherAQIFragment : ToolbarFragment() {
     private lateinit var aqiForecastAdapter: ListAdapter<*, *>
 
     private lateinit var args: WeatherAQIFragmentArgs
-
-    private val wm = weatherModule.weatherManager
 
     init {
         arguments = Bundle()
@@ -107,7 +96,10 @@ class WeatherAQIFragment : ToolbarFragment() {
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true)
         headerBinding = LayoutLocationHeaderBinding.inflate(inflater, appBarLayout, true)
+
         binding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.viewModel = wNowViewModel
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
@@ -149,14 +141,11 @@ class WeatherAQIFragment : ToolbarFragment() {
 
         binding.progressBar.visibility = View.VISIBLE
 
-        weatherView.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                if (propertyId == 0 || propertyId == BR.airQuality) {
-                    currentAQIAdapter.updateItem(weatherView.airQuality)
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            wNowViewModel.weather.collect {
+                currentAQIAdapter.updateItem(it?.airQuality)
             }
-
-        })
+        }
 
         aqiView.getAQIForecastData().observe(viewLifecycleOwner) {
             val forecastList = it?.filterNot { item ->
@@ -183,7 +172,6 @@ class WeatherAQIFragment : ToolbarFragment() {
         super.onResume()
         if (!isHidden) {
             AnalyticsLogger.logEvent("WeatherAQIFragment: onResume")
-            initialize()
         }
     }
 
@@ -195,92 +183,11 @@ class WeatherAQIFragment : ToolbarFragment() {
     override val titleResId: Int
         get() = R.string.label_airquality
 
-    private fun initialize() {
-        runWithView {
-            if (locationData == null) {
-                locationData = settingsManager.getHomeData()
-            }
-
-            if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
-                locationData?.let { locData ->
-                    runWithView(Dispatchers.Default) {
-                        supervisorScope {
-                            val weather = WeatherDataLoader(locData).loadWeatherData(
-                                WeatherRequest.Builder()
-                                    .forceLoadSavedData()
-                                    .setErrorListener { wEx ->
-                                        when (wEx.errorStatus) {
-                                            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                                                // Show error message and prompt to refresh
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                            ErrorStatus.QUERYNOTFOUND -> {
-                                                if (!wm.isRegionSupported(locData.countryCode)) {
-                                                    showSnackbar(
-                                                        Snackbar.make(
-                                                            binding.root.context,
-                                                            R.string.error_message_weather_region_unsupported,
-                                                            Snackbar.Duration.LONG
-                                                        )
-                                                    )
-                                                    return@setErrorListener
-                                                }
-                                                // Show error message
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                            else -> {
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    }.build()
-                            )
-
-                            ensureActive()
-
-                            launch(Dispatchers.Main) {
-                                weatherView.updateView(weather)
-                                aqiView.updateForecasts(locData)
-                                headerBinding.locationName.text = weatherView.location
-                            }
-                        }
-                    }
-                }
-            } else {
-                locationData?.let {
-                    aqiView.updateForecasts(it)
-                }
-                headerBinding.locationName.text = weatherView.location
-            }
-
-            binding.progressBar.visibility = View.GONE
-
-            currentAQIAdapter.updateItem(weatherView.airQuality)
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         // Save data
         outState.putString(
-                Constants.KEY_DATA,
-                JSONParser.serializer(locationData, LocationData::class.java)
+            Constants.KEY_DATA,
+            JSONParser.serializer(locationData, LocationData::class.java)
         )
         super.onSaveInstanceState(outState)
     }

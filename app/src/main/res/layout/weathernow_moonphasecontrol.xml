@@ -18,15 +18,15 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.moonPhaseEnabled || weatherView.moonPhase == null ? View.GONE : View.VISIBLE}"
+        android:visibility="@{!FeatureSettings.moonPhaseEnabled || viewModel.weather.moonPhase == null ? View.GONE : View.VISIBLE}"
         tools:theme="@style/Theme.Material3.DayNight">
 
         <TextView
@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.NEWMOON ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.NEWMOON ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -86,7 +86,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.WAXING_CRESCENT ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.WAXING_CRESCENT ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -105,7 +105,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.FIRST_QTR ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.FIRST_QTR ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -124,7 +124,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.WAXING_GIBBOUS ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.WAXING_GIBBOUS ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -143,7 +143,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.FULL_MOON ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.FULL_MOON ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -162,7 +162,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.WANING_GIBBOUS ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.WANING_GIBBOUS ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -181,7 +181,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.LAST_QTR ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.LAST_QTR ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -200,7 +200,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:alpha="@{weatherView.moonPhase.phaseType == MoonPhaseType.WANING_CRESCENT ? 1.0f : 0.35f}"
+            android:alpha="@{viewModel.weather.moonPhase.phaseType == MoonPhaseType.WANING_CRESCENT ? 1.0f : 0.35f}"
             android:cropToPadding="false"
             android:gravity="center"
             android:maxHeight="48dp"
@@ -220,7 +220,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="12dp"
-            android:text="@{weatherView.moonPhase != null ? StringUtils.toUpperCase(weatherView.moonPhase.moonPhase.value.toString()) : null}"
+            android:text="@{viewModel.weather.moonPhase != null ? StringUtils.toUpperCase(viewModel.weather.moonPhase.moonPhase.value.toString()) : null}"
             android:textAppearance="?textAppearanceBodyLarge"
             app:layout_constraintBottom_toTopOf="@id/moonriseset_barrier"
             app:layout_constraintEnd_toEndOf="parent"
@@ -244,7 +244,7 @@
             android:contentDescription="@string/label_moonrise"
             android:gravity="center"
             android:padding="4dp"
-            android:text="@{weatherView.moonPhase.moonrise}"
+            android:text="@{viewModel.weather.moonPhase.moonrise}"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textSize="@dimen/moonriseset_text_size"
             app:drawableHeight="@dimen/moonriseset_image_size"
@@ -255,7 +255,7 @@
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/moonphase_description"
-            app:hideIfNullOrWhitespace="@{weatherView.moonPhase.moonrise}"
+            app:hideIfNullOrWhitespace="@{viewModel.weather.moonPhase.moonrise}"
             app:weatherIconStart="@{WeatherIcons.MOONRISE}"
             tools:drawableStart="@drawable/wi_moonrise"
             tools:text="4:01 PM" />
@@ -268,7 +268,7 @@
             android:contentDescription="@string/label_moonset"
             android:gravity="center"
             android:padding="4dp"
-            android:text="@{weatherView.moonPhase.moonset}"
+            android:text="@{viewModel.weather.moonPhase.moonset}"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textSize="@dimen/moonriseset_text_size"
             app:drawableHeight="@dimen/moonriseset_image_size"
@@ -278,7 +278,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/moonrise"
             app:layout_constraintTop_toBottomOf="@id/moonphase_description"
-            app:hideIfNullOrWhitespace="@{weatherView.moonPhase.moonset}"
+            app:hideIfNullOrWhitespace="@{viewModel.weather.moonPhase.moonset}"
             app:weatherIconStart="@{WeatherIcons.MOONSET}"
             tools:drawableStart="@drawable/wi_moonset"
             tools:text="6:50 AM" />

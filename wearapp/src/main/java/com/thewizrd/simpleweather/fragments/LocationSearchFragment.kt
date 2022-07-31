@@ -177,7 +177,7 @@ class LocationSearchFragment : SwipeDismissFragment() {
                                 }
 
                                 // Save weather data
-                                settingsManager.saveHomeData(location)
+                                settingsManager.updateLocation(location)
                                 if (wm.supportsAlerts() && weather.weatherAlerts != null)
                                     settingsManager.saveWeatherAlerts(
                                         location,

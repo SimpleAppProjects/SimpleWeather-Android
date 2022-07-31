@@ -99,9 +99,9 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }
@@ -137,9 +137,9 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }

@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.thewizrd.simpleweather.controls.MinutelyForecastViewModel
 import com.thewizrd.simpleweather.databinding.WeatherMinforecastPanelBinding
+import com.thewizrd.simpleweather.viewmodels.MinutelyForecastViewModel
 
 class MinutelyItemAdapter : ListAdapter<MinutelyForecastViewModel, RecyclerView.ViewHolder> {
     constructor() : super(object : DiffUtil.ItemCallback<MinutelyForecastViewModel>() {

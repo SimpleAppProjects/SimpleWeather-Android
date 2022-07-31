@@ -7,7 +7,17 @@ enum class ErrorStatus {
     UNKNOWN, SUCCESS, NOWEATHER, NETWORKERROR, INVALIDAPIKEY, QUERYNOTFOUND
 }
 
-class WeatherException(val errorStatus: ErrorStatus) : Exception() {
+class WeatherException : Exception {
+    val errorStatus: ErrorStatus
+
+    constructor(errorStatus: ErrorStatus) : super() {
+        this.errorStatus = errorStatus
+    }
+
+    constructor(errorStatus: ErrorStatus, cause: Throwable) : super(cause) {
+        this.errorStatus = errorStatus
+    }
+
     override val message: String
         get() {
             return when (errorStatus) {

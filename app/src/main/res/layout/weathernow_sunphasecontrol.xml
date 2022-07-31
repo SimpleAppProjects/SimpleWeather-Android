@@ -9,15 +9,15 @@
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
 
         <variable
-            name="weatherView"
-            type="com.thewizrd.common.controls.WeatherNowViewModel" />
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{!FeatureSettings.sunPhaseEnabled || weatherView.sunPhase == null ? View.GONE : View.VISIBLE}">
+        android:visibility="@{!FeatureSettings.sunPhaseEnabled || viewModel.weather.sunPhase == null ? View.GONE : View.VISIBLE}">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/sunriseset_label"
@@ -27,7 +27,7 @@
             android:paddingVertical="20dp"
             android:text="@string/label_sunriseset"
             android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-            app:showIfTrue="@{FeatureSettings.sunPhaseEnabled &amp;&amp; weatherView.sunPhase != null}"
+            app:showIfTrue="@{FeatureSettings.sunPhaseEnabled &amp;&amp; viewModel.weather.sunPhase != null}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -39,8 +39,8 @@
             android:layout_marginBottom="20dp"
             android:paddingStart="4dp"
             android:paddingEnd="4dp"
-            app:hideIfNull="@{weatherView.sunPhase}"
-            app:sunPhase="@{weatherView.sunPhase}"
+            app:hideIfNull="@{viewModel.weather.sunPhase}"
+            app:sunPhase="@{viewModel.weather.sunPhase}"
             app:layout_constraintWidth_max="640dp"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"

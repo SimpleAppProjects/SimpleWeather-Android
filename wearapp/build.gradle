@@ -89,6 +89,7 @@ android {
             buildConfigField "boolean", "IS_NONGMS", "false"
         }
     }
+    namespace 'com.thewizrd.simpleweather'
 }
 
 dependencies {
@@ -119,6 +120,11 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+    implementation("androidx.activity:activity") {
+        version {
+            strictly("1.5.1")
+        }
+    }
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation 'androidx.fragment:fragment-ktx:1.5.0'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -167,6 +173,8 @@ dependencies {
     implementation "androidx.wear.compose:compose-navigation:1.1.0-alpha01"
 
     implementation "com.google.accompanist:accompanist-drawablepainter:0.24.13-rc"
+    implementation "com.google.accompanist:accompanist-flowlayout:0.26.0-alpha"
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.26.0-alpha"
     implementation "com.google.android.horologist:horologist-compose-layout:0.0.29"
 
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"

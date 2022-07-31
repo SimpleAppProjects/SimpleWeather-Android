@@ -7,15 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.thewizrd.common.controls.WeatherNowViewModel
-import com.thewizrd.common.weatherdata.WeatherDataLoader
-import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -31,18 +30,14 @@ import com.thewizrd.simpleweather.controls.viewmodels.ForecastGraphViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
-import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
-import com.thewizrd.weather_api.weatherModule
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import de.twoid.ui.decoration.InsetItemDecoration
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import kotlin.math.max
 
 class WeatherChartsFragment : ToolbarFragment() {
-    private val weatherView: WeatherNowViewModel by activityViewModels()
+    private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private val chartsView: ChartsViewModel by viewModels()
     private var locationData: LocationData? = null
 
@@ -51,8 +46,6 @@ class WeatherChartsFragment : ToolbarFragment() {
     private lateinit var adapter: ChartsItemAdapter
 
     private lateinit var args: WeatherChartsFragmentArgs
-
-    private val wm = weatherModule.weatherManager
 
     init {
         arguments = Bundle()
@@ -98,7 +91,10 @@ class WeatherChartsFragment : ToolbarFragment() {
         // Use this to return your custom view for this Fragment
         binding = FragmentWeatherListBinding.inflate(inflater, root, true)
         headerBinding = LayoutLocationHeaderBinding.inflate(inflater, appBarLayout, true)
+
         binding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.lifecycleOwner = viewLifecycleOwner
+        headerBinding.viewModel = wNowViewModel
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
@@ -132,14 +128,25 @@ class WeatherChartsFragment : ToolbarFragment() {
         chartsView.getForecastData().observe(viewLifecycleOwner) {
             adapter.submitList(createGraphModelData(it?.first, it?.second))
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                if (locationData == null) {
+                    locationData = wNowViewModel.uiState.value.locationData
+                }
+
+                locationData?.let {
+                    chartsView.updateForecasts(it)
+                }
+
+                binding.progressBar.visibility = View.GONE
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!isHidden) {
-            AnalyticsLogger.logEvent("WeatherChartsFragment: onResume")
-            initialize()
-        }
+        AnalyticsLogger.logEvent("WeatherChartsFragment: onResume")
     }
 
     override fun onPause() {
@@ -149,85 +156,6 @@ class WeatherChartsFragment : ToolbarFragment() {
 
     override val titleResId: Int
         get() = R.string.label_forecast
-
-    private fun initialize() {
-        runWithView {
-            if (locationData == null) {
-                locationData = settingsManager.getHomeData()
-            }
-
-            if (!weatherView.isValid || locationData != null && locationData!!.query != weatherView.query) {
-                locationData?.let { locData ->
-                    runWithView(Dispatchers.Default) {
-                        supervisorScope {
-                            val weather = WeatherDataLoader(locData).loadWeatherData(
-                                WeatherRequest.Builder()
-                                    .forceLoadSavedData()
-                                    .setErrorListener { wEx ->
-                                        when (wEx.errorStatus) {
-                                            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
-                                                // Show error message and prompt to refresh
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                            ErrorStatus.QUERYNOTFOUND -> {
-                                                if (!wm.isRegionSupported(locData.countryCode)) {
-                                                    showSnackbar(
-                                                        Snackbar.make(
-                                                            binding.root.context,
-                                                            R.string.error_message_weather_region_unsupported,
-                                                            Snackbar.Duration.LONG
-                                                        )
-                                                    )
-                                                    return@setErrorListener
-                                                }
-                                                // Show error message
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                            else -> {
-                                                showSnackbar(
-                                                    Snackbar.make(
-                                                        binding.root.context,
-                                                        wEx.message,
-                                                        Snackbar.Duration.LONG
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    }.build()
-                            )
-
-                            ensureActive()
-
-                            launch(Dispatchers.Main) {
-                                weatherView.updateView(weather)
-                                chartsView.updateForecasts(locData)
-                                headerBinding.locationName.text = weatherView.location
-                            }
-                        }
-                    }
-                }
-            } else {
-                locationData?.let {
-                    chartsView.updateForecasts(it)
-                }
-                headerBinding.locationName.text = weatherView.location
-            }
-
-            binding.progressBar.visibility = View.GONE
-        }
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Save data

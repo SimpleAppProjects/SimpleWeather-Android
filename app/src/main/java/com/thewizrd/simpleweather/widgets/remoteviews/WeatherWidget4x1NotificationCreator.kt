@@ -7,7 +7,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.common.controls.WeatherNowViewModel
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -33,7 +33,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
 
     override suspend fun buildUpdate(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
@@ -42,7 +42,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
 
     private suspend fun buildLayout(
         appWidgetId: Int,
-        weather: WeatherNowViewModel,
+        weather: WeatherUiModel,
         location: LocationData,
         newOptions: Bundle
     ): RemoteViews {
