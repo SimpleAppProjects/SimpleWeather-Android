@@ -10,10 +10,10 @@ import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.ColorInt
 import androidx.core.content.edit
-import com.google.common.reflect.TypeToken
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.json.listType
 import com.thewizrd.shared_resources.json.mutableListType
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
@@ -303,8 +303,7 @@ object WidgetUtils {
             val newlist = listOf(widgetId)
             saveIds(location_query, newlist)
         } else {
-            val intArrListType = mutableListType<Int>()
-            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, intArrListType)
+            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, mutableListType<Int>())
             if (idList != null && !idList.contains(widgetId)) {
                 idList.add(widgetId)
                 saveIds(location_query, idList)
@@ -318,8 +317,7 @@ object WidgetUtils {
     fun removeWidgetId(location_query: String, widgetId: Int) {
         val listJson = widgetPrefs.getString(location_query, "")
         if (!listJson.isNullOrBlank()) {
-            val intArrListType = mutableListType<Int>()
-            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, intArrListType)
+            val idList = JSONParser.deserializer<MutableList<Int>>(listJson, mutableListType<Int>())
             if (idList?.contains(widgetId) == true) {
                 idList.remove(Integer.valueOf(widgetId))
                 if (idList.size == 0) {
@@ -386,8 +384,7 @@ object WidgetUtils {
     fun getWidgetIds(location_query: String?): List<Int> {
         val listJson = widgetPrefs.getString(location_query, "")
         if (!listJson.isNullOrBlank()) {
-            val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-            val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+            val idList = JSONParser.deserializer<List<Int>>(listJson, listType<Int>())
             if (idList != null) {
                 return idList
             }
@@ -399,8 +396,7 @@ object WidgetUtils {
     fun exists(location_query: String?): Boolean {
         val listJson = widgetPrefs.getString(location_query, "")
         if (!listJson.isNullOrBlank()) {
-            val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-            val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+            val idList = JSONParser.deserializer<List<Int>>(listJson, listType<Int>())
             if (!idList.isNullOrEmpty()) {
                 return true
             }
@@ -413,8 +409,7 @@ object WidgetUtils {
         if (locData != null) {
             val listJson = widgetPrefs.getString(locData.query, "")
             if (!listJson.isNullOrBlank()) {
-                val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-                val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+                val idList = JSONParser.deserializer<List<Int>>(listJson, listType<Int>())
                 if (idList != null) {
                     return idList.contains(appWidgetId)
                 }
@@ -425,7 +420,7 @@ object WidgetUtils {
     }
 
     private fun saveIds(key: String, idList: List<Int>): Boolean {
-        val json = JSONParser.serializer(idList, ArrayList::class.java)
+        val json = JSONParser.serializer(idList, listType<Int>())
         return widgetPrefs.edit().putString(key, json).commit()
     }
 
@@ -518,8 +513,7 @@ object WidgetUtils {
     fun isGPS(widgetId: Int): Boolean {
         val listJson = widgetPrefs.getString(Constants.KEY_GPS, "")
         if (!listJson.isNullOrBlank()) {
-            val intArrListType = object : TypeToken<ArrayList<Int>>() {}.type
-            val idList = JSONParser.deserializer<ArrayList<Int>>(listJson, intArrListType)
+            val idList = JSONParser.deserializer<List<Int>>(listJson, listType<Int>())
             if (!idList.isNullOrEmpty()) {
                 return idList.contains(widgetId)
             }
