@@ -9,6 +9,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import com.thewizrd.shared_resources.R
+import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
@@ -71,6 +72,12 @@ class IconControl : AppCompatImageView {
 
         updateIconDrawable()
         updateIconTint()
+    }
+
+    init {
+        if (isInEditMode) {
+            context.initializeDependencies()
+        }
     }
 
     @SuppressLint("RestrictedApi")
