@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
@@ -25,6 +27,7 @@ import com.thewizrd.simpleweather.radar.RadarProvider.getRadarViewProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
+import kotlinx.coroutines.launch
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class WeatherRadarFragment : ToolbarFragment() {
@@ -88,6 +91,13 @@ class WeatherRadarFragment : ToolbarFragment() {
 
         wNowViewModel.weather.value?.let {
             radarViewProvider?.onViewCreated(it.locationCoord)
+            radarViewProvider?.updateRadarView()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                radarViewProvider?.updateRadarView()
+            }
         }
     }
 
@@ -101,7 +111,6 @@ class WeatherRadarFragment : ToolbarFragment() {
         AnalyticsLogger.logEvent("WeatherRadarFragment: onResume")
 
         radarViewProvider?.onResume()
-        initialize()
     }
 
     override fun onPause() {
@@ -140,10 +149,4 @@ class WeatherRadarFragment : ToolbarFragment() {
 
     override val titleResId: Int
         get() = R.string.label_radar
-
-    // Initialize views here
-    @CallSuper
-    protected fun initialize() {
-        radarViewProvider?.updateRadarView()
-    }
 }
