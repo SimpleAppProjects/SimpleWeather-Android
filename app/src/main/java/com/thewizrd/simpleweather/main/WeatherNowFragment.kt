@@ -11,11 +11,11 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.GridLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.Insets
 import androidx.core.util.ObjectsCompat
 import androidx.core.view.*
 import androidx.core.widget.NestedScrollView
@@ -232,12 +232,14 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
         ViewGroupCompat.setTransitionGroup((view as ViewGroup), true)
 
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            insets.replaceSystemWindowInsets(
-                insets.systemWindowInsetLeft,
-                insets.systemWindowInsetTop,
-                insets.systemWindowInsetRight,
-                0
-            )
+            val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(
+                    WindowInsetsCompat.Type.systemBars(),
+                    Insets.of(sysBarInsets.left, sysBarInsets.top, sysBarInsets.right, 0)
+                )
+                .build()
         }
 
         if (binding.appBarLayout.background is ColorDrawable) {

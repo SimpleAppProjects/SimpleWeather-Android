@@ -39,7 +39,7 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
-import com.thewizrd.shared_resources.utils.ContextUtils.isWidth
+import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
@@ -81,7 +81,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (isWidth(600)) {
+        if (isSmallestWidth(600)) {
             binding.fragmentContainer.outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: Outline) {
                     val cornerRadius = view.context.dpToPx(28f)
@@ -107,7 +107,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            if (isWidth(600)) {
+            if (isSmallestWidth(600)) {
                 binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                     topMargin = sysBarInsets.top
@@ -403,13 +403,17 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
 
         window.setTransparentWindow(
             backgroundColor, Colors.TRANSPARENT,
-            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT || isWidth(600)) {
+            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT || isSmallestWidth(600)) {
                 Colors.TRANSPARENT
             } else {
                 backgroundColor
             }
         )
-        window.setFullScreen(getOrientation() == Configuration.ORIENTATION_PORTRAIT || isWidth(600))
+        window.setFullScreen(
+            getOrientation() == Configuration.ORIENTATION_PORTRAIT || isSmallestWidth(
+                600
+            )
+        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

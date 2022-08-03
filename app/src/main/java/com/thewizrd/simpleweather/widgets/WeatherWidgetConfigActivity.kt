@@ -16,7 +16,7 @@ import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.utils.ContextUtils.isWidth
+import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityWidgetSetupBinding
@@ -53,7 +53,7 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            if (isWidth(600)) {
+            if (isSmallestWidth(600)) {
                 binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                     topMargin = sysBarInsets.top

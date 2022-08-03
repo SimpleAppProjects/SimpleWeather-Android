@@ -14,4 +14,6 @@
     <dimen name="forecast_panel_height">210dp</dimen>
     <dimen name="forecast_date_size">18sp</dimen>
     <dimen name="forecast_condition_size">16sp</dimen>
+
+    <bool name="enable_fitsSystemWindows">false</bool>
 </resources>
