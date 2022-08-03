@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.*
-import android.view.ViewGroup.MarginLayoutParams
 import android.widget.GridLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.Insets
@@ -26,6 +25,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -53,10 +53,10 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
+import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
@@ -90,7 +90,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -125,6 +124,8 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
     private var radarControlBinding: WeathernowRadarcontrolBinding? = null
 
     private var mBannerMgr: BannerManager? = null
+
+    private lateinit var mGlide: RequestManager
 
     // View Models
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
@@ -213,6 +214,8 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                 }
             }
         )
+
+        mGlide = Glide.with(this)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -284,7 +287,7 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
 
         binding.scrollView.setOnFlingListener(object : ObservableNestedScrollView.OnFlingListener {
             private var oldScrollY = 0
-            private var startvelocityY = 0
+            private var startVelocityY = 0
 
             /*
              * Values from OverScroller class
@@ -315,52 +318,48 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
              */
             override fun onFlingStarted(startScrollY: Int, velocityY: Int) {
                 oldScrollY = startScrollY
-                startvelocityY = velocityY
+                startVelocityY = velocityY
             }
 
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
                 context?.let {
-                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isSmallestWidth(
+                            600
+                        ) || !FeatureSettings.isBackgroundImageEnabled
+                    )
                         return
 
                     runWithView {
-                        val condPnlHeight =
-                            binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
-                        val THRESHOLD = condPnlHeight / 2
+                        val thresholdOffset = conditionPanelBinding.imageViewContainer.bottom
+                        val flingPointOffset = thresholdOffset / 2
                         val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
                         val dY = scrollY - oldScrollY
                         var mScrollHandled = false
 
                         if (dY == 0) return@runWithView
 
-                        Timber.tag("ScrollView")
-                            .d("onFlingStopped: height: $condPnlHeight; offset|scrollY: $scrollOffset; prevScrollY: $oldScrollY; dY: $dY;")
-
-                        if (dY < 0 && scrollOffset < condPnlHeight - THRESHOLD) {
+                        if (dY < 0 && scrollOffset < thresholdOffset - flingPointOffset) {
                             binding.scrollView.smoothScrollTo(0, 0)
                             mScrollHandled = true
-                        } else if (scrollOffset < condPnlHeight && scrollOffset >= condPnlHeight - THRESHOLD) {
-                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        } else if (scrollOffset < thresholdOffset && scrollOffset >= thresholdOffset - flingPointOffset) {
+                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
                             mScrollHandled = true
-                        } else if (dY > 0 && scrollOffset < condPnlHeight - THRESHOLD) {
-                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        } else if (dY > 0 && scrollOffset < thresholdOffset - flingPointOffset) {
+                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
                             mScrollHandled = true
                         }
 
-                        if (!mScrollHandled && scrollOffset < condPnlHeight) {
-                            val animDY = getSplineFlingDistance(startvelocityY).toInt()
+                        if (!mScrollHandled && scrollOffset < thresholdOffset) {
+                            val animDY = getSplineFlingDistance(startVelocityY).toInt()
                             val animScrollY = oldScrollY + animDY
 
-                            Timber.tag("ScrollView")
-                                .d("onFlingStopped: height: $condPnlHeight; animScrollY: $animScrollY; prevScrollY: $oldScrollY; animDY: $animDY;")
-
-                            if (startvelocityY < 0 && animScrollY < condPnlHeight - THRESHOLD) {
+                            if (startVelocityY < 0 && animScrollY < thresholdOffset - flingPointOffset) {
                                 binding.scrollView.smoothScrollTo(0, 0)
-                            } else if (animScrollY < condPnlHeight && animScrollY >= condPnlHeight - THRESHOLD) {
-                                binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                            } else if (startvelocityY > 0 && animScrollY < condPnlHeight - THRESHOLD) {
-                                binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                            } else if (animScrollY < thresholdOffset && animScrollY >= thresholdOffset - flingPointOffset) {
+                                binding.scrollView.smoothScrollTo(0, thresholdOffset)
+                            } else if (startVelocityY > 0 && animScrollY < thresholdOffset - flingPointOffset) {
+                                binding.scrollView.smoothScrollTo(0, thresholdOffset)
                             }
                         }
                     }
@@ -371,27 +370,25 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             @SuppressLint("RestrictedApi")
             override fun onTouchScrollChange(scrollY: Int, oldScrollY: Int) {
                 context?.let {
-                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || !FeatureSettings.isBackgroundImageEnabled)
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isSmallestWidth(
+                            600
+                        ) || !FeatureSettings.isBackgroundImageEnabled
+                    )
                         return
 
                     runWithView {
-                        val condPnlHeight =
-                            binding.refreshLayout.height - conditionPanelBinding.conditionPanel.height
-                        val THRESHOLD = condPnlHeight / 2
-                        val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
+                        val thresholdOffset = conditionPanelBinding.imageViewContainer.bottom
+                        val flingPointOffset = thresholdOffset / 2
                         val dY = scrollY - oldScrollY
 
                         if (dY == 0) return@runWithView
 
-                        Timber.tag("ScrollView")
-                            .d("onTouchScrollChange: height: $condPnlHeight; offset: $scrollOffset; scrollY: $scrollY; prevScrollY: $oldScrollY; dY: $dY")
-
-                        if (dY < 0 && scrollY < condPnlHeight - THRESHOLD) {
+                        if (dY < 0 && scrollY < thresholdOffset - flingPointOffset) {
                             binding.scrollView.smoothScrollTo(0, 0)
-                        } else if (scrollY < condPnlHeight && scrollY >= condPnlHeight - THRESHOLD) {
-                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
-                        } else if (dY > 0 && scrollY < condPnlHeight) {
-                            binding.scrollView.smoothScrollTo(0, condPnlHeight)
+                        } else if (scrollY < thresholdOffset && scrollY >= thresholdOffset - flingPointOffset) {
+                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
+                        } else if (dY > 0 && scrollY < thresholdOffset) {
+                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
                         }
                     }
                 }
@@ -399,7 +396,6 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
         })
 
         // SwipeRefresh
-        binding.progressBar.show()
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(
             requireContext().getAttrColor(R.attr.colorSurface)
         )
@@ -446,6 +442,7 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                 rowSpec = GridLayout.spec(0, GridLayout.CENTER)
             }
 
+            /*
             conditionPanelBinding.root.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRIght, oldBottom ->
                 val rootHeight = bottom - top
                 val oldRootHeight = oldBottom - oldTop
@@ -496,6 +493,7 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                     }
                 }
             }
+             */
         }
 
         if (FeatureSettings.isForecastEnabled) {
@@ -965,14 +963,8 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                 val backgroundUri = it?.imageURI
                 val imageView = conditionPanelBinding.imageView ?: binding.imageView
 
-                if (imageView != null) {
-                    if (FeatureSettings.isBackgroundImageEnabled) {
-                        loadBackgroundImage(backgroundUri)
-                    } else {
-                        binding.refreshLayout.isRefreshing = false
-                        binding.progressBar.hide()
-                        binding.scrollView.visibility = View.VISIBLE
-                    }
+                if (FeatureSettings.isBackgroundImageEnabled && imageView != null) {
+                    loadBackgroundImage(backgroundUri)
                 }
 
                 if (it != null) {
@@ -1129,64 +1121,60 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
     ) {
         val imageView = conditionPanelBinding.imageView ?: binding.imageView ?: return
 
-        runWithView {
-            // Reload background image
-            if (FeatureSettings.isBackgroundImageEnabled) {
-                if (forceReload || (!ObjectsCompat.equals(
-                        imageView.tag,
-                        imageURI
-                    ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
-                ) {
-                    imageView.tag = imageURI
-                    if (!imageURI.isNullOrBlank()) {
-                        Glide.with(this@WeatherNowFragment)
-                            .asBitmap()
-                            .load(imageURI)
-                            //.override(Target.SIZE_ORIGINAL)
-                            .apply(
-                                RequestOptions.centerCropTransform()
-                                    .format(DecodeFormat.PREFER_ARGB_8888)
-                                    .skipMemoryCache(skipCache)
-                                    .disallowHardwareConfig()
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            )
-                            .transition(BitmapTransitionOptions.withCrossFade())
-                            .addListener(object : RequestListener<Bitmap?> {
-                                override fun onLoadFailed(
-                                    e: GlideException?, model: Any,
-                                    target: Target<Bitmap?>,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    binding.refreshLayout.isRefreshing = false
-                                    binding.progressBar.hide()
-                                    binding.scrollView.visibility = View.VISIBLE
-                                    return false
-                                }
+        // Reload background image
+        if (FeatureSettings.isBackgroundImageEnabled) {
+            if (forceReload || (!ObjectsCompat.equals(
+                    imageView.tag,
+                    imageURI
+                ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
+            ) {
+                imageView.tag = imageURI
+                if (!imageURI.isNullOrBlank()) {
+                    wNowViewModel.onImageLoading()
 
-                                override fun onResourceReady(
-                                    resource: Bitmap?, model: Any,
-                                    target: Target<Bitmap?>,
-                                    dataSource: DataSource,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    binding.refreshLayout.postOnAnimation {
-                                        binding.refreshLayout.isRefreshing = false
-                                        binding.progressBar.hide()
-                                        binding.scrollView.visibility = View.VISIBLE
-                                    }
-                                    return false
-                                }
-                            })
-                            .into(imageView)
-                    } else {
-                        Glide.with(this@WeatherNowFragment).clear(imageView)
-                        imageView.tag = null
-                    }
+                    mGlide.asBitmap()
+                        .load(imageURI)
+                        //.override(Target.SIZE_ORIGINAL)
+                        .apply(
+                            RequestOptions.centerCropTransform()
+                                .format(DecodeFormat.PREFER_ARGB_8888)
+                                .skipMemoryCache(skipCache)
+                                .disallowHardwareConfig()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        )
+                        .placeholder(ColorDrawable(Colors.LIGHTGRAY))
+                        .transition(BitmapTransitionOptions.withCrossFade(300))
+                        .addListener(object : RequestListener<Bitmap?> {
+                            override fun onLoadFailed(
+                                e: GlideException?, model: Any,
+                                target: Target<Bitmap?>,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                // update image loading state
+                                wNowViewModel.onImageLoaded()
+                                return false
+                            }
+
+                            override fun onResourceReady(
+                                resource: Bitmap?, model: Any,
+                                target: Target<Bitmap?>,
+                                dataSource: DataSource,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                // update image loading state
+                                wNowViewModel.onImageLoaded()
+                                return false
+                            }
+                        })
+                        .into(imageView)
+                } else {
+                    mGlide.clear(imageView)
+                    imageView.tag = null
                 }
-            } else {
-                Glide.with(this@WeatherNowFragment).clear(imageView)
-                imageView.tag = null
             }
+        } else {
+            mGlide.clear(imageView)
+            imageView.tag = null
         }
     }
 

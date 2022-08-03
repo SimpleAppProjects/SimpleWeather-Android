@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.palette.graphics.Palette;
 
@@ -76,7 +77,8 @@ public class ColorsUtils {
         return ColorUtils.calculateContrast(foreground, background) >= MIN_CONTRAST_RATIO;
     }
 
-    public static Palette.Swatch getPreferredSwatch(Palette p) {
+    @Nullable
+    public static Palette.Swatch getPreferredSwatch(@Nullable Palette p) {
         Palette.Swatch swatch = null;
 
         if (p != null) {

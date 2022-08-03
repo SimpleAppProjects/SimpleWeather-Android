@@ -3,6 +3,7 @@ package com.thewizrd.common.databinding;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,7 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.databinding.BindingAdapter;
+import androidx.transition.TransitionManager;
 
+import com.google.android.material.transition.MaterialFade;
 import com.thewizrd.shared_resources.SharedModuleKt;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
 import com.thewizrd.shared_resources.utils.StringUtils;
@@ -39,8 +42,33 @@ public class ViewBindingAdapter {
         view.setVisibility(c == null || c.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     }
 
+    @BindingAdapter("invisibleIfTrue")
+    public static <T> void invisibleIfTrue(@NonNull View view, boolean hide) {
+        view.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    @BindingAdapter("invisibleIfTrueAnimated")
+    public static void invisibleIfTrueAnimated(@NonNull View view, boolean hide) {
+        if (view.getParent() instanceof ViewGroup) {
+            MaterialFade transition = new MaterialFade();
+            transition.setSecondaryAnimatorProvider(null);
+            TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), transition);
+        }
+        view.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+    }
+
     @BindingAdapter("showIfTrue")
     public static void showIfTrue(@NonNull View view, boolean show) {
+        view.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @BindingAdapter("showIfTrueAnimated")
+    public static void showIfTrueAnimated(@NonNull View view, boolean show) {
+        if (view.getParent() instanceof ViewGroup) {
+            MaterialFade transition = new MaterialFade();
+            transition.setSecondaryAnimatorProvider(null);
+            TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), transition);
+        }
         view.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 

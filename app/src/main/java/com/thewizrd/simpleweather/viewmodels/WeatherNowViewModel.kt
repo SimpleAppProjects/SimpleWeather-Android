@@ -42,6 +42,7 @@ sealed interface WeatherNowState {
     val locationData: LocationData?
     val noLocationAvailable: Boolean
     val showDisconnectedView: Boolean
+    val isImageLoading: Boolean
 
     data class NoWeather(
         override val weather: WeatherUiModel? = null,
@@ -50,7 +51,8 @@ sealed interface WeatherNowState {
         override val isGPSLocation: Boolean,
         override val locationData: LocationData? = null,
         override val noLocationAvailable: Boolean = false,
-        override val showDisconnectedView: Boolean = false
+        override val showDisconnectedView: Boolean = false,
+        override val isImageLoading: Boolean = false
     ) : WeatherNowState
 
     data class HasWeather(
@@ -60,7 +62,8 @@ sealed interface WeatherNowState {
         override val isGPSLocation: Boolean,
         override val locationData: LocationData? = null,
         override val noLocationAvailable: Boolean = false,
-        override val showDisconnectedView: Boolean = false
+        override val showDisconnectedView: Boolean = false,
+        override val isImageLoading: Boolean = false
     ) : WeatherNowState
 }
 
@@ -72,7 +75,8 @@ private data class WeatherNowViewModelState(
     val locationData: LocationData? = null,
     val noLocationAvailable: Boolean = false,
     val showDisconnectedView: Boolean = false,
-    val scrollViewPosition: Int = 0
+    val scrollViewPosition: Int = 0,
+    val isImageLoading: Boolean = false
 ) {
     fun toWeatherNowState(): WeatherNowState {
         return if (weather?.isValid == true) {
@@ -83,7 +87,8 @@ private data class WeatherNowViewModelState(
                 isGPSLocation = isGPSLocation,
                 locationData = locationData,
                 noLocationAvailable = noLocationAvailable,
-                showDisconnectedView = showDisconnectedView
+                showDisconnectedView = showDisconnectedView,
+                isImageLoading = isImageLoading
             )
         } else {
             WeatherNowState.NoWeather(
@@ -92,7 +97,8 @@ private data class WeatherNowViewModelState(
                 isGPSLocation = isGPSLocation,
                 locationData = locationData,
                 noLocationAvailable = noLocationAvailable,
-                showDisconnectedView = showDisconnectedView
+                showDisconnectedView = showDisconnectedView,
+                isImageLoading = isImageLoading
             )
         }
     }
@@ -245,7 +251,7 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     result.data.weatherAlerts
                 }
 
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch {
                     imageDataState.update {
                         weatherData.getImageData()
                     }
@@ -282,7 +288,7 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     result.data.weatherAlerts
                 }
 
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch {
                     imageDataState.update {
                         weatherData.getImageData()
                     }
@@ -368,6 +374,18 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     it.copy(noLocationAvailable = true, isLoading = false)
                 }
             }
+        }
+    }
+
+    fun onImageLoading() {
+        viewModelState.update {
+            it.copy(isImageLoading = true)
+        }
+    }
+
+    fun onImageLoaded() {
+        viewModelState.update {
+            it.copy(isImageLoading = false)
         }
     }
 

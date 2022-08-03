@@ -118,10 +118,10 @@
 
         </LinearLayout>
 
-        <FrameLayout
+        <com.thewizrd.simpleweather.controls.AspectRatioFrameLayout
             android:id="@+id/image_view_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/image_container_size"
             android:layout_margin="8dp"
             app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
             tools:layout_height="360dp" />

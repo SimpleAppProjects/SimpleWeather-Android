@@ -22,4 +22,10 @@
     <declare-styleable name="FlowLayout_Layout">
         <attr name="layout_itemMinWidth" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="AspectRatioFrameLayout">
+        <attr name="aspectRatio" format="float" />
+        <attr name="maxHeight" format="dimension" />
+        <attr name="maxWidth" format="dimension" />
+        <attr name="enableAspectRatio" format="boolean" />
+    </declare-styleable>
 </resources>

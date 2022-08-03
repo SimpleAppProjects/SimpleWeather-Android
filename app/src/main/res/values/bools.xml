@@ -3,4 +3,5 @@
     <bool name="enable_alertnotifservice">true</bool>
     <bool name="config_materialPreferenceIconSpaceReserved" tools:override="true">true</bool>
     <bool name="enable_fitsSystemWindows">true</bool>
+    <bool name="image_container_enableAspectRatio">true</bool>
 </resources>

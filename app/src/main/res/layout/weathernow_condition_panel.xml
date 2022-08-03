@@ -65,43 +65,56 @@
 
         </LinearLayout>
 
-        <androidx.cardview.widget.CardView
+        <com.thewizrd.simpleweather.controls.AspectRatioFrameLayout
             android:id="@+id/image_view_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:cardCornerRadius="@dimen/shape_corner_radius"
-            app:cardUseCompatPadding="false"
-            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
-            tools:layout_height="360dp">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:layout_gravity="center"
+            app:aspectRatio="1.0"
+            app:enableAspectRatio="@bool/image_container_enableAspectRatio"
+            app:maxHeight="@dimen/image_container_size"
+            app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/image_view"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                tools:src="#83808080" />
+                app:cardCornerRadius="@dimen/shape_corner_radius"
+                app:cardUseCompatPadding="false">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/bg_attribution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_gravity="bottom|end"
-                android:gravity="end"
-                android:linksClickable="true"
-                android:padding="4dp"
-                android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                android:textColor="@android:color/white"
-                android:textColorLink="@android:color/white"
-                android:textSize="12sp"
-                app:imageData="@{viewModel.imageData}"
-                tools:text="Attribution text goes here" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    tools:src="#83808080" />
 
-        </androidx.cardview.widget.CardView>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/bg_attribution"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_gravity="bottom|end"
+                    android:gravity="end"
+                    android:linksClickable="true"
+                    android:padding="4dp"
+                    android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                    android:textColor="@android:color/white"
+                    android:textColorLink="@android:color/white"
+                    android:textSize="12sp"
+                    app:imageData="@{viewModel.imageData}"
+                    tools:text="Attribution text goes here" />
+
+            </androidx.cardview.widget.CardView>
+
+        </com.thewizrd.simpleweather.controls.AspectRatioFrameLayout>
 
         <LinearLayout
             android:id="@+id/condition_panel"
@@ -199,6 +212,7 @@
                     android:scaleType="fitEnd"
                     app:animate="true"
                     app:weatherIcon="@{viewModel.weather.weatherIcon}"
+                    tools:weatherIcon="&#xf00d;"
                     tools:srcCompat="@drawable/wi_day_sunny" />
 
             </RelativeLayout>

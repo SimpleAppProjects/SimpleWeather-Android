@@ -109,13 +109,15 @@
             android:layout_gravity="center"
             android:indeterminate="true"
             android:indeterminateTint="?attr/colorOnSurface"
-            android:indeterminateTintMode="src_in" />
+            android:indeterminateTintMode="src_in"
+            app:showProgressBarIfTrue="@{viewModel.uiState.loading &amp;&amp; (viewModel.uiState.noLocationAvailable || StringUtils.isNullOrWhitespace(viewModel.weather.location)) || viewModel.uiState.imageLoading}" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            app:isRefreshing="@{viewModel.uiState.loading}">
 
             <com.thewizrd.simpleweather.controls.ObservableNestedScrollView
                 android:id="@+id/scrollView"
@@ -123,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:fillViewport="true"
                 android:scrollbars="vertical"
-                android:visibility="invisible"
+                app:invisibleIfTrue="@{viewModel.uiState.loading &amp;&amp; (viewModel.uiState.noLocationAvailable || StringUtils.isNullOrWhitespace(viewModel.weather.location))}"
                 tools:visibility="visible">
 
                 <GridLayout
