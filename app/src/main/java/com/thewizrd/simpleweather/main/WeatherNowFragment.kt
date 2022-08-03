@@ -446,50 +446,53 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                 rowSpec = GridLayout.spec(0, GridLayout.CENTER)
             }
 
-            conditionPanelBinding.root.viewTreeObserver.addOnGlobalLayoutListener {
-                Log.d("conditionPanelBinding", "onGlobalLayout")
+            conditionPanelBinding.root.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRIght, oldBottom ->
+                val rootHeight = bottom - top
+                val oldRootHeight = oldBottom - oldTop
 
-                val context = conditionPanelBinding.root.context
-                val imageLandSize = context.dpToPx(560f).toInt()
+                if (rootHeight != oldRootHeight) {
+                    val context = conditionPanelBinding.root.context
+                    val imageLandSize = context.dpToPx(560f).toInt()
 
-                val height = binding.refreshLayout.measuredHeight
+                    val height = binding.refreshLayout.measuredHeight
 
-                val imageContainerParams =
-                    conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
-                val conditionPanelParams =
-                    conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
+                    val imageContainerParams =
+                        conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
+                    val conditionPanelParams =
+                        conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
 
-                var imageContainerHeight: Int = 0
+                    var imageContainerHeight: Int
 
-                if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
-                    imageContainerHeight = imageLandSize
-                } else if (FeatureSettings.isBackgroundImageEnabled && height > 0) {
-                    imageContainerHeight =
-                        height - conditionPanelBinding.conditionPanel.measuredHeight - imageContainerParams.bottomMargin - imageContainerParams.topMargin
-                    if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                        imageContainerHeight -= conditionPanelBinding.alertButton.measuredHeight
-                    }
-                    if (conditionPanelParams.topMargin < 0) {
-                        imageContainerHeight += -conditionPanelParams.topMargin
-                    }
-                    if (context.isLargeTablet()) {
-                        conditionPanelBinding.labelUpdatetime.let { uptime ->
-                            imageContainerHeight -= uptime.measuredHeight
-                            (uptime.layoutParams as? MarginLayoutParams)?.let { lp ->
-                                imageContainerHeight -= (lp.topMargin + lp.bottomMargin)
+                    if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
+                        imageContainerHeight = imageLandSize
+                    } else if (FeatureSettings.isBackgroundImageEnabled && height > 0) {
+                        imageContainerHeight =
+                            height - conditionPanelBinding.conditionPanel.measuredHeight - imageContainerParams.bottomMargin - imageContainerParams.topMargin
+                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
+                            imageContainerHeight -= conditionPanelBinding.alertButton.measuredHeight
+                        }
+                        if (conditionPanelParams.topMargin < 0) {
+                            imageContainerHeight += -conditionPanelParams.topMargin
+                        }
+                        if (context.isLargeTablet()) {
+                            conditionPanelBinding.labelUpdatetime.let { uptime ->
+                                imageContainerHeight -= uptime.measuredHeight
+                                (uptime.layoutParams as? MarginLayoutParams)?.let { lp ->
+                                    imageContainerHeight -= (lp.topMargin + lp.bottomMargin)
+                                }
+                            }
+                            conditionPanelBinding.locationLayout?.let { ll ->
+                                imageContainerHeight -= ll.measuredHeight
                             }
                         }
-                        conditionPanelBinding.locationLayout?.let { ll ->
-                            imageContainerHeight -= ll.measuredHeight
-                        }
+                    } else {
+                        imageContainerHeight = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
-                } else {
-                    imageContainerHeight = ViewGroup.LayoutParams.WRAP_CONTENT
-                }
 
-                if (imageContainerParams.height != imageContainerHeight) {
-                    conditionPanelBinding.imageViewContainer.updateLayoutParams {
-                        this.height = imageContainerHeight
+                    if (imageContainerParams.height != imageContainerHeight) {
+                        conditionPanelBinding.imageViewContainer.updateLayoutParams {
+                            this.height = imageContainerHeight
+                        }
                     }
                 }
             }
