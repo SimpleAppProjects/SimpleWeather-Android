@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.simpleweather.viewmodels.LocationsViewModel" />
+    </data>
+
     <merge
         tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
         tools:showIn="@layout/fragment_toolbar_layout"
@@ -22,6 +29,7 @@
             app:layout_anchor="@id/app_bar"
             app:layout_anchorGravity="bottom"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:showIfTrue="@{!viewModel.uiState.loading}"
             tools:listitem="@layout/location_panel" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -37,8 +45,19 @@
             android:visibility="gone"
             app:drawableTopCompat="@drawable/ic_add_location_white_24dp"
             app:drawableTint="?attr/colorOnSurface"
+            app:showIfTrue="@{!viewModel.uiState.loading &amp;&amp; viewModel.locations.size() &lt;= 0}"
             android:drawablePadding="8dp"
             tools:visibility="gone" />
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="?attr/colorOnSurface"
+            android:indeterminateTintMode="src_in"
+            app:showProgressBarIfTrue="@{viewModel.uiState.loading}" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
@@ -49,7 +68,8 @@
             android:minHeight="@dimen/fab_size"
             android:scrollbars="none"
             android:text="@string/label_fab_add_location"
-            app:icon="@drawable/ic_add_location_white_24dp" />
+            app:icon="@drawable/ic_add_location_white_24dp"
+            app:showIfTrue="@{!viewModel.uiState.loading}" />
 
     </merge>
 </layout>

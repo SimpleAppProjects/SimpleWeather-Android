@@ -171,6 +171,7 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                 val result = updateLocation()
 
                 if (result is LocationResult.Changed) {
+                    settingsManager.updateLocation(result.data)
                     locData = result.data
                 }
             }
@@ -184,6 +185,7 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
             if (settingsManager.useFollowGPS()) {
                 val result = updateLocation()
                 if (result is LocationResult.Changed) {
+                    settingsManager.updateLocation(result.data)
                     weatherDataLoader.updateLocation(result.data)
                 }
             }

@@ -1,5 +1,6 @@
 package com.thewizrd.common.location
 
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.shared_resources.locationdata.LocationData
 
 sealed interface LocationResult {
@@ -29,6 +30,6 @@ sealed interface LocationResult {
     data class Error(
         override val data: LocationData? = null,
         override val locationChanged: Boolean = false,
-        val errorMessage: String
+        val errorMessage: ErrorMessage
     ) : LocationResult
 }

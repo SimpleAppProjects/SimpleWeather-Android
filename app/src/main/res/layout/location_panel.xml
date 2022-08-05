@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="com.thewizrd.simpleweather.controls.LocationPanelViewModel" />
+            type="com.thewizrd.simpleweather.controls.LocationPanelUiModel" />
 
     </data>
 
@@ -73,6 +73,25 @@
                 tools:textColor="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:scrollbars="none"
+                android:text="@string/label_nodata"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceInverse"
+                android:textSize="24sp"
+                app:showIfTrue="@{!viewModel.isWeatherValid}"
+                app:autoSizeMaxTextSize="24sp"
+                app:autoSizeTextType="uniform"
+                app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/location_name"
+                tools:textColor="?attr/colorOnSurface" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/weather_temp"
                 style="@style/ShadowText"
                 android:layout_width="wrap_content"
@@ -90,7 +109,7 @@
                 android:textStyle="normal"
                 app:autoSizeMaxTextSize="36sp"
                 app:autoSizeTextType="uniform"
-                app:hideIfNull="@{viewModel.currTemp}"
+                app:showIfTrue="@{viewModel.weatherValid}"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toTopOf="@id/weather_condition"
                 app:layout_constraintEnd_toStartOf="@id/weather_hi"
@@ -115,6 +134,7 @@
                 android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="14sp"
                 android:textStyle="bold"
+                app:showIfTrue="@{viewModel.weatherValid}"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/temp_barrier_left"
@@ -154,7 +174,7 @@
                 app:drawableHeight="24dp"
                 app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_up"
-                app:showIfTrue="@{viewModel.showHiLo}"
+                app:showIfTrue="@{viewModel.showHiLo &amp;&amp; viewModel.weatherValid}"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toTopOf="@id/weather_lo"
                 app:layout_constraintEnd_toStartOf="@id/extra_barrier"
@@ -185,7 +205,7 @@
                 app:drawableWidth="24dp"
                 app:drawableEndCompat="@drawable/wi_direction_down"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
-                app:showIfTrue="@{viewModel.showHiLo}"
+                app:showIfTrue="@{viewModel.showHiLo &amp;&amp; viewModel.weatherValid}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/extra_barrier"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -207,7 +227,8 @@
                 android:id="@+id/weather_popgroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:hideIfNull="@{viewModel.pop}"
+                app:showIfTrue="@{viewModel.weatherValid}"
+                app:hideIfNullOrWhitespace="@{viewModel.pop}"
                 app:flow_horizontalStyle="packed"
                 app:flow_maxElementsWrap="2"
                 app:flow_wrapMode="chain"
@@ -257,7 +278,8 @@
                 android:id="@+id/weather_windgroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:hideIfNull="@{viewModel.windSpeed}"
+                app:showIfTrue="@{viewModel.weatherValid}"
+                app:hideIfNullOrWhitespace="@{viewModel.windSpeed}"
                 app:flow_horizontalStyle="packed"
                 app:flow_maxElementsWrap="2"
                 app:flow_wrapMode="chain"
@@ -304,15 +326,16 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminate="true"
             android:indeterminateTint="?attr/colorOnSurface"
             android:indeterminateTintMode="src_in"
-            android:visibility="visible" />
+            android:visibility="visible"
+            app:indicatorSize="24dp" />
 
     </merge>
 </layout>

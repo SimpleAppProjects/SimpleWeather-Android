@@ -6,13 +6,13 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.MainThread
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
 import androidx.core.widget.TextViewCompat
 import androidx.databinding.BindingAdapter
@@ -34,16 +34,15 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.LocationPanelBinding
 import com.thewizrd.simpleweather.preferences.FeatureSettings
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
 
-class LocationPanel : MaterialCardView, CoroutineScope {
+class LocationPanel : MaterialCardView {
     private lateinit var binding: LocationPanelBinding
     private var overlayDrawable: Drawable? = null
     private lateinit var mGlide: RequestManager
 
-    private var job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+    private var scope = CoroutineScope(Dispatchers.Main.immediate + Job())
+
+    private lateinit var bitmapImageViewTarget: BitmapImageViewTarget
 
     constructor(context: Context) : super(context) {
         initialize(getContext())
@@ -53,19 +52,29 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         initialize(getContext())
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         initialize(getContext())
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        job.cancel()
-        job = Job()
+        if (!scope.isActive) {
+            refreshScope()
+        }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        job.cancel()
+        scope.cancel()
+    }
+
+    private fun refreshScope() {
+        scope.cancel()
+        scope = CoroutineScope(Dispatchers.Main.immediate + Job())
     }
 
     private fun initialize(context: Context) {
@@ -114,76 +123,72 @@ class LocationPanel : MaterialCardView, CoroutineScope {
 
         mGlide = Glide.with(this)
         showLoading(true)
+
+        bitmapImageViewTarget = object : BitmapImageViewTarget(binding.imageView) {
+            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
+                super.onResourceReady(resource, transition)
+                binding.imageOverlay.background = overlayDrawable
+                showLoading(false)
+            }
+
+            override fun onLoadFailed(errorDrawable: Drawable?) {
+                super.onLoadFailed(errorDrawable)
+                binding.imageOverlay.background = null
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+                super.onLoadCleared(placeholder)
+                binding.imageOverlay.background = null
+            }
+
+            override fun onLoadStarted(placeholder: Drawable?) {
+                super.onLoadStarted(placeholder)
+                showLoading(true)
+                binding.imageOverlay.background = null
+            }
+        }
     }
 
-    fun setWeatherBackground(panelView: LocationPanelViewModel) {
-        setWeatherBackground(panelView, false)
-    }
-
-    fun setWeatherBackground(panelView: LocationPanelViewModel, skipCache: Boolean) {
-        launch(Dispatchers.IO) {
+    fun setWeatherBackground(panelView: LocationPanelUiModel, skipCache: Boolean = false) {
+        scope.launch {
             if (panelView.imageData == null) {
                 panelView.updateBackground()
             }
 
-            withContext(Dispatchers.Main) {
-                val backgroundUri = panelView.imageData?.imageURI
+            val backgroundUri = panelView.imageData?.imageURI
 
-                // Background
-                if (FeatureSettings.isLocationPanelImageEnabled && backgroundUri != null) {
-                    mGlide.asBitmap()
-                        .load(backgroundUri)
-                        .apply(
-                            RequestOptions
-                                .centerCropTransform()
-                                .format(DecodeFormat.PREFER_RGB_565)
-                                .error(null)
-                                .placeholder(null)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .skipMemoryCache(skipCache)
-                        )
-                            .transition(BitmapTransitionOptions.withCrossFade())
-                            .into(object : BitmapImageViewTarget(binding.imageView) {
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
-                                    super.onResourceReady(resource, transition)
-                                    binding.imageOverlay.background = overlayDrawable
-                                    showLoading(false)
-                                }
-
-                                override fun onLoadFailed(errorDrawable: Drawable?) {
-                                    super.onLoadFailed(errorDrawable)
-                                    binding.imageOverlay.background = null
-                                }
-
-                                override fun onLoadCleared(placeholder: Drawable?) {
-                                    super.onLoadCleared(placeholder)
-                                    binding.imageOverlay.background = null
-                                }
-
-                                override fun onLoadStarted(placeholder: Drawable?) {
-                                    super.onLoadStarted(placeholder)
-                                    showLoading(true)
-                                    binding.imageOverlay.background = null
-                                }
-                            })
-                } else {
-                    clearBackground()
-                    showLoading(false)
-                }
+            // Background
+            if (FeatureSettings.isLocationPanelImageEnabled && backgroundUri != null) {
+                mGlide.asBitmap()
+                    .load(backgroundUri)
+                    .apply(
+                        RequestOptions
+                            .centerCropTransform()
+                            .format(DecodeFormat.PREFER_RGB_565)
+                            .error(null)
+                            .placeholder(null)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .skipMemoryCache(skipCache)
+                    )
+                    .transition(BitmapTransitionOptions.withCrossFade())
+                    .into(bitmapImageViewTarget)
+            } else {
+                clearBackground()
+                showLoading(false)
             }
         }
     }
 
     @MainThread
     fun clearBackground() {
-        launch(Dispatchers.Main.immediate) {
+        scope.launch(Dispatchers.Main.immediate) {
             mGlide.clear(binding.imageView)
             binding.imageView.setImageDrawable(null)
         }
     }
 
     @MainThread
-    fun bindModel(model: LocationPanelViewModel) {
+    fun bindModel(model: LocationPanelUiModel) {
         binding.viewModel = model
         binding.executePendingBindings()
 
@@ -193,11 +198,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
         // Do this after if checkable state is now enabled
         this.isChecked = model.isChecked
 
-        if (model.locationType == LocationType.GPS.value) {
-            binding.gpsIcon.visibility = View.VISIBLE
-        } else {
-            binding.gpsIcon.visibility = View.GONE
-        }
+        binding.gpsIcon.isVisible = model.locationType == LocationType.GPS.value
 
         this.tag = model.locationData
 
@@ -209,7 +210,7 @@ class LocationPanel : MaterialCardView, CoroutineScope {
     }
 
     fun showLoading(show: Boolean) {
-        binding.progressBar.visibility = if (show) VISIBLE else GONE
+        binding.progressBar.isVisible = show
         isClickable = !show
     }
 

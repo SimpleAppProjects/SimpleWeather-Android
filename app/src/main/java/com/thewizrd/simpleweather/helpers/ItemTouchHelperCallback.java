@@ -88,10 +88,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         int dragFlags = 0;
         int swipeFlags = 0;
 
-        if (viewHolder.getItemViewType() != LocationPanelAdapter.ItemType.SEARCH_PANEL) {
-            dragFlags = 0;
-            swipeFlags = 0;
-        } else {
+        if (viewHolder.getItemViewType() == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
             dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
                 dragFlags |= ItemTouchHelper.START | ItemTouchHelper.END;
@@ -107,7 +104,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-        mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        mAdapter.onItemMove(viewHolder.getBindingAdapterPosition(), target.getBindingAdapterPosition());
         notifyOnMove(recyclerView, viewHolder, target);
         return true;
     }
@@ -115,7 +112,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, final int direction) {
         notifyOnSwiped(viewHolder, direction);
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+        mAdapter.onItemDismiss(viewHolder.getBindingAdapterPosition());
     }
 
     @Override
@@ -124,12 +121,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
             return false;
 
         LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
-        return adapter == null || !adapter.hasGPSHeader() || !adapter.hasSearchHeader() || target.getAdapterPosition() != 1;
+        return adapter == null || !adapter.hasGPSHeader() || !adapter.hasSearchHeader() || target.getBindingAdapterPosition() != 1;
     }
 
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        if (viewHolder.getAdapterPosition() == -1)
+        if (viewHolder.getBindingAdapterPosition() == -1)
             return;
 
         try {
@@ -167,7 +164,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 float upperLimit = 0;
                 LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
 
-                if (adapter != null) {
+                if (adapter != null && adapter.getFavViewHolder() != null) {
                     upperLimit = adapter.getFavViewHolder().itemView.getTop();
                 }
 

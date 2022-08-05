@@ -3,7 +3,6 @@ package com.thewizrd.simpleweather.adapters
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -26,16 +25,14 @@ import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
-import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.LocationPanel
-import com.thewizrd.simpleweather.controls.LocationPanelViewModel
+import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import com.thewizrd.simpleweather.helpers.ItemTouchHelperAdapterInterface
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import kotlinx.coroutines.*
-import java.util.*
 import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
 class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
@@ -66,11 +63,11 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     }
 
     private val mDataset =
-        ObservableArrayList<LocationPanelViewModel>(
+        ObservableArrayList<LocationPanelUiModel>(
             settingsManager.getMaxLocations()
         )
     private val mSelectedItems =
-        ObservableArrayList<LocationPanelViewModel>(
+        ObservableArrayList<LocationPanelUiModel>(
             settingsManager.getMaxLocations()
         )
 
@@ -84,23 +81,23 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     private var isInEditMode = false
 
     // Event listeners
-    private var onClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
-    private var onLongClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>? = null
+    private var onClickListener: ListAdapterOnClickInterface<LocationPanelUiModel>? = null
+    private var onLongClickListener: ListAdapterOnClickInterface<LocationPanelUiModel>? = null
     private val onLongClickToDragListener: ViewHolderLongClickListener? = longClickListener
-    private var onListChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
-    private var onSelectionChangedCallback: OnListChangedListener<LocationPanelViewModel>? = null
+    private var onListChangedCallback: OnListChangedListener<LocationPanelUiModel>? = null
+    private var onSelectionChangedCallback: OnListChangedListener<LocationPanelUiModel>? = null
 
     private val scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
 
-    fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>?) {
+    fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationPanelUiModel>?) {
         this.onClickListener = onClickListener
     }
 
-    fun setOnLongClickListener(onLongClickListener: ListAdapterOnClickInterface<LocationPanelViewModel>?) {
+    fun setOnLongClickListener(onLongClickListener: ListAdapterOnClickInterface<LocationPanelUiModel>?) {
         this.onLongClickListener = onLongClickListener
     }
 
-    fun setOnListChangedCallback(onListChangedCallback: OnListChangedListener<LocationPanelViewModel>?) {
+    fun setOnListChangedCallback(onListChangedCallback: OnListChangedListener<LocationPanelUiModel>?) {
         if (this.onListChangedCallback != null) {
             mDataset.removeOnListChangedCallback(this.onListChangedCallback)
         }
@@ -108,17 +105,19 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         if (onListChangedCallback != null) mDataset.addOnListChangedCallback(onListChangedCallback)
     }
 
-    fun setOnSelectionChangedCallback(onSelectionChangedCallback: OnListChangedListener<LocationPanelViewModel>?) {
+    fun setOnSelectionChangedCallback(onSelectionChangedCallback: OnListChangedListener<LocationPanelUiModel>?) {
         if (this.onSelectionChangedCallback != null) {
             mSelectedItems.removeOnListChangedCallback(this.onSelectionChangedCallback)
         }
         this.onSelectionChangedCallback = onSelectionChangedCallback
-        if (onSelectionChangedCallback != null) mSelectedItems.addOnListChangedCallback(onSelectionChangedCallback)
+        if (onSelectionChangedCallback != null) mSelectedItems.addOnListChangedCallback(
+            onSelectionChangedCallback
+        )
     }
 
     // Create copy of list
-    fun getDataset(): List<LocationPanelViewModel> {
-        return ArrayList(mDataset)
+    fun getDataset(): List<LocationPanelUiModel> {
+        return mDataset.toList()
     }
 
     fun getGPSViewHolder(): RecyclerView.ViewHolder? {
@@ -133,13 +132,13 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     inner class LocationPanelViewHolder internal constructor(internal var mLocView: LocationPanel) : RecyclerView.ViewHolder(mLocView) {
-        private lateinit var model: LocationPanelViewModel
+        private lateinit var model: LocationPanelUiModel
 
         init {
             mLocView.showLoading(true)
         }
 
-        fun bind(model: LocationPanelViewModel) {
+        fun bind(model: LocationPanelUiModel) {
             this.model = model
             if (!model.isEditMode) {
                 model.isChecked = false
@@ -179,8 +178,8 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         mSelectedItems.clear()
     }
 
-    val selectedItems: List<LocationPanelViewModel>
-        get() = Collections.unmodifiableList(mSelectedItems)
+    val selectedItems: List<LocationPanelUiModel>
+        get() = mSelectedItems
 
     fun setInEditMode(value: Boolean) {
         isInEditMode = value
@@ -253,8 +252,8 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
 
         when (holder) {
             is HeaderSetterInterface -> {
-                (holder as HeaderSetterInterface).setHeader()
-                (holder as HeaderSetterInterface).setHeaderTextColor()
+                holder.setHeader()
+                holder.setHeaderTextColor()
             }
             is ViewHolder -> {
                 // No-op
@@ -263,7 +262,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
                 val vHolder = holder as LocationPanelViewHolder
                 // - get element from your dataset at this position
                 // - replace the contents of the view with that element
-                val panelView: LocationPanelViewModel? = getPanelViewModel(position)
+                val panelView = getPanelViewModel(position)
 
                 if (!imageUpdateOnly && panelView != null) {
                     vHolder.bind(panelView)
@@ -277,7 +276,11 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         }
     }
 
-    private fun updatePanelBackground(vHolder: LocationPanelViewHolder, panelView: LocationPanelViewModel?, skipCache: Boolean) {
+    private fun updatePanelBackground(
+        vHolder: LocationPanelViewHolder,
+        panelView: LocationPanelUiModel?,
+        skipCache: Boolean
+    ) {
         if (panelView?.imageData != null) {
             vHolder.mLocView.setWeatherBackground(panelView, skipCache)
         } else {
@@ -306,12 +309,12 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         else if (position == itemCount - 1)
             return ItemType.FOOTER_SPACER
 
-        val model: LocationPanelViewModel? = getPanelViewModel(position)
+        val model = getPanelViewModel(position)
         return model?.locationType ?: 0
     }
 
     @Synchronized
-    fun getViewPosition(item: LocationPanelViewModel?): Int {
+    fun getViewPosition(item: LocationPanelUiModel?): Int {
         var position = mDataset.indexOf(item)
 
         if (position == 0)
@@ -326,17 +329,17 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
 
     @Synchronized
     fun getDataPosition(position: Int): Int {
-        var position = position
+        var dataPosition = position
 
-        if (position == 1) {
-            position--
-        } else if (hasSearchPanel && hasGPSPanel && position > 1) {
-            position -= 2
-        } else if ((hasSearchPanel || hasGPSPanel) && position > 1) {
-            position--
+        if (dataPosition == 1) {
+            dataPosition = 0
+        } else if (hasSearchPanel && hasGPSPanel && dataPosition > 1) {
+            dataPosition -= 2
+        } else if ((hasSearchPanel || hasGPSPanel) && dataPosition > 1) {
+            dataPosition--
         }
 
-        return position
+        return dataPosition
     }
 
     @Synchronized
@@ -363,7 +366,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         return size
     }
 
-    fun getGPSPanel(): LocationPanelViewModel? {
+    fun getGPSPanel(): LocationPanelUiModel? {
         if (hasGPSPanel) {
             val data = getPanelData(0)
             if (data?.locationType == LocationType.GPS) {
@@ -373,7 +376,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         return null
     }
 
-    fun getFirstFavPanel(): LocationPanelViewModel? {
+    fun getFirstFavPanel(): LocationPanelUiModel? {
         if (hasGPSPanel && hasSearchPanel)
             return getPanelViewModel(1)
         else if (hasSearchPanel) {
@@ -382,7 +385,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         return null
     }
 
-    fun add(item: LocationPanelViewModel) {
+    fun add(item: LocationPanelUiModel) {
         mDataset.add(item)
         notifyItemInserted(getViewPosition(item))
 
@@ -392,9 +395,8 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
             hasSearchPanel = true
     }
 
-    fun add(index: Int, item: LocationPanelViewModel) {
+    fun add(index: Int, item: LocationPanelUiModel) {
         if (index > mDataset.size) {
-            if (BuildConfig.DEBUG) Log.i("LocationPanelAdapter", "Index OOB")
             mDataset.add(item)
         } else {
             mDataset.add(index, item)
@@ -409,7 +411,40 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         }
     }
 
-    fun remove(panel: LocationPanelViewModel): Boolean {
+    fun addAll(items: Collection<LocationPanelUiModel>) {
+        val currentSize = itemCount
+
+        mDataset.addAll(items)
+        notifyItemRangeInserted(currentSize, currentSize + items.size)
+
+        val containsGpsPanel = items.any { it.locationType == LocationType.GPS.value }
+
+        if (!hasGPSPanel && containsGpsPanel) {
+            hasGPSPanel = true
+        } else if (!hasSearchPanel) {
+            hasSearchPanel = true
+        }
+    }
+
+    fun replaceAll(items: List<LocationPanelUiModel>) {
+        val size = itemCount
+
+        mDataset.clear()
+        notifyItemRangeRemoved(0, size)
+
+        mDataset.addAll(items)
+        notifyItemRangeInserted(0, items.size)
+
+        val containsGpsPanel = items.any { it.locationType == LocationType.GPS.value }
+
+        if (!hasGPSPanel && containsGpsPanel) {
+            hasGPSPanel = true
+        } else if (!hasSearchPanel) {
+            hasSearchPanel = true
+        }
+    }
+
+    fun remove(panel: LocationPanelUiModel): Boolean {
         val viewPosition = getViewPosition(panel)
 
         val removed = mDataset.remove(panel)
@@ -437,7 +472,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     }
 
     @Synchronized
-    fun getPanelViewModel(position: Int): LocationPanelViewModel? {
+    fun getPanelViewModel(position: Int): LocationPanelUiModel? {
         if (position >= itemCount || position < 0 || mDataset.size == 0)
             return null
 
@@ -455,12 +490,12 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         if (position >= itemCount || mDataset.size == 0)
             return null
 
-        val panel: LocationPanelViewModel = getPanelViewModel(position) ?: return null
+        val panel: LocationPanelUiModel = getPanelViewModel(position) ?: return null
 
         return panel.locationData
     }
 
-    private fun removeLocation(panel: LocationPanelViewModel) {
+    private fun removeLocation(panel: LocationPanelUiModel) {
         // Remove panel
         scope.launch {
             // Remove location from list
@@ -485,7 +520,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     override fun onItemDismiss(position: Int) {
         AnalyticsLogger.logEvent("LocationPanelAdapter: onItemDismiss")
 
-        val dismissedPanel: LocationPanelViewModel = getPanelViewModel(position) ?: return
+        val dismissedPanel: LocationPanelUiModel = getPanelViewModel(position) ?: return
 
         dismissedPanel.isChecked = false
         mSelectedItems.remove(dismissedPanel)
@@ -541,18 +576,18 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
 
     private inner class PanelDeleteHandler {
         // For undo
-        private val panelPairs: MutableList<Pair<Int, LocationPanelViewModel>>
+        private val panelPairs: MutableList<Pair<Int, LocationPanelUiModel>>
 
-        constructor(panel: LocationPanelViewModel?) {
-            panelPairs = ArrayList<Pair<Int, LocationPanelViewModel>>(1)
-            panelPairs.add(Pair<Int, LocationPanelViewModel>(mDataset.indexOf(panel), panel))
+        constructor(panel: LocationPanelUiModel?) {
+            panelPairs = ArrayList<Pair<Int, LocationPanelUiModel>>(1)
+            panelPairs.add(Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel))
         }
 
-        constructor(panels: List<LocationPanelViewModel>) {
-            panelPairs = ArrayList<Pair<Int, LocationPanelViewModel>>(panels.size)
+        constructor(panels: List<LocationPanelUiModel>) {
+            panelPairs = ArrayList(panels.size)
 
             for (panel in panels) {
-                panelPairs.add(Pair<Int, LocationPanelViewModel>(mDataset.indexOf(panel), panel))
+                panelPairs.add(Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel))
             }
         }
 

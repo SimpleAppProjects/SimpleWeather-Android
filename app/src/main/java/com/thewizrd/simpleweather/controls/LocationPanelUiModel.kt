@@ -17,7 +17,7 @@ import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class LocationPanelViewModel {
+class LocationPanelUiModel {
     private var weather: Weather? = null
     private var unitCode: String? = null
     private var localeCode: String? = null
@@ -53,11 +53,13 @@ class LocationPanelViewModel {
         get() = locationData?.locationType?.value ?: field
     var weatherSource: String? = null
         private set
+    var isWeatherValid: Boolean = false
+        private set
 
     var isEditMode = false
     var isChecked = false
 
-    fun setWeather(weather: Weather?) {
+    fun setWeather(locationData: LocationData, weather: Weather?) {
         if (weather != null && weather.isValid) {
             if (!ObjectsCompat.equals(this.weather, weather)) {
                 this.weather = weather
@@ -81,15 +83,25 @@ class LocationPanelViewModel {
                 weatherIcon = weather.condition.icon
                 weatherSource = weather.source
 
-                if (locationData == null) {
-                    locationData = LocationData(weather)
-                }
+                this.locationData = locationData
 
                 // Refresh locale/unit dependent values
                 refreshView()
-            } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())) {
+            } else if (!ObjectsCompat.equals(
+                    unitCode,
+                    settingsManager.getUnitString()
+                ) || !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode())
+            ) {
                 refreshView()
             }
+
+            isWeatherValid = true
+        } else {
+            this.locationData = locationData
+            locationName = locationData.name
+            weatherSource = locationData.weatherSource
+
+            isWeatherValid = false
         }
     }
 

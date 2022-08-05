@@ -1,38 +1,35 @@
 package com.thewizrd.simpleweather.main
 
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
-import android.location.Location
-import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
-import androidx.annotation.MainThread
-import androidx.annotation.WorkerThread
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.location.LocationManagerCompat
 import androidx.core.util.ObjectsCompat
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.forEach
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
@@ -45,11 +42,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFade
 import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.common.helpers.*
-import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.utils.ActivityUtils.setLightStatusBar
-import com.thewizrd.common.weatherdata.WeatherDataLoader
-import com.thewizrd.common.weatherdata.WeatherRequest
-import com.thewizrd.common.weatherdata.WeatherResult
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -58,7 +52,6 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -66,26 +59,23 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
-import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter.ViewHolderLongClickListener
-import com.thewizrd.simpleweather.controls.LocationPanelViewModel
+import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import com.thewizrd.simpleweather.databinding.FragmentLocationsBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.helpers.*
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
-import com.thewizrd.weather_api.weatherModule
-import kotlinx.coroutines.*
+import com.thewizrd.simpleweather.viewmodels.LocationsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.lang.Runnable
-import java.util.*
-import kotlin.coroutines.coroutineContext
 
 class LocationsFragment : ToolbarFragment() {
     companion object {
@@ -95,7 +85,6 @@ class LocationsFragment : ToolbarFragment() {
     private var mEditMode = false
     private var mDataChanged = false
     private var mHomeChanged = false
-    private lateinit var mErrorCounter: BooleanArray
 
     // Views
     private lateinit var binding: FragmentLocationsBinding
@@ -104,118 +93,19 @@ class LocationsFragment : ToolbarFragment() {
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private lateinit var mITHCallback: ItemTouchHelperCallback
 
+    private val locationsViewModel by viewModels<LocationsViewModel>()
+
     // GPS Location
-    private lateinit var locationProvider: LocationProvider
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     private val mMainHandler = Handler(Looper.getMainLooper())
 
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
-    private val wm = weatherModule.weatherManager
-
     override val titleResId: Int
         get() = R.string.label_nav_locations
 
-    @WorkerThread
-    private suspend fun onWeatherLoaded(location: LocationData, weather: Weather?) {
-        withContext(Dispatchers.Default) {
-            Timber.tag(TAG).d("onWeatherLoaded: $location")
-            val dataSet = mAdapter.getDataset()
-
-            if (weather?.isValid == true) {
-                // Update panel weather
-                var panel: LocationPanelViewModel?
-
-                panel = if (location.locationType == LocationType.GPS) {
-                    dataSet.find { input -> input.locationData?.locationType == LocationType.GPS }
-                } else {
-                    dataSet.find { input -> input.locationData?.locationType != LocationType.GPS && input.locationData?.query == location.query }
-                }
-
-                // Just in case
-                if (panel == null) {
-                    AnalyticsLogger.logEvent("LocationsFragment: panel == null")
-                    panel = dataSet.find { input ->
-                        input.locationData?.name == location.name && input.locationData?.latitude == location.latitude && input.locationData?.longitude == location.longitude && input.locationData?.tzLong == location.tzLong
-                    }
-                }
-
-                if (panel != null) {
-                    panel.setWeather(weather)
-                    withContext(Dispatchers.Main) {
-                        mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel))
-                    }
-
-                    launch(Dispatchers.IO) {
-                        panel.updateBackground()
-
-                        withContext(Dispatchers.Main) {
-                            mAdapter.notifyItemChanged(mAdapter.getViewPosition(panel),
-                                    LocationPanelAdapter.Payload.IMAGE_UPDATE)
-                        }
-                    }
-                } else if (BuildConfig.DEBUG) {
-                    Logger.writeLine(Log.WARN, "LocationsFragment: Location panel not found")
-                    Logger.writeLine(Log.WARN, "LocationsFragment: LocationData: %s", location.toString())
-                    Logger.writeLine(Log.WARN, "LocationsFragment: Dumping adapter data...")
-
-                    for (i in dataSet.indices) {
-                        val vm = dataSet[i]
-                        Logger.writeLine(Log.WARN, "LocationsFragment: Panel: %d; data: %s", i, vm.locationData.toString())
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onWeatherError(wEx: WeatherException) {
-        runWithView(Dispatchers.Main) {
-            when (wEx.errorStatus) {
-                ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER ->
-                    // Show error message and prompt to refresh
-                    // Only warn once
-                    if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        val snackbar =
-                            Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
-                        snackbar.setAction(R.string.action_retry) { // Reset counter to allow retry
-                            mErrorCounter[wEx.errorStatus.ordinal] = false
-                            refreshLocations()
-                        }
-                        showSnackbar(snackbar, null)
-                        mErrorCounter[wEx.errorStatus.ordinal] = true
-                    }
-                ErrorStatus.QUERYNOTFOUND -> {
-                    if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        showSnackbar(
-                            Snackbar.make(
-                                rootView.context,
-                                wEx.message,
-                                Snackbar.Duration.LONG
-                            ), null
-                        )
-                        mErrorCounter[wEx.errorStatus.ordinal] = true
-                    }
-                }
-                else -> {
-                    // Show error message
-                    // Only warn once
-                    if (!mErrorCounter[wEx.errorStatus.ordinal]) {
-                        showSnackbar(
-                            Snackbar.make(
-                                rootView.context,
-                                wEx.message,
-                                Snackbar.Duration.LONG
-                            ), null
-                        )
-                        mErrorCounter[wEx.errorStatus.ordinal] = true
-                    }
-                }
-            }
-        }
-    }
-
-    override fun createSnackManager(activity: Activity): SnackbarManager? {
+    override fun createSnackManager(activity: Activity): SnackbarManager {
         val mSnackMgr = SnackbarManager(rootView)
         mSnackMgr.setSwipeDismissEnabled(true)
         mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
@@ -224,8 +114,8 @@ class LocationsFragment : ToolbarFragment() {
 
     // For LocationPanels
     private val onRecyclerClickListener =
-        object : ListAdapterOnClickInterface<LocationPanelViewModel> {
-            override fun onClick(view: View, item: LocationPanelViewModel) {
+        object : ListAdapterOnClickInterface<LocationPanelUiModel> {
+            override fun onClick(view: View, item: LocationPanelUiModel) {
                 AnalyticsLogger.logEvent("LocationsFragment: recycler click")
                 val navController = binding.root.findNavController()
 
@@ -238,7 +128,7 @@ class LocationsFragment : ToolbarFragment() {
                         val args =
                             LocationsFragmentDirections.actionLocationsFragmentToWeatherNowFragment()
                                 .setData(withContext(Dispatchers.Default) {
-                                    JSONParser.serializer(locData, LocationData::class.java)
+                                    JSONParser.serializer(locData)
                                 })
                                 .setBackground(item.imageData?.imageURI)
                                 .setHome(isHome)
@@ -258,33 +148,20 @@ class LocationsFragment : ToolbarFragment() {
         // Create your fragment here
         AnalyticsLogger.logEvent("LocationsFragment: onCreate")
 
-        mErrorCounter = BooleanArray(ErrorStatus.values().size)
-
-        locationProvider = LocationProvider(requireActivity())
         locationPermissionLauncher = LocationPermissionLauncher(
             this,
             locationCallback = { granted ->
                 if (granted) {
-                    runWithView(Dispatchers.Default) {
-                        // permission was granted, yay!
-                        // Do the task you need to do.
-                        val locData = updateLocation()
-                        if (locData != null) {
-                            settingsManager.saveLastGPSLocData(locData)
-                            refreshLocations()
-                            Timber.tag("LocationsFragment").d("Location changed; sending update")
-                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-                        } else {
-                            launch(Dispatchers.Main) {
-                                removeGPSPanel()
-                            }
-                        }
-                    }
+                    // permission was granted, yay!
+                    // Do the task you need to do.
+                    locationsViewModel.refreshLocations()
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     settingsManager.setFollowGPS(false)
-                    removeGPSPanel()
+
+                    locationsViewModel.refreshLocations()
+
                     context?.let {
                         showSnackbar(
                             Snackbar.make(
@@ -319,6 +196,7 @@ class LocationsFragment : ToolbarFragment() {
         val root = super.onCreateView(inflater, container, savedInstanceState) as ViewGroup
         // Inflate the layout for this fragment
         binding = FragmentLocationsBinding.inflate(inflater, root, true)
+        binding.viewModel = locationsViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         // Request focus away from RecyclerView
         root.isFocusableInTouchMode = true
@@ -352,13 +230,15 @@ class LocationsFragment : ToolbarFragment() {
         toolbar.setOnMenuItemClickListener(menuItemClickListener)
 
         // FAB
-        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-            insets.replaceSystemWindowInsets(
-                insets.systemWindowInsetLeft,
-                insets.systemWindowInsetTop,
-                insets.systemWindowInsetRight,
-                0
-            )
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(
+                    WindowInsetsCompat.Type.systemBars(),
+                    Insets.of(sysBarInsets.left, sysBarInsets.top, sysBarInsets.right, 0)
+                )
+                .build()
         }
         binding.fab.setOnClickListener {
             binding.root.findNavController()
@@ -443,7 +323,7 @@ class LocationsFragment : ToolbarFragment() {
                     if (!mAdapter.hasGPSHeader() && mAdapter.hasSearchHeader()) {
                         val firstFavPosition = mAdapter.getViewPosition(mAdapter.getFirstFavPanel())
 
-                        if (viewHolder.adapterPosition == firstFavPosition || target.adapterPosition == firstFavPosition) {
+                        if (viewHolder.bindingAdapterPosition == firstFavPosition || target.bindingAdapterPosition == firstFavPosition) {
                             mMainHandler.removeCallbacks(sendUpdateRunner)
                             mMainHandler.postDelayed(sendUpdateRunner, 2500)
                         }
@@ -455,7 +335,7 @@ class LocationsFragment : ToolbarFragment() {
 
             private val sendUpdateRunner = Runnable {
                 // Home has changed send notice
-                Timber.tag("LocationsFragment").d("Home changed; sending update")
+                Timber.tag(TAG).d("Home changed; sending update")
                 localBroadcastManager.sendBroadcast(
                     Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE)
                         .putExtra(CommonActions.EXTRA_FORCEUPDATE, false)
@@ -497,6 +377,45 @@ class LocationsFragment : ToolbarFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adjustPanelContainer()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationsViewModel.locations.collectLatest {
+                mAdapter.replaceAll(it)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationsViewModel.errorMessages.collectLatest {
+                val error = it.firstOrNull()
+
+                if (error != null) {
+                    onErrorMessage(error)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationsViewModel.weatherUpdatedFlow.collect {
+                if (it != null) {
+                    launch(Dispatchers.IO) {
+                        it.updateBackground()
+
+                        withContext(Dispatchers.Main) {
+                            mAdapter.notifyItemChanged(
+                                mAdapter.getViewPosition(it),
+                                LocationPanelAdapter.Payload.IMAGE_UPDATE
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                locationsViewModel.loadLocations()
+            }
+        }
     }
 
     private fun adjustPanelContainer() {
@@ -507,22 +426,19 @@ class LocationsFragment : ToolbarFragment() {
                     binding.recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
                     val ctx = binding.recyclerView.context
 
-                    runWithView(Dispatchers.Main.immediate) {
-                        val isLandscape =
-                            ctx.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
-                        val viewWidth = binding.recyclerView.measuredWidth
-                        val minColumns = if (isLandscape) 2 else 1
+                    val isLandscape = ctx.getOrientation() == Configuration.ORIENTATION_LANDSCAPE
+                    val viewWidth = binding.recyclerView.measuredWidth
+                    val minColumns = if (isLandscape) 2 else 1
 
-                        // Minimum width for ea. card
-                        val minWidth =
-                            ctx.resources.getDimensionPixelSize(R.dimen.location_panel_minwidth)
-                        // Available columns based on min card width
-                        val availColumns =
-                            if ((viewWidth / minWidth) <= 1) minColumns else (viewWidth / minWidth)
+                    // Minimum width for ea. card
+                    val minWidth =
+                        ctx.resources.getDimensionPixelSize(R.dimen.location_panel_minwidth)
+                    // Available columns based on min card width
+                    val availColumns =
+                        if ((viewWidth / minWidth) <= 1) minColumns else (viewWidth / minWidth)
 
-                        (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
-                            it.spanCount = availColumns
-                        }
+                    (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
+                        it.spanCount = availColumns
                     }
 
                     return true
@@ -573,25 +489,9 @@ class LocationsFragment : ToolbarFragment() {
         }
     }
 
-    private fun resume() {
-        // Update view on resume
-        // ex. If temperature unit changed
-        if (mAdapter.getDataCount() == 0) {
-            // New instance; Get locations and load up weather data
-            loadLocations()
-        } else {
-            // Refresh view
-            refreshLocations()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         AnalyticsLogger.logEvent("LocationsFragment: onResume")
-
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            resume()
-        }
     }
 
     override fun onPause() {
@@ -602,308 +502,58 @@ class LocationsFragment : ToolbarFragment() {
             toggleEditMode()
         }
 
-        // Reset error counter
-        Arrays.fill(mErrorCounter, 0, mErrorCounter.size, false)
         super.onPause()
     }
 
-    private fun loadLocations() {
-        runWithView(Dispatchers.Default) {
-            // Load up saved locations
-            val locations = ArrayList(settingsManager.getFavorites() ?: Collections.emptyList())
-            withContext(Dispatchers.Main) {
-                mAdapter.removeAll()
-            }
-
-            if (!isActive) return@runWithView
-
-            // Setup saved favorite locations
-            var gpsData: LocationData? = null
-            if (settingsManager.useFollowGPS()) {
-                gpsData = getGPSPanel()
-
-                if (gpsData != null) {
-                    val gpsPanelViewModel = LocationPanelViewModel()
-                    gpsPanelViewModel.locationData = gpsData
-
-                    withContext(Dispatchers.Main) {
-                        mAdapter.add(0, gpsPanelViewModel)
-                    }
+    private fun onErrorMessage(error: ErrorMessage) {
+        when (error) {
+            is ErrorMessage.Resource -> {
+                context?.let {
+                    showSnackbar(Snackbar.make(it, error.stringId, Snackbar.Duration.SHORT))
                 }
             }
-
-            if (gpsData?.isValid == true) {
-                locations.add(0, gpsData)
+            is ErrorMessage.String -> {
+                context?.let {
+                    showSnackbar(Snackbar.make(it, error.message, Snackbar.Duration.SHORT))
+                }
             }
+            is ErrorMessage.WeatherError -> {
+                onWeatherError(error.exception)
+            }
+        }
 
-            if (!isActive) return@runWithView
+        locationsViewModel.setErrorMessageShown(error)
+    }
 
-            if (locations.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    binding.noLocationsPrompt.visibility = View.GONE
+    private fun onWeatherError(wEx: WeatherException) {
+        when (wEx.errorStatus) {
+            ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
+                val snackbar =
+                    Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
+                snackbar.setAction(R.string.action_retry) {
+                    locationsViewModel.refreshLocations()
                 }
-
-                for (location in locations) {
-                    if (location != gpsData) {
-                        val panel = LocationPanelViewModel()
-                        panel.locationData = location
-                        withContext(Dispatchers.Main) {
-                            mAdapter.add(panel)
-                        }
-                    }
-
-                    launch(Dispatchers.Default) {
-                        supervisorScope {
-                            val result = WeatherDataLoader(location)
-                                .loadWeatherResult(
-                                    WeatherRequest.Builder()
-                                        .forceRefresh(false)
-                                        .build()
-                                )
-
-                            when (result) {
-                                is WeatherResult.Error -> {
-                                    onWeatherError(result.exception)
-                                }
-                                is WeatherResult.WeatherWithError -> {
-                                    onWeatherError(result.exception)
-                                }
-                                is WeatherResult.NoWeather -> {}
-                                is WeatherResult.Success -> {}
-                            }
-
-                            onWeatherLoaded(location, result.data)
-                        }
-                    }
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    binding.noLocationsPrompt.visibility = View.VISIBLE
-                }
+                showSnackbar(snackbar)
+            }
+            ErrorStatus.QUERYNOTFOUND -> {
+                showSnackbar(
+                    Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
+                )
+            }
+            else -> {
+                showSnackbar(
+                    Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
+                )
             }
         }
     }
 
-    private suspend fun getGPSPanel(): LocationData? = withContext(Dispatchers.IO) {
-        // Setup gps panel
-        if (settingsManager.useFollowGPS()) {
-            var locData = settingsManager.getLastGPSLocData()
-
-            if (!isActive) return@withContext null
-
-            if (locData?.isValid != true) {
-                locData = updateLocation()
-                if (locData != null) {
-                    settingsManager.saveLastGPSLocData(locData)
-                    localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-                }
-            }
-
-            if (!isActive) return@withContext null
-
-            if (locData?.isValid == true) {
-                return@withContext locData
-            }
-        }
-
-        return@withContext null
-    }
-
-    private fun refreshLocations() {
-        runWithView(Dispatchers.Default) {
-            // Reload all panels if needed
-            val locations = ArrayList(settingsManager.getLocationData() ?: Collections.emptyList())
-            if (settingsManager.useFollowGPS()) {
-                val homeData = settingsManager.getLastGPSLocData()
-                locations.add(0, homeData)
-            }
-            val gpsPanelViewModel = mAdapter.getGPSPanel()
-
-            var reload = locations.size != mAdapter.getDataCount() ||
-                    settingsManager.useFollowGPS() && gpsPanelViewModel == null ||
-                    !settingsManager.useFollowGPS() && gpsPanelViewModel != null
-
-            // Reload if weather source differs
-            if (settingsManager.getAPI() != gpsPanelViewModel?.weatherSource ||
-                mAdapter.getFavoritesCount() > 0 && settingsManager.getAPI() != mAdapter.getFirstFavPanel()?.weatherSource
-            ) {
-                reload = true
-            }
-
-            if (settingsManager.useFollowGPS()) {
-                if (!reload && !ObjectsCompat.equals(
-                        locations[0]?.query,
-                        gpsPanelViewModel?.locationData?.query
-                    )
-                ) {
-                    reload = true
-                }
-            }
-
-            if (!isActive) return@runWithView
-
-            if (reload) {
-                launch(Dispatchers.Main) {
-                    mAdapter.removeAll()
-                    loadLocations()
-                }
-            } else {
-                val dataset = mAdapter.getDataset()
-
-                if (dataset.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        binding.noLocationsPrompt.visibility = View.GONE
-                    }
-
-                    for (view in dataset) {
-                        launch(Dispatchers.Default) {
-                            val weather = WeatherDataLoader(view.locationData!!)
-                                .loadWeatherData(
-                                    WeatherRequest.Builder()
-                                        .forceRefresh(false)
-                                        .build()
-                                )
-
-                            onWeatherLoaded(view.locationData!!, weather)
-                        }
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        binding.noLocationsPrompt.visibility = View.VISIBLE
-                    }
-                }
-            }
-        }
-    }
-
-    private fun addGPSPanel() {
-        runWithView(Dispatchers.Default) {
-            // Setup saved favorite locations
-            val gpsData: LocationData?
-            if (settingsManager.useFollowGPS()) {
-                gpsData = getGPSPanel()
-
-                if (gpsData != null) {
-                    val gpsPanelViewModel = LocationPanelViewModel().apply {
-                        locationData = gpsData
-                    }
-                    launch(Dispatchers.Main) {
-                        mAdapter.add(0, gpsPanelViewModel)
-                    }
-                }
-            } else {
-                gpsData = null
-            }
-
-            if (!isActive) return@runWithView
-
-            if (gpsData != null) {
-                launch(Dispatchers.Default) {
-                    val result = WeatherDataLoader(gpsData)
-                        .loadWeatherResult(
-                            WeatherRequest.Builder()
-                                .forceRefresh(false)
-                                .build()
-                        )
-
-                    when (result) {
-                        is WeatherResult.Error -> {
-                            onWeatherError(result.exception)
-                        }
-                        is WeatherResult.WeatherWithError -> {
-                            onWeatherError(result.exception)
-                        }
-                        is WeatherResult.NoWeather -> {}
-                        is WeatherResult.Success -> {}
-                    }
-
-                    onWeatherLoaded(gpsData, result.data)
-                }
-            }
-        }
-    }
-
-    @MainThread
-    private fun removeGPSPanel() {
-        if (mAdapter.hasGPSHeader()) {
-            mAdapter.removeGPSPanel()
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private suspend fun updateLocation(): LocationData? {
-        var locationData: LocationData? = null
-
-        if (settingsManager.useFollowGPS()) {
-            context?.let {
-                if (!it.locationPermissionEnabled()) {
-                    locationPermissionLauncher.requestLocationPermission()
-                    return@updateLocation null
-                }
-            }
-
-            val locMan = context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-
-            if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                return null
-            }
-
-            var location = withContext(Dispatchers.IO) {
-                val result: Location? = try {
-                    withTimeoutOrNull(5000) {
-                        locationProvider.getLastLocation()
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-                result
-            }
-
-            if (!coroutineContext.isActive) return null
-
-            /* Get current location from provider */
-            if (location == null) {
-                location = withTimeoutOrNull(30000) {
-                    locationProvider.getCurrentLocation()
-                }
-            }
-
-            if (!coroutineContext.isActive) return null
-
-            if (location != null) {
-                val view = try {
-                    withContext(Dispatchers.IO) {
-                        wm.getLocation(location)
-                    }
-                } catch (e: WeatherException) {
-                    Logger.writeLine(Log.ERROR, e)
-                    null
-                }
-
-                if (view == null || view.locationQuery.isNullOrBlank()) {
-                    // Stop since there is no valid query
-                    withContext(Dispatchers.Main) { removeGPSPanel() }
-                    return null
-                }
-
-                if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId =
-                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
-                    if ("unknown" != tzId)
-                        view.locationTZLong = tzId
-                }
-
-                // Save location as last known
-                locationData = view.toLocationData(location)
-            }
-        }
-
-        return locationData
-    }
-
-    private val onListChangedListener = object : OnListChangedListener<LocationPanelViewModel>() {
-        override fun onChanged(sender: ArrayList<LocationPanelViewModel>, e: ListChangedArgs<LocationPanelViewModel>) {
-            runWithView(Dispatchers.Main) {
+    private val onListChangedListener = object : OnListChangedListener<LocationPanelUiModel>() {
+        override fun onChanged(
+            sender: ArrayList<LocationPanelUiModel>,
+            e: ListChangedArgs<LocationPanelUiModel>
+        ) {
+            runWithView {
                 val dataMoved =
                     e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE
                 val onlyHomeIsLeft = mAdapter.getFavoritesCount() <= 1
@@ -926,36 +576,38 @@ class LocationsFragment : ToolbarFragment() {
                 if (mEditMode && onlyHomeIsLeft) toggleEditMode()
 
                 // Disable EditMode if only single location
-                val editMenuBtn = toolbar?.menu?.findItem(R.id.action_editmode)
+                val editMenuBtn = toolbar.menu?.findItem(R.id.action_editmode)
                 editMenuBtn?.isVisible = if (mEditMode) false else !onlyHomeIsLeft
             }
         }
     }
-    private val onSelectionChangedListener = object : OnListChangedListener<LocationPanelViewModel>() {
-        override fun onChanged(sender: ArrayList<LocationPanelViewModel>, args: ListChangedArgs<LocationPanelViewModel>) {
-            runWithView(Dispatchers.Main) {
-                if (mEditMode) {
-                    toolbar!!.title = if (sender.isNotEmpty()) sender.size.toString() else ""
+    private val onSelectionChangedListener =
+        object : OnListChangedListener<LocationPanelUiModel>() {
+            override fun onChanged(
+                sender: ArrayList<LocationPanelUiModel>,
+                args: ListChangedArgs<LocationPanelUiModel>
+            ) {
+                runWithView {
+                    if (mEditMode) {
+                        toolbar.title = if (sender.isNotEmpty()) sender.size.toString() else ""
 
-                    val deleteBtnItem = toolbar!!.menu.findItem(R.id.action_delete)
-                    deleteBtnItem?.isVisible = sender.isNotEmpty()
+                        val deleteBtnItem = toolbar.menu.findItem(R.id.action_delete)
+                        deleteBtnItem?.isVisible = sender.isNotEmpty()
+                    }
                 }
             }
         }
-    }
     private val onRecyclerLongClickListener =
-        object : ListAdapterOnClickInterface<LocationPanelViewModel> {
-            override fun onClick(view: View, item: LocationPanelViewModel) {
+        object : ListAdapterOnClickInterface<LocationPanelUiModel> {
+            override fun onClick(view: View, item: LocationPanelUiModel) {
                 val position = mAdapter.getViewPosition(item)
 
                 if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
                     if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
                         toggleEditMode()
 
-                        if (item != null) {
-                            item.isChecked = true
-                            mAdapter.notifyItemChanged(position)
-                        }
+                        item.isChecked = true
+                        mAdapter.notifyItemChanged(position)
                     }
                 }
             }
@@ -1087,7 +739,7 @@ class LocationsFragment : ToolbarFragment() {
         )
     }
 
-    private fun updateFavoritesPosition(view: LocationPanelViewModel) {
+    private fun updateFavoritesPosition(view: LocationPanelUiModel) {
         val query = view.locationData!!.query
         var dataPosition = mAdapter.getDataset().indexOf(view)
         val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition

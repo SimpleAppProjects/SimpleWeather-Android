@@ -15,6 +15,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.thewizrd.common.R
 import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -209,12 +210,12 @@ class LocationProvider {
                     wm.getLocation(location)
                 }
             } catch (e: WeatherException) {
-                return LocationResult.Error(errorMessage = e.message)
+                return LocationResult.Error(errorMessage = ErrorMessage.WeatherError(e))
             }
 
             if (view == null || view.locationQuery.isNullOrBlank()) {
                 // Stop since there is no valid query
-                return LocationResult.Error(errorMessage = mContext.getString(R.string.error_retrieve_location))
+                return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
             } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
                 val tzId =
                     weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
@@ -224,7 +225,6 @@ class LocationProvider {
 
             // Save location as last known
             lastGPSLocData = view.toLocationData(location)
-            settingsManager.updateLocation(lastGPSLocData)
 
             return LocationResult.Changed(lastGPSLocData, true)
         }
