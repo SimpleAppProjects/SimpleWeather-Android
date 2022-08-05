@@ -71,13 +71,6 @@ android {
         jvmTarget = "1.8"
     }
 
-    // Workaround for binding class errors
-    sourceSets {
-        debug {
-            java.srcDirs += 'build/generated/data_binding_base_class_source_out/debug/out'
-        }
-    }
-
     flavorDimensions 'gms'
     productFlavors {
         nongms {

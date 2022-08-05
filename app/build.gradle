@@ -54,14 +54,6 @@ android {
     }
 
     sourceSets {
-        // Workaround for binding class errors
-        fullgmsDebug {
-            java.srcDirs += 'build/generated/data_binding_base_class_source_out/fullgmsDebug/out'
-        }
-        nongmsDebug {
-            java.srcDirs += 'build/generated/data_binding_base_class_source_out/nongmsDebug/out'
-        }
-
         main {
             manifest.srcFile 'src/main/AndroidManifest.xml'
         }
