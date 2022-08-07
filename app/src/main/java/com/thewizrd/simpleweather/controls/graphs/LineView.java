@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.controls.graphs;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.CornerPathEffect;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -118,6 +119,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
         private final float DOT_INNER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 2);
         private final float DOT_OUTER_CIR_RADIUS = ContextUtils.dpToPx(getContext(), 5);
+        private final float LINE_CORNER_RADIUS = ContextUtils.dpToPx(getContext(), 16);
         private final int MIN_VERTICAL_GRID_NUM = 4;
 
         private int BACKGROUND_LINE_COLOR = Colors.WHITESMOKE;
@@ -131,6 +133,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
         private final Paint bigCirPaint;
         private final Paint smallCirPaint;
         private final Paint linePaint;
+        private final Path mLinePath;
         private final Path mPathBackground;
         private final Paint mPaintBackground;
         private final Paint bgLinesPaint;
@@ -155,10 +158,20 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
             linePaint = new Paint();
             linePaint.setAntiAlias(true);
+            linePaint.setDither(true);
+            linePaint.setPathEffect(new CornerPathEffect(LINE_CORNER_RADIUS));
+            linePaint.setStyle(Paint.Style.STROKE);
             linePaint.setStrokeWidth(ContextUtils.dpToPx(getContext(), 2));
+            linePaint.setStrokeCap(Paint.Cap.ROUND);
+            linePaint.setStrokeJoin(Paint.Join.ROUND);
+            mLinePath = new Path();
 
             mPathBackground = new Path();
             mPaintBackground = new Paint();
+            mPaintBackground.setAntiAlias(true);
+            mPaintBackground.setDither(true);
+            mPaintBackground.setPathEffect(new CornerPathEffect(LINE_CORNER_RADIUS));
+            mPaintBackground.setStyle(Paint.Style.FILL_AND_STROKE);
 
             bgLinesPaint = new Paint();
             bgLinesPaint.setStyle(Paint.Style.STROKE);
@@ -466,12 +479,13 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                     // needed to end the path for background
                     Dot currentDot = null;
 
+                    mLinePath.rewind();
                     mPathBackground.rewind();
                     linePaint.setColor(series.getColor(k));
                     mPaintBackground.setColor(ColorUtils.setAlphaComponent(series.getColor(k), 0x99));
 
                     if (drawGraphBackground) {
-                        mPathBackground.moveTo(visibleRect.left, graphHeight);
+                        mPathBackground.moveTo(visibleRect.left - LINE_CORNER_RADIUS, graphHeight);
                     }
 
                     for (int i = 0; i < drawDotLists.get(k).size() - 1; i++) {
@@ -486,13 +500,14 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         float endY = nextDot.y;
 
                         drawingRect.set(visibleRect.left, dot.y, dot.x, dot.y);
-                        if (firstX == -1 && RectF.intersects(drawingRect, visibleRect)) {
-                            canvas.drawLine(visibleRect.left, dot.y, dot.x, dot.y, linePaint);
+                        if (firstX == -1) {
+                            mLinePath.moveTo(visibleRect.left, dot.y);
+                            mLinePath.lineTo(dot.x, dot.y);
                         }
 
                         drawingRect.set(dot.x, dot.y, nextDot.x, nextDot.y);
                         if (RectF.intersects(drawingRect, visibleRect))
-                            canvas.drawLine(dot.x, dot.y, nextDot.x, nextDot.y, linePaint);
+                            mLinePath.lineTo(nextDot.x, nextDot.y);
 
                         if (isDrawDataLabels()) {
                             // Draw top label
@@ -505,7 +520,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         if (firstX == -1) {
                             firstX = visibleRect.left;
                             if (drawGraphBackground)
-                                mPathBackground.lineTo(firstX, startY);
+                                mPathBackground.lineTo(firstX - LINE_CORNER_RADIUS, startY);
                         }
 
                         if (drawGraphBackground) {
@@ -528,7 +543,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                             drawingRect.set(nextDot.x, nextDot.y, visibleRect.right, nextDot.y);
 
                             if (RectF.intersects(drawingRect, visibleRect))
-                                canvas.drawLine(nextDot.x, nextDot.y, visibleRect.right, nextDot.y, linePaint);
+                                mLinePath.lineTo(visibleRect.right, nextDot.y);
 
                             currentDot = nextDot;
 
@@ -538,12 +553,14 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         }
                     }
 
+                    canvas.drawPath(mLinePath, linePaint);
+
                     if (drawGraphBackground) {
                         if (currentDot != null) {
-                            mPathBackground.lineTo(visibleRect.right, currentDot.y);
+                            mPathBackground.lineTo(visibleRect.right + LINE_CORNER_RADIUS, currentDot.y);
                         }
                         if (firstX != -1) {
-                            mPathBackground.lineTo(visibleRect.right, graphHeight);
+                            mPathBackground.lineTo(visibleRect.right + LINE_CORNER_RADIUS, graphHeight);
                         }
 
                         mPathBackground.close();
