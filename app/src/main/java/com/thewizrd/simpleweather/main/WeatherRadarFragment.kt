@@ -14,7 +14,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
@@ -64,7 +63,7 @@ class WeatherRadarFragment : ToolbarFragment() {
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
-        toolbar.setNavigationOnClickListener { v: View? -> v?.findNavController()?.navigateUp() }
+        toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         toolbar.inflateMenu(R.menu.radar)
         toolbar.setOnMenuItemClickListener(Toolbar.OnMenuItemClickListener { item ->

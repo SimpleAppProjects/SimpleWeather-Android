@@ -21,9 +21,12 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DiffUtil
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
@@ -53,6 +56,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
@@ -62,6 +66,7 @@ import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.TwoPaneNavGraphDirections
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter
 import com.thewizrd.simpleweather.banner.Banner
@@ -73,7 +78,7 @@ import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScr
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.*
-import com.thewizrd.simpleweather.fragments.WindowColorFragment
+import com.thewizrd.simpleweather.fragments.AbstractWeatherListDetailFragment
 import com.thewizrd.simpleweather.preferences.FeatureSettings
 import com.thewizrd.simpleweather.radar.RadarProvider
 import com.thewizrd.simpleweather.radar.RadarViewProvider
@@ -83,6 +88,8 @@ import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
+import com.thewizrd.simpleweather.viewmodels.TwoPaneStateViewModel
+import com.thewizrd.simpleweather.viewmodels.WeatherNowFragmentStateModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.weatheralerts.WeatherAlertHandler
 import com.thewizrd.weather_api.weatherModule
@@ -98,7 +105,7 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.min
 
-class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
+class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInterface {
     init {
         arguments = Bundle()
     }
@@ -132,6 +139,7 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
     private val stateModel: WeatherNowFragmentStateModel by viewModels()
     private val forecastsView: ForecastsNowViewModel by activityViewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
+    private val twoPaneStateViewModel: TwoPaneStateViewModel by detailPaneViewModels()
 
     // GPS location
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
@@ -219,8 +227,11 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateListPaneView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentWeatherNowBinding.inflate(inflater, container, false)
 
@@ -234,7 +245,7 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
 
         ViewGroupCompat.setTransitionGroup((view as ViewGroup), true)
 
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
             WindowInsetsCompat.Builder(insets)
@@ -324,43 +335,38 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             @SuppressLint("RestrictedApi")
             override fun onFlingStopped(scrollY: Int) {
                 context?.let {
-                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isSmallestWidth(
-                            600
-                        ) || !FeatureSettings.isBackgroundImageEnabled
-                    )
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isLargeTablet() || !FeatureSettings.isBackgroundImageEnabled)
                         return
 
-                    runWithView {
-                        val thresholdOffset = conditionPanelBinding.imageViewContainer.bottom
-                        val flingPointOffset = thresholdOffset / 2
-                        val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
-                        val dY = scrollY - oldScrollY
-                        var mScrollHandled = false
+                    val thresholdOffset = conditionPanelBinding.imageViewContainer?.bottom ?: 0
+                    val flingPointOffset = thresholdOffset / 2
+                    val scrollOffset = binding.scrollView.computeVerticalScrollOffset()
+                    val dY = scrollY - oldScrollY
+                    var mScrollHandled = false
 
-                        if (dY == 0) return@runWithView
+                    if (dY == 0) return
 
-                        if (dY < 0 && scrollOffset < thresholdOffset - flingPointOffset) {
+                    if (dY < 0 && scrollOffset < thresholdOffset - flingPointOffset) {
+                        binding.scrollView.smoothScrollTo(0, 0)
+                        mScrollHandled = true
+                    } else if (scrollOffset < thresholdOffset && scrollOffset >= thresholdOffset - flingPointOffset) {
+                        binding.scrollView.smoothScrollTo(0, thresholdOffset)
+                        mScrollHandled = true
+                    } else if (dY > 0 && scrollOffset < thresholdOffset - flingPointOffset) {
+                        binding.scrollView.smoothScrollTo(0, thresholdOffset)
+                        mScrollHandled = true
+                    }
+
+                    if (!mScrollHandled && scrollOffset < thresholdOffset) {
+                        val animDY = getSplineFlingDistance(startVelocityY).toInt()
+                        val animScrollY = oldScrollY + animDY
+
+                        if (startVelocityY < 0 && animScrollY < thresholdOffset - flingPointOffset) {
                             binding.scrollView.smoothScrollTo(0, 0)
-                            mScrollHandled = true
-                        } else if (scrollOffset < thresholdOffset && scrollOffset >= thresholdOffset - flingPointOffset) {
+                        } else if (animScrollY < thresholdOffset && animScrollY >= thresholdOffset - flingPointOffset) {
                             binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                            mScrollHandled = true
-                        } else if (dY > 0 && scrollOffset < thresholdOffset - flingPointOffset) {
+                        } else if (startVelocityY > 0 && animScrollY < thresholdOffset - flingPointOffset) {
                             binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                            mScrollHandled = true
-                        }
-
-                        if (!mScrollHandled && scrollOffset < thresholdOffset) {
-                            val animDY = getSplineFlingDistance(startVelocityY).toInt()
-                            val animScrollY = oldScrollY + animDY
-
-                            if (startVelocityY < 0 && animScrollY < thresholdOffset - flingPointOffset) {
-                                binding.scrollView.smoothScrollTo(0, 0)
-                            } else if (animScrollY < thresholdOffset && animScrollY >= thresholdOffset - flingPointOffset) {
-                                binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                            } else if (startVelocityY > 0 && animScrollY < thresholdOffset - flingPointOffset) {
-                                binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                            }
                         }
                     }
                 }
@@ -370,26 +376,21 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             @SuppressLint("RestrictedApi")
             override fun onTouchScrollChange(scrollY: Int, oldScrollY: Int) {
                 context?.let {
-                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isSmallestWidth(
-                            600
-                        ) || !FeatureSettings.isBackgroundImageEnabled
-                    )
+                    if (it.getOrientation() == Configuration.ORIENTATION_LANDSCAPE || it.isLargeTablet() || !FeatureSettings.isBackgroundImageEnabled)
                         return
 
-                    runWithView {
-                        val thresholdOffset = conditionPanelBinding.imageViewContainer.bottom
-                        val flingPointOffset = thresholdOffset / 2
-                        val dY = scrollY - oldScrollY
+                    val thresholdOffset = conditionPanelBinding.imageViewContainer?.bottom ?: 0
+                    val flingPointOffset = thresholdOffset / 2
+                    val dY = scrollY - oldScrollY
 
-                        if (dY == 0) return@runWithView
+                    if (dY == 0) return
 
-                        if (dY < 0 && scrollY < thresholdOffset - flingPointOffset) {
-                            binding.scrollView.smoothScrollTo(0, 0)
-                        } else if (scrollY < thresholdOffset && scrollY >= thresholdOffset - flingPointOffset) {
-                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                        } else if (dY > 0 && scrollY < thresholdOffset) {
-                            binding.scrollView.smoothScrollTo(0, thresholdOffset)
-                        }
+                    if (dY < 0 && scrollY < thresholdOffset - flingPointOffset) {
+                        binding.scrollView.smoothScrollTo(0, 0)
+                    } else if (scrollY < thresholdOffset && scrollY >= thresholdOffset - flingPointOffset) {
+                        binding.scrollView.smoothScrollTo(0, thresholdOffset)
+                    } else if (dY > 0 && scrollY < thresholdOffset) {
+                        binding.scrollView.smoothScrollTo(0, thresholdOffset)
                     }
                 }
             }
@@ -417,23 +418,19 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
 
             // Alerts
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                conditionPanelBinding.alertButton.backgroundTintList = ColorStateList.valueOf(Colors.ORANGERED)
+                conditionPanelBinding.alertButton.backgroundTintList =
+                    ColorStateList.valueOf(Colors.ORANGERED)
             } else {
                 val drawable = conditionPanelBinding.alertButton.background.mutate()
                 drawable.setColorFilter(Colors.ORANGERED, PorterDuff.Mode.SRC_IN)
                 conditionPanelBinding.alertButton.background = drawable
             }
 
-            conditionPanelBinding.alertButton.setOnClickListener { v ->
-                runWithView {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: alerts click")
-                    v.isEnabled = false
-                    // Show Alert Fragment
-                    val args =
-                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                    .setWeatherListType(WeatherListType.ALERTS)
-                    v.findNavController().safeNavigate(args)
-                }
+            conditionPanelBinding.alertButton.setOnClickListener {
+                openDetails(
+                    TwoPaneNavGraphDirections.actionGlobalWeatherListFragment2()
+                        .setWeatherListType(WeatherListType.ALERTS)
+                )
             }
 
             binding.listLayout.addView(conditionPanelBinding.root)
@@ -442,58 +439,31 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
                 rowSpec = GridLayout.spec(0, GridLayout.CENTER)
             }
 
-            /*
             conditionPanelBinding.root.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRIght, oldBottom ->
                 val rootHeight = bottom - top
                 val oldRootHeight = oldBottom - oldTop
+                val context = view.context
 
-                if (rootHeight != oldRootHeight) {
-                    val context = conditionPanelBinding.root.context
-                    val imageLandSize = context.dpToPx(560f).toInt()
-
+                if (context.isLargeTablet() && rootHeight != oldRootHeight) {
                     val height = binding.refreshLayout.measuredHeight
+                    val conditionPanelHeight = conditionPanelBinding.root.measuredHeight
 
-                    val imageContainerParams =
-                        conditionPanelBinding.imageViewContainer.layoutParams as MarginLayoutParams
-                    val conditionPanelParams =
-                        conditionPanelBinding.conditionPanel.layoutParams as MarginLayoutParams
-
-                    var imageContainerHeight: Int
-
-                    if (context.getOrientation() == Configuration.ORIENTATION_LANDSCAPE && height < imageLandSize) {
-                        imageContainerHeight = imageLandSize
-                    } else if (FeatureSettings.isBackgroundImageEnabled && height > 0) {
-                        imageContainerHeight =
-                            height - conditionPanelBinding.conditionPanel.measuredHeight - imageContainerParams.bottomMargin - imageContainerParams.topMargin
-                        if (conditionPanelBinding.alertButton.visibility != View.GONE) {
-                            imageContainerHeight -= conditionPanelBinding.alertButton.measuredHeight
-                        }
-                        if (conditionPanelParams.topMargin < 0) {
-                            imageContainerHeight += -conditionPanelParams.topMargin
-                        }
-                        if (context.isLargeTablet()) {
-                            conditionPanelBinding.labelUpdatetime.let { uptime ->
-                                imageContainerHeight -= uptime.measuredHeight
-                                (uptime.layoutParams as? MarginLayoutParams)?.let { lp ->
-                                    imageContainerHeight -= (lp.topMargin + lp.bottomMargin)
-                                }
+                    conditionPanelBinding.imageViewSpacer?.let {
+                        val imageContainerHeight: Int =
+                            if (FeatureSettings.isBackgroundImageEnabled && height > 0) {
+                                height - (conditionPanelHeight - it.measuredHeight)
+                            } else {
+                                ViewGroup.LayoutParams.WRAP_CONTENT
                             }
-                            conditionPanelBinding.locationLayout?.let { ll ->
-                                imageContainerHeight -= ll.measuredHeight
-                            }
-                        }
-                    } else {
-                        imageContainerHeight = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
 
-                    if (imageContainerParams.height != imageContainerHeight) {
-                        conditionPanelBinding.imageViewContainer.updateLayoutParams {
-                            this.height = imageContainerHeight
+                        if (it.layoutParams.height != imageContainerHeight) {
+                            it.updateLayoutParams {
+                                this.height = imageContainerHeight
+                            }
                         }
                     }
                 }
             }
-             */
         }
 
         if (FeatureSettings.isForecastEnabled) {
@@ -506,15 +476,11 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             forecastPanelBinding!!.rangebarGraphPanel.setOnClickPositionListener(object :
                 RecyclerOnClickListenerInterface {
                 override fun onClick(view: View, position: Int) {
-                    runWithView {
-                        AnalyticsLogger.logEvent("WeatherNowFragment: fcast graph click")
-                        view.isEnabled = false
-                        val args =
-                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                    .setWeatherListType(WeatherListType.FORECAST)
-                                    .setPosition(position)
-                        view.findNavController().safeNavigate(args)
-                    }
+                    openDetails(
+                        TwoPaneNavGraphDirections.actionGlobalWeatherListFragment2()
+                            .setWeatherListType(WeatherListType.FORECAST)
+                            .setPosition(position)
+                    )
                 }
             })
 
@@ -552,15 +518,11 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
 
             hourlyForecastItemAdapter.onClickListener = object : RecyclerOnClickListenerInterface {
                 override fun onClick(view: View, position: Int) {
-                    runWithView {
-                        AnalyticsLogger.logEvent("WeatherNowFragment: hrf panel click")
-                        view.isEnabled = false
-                        val args =
-                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherListFragment()
-                                    .setWeatherListType(WeatherListType.HOURLYFORECAST)
-                                    .setPosition(position)
-                        view.findNavController().safeNavigate(args)
-                    }
+                    openDetails(
+                        TwoPaneNavGraphDirections.actionGlobalWeatherListFragment2()
+                            .setWeatherListType(WeatherListType.HOURLYFORECAST)
+                            .setPosition(position)
+                    )
                 }
             }
 
@@ -585,13 +547,9 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
 
             val onClickListener = object : RecyclerOnClickListenerInterface {
                 override fun onClick(view: View, position: Int) {
-                    runWithView {
-                        AnalyticsLogger.logEvent("WeatherNowFragment: precip graph click")
-                        view.isEnabled = false
-                        val args =
-                            WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherChartsFragment()
-                        view.findNavController().safeNavigate(args)
-                    }
+                    openDetails(
+                        WeatherChartsFragmentDirections.actionGlobalWeatherChartsFragment()
+                    )
                 }
             }
 
@@ -708,21 +666,18 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             aqiControlBinding!!.viewModel = wNowViewModel
             aqiControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
-            aqiControlBinding!!.root.setOnClickListener { v ->
-                runWithView {
-                    AnalyticsLogger.logEvent("WeatherNowFragment: aqi panel click")
-                    v.isEnabled = false
-                    val args =
-                        WeatherNowFragmentDirections.actionWeatherNowFragmentToWeatherAQIFragment()
-                    view.findNavController().safeNavigate(args)
-                }
+            aqiControlBinding!!.root.setOnClickListener { _ ->
+                openDetails(
+                    WeatherAQIFragmentDirections.actionGlobalWeatherAQIFragment()
+                )
             }
 
             val context = aqiControlBinding!!.root.context
             if (context.isLargeTablet()) {
                 aqiControlBinding!!.root.updateLayoutParams<FlowLayout.LayoutParams> {
                     width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    itemMinimumWidth = context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
+                    itemMinimumWidth =
+                        context.resources.getDimensionPixelSize(R.dimen.details_item_min_width)
                 }
             }
         }
@@ -834,13 +789,44 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
             rowSpec = GridLayout.spec(1, 8, GridLayout.FILL, 1f)
         }
 
-        return view
+        return view.apply {
+            layoutParams = SlidingPaneLayout.LayoutParams(
+                if (inflater.context.isSmallestWidth(600)) {
+                    inflater.context.dpToPx(300f).toInt()
+                } else {
+                    inflater.context.dpToPx(600f).toInt()
+                },
+                ViewGroup.LayoutParams.MATCH_PARENT
+            ).apply {
+                weight = 1f
+            }
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateDetailPaneNavHostFragment(): NavHostFragment {
+        return NavHostFragment.create(R.navigation.two_pane_nav_graph)
+    }
+
+    override fun onListPaneViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onListPaneViewCreated(view, savedInstanceState)
 
         args = WeatherNowFragmentArgs.fromBundle(requireArguments())
+
+        slidingPaneLayout.lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED
+
+        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+            if (detailPaneNavHostFragment.arguments == null) {
+                detailPaneNavHostFragment.arguments = Bundle()
+            }
+
+            detailPaneNavHostFragment.arguments?.putString("testing", "value")
+
+            slidingPaneLayout.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                val paneLayout = v as SlidingPaneLayout
+                twoPaneStateViewModel.updateSideBySide(!paneLayout.isSlideable)
+            }
+            twoPaneStateViewModel.updateSideBySide(!slidingPaneLayout.isSlideable)
+        }
 
         adjustConditionPanelLayout()
         adjustViewsLayout()
@@ -986,6 +972,15 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
         }
     }
 
+    private fun openDetails(direction: NavDirections) {
+        val detailNavController = detailPaneNavHostFragment.navController
+        detailNavController.safeNavigate(direction)
+
+        if (!slidingPaneLayout.isOpen) {
+            slidingPaneLayout.openPane()
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         radarViewProvider?.onStart()
@@ -1033,17 +1028,8 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
         super.onDestroyView()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-    }
-
     override fun onLowMemory() {
         super.onLowMemory()
-
         radarViewProvider?.onLowMemory()
     }
 
@@ -1320,13 +1306,15 @@ class WeatherNowFragment : WindowColorFragment(), BannerManagerInterface {
         }
     }
 
-    class WeatherNowFragmentStateModel(private val state: SavedStateHandle) : ViewModel() {
-        var scrollViewPosition: Int
-            get() {
-                return state["scrollViewPosition"] ?: 0
-            }
-            set(value) {
-                state["scrollViewPosition"] = value
-            }
+    private inline fun <reified VM : ViewModel> detailPaneViewModels(): Lazy<VM> {
+        val navController by lazy {
+            detailPaneNavHostFragment.navController
+        }
+        val owner by lazy(LazyThreadSafetyMode.NONE) {
+            navController.getViewModelStoreOwner(R.id.two_pane_nav_graph)
+        }
+        return lazy(LazyThreadSafetyMode.NONE) {
+            ViewModelProvider(owner).get()
+        }
     }
 }

@@ -43,6 +43,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
+import com.thewizrd.simpleweather.NavGraphDirections
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityMainBinding
 import com.thewizrd.simpleweather.helpers.WindowColorManager
@@ -246,9 +247,9 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
                 val destination = mNavController!!.currentDestination
                 if (destination != null && destination.id != R.id.weatherListFragment) {
                     val locationData = settingsManager.getHomeData()
-                    val args = WeatherListFragmentDirections.actionGlobalWeatherListFragment()
-                            .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                            .setWeatherListType(WeatherListType.ALERTS)
+                    val args = NavGraphDirections.actionGlobalWeatherListFragment()
+                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
+                        .setWeatherListType(WeatherListType.ALERTS)
                     mNavController!!.navigate(args)
                 }
             }

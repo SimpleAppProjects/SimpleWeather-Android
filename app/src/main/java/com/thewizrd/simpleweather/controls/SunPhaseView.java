@@ -21,6 +21,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.ObjectsCompat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.designer.DesignerUtilsKt;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
@@ -70,6 +71,11 @@ public class SunPhaseView extends View {
 
     public SunPhaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        if (isInEditMode()) {
+            DesignerUtilsKt.initializeDependencies(context);
+        }
+
         this.currentConfig = new Configuration(context.getResources().getConfiguration());
 
         final LocalDate date = LocalDate.now();

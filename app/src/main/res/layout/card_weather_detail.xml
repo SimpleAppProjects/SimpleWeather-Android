@@ -50,6 +50,7 @@
             app:animate="true"
             app:weatherIcon="@{viewModel.icon}"
             app:tint="?colorOnSurface"
+            tools:weatherIcon="&#xf079;"
             tools:srcCompat="@drawable/wi_barometer"
             tools:tint="?android:textColorPrimary" />
 

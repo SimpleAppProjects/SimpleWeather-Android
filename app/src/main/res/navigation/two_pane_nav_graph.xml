@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/two_pane_nav_graph"
+    app:startDestination="@id/weatherListFragment">
+    <fragment
+        android:id="@+id/weatherListFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherListFragment"
+        android:label="WeatherListFragment"
+        tools:layout="@layout/fragment_weather_list">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="WeatherListType"
+            app:argType="com.thewizrd.simpleweather.main.WeatherListType"
+            android:defaultValue="FORECAST" />
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherChartsFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherChartsFragment"
+        android:label="WeatherChartsFragment">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherAQIFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherAQIFragment"
+        android:label="WeatherAQIFragment">
+        <argument
+            android:name="data"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_weatherListFragment2"
+        app:destination="@id/weatherListFragment"
+        app:popUpTo="@id/two_pane_nav_graph" />
+    <action
+        android:id="@+id/action_global_weatherAQIFragment"
+        app:destination="@id/weatherAQIFragment"
+        app:popUpTo="@id/two_pane_nav_graph" />
+    <action
+        android:id="@+id/action_global_weatherChartsFragment"
+        app:destination="@id/weatherChartsFragment"
+        app:popUpTo="@id/two_pane_nav_graph" />
+</navigation>

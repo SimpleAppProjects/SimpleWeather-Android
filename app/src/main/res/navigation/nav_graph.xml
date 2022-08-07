@@ -10,9 +10,6 @@
         android:label="WeatherNowFragment"
         tools:layout="@layout/fragment_weather_now">
         <action
-            android:id="@+id/action_weatherNowFragment_to_weatherListFragment"
-            app:destination="@id/weatherListFragment" />
-        <action
             android:id="@+id/action_weatherNowFragment_to_weatherRadarFragment"
             app:destination="@id/weatherRadarFragment" />
         <action
@@ -37,12 +34,6 @@
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />
-        <action
-            android:id="@+id/action_weatherNowFragment_to_weatherChartsFragment"
-            app:destination="@id/weatherChartsFragment" />
-        <action
-            android:id="@+id/action_weatherNowFragment_to_weatherAQIFragment"
-            app:destination="@id/weatherAQIFragment" />
     </fragment>
     <fragment
         android:id="@+id/weatherListFragment"
@@ -153,16 +144,6 @@
         android:id="@+id/action_global_weatherListFragment"
         app:destination="@id/weatherListFragment" />
     <fragment
-        android:id="@+id/weatherChartsFragment"
-        android:name="com.thewizrd.simpleweather.main.WeatherChartsFragment"
-        android:label="WeatherChartsFragment">
-        <argument
-            android:name="data"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
-    </fragment>
-    <fragment
         android:id="@+id/premiumFragment"
         android:name="com.thewizrd.extras.premium.PremiumFragment"
         android:label="PremiumFragment" />
@@ -170,14 +151,4 @@
         android:id="@+id/devSettingsFragment"
         android:name="com.thewizrd.simpleweather.preferences.DevSettingsFragment"
         android:label="DevSettingsFragment" />
-    <fragment
-        android:id="@+id/weatherAQIFragment"
-        android:name="com.thewizrd.simpleweather.main.WeatherAQIFragment"
-        android:label="WeatherAQIFragment">
-        <argument
-            android:name="data"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
-    </fragment>
 </navigation>

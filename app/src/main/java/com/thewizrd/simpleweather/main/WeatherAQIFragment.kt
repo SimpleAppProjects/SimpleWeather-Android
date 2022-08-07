@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -34,8 +34,11 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.NavigationUtils.navControllerViewModels
+import com.thewizrd.simpleweather.viewmodels.TwoPaneStateViewModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import de.twoid.ui.decoration.InsetItemDecoration
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -43,6 +46,8 @@ import java.time.ZoneOffset
 class WeatherAQIFragment : ToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private val aqiView: AirQualityForecastViewModel by viewModels()
+    private val twoPaneStateViewModel: TwoPaneStateViewModel by navControllerViewModels(R.id.two_pane_nav_graph)
+
     private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
@@ -103,7 +108,7 @@ class WeatherAQIFragment : ToolbarFragment() {
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
-        toolbar.setNavigationOnClickListener { v -> v.findNavController().navigateUp() }
+        toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the binding.recyclerView
@@ -139,11 +144,19 @@ class WeatherAQIFragment : ToolbarFragment() {
 
         args = WeatherAQIFragmentArgs.fromBundle(requireArguments())
 
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.isVisible = true
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            twoPaneStateViewModel.twoPaneState.collectLatest { state ->
+                setNavigationIconVisible(!state.isSideBySide)
+                headerBinding.root.isVisible = !state.isSideBySide
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             wNowViewModel.weather.collect {
                 currentAQIAdapter.updateItem(it?.airQuality)
+                binding.progressBar.isVisible = false
             }
         }
 

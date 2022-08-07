@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
@@ -31,14 +31,19 @@ import com.thewizrd.simpleweather.databinding.FragmentWeatherListBinding
 import com.thewizrd.simpleweather.databinding.LayoutLocationHeaderBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
+import com.thewizrd.simpleweather.utils.NavigationUtils.navControllerViewModels
+import com.thewizrd.simpleweather.viewmodels.TwoPaneStateViewModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import de.twoid.ui.decoration.InsetItemDecoration
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
 class WeatherChartsFragment : ToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
     private val chartsView: ChartsViewModel by viewModels()
+    private val twoPaneStateViewModel: TwoPaneStateViewModel by navControllerViewModels(R.id.two_pane_nav_graph)
+
     private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
@@ -98,7 +103,7 @@ class WeatherChartsFragment : ToolbarFragment() {
 
         // Setup Actionbar
         toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
-        toolbar.setNavigationOnClickListener { v -> v.findNavController().navigateUp() }
+        toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the binding.recyclerView
@@ -124,6 +129,13 @@ class WeatherChartsFragment : ToolbarFragment() {
         args = WeatherChartsFragmentArgs.fromBundle(requireArguments())
 
         binding.progressBar.visibility = View.VISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            twoPaneStateViewModel.twoPaneState.collectLatest { state ->
+                setNavigationIconVisible(!state.isSideBySide)
+                headerBinding.root.isVisible = !state.isSideBySide
+            }
+        }
 
         chartsView.getForecastData().observe(viewLifecycleOwner) {
             adapter.submitList(createGraphModelData(it?.first, it?.second))

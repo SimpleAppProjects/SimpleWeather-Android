@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.navigation.findNavController
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
+import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentToolbarLayoutBinding
@@ -29,7 +29,7 @@ abstract class ToolbarFragment : WindowColorFragment() {
         get() = binding.appBar
     val rootView: CoordinatorLayout
         get() = binding.rootView
-    val toolbar: Toolbar
+    val toolbar: MaterialToolbar
         get() = binding.toolbar
 
     @get:StringRes
@@ -53,12 +53,20 @@ abstract class ToolbarFragment : WindowColorFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentToolbarLayoutBinding.inflate(inflater, container, false)
-        binding.toolbar.setNavigationOnClickListener { v -> v.findNavController().navigateUp() }
+        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // Toolbar
         binding.toolbar.setTitle(titleResId)
 
         return binding.root
+    }
+
+    protected fun setNavigationIconVisible(visible: Boolean) {
+        if (visible) {
+            toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        } else {
+            toolbar.navigationIcon = null
+        }
     }
 
     @CallSuper

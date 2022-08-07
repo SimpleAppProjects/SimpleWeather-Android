@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
@@ -30,7 +30,7 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
         get() = binding.appBar
     val rootView: CoordinatorLayout
         get() = binding.coordinatorLayout
-    val toolbar: Toolbar
+    val toolbar: MaterialToolbar
         get() = binding.toolbar
 
     override fun createSnackManager(activity: Activity): SnackbarManager? {
