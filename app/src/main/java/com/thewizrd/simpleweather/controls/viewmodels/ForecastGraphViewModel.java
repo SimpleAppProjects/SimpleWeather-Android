@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.DateTimeConstants;
 import com.thewizrd.shared_resources.utils.Colors;
-import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
 import com.thewizrd.shared_resources.utils.DateTimeUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
@@ -384,20 +383,10 @@ public class ForecastGraphViewModel {
             HourlyForecast fcast = (HourlyForecast) forecast;
 
             if (DateFormat.is24HourFormat(context)) {
-                String skeleton;
-                if (ContextUtils.isLargeTablet(context)) {
-                    skeleton = DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR;
-                } else {
-                    skeleton = DateTimeConstants.SKELETON_24HR;
-                }
+                String skeleton = DateTimeConstants.SKELETON_24HR;
                 date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(skeleton)));
             } else {
-                String pattern;
-                if (ContextUtils.isLargeTablet(context)) {
-                    pattern = DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM;
-                } else {
-                    pattern = DateTimeConstants.ABBREV_12HR_AMPM;
-                }
+                String pattern = DateTimeConstants.ABBREV_12HR_AMPM;
                 date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(pattern));
             }
         } else {

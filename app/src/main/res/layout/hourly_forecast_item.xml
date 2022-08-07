@@ -83,7 +83,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:padding="4dp"
-            android:text="@{viewModel.date}"
+            android:text="@{viewModel.shortDate}"
             android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/forecast_date_size"
             app:layout_constraintBottom_toTopOf="@id/forecast_extra_windspeed"

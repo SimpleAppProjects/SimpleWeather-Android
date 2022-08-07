@@ -7,7 +7,6 @@ import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.NumberUtils.getValueOrDefault
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.weather_api.weatherModule
@@ -15,6 +14,7 @@ import java.text.DecimalFormat
 
 class HourlyForecastNowViewModel(forecast: HourlyForecast) {
     var date: String
+    var shortDate: String
     var icon: String
     var temperature: String
     var condition: String
@@ -34,20 +34,33 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
         df.applyPattern("0.##")
 
         val wm = weatherModule.weatherManager
+        val is24hr = DateFormat.is24HourFormat(context)
 
-        date = if (DateFormat.is24HourFormat(context)) {
-            val skeleton = if (context.isLargeTablet()) {
-                DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR
-            } else {
-                DateTimeConstants.SKELETON_24HR
-            }
-            forecast.date.format(DateTimeUtils.ofPatternForUserLocale(DateTimeUtils.getBestPatternForSkeleton(skeleton)))
+        date = if (is24hr) {
+            val skeleton = DateTimeConstants.SKELETON_DAYOFWEEK_AND_24HR
+            forecast.date.format(
+                DateTimeUtils.ofPatternForUserLocale(
+                    DateTimeUtils.getBestPatternForSkeleton(
+                        skeleton
+                    )
+                )
+            )
         } else {
-            val pattern = if (context.isLargeTablet()) {
-                DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM
-            } else {
-                DateTimeConstants.ABBREV_12HR_AMPM
-            }
+            val pattern = DateTimeConstants.ABBREV_DAYOFWEEK_AND_12HR_AMPM
+            forecast.date.format(DateTimeUtils.ofPatternForUserLocale(pattern))
+        }
+
+        shortDate = if (DateFormat.is24HourFormat(context)) {
+            val skeleton = DateTimeConstants.SKELETON_24HR
+            forecast.date.format(
+                DateTimeUtils.ofPatternForUserLocale(
+                    DateTimeUtils.getBestPatternForSkeleton(
+                        skeleton
+                    )
+                )
+            )
+        } else {
+            val pattern = DateTimeConstants.ABBREV_12HR_AMPM
             forecast.date.format(DateTimeUtils.ofPatternForUserLocale(pattern))
         }
 
@@ -55,7 +68,8 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
 
         try {
             temperature = if (forecast.highF != null && forecast.highC != null) {
-                val value = if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
+                val value =
+                    if (isFahrenheit) Math.round(forecast.highF) else Math.round(forecast.highC)
                 String.format(LocaleUtils.getLocale(), "%d°", value)
             } else {
                 WeatherIcons.PLACEHOLDER
@@ -108,6 +122,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
         other as HourlyForecastNowViewModel
 
         if (date != other.date) return false
+        if (shortDate != other.shortDate) return false
         if (icon != other.icon) return false
         if (temperature != other.temperature) return false
         if (condition != other.condition) return false
@@ -120,6 +135,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
 
     override fun hashCode(): Int {
         var result = date.hashCode()
+        result = 31 * result + shortDate.hashCode()
         result = 31 * result + icon.hashCode()
         result = 31 * result + temperature.hashCode()
         result = 31 * result + condition.hashCode()
