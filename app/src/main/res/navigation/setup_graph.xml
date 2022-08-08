@@ -17,7 +17,8 @@
     <fragment
         android:id="@+id/setupLocationFragment"
         android:name="com.thewizrd.simpleweather.setup.SetupLocationFragment"
-        android:label="SetupLocationFragment">
+        android:label="SetupLocationFragment"
+        app:route="/locations">
         <action
             android:id="@+id/action_setupLocationFragment_to_setupSettingsFragment"
             app:destination="@id/setupSettingsFragment"

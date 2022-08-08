@@ -17,26 +17,23 @@ import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
+import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.common.viewmodels.LocationSearchViewModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.exceptions.ErrorStatus
-import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
-import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
-import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.weatherdata.model.Forecasts
-import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
-import com.thewizrd.simpleweather.BuildConfig
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.LocationQueryAdapter
 import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
@@ -45,9 +42,7 @@ import com.thewizrd.simpleweather.databinding.SearchActionBarBinding
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback
-import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
-import java.util.*
 
 class LocationSearchFragment : WindowColorFragment() {
     companion object {
@@ -61,9 +56,8 @@ class LocationSearchFragment : WindowColorFragment() {
     private lateinit var mLocationAdapter: LocationQueryAdapter
     private lateinit var mFooterAdapter: LocationQueryFooterAdapter
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
-    private val wm = weatherModule.weatherManager
 
-    private var job: Job? = null
+    private val locationSearchViewModel: LocationSearchViewModel by navGraphViewModels("/locations")
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -89,207 +83,17 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
-        val mSnackMgr = SnackbarManager(activity.findViewById(android.R.id.content))
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(activity.findViewById(android.R.id.content)).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 
-    private val recyclerClickListener =
-        object : ListAdapterOnClickInterface<LocationQuery> {
-            override fun onClick(view: View, item: LocationQuery) {
-                val props = Bundle()
-                props.putString("method", "recyclerClickListener.onClick")
-                AnalyticsLogger.logEvent("$TAG: onClick", props)
-
-                val navController = binding.root.findNavController()
-
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
-                    showLoading(true)
-                    enableRecyclerView(false)
-
-                    // Cancel other tasks
-                    job?.cancel()
-
-                    supervisorScope {
-                        val deferredJob =
-                            viewLifecycleOwner.lifecycleScope.async(Dispatchers.Default) {
-                                var queryResult: LocationQuery? =
-                                    LocationQuery()
-
-                                if (!item.locationQuery.isNullOrBlank())
-                                    queryResult = item
-
-                                if (queryResult?.locationQuery.isNullOrBlank()) {
-                                    // Stop since there is no valid query
-                                    throw CancellationException()
-                                }
-
-                                if (settingsManager.usePersonalKey() && settingsManager.getAPIKey()
-                                        .isNullOrBlank() && wm.isKeyRequired()
-                                ) {
-                                    throw CustomException(R.string.werror_invalidkey)
-                                }
-
-                                ensureActive()
-
-                                // Need to get FULL location data for HERE API
-                                // Data provided is incomplete
-                                if (wm.getLocationProvider().needsLocationFromID()) {
-                                    val loc = queryResult!!
-                                    queryResult = withContext(Dispatchers.IO) {
-                                        wm.getLocationProvider().getLocationFromID(loc)
-                                    }
-                                } else if (wm.getLocationProvider().needsLocationFromName()) {
-                                    val loc = queryResult!!
-                                    queryResult = withContext(Dispatchers.IO) {
-                                        wm.getLocationProvider().getLocationFromName(loc)
-                                    }
-                                } else if (wm.getLocationProvider().needsLocationFromGeocoder()) {
-                                    val loc = queryResult!!
-                                    queryResult = withContext(Dispatchers.IO) {
-                                        wm.getLocationProvider().getLocation(
-                                            Coordinate(loc.locationLat, loc.locationLong),
-                                            loc.weatherSource
-                                        )
-                                    }
-                                }
-
-                                if (queryResult == null || queryResult.locationQuery.isNullOrBlank()) {
-                                    // Stop since there is no valid query
-                                    throw CustomException(R.string.error_retrieve_location)
-                                } else if (queryResult.locationTZLong.isNullOrBlank() && queryResult.locationLat != 0.0 && queryResult.locationLong != 0.0) {
-                                    val tzId =
-                                        weatherModule.tzdbService.getTimeZone(
-                                            queryResult.locationLat,
-                                            queryResult.locationLong
-                                        )
-                                    if ("unknown" != tzId)
-                                        queryResult.locationTZLong = tzId
-                                }
-
-                                if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
-                                    // Set default provider based on location
-                                    val provider =
-                                        remoteConfigService.getDefaultWeatherProvider(queryResult.locationCountry)
-                                    settingsManager.setAPI(provider)
-                                    queryResult.updateWeatherSource(provider)
-                                }
-
-                                if (!wm.isRegionSupported(queryResult.locationCountry)) {
-                                    throw CustomException(R.string.error_message_weather_region_unsupported)
-                                }
-
-                                // Check if location already exists
-                                val locData = settingsManager.getLocationData()
-                                val finalQueryResult: LocationQuery = queryResult
-                                val loc =
-                                    locData.find { input -> input.query == finalQueryResult.locationQuery }
-
-                                if (loc != null) {
-                                    // Location exists; return
-                                    return@async null
-                                }
-
-                                ensureActive()
-
-                                val location = queryResult.toLocationData()
-                                if (!location.isValid) {
-                                    throw CustomException(R.string.werror_noweather)
-                                }
-                                var weather = settingsManager.getWeatherData(location.query)
-                                if (weather == null) {
-                                    weather = wm.getWeather(location)
-                                }
-
-                                if (weather == null) {
-                                    throw WeatherException(ErrorStatus.NOWEATHER)
-                                } else if (wm.supportsAlerts() && wm.needsExternalAlertData()) {
-                                    weather.weatherAlerts = wm.getAlerts(location)
-                                }
-
-                                // Save data
-                                settingsManager.addLocation(location)
-                                if (wm.supportsAlerts() && weather.weatherAlerts != null)
-                                    settingsManager.saveWeatherAlerts(
-                                        location,
-                                        weather.weatherAlerts
-                                    )
-                                settingsManager.saveWeatherData(weather)
-                                settingsManager.saveWeatherForecasts(Forecasts(weather))
-                                settingsManager.saveWeatherForecasts(
-                                    location.query,
-                                    weather.hrForecast?.map { input ->
-                                        HourlyForecasts(
-                                            weather.query,
-                                            input!!
-                                        )
-                                    })
-
-                                settingsManager.setWeatherLoaded(true)
-
-                                location
-                            }.also {
-                                job = it
-                            }
-
-                        deferredJob.invokeOnCompletion callback@{
-                            if (it is CancellationException) {
-                                runWithView {
-                                    showLoading(false)
-                                    enableRecyclerView(true)
-                                }
-                                return@callback
-                            }
-
-                            val t = deferredJob.getCompletionExceptionOrNull()
-                            if (t == null) {
-                                val result = deferredJob.getCompleted()
-                                runWithView { // Go back to where we started
-                                    if (result != null) {
-                                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                                            Constants.KEY_DATA,
-                                            withContext(Dispatchers.Default) {
-                                                JSONParser.serializer(
-                                                    result,
-                                                    LocationData::class.java
-                                                )
-                                            })
-                                    }
-                                    navController.navigateUp()
-                                }
-                            } else {
-                                runWithView {
-                                    activity?.let {
-                                        if (t is WeatherException || t is CustomException) {
-                                            showSnackbar(
-                                                Snackbar.make(
-                                                    view.context,
-                                                    t.message,
-                                                    Snackbar.Duration.SHORT
-                                                ),
-                                                SnackbarWindowAdjustCallback(it)
-                                            )
-                                        } else {
-                                            showSnackbar(
-                                                Snackbar.make(
-                                                    view.context,
-                                                    R.string.error_retrieve_location,
-                                                    Snackbar.Duration.SHORT
-                                                ),
-                                                SnackbarWindowAdjustCallback(it)
-                                            )
-                                        }
-                                    }
-                                    showLoading(false)
-                                    enableRecyclerView(true)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    private val recyclerClickListener = object : ListAdapterOnClickInterface<LocationQuery> {
+        override fun onClick(view: View, item: LocationQuery) {
+            locationSearchViewModel.onLocationSelected(item)
         }
+    }
 
     private fun showLoading(show: Boolean) {
         searchBarBinding.searchProgressBar.visibility = if (show) View.VISIBLE else View.GONE
@@ -300,7 +104,7 @@ class LocationSearchFragment : WindowColorFragment() {
             searchBarBinding.searchCloseButton.visibility = View.VISIBLE
     }
 
-    fun enableRecyclerView(enable: Boolean) {
+    private fun enableRecyclerView(enable: Boolean) {
         binding.recyclerView.isEnabled = enable
     }
 
@@ -316,27 +120,24 @@ class LocationSearchFragment : WindowColorFragment() {
         ViewGroupCompat.setTransitionGroup((binding.root as ViewGroup), true)
 
         // Initialize
-        //binding.recyclerView.setOnClickListener { v -> v.findNavController().navigateUp() }
         searchBarBinding.searchBackButton.setOnClickListener { v ->
             v.findNavController().navigateUp()
         }
         searchBarBinding.searchCloseButton.setOnClickListener {
-            searchBarBinding.searchView.setText(
-                ""
-            )
+            searchBarBinding.searchView.setText("")
         }
         searchBarBinding.searchCloseButton.visibility = View.GONE
 
         searchBarBinding.searchView.addTextChangedListener(object : TextWatcher {
-            private var timer: Timer? = Timer()
-            private val DELAY: Long = 1000 // milliseconds
+            private var textChangedJob: Job? = null
+
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // nothing to do here
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 // user is typing: reset already started timer (if existing)
-                timer?.cancel()
+                textChangedJob?.cancel()
             }
 
             override fun afterTextChanged(e: Editable) {
@@ -344,26 +145,20 @@ class LocationSearchFragment : WindowColorFragment() {
                 if (e.isBlank()) {
                     runSearchOp(e)
                 } else {
-                    timer = Timer().apply {
-                        schedule(object : TimerTask() {
-                            override fun run() {
-                                runSearchOp(e)
-                            }
-                        }, DELAY)
+                    textChangedJob = runWithView {
+                        supervisorScope {
+                            delay(1000)
+                            ensureActive()
+                            runSearchOp(e)
+                        }
                     }
                 }
             }
 
             private fun runSearchOp(e: Editable) {
-                runWithView {
-                    supervisorScope {
-                        ensureActive()
-                        val newText = e.toString()
-                        searchBarBinding.searchCloseButton.visibility =
-                            if (newText.isEmpty()) View.GONE else View.VISIBLE
-                        fetchLocations(newText)
-                    }
-                }
+                val newText = e.toString()
+                searchBarBinding.searchCloseButton.isVisible = newText.isNotEmpty()
+                fetchLocations(newText)
             }
         })
         searchBarBinding.searchView.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
@@ -424,11 +219,11 @@ class LocationSearchFragment : WindowColorFragment() {
         val navController = findNavController()
 
         /*
-           Capture touch events on RecyclerView
-           We're not using ADJUST_RESIZE so hide the keyboard when necessary
-           Hide the keyboard if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
-           Leave the keyboard up if we're scrolling to the top (items at the top are already visible)
-        */
+         * Capture touch events on RecyclerView
+         * We're not using ADJUST_RESIZE so hide the keyboard when necessary
+         * Hide the keyboard if we're scrolling to the bottom (so the bottom items behind the keyboard are visible)
+         * Leave the keyboard up if we're scrolling to the top (items at the top are already visible)
+         */
         val gestureDetector = GestureDetectorCompat(
             requireContext(),
             object : GestureDetector.SimpleOnGestureListener() {
@@ -490,6 +285,35 @@ class LocationSearchFragment : WindowColorFragment() {
             })
 
         binding.recyclerView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationSearchViewModel.errorMessages.collect {
+                val error = it.firstOrNull()
+
+                if (error != null) {
+                    onErrorMessage(error)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationSearchViewModel.isLoading.collect { loading ->
+                showLoading(loading)
+                enableRecyclerView(!loading)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationSearchViewModel.locations.collect {
+                if (it.isNotEmpty()) {
+                    mLocationAdapter.submitList(it)
+                    mAdapter.addAdapter(mFooterAdapter)
+                } else {
+                    mLocationAdapter.submitList(it)
+                    mAdapter.removeAdapter(mFooterAdapter)
+                }
+            }
+        }
     }
 
     override fun updateWindowColors() {
@@ -512,50 +336,46 @@ class LocationSearchFragment : WindowColorFragment() {
     }
 
     override fun onDestroyView() {
-        job?.cancel()
         hideInputMethod(searchBarBinding.searchView)
         super.onDestroyView()
     }
 
     fun fetchLocations(queryString: String?) {
-        // Cancel pending searches
-        job?.cancel()
-        if (!queryString.isNullOrBlank()) {
-            job = runWithView(Dispatchers.Default) {
-                try {
-                    val results = withContext(Dispatchers.IO) {
-                        wm.getLocations(queryString)
-                    }
-
-                    launch(Dispatchers.Main.immediate) {
-                        mLocationAdapter.submitList(results?.toList() ?: emptyList())
-                        mAdapter.addAdapter(mFooterAdapter)
-                    }
-                } catch (e: Exception) {
-                    launch(Dispatchers.Main.immediate) {
-                        if (e is WeatherException) {
-                            activity?.let {
-                                showSnackbar(
-                                    Snackbar.make(it, e.message, Snackbar.Duration.SHORT),
-                                    SnackbarWindowAdjustCallback(it)
-                                )
-                            }
-                        }
-                        mLocationAdapter.submitList(listOf(LocationQuery()))
-                        mAdapter.addAdapter(mFooterAdapter)
-                    }
-                }
-            }
-        } else if (queryString.isNullOrBlank()) {
-            // Cancel pending searches
-            job?.cancel()
-            // Hide flyout if query is empty or null
-            mLocationAdapter.submitList(emptyList())
-            mAdapter.removeAdapter(mFooterAdapter)
-        }
+        locationSearchViewModel.fetchLocations(queryString)
     }
 
-    fun requestSearchbarFocus() {
+    private fun onErrorMessage(error: ErrorMessage) {
+        when (error) {
+            is ErrorMessage.Resource -> {
+                activity?.let {
+                    showSnackbar(
+                        Snackbar.make(it, error.stringId, Snackbar.Duration.SHORT),
+                        SnackbarWindowAdjustCallback(it)
+                    )
+                }
+            }
+            is ErrorMessage.String -> {
+                activity?.let {
+                    showSnackbar(
+                        Snackbar.make(it, error.message, Snackbar.Duration.SHORT),
+                        SnackbarWindowAdjustCallback(it)
+                    )
+                }
+            }
+            is ErrorMessage.WeatherError -> {
+                activity?.let {
+                    showSnackbar(
+                        Snackbar.make(it, error.exception.message, Snackbar.Duration.SHORT),
+                        SnackbarWindowAdjustCallback(it)
+                    )
+                }
+            }
+        }
+
+        locationSearchViewModel.setErrorMessageShown(error)
+    }
+
+    private fun requestSearchbarFocus() {
         searchBarBinding.searchView.requestFocus()
     }
 

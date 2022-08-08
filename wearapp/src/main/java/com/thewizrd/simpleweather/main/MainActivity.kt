@@ -14,6 +14,7 @@ import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ActivityUtils.showToast
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -119,6 +120,16 @@ class MainActivity : WearableListenerActivity() {
                 }
             }
         }
+
+        lifecycleScope.launch {
+            wNowViewModel.errorMessages.collect {
+                val error = it.firstOrNull()
+
+                if (error != null) {
+                    onErrorMessage(error)
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -129,6 +140,22 @@ class MainActivity : WearableListenerActivity() {
     override fun onPause() {
         AnalyticsLogger.logEvent("$TAG: onPause")
         super.onPause()
+    }
+
+    private fun onErrorMessage(error: ErrorMessage) {
+        when (error) {
+            is ErrorMessage.Resource -> {
+                showToast(error.stringId, Toast.LENGTH_SHORT)
+            }
+            is ErrorMessage.String -> {
+                showToast(error.message, Toast.LENGTH_SHORT)
+            }
+            is ErrorMessage.WeatherError -> {
+                showToast(error.exception.message, Toast.LENGTH_SHORT)
+            }
+        }
+
+        wNowViewModel.setErrorMessageShown(error)
     }
 
     /* Data Sync */

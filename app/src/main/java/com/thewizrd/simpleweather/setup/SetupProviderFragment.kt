@@ -39,7 +39,9 @@ import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 
 class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment {
-    private val KEY_APIREGISTER = "key_apiregister"
+    companion object {
+        private const val KEY_APIREGISTER = "key_apiregister"
+    }
 
     private lateinit var binding: FragmentSetupProvidersBinding
 
@@ -233,10 +235,10 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                 providerPref.value
             )
             fragment.setPositiveButtonOnClickListener {
-                runWithView {
-                    val provider = fragment.apiProvider
-                    val key = fragment.key
+                val provider = fragment.apiProvider
+                val key = fragment.key
 
+                runWithView {
                     try {
                         if (weatherModule.weatherManager.isKeyValid(key, provider)) {
                             settingsManager.setAPIKey(provider, key)
@@ -245,15 +247,9 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
                             updateKeySummary()
 
-                            fragment.dialog!!.dismiss()
+                            fragment.dialog?.dismiss()
                         } else {
-                            context?.let {
-                                Toast.makeText(
-                                    it,
-                                    R.string.message_keyinvalid,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
                         }
                     } catch (e: WeatherException) {
                         Logger.writeLine(Log.ERROR, e)

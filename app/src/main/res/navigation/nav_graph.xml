@@ -63,6 +63,7 @@
         android:id="@+id/locationsFragment"
         android:name="com.thewizrd.simpleweather.main.LocationsFragment"
         android:label="LocationsFragment"
+        app:route="/locations"
         tools:layout="@layout/fragment_locations">
         <action
             android:id="@+id/action_locationsFragment_to_weatherNowFragment"

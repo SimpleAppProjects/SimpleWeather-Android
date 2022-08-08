@@ -5,7 +5,7 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.databinding.BindingAdapter;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.progressindicator.BaseProgressIndicator;
 
 public class ProgressBarAdapter {
     @BindingAdapter("showProgressBarIfTrue")
@@ -18,7 +18,7 @@ public class ProgressBarAdapter {
     }
 
     @BindingAdapter("showProgressBarIfTrue")
-    public static void showProgressBarIfTrue(@NonNull CircularProgressIndicator progressBar, boolean show) {
+    public static void showProgressBarIfTrue(@NonNull BaseProgressIndicator<?> progressBar, boolean show) {
         if (show) {
             progressBar.show();
         } else {

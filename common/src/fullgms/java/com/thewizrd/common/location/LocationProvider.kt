@@ -160,7 +160,12 @@ class LocationProvider {
     }
 
     suspend fun getLatestLocationData(previousLocation: LocationData? = null): LocationResult {
-        if (!checkPermissions()) return LocationResult.PermissionDenied()
+        if (!LocationManagerCompat.isLocationEnabled(mLocationMgr)) {
+            return LocationResult.Error(
+                errorMessage = ErrorMessage.Resource(R.string.error_enable_location_services)
+            )
+        }
+        if (!mContext.locationPermissionEnabled()) return LocationResult.PermissionDenied()
 
         var location = withContext(Dispatchers.IO) {
             val result: Location? = try {

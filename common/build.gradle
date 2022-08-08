@@ -44,9 +44,11 @@ android {
     productFlavors {
         nongms {
             dimension 'gms'
+            buildConfigField "boolean", "IS_NONGMS", "true"
         }
         fullgms {
             dimension 'gms'
+            buildConfigField "boolean", "IS_NONGMS", "false"
         }
     }
     namespace 'com.thewizrd.common'

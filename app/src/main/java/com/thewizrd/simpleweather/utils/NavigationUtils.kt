@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 
@@ -22,6 +23,16 @@ object NavigationUtils {
     fun NavController.safeNavigate(direction: NavDirections, extras: Navigator.Extras) {
         currentDestination?.getAction(direction.actionId)?.run {
             navigate(direction, extras)
+        }
+    }
+
+    fun NavController.safeNavigate(
+        direction: NavDirections,
+        navOptions: NavOptions? = null,
+        extras: Navigator.Extras? = null
+    ) {
+        currentDestination?.getAction(direction.actionId)?.run {
+            navigate(direction.actionId, direction.arguments, navOptions, extras)
         }
     }
 

@@ -104,11 +104,10 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
             notIconPref.isVisible = value
 
             if (value && settingsManager.useFollowGPS() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() && requireActivity().backgroundLocationPermissionEnabled()) {
-                runWithView {
-                    val ctx = requireActivity()
+                context?.let {
                     val snackbar = Snackbar.make(
-                        ctx,
-                        ctx.getBackgroundLocationRationale(),
+                        it,
+                        it.getBackgroundLocationRationale(),
                         Snackbar.Duration.VERY_LONG
                     ).apply {
                         setAction(android.R.string.ok) {

@@ -332,8 +332,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminate="true"
-            android:indeterminateTint="?attr/colorOnSurface"
-            android:indeterminateTintMode="src_in"
+            app:indicatorColor="?attr/colorOnSurface"
             android:visibility="visible"
             app:indicatorSize="24dp" />
 

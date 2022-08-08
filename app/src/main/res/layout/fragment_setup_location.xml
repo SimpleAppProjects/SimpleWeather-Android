@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.thewizrd.common.viewmodels.LocationSearchViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/root_view"
         android:layout_width="match_parent"
@@ -48,6 +55,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:enabled="@{!viewModel.uiState.loading}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_max="@dimen/searchview_height_region_search"
             app:layout_constraintHeight_min="@dimen/searchview_height_region_search"
@@ -61,6 +69,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:text="@string/label_gpsfollow"
+            android:enabled="@{!viewModel.uiState.loading}"
             style="@style/Widget.Material3.Button.TonalButton"
             app:icon="@drawable/ic_my_location_white_24dp"
             app:iconPadding="8dp"
@@ -68,20 +77,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_bar" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/white"
-            android:indeterminateTintMode="src_in"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:visibility="gone"
+            app:indicatorColor="@android:color/white"
+            app:showProgressBarIfTrue="@{viewModel.uiState.loading}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/gps_follow"

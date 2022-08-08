@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -28,9 +30,8 @@ import com.thewizrd.simpleweather.SetupGraphDirections
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.stepper.StepperFragment
-import kotlinx.coroutines.Dispatchers
+import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SetupActivity : UserLocaleActivity() {
     private lateinit var binding: ActivitySetupBinding
@@ -49,13 +50,13 @@ class SetupActivity : UserLocaleActivity() {
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavBar) { v, insets ->
-            val layoutParams = v.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.setMargins(
-                insets.systemWindowInsetLeft,
-                0,
-                insets.systemWindowInsetRight,
-                insets.systemWindowInsetBottom
-            )
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                leftMargin = sysBarInsets.left
+                rightMargin = sysBarInsets.right
+                bottomMargin = sysBarInsets.bottom
+            }
+
             insets
         }
 
@@ -80,14 +81,12 @@ class SetupActivity : UserLocaleActivity() {
                     return@launch
                 }
 
-                if (mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    // Set the result to CANCELED.  This will cause the widget host to cancel
-                    // out of the widget placement if they press the back button.
-                    setResult(
-                        Activity.RESULT_CANCELED,
-                        Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-                    )
-                }
+                // Set the result to CANCELED.  This will cause the widget host to cancel
+                // out of the widget placement if they press the back button.
+                setResult(
+                    Activity.RESULT_CANCELED,
+                    Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                )
             }
 
             if (savedInstanceState?.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID) == true
@@ -139,7 +138,7 @@ class SetupActivity : UserLocaleActivity() {
         // It should be ready once we reach onStart
         lifecycleScope.launchWhenStarted {
             mNavController = getNavController()
-            mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
+            mNavController!!.addOnDestinationChangedListener { _, destination, _ ->
                 updateBottomNavigationBarForDestination(destination.id)
             }
         }
@@ -325,15 +324,14 @@ class SetupActivity : UserLocaleActivity() {
             if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 // Start WeatherNow Activity with weather data
                 val opts = NavOptions.Builder()
-                val currentDestination = mNavController?.currentDestination
-                if (currentDestination != null) {
-                    opts.setPopUpTo(currentDestination.id, true)
+                mNavController?.currentDestination?.let { destination ->
+                    opts.setPopUpTo(destination.id, true)
                 }
-                mNavController!!.navigate(
+                mNavController?.safeNavigate(
                     SetupGraphDirections.actionGlobalMainActivity()
-                        .setData(withContext(Dispatchers.Default) {
+                        .setData(
                             JSONParser.serializer(viewModel.locationData, LocationData::class.java)
-                        }),
+                        ),
                     opts.build()
                 )
 
@@ -342,12 +340,15 @@ class SetupActivity : UserLocaleActivity() {
                 finishAffinity()
             } else {
                 // Create return intent
-                val resultValue = Intent()
-                resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-                if (viewModel.locationData != null)
-                    resultValue.putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
-                        JSONParser.serializer(viewModel.locationData, LocationData::class.java)
-                    })
+                val resultValue = Intent().apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+                    viewModel.locationData?.let {
+                        putExtra(
+                            Constants.KEY_DATA,
+                            JSONParser.serializer(it, LocationData::class.java)
+                        )
+                    }
+                }
                 setResult(Activity.RESULT_OK, resultValue)
                 finish()
             }
