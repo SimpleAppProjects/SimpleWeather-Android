@@ -1,7 +1,6 @@
 package com.thewizrd.weather_api.locationdata
 
 import android.location.Address
-import android.location.Geocoder
 import android.util.Log
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
@@ -15,6 +14,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.google.location.createLocationModel
 import com.thewizrd.weather_api.google.location.getFromLocationAsync
 import com.thewizrd.weather_api.google.location.getFromLocationNameAsync
+import com.thewizrd.weather_api.google.location.isGeocoderAvailable
 import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +79,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
     override suspend fun getLocation(
         coordinate: Coordinate, weatherAPI: String?
     ): LocationQuery? = withContext(Dispatchers.IO) {
-        if (Geocoder.isPresent()) {
+        if (isGeocoderAvailable()) {
             val location: LocationQuery
             var result: Address? = null
             var wEx: WeatherException? = null
@@ -156,7 +156,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
     override suspend fun getLocationFromName(
         model: LocationQuery
     ): LocationQuery? = withContext(Dispatchers.IO) {
-        if (Geocoder.isPresent()) {
+        if (isGeocoderAvailable()) {
             val location: LocationQuery
             var result: Address?
             var wEx: WeatherException? = null

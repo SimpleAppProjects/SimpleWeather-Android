@@ -1,6 +1,5 @@
 package com.thewizrd.weather_api.weatherapi.location
 
-import android.location.Geocoder
 import android.util.Log
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
@@ -13,6 +12,7 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
+import com.thewizrd.weather_api.google.location.isGeocoderAvailable
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderImpl
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
@@ -139,7 +139,7 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocationFromName(
         model: LocationQuery
     ): LocationQuery? {
-        return if (Geocoder.isPresent()) {
+        return if (isGeocoderAvailable()) {
             super.getLocationFromName(model)
         } else {
             model

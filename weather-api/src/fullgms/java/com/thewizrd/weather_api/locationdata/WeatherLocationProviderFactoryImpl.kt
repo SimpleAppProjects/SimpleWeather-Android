@@ -1,10 +1,10 @@
 package com.thewizrd.weather_api.locationdata
 
-import android.location.Geocoder
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.google.location.AndroidLocationProvider
 import com.thewizrd.weather_api.google.location.GoogleLocationProvider
+import com.thewizrd.weather_api.google.location.isGeocoderAvailable
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 
@@ -12,7 +12,7 @@ class WeatherLocationProviderFactoryImpl : WeatherLocationProviderFactory {
     override fun getLocationProvider(provider: String?): WeatherLocationProvider {
         return when (provider) {
             WeatherAPI.ANDROID -> {
-                if (Geocoder.isPresent())
+                if (isGeocoderAvailable())
                     AndroidLocationProvider()
                 else
                     WeatherApiLocationProvider()

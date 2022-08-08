@@ -26,6 +26,7 @@ import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.google.location.GoogleLocationProvider
 import com.thewizrd.weather_api.google.location.createLocationModel
 import com.thewizrd.weather_api.google.location.getFromLocationNameAsync
+import com.thewizrd.weather_api.google.location.isGeocoderAvailable
 import com.thewizrd.weather_api.here.auth.hereOAuthService
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
@@ -322,7 +323,7 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidAutoCompleteLocTest() {
         runBlocking(Dispatchers.Default) {
-            assertTrue(Geocoder.isPresent())
+            assertTrue(isGeocoderAvailable())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocationNameAsync("Redmond", 5) // Redmond
@@ -335,7 +336,7 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidGeocoderTest() {
         runBlocking(Dispatchers.Default) {
-            assertTrue(Geocoder.isPresent())
+            assertTrue(isGeocoderAvailable())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
                 //geocoder.getFromLocation(47.6721646, -122.1706614, 1); // Washington

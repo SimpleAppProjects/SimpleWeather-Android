@@ -1,3 +1,6 @@
+@file:JvmMultifileClass
+@file:JvmName("GeocoderExt")
+
 package com.thewizrd.weather_api.google.location
 
 import android.location.Address

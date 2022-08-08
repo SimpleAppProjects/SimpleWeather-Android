@@ -7,7 +7,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
 
 class RemoteConfigServiceImpl : RemoteConfigService {
     override fun getLocationProvider(weatherAPI: String): String? {
-        return if (Geocoder.isPresent()) {
+        return if (isGeocoderAvailable()) {
             WeatherAPI.ANDROID
         } else {
             WeatherAPI.OPENWEATHERMAP

@@ -10,7 +10,7 @@ class WeatherLocationProviderFactoryImpl : WeatherLocationProviderFactory {
     override fun getLocationProvider(provider: String?): WeatherLocationProvider {
         return when (provider) {
             WeatherAPI.ANDROID -> {
-                if (Geocoder.isPresent())
+                if (isGeocoderAvailable())
                     AndroidLocationProvider()
                 else
                     CityDBLocationProvider()

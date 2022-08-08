@@ -255,7 +255,7 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidAutoCompleteLocTest() {
         runBlocking(Dispatchers.Default) {
-            assertTrue(Geocoder.isPresent())
+            assertTrue(isGeocoderAvailable())
             val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = withContext(Dispatchers.IO) {
                 geocoder.getFromLocationNameAsync("Redmond", 5) // Redmond
@@ -268,7 +268,7 @@ class UnitTests {
     @Throws(IOException::class)
     fun androidGeocoderTest() {
         runBlocking(Dispatchers.Default) {
-            assertTrue(Geocoder.isPresent())
+            assertTrue(isGeocoderAvailable())
             val geocoder = Geocoder(context, Locale.getDefault())
             //List<Address> addressList = geocoder.getFromLocationAsync(47.6721646, -122.1706614, 1); // Washington
             val addressList = withContext(Dispatchers.IO) {

@@ -1,7 +1,6 @@
 package com.thewizrd.weather_api.google.location
 
 import android.location.Address
-import android.location.Geocoder
 import android.util.Log
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -42,7 +41,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocations(
         ac_query: String?, weatherAPI: String?
     ): Collection<LocationQuery> = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
+        if (!isGeocoderAvailable()) {
             throw WeatherException(ErrorStatus.UNKNOWN)
         }
 
@@ -84,7 +83,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocationFromName(
         model: LocationQuery
     ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
+        if (!isGeocoderAvailable()) {
             throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 
@@ -118,7 +117,7 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocation(
         coordinate: Coordinate, weatherAPI: String?
     ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
+        if (!isGeocoderAvailable()) {
             throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 

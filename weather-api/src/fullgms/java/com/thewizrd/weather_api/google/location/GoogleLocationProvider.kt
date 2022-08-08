@@ -1,7 +1,6 @@
 package com.thewizrd.weather_api.google.location
 
 import android.location.Address
-import android.location.Geocoder
 import android.util.Log
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
@@ -17,7 +16,9 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderImpl
@@ -26,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.ExecutionException
 
 class GoogleLocationProvider : WeatherLocationProviderImpl() {
@@ -196,7 +196,7 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocationFromName(
         model: LocationQuery
     ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
+        if (!isGeocoderAvailable()) {
             throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 
@@ -235,7 +235,7 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
     override suspend fun getLocation(
         coordinate: Coordinate, weatherAPI: String?
     ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!Geocoder.isPresent()) {
+        if (!isGeocoderAvailable()) {
             throw WeatherException(ErrorStatus.NETWORKERROR)
         }
 
