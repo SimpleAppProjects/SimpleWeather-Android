@@ -181,6 +181,10 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun refreshWeather(forceRefresh: Boolean = false) {
+        viewModelState.update {
+            it.copy(isLoading = true)
+        }
+
         viewModelScope.launch {
             if (settingsManager.useFollowGPS()) {
                 val result = updateLocation()

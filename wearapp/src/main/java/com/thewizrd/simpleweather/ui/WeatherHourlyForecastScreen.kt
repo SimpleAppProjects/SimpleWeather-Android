@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.ui
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,6 +17,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.simpleweather.ui.components.WeatherHourlyForecastPanel
 import com.thewizrd.simpleweather.ui.paging.items
 import com.thewizrd.simpleweather.ui.theme.activityViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun WeatherHourlyForecastScreen(
@@ -44,5 +46,10 @@ fun WeatherHourlyForecastScreen(
                 WeatherHourlyForecastPanel(model = it)
             }
         }
+    }
+
+    LaunchedEffect(scalingLazyListState) {
+        delay(50)
+        scalingLazyListState.scrollToItem(scrollToPosition)
     }
 }

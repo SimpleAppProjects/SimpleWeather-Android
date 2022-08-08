@@ -55,6 +55,7 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
+import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.ui.components.ForecastItem
 import com.thewizrd.simpleweather.ui.components.HourlyForecastItem
 import com.thewizrd.simpleweather.ui.components.LoadingContent
@@ -64,8 +65,10 @@ import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 import com.thewizrd.simpleweather.ui.theme.activityViewModel
 import com.thewizrd.simpleweather.ui.theme.findActivity
 import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
+import com.thewizrd.simpleweather.viewmodels.WeatherNowStateModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlin.math.max
 
@@ -74,12 +77,13 @@ fun WeatherNowScreen(
     navController: NavHostController,
     backStackEntry: NavBackStackEntry
 ) {
+    val stateModel = viewModel<WeatherNowStateModel>()
     val scrollState = scrollState(it = backStackEntry)
     val focusRequester = remember { FocusRequester() }
     val containerWidth = LocalConfiguration.current.screenWidthDp
     val activity = LocalContext.current.findActivity()
 
-    val weatherModel = activityViewModel<WeatherNowViewModel>()
+    val wNowViewModel = activityViewModel<WeatherNowViewModel>()
     val alertsView = activityViewModel<WeatherAlertsViewModel>()
     val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
 
@@ -95,7 +99,10 @@ fun WeatherNowScreen(
         it.isNotEmpty()
     }.observeAsState(false)
 
-    val weather by weatherModel.weather.filterNotNull().collectAsState(WeatherUiModel())
+    val uiState by wNowViewModel.uiState.collectAsState()
+    val scrollLoading by stateModel.isLoading.collectAsState()
+
+    val weather by wNowViewModel.weather.filterNotNull().collectAsState(WeatherUiModel())
 
     val weatherIconDrawable = remember(weather.weatherIcon) {
         ContextCompat.getDrawable(
@@ -104,11 +111,8 @@ fun WeatherNowScreen(
         )
     }
 
-    val wNowViewModel = viewModel<WeatherNowViewModel>()
-    val uiState by wNowViewModel.uiState.collectAsState()
-
     LoadingContent(
-        empty = uiState.isLoading && (uiState.noLocationAvailable || weather.location.isNullOrEmpty()),
+        empty = uiState.isLoading && (uiState.noLocationAvailable || weather.location.isNullOrEmpty()) || scrollLoading,
         emptyContent = {
             Box(
                 modifier = Modifier.fillMaxRectangle(),
@@ -121,7 +125,7 @@ fun WeatherNowScreen(
         },
         loading = uiState.isLoading,
         onRefresh = {
-            wNowViewModel.refreshWeather()
+            wNowViewModel.refreshWeather(true)
         }
     ) {
         Box(
@@ -134,15 +138,22 @@ fun WeatherNowScreen(
                 modifier = Modifier.padding(top = 24.dp, bottom = 48.dp)
             ) {
                 if (uiState.noLocationAvailable) {
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                            .padding(
+                                horizontal = 16.dp
+                            )
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                activity.startActivity(Intent(activity, SetupActivity::class.java))
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Spacer(modifier = Modifier.height(8.dp))
                         Icon(
                             painter = painterResource(R.drawable.ic_location_off_24dp),
-                            contentDescription = null
+                            contentDescription = null,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -150,6 +161,7 @@ fun WeatherNowScreen(
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body1
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
                 if (uiState.showDisconnectedView) {
@@ -331,6 +343,7 @@ fun WeatherNowScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = dimensionResource(id = R.dimen.list_item_padding))
+                            .clip(RoundedCornerShape(8.dp))
                             .clickable {
                                 navController.navigate(Screen.Details.route)
                             },
@@ -611,7 +624,7 @@ fun WeatherNowScreen(
                         .fillMaxWidth()
                         .padding(vertical = 2.dp, horizontal = 16.dp),
                     onClick = {
-
+                        activity.startActivity(Intent(activity, SetupActivity::class.java))
                     },
                     colors = ChipDefaults.secondaryChipColors(),
                     label = {
@@ -669,6 +682,17 @@ fun WeatherNowScreen(
                     }
                 )
             }
+        }
+    }
+
+    LaunchedEffect(stateModel) {
+        delay(500)
+        stateModel.updateLoadingState(false)
+    }
+
+    DisposableEffect(stateModel) {
+        onDispose {
+            stateModel.updateLoadingState(true)
         }
     }
 }

@@ -190,6 +190,10 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
     }
 
     fun refreshWeather(forceRefresh: Boolean = false) {
+        viewModelState.update {
+            it.copy(isLoading = true)
+        }
+
         viewModelScope.launch {
             if (settingsManager.getDataSync() == WearableDataSync.OFF) {
                 if (settingsManager.useFollowGPS()) {
@@ -294,6 +298,14 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                     )
                 }
             }
+        }
+    }
+
+    fun setErrorMessageShown(error: ErrorMessage) {
+        viewModelState.update { state ->
+            state.copy(
+                errorMessages = state.errorMessages.filterNot { it == error }
+            )
         }
     }
 
