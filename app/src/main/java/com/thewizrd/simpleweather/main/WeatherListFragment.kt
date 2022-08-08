@@ -236,9 +236,10 @@ class WeatherListFragment : ToolbarFragment() {
                     }
                 })
 
-                alertsView.getAlerts().removeObservers(viewLifecycleOwner)
-                alertsView.getAlerts().observe(viewLifecycleOwner) { alerts ->
-                    alertAdapter.submitList(alerts)
+                dataJob = runWithView {
+                    alertsView.getAlerts().collect {
+                        alertAdapter.submitList(it)
+                    }
                 }
             }
             else -> {

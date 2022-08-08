@@ -3,12 +3,17 @@ package com.thewizrd.common.controls
 import android.app.Application
 import androidx.annotation.MainThread
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.weatherdata.model.WeatherAlerts
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
@@ -17,11 +22,12 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private val alerts = MutableLiveData<List<WeatherAlertViewModel>>()
+    private val alerts = MutableStateFlow<List<WeatherAlertViewModel>>(emptyList())
+    private var currentAlertsData: Flow<List<WeatherAlertViewModel>> = emptyFlow()
 
-    private var currentAlertsData: LiveData<List<WeatherAlertViewModel>>? = null
+    private var flowScope: CoroutineScope? = null
 
-    fun getAlerts(): LiveData<List<WeatherAlertViewModel>> {
+    fun getAlerts(): StateFlow<List<WeatherAlertViewModel>> {
         return alerts
     }
 
@@ -32,19 +38,15 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
                 // Clone location data
                 locationData = LocationQuery(location).toLocationData()
 
-                currentAlertsData?.removeObserver(alertObserver)
-
-                val weatherAlertsLiveData = weatherDAO.getLiveWeatherAlertData(location.query)
+                flowScope?.cancel()
 
                 currentAlertsData =
-                    Transformations.map(weatherAlertsLiveData) { weatherAlerts: WeatherAlerts? ->
-                        val alerts: MutableList<WeatherAlertViewModel>
-
-                        if (weatherAlerts?.alerts?.isNotEmpty() == true) {
-                            alerts = ArrayList(weatherAlerts.alerts.size)
+                    weatherDAO.getLiveWeatherAlertData(location.query).asFlow().map {
+                        return@map it?.alerts?.let { weatherAlerts ->
+                            val alerts = ArrayList<WeatherAlertViewModel>(weatherAlerts.size)
                             val now = ZonedDateTime.now()
 
-                            for (alert in weatherAlerts.alerts) {
+                            for (alert in weatherAlerts) {
                                 // Skip if alert has expired
                                 if (!alert.expiresDate.isAfter(now) || alert.date.isAfter(now)) {
                                     continue
@@ -53,30 +55,24 @@ class WeatherAlertsViewModel(app: Application) : AndroidViewModel(app) {
                                 alerts.add(WeatherAlertViewModel(alert))
                             }
 
-                            return@map alerts
-                        }
-
-                        emptyList()
+                            alerts
+                        } ?: emptyList()
                     }
 
-                currentAlertsData!!.observeForever(alertObserver)
-
-                alerts.postValue(currentAlertsData!!.value)
+                flowScope = CoroutineScope(SupervisorJob())
+                flowScope?.launch {
+                    currentAlertsData.collect {
+                        alerts.emit(it)
+                    }
+                }
             }
         }
-    }
-
-    private val alertObserver = Observer<List<WeatherAlertViewModel>> { alertViewModels ->
-        alerts.postValue(alertViewModels)
     }
 
     override fun onCleared() {
         super.onCleared()
 
+        flowScope?.cancel()
         locationData = null
-
-        currentAlertsData?.removeObserver(alertObserver)
-
-        currentAlertsData = null
     }
 }

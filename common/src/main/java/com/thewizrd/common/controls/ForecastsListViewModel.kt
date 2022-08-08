@@ -42,11 +42,11 @@ class ForecastsListViewModel(app: Application) : AndroidViewModel(app) {
 
     private var flowScope: CoroutineScope? = null
 
-    fun getForecasts(): Flow<PagingData<ForecastItemViewModel>> {
+    fun getForecasts(): StateFlow<PagingData<ForecastItemViewModel>> {
         return forecasts
     }
 
-    fun getHourlyForecasts(): Flow<PagingData<HourlyForecastItemViewModel>> {
+    fun getHourlyForecasts(): StateFlow<PagingData<HourlyForecastItemViewModel>> {
         return hourlyForecasts
     }
 

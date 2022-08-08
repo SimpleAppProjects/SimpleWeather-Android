@@ -1,6 +1,7 @@
 package com.thewizrd.shared_resources.weatherdata.model;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -25,11 +26,12 @@ public class WeatherAlerts {
         this.query = query;
     }
 
+    @Nullable
     public Collection<WeatherAlert> getAlerts() {
         return alerts;
     }
 
-    public void setAlerts(Collection<WeatherAlert> alerts) {
+    public void setAlerts(@Nullable Collection<WeatherAlert> alerts) {
         this.alerts = alerts;
     }
 
@@ -37,7 +39,7 @@ public class WeatherAlerts {
     }
 
     @Ignore
-    public WeatherAlerts(@NonNull String query, Collection<WeatherAlert> alerts) {
+    public WeatherAlerts(@NonNull String query, @Nullable Collection<WeatherAlert> alerts) {
         this.query = query;
         this.alerts = alerts;
     }

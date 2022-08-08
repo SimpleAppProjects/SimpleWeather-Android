@@ -104,7 +104,7 @@ class LocationQuery {
     }
 }
 
-fun LocationQuery.toLocationData(): LocationData {
+fun LocationQuery.toLocationData(type: LocationType = LocationType.SEARCH): LocationData {
     val locQuery = this
 
     return LocationData().apply {
@@ -115,6 +115,7 @@ fun LocationQuery.toLocationData(): LocationData {
         tzLong = locQuery.locationTZLong
         weatherSource = locQuery.weatherSource
         locationSource = locQuery.locationSource
+        locationType = type
     }
 }
 

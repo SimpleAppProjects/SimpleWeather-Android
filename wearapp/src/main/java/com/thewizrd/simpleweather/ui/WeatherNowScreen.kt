@@ -83,7 +83,7 @@ fun WeatherNowScreen(
     val alertsView = activityViewModel<WeatherAlertsViewModel>()
     val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
 
-    val alerts by alertsView.getAlerts().observeAsState(emptyList())
+    val alerts by alertsView.getAlerts().collectAsState()
     val forecasts by forecastsPanelView.getForecasts().map {
         val maxItemCount = max(4f, containerWidth / 50f).toInt()
         it.take(maxItemCount)

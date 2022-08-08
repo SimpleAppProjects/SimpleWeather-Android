@@ -847,10 +847,6 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
             }
         })
 
-        alertsView.getAlerts().observe(viewLifecycleOwner, Observer {
-            adjustConditionPanelLayout()
-        })
-
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 initializeState()
@@ -920,6 +916,12 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                         }
                     }
                 }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            alertsView.getAlerts().collectLatest {
+                adjustConditionPanelLayout()
             }
         }
 

@@ -3,8 +3,8 @@ package com.thewizrd.simpleweather.ui
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,7 +21,7 @@ fun WeatherAlertsScreen(
 ) {
     val scalingLazyListState = scalingLazyListState(it = backStackEntry)
     val alertsView = viewModel<WeatherAlertsViewModel>()
-    val alerts by alertsView.getAlerts().observeAsState()
+    val alerts by alertsView.getAlerts().collectAsState()
 
     ScalingLazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -30,10 +30,8 @@ fun WeatherAlertsScreen(
         contentPadding = PaddingValues(vertical = 48.dp),
         autoCentering = null
     ) {
-        alerts?.let {
-            items(it) { alert ->
-                WeatherAlertPanel(alert)
-            }
+        items(alerts) { alert ->
+            WeatherAlertPanel(alert)
         }
     }
 }

@@ -55,13 +55,13 @@ interface WeatherDAO {
 
     @Transaction
     @Query("SELECT * FROM weatheralerts")
-    suspend fun loadAllWeatherAlertData(): List<WeatherAlerts>
+    suspend fun loadAllWeatherAlertData(): List<WeatherAlerts?>
 
     @Query("SELECT * FROM weatheralerts WHERE `query` = :query")
     suspend fun getWeatherAlertData(query: String?): WeatherAlerts?
 
     @Query("SELECT * FROM weatheralerts WHERE `query` = :query")
-    fun getLiveWeatherAlertData(query: String?): LiveData<WeatherAlerts>
+    fun getLiveWeatherAlertData(query: String?): LiveData<WeatherAlerts?>
 
     @Query("SELECT COUNT(*) FROM weatheralerts")
     suspend fun getWeatherAlertDataCount(): Int
