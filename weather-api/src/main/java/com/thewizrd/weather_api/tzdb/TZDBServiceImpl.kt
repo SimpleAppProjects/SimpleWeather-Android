@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TZDBServiceImpl : TZDBService {
-    override suspend fun getTimeZone(latitude: Double, longitude: Double): String? {
+    override suspend fun getTimeZone(latitude: Double, longitude: Double): String {
         if (latitude != 0.0 && longitude != 0.0) {
             AnalyticsLogger.logEvent("TZDBCache: querying")
             val tzDB = TZDatabase.getTzdbDAO(sharedDeps.context)
@@ -30,9 +30,9 @@ class TZDBServiceImpl : TZDBService {
                     val tzdb = TZDB(latitude, longitude, result)
                     tzDB.insertTZData(tzdb)
                 }
-            }
 
-            return result
+                return result
+            }
         }
 
         return "UTC"

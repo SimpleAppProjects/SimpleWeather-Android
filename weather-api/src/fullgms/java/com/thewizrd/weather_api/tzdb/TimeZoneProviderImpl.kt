@@ -2,7 +2,6 @@ package com.thewizrd.weather_api.tzdb
 
 import android.net.Uri
 import android.util.Log
-import com.squareup.moshi.Json
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -26,11 +25,6 @@ import java.util.concurrent.TimeUnit
 class TimeZoneProviderImpl : TimeZoneProvider, RateLimitedRequest {
     companion object {
         private const val API_ID = "tzdb"
-    }
-
-    private inner class TimeZoneData {
-        @Json(name = "tz_long")
-        var tzLong: String? = null
     }
 
     override fun getRetryTime(): Long {
