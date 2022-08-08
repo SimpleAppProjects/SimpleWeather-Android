@@ -385,7 +385,7 @@ class LocationsFragment : ToolbarFragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            locationsViewModel.errorMessages.collectLatest {
+            locationsViewModel.errorMessages.collect {
                 val error = it.firstOrNull()
 
                 if (error != null) {
