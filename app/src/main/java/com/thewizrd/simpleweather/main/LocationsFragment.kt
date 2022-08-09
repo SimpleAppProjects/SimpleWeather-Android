@@ -10,14 +10,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.launch
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.graphics.drawable.DrawableCompat
@@ -31,19 +35,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
-import androidx.transition.TransitionManager
 import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.transition.MaterialFade
-import com.google.android.material.transition.MaterialFadeThrough
+import com.google.android.material.transition.platform.MaterialFade
+import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.thewizrd.common.helpers.*
 import com.thewizrd.common.utils.ActivityUtils.setLightStatusBar
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.common.viewmodels.LocationSearchResult
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -61,6 +64,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.activities.LocationSearch
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter
 import com.thewizrd.simpleweather.adapters.LocationPanelAdapter.ViewHolderLongClickListener
 import com.thewizrd.simpleweather.controls.LocationPanelUiModel
@@ -94,6 +98,7 @@ class LocationsFragment : ToolbarFragment() {
     private lateinit var mITHCallback: ItemTouchHelperCallback
 
     private val locationsViewModel by viewModels<LocationsViewModel>()
+    private lateinit var locationSearchLauncher: ActivityResultLauncher<Void?>
 
     // GPS Location
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
@@ -106,10 +111,10 @@ class LocationsFragment : ToolbarFragment() {
         get() = R.string.label_nav_locations
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
-        val mSnackMgr = SnackbarManager(rootView)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(rootView).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 
     // For LocationPanels
@@ -174,6 +179,19 @@ class LocationsFragment : ToolbarFragment() {
                 }
             }
         )
+
+        locationSearchLauncher = registerForActivityResult(LocationSearch()) { result ->
+            when (result) {
+                is LocationSearchResult.AlreadyExists,
+                is LocationSearchResult.Success -> {
+                    locationsViewModel.refreshLocations()
+                }
+                is LocationSearchResult.Failed,
+                null -> {
+                    // no-op
+                }
+            }
+        }
 
         onBackPressedCallback = object : OnBackPressedCallback(mEditMode) {
             override fun handleOnBackPressed() {
@@ -241,13 +259,13 @@ class LocationsFragment : ToolbarFragment() {
                 .build()
         }
         binding.fab.setOnClickListener {
-            binding.root.findNavController()
-                .safeNavigate(
-                    LocationsFragmentDirections.actionLocationsFragmentToLocationSearchFragment(),
-                    FragmentNavigator.Extras.Builder()
-                        .addSharedElement(binding.fab, Constants.SHARED_ELEMENT)
-                        .build()
+            locationSearchLauncher.launch(
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    requireActivity(),
+                    it,
+                    Constants.SHARED_ELEMENT
                 )
+            )
         }
         ViewCompat.setTransitionName(binding.fab, Constants.SHARED_ELEMENT)
 

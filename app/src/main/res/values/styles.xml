@@ -148,6 +148,11 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="AppTheme.Dialog">
+        <item name="android:navigationBarColor">?colorPrimary</item>
+        <item name="android:statusBarColor">?colorPrimary</item>
+    </style>
+
     <style name="AppTheme.Launcher" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_v4</item>
         <item name="windowSplashScreenBackground">@color/colorPrimarySurface</item>

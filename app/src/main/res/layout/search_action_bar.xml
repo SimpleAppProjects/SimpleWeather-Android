@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.LocationSearchActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/search_action_bar"
@@ -38,27 +39,12 @@
             android:hint="@string/location_search_hint"
             android:imeOptions="actionSearch|flagNoExtractUi"
             android:inputType="textFilter"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/search_progressBar"
-            app:layout_constraintStart_toEndOf="@id/search_back_button"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/search_progressBar"
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="36dp"
-            android:layout_height="0dp"
-            android:indeterminate="true"
-            android:indeterminateTint="?attr/colorControlNormal"
-            android:indeterminateTintMode="src_in"
-            android:paddingStart="0dp"
-            android:paddingEnd="16dp"
-            android:visibility="gone"
+            android:singleLine="true"
+            android:textColorHint="?attr/colorControlNormal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/search_close_button"
-            app:layout_constraintStart_toEndOf="@id/search_view"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintStart_toEndOf="@id/search_back_button"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/search_close_button"
@@ -71,7 +57,7 @@
             app:tint="?attr/colorControlNormal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/search_progressBar"
+            app:layout_constraintStart_toEndOf="@id/search_view"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_height="wrap_content"
             tools:layout_width="wrap_content" />

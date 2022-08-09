@@ -1,14 +1,15 @@
-package com.thewizrd.simpleweather.preferences
+package com.thewizrd.simpleweather.fragments
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.thewizrd.simpleweather.helpers.WindowColorManager
 import kotlinx.coroutines.launch
 
-abstract class WindowColorPreferenceFragmentCompat : CustomPreferenceFragmentCompat(),
-    WindowColorManager {
+abstract class WindowColorDialogFragment : CustomDialogFragment(), WindowColorManager {
+    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -19,5 +20,5 @@ abstract class WindowColorPreferenceFragmentCompat : CustomPreferenceFragmentCom
         }
     }
 
-    override fun updateWindowColors() {}
+    abstract override fun updateWindowColors()
 }

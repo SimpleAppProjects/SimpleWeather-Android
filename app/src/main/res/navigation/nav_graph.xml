@@ -63,16 +63,12 @@
         android:id="@+id/locationsFragment"
         android:name="com.thewizrd.simpleweather.main.LocationsFragment"
         android:label="LocationsFragment"
-        app:route="/locations"
         tools:layout="@layout/fragment_locations">
         <action
             android:id="@+id/action_locationsFragment_to_weatherNowFragment"
             app:destination="@id/weatherNowFragment"
             app:popUpTo="@id/weatherNowFragment"
             app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_locationsFragment_to_locationSearchFragment"
-            app:destination="@id/locationSearchFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -124,11 +120,6 @@
         android:id="@+id/OSSCreditsFragment"
         android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$OSSCreditsFragment"
         android:label="OSSCreditsFragment" />
-    <fragment
-        android:id="@+id/locationSearchFragment"
-        android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
-        android:label="LocationSearchFragment"
-        tools:layout="@layout/fragment_location_search" />
     <fragment
         android:id="@+id/unitsFragment"
         android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$UnitsFragment"

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.transition.MaterialSharedAxis;
+import com.google.android.material.transition.platform.MaterialSharedAxis;
 import com.thewizrd.simpleweather.databinding.FragmentSetupWelcomeBinding;
 import com.thewizrd.simpleweather.fragments.CustomFragment;
 import com.thewizrd.simpleweather.snackbar.SnackbarManager;

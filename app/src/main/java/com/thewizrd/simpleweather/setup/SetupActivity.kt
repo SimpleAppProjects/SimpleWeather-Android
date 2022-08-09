@@ -4,8 +4,10 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
@@ -16,7 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.transition.TransitionManager
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
@@ -26,12 +28,12 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
-import com.thewizrd.simpleweather.SetupGraphDirections
 import com.thewizrd.simpleweather.databinding.ActivitySetupBinding
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.stepper.StepperFragment
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class SetupActivity : UserLocaleActivity() {
     private lateinit var binding: ActivitySetupBinding
@@ -43,6 +45,18 @@ class SetupActivity : UserLocaleActivity() {
     private var mAppWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Enable Activity Transitions. Optionally enable Activity transitions in your
+        // theme with <item name=”android:windowActivityTransitions”>true</item>.
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+        window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
+
+        // Attach a callback used to capture the shared elements from this Activity to be used
+        // by the container transform transition
+        setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+
+        // Keep system bars (status bar, navigation bar) persistent throughout the transition.
+        window.sharedElementsUseOverlay = false
+
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SetupActivity: onCreate")
 
@@ -139,6 +153,7 @@ class SetupActivity : UserLocaleActivity() {
         lifecycleScope.launchWhenStarted {
             mNavController = getNavController()
             mNavController!!.addOnDestinationChangedListener { _, destination, _ ->
+                Timber.d("Destination: $destination")
                 updateBottomNavigationBarForDestination(destination.id)
             }
         }
@@ -221,8 +236,7 @@ class SetupActivity : UserLocaleActivity() {
             R.id.setupProviderFragment -> {
                 1
             }
-            R.id.setupLocationFragment,
-            R.id.locationSearchFragment3 -> {
+            R.id.setupLocationFragment -> {
                 if (BuildConfig.IS_NONGMS) {
                     2
                 } else {
@@ -259,8 +273,7 @@ class SetupActivity : UserLocaleActivity() {
                 }
             }
             R.id.setupProviderFragment -> R.id.setupLocationFragment
-            R.id.setupLocationFragment,
-            R.id.locationSearchFragment3 -> {
+            R.id.setupLocationFragment -> {
                 R.id.setupSettingsFragment
             }
             R.id.setupSettingsFragment -> R.id.mainActivity
@@ -280,18 +293,19 @@ class SetupActivity : UserLocaleActivity() {
 
     private fun updateBottomNavigationBarForDestination(@IdRes destinationId: Int) {
         binding.bottomNavBar.setSelectedItem(getPosition(destinationId))
-        if (destinationId == R.id.setupLocationFragment || destinationId == R.id.locationSearchFragment3) {
+        if (destinationId == R.id.setupLocationFragment) {
             binding.bottomNavBar.showBackButton(BuildConfig.IS_NONGMS)
             binding.bottomNavBar.showNextButton(false)
         } else if (destinationId == R.id.setupSettingsFragment) {
             binding.bottomNavBar.showBackButton(false)
+        } else if (destinationId == R.id.mainActivity) {
+            binding.bottomNavBar.showBackButton(false)
+            binding.bottomNavBar.showNextButton(false)
         }
         binding.bottomNavBar.postOnAnimationDelayed({
-            if (destinationId == R.id.setupLocationFragment || destinationId == R.id.locationSearchFragment3) {
+            if (destinationId == R.id.setupLocationFragment) {
                 TransitionManager.beginDelayedTransition(binding.root as ViewGroup)
             }
-            binding.bottomNavBar.visibility =
-                if (destinationId == R.id.locationSearchFragment3) View.GONE else View.VISIBLE
         }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
     }
 
@@ -323,21 +337,16 @@ class SetupActivity : UserLocaleActivity() {
 
             if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 // Start WeatherNow Activity with weather data
-                val opts = NavOptions.Builder()
-                mNavController?.currentDestination?.let { destination ->
-                    opts.setPopUpTo(destination.id, true)
-                }
                 mNavController?.safeNavigate(
-                    SetupGraphDirections.actionGlobalMainActivity()
+                    SetupSettingsFragmentDirections.actionSetupSettingsFragmentToMainActivity()
                         .setData(
                             JSONParser.serializer(viewModel.locationData, LocationData::class.java)
-                        ),
-                    opts.build()
+                        )
                 )
 
                 // We have an invalid widget id but just in case
                 setResult(Activity.RESULT_CANCELED)
-                finishAffinity()
+                finish()
             } else {
                 // Create return intent
                 val resultValue = Intent().apply {

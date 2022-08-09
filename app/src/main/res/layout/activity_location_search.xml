@@ -16,21 +16,20 @@
 <!-- Layout parameters are set programmatically. -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.LocationSearchActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/root_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground"
-        android:transitionName="shared_element_container"
-        android:fitsSystemWindows="@bool/enable_fitsSystemWindows">
+        android:transitionName="shared_element_container">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="@bool/enable_fitsSystemWindows"
             app:liftOnScroll="true"
             app:liftOnScrollTargetViewId="@id/recycler_view"
             tools:stateListAnimator="@null">
@@ -39,10 +38,12 @@
                 android:id="@+id/search_bar"
                 layout="@layout/search_action_bar" />
 
-            <com.google.android.material.divider.MaterialDivider
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/search_progressBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.MaterialDivider" />
+                android:indeterminate="false"
+                app:trackThickness="@dimen/material_divider_thickness" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

@@ -15,7 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.transition.MaterialSharedAxis
+import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.common.controls.*
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver

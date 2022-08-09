@@ -20,14 +20,14 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.os.Build.VERSION_CODES;
+import android.transition.TransitionValues;
+import android.transition.Visibility;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.transition.TransitionValues;
-import androidx.transition.Visibility;
 
 /**
  * A {@link Visibility} {@link androidx.transition.Transition} that provides a scale.

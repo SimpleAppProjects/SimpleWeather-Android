@@ -9,10 +9,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -22,6 +23,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -32,12 +34,9 @@ import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import androidx.transition.AutoTransition
-import androidx.transition.TransitionManager
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
@@ -47,27 +46,30 @@ import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
-import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.preferences.SliderPreference
 import com.thewizrd.common.utils.glide.TransparentOverlay
+import com.thewizrd.common.viewmodels.LocationSearchResult
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
-import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ContextUtils.isLandscape
 import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.activities.LocationSearch
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
 import com.thewizrd.simpleweather.preferences.ArrayListPreference
 import com.thewizrd.simpleweather.preferences.ToolbarPreferenceFragmentCompat
@@ -76,7 +78,6 @@ import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreferenceDia
 import com.thewizrd.simpleweather.services.WidgetWorker
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.snackbar.Snackbar
-import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import com.thewizrd.simpleweather.widgets.*
 import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder.OnAppSelectedListener
 import com.thewizrd.simpleweather.widgets.WidgetUtils.WidgetBackground
@@ -87,7 +88,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -106,9 +106,9 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
     // Location Search
     private lateinit var favorites: MutableCollection<LocationData>
-    private var query_vm: LocationQuery? = null
+    private var mSearchLocation: LocationQuery? = null
+    private lateinit var locationSearchLauncher: ActivityResultLauncher<Void?>
 
-    private lateinit var locationProvider: LocationProvider
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     private lateinit var wallpaperPermissionLauncher: ActivityResultLauncher<String>
@@ -204,9 +204,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             this.getThemeContextOverride(!this.isNightMode())
         }
 
-        // Location Listener
-        locationProvider = LocationProvider(requireActivity())
-
         locationPermissionLauncher = LocationPermissionLauncher(
             this,
             locationCallback = { granted ->
@@ -244,6 +241,41 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 }
             }
         )
+
+        locationSearchLauncher = registerForActivityResult(LocationSearch()) { result ->
+            when (result) {
+                is LocationSearchResult.AlreadyExists -> {
+                    if (result.data.isValid) {
+                        val idx = locationPref.findIndexOfValue(result.data.query)
+                        if (idx > 0) {
+                            locationPref.setValueIndex(idx)
+                            locationPref.callChangeListener(result.data.query)
+                        }
+                    }
+                }
+                is LocationSearchResult.Success -> {
+                    if (result.data.isValid) {
+                        LocationQuery(result.data).also {
+                            val item = ComboBoxItem(it.locationName, it.locationQuery)
+                            val idx = locationPref.entryCount - 1
+
+                            locationPref.insertEntry(idx, item.display, item.value)
+                            locationPref.setValueIndex(idx)
+
+                            if (locationPref.entryCount > MAX_LOCATIONS) {
+                                locationPref.removeEntry(locationPref.entryCount - 1)
+                            }
+                            mSearchLocation = it
+
+                            locationPref.callChangeListener(item.value)
+                        }
+                    }
+                }
+                is LocationSearchResult.Failed -> {
+                    mSearchLocation = null
+                }
+            }
+        }
 
         wallpaperPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -380,14 +412,13 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                 val selectedValue = newValue as CharSequence
                 if (Constants.KEY_SEARCH.contentEquals(selectedValue)) {
                     // Setup search UI
-                    view?.findNavController()
-                        ?.safeNavigate(WeatherWidgetPreferenceFragmentDirections.actionWeatherWidgetPreferenceFragmentToLocationSearchFragment2())
-                    query_vm = null
+                    locationSearchLauncher.launch()
+                    mSearchLocation = null
                     binding.bgLocationLayout.visibility = View.GONE
                     return@OnPreferenceChangeListener false
                 } else if (Constants.KEY_GPS.contentEquals(selectedValue)) {
                     mLastSelectedValue = null
-                    query_vm = null
+                    mSearchLocation = null
                     if (!pref.context.backgroundLocationPermissionEnabled()) {
                         binding.bgLocationLayout.visibility = View.VISIBLE
                     }
@@ -707,46 +738,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
         args = WeatherWidgetPreferenceFragmentArgs.fromBundle(requireArguments())
 
-        val savedStateHandle = view.findNavController().currentBackStackEntry?.savedStateHandle
-        savedStateHandle?.getLiveData<String>(Constants.KEY_DATA)
-            ?.observe(viewLifecycleOwner) { result ->
-                // Do something with the result.
-                if (result != null) {
-                    // Save data
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        val data = withContext(Dispatchers.IO) {
-                            JSONParser.deserializer(result, LocationData::class.java)
-                        }
-
-                        if (data != null) {
-                            query_vm =
-                                LocationQuery(
-                                    data
-                                )
-                            val item =
-                                ComboBoxItem(
-                                    query_vm!!.locationName,
-                                    query_vm!!.locationQuery
-                                )
-                            val idx = locationPref.entryCount - 1
-
-                            locationPref.insertEntry(idx, item.display, item.value)
-                            locationPref.setValueIndex(idx)
-
-                            if (locationPref.entryCount > MAX_LOCATIONS) {
-                                locationPref.removeEntry(locationPref.entryCount - 1)
-                            }
-
-                            locationPref.callChangeListener(item.value)
-
-                                savedStateHandle.remove(Constants.KEY_DATA)
-                            } else {
-                                query_vm = null
-                            }
-                        }
-                    }
-            }
-
         initializeWidget()
 
         // Resize necessary views
@@ -951,7 +942,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Reset to last selected item
-        if (query_vm == null && mLastSelectedValue != null)
+        if (mSearchLocation == null && mLastSelectedValue != null)
             locationPref.value = mLastSelectedValue.toString()
 
         super.onSaveInstanceState(outState)
@@ -1098,7 +1089,7 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                             val lastGPSLocData = settingsManager.getLastGPSLocData()
 
                             // Check if last location exists
-                            if ((lastGPSLocData == null || !lastGPSLocData.isValid) && !updateLocation()) {
+                            if ((lastGPSLocData == null || !lastGPSLocData.isValid) /*&& !updateLocation()*/) {
                                 throw CustomException(R.string.error_retrieve_location)
                             }
 
@@ -1159,10 +1150,11 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
                             if (locData == null || locationItemValue != locData.query) {
                                 // Get location data
                                 val itemValue = locationPref.value
-                                locData = favorites.firstOrNull { input -> input.query == itemValue }
+                                locData =
+                                    favorites.firstOrNull { input -> input.query == itemValue }
 
-                                if (locData == null && query_vm != null) {
-                                    locData = query_vm!!.toLocationData()
+                                if (locData == null && mSearchLocation != null) {
+                                    locData = mSearchLocation!!.toLocationData()
 
                                     if (!locData.isValid) {
                                         return@async null
@@ -1252,80 +1244,6 @@ class WeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
             setResult(Activity.RESULT_OK, resultValue)
             finish()
         }
-    }
-
-    @SuppressLint("MissingPermission")
-    @Throws(CustomException::class)
-    private suspend fun updateLocation(): Boolean {
-        var locationChanged = false
-
-        activity?.run {
-            if (!locationPermissionEnabled()) {
-                return@updateLocation false
-            }
-        }
-
-        val locMan = activity?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-
-        if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-            throw CustomException(R.string.error_enable_location_services)
-        }
-
-        var location = withContext(Dispatchers.IO) {
-            val result: Location? = try {
-                withTimeoutOrNull(5000) {
-                    locationProvider.getLastLocation()
-                }
-            } catch (e: Exception) {
-                null
-            }
-            result
-        }
-
-        if (!coroutineContext.isActive) return false
-
-        /* Get current location from provider */
-        if (location == null) {
-            location = withTimeoutOrNull(30000) {
-                locationProvider.getCurrentLocation()
-            }
-        }
-
-        if (location != null && coroutineContext.isActive) {
-            var query_vm: LocationQuery? = null
-
-            try {
-                query_vm = withContext(Dispatchers.IO) {
-                    wm.getLocation(location)
-                }
-            } catch (e: WeatherException) {
-                throw e
-            }
-
-            if (query_vm == null || query_vm.locationQuery.isNullOrBlank()) {
-                // Stop since there is no valid query
-                return false
-            } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
-                val tzId = weatherModule.tzdbService.getTimeZone(
-                    query_vm.locationLat,
-                    query_vm.locationLong
-                )
-
-                if ("unknown" != tzId)
-                    query_vm.locationTZLong = tzId
-            }
-
-            if (!coroutineContext.isActive) return false
-
-            // Save location as last known
-            settingsManager.saveLastGPSLocData(query_vm.toLocationData(location))
-
-            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
-
-            locationChanged = true
-        }
-
-        return locationChanged
     }
 
     @SuppressLint("RestrictedApi")

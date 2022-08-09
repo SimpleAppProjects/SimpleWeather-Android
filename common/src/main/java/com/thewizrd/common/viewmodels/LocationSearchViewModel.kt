@@ -23,12 +23,28 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+sealed interface LocationSearchResult {
+    val data: LocationData?
+
+    data class Success(
+        override val data: LocationData
+    ) : LocationSearchResult
+
+    data class AlreadyExists(
+        override val data: LocationData
+    ) : LocationSearchResult
+
+    data class Failed(
+        override val data: LocationData?
+    ) : LocationSearchResult
+}
+
 data class LocationSearchUiState(
     val isLoading: Boolean = false,
     val errorMessages: List<ErrorMessage> = emptyList(),
     val locations: List<LocationQuery> = emptyList(),
     val currentLocation: LocationData? = null,
-    val selectedSearchLocation: LocationData? = null
+    val selectedSearchLocation: LocationSearchResult? = null
 )
 
 class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
@@ -264,15 +280,17 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
 
             // Check if location already exists
             val locData = settingsManager.getLocationData()
-            var loc = locData.find { input -> input.query == queryResult.locationQuery }
+            val loc = locData.find { input -> input.query == queryResult.locationQuery }
 
-            if (loc == null) {
+            val result = if (loc == null) {
                 // Location does not exist
-                loc = queryResult.toLocationData()
+                LocationSearchResult.Success(queryResult.toLocationData())
+            } else {
+                LocationSearchResult.AlreadyExists(loc)
             }
 
             viewModelState.update {
-                it.copy(selectedSearchLocation = loc, isLoading = false)
+                it.copy(selectedSearchLocation = result, isLoading = false)
             }
         }
     }

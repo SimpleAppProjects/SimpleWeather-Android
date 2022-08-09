@@ -586,11 +586,11 @@ class SettingsManager(context: Context) {
         editor.commit()
     }
 
-    fun getLastGPSLocation(): String? {
+    private fun getLastGPSLocation(): String? {
         return preferences.getString(KEY_LASTGPSLOCATION, null)
     }
 
-    fun setLastGPSLocation(value: String?) {
+    private fun setLastGPSLocation(value: String?) {
         editor.putString(KEY_LASTGPSLOCATION, value)
         editor.commit()
     }

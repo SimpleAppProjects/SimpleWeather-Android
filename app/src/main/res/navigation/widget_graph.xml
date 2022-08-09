@@ -8,9 +8,6 @@
         android:id="@+id/weatherWidgetPreferenceFragment"
         android:name="com.thewizrd.simpleweather.widgets.preferences.WeatherWidgetPreferenceFragment"
         android:label="WeatherWidgetPreferenceFragment">
-        <action
-            android:id="@+id/action_weatherWidgetPreferenceFragment_to_locationSearchFragment2"
-            app:destination="@id/locationSearchFragment2" />
         <argument
             android:name="appWidgetId"
             app:argType="integer"
@@ -26,8 +23,4 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
-    <fragment
-        android:id="@+id/locationSearchFragment2"
-        android:name="com.thewizrd.simpleweather.fragments.LocationSearchFragment"
-        android:label="LocationSearchFragment" />
 </navigation>

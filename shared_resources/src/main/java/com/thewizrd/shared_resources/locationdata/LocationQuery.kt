@@ -32,6 +32,8 @@ class LocationQuery {
                 updateWeatherSource(weatherSource)
             }
         }
+
+        val EMPTY by lazy { LocationQuery() }
     }
 
     var locationName: String?

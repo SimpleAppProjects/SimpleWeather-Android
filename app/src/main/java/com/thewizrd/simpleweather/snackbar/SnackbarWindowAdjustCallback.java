@@ -8,8 +8,8 @@ import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
 
 public class SnackbarWindowAdjustCallback extends Snackbar.Callback {
-    private Activity mActivity;
-    private int softInputMode;
+    private final Activity mActivity;
+    private final int softInputMode;
 
     public SnackbarWindowAdjustCallback(@NonNull Activity parentActivity) {
         mActivity = parentActivity;

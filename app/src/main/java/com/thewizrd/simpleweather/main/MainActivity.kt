@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,6 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
-import androidx.transition.TransitionManager
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.thewizrd.common.utils.ActivityUtils.setFullScreen
@@ -226,18 +226,16 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             mNavController = getNavController()
 
             getNavBar()?.setupWithNavController(mNavController!!)
-            mNavController!!.addOnDestinationChangedListener { controller, destination, arguments ->
+            mNavController!!.addOnDestinationChangedListener { _, destination, _ ->
                 refreshNavViewCheckedItem()
 
                 if (destination.id == R.id.weatherNowFragment || destination.id == R.id.locationsFragment) {
                     getNavBar()?.visibility = View.VISIBLE
                 } else {
                     getNavBar()?.postOnAnimationDelayed({
-                        if (destination.id == R.id.locationSearchFragment3 || destination.id == R.id.weatherNowFragment) {
+                        if (destination.id == R.id.weatherNowFragment) {
                             TransitionManager.beginDelayedTransition((binding.root as ViewGroup))
                         }
-                        getNavBar()?.visibility =
-                            if (destination.id == R.id.locationSearchFragment) View.GONE else View.VISIBLE
                     }, (Constants.ANIMATION_DURATION * 1.5f).toLong())
                 }
             }

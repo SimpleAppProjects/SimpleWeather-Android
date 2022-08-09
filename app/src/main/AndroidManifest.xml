@@ -69,6 +69,13 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.LocationSearchActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppTheme.Dialog"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustNothing"
+            android:exported="false"
+            android:resizeableActivity="true" />
 
         <receiver
             android:name=".widgets.WeatherWidgetProvider1x1"

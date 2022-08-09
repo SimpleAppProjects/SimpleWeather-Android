@@ -57,7 +57,9 @@ class LocationSearchFragment : SwipeDismissFragment() {
 
     private val recyclerClickListener = object : ListAdapterOnClickInterface<LocationQuery> {
         override fun onClick(view: View, item: LocationQuery) {
-            locationSearchViewModel.onLocationSelected(item)
+            if (item != LocationQuery.EMPTY) {
+                locationSearchViewModel.onLocationSelected(item)
+            }
         }
     }
 

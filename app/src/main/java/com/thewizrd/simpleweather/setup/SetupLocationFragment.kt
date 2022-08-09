@@ -5,23 +5,31 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.launch
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
-import androidx.navigation.navGraphViewModels
 import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.transition.Hold
-import com.google.android.material.transition.MaterialSharedAxis
+import com.google.android.material.transition.platform.MaterialSharedAxis
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.common.viewmodels.LocationSearchResult
 import com.thewizrd.common.viewmodels.LocationSearchViewModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
+import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.activities.LocationSearch
 import com.thewizrd.simpleweather.databinding.FragmentSetupLocationBinding
 import com.thewizrd.simpleweather.fragments.CustomFragment
 import com.thewizrd.simpleweather.snackbar.Snackbar
@@ -42,11 +50,12 @@ class SetupLocationFragment : CustomFragment() {
     private lateinit var binding: FragmentSetupLocationBinding
 
     private val viewModel: SetupViewModel by activityViewModels()
-    private val locationSearchViewModel: LocationSearchViewModel by navGraphViewModels("/locations")
+    private val locationSearchViewModel: LocationSearchViewModel by viewModels()
 
     private var job: Job? = null
 
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
+    private lateinit var locationSearchLauncher: ActivityResultLauncher<Void?>
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
         val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
@@ -60,9 +69,6 @@ class SetupLocationFragment : CustomFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SetupLocation: onCreate")
-
-        // Hold fragment in place for MaterialContainerTransform
-        exitTransition = Hold().setDuration(Constants.ANIMATION_DURATION.toLong())
 
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
@@ -87,33 +93,41 @@ class SetupLocationFragment : CustomFragment() {
                 }
             }
         )
+
+        locationSearchLauncher = registerForActivityResult(LocationSearch()) { result ->
+            when (result) {
+                is LocationSearchResult.AlreadyExists,
+                is LocationSearchResult.Success -> {
+                    lifecycleScope.launch {
+                        result.data?.takeIf { it.isValid }?.let {
+                            onLocationReceived(it)
+                        }
+                    }
+                }
+                is LocationSearchResult.Failed -> {
+                    // no-op
+                }
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSetupLocationBinding.inflate(inflater, container, false)
 
-        binding.progressBar.visibility = View.GONE
-
         /* Event Listeners */
-        binding.searchBar.searchViewContainer.setOnClickListener { v ->
-            v.isEnabled = false
-            binding.gpsFollow.isEnabled = false
-
-            // Setup search UI
-            activity?.let {
-                val bottomNavBar = it.findViewById<View>(R.id.bottom_nav_bar)
-                bottomNavBar.visibility = View.GONE
-
-                v.findNavController()
-                    .safeNavigate(
-                        SetupLocationFragmentDirections.actionSetupLocationFragmentToLocationSearchFragment3(),
-                        FragmentNavigator.Extras.Builder()
-                            .addSharedElement(v, Constants.SHARED_ELEMENT)
-                            .build()
-                    )
-            }
+        binding.searchBar.searchViewContainer.setOnClickListener {
+            locationSearchLauncher.launch(
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    requireActivity(),
+                    it,
+                    Constants.SHARED_ELEMENT
+                )
+            )
         }
-        ViewCompat.setTransitionName(binding.searchBar.searchViewContainer, Constants.SHARED_ELEMENT)
+        ViewCompat.setTransitionName(
+            binding.searchBar.searchViewContainer,
+            Constants.SHARED_ELEMENT
+        )
 
         binding.gpsFollow.setOnClickListener { fetchGeoLocation() }
 
@@ -126,16 +140,16 @@ class SetupLocationFragment : CustomFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val navController = view.findNavController()
+        viewLifecycleOwner.lifecycleScope.launch {
+            locationSearchViewModel.isLoading.collect { loading ->
+                binding.progressBar.isVisible = loading
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             locationSearchViewModel.selectedSearchLocation.collectLatest { location ->
-                if (location?.isValid == true) {
-                    // Setup complete
-                    viewModel.locationData = location
-                    navController.safeNavigate(
-                        SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
-                    )
+                location?.data?.takeIf { it.isValid }?.let {
+                    onLocationReceived(it)
                 }
             }
         }
@@ -143,27 +157,7 @@ class SetupLocationFragment : CustomFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationSearchViewModel.currentLocation.collectLatest { location ->
                 if (location?.isValid == true) {
-                    // Save weather data
-                    settingsManager.saveLastGPSLocData(location)
-                    settingsManager.deleteLocations()
-                    settingsManager.addLocation(location)
-
-                    settingsManager.setFollowGPS(true)
-                    settingsManager.setWeatherLoaded(true)
-
-                    // Send data for wearables
-                    context?.let {
-                        WearableWorker.enqueueAction(
-                            it,
-                            WearableWorkerActions.ACTION_SENDUPDATE
-                        )
-                    }
-
-                    // Setup complete
-                    viewModel.locationData = location
-                    navController.safeNavigate(
-                        SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
-                    )
+                    onLocationReceived(location)
                 }
             }
         }
@@ -177,6 +171,36 @@ class SetupLocationFragment : CustomFragment() {
                 }
             }
         }
+    }
+
+    private suspend fun onLocationReceived(location: LocationData) {
+        settingsManager.deleteLocations()
+
+        if (location.locationType == LocationType.GPS) {
+            settingsManager.saveLastGPSLocData(location)
+            settingsManager.addLocation(LocationQuery(location).toLocationData())
+            settingsManager.setFollowGPS(true)
+        } else {
+            settingsManager.saveLastGPSLocData(null)
+            settingsManager.addLocation(location)
+            settingsManager.setFollowGPS(false)
+        }
+
+        settingsManager.setWeatherLoaded(true)
+
+        // Send data for wearables
+        context?.let {
+            WearableWorker.enqueueAction(
+                it,
+                WearableWorkerActions.ACTION_SENDUPDATE
+            )
+        }
+
+        // Setup complete
+        viewModel.locationData = location
+        view?.findNavController()?.safeNavigate(
+            SetupLocationFragmentDirections.actionSetupLocationFragmentToSetupSettingsFragment()
+        )
     }
 
     override fun onDestroyView() {

@@ -10,20 +10,15 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.extras.checkPremiumStatus
 import com.thewizrd.simpleweather.main.MainActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.updates.InAppUpdateManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LaunchActivity : ComponentActivity() {
     companion object {
@@ -109,15 +104,10 @@ class LaunchActivity : ComponentActivity() {
         try {
             intent =
                 if (settingsManager.isWeatherLoaded() && settingsManager.isOnBoardingComplete()) {
-                    Intent(this, MainActivity::class.java)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .putExtra(Constants.KEY_DATA, withContext(Dispatchers.Default) {
-                            JSONParser.serializer(
-                                settingsManager.getHomeData(),
-                                LocationData::class.java
-                            )
-                        })
-                        .putExtra(Constants.FRAGTAG_HOME, true)
+                    Intent(this, MainActivity::class.java).apply {
+                        flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
                 } else {
                     Intent(this, SetupActivity::class.java)
                 }

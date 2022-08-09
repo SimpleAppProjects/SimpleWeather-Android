@@ -87,6 +87,7 @@
             android:indeterminate="true"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
+            android:visibility="gone"
             app:indicatorColor="@android:color/white"
             app:showProgressBarIfTrue="@{viewModel.uiState.loading}"
             app:layout_constraintEnd_toEndOf="parent"
