@@ -88,7 +88,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            app:isRefreshing="@{viewModel.uiState.loading}">
+            app:isRefreshing="@{viewModel.uiState.loading}"
+            app:invisibleIfTrueAnimated="@{viewModel.uiState.loading &amp;&amp; (viewModel.uiState.noLocationAvailable || StringUtils.isNullOrWhitespace(viewModel.weather.location))}">
 
             <com.thewizrd.simpleweather.controls.ObservableNestedScrollView
                 android:id="@+id/scrollView"
@@ -96,7 +97,6 @@
                 android:layout_height="wrap_content"
                 android:fillViewport="true"
                 android:scrollbars="vertical"
-                app:invisibleIfTrueAnimated="@{viewModel.uiState.loading &amp;&amp; (viewModel.uiState.noLocationAvailable || StringUtils.isNullOrWhitespace(viewModel.weather.location))}"
                 tools:visibility="visible">
 
                 <GridLayout

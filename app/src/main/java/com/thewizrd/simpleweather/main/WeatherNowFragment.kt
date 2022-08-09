@@ -145,10 +145,10 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
     private lateinit var locationPermissionLauncher: LocationPermissionLauncher
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 
     override fun createBannerManager(): BannerManager {
