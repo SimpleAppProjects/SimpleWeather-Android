@@ -484,6 +484,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                     linePaint.setColor(series.getColor(k));
                     mPaintBackground.setColor(ColorUtils.setAlphaComponent(series.getColor(k), 0x99));
 
+                    mLinePath.moveTo(visibleRect.left - LINE_CORNER_RADIUS, graphHeight);
                     if (drawGraphBackground) {
                         mPathBackground.moveTo(visibleRect.left - LINE_CORNER_RADIUS, graphHeight);
                     }
@@ -499,16 +500,6 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                         float endX = nextDot.x;
                         float endY = nextDot.y;
 
-                        drawingRect.set(visibleRect.left, dot.y, dot.x, dot.y);
-                        if (firstX == -1) {
-                            mLinePath.moveTo(visibleRect.left, dot.y);
-                            mLinePath.lineTo(dot.x, dot.y);
-                        }
-
-                        drawingRect.set(dot.x, dot.y, nextDot.x, nextDot.y);
-                        if (RectF.intersects(drawingRect, visibleRect))
-                            mLinePath.lineTo(nextDot.x, nextDot.y);
-
                         if (isDrawDataLabels()) {
                             // Draw top label
                             drwTextWidth = bottomTextPaint.measureText(entry.getLabel().toString());
@@ -519,10 +510,13 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
 
                         if (firstX == -1) {
                             firstX = visibleRect.left;
+
+                            mLinePath.moveTo(firstX - LINE_CORNER_RADIUS, startY);
                             if (drawGraphBackground)
                                 mPathBackground.lineTo(firstX - LINE_CORNER_RADIUS, startY);
                         }
 
+                        mLinePath.lineTo(startX, startY);
                         if (drawGraphBackground) {
                             mPathBackground.lineTo(startX, startY);
                         }
@@ -540,17 +534,17 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                                     textEntries.add(new TextEntry(nextEntry.getLabel().toString(), nextDot.x, nextDot.y - bottomTextHeight - bottomTextDescent));
                             }
 
-                            drawingRect.set(nextDot.x, nextDot.y, visibleRect.right, nextDot.y);
-
-                            if (RectF.intersects(drawingRect, visibleRect))
-                                mLinePath.lineTo(visibleRect.right, nextDot.y);
-
                             currentDot = nextDot;
 
+                            mLinePath.lineTo(endX, endY);
                             if (drawGraphBackground) {
                                 mPathBackground.lineTo(endX, endY);
                             }
                         }
+                    }
+
+                    if (currentDot != null) {
+                        mLinePath.lineTo(visibleRect.right + LINE_CORNER_RADIUS, currentDot.y);
                     }
 
                     canvas.drawPath(mLinePath, linePaint);
