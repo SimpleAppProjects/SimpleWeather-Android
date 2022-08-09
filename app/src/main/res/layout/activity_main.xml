@@ -17,7 +17,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:fitsSystemWindows="true"
-            tools:name="com.thewizrd.simpleweather.main.WeatherNowFragment" />
+            tools:name="com.thewizrd.simpleweather.main.WeatherNowFragment"
+            tools:layout="@layout/fragment_weather_now" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav_bar"
