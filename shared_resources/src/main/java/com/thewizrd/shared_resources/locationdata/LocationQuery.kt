@@ -102,6 +102,38 @@ class LocationQuery {
         weatherSource = API
         updateLocationQuery()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LocationQuery
+
+        if (locationName != other.locationName) return false
+        if (locationRegion != other.locationRegion) return false
+        if (locationCountry != other.locationCountry) return false
+        if (locationQuery != other.locationQuery) return false
+        if (locationLat != other.locationLat) return false
+        if (locationLong != other.locationLong) return false
+        if (locationTZLong != other.locationTZLong) return false
+        if (locationSource != other.locationSource) return false
+        if (weatherSource != other.weatherSource) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = locationName?.hashCode() ?: 0
+        result = 31 * result + (locationRegion?.hashCode() ?: 0)
+        result = 31 * result + (locationCountry?.hashCode() ?: 0)
+        result = 31 * result + (locationQuery?.hashCode() ?: 0)
+        result = 31 * result + locationLat.hashCode()
+        result = 31 * result + locationLong.hashCode()
+        result = 31 * result + (locationTZLong?.hashCode() ?: 0)
+        result = 31 * result + (locationSource?.hashCode() ?: 0)
+        result = 31 * result + (weatherSource?.hashCode() ?: 0)
+        return result
+    }
 }
 
 fun LocationQuery.toLocationData(type: LocationType = LocationType.SEARCH): LocationData {
