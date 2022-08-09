@@ -340,12 +340,12 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
 
         if (locationData?.isValid == true) {
             viewModelState.update {
-                it.copy(locationData = locationData)
+                it.copy(locationData = locationData, noLocationAvailable = false)
             }
             weatherDataLoader.updateLocation(locationData)
             refreshWeather(false)
         } else {
-            checkInvalidLocation()
+            checkInvalidLocation(locationData)
 
             viewModelState.update {
                 it.copy(isLoading = false)
@@ -353,10 +353,8 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun checkInvalidLocation() {
-        val locationData = getLocationData()
-
-        if (locationData?.isValid != true) {
+    private fun checkInvalidLocation(locationData: LocationData?) {
+        if (locationData == null || !locationData.isValid) {
             viewModelScope.launch {
                 withContext(Dispatchers.Default) {
                     Logger.writeLine(

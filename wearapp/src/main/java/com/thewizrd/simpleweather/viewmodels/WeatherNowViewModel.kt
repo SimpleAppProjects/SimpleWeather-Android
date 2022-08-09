@@ -175,12 +175,12 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
 
             if (locData?.isValid == true) {
                 viewModelState.update {
-                    it.copy(locationData = locData)
+                    it.copy(locationData = locData, noLocationAvailable = false)
                 }
                 weatherDataLoader.updateLocation(locData)
                 refreshWeather(false)
             } else {
-                checkInvalidLocation()
+                checkInvalidLocation(locData)
 
                 viewModelState.update {
                     it.copy(isLoading = false)
@@ -417,10 +417,8 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
         }
     }
 
-    private fun checkInvalidLocation() {
-        val locationData = getLocationData()
-
-        if (locationData?.isValid != true) {
+    private fun checkInvalidLocation(locationData: LocationData?) {
+        if (locationData == null || !locationData.isValid) {
             viewModelScope.launch {
                 withContext(Dispatchers.Default) {
                     Logger.writeLine(
@@ -522,7 +520,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                     }
 
                     if (locationData != null) {
-                        checkInvalidLocation()
+                        checkInvalidLocation(locationData)
                     } else {
                         viewModelState.update {
                             val errorMessages =
@@ -572,10 +570,13 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
             }
 
             if (locationData?.isValid == true) {
+                viewModelState.update {
+                    it.copy(noLocationAvailable = false)
+                }
                 weatherDataLoader.updateLocation(locationData)
                 loadSavedWeather(true)
             } else {
-                checkInvalidLocation()
+                checkInvalidLocation(locationData)
 
                 viewModelState.update {
                     it.copy(isLoading = false)
