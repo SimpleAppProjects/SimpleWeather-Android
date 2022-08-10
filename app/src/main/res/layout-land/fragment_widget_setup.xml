@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <merge
+        tools:parentTag="androidx.coordinatorlayout.widget.CoordinatorLayout"
+        tools:showIn="@layout/fragment_settings"
+        tools:context=".widgets.WeatherWidgetConfigActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:clipToPadding="false"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:id="@+id/layout_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:descendantFocusability="blocksDescendants">
+
+                    <FrameLayout
+                        android:id="@+id/widget_frame"
+                        android:layout_width="match_parent"
+                        android:layout_height="96dp">
+
+                        <ImageView
+                            android:id="@+id/widget_background"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:importantForAccessibility="no"
+                            android:scaleType="centerCrop"
+                            android:src="#242424" />
+
+                        <com.thewizrd.simpleweather.widgets.WidgetPreviewLayout
+                            android:id="@+id/widget_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center" />
+
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/bg_location_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:padding="8dp"
+                        android:layout_gravity="center_horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/bg_location_rationale_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/bg_location_permission_rationale_settings" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bg_location_settings_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_gravity="center_horizontal"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:text="@string/action_settings" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/widget_complete_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.Material3.Button"
+                        app:cornerRadius="32dp"
+                        android:layout_gravity="center_horizontal"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:minWidth="180dp"
+                        android:text="@string/abc_action_mode_done" />
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </LinearLayout>
+
+    </merge>
+
+</layout>

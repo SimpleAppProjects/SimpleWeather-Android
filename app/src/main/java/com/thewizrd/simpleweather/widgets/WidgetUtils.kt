@@ -314,7 +314,7 @@ object WidgetUtils {
         cleanupWidgetIds()
     }
 
-    fun removeWidgetId(location_query: String, widgetId: Int) {
+    fun removeWidgetId(location_query: String, widgetId: Int, deletePrefs: Boolean = true) {
         val listJson = widgetPrefs.getString(location_query, "")
         if (!listJson.isNullOrBlank()) {
             val idList = JSONParser.deserializer<MutableList<Int>>(listJson, mutableListType<Int>())
@@ -329,7 +329,10 @@ object WidgetUtils {
                 }
             }
         }
-        deletePreferences(widgetId)
+
+        if (deletePrefs) {
+            deletePreferences(widgetId)
+        }
     }
 
     private fun deletePreferences(widgetId: Int) {

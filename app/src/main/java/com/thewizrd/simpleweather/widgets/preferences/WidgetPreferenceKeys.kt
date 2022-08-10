@@ -22,5 +22,6 @@ internal const val KEY_FORECASTOPTION = "key_fcastoption"
 internal const val KEY_TAP2SWITCH = "key_tap2switch"
 internal const val KEY_GRAPHTYPEOPTION = "key_graphtypeoption"
 
+internal const val KEY_CATCUSTOMSIZE = "key_custom_size"
 internal const val KEY_TEXTSIZE = "key_textsize"
 internal const val KEY_ICONSIZE = "key_iconsize"

@@ -59,7 +59,7 @@
             android:resizeableActivity="true" />
         <activity
             android:name=".widgets.WeatherWidgetConfigActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_widget_config"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"

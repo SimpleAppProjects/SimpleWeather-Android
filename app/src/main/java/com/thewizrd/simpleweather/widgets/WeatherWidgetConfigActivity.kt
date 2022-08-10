@@ -5,10 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.navigation.fragment.NavHostFragment
 import com.thewizrd.common.utils.ActivityUtils.setFullScreen
 import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.di.settingsManager
@@ -22,6 +22,7 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityWidgetSetupBinding
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.widgets.preferences.WeatherWidget4x3LocationFragment
+import com.thewizrd.simpleweather.widgets.preferences.WeatherWidgetPreferenceFragment
 
 class WeatherWidgetConfigActivity : UserLocaleActivity() {
     private var mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
@@ -47,21 +48,30 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // If they gave us an intent without the widget id, just bail.
             finish()
+            return
         }
 
         binding = ActivityWidgetSetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            if (isSmallestWidth(600)) {
-                binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            binding.fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = sysBarInsets.left
+                rightMargin = sysBarInsets.right
+                if (isSmallestWidth(600)) {
                     topMargin = sysBarInsets.top
                     bottomMargin = sysBarInsets.bottom
                 }
             }
 
-            insets
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(
+                    WindowInsetsCompat.Type.systemBars(),
+                    Insets.of(0, sysBarInsets.top, 0, sysBarInsets.bottom)
+                )
+                .build()
         }
 
         var color = getAttrColor(android.R.attr.colorBackground)
@@ -78,44 +88,36 @@ class WeatherWidgetConfigActivity : UserLocaleActivity() {
 
         val mWidgetType = WidgetUtils.getWidgetTypeFromID(mAppWidgetId)
 
-        if (mWidgetType == WidgetType.Widget4x3Locations) {
-            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-            if (fragment == null) {
-                supportFragmentManager.beginTransaction()
-                    .replace(
-                        R.id.fragment_container,
-                        WeatherWidget4x3LocationFragment.newInstance(mAppWidgetId)
-                    )
-                    .commit()
-            }
-        } else {
-            val args = Bundle().apply {
-                putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-            }
+        val args = Bundle().apply {
+            putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
 
             if (intent?.extras != null) {
-                args.putAll(intent.extras)
+                putAll(intent.extras)
             }
 
-            if (intent?.extras?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == false && WidgetUtils.exists(
+            if (!containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) && WidgetUtils.exists(
                     mAppWidgetId
                 )
             ) {
                 WidgetUtils.getLocationData(mAppWidgetId)?.let {
-                    args.putString(WeatherWidgetProvider.EXTRA_LOCATIONNAME, it.name)
-                    args.putString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, it.query)
+                    putString(WeatherWidgetProvider.EXTRA_LOCATIONNAME, it.name)
+                    putString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY, it.query)
                 }
             }
+        }
 
-            val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-
-            if (fragment == null) {
-                val hostFragment = NavHostFragment.create(R.navigation.widget_graph, args)
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, hostFragment)
-                    .setPrimaryNavigationFragment(hostFragment)
-                    .commit()
+        if (supportFragmentManager.findFragmentById(R.id.fragment_container) == null) {
+            val fragment = if (mWidgetType == WidgetType.Widget4x3Locations) {
+                WeatherWidget4x3LocationFragment()
+            } else {
+                WeatherWidgetPreferenceFragment()
+            }.apply {
+                arguments = args
             }
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit()
         }
 
         // Update configuration

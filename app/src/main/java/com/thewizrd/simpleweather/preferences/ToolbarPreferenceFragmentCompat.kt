@@ -34,10 +34,10 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
         get() = binding.toolbar
 
     override fun createSnackManager(activity: Activity): SnackbarManager? {
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 
     @get:StringRes
@@ -55,7 +55,6 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        val root: ViewGroup = binding.coordinatorLayout
         val inflatedView = super.onCreateView(inflater, container, savedInstanceState)
 
         binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
@@ -65,9 +64,9 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         lp.behavior = ScrollingViewBehavior()
-        root.addView(inflatedView, lp)
+        binding.root.addView(inflatedView, lp)
 
-        return root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
