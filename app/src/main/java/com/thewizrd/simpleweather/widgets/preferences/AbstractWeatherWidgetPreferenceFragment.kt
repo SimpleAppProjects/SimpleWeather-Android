@@ -288,6 +288,10 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        savedInstanceState?.getBundle(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS)?.run {
+            mWidgetOptions.putAll(this)
+        }
+
         initializeWidget()
 
         // Resize necessary views
@@ -339,6 +343,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
+        outState.putBundle(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, mWidgetOptions)
     }
 
     protected open fun onLocationSearchResult(result: LocationSearchResult) {}
