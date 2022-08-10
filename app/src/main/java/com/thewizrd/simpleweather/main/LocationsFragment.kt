@@ -184,7 +184,12 @@ class LocationsFragment : ToolbarFragment() {
             when (result) {
                 is LocationSearchResult.AlreadyExists,
                 is LocationSearchResult.Success -> {
-                    locationsViewModel.refreshLocations()
+                    lifecycleScope.launch {
+                        result.data?.takeIf { it.isValid }?.let {
+                            settingsManager.addLocation(it)
+                        }
+                        locationsViewModel.refreshLocations()
+                    }
                 }
                 is LocationSearchResult.Failed,
                 null -> {
@@ -415,15 +420,12 @@ class LocationsFragment : ToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             locationsViewModel.weatherUpdatedFlow.collect {
                 if (it != null) {
-                    launch(Dispatchers.IO) {
-                        it.updateBackground()
+                    it.updateBackground()
 
-                        withContext(Dispatchers.Main) {
-                            mAdapter.notifyItemChanged(
-                                mAdapter.getViewPosition(it),
-                                LocationPanelAdapter.Payload.IMAGE_UPDATE
-                            )
-                        }
+                    binding.recyclerView.post {
+                        mAdapter.notifyItemChanged(
+                            mAdapter.getViewPosition(it)
+                        )
                     }
                 }
             }
@@ -431,7 +433,7 @@ class LocationsFragment : ToolbarFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                locationsViewModel.loadLocations()
+                locationsViewModel.refreshLocations()
             }
         }
     }

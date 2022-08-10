@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.controls
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -166,7 +167,7 @@ class LocationPanel : MaterialCardView {
                             .centerCropTransform()
                             .format(DecodeFormat.PREFER_RGB_565)
                             .error(null)
-                            .placeholder(null)
+                            .placeholder(ColorDrawable(Colors.LIGHTGRAY))
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .skipMemoryCache(skipCache)
                     )

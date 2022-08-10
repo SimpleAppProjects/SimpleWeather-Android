@@ -81,14 +81,14 @@
                 android:textAlignment="center"
                 android:textAppearance="?android:attr/textAppearanceInverse"
                 android:textSize="24sp"
-                app:showIfTrue="@{!viewModel.isWeatherValid}"
+                app:showIfTrue="@{!viewModel.isWeatherValid &amp;&amp; !viewModel.loading}"
                 app:autoSizeMaxTextSize="24sp"
                 app:autoSizeTextType="uniform"
                 app:locImageEnabled="@{FeatureSettings.locationPanelImageEnabled}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/location_name"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:textColor="?attr/colorOnSurface" />
 
             <androidx.appcompat.widget.AppCompatTextView

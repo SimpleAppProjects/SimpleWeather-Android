@@ -23,7 +23,6 @@ import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -39,6 +38,7 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
     private val errorCounter = BooleanArray(ErrorStatus.values().size)
 
     private val viewModelState = MutableStateFlow(LocationsUiState(isLoading = true))
+    private val weatherEventFlow = MutableSharedFlow<LocationPanelUiModel>()
 
     val uiState = viewModelState.stateIn(
         viewModelScope,
@@ -62,10 +62,9 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
         viewModelState.value.errorMessages
     )
 
-    private val weatherEventChannel = Channel<LocationPanelUiModel>()
-    val weatherUpdatedFlow = weatherEventChannel.receiveAsFlow().stateIn(
+    val weatherUpdatedFlow = weatherEventFlow.stateIn(
         viewModelScope,
-        SharingStarted.Lazily,
+        SharingStarted.Eagerly,
         null
     )
 
@@ -115,6 +114,7 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
         val locationMap = locations.associateWith { locData ->
             LocationPanelUiModel().apply {
                 locationData = locData
+                isLoading = true
             }
         }
 
@@ -145,8 +145,11 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.setWeather(entry.key, null)
-                        weatherEventChannel.trySend(entry.value)
+                        entry.value.apply {
+                            setWeather(entry.key, null)
+                            isLoading = false
+                        }
+                        weatherEventFlow.emit(entry.value)
                     }
                     is WeatherResult.NoWeather -> {
                         if (!errorCounter[ErrorStatus.NOWEATHER.ordinal]) {
@@ -160,12 +163,18 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.setWeather(entry.key, null)
-                        weatherEventChannel.trySend(entry.value)
+                        entry.value.apply {
+                            setWeather(entry.key, null)
+                            isLoading = false
+                        }
+                        weatherEventFlow.emit(entry.value)
                     }
                     is WeatherResult.Success -> {
-                        entry.value.setWeather(entry.key, result.data)
-                        weatherEventChannel.trySend(entry.value)
+                        entry.value.apply {
+                            setWeather(entry.key, result.data)
+                            isLoading = false
+                        }
+                        weatherEventFlow.emit(entry.value)
                     }
                     is WeatherResult.WeatherWithError -> {
                         // Show error message and only warn once
@@ -179,8 +188,11 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.setWeather(entry.key, result.data)
-                        weatherEventChannel.trySend(entry.value)
+                        entry.value.apply {
+                            setWeather(entry.key, result.data)
+                            isLoading = false
+                        }
+                        weatherEventFlow.emit(entry.value)
                     }
                 }
             }

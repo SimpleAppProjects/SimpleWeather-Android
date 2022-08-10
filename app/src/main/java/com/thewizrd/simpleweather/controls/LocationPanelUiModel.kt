@@ -58,6 +58,7 @@ class LocationPanelUiModel {
 
     var isEditMode = false
     var isChecked = false
+    var isLoading = false
 
     fun setWeather(locationData: LocationData, weather: Weather?) {
         if (weather != null && weather.isValid) {
@@ -177,5 +178,25 @@ class LocationPanelUiModel {
         if (imageData == null) {
             imageData = weather?.getImageData()
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LocationPanelUiModel
+
+        if (weather != other.weather) return false
+        if (imageData != other.imageData) return false
+        if (locationData != other.locationData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = weather?.hashCode() ?: 0
+        result = 31 * result + (imageData?.hashCode() ?: 0)
+        result = 31 * result + (locationData?.hashCode() ?: 0)
+        return result
     }
 }

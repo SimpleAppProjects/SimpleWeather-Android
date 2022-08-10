@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.thewizrd.common.helpers.ObservableArrayList
 import com.thewizrd.common.helpers.OnListChangedListener
@@ -35,8 +36,26 @@ import com.thewizrd.simpleweather.snackbar.SnackbarManager
 import kotlinx.coroutines.*
 import com.google.android.material.snackbar.Snackbar as MaterialSnackbar
 
-class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+private class LocationPanelDiffCallback(
+    private val oldList: List<LocationPanelUiModel>,
+    private val newList: List<LocationPanelUiModel>
+) : DiffUtil.Callback() {
+    override fun getOldListSize(): Int = oldList.size
+
+    override fun getNewListSize(): Int = newList.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].locationData == newList[newItemPosition].locationData
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition] == newList[newItemPosition]
+    }
+}
+
+class LocationPanelAdapter(
+    longClickListener: ViewHolderLongClickListener?
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     ItemTouchHelperAdapterInterface, LifecycleEventObserver {
     object Payload {
         const val IMAGE_UPDATE = 0
@@ -87,7 +106,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     private var onListChangedCallback: OnListChangedListener<LocationPanelUiModel>? = null
     private var onSelectionChangedCallback: OnListChangedListener<LocationPanelUiModel>? = null
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
+    private var scope = CoroutineScope(Job() + Dispatchers.Main.immediate)
 
     fun setOnClickListener(onClickListener: ListAdapterOnClickInterface<LocationPanelUiModel>?) {
         this.onClickListener = onClickListener
@@ -189,6 +208,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         super.onAttachedToRecyclerView(recyclerView)
         mParentRecyclerView = recyclerView
         mSnackMgr = SnackbarManager(recyclerView)
+        refreshScope()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -205,7 +225,17 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
 
             mSnackMgr?.dismissAll()
             mSnackMgr = null
+        } else if (event >= Lifecycle.Event.ON_START) {
+            mParentRecyclerView?.let {
+                mSnackMgr = SnackbarManager(it)
+            }
+            refreshScope()
         }
+    }
+
+    private fun refreshScope() {
+        scope.cancel()
+        scope = CoroutineScope(Dispatchers.Main.immediate + Job())
     }
 
     // Create new views (invoked by the layout manager)
@@ -213,7 +243,9 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         val context: Context = parent.context
         return when (viewType) {
             ItemType.HEADER_GPS -> {
-                GPSHeaderViewHolder(LayoutInflater.from(context).inflate(R.layout.locations_header, parent, false)).also {
+                GPSHeaderViewHolder(
+                    LayoutInflater.from(context).inflate(R.layout.locations_header, parent, false)
+                ).also {
                     gpsVH = it
                 }
             }
@@ -366,7 +398,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         return size
     }
 
-    fun getGPSPanel(): LocationPanelUiModel? {
+    private fun getGPSPanel(): LocationPanelUiModel? {
         if (hasGPSPanel) {
             val data = getPanelData(0)
             if (data?.locationType == LocationType.GPS) {
@@ -427,20 +459,21 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     }
 
     fun replaceAll(items: List<LocationPanelUiModel>) {
-        val size = itemCount
+        scope.launch {
+            val diffCallback = LocationPanelDiffCallback(mDataset, items)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
 
-        mDataset.clear()
-        notifyItemRangeRemoved(0, size)
+            mDataset.clear()
+            mDataset.addAll(items)
+            diffResult.dispatchUpdatesTo(this@LocationPanelAdapter)
 
-        mDataset.addAll(items)
-        notifyItemRangeInserted(0, items.size)
+            val containsGpsPanel = items.any { it.locationType == LocationType.GPS.value }
 
-        val containsGpsPanel = items.any { it.locationType == LocationType.GPS.value }
-
-        if (!hasGPSPanel && containsGpsPanel) {
-            hasGPSPanel = true
-        } else if (!hasSearchPanel) {
-            hasSearchPanel = true
+            if (!hasGPSPanel && containsGpsPanel) {
+                hasGPSPanel = true
+            } else if (!hasSearchPanel) {
+                hasSearchPanel = true
+            }
         }
     }
 
@@ -543,7 +576,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     }
 
     class GPSHeaderViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView), HeaderSetterInterface {
-        var header: TextView = itemView.findViewById(R.id.header)
+        private var header: TextView = itemView.findViewById(R.id.header)
 
         override fun setHeader() {
             header.setText(R.string.label_currentlocation)
@@ -555,7 +588,7 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
     }
 
     class FavHeaderViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView), HeaderSetterInterface {
-        var header: TextView = itemView.findViewById<TextView>(R.id.header)
+        private var header: TextView = itemView.findViewById(R.id.header)
 
         override fun setHeader() {
             header.setText(R.string.label_favoritelocations)
@@ -579,15 +612,15 @@ class LocationPanelAdapter(longClickListener: ViewHolderLongClickListener?) :
         private val panelPairs: MutableList<Pair<Int, LocationPanelUiModel>>
 
         constructor(panel: LocationPanelUiModel?) {
-            panelPairs = ArrayList<Pair<Int, LocationPanelUiModel>>(1)
-            panelPairs.add(Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel))
+            panelPairs = MutableList(1) {
+                Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel)
+            }
         }
 
         constructor(panels: List<LocationPanelUiModel>) {
-            panelPairs = ArrayList(panels.size)
-
-            for (panel in panels) {
-                panelPairs.add(Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel))
+            panelPairs = MutableList(panels.size) {
+                val panel = panels[it]
+                Pair<Int, LocationPanelUiModel>(mDataset.indexOf(panel), panel)
             }
         }
 
