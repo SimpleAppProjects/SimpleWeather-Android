@@ -69,11 +69,14 @@ import com.thewizrd.simpleweather.widgets.WidgetType
 import com.thewizrd.simpleweather.widgets.WidgetUtils
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.isActive
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
+import kotlin.random.Random
 
 abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     // Widget id for ConfigurationActivity
@@ -478,23 +481,85 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
             forecast = List(6) { index ->
                 Forecast().apply {
                     date = LocalDateTime.now().plusDays(index.toLong())
-                    highF = 75f
-                    highC = 23f
-                    lowF = 60f
-                    lowC = 15f
+                    highF = 70f + index
+                    highC = 23f + index / 2f
+                    lowF = 60f - index
+                    lowC = 17f - index / 2f
                     condition = getString(R.string.weather_sunny)
                     icon = WeatherIcons.DAY_SUNNY
+                    extras = ForecastExtras().apply {
+                        feelslikeF = 80f
+                        feelslikeC = 26f
+                        humidity = 50
+                        dewpointF = 30f
+                        dewpointC = -1f
+                        uvIndex = 5f
+                        pop = 35
+                        cloudiness = 25
+                        qpfRainIn = 0.05f
+                        qpfRainMm = 1.27f
+                        qpfSnowIn = 0f
+                        qpfSnowCm = 0f
+                        pressureIn = 30.05f
+                        pressureMb = 1018f
+                        windDegrees = 180
+                        windMph = 4f
+                        windKph = 6.43f
+                        windGustKph = 9f
+                        windGustKph = 14.5f
+                        visibilityMi = 10f
+                        visibilityKm = 16.1f
+                    }
                 }
             }
             hrForecast = List(6) { index ->
                 HourlyForecast().apply {
                     date = ZonedDateTime.now().plusHours(index.toLong())
-                    highF = 70f
-                    highC = 21f
+                    highF = 70f + index
+                    highC = 23f + index / 2f
                     condition = getString(R.string.weather_sunny)
                     icon = WeatherIcons.DAY_SUNNY
                     windMph = 5f
                     windKph = 8f
+                    extras = ForecastExtras().apply {
+                        feelslikeF = 80f
+                        feelslikeC = 26f
+                        humidity = 50
+                        dewpointF = 30f
+                        dewpointC = -1f
+                        uvIndex = 5f
+                        pop = 35
+                        cloudiness = 25
+                        qpfRainIn = 0.05f
+                        qpfRainMm = 1.27f
+                        qpfSnowIn = 0f
+                        qpfSnowCm = 0f
+                        pressureIn = 30.05f
+                        pressureMb = 1018f
+                        windDegrees = 180
+                        windMph = 4f
+                        windKph = 6.43f
+                        windGustKph = 9f
+                        windGustKph = 14.5f
+                        visibilityMi = 10f
+                        visibilityKm = 16.1f
+                    }
+                }
+            }
+            minForecast = List(10) {
+                val now = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES).let {
+                    it.withMinute(it.minute - (it.minute % 10))
+                }
+
+                MinutelyForecast().apply {
+                    date = now.plusMinutes(it.toLong() * 10)
+                    rainMm = Random.nextFloat()
+                }
+            }
+            aqiForecast = List(6) {
+                AirQuality().apply {
+                    date = LocalDate.now().plusDays(it.toLong())
+                    index = 10 * (it)
                 }
             }
             condition = Condition().apply {
@@ -515,6 +580,11 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
             atmosphere = Atmosphere()
             precipitation = Precipitation().apply {
                 pop = 15
+                cloudiness = 25
+                qpfRainIn = 0.05f
+                qpfRainMm = 1.27f
+                qpfSnowIn = 0f
+                qpfSnowCm = 0f
             }
             source = wm.getWeatherAPI()
             query = ""
