@@ -373,17 +373,29 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
         val widgetView = binding.widgetContainer.findViewById<View>(R.id.widget)
 
         if (!mWidgetViewCtx.isSmallestWidth(600) || !mWidgetViewCtx.isLandscape()) {
-            TransitionManager.beginDelayedTransition(
-                binding.widgetFrame.parent as ViewGroup,
-                AutoTransition().apply {
-                    addTarget(binding.widgetFrame)
-                })
+            if (mWidgetViewCtx.isLandscape()) {
+                TransitionManager.beginDelayedTransition(
+                    binding.widgetFrame.parent as ViewGroup,
+                    AutoTransition().apply {
+                        addTarget(binding.widgetFrame)
+                    })
 
-            binding.widgetFrame.updateLayoutParams {
-                height = min(
-                    widgetView.layoutParams.height * 1.25f,
-                    widgetView.context.dpToPx(360f)
-                ).roundToInt()
+                binding.widgetFrame.updateLayoutParams {
+                    height = widgetView.layoutParams.height.times(1.1f).roundToInt()
+                }
+            } else {
+                TransitionManager.beginDelayedTransition(
+                    binding.widgetFrame.parent as ViewGroup,
+                    AutoTransition().apply {
+                        addTarget(binding.widgetFrame)
+                    })
+
+                binding.widgetFrame.updateLayoutParams {
+                    height = min(
+                        widgetView.layoutParams.height * 1.25f,
+                        widgetView.context.dpToPx(360f)
+                    ).roundToInt()
+                }
             }
         }
     }
