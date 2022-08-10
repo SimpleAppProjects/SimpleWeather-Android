@@ -86,7 +86,9 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             // Reset value
             locationPref.value = null
 
-            if (arguments?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == true) {
+            if (!savedInstanceState?.getString(Constants.WIDGETKEY_LOCATION).isNullOrBlank()) {
+                locationPref.value = savedInstanceState?.getString(Constants.WIDGETKEY_LOCATION)
+            } else if (arguments?.containsKey(WeatherWidgetProvider.EXTRA_LOCATIONQUERY) == true) {
                 val locName = arguments?.getString(WeatherWidgetProvider.EXTRA_LOCATIONNAME)
                 val locQuery = arguments?.getString(WeatherWidgetProvider.EXTRA_LOCATIONQUERY)
 
@@ -413,8 +415,10 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Reset to last selected item
-        if (searchLocation == null && lastSelectedValue != null)
+        if (searchLocation == null && lastSelectedValue != null) {
             locationPref.value = lastSelectedValue.toString()
+        }
+        outState.putString(Constants.WIDGETKEY_LOCATION, locationPref.value)
 
         super.onSaveInstanceState(outState)
     }

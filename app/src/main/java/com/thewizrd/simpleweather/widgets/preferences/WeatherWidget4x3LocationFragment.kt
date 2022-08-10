@@ -69,8 +69,13 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
             // Reset value
             locationPref.values = emptySet()
 
-            WidgetUtils.getLocationDataSet(mAppWidgetId)?.let {
-                locationPref.values = it
+            if (!savedInstanceState?.getStringArray(Constants.WIDGETKEY_LOCATION).isNullOrEmpty()) {
+                locationPref.values =
+                    savedInstanceState?.getStringArray(Constants.WIDGETKEY_LOCATION)?.toSet()
+            } else {
+                WidgetUtils.getLocationDataSet(mAppWidgetId)?.let {
+                    locationPref.values = it
+                }
             }
 
             viewLifecycleOwnerLiveData.observe(
@@ -219,6 +224,18 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
                 initializeWidget()
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        // Reset to last selected item
+        if (!locationPref.values.isNullOrEmpty()) {
+            outState.putStringArray(
+                Constants.WIDGETKEY_LOCATION,
+                locationPref.values.toTypedArray()
+            )
+        }
+
+        super.onSaveInstanceState(outState)
     }
 
     override fun prepareWidget() {
