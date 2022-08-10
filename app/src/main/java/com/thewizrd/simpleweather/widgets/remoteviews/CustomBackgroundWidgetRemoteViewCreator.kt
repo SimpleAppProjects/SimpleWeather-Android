@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.alpha
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.GlideException
@@ -28,7 +30,6 @@ import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.viewmodels.getImageData
 import com.thewizrd.simpleweather.widgets.WidgetProviderInfo
 import com.thewizrd.simpleweather.widgets.WidgetUtils
-import com.thewizrd.simpleweather.widgets.WidgetUtils.getMaxBitmapSize
 import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLOR
 import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
 import com.thewizrd.simpleweather.widgets.preferences.KEY_BGSTYLE
@@ -172,32 +173,18 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                 )
                 updateViews.setInt(R.id.panda_container, "setBackgroundResource", 0)
             } else {
-                val maxBitmapSize = context.getMaxBitmapSize()
-
-                // Widget dimensions
-                val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-                val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-                val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
-                val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
-
-                var imgWidth = context.dpToPx(maxWidth.toFloat()).toInt()
-                var imgHeight = context.dpToPx(maxHeight.toFloat()).toInt()
-
-                if (imgHeight * imgWidth * 4 * 1.5f >= maxBitmapSize) {
-                    imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
-                    imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
-                }
-
-                updateViews.setImageViewBitmap(
+                updateViews.setImageViewResource(
                     R.id.widgetBackground,
-                    ImageUtils.fillColorRoundedCornerBitmap(
-                        backgroundColor,
-                        imgWidth,
-                        imgHeight,
-                        context.dpToPx(16f)
-                    )
+                    R.drawable.app_widget_background
+                )
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", backgroundColor.alpha)
+                updateViews.setInt(
+                    R.id.widgetBackground,
+                    "setColorFilter",
+                    ColorUtils.setAlphaComponent(backgroundColor, 0xFF)
                 )
             }
+
             updateViews.setInt(R.id.panda_background, "setColorFilter", Colors.TRANSPARENT)
             updateViews.setImageViewBitmap(R.id.panda_background, null)
             updateViews.removeAllViews(R.id.panda_container)

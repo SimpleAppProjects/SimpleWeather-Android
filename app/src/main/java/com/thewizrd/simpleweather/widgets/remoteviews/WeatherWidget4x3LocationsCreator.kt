@@ -8,6 +8,8 @@ import android.text.SpannableString
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.alpha
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
@@ -108,19 +110,15 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
                     ImageUtils.createColorBitmap(backgroundColor)
                 )
             } else {
-                // Widget dimensions
-                val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-                val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-
-                val imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
-                val imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
-
-                updateViews.setImageViewBitmap(
+                updateViews.setImageViewResource(
                     R.id.widgetBackground,
-                    ImageUtils.fillColorRoundedCornerBitmap(
-                        backgroundColor,
-                        imgWidth, imgHeight, context.dpToPx(16f)
-                    )
+                    R.drawable.app_widget_background
+                )
+                updateViews.setInt(R.id.widgetBackground, "setImageAlpha", backgroundColor.alpha)
+                updateViews.setInt(
+                    R.id.widgetBackground,
+                    "setColorFilter",
+                    ColorUtils.setAlphaComponent(backgroundColor, 0xFF)
                 )
             }
         }
@@ -294,25 +292,6 @@ class WeatherWidget4x3LocationsCreator(context: Context) :
         updateViews: RemoteViews,
         newOptions: Bundle
     ) {
-        val backgroundColor =
-            newOptions.get(KEY_BGCOLORCODE) as? Int ?: WidgetUtils.getBackgroundColor(appWidgetId)
-
-        if (backgroundColor != Colors.TRANSPARENT && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            // Widget dimensions
-            val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
-            val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-
-            val imgWidth = context.dpToPx(minWidth.toFloat()).toInt()
-            val imgHeight = context.dpToPx(minHeight.toFloat()).toInt()
-
-            updateViews.setImageViewBitmap(
-                R.id.widgetBackground,
-                ImageUtils.fillColorRoundedCornerBitmap(
-                    backgroundColor,
-                    imgWidth, imgHeight, context.dpToPx(16f)
-                )
-            )
-        }
     }
 
     private fun updateViewSizes(
