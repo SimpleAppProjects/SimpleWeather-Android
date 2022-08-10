@@ -3,6 +3,8 @@ package com.thewizrd.common.preferences
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.TextView
@@ -369,6 +371,78 @@ class SliderPreference : Preference {
             }
 
             normalizedValue
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState()
+        if (isPersistent) {
+            // No need to save instance state since it's persistent
+            return superState
+        }
+
+        // Save the instance state
+        val myState = SavedState(superState)
+        myState.mSeekBarValue = mSliderValue
+        myState.mMin = mMin
+        myState.mMax = mMax
+        return myState
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state == null || state.javaClass != SavedState::class.java) {
+            // Didn't save state for us in onSaveInstanceState
+            super.onRestoreInstanceState(state)
+            return
+        }
+
+        // Restore the instance state
+        val myState = state as SavedState
+        super.onRestoreInstanceState(myState.superState)
+        mSliderValue = myState.mSeekBarValue
+        mMin = myState.mMin
+        mMax = myState.mMax
+        notifyChanged()
+    }
+
+    /**
+     * SavedState, a subclass of [BaseSavedState], will store the state of this preference.
+     *
+     *
+     * It is important to always call through to super methods.
+     */
+    private class SavedState : BaseSavedState {
+        var mSeekBarValue = 0f
+        var mMin = 0f
+        var mMax = 0f
+
+        constructor(source: Parcel) : super(source) {
+
+            // Restore the click counter
+            mSeekBarValue = source.readFloat()
+            mMin = source.readFloat()
+            mMax = source.readFloat()
+        }
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            super.writeToParcel(dest, flags)
+
+            // Save the click counter
+            dest.writeFloat(mSeekBarValue)
+            dest.writeFloat(mMin)
+            dest.writeFloat(mMax)
+        }
+
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(`in`: Parcel): SavedState {
+                return SavedState(`in`)
+            }
+
+            override fun newArray(size: Int): Array<SavedState?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 }

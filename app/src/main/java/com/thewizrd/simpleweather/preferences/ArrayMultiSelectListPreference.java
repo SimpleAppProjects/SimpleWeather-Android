@@ -1,11 +1,14 @@
 package com.thewizrd.simpleweather.preferences;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.preference.ListPreference;
 import androidx.preference.MultiSelectListPreference;
@@ -15,6 +18,8 @@ import com.thewizrd.simpleweather.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -220,6 +225,71 @@ public class ArrayMultiSelectListPreference extends MultiSelectListPreference {
 
                 return sb;
             }
+        }
+    }
+
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final Parcelable superState = super.onSaveInstanceState();
+        if (isPersistent()) {
+            // No need to save instance state
+            return superState;
+        }
+
+        final SavedState myState = new SavedState(superState);
+        myState.mValues = getValues();
+        return myState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
+        if (state == null || !state.getClass().equals(SavedState.class)) {
+            // Didn't save state for us in onSaveInstanceState
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState myState = (SavedState) state;
+        super.onRestoreInstanceState(myState.getSuperState());
+        setValues(myState.mValues);
+    }
+
+    private static class SavedState extends BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+
+        Set<String> mValues;
+
+        SavedState(Parcel source) {
+            super(source);
+            final int size = source.readInt();
+            mValues = new HashSet<>();
+            String[] strings = new String[size];
+            source.readStringArray(strings);
+
+            Collections.addAll(mValues, strings);
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(mValues.size());
+            dest.writeStringArray(mValues.toArray(new String[mValues.size()]));
         }
     }
 }
