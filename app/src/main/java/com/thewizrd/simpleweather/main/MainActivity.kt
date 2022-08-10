@@ -342,7 +342,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             return true
         }
         return super.onOptionsItemSelected(item)

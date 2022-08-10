@@ -57,7 +57,9 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val inflatedView = super.onCreateView(inflater, container, savedInstanceState)
 
-        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener {
+            activity?.onBackPressedDispatcher?.onBackPressed()
+        }
 
         val lp = CoordinatorLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,

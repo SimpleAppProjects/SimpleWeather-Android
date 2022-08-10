@@ -58,7 +58,7 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
         swipeCallback = object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
                 layout.visibility = View.GONE
-                activity?.onBackPressed()
+                activity?.onBackPressedDispatcher?.onBackPressed()
             }
         }
         binding.swipeLayout.addCallback(swipeCallback)
