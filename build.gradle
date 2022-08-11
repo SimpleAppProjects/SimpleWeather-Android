@@ -9,12 +9,12 @@ buildscript {
         kotlin_version = '1.7.0'
         kotlinx_version = '1.6.4'
 
-        firebase_version = '30.3.0'
+        firebase_version = '30.3.2'
 
         appcompat_version = '1.6.0-alpha05'
         compose_compiler_version = '1.2.0'
         compose_version = '1.2.0-rc03'
-        nav_version = '2.5.0'
+        nav_version = '2.5.1'
         room_version = '2.5.0-alpha02'
 
         moshi_version = '1.13.0'
