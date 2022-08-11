@@ -124,8 +124,8 @@ class SetupActivity : UserLocaleActivity() {
 
         lifecycleScope.launch {
             locationSearchViewModel.selectedSearchLocation.collectLatest { location ->
-                if (location?.isValid == true) {
-                    settingsManager.updateLocation(location)
+                location?.data?.takeIf { it.isValid }?.let {
+                    settingsManager.updateLocation(it)
 
                     settingsManager.setFollowGPS(false)
                     settingsManager.setWeatherLoaded(true)
@@ -133,7 +133,7 @@ class SetupActivity : UserLocaleActivity() {
 
                     // Start WeatherNow Activity with weather data
                     val intent = Intent(this@SetupActivity, MainActivity::class.java).apply {
-                        putExtra(Constants.KEY_DATA, JSONParser.serializer(location))
+                        putExtra(Constants.KEY_DATA, JSONParser.serializer(it))
                     }
                     startActivity(intent)
                     finishAffinity()
