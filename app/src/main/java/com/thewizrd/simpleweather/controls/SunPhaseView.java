@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -178,20 +179,20 @@ public class SunPhaseView extends View {
         }
     }
 
-    public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset) {
+    public void setSunriseSetTimes(@NonNull LocalTime sunrise, @NonNull LocalTime sunset) {
         setSunriseSetTimes(sunrise, sunset, ZoneOffset.UTC);
     }
 
-    public void setSunriseSetTimes(LocalTime sunrise, LocalTime sunset, ZoneOffset offset) {
+    public void setSunriseSetTimes(@NonNull LocalTime sunrise, @NonNull LocalTime sunset, @NonNull ZoneOffset offset) {
         LocalDate date = LocalDate.now(offset);
         setSunriseSetTimes(sunrise.atDate(date), sunset.atDate(date), offset);
     }
 
-    public void setSunriseSetTimes(LocalDateTime sunrise, LocalDateTime sunset) {
+    public void setSunriseSetTimes(@NonNull LocalDateTime sunrise, @NonNull LocalDateTime sunset) {
         setSunriseSetTimes(sunrise, sunset, ZoneOffset.UTC);
     }
 
-    public void setSunriseSetTimes(LocalDateTime sunrise, LocalDateTime sunset, ZoneOffset offset) {
+    public void setSunriseSetTimes(@NonNull LocalDateTime sunrise, @NonNull LocalDateTime sunset, @NonNull ZoneOffset offset) {
         if (!ObjectsCompat.equals(this.sunrise, sunrise) || !ObjectsCompat.equals(this.sunset, sunset) || !ObjectsCompat.equals(this.offset, offset)) {
             this.sunrise = sunrise;
             this.sunset = sunset;
