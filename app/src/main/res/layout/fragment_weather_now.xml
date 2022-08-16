@@ -34,41 +34,20 @@
             app:liftOnScroll="true"
             app:liftOnScrollTargetViewId="@id/scrollView">
 
-            <LinearLayout
+            <com.thewizrd.simpleweather.controls.ClockToolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="?attr/actionBarSize"
-                android:paddingVertical="8dp"
-                android:paddingHorizontal="16dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical|start">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/gps_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_margin="8dp"
-                    android:visibility="gone"
-                    android:layout_gravity="center_vertical"
-                    app:srcCompat="@drawable/ic_place_white_24dp"
-                    app:tint="?attr/colorOnSurface"
-                    app:showIfTrue="@{viewModel.uiState.GPSLocation}"
-                    tools:visibility="visible"
-                    tools:tint="?attr/colorOnSurface" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/location_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center_horizontal"
-                    android:maxLines="2"
-                    android:text="@{!StringUtils.isNullOrWhitespace(viewModel.weather.location) ? viewModel.weather.location : @string/title_activity_weather_now}"
-                    android:textAppearance="?textAppearanceTitleLarge"
-                    android:textColor="?attr/colorOnSurface"
-                    tools:text="A Really Long String of Text, New York, United States" />
-
-            </LinearLayout>
+                android:timeZone="@{viewModel.uiState.locationData.tzLong}"
+                app:navigationIcon="@{viewModel.uiState.GPSLocation ? @drawable/ic_place_white_24dp : null}"
+                app:navigationIconTint="?attr/colorOnSurface"
+                app:title="@{!StringUtils.isNullOrWhitespace(viewModel.weather.location) ? viewModel.weather.location : @string/title_activity_weather_now}"
+                app:titleCentered="true"
+                app:subtitleCentered="true"
+                app:subtitleTextAppearance="?textAppearanceTitleSmall"
+                tools:navigationIcon="@drawable/ic_place_white_24dp"
+                tools:title="A Really Long String of Text, New York, United States"
+                tools:subtitle="11:30 PM" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

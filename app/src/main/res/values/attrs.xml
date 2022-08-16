@@ -28,4 +28,9 @@
         <attr name="maxWidth" format="dimension" />
         <attr name="enableAspectRatio" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="ClockToolbar">
+        <attr name="android:format12Hour" />
+        <attr name="android:format24Hour" />
+        <attr name="android:timeZone" />
+    </declare-styleable>
 </resources>

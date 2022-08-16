@@ -4,6 +4,7 @@ public final class DateTimeConstants {
     public static final String CLOCK_FORMAT_24HR = "HH:mm";
     public static final String CLOCK_FORMAT_12HR = "h:mm";
     public static final String CLOCK_FORMAT_12HR_AMPM = "h:mm a";
+    public static final String CLOCK_FORMAT_12HR_AMPM_TZ = "h:mm a z";
     public static final String TIMEZONE_NAME = "z";
     public static final String ABBREV_DAY_OF_THE_WEEK = "eee";
     public static final String ABBREV_DAYOFWEEK_AND_12HR_AMPM = "eee h a";
