@@ -215,7 +215,7 @@ class WeatherAQIFragment : ToolbarFragment() {
         }
     }
 
-    override fun createSnackManager(activity: Activity): SnackbarManager? {
+    override fun createSnackManager(activity: Activity): SnackbarManager {
         return SnackbarManager(binding.root).apply {
             setSwipeDismissEnabled(true)
             setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)

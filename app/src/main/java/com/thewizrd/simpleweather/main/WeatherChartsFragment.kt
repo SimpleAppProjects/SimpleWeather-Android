@@ -138,17 +138,18 @@ class WeatherChartsFragment : ToolbarFragment() {
             adapter.submitList(createGraphModelData(it?.first, it?.second))
         }
 
+        if (args.data.isNullOrBlank() && savedInstanceState?.containsKey(Constants.KEY_DATA) != true) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                wNowViewModel.uiState.collect {
+                    locationData = it.locationData
+                    initialize()
+                }
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (locationData == null) {
-                    locationData = wNowViewModel.uiState.value.locationData
-                }
-
-                locationData?.let {
-                    chartsView.updateForecasts(it)
-                }
-
-                binding.progressBar.visibility = View.GONE
+                initialize()
             }
         }
     }
@@ -165,6 +166,18 @@ class WeatherChartsFragment : ToolbarFragment() {
 
     override val titleResId: Int
         get() = R.string.label_forecast
+
+    private fun initialize() {
+        if (locationData == null) {
+            locationData = wNowViewModel.uiState.value.locationData
+        }
+
+        locationData?.let {
+            chartsView.updateForecasts(it)
+        }
+
+        binding.progressBar.isVisible = false
+    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Save data

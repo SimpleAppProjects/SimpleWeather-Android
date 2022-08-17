@@ -96,7 +96,7 @@ class WeatherListFragment : ToolbarFragment() {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherListFragment: onCreate")
 
-        if (args?.weatherListType == WeatherListType.ALERTS) {
+        if (args.weatherListType == WeatherListType.ALERTS) {
             enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
             returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
         }
@@ -112,9 +112,9 @@ class WeatherListFragment : ToolbarFragment() {
                 )
             }
         } else {
-            weatherListType = args?.weatherListType
-            if (args?.data != null) {
-                locationData = JSONParser.deserializer(args?.data, LocationData::class.java)
+            weatherListType = args.weatherListType
+            if (args.data != null) {
+                locationData = JSONParser.deserializer(args.data, LocationData::class.java)
             }
         }
     }
@@ -157,6 +157,15 @@ class WeatherListFragment : ToolbarFragment() {
             twoPaneStateViewModel.twoPaneState.collectLatest { state ->
                 setNavigationIconVisible(!state.isSideBySide)
                 headerBinding.root.isVisible = !state.isSideBySide
+            }
+        }
+
+        if (args.data.isNullOrBlank() && savedInstanceState?.containsKey(Constants.KEY_DATA) != true) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                wNowViewModel.uiState.collect {
+                    locationData = it.locationData
+                    initialize()
+                }
             }
         }
 
@@ -258,18 +267,18 @@ class WeatherListFragment : ToolbarFragment() {
 
         detailsAdapter.registerAdapterDataObserver(object : SimpleRecyclerViewAdapterObserver() {
             override fun onChanged() {
-                if (detailsAdapter.itemCount > args!!.position) {
+                if (detailsAdapter.itemCount > args.position) {
                     detailsAdapter.unregisterAdapterDataObserver(this)
                     binding.recyclerView.viewTreeObserver.addOnGlobalLayoutListener(object :
                         OnGlobalLayoutListener {
                         override fun onGlobalLayout() {
                             binding.recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                             runWithView {
-                                layoutManager!!.scrollToPositionWithOffset(args!!.position, 0)
+                                layoutManager!!.scrollToPositionWithOffset(args.position, 0)
                             }
                         }
                     })
-                    binding.progressBar.visibility = View.GONE
+                    binding.progressBar.isVisible = false
                 }
             }
         })
