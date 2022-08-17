@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.GridLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.Insets
 import androidx.core.util.ObjectsCompat
@@ -37,6 +38,7 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.platform.MaterialFadeThrough
@@ -46,6 +48,7 @@ import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.common.utils.isTextTruncated
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -431,6 +434,17 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                     TwoPaneNavGraphDirections.actionGlobalWeatherListFragment2()
                         .setWeatherListType(WeatherListType.ALERTS)
                 )
+            }
+
+            conditionPanelBinding.weatherSummary.setOnClickListener {
+                val txtView = it as TextView
+
+                if (txtView.isTextTruncated()) {
+                    MaterialAlertDialogBuilder(it.context)
+                        .setTitle(R.string.pref_title_feature_summary)
+                        .setMessage(txtView.text)
+                        .show()
+                }
             }
 
             binding.listLayout.addView(conditionPanelBinding.root)
