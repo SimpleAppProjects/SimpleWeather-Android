@@ -65,8 +65,7 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.activities.LocationSearch
-import com.thewizrd.simpleweather.adapters.LocationPanelAdapter
-import com.thewizrd.simpleweather.adapters.LocationPanelAdapter.ViewHolderLongClickListener
+import com.thewizrd.simpleweather.adapters.*
 import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import com.thewizrd.simpleweather.databinding.FragmentLocationsBinding
 import com.thewizrd.simpleweather.fragments.ToolbarFragment
@@ -92,7 +91,9 @@ class LocationsFragment : ToolbarFragment() {
 
     // Views
     private lateinit var binding: FragmentLocationsBinding
-    private lateinit var mAdapter: LocationPanelAdapter
+    private lateinit var mConcatAdapter: ConcatAdapter
+    private lateinit var mGPSPanelAdapter: GPSPanelAdapter
+    private lateinit var mFavoritesAdapter: FavoritesPanelAdapter
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
     private lateinit var mItemTouchHelper: ItemTouchHelper
     private lateinit var mITHCallback: ItemTouchHelperCallback
@@ -291,9 +292,13 @@ class LocationsFragment : ToolbarFragment() {
                 }
             gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return when (mAdapter.getItemViewType(position)) {
-                        LocationPanelAdapter.ItemType.HEADER_FAV, LocationPanelAdapter.ItemType.HEADER_GPS -> gridLayoutManager.spanCount
-                        else -> 1
+                    return when (mConcatAdapter.getItemViewType(position)) {
+                        LocationPanelItemType.HEADER_FAV, LocationPanelItemType.HEADER_GPS -> {
+                            gridLayoutManager.spanCount
+                        }
+                        else -> {
+                            1
+                        }
                     }
                 }
             }
@@ -313,38 +318,64 @@ class LocationsFragment : ToolbarFragment() {
         binding.recyclerView.layoutManager = mLayoutManager
 
         // Setup RecyclerView
-        LocationPanelAdapter(object : ViewHolderLongClickListener {
-            override fun onLongClick(holder: RecyclerView.ViewHolder) {
-                mItemTouchHelper.startDrag(holder)
-            }
-        }).apply {
+        mGPSPanelAdapter = GPSPanelAdapter().apply {
+            setOnClickListener(onRecyclerClickListener)
+        }
+
+        mFavoritesAdapter = FavoritesPanelAdapter().apply {
             setOnClickListener(onRecyclerClickListener)
             setOnLongClickListener(onRecyclerLongClickListener)
+            setOnLongClickToDragListener(object : ViewHolderLongClickListener {
+                override fun onLongClick(holder: RecyclerView.ViewHolder) {
+                    mItemTouchHelper.startDrag(holder)
+                }
+            })
             setOnListChangedCallback(onListChangedListener)
             setOnSelectionChangedCallback(onSelectionChangedListener)
-
-            binding.recyclerView.adapter = this
-            mAdapter = this
         }
-        mITHCallback = ItemTouchHelperCallback(requireContext(), mAdapter)
-        mItemTouchHelper = ItemTouchHelper(mITHCallback)
-        mItemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
+        binding.recyclerView.adapter = ConcatAdapter(
+            ConcatAdapter.Config.Builder()
+                .setIsolateViewTypes(false)
+                .build(),
+            mGPSPanelAdapter,
+            mFavoritesAdapter,
+            SpacerAdapter((requireContext().resources.getDimensionPixelSize(R.dimen.fab_size) * 1.5f).toInt())
+        ).also {
+            mConcatAdapter = it
+        }
+
+        mITHCallback = ItemTouchHelperCallback(requireContext(), mFavoritesAdapter)
+        mItemTouchHelper = ItemTouchHelper(mITHCallback).apply {
+            attachToRecyclerView(binding.recyclerView)
+        }
         mITHCallback.addItemTouchHelperCallbackListener(object : ItemTouchCallbackListener {
+            override fun onClearView(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ) {
+            }
+
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) {
                 mDataChanged = true
                 if (mEditMode) {
                     toggleEditMode()
                 } else {
-                    val dataSet = mAdapter.getDataset()
+                    val dataSet = mFavoritesAdapter.getDataset()
                     for (view in dataSet) {
                         if (view.locationType != LocationType.GPS.value) {
                             updateFavoritesPosition(view)
                         }
                     }
 
-                    if (!mAdapter.hasGPSHeader() && mAdapter.hasSearchHeader()) {
-                        val firstFavPosition = mAdapter.getViewPosition(mAdapter.getFirstFavPanel())
+                    if (mGPSPanelAdapter.itemCount == 0 && mFavoritesAdapter.itemCount > 0) {
+                        val firstFavPosition =
+                            mFavoritesAdapter.getViewPosition(mFavoritesAdapter.getFirstFavPanel())
 
                         if (viewHolder.bindingAdapterPosition == firstFavPosition || target.bindingAdapterPosition == firstFavPosition) {
                             mMainHandler.removeCallbacks(sendUpdateRunner)
@@ -353,8 +384,6 @@ class LocationsFragment : ToolbarFragment() {
                     }
                 }
             }
-
-            override fun onClearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {}
 
             private val sendUpdateRunner = Runnable {
                 // Home has changed send notice
@@ -366,6 +395,7 @@ class LocationsFragment : ToolbarFragment() {
                 localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
             }
         })
+
         if (!requireContext().isLargeTablet()) {
             val swipeDecor = SwipeToDeleteOffSetItemDecoration(
                 binding.recyclerView.context, 2f,
@@ -381,6 +411,7 @@ class LocationsFragment : ToolbarFragment() {
                 )
             )
         }
+
         binding.recyclerView.itemAnimator = DefaultItemAnimator().apply {
             supportsChangeAnimations = false
         }
@@ -392,7 +423,7 @@ class LocationsFragment : ToolbarFragment() {
         createOptionsMenu()
 
         // Add Adapter as Lifecycle observer
-        this.lifecycle.addObserver(mAdapter)
+        this.lifecycle.addObserver(mFavoritesAdapter)
 
         return root
     }
@@ -402,8 +433,22 @@ class LocationsFragment : ToolbarFragment() {
         adjustPanelContainer()
 
         viewLifecycleOwner.lifecycleScope.launch {
+            locationsViewModel.gpsLocation.collectLatest {
+                mGPSPanelAdapter.updateModel(it)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
             locationsViewModel.locations.collectLatest {
-                mAdapter.replaceAll(it)
+                val gpsLocation =
+                    it.firstOrNull()?.takeIf { it.locationType == LocationType.GPS.value }
+                val locations = if (gpsLocation == null) {
+                    it
+                } else {
+                    it.subList(1, it.size)
+                }
+
+                mFavoritesAdapter.replaceAll(locations)
             }
         }
 
@@ -419,15 +464,17 @@ class LocationsFragment : ToolbarFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             locationsViewModel.weatherUpdatedFlow.collect {
-                if (it != null) {
-                    it.updateBackground()
-
-                    binding.recyclerView.post {
-                        mAdapter.notifyItemChanged(
-                            mAdapter.getViewPosition(it)
-                        )
-                    }
+                val adapter = if (it.locationType == LocationType.GPS.value) {
+                    mGPSPanelAdapter
+                } else {
+                    mFavoritesAdapter
                 }
+
+                val position = adapter.getViewPosition(it)
+                adapter.notifyItemChanged(position)
+
+                it.updateBackground()
+                adapter.notifyItemChanged(position, LocationPanelPayload.IMAGE_UPDATE)
             }
         }
 
@@ -468,14 +515,18 @@ class LocationsFragment : ToolbarFragment() {
     }
 
     override fun onDestroyView() {
-        this.lifecycle.removeObserver(mAdapter)
+        this.lifecycle.removeObserver(mFavoritesAdapter)
         super.onDestroyView()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         adjustPanelContainer()
-        mAdapter.notifyItemRangeChanged(0, mAdapter.itemCount, LocationPanelAdapter.Payload.IMAGE_UPDATE)
+        mConcatAdapter.notifyItemRangeChanged(
+            0,
+            mConcatAdapter.itemCount,
+            LocationPanelPayload.IMAGE_UPDATE
+        )
     }
 
     private fun createOptionsMenu() {
@@ -485,7 +536,7 @@ class LocationsFragment : ToolbarFragment() {
         toolbar.inflateMenu(R.menu.locations)
 
         val editMenuBtn = menu?.findItem(R.id.action_editmode)
-        editMenuBtn?.isVisible = !mEditMode && mAdapter.getFavoritesCount() > 1
+        editMenuBtn?.isVisible = !mEditMode && mFavoritesAdapter.getFavoritesCount() > 1
     }
 
     private val menuItemClickListener = Toolbar.OnMenuItemClickListener { item ->
@@ -498,7 +549,7 @@ class LocationsFragment : ToolbarFragment() {
                 true
             }
             R.id.action_delete -> {
-                mAdapter.removeSelectedItems()
+                mFavoritesAdapter.removeSelectedItems()
                 true
             }
             R.id.action_done -> {
@@ -576,7 +627,7 @@ class LocationsFragment : ToolbarFragment() {
             runWithView {
                 val dataMoved =
                     e.action == ListChangedAction.REMOVE || e.action == ListChangedAction.MOVE
-                val onlyHomeIsLeft = mAdapter.getFavoritesCount() <= 1
+                val onlyHomeIsLeft = mFavoritesAdapter.getFavoritesCount() <= 1
 
                 // Flag that data has changed
                 if (mEditMode && dataMoved)
@@ -586,7 +637,7 @@ class LocationsFragment : ToolbarFragment() {
                     mHomeChanged = true
 
                 // Hide FAB; Don't allow adding more locations
-                if (mAdapter.getDataCount() >= settingsManager.getMaxLocations()) {
+                if (mFavoritesAdapter.getFavoritesCount() >= settingsManager.getMaxLocations()) {
                     binding.fab.hide()
                 } else {
                     binding.fab.show()
@@ -620,14 +671,14 @@ class LocationsFragment : ToolbarFragment() {
     private val onRecyclerLongClickListener =
         object : ListAdapterOnClickInterface<LocationPanelUiModel> {
             override fun onClick(view: View, item: LocationPanelUiModel) {
-                val position = mAdapter.getViewPosition(item)
+                val position = mFavoritesAdapter.getViewPosition(item)
 
-                if (mAdapter.getItemViewType(position) == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
-                    if (!mEditMode && mAdapter.getFavoritesCount() > 1) {
+                if (mFavoritesAdapter.getItemViewType(position) == LocationPanelItemType.SEARCH_PANEL) {
+                    if (!mEditMode && mFavoritesAdapter.getFavoritesCount() > 1) {
                         toggleEditMode()
 
                         item.isChecked = true
-                        mAdapter.notifyItemChanged(position)
+                        mFavoritesAdapter.notifyItemChanged(position)
                     }
                 }
             }
@@ -637,30 +688,32 @@ class LocationsFragment : ToolbarFragment() {
         // Toggle EditMode
         mEditMode = !mEditMode
         onBackPressedCallback.isEnabled = mEditMode
-        mAdapter.setInEditMode(mEditMode)
+        mFavoritesAdapter.setInEditMode(mEditMode)
 
         // Set Drag & Swipe ability
         mITHCallback.isItemViewSwipeEnabled = mEditMode
 
         if (mEditMode) {
             // Unregister events
-            mAdapter.setOnClickListener(null)
-            mAdapter.setOnLongClickListener(null)
+            mGPSPanelAdapter.setOnClickListener(null)
+            mFavoritesAdapter.setOnClickListener(null)
+            mFavoritesAdapter.setOnLongClickListener(null)
         } else {
             // Register events
-            mAdapter.setOnClickListener(onRecyclerClickListener)
-            mAdapter.setOnLongClickListener(onRecyclerLongClickListener)
-            mAdapter.clearSelection()
+            mGPSPanelAdapter.setOnClickListener(onRecyclerClickListener)
+            mFavoritesAdapter.setOnClickListener(onRecyclerClickListener)
+            mFavoritesAdapter.setOnLongClickListener(onRecyclerLongClickListener)
+            mFavoritesAdapter.clearSelection()
         }
 
         updateToolbarForEditMode(mEditMode)
 
-        for (view in mAdapter.getDataset()) {
+        for (view in mFavoritesAdapter.getDataset()) {
             view.isEditMode = mEditMode
             if (!mEditMode) view.isChecked = false
             binding.recyclerView.post {
                 if (isViewAlive) {
-                    mAdapter.notifyItemChanged(mAdapter.getViewPosition(view))
+                    mFavoritesAdapter.notifyItemChanged(mFavoritesAdapter.getViewPosition(view))
                 }
             }
             if (view.locationType != LocationType.GPS.value && !mEditMode && (mDataChanged || mHomeChanged)) {
@@ -699,8 +752,8 @@ class LocationsFragment : ToolbarFragment() {
             toolbar.setNavigationOnClickListener {
                 toggleEditMode()
             }
-            toolbar.title = if (mAdapter.selectedItems.isNotEmpty()) {
-                mAdapter.selectedItems.size.toString()
+            toolbar.title = if (mFavoritesAdapter.selectedItems.isNotEmpty()) {
+                mFavoritesAdapter.selectedItems.size.toString()
             } else {
                 ""
             }
@@ -725,12 +778,12 @@ class LocationsFragment : ToolbarFragment() {
                     it.isVisible = if (inEditMode) {
                         false
                     } else {
-                        mAdapter.getFavoritesCount() > 1
+                        mFavoritesAdapter.getFavoritesCount() > 1
                     }
                 }
                 R.id.action_delete -> {
                     it.isVisible = if (inEditMode) {
-                        mAdapter.selectedItems.isNotEmpty()
+                        mFavoritesAdapter.selectedItems.isNotEmpty()
                     } else {
                         false
                     }
@@ -761,10 +814,9 @@ class LocationsFragment : ToolbarFragment() {
 
     private fun updateFavoritesPosition(view: LocationPanelUiModel) {
         val query = view.locationData!!.query
-        var dataPosition = mAdapter.getDataset().indexOf(view)
-        val pos = if (mAdapter.hasGPSHeader()) --dataPosition else dataPosition
+        val dataPosition = mFavoritesAdapter.getDataset().indexOf(view)
         appLib.appScope.launch(Dispatchers.Default) {
-            settingsManager.moveLocation(query, pos)
+            settingsManager.moveLocation(query, dataPosition)
         }
     }
 

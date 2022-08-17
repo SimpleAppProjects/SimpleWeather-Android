@@ -17,7 +17,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.Logger;
 import com.thewizrd.simpleweather.R;
-import com.thewizrd.simpleweather.adapters.LocationPanelAdapter;
+import com.thewizrd.simpleweather.adapters.FavoritesPanelAdapter;
+import com.thewizrd.simpleweather.adapters.LocationPanelItemType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private boolean swipeEnabled = true;
 
-    private final ItemTouchHelperAdapterInterface mAdapter;
+    private final ItemTouchHelperAdapter mAdapter;
 
     private final Drawable deleteIcon;
     private final Drawable deleteBackground;
@@ -34,7 +35,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     /* Callback Listener */
     private final List<ItemTouchCallbackListener> mCallbacks;
 
-    public ItemTouchHelperCallback(@NonNull Context context, @NonNull ItemTouchHelperAdapterInterface adapter) {
+    public ItemTouchHelperCallback(@NonNull Context context, @NonNull ItemTouchHelperAdapter adapter) {
         mCallbacks = new ArrayList<>();
 
         mAdapter = adapter;
@@ -88,7 +89,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         int dragFlags = 0;
         int swipeFlags = 0;
 
-        if (viewHolder.getItemViewType() == LocationPanelAdapter.ItemType.SEARCH_PANEL) {
+        if (viewHolder.getItemViewType() == LocationPanelItemType.SEARCH_PANEL) {
             dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
             if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
                 dragFlags |= ItemTouchHelper.START | ItemTouchHelper.END;
@@ -117,11 +118,11 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean canDropOver(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder current, @NonNull RecyclerView.ViewHolder target) {
-        if (!(target instanceof LocationPanelAdapter.LocationPanelViewHolder))
+        if (!(target instanceof FavoritesPanelAdapter.LocationPanelViewHolder))
             return false;
 
-        LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
-        return adapter == null || !adapter.hasGPSHeader() || !adapter.hasSearchHeader() || target.getBindingAdapterPosition() != 1;
+        FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) recyclerView.getAdapter();
+        return adapter == null || target.getBindingAdapterPosition() != 1;
     }
 
     @Override
@@ -162,10 +163,10 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 float topY = viewHolder.itemView.getTop() + dY;
                 float bottomY = topY + viewHolder.itemView.getHeight();
                 float upperLimit = 0;
-                LocationPanelAdapter adapter = (LocationPanelAdapter) recyclerView.getAdapter();
+                FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) recyclerView.getAdapter();
 
-                if (adapter != null && adapter.getFavViewHolder() != null) {
-                    upperLimit = adapter.getFavViewHolder().itemView.getTop();
+                if (adapter != null && adapter.getHeaderViewHolder() != null) {
+                    upperLimit = adapter.getHeaderViewHolder().itemView.getTop();
                 }
 
                 if (topY < upperLimit) {

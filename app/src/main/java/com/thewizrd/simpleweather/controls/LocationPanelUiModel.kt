@@ -186,7 +186,17 @@ class LocationPanelUiModel {
 
         other as LocationPanelUiModel
 
-        if (weather != other.weather) return false
+        if (locationName != other.locationName) return false
+        if (currTemp != other.currTemp) return false
+        if (currWeather != other.currWeather) return false
+        if (weatherIcon != other.weatherIcon) return false
+        if (hiTemp != other.hiTemp) return false
+        if (loTemp != other.loTemp) return false
+        if (isShowHiLo != other.isShowHiLo) return false
+        if (pop != other.pop) return false
+        if (popIcon != other.popIcon) return false
+        if (windDir != other.windDir) return false
+        if (windSpeed != other.windSpeed) return false
         if (imageData != other.imageData) return false
         if (locationData != other.locationData) return false
 
@@ -194,7 +204,17 @@ class LocationPanelUiModel {
     }
 
     override fun hashCode(): Int {
-        var result = weather?.hashCode() ?: 0
+        var result = locationName?.hashCode() ?: 0
+        result = 31 * result + (currTemp?.hashCode() ?: 0)
+        result = 31 * result + (currWeather?.hashCode() ?: 0)
+        result = 31 * result + (weatherIcon?.hashCode() ?: 0)
+        result = 31 * result + (hiTemp?.hashCode() ?: 0)
+        result = 31 * result + (loTemp?.hashCode() ?: 0)
+        result = 31 * result + isShowHiLo.hashCode()
+        result = 31 * result + (pop?.hashCode() ?: 0)
+        result = 31 * result + popIcon
+        result = 31 * result + windDir
+        result = 31 * result + (windSpeed?.hashCode() ?: 0)
         result = 31 * result + (imageData?.hashCode() ?: 0)
         result = 31 * result + (locationData?.hashCode() ?: 0)
         return result

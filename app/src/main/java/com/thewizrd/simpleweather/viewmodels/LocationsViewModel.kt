@@ -20,6 +20,7 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class LocationsUiState(
+    val gpsLocation: LocationPanelUiModel? = null,
     val locations: Collection<LocationPanelUiModel> = emptyList(),
     val errorMessages: List<ErrorMessage> = emptyList(),
     val isLoading: Boolean = false
@@ -46,11 +48,19 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
         viewModelState.value
     )
 
+    val gpsLocation = viewModelState.map {
+        it.gpsLocation
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        viewModelState.value.gpsLocation
+    )
+
     val locations = viewModelState.map {
         it.locations.toList()
     }.stateIn(
         viewModelScope,
-        SharingStarted.Eagerly,
+        SharingStarted.Lazily,
         viewModelState.value.locations.toList()
     )
 
@@ -62,10 +72,10 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
         viewModelState.value.errorMessages
     )
 
-    val weatherUpdatedFlow = weatherEventFlow.stateIn(
+    val weatherUpdatedFlow = weatherEventFlow.shareIn(
         viewModelScope,
-        SharingStarted.Eagerly,
-        null
+        SharingStarted.Lazily,
+        settingsManager.getMaxLocations() * 2
     )
 
     fun loadLocations() {
@@ -110,7 +120,7 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun refreshLocationWeather(locations: MutableList<LocationData>) {
+    private fun refreshLocationWeather(locations: List<LocationData>) {
         val locationMap = locations.associateWith { locData ->
             LocationPanelUiModel().apply {
                 locationData = locData
@@ -118,8 +128,20 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
-        viewModelState.update {
-            it.copy(locations = locationMap.values, isLoading = false)
+        viewModelState.update { state ->
+            val gpsLocation = locationMap.values.firstOrNull()
+                ?.takeIf { it.locationType == LocationType.GPS.value }
+            val favorites = if (gpsLocation != null) {
+                locationMap.values.drop(1)
+            } else {
+                locationMap.values
+            }
+
+            state.copy(
+                gpsLocation = gpsLocation,
+                locations = favorites,
+                isLoading = false
+            )
         }
 
         viewModelScope.launch(Dispatchers.Default) {
@@ -145,11 +167,10 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.apply {
+                        weatherEventFlow.emit(entry.value.apply {
                             setWeather(entry.key, null)
                             isLoading = false
-                        }
-                        weatherEventFlow.emit(entry.value)
+                        })
                     }
                     is WeatherResult.NoWeather -> {
                         if (!errorCounter[ErrorStatus.NOWEATHER.ordinal]) {
@@ -163,18 +184,16 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.apply {
+                        weatherEventFlow.emit(entry.value.apply {
                             setWeather(entry.key, null)
                             isLoading = false
-                        }
-                        weatherEventFlow.emit(entry.value)
+                        })
                     }
                     is WeatherResult.Success -> {
-                        entry.value.apply {
+                        weatherEventFlow.emit(entry.value.apply {
                             setWeather(entry.key, result.data)
                             isLoading = false
-                        }
-                        weatherEventFlow.emit(entry.value)
+                        })
                     }
                     is WeatherResult.WeatherWithError -> {
                         // Show error message and only warn once
@@ -188,11 +207,10 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         }
 
-                        entry.value.apply {
+                        weatherEventFlow.emit(entry.value.apply {
                             setWeather(entry.key, result.data)
                             isLoading = false
-                        }
-                        weatherEventFlow.emit(entry.value)
+                        })
                     }
                 }
             }
