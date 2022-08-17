@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -55,7 +56,7 @@ class WeatherAQIFragment : ToolbarFragment() {
     private lateinit var currentAQIAdapter: CurrentAQIAdapter
     private lateinit var aqiForecastAdapter: ListAdapter<*, *>
 
-    private lateinit var args: WeatherAQIFragmentArgs
+    private val args: WeatherAQIFragmentArgs by navArgs()
 
     init {
         arguments = Bundle()
@@ -72,8 +73,6 @@ class WeatherAQIFragment : ToolbarFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherAQIFragment: onCreate")
-
-        args = WeatherAQIFragmentArgs.fromBundle(requireArguments())
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
@@ -141,8 +140,6 @@ class WeatherAQIFragment : ToolbarFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        args = WeatherAQIFragmentArgs.fromBundle(requireArguments())
 
         binding.progressBar.isVisible = true
 

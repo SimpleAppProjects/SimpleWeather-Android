@@ -26,6 +26,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import com.bumptech.glide.Glide
@@ -113,7 +114,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
         arguments = Bundle()
     }
 
-    private lateinit var args: WeatherNowFragmentArgs
+    private val args: WeatherNowFragmentArgs by navArgs()
 
     private val wm = weatherModule.weatherManager
     private var radarViewProvider: RadarViewProvider? = null
@@ -188,8 +189,6 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
 
         enterTransition = MaterialFadeThrough()
         exitTransition = MaterialFadeThrough()
-
-        args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
         val locationData = if (savedInstanceState?.containsKey(Constants.KEY_DATA) == true) {
             JSONParser.deserializer(
@@ -823,8 +822,6 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
 
     override fun onListPaneViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onListPaneViewCreated(view, savedInstanceState)
-
-        args = WeatherNowFragmentArgs.fromBundle(requireArguments())
 
         slidingPaneLayout.lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED
 

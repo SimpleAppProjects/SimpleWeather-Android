@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.shared_resources.Constants
@@ -50,7 +51,7 @@ class WeatherChartsFragment : ToolbarFragment() {
     private lateinit var headerBinding: LayoutLocationHeaderBinding
     private lateinit var adapter: ChartsItemAdapter
 
-    private lateinit var args: WeatherChartsFragmentArgs
+    private val args: WeatherChartsFragmentArgs by navArgs()
 
     init {
         arguments = Bundle()
@@ -67,8 +68,6 @@ class WeatherChartsFragment : ToolbarFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherChartsFragment: onCreate")
-
-        args = WeatherChartsFragmentArgs.fromBundle(requireArguments())
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
@@ -125,8 +124,6 @@ class WeatherChartsFragment : ToolbarFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        args = WeatherChartsFragmentArgs.fromBundle(requireArguments())
 
         binding.progressBar.visibility = View.VISIBLE
 

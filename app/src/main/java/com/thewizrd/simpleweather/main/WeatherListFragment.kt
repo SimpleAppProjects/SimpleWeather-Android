@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -56,7 +57,7 @@ class WeatherListFragment : ToolbarFragment() {
     var weatherListType: WeatherListType? = null
         private set
 
-    private var args: WeatherListFragmentArgs? = null
+    private val args: WeatherListFragmentArgs by navArgs()
 
     private var dataJob: Job? = null
 
@@ -94,8 +95,6 @@ class WeatherListFragment : ToolbarFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherListFragment: onCreate")
-
-        args = WeatherListFragmentArgs.fromBundle(requireArguments())
 
         if (args?.weatherListType == WeatherListType.ALERTS) {
             enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
@@ -151,8 +150,6 @@ class WeatherListFragment : ToolbarFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        args = WeatherListFragmentArgs.fromBundle(requireArguments())
 
         binding.progressBar.visibility = View.VISIBLE
 
@@ -304,9 +301,9 @@ class WeatherListFragment : ToolbarFragment() {
     }
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 }

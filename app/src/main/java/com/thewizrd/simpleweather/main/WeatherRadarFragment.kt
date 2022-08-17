@@ -36,10 +36,10 @@ class WeatherRadarFragment : ToolbarFragment() {
     private var radarViewProvider: RadarViewProvider? = null
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        return mSnackMgr
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

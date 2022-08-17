@@ -63,11 +63,12 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
         val mStepperNavBar = activity.findViewById<View>(R.id.bottom_nav_bar)
-        val mSnackMgr = SnackbarManager(binding.root)
-        mSnackMgr.setSwipeDismissEnabled(true)
-        mSnackMgr.setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-        mSnackMgr.setAnchorView(mStepperNavBar)
-        return mSnackMgr
+
+        return SnackbarManager(binding.root).apply {
+            setSwipeDismissEnabled(true)
+            setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+            setAnchorView(mStepperNavBar)
+        }
     }
 
     override fun onCreateView(
