@@ -116,6 +116,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
 
     private val locationProvider = LocationProvider(app)
 
+    private val syncDataReceiver = SyncDataReceiver()
     private var syncTimerJob: Job? = null
 
     init {
@@ -446,7 +447,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
     }
 
     /* Wearable Data Sync */
-    private val syncDataReceiver = object : BroadcastReceiver() {
+    private inner class SyncDataReceiver : BroadcastReceiver() {
         private var locationDataReceived = false
         private var weatherDataReceived = false
 

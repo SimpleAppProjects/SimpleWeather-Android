@@ -68,70 +68,83 @@ class SetupSyncActivity : WearableListenerActivity() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 lifecycleScope.launch(Dispatchers.Main.immediate) {
-                    if (ACTION_UPDATECONNECTIONSTATUS == intent.action) {
-                        val connStatus = WearConnectionStatus.valueOf(intent.getIntExtra(EXTRA_CONNECTIONSTATUS, 0))
-                        when (connStatus) {
-                            WearConnectionStatus.DISCONNECTED -> {
-                                binding.message.setText(R.string.status_disconnected)
-                                errorProgress()
-                            }
-                            WearConnectionStatus.CONNECTING -> {
-                                binding.message.setText(R.string.status_connecting)
-                                resetTimer()
-                            }
-                            WearConnectionStatus.APPNOTINSTALLED -> {
-                                binding.message.setText(R.string.error_notinstalled)
-                                resetTimer()
-
-                                // Open store on remote device
-                                val intentAndroid = Intent(Intent.ACTION_VIEW)
-                                    .addCategory(Intent.CATEGORY_BROWSABLE)
-                                    .setData(PlayStoreUtils.getPlayStoreURI())
-
-                                runCatching {
-                                    remoteActivityHelper.startRemoteActivity(intentAndroid)
-                                        .await()
-
-                                    showConfirmationOverlay(true)
-                                }.onFailure {
-                                    if (it !is CancellationException) {
-                                        showConfirmationOverlay(false)
-                                    }
+                    when (intent.action) {
+                        ACTION_UPDATECONNECTIONSTATUS -> {
+                            val connStatus = WearConnectionStatus.valueOf(
+                                intent.getIntExtra(
+                                    EXTRA_CONNECTIONSTATUS,
+                                    0
+                                )
+                            )
+                            when (connStatus) {
+                                WearConnectionStatus.DISCONNECTED -> {
+                                    binding.message.setText(R.string.status_disconnected)
+                                    errorProgress()
                                 }
+                                WearConnectionStatus.CONNECTING -> {
+                                    binding.message.setText(R.string.status_connecting)
+                                    resetTimer()
+                                }
+                                WearConnectionStatus.APPNOTINSTALLED -> {
+                                    binding.message.setText(R.string.error_notinstalled)
+                                    resetTimer()
 
-                                errorProgress()
-                            }
-                            WearConnectionStatus.CONNECTED -> {
-                                binding.message.setText(R.string.status_connected)
-                                resetTimer()
-                                // Continue operation
-                                sendSetupStatusRequest()
+                                    // Open store on remote device
+                                    val intentAndroid = Intent(Intent.ACTION_VIEW)
+                                        .addCategory(Intent.CATEGORY_BROWSABLE)
+                                        .setData(PlayStoreUtils.getPlayStoreURI())
+
+                                    runCatching {
+                                        remoteActivityHelper.startRemoteActivity(intentAndroid)
+                                            .await()
+
+                                        showConfirmationOverlay(true)
+                                    }.onFailure {
+                                        if (it !is CancellationException) {
+                                            showConfirmationOverlay(false)
+                                        }
+                                    }
+
+                                    errorProgress()
+                                }
+                                WearConnectionStatus.CONNECTED -> {
+                                    binding.message.setText(R.string.status_connected)
+                                    resetTimer()
+                                    // Continue operation
+                                    sendSetupStatusRequest()
+                                }
                             }
                         }
-                    } else if (WearableHelper.ErrorPath == intent.action) {
-                        binding.message.setText(R.string.error_syncing)
-                        errorProgress()
-                    } else if (WearableHelper.IsSetupPath == intent.action) {
-                        val isDeviceSetup = intent.getBooleanExtra(EXTRA_DEVICESETUPSTATUS, false)
-                        start(isDeviceSetup)
-                    } else if (WearableHelper.SettingsPath == intent.action) {
-                        binding.message.setText(R.string.message_settingsretrieved)
-                        settingsDataReceived = true
+                        WearableHelper.ErrorPath -> {
+                            binding.message.setText(R.string.error_syncing)
+                            errorProgress()
+                        }
+                        WearableHelper.IsSetupPath -> {
+                            val isDeviceSetup =
+                                intent.getBooleanExtra(EXTRA_DEVICESETUPSTATUS, false)
+                            start(isDeviceSetup)
+                        }
+                        WearableHelper.SettingsPath -> {
+                            binding.message.setText(R.string.message_settingsretrieved)
+                            settingsDataReceived = true
 
-                        if (settingsDataReceived && locationDataReceived && weatherDataReceived)
-                            successProgress()
-                    } else if (WearableHelper.LocationPath == intent.action) {
-                        binding.message.setText(R.string.message_locationretrieved)
-                        locationDataReceived = true
+                            if (settingsDataReceived && locationDataReceived && weatherDataReceived)
+                                successProgress()
+                        }
+                        WearableHelper.LocationPath -> {
+                            binding.message.setText(R.string.message_locationretrieved)
+                            locationDataReceived = true
 
-                        if (settingsDataReceived && locationDataReceived && weatherDataReceived)
-                            successProgress()
-                    } else if (WearableHelper.WeatherPath == intent.action) {
-                        binding.message.setText(R.string.message_weatherretrieved)
-                        weatherDataReceived = true
+                            if (settingsDataReceived && locationDataReceived && weatherDataReceived)
+                                successProgress()
+                        }
+                        WearableHelper.WeatherPath -> {
+                            binding.message.setText(R.string.message_weatherretrieved)
+                            weatherDataReceived = true
 
-                        if (settingsDataReceived && locationDataReceived && weatherDataReceived)
-                            successProgress()
+                            if (settingsDataReceived && locationDataReceived && weatherDataReceived)
+                                successProgress()
+                        }
                     }
                 }
             }
