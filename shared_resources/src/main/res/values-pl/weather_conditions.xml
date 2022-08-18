@@ -7,7 +7,7 @@
     <string name="weather_hurricane">"Huragan"</string>
     <string name="weather_severetstorms">"Gwałtowne burze z piorunami"</string>
     <string name="weather_tstorms">"Burze z piorunami"</string>
-    <string name="weather_rainandsnow">"Deszcz ze śniegiem"</string>
+    <string name="weather_rainandsnow">"Deszcz i śnieg"</string>
     <string name="weather_rainandsleet">"Deszcz i deszcz ze śniegiem"</string>
     <string name="weather_snowandsleet">"Śnieg i deszcz ze śniegiem"</string>
     <string name="weather_freezingrain">"Marznący deszcz"</string>
@@ -44,7 +44,7 @@
     <string name="weather_sleet_tstorms">"Deszcz ze śniegiem z piorunami"</string>
     <string name="weather_snow_tstorms">"Burza śnieżna z piorunami"</string>
     <string name="weather_clearsky">"Czyste niebo"</string>
-    <string name="weather_heavyrain">"Silny deszcz"</string>
+    <string name="weather_heavyrain">"Ulewny deszcz"</string>
     <string name="weather_mostlyclear">"Przeważnie bezchmurnie"</string>
     <string name="weather_lightfog">"Lekka mgła"</string>
     <string name="weather_drizzle">"Mżawka"</string>
