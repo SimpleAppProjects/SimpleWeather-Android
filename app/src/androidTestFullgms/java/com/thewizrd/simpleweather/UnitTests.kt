@@ -356,7 +356,7 @@ class UnitTests {
         runBlocking(Dispatchers.Default) {
             val locationProvider = GoogleLocationProvider()
             val locations = withContext(Dispatchers.IO) {
-                locationProvider.getLocations("Berlin, Germany", null)
+                locationProvider.getLocations("Berlin, Germany", WeatherAPI.GOOGLE)
             }
             assertFalse(locations.isEmpty())
 
