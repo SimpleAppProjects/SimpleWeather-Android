@@ -2,3 +2,6 @@
 -keepclassmembers,allowobfuscation class * {
   @com.squareup.moshi.Json <fields>;
 }
+
+# Moshi
+-keep class * extends com.squareup.moshi.JsonAdapter { *; }

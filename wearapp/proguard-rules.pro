@@ -33,3 +33,6 @@
 # For faster builds with ProGuard, exclude Crashlytics. Add the following lines to your ProGuard config file:
 # -keep class com.crashlytics.** { *; }
 # -dontwarn com.crashlytics.**
+
+# Moshi
+-keep class * extends com.squareup.moshi.JsonAdapter { *; }

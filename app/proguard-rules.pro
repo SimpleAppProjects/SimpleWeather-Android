@@ -68,3 +68,6 @@
 # Keep custom model classes (ImageData)
 # Needed for (de)serialization in Firestore
 -keep class com.thewizrd.simpleweather.images.model.** { *; }
+
+# Moshi
+-keep class * extends com.squareup.moshi.JsonAdapter { *; }
