@@ -55,7 +55,7 @@ object WeatherAPI {
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
 
-    @StringDef(ANDROID, HERE, LOCATIONIQ, GOOGLE, WEATHERAPI, OPENWEATHERMAP)
+    @StringDef(ANDROID, HERE, LOCATIONIQ, GOOGLE, WEATHERAPI, OPENWEATHERMAP, ACCUWEATHER)
     @Retention(AnnotationRetention.SOURCE)
     annotation class LocationProviders
 
