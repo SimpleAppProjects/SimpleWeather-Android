@@ -167,22 +167,22 @@ class App : Application(), ActivityLifecycleCallbacks, Configuration.Provider {
             appLib.registerAppSharedPreferenceListener()
 
             DynamicColors.applyToActivitiesIfAvailable(this)
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val localeMgr = getSystemService(LocaleManager::class.java)
-            val locales = localeMgr.applicationLocales
-            if (!locales.isEmpty) {
-                val locale = locales.get(0)
-                if (locale != LocaleUtils.getLocale()) {
-                    val tag = locale.toLanguageTag()
-                    LocaleUtils.setLocaleCode(tag)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val localeMgr = getSystemService(LocaleManager::class.java)
+                val locales = localeMgr.applicationLocales
+                if (!locales.isEmpty) {
+                    val locale = locales.get(0)
+                    if (locale != LocaleUtils.getLocale()) {
+                        val tag = locale.toLanguageTag()
+                        LocaleUtils.setLocaleCode(tag)
+                    }
+                } else {
+                    LocaleUtils.setLocaleCode("")
                 }
             } else {
-                LocaleUtils.setLocaleCode("")
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(LocaleUtils.getLocale()))
             }
-        } else {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(LocaleUtils.getLocale()))
         }
     }
 

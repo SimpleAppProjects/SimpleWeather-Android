@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.ServiceCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.BuildConfig
@@ -234,7 +235,7 @@ class UpdaterTimerService : Service() {
 
     override fun onDestroy() {
         mLocalBroadcastMgr.unregisterReceiver(mRemoteReceiver)
-        stopForeground(true)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }
 
