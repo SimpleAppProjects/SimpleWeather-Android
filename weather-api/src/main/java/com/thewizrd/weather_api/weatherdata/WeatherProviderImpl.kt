@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -42,6 +43,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
         get() = sharedDeps.httpClient
 
     // Variables
+    @WeatherAPI.WeatherProviders
     abstract override fun getWeatherAPI(): String
 
     abstract override fun isKeyRequired(): Boolean

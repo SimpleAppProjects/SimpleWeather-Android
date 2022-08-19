@@ -23,6 +23,7 @@ import com.thewizrd.weather_api.here.auth.hereOAuthService
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.weather_api.utils.APIRequestUtils.createThrowable
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -136,7 +137,10 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
                     // Check for errors
                     when (root?.type) {
-                        "Invalid Request" -> throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                        "Invalid Request" -> throw WeatherException(
+                            ErrorStatus.QUERYNOTFOUND,
+                            response.createThrowable()
+                        )
                         "Unauthorized" -> throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                     }
 
@@ -155,7 +159,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                     } else if (ex is WeatherException) {
                         wEx = ex
                     }

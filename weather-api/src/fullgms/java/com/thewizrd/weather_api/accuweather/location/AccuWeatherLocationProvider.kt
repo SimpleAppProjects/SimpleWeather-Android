@@ -121,7 +121,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
             } catch (ex: Exception) {
                 result = null
                 if (ex is IOException) {
-                    wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                 } else if (ex is WeatherException) {
                     wEx = ex
                 }
@@ -205,7 +205,7 @@ internal class AccuWeatherLocationProvider : AndroidLocationProvider() {
             } catch (ex: Exception) {
                 result = null
                 if (ex is IOException) {
-                    wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                 } else if (ex is WeatherException) {
                     wEx = ex
                 }

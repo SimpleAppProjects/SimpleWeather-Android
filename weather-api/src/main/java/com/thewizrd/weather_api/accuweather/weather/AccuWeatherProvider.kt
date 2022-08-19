@@ -109,13 +109,13 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     wEx = WeatherException(ErrorStatus.INVALIDAPIKEY)
                     isValid = false
                 }
-                HttpURLConnection.HTTP_NOT_FOUND -> isValid = response.body?.contentLength() ?: 0 > 0
+                HttpURLConnection.HTTP_NOT_FOUND -> {
+                    isValid = (response.body?.contentLength() ?: 0) > 0
+                }
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                    initCause(ex)
-                }
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }
@@ -239,7 +239,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                     } else if (ex is WeatherException) {
                         wEx = ex
                     }

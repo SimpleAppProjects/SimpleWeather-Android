@@ -138,9 +138,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                    initCause(ex)
-                }
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }
@@ -216,7 +214,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                     } else if (ex is WeatherException) {
                         wEx = ex
                     }

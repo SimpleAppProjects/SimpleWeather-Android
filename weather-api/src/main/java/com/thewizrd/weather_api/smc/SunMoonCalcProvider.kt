@@ -125,7 +125,7 @@ class SunMoonCalcProvider : AstroDataProvider, AstroDataDateProvider {
                     val moonPhaseType = getMoonPhase(smc.moonAge)
                     astroData.moonPhase = MoonPhase(moonPhaseType)
                 } catch (e: Exception) {
-                    throw WeatherException(ErrorStatus.UNKNOWN).initCause(e)
+                    throw WeatherException(ErrorStatus.UNKNOWN, e)
                 }
 
                 return@withContext astroData

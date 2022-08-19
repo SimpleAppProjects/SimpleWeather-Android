@@ -155,7 +155,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 } catch (ex: Exception) {
                     weather = null
                     if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                     } else if (ex is WeatherException) {
                         wEx = ex
                     }

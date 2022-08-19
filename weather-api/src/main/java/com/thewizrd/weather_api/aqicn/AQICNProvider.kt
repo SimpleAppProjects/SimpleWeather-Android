@@ -43,60 +43,60 @@ class AQICNProvider : AirQualityProvider, RateLimitedRequest {
             val client = sharedDeps.httpClient
             var response: Response? = null
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit(API_ID)
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit(API_ID)
 
-                    val context = sharedDeps.context
-                    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-                    val version = String.format("v%s", packageInfo.versionName)
+                val context = sharedDeps.context
+                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                val version = String.format("v%s", packageInfo.versionName)
 
-                    val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
-                    df.applyPattern("0.####")
+                val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
+                df.applyPattern("0.####")
 
-                    val request = Request.Builder()
-                        .cacheControl(
-                            CacheControl.Builder()
-                                .maxAge(1, TimeUnit.HOURS)
-                                .build()
+                val request = Request.Builder()
+                    .cacheControl(
+                        CacheControl.Builder()
+                            .maxAge(1, TimeUnit.HOURS)
+                            .build()
+                    )
+                    .url(
+                        String.format(
+                            Locale.ROOT,
+                            QUERY_URL,
+                            df.format(location.latitude),
+                            df.format(location.longitude),
+                            key
                         )
-                        .url(
-                            String.format(
-                                Locale.ROOT,
-                                QUERY_URL,
-                                df.format(location.latitude),
-                                df.format(location.longitude),
-                                key
-                            )
-                        )
-                        .addHeader(
-                            "User-Agent",
-                            String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
-                        )
-                        .build()
+                    )
+                    .addHeader(
+                        "User-Agent",
+                        String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
+                    )
+                    .build()
 
-                    // Connect to webstream
-                    response = client.newCall(request).await()
-                    response.checkForErrors(API_ID)
+                // Connect to webstream
+                response = client.newCall(request).await()
+                response.checkForErrors(API_ID)
 
-                    val stream = response.getStream()
+                val stream = response.getStream()
 
-                    // Load data
-                    val root = JSONParser.deserializer<Rootobject>(stream, Rootobject::class.java)
+                // Load data
+                val root = JSONParser.deserializer<Rootobject>(stream, Rootobject::class.java)
 
-                    root?.let {
-                        aqiData = AQICNData(it)
-                    }
-
-                    // End Stream
-                    stream.closeQuietly()
-                } catch (ex: Exception) {
-                    aqiData = null
-                    Logger.writeLine(Log.ERROR, ex, "AQICNProvider: error getting air quality data")
-                } finally {
-                    response?.closeQuietly()
+                root?.let {
+                    aqiData = AQICNData(it)
                 }
 
-                return@withContext aqiData
+                // End Stream
+                stream.closeQuietly()
+            } catch (ex: Exception) {
+                aqiData = null
+                Logger.writeLine(Log.ERROR, ex, "AQICNProvider: error getting air quality data")
+            } finally {
+                response?.closeQuietly()
             }
+
+            return@withContext aqiData
+        }
 }

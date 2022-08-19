@@ -136,9 +136,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                    initCause(ex)
-                }
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }
@@ -223,9 +221,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {
-                    wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                        initCause(ex)
-                    }
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                 } else if (ex is WeatherException) {
                     wEx = ex
                 }

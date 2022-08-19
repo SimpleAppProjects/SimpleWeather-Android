@@ -126,7 +126,7 @@ class LocationIQProvider : WeatherLocationProviderImpl() {
             stream.closeQuietly()
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }
@@ -204,7 +204,7 @@ class LocationIQProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }
@@ -273,9 +273,7 @@ class LocationIQProvider : WeatherLocationProviderImpl() {
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                    initCause(ex)
-                }
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }

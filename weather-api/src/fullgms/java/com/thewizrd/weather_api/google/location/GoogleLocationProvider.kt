@@ -112,20 +112,24 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
                 ex = ex.cause!!
             }
 
-            if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
-            } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
-            } else if (ex is ApiException) {
-                when (ex.statusCode) {
-                    CommonStatusCodes.NETWORK_ERROR,
-                    CommonStatusCodes.RECONNECTION_TIMED_OUT,
-                    CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE,
-                    CommonStatusCodes.API_NOT_CONNECTED -> {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
-                    }
-                    CommonStatusCodes.ERROR, CommonStatusCodes.INTERNAL_ERROR -> {
-                        wEx = WeatherException(ErrorStatus.UNKNOWN)
+            when (ex) {
+                is IOException -> {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                }
+                is IllegalArgumentException -> {
+                    wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
+                }
+                is ApiException -> {
+                    when (ex.statusCode) {
+                        CommonStatusCodes.NETWORK_ERROR,
+                        CommonStatusCodes.RECONNECTION_TIMED_OUT,
+                        CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE,
+                        CommonStatusCodes.API_NOT_CONNECTED -> {
+                            wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                        }
+                        CommonStatusCodes.ERROR, CommonStatusCodes.INTERNAL_ERROR -> {
+                            wEx = WeatherException(ErrorStatus.UNKNOWN, ex)
+                        }
                     }
                 }
             }
@@ -157,29 +161,33 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
 
                     autocompleteToken = null
                 } catch (e: Throwable) {
-                    var ex = e
+                var ex = e
 
-                    if (ex is ExecutionException && ex.cause is Throwable) {
-                        ex = ex.cause!!
+                if (ex is ExecutionException && ex.cause is Throwable) {
+                    ex = ex.cause!!
+                }
+
+                when (ex) {
+                    is IOException -> {
+                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                     }
-
-                    if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR)
-                    } else if (ex is IllegalArgumentException) {
-                        wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
-                    } else if (ex is ApiException) {
+                    is IllegalArgumentException -> {
+                        wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
+                    }
+                    is ApiException -> {
                         when (ex.statusCode) {
                             CommonStatusCodes.NETWORK_ERROR,
                             CommonStatusCodes.RECONNECTION_TIMED_OUT,
                             CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE,
                             CommonStatusCodes.API_NOT_CONNECTED -> {
-                                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
                             }
                             CommonStatusCodes.ERROR, CommonStatusCodes.INTERNAL_ERROR -> {
-                                wEx = WeatherException(ErrorStatus.UNKNOWN)
+                                wEx = WeatherException(ErrorStatus.UNKNOWN, ex)
                             }
                         }
                     }
+                }
                     Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
                 }
 
@@ -211,9 +219,9 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }
@@ -255,9 +263,9 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
         }

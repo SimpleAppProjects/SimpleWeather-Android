@@ -102,100 +102,102 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
             val client = sharedDeps.httpClient
             var currentResponse: Response? = null
-                var forecastResponse: Response? = null
-                var wEx: WeatherException? = null
+            var forecastResponse: Response? = null
+            var wEx: WeatherException? = null
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit()
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
 
-                    val currentRequest = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
-                        .addHeader("Accept", "application/json")
-                        .url(
-                            String.format(
-                                CURRENT_QUERY_URL,
-                                location_query,
-                                appID,
-                                appKey,
-                                locale
-                            )
+                val currentRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                    .addHeader("Accept", "application/json")
+                    .url(
+                        String.format(
+                            CURRENT_QUERY_URL,
+                            location_query,
+                            appID,
+                            appKey,
+                            locale
                         )
-                        .build()
-                    val forecastRequest = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                        .addHeader("Accept", "application/json")
-                        .url(
-                            String.format(
-                                FORECAST_QUERY_URL,
-                                location_query,
-                                appID,
-                                appKey,
-                                locale
-                            )
+                    )
+                    .build()
+                val forecastRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                    .addHeader("Accept", "application/json")
+                    .url(
+                        String.format(
+                            FORECAST_QUERY_URL,
+                            location_query,
+                            appID,
+                            appKey,
+                            locale
                         )
-                        .build()
-
-                    // Connect to webstream
-                    currentResponse = client.newCall(currentRequest).await()
-                    checkForErrors(currentResponse)
-
-                    forecastResponse = client.newCall(forecastRequest).await()
-                    checkForErrors(forecastResponse)
-
-                    val currentStream = currentResponse.getStream()
-                    val forecastStream = forecastResponse.getStream()
-
-                    // Load weather
-                    val currRoot = JSONParser.deserializer<CurrentResponse>(
-                        currentStream,
-                        CurrentResponse::class.java
                     )
-                    val foreRoot = JSONParser.deserializer<ForecastResponse>(
-                        forecastStream,
-                        ForecastResponse::class.java
-                    )
+                    .build()
 
-                    // End Stream
-                    currentStream.closeQuietly()
-                    forecastStream.closeQuietly()
+                // Connect to webstream
+                currentResponse = client.newCall(currentRequest).await()
+                checkForErrors(currentResponse)
 
-                    requireNotNull(currRoot)
-                    requireNotNull(foreRoot)
+                forecastResponse = client.newCall(forecastRequest).await()
+                checkForErrors(forecastResponse)
 
-                    weather = createWeatherData(currRoot, foreRoot)
-                } catch (ex: Exception) {
-                    weather = null
-                    if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                            initCause(ex)
-                        }
-                    } else if (ex is WeatherException) {
-                        wEx = ex
-                    }
-                    Logger.writeLine(Log.ERROR, ex, "WeatherUnlockedProvider: error getting weather data")
-                } finally {
-                    currentResponse?.closeQuietly()
-                    forecastResponse?.closeQuietly()
+                val currentStream = currentResponse.getStream()
+                val forecastStream = forecastResponse.getStream()
+
+                // Load weather
+                val currRoot = JSONParser.deserializer<CurrentResponse>(
+                    currentStream,
+                    CurrentResponse::class.java
+                )
+                val foreRoot = JSONParser.deserializer<ForecastResponse>(
+                    forecastStream,
+                    ForecastResponse::class.java
+                )
+
+                // End Stream
+                currentStream.closeQuietly()
+                forecastStream.closeQuietly()
+
+                requireNotNull(currRoot)
+                requireNotNull(foreRoot)
+
+                weather = createWeatherData(currRoot, foreRoot)
+            } catch (ex: Exception) {
+                weather = null
+                if (ex is IOException) {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                } else if (ex is WeatherException) {
+                    wEx = ex
                 }
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "WeatherUnlockedProvider: error getting weather data"
+                )
+            } finally {
+                currentResponse?.closeQuietly()
+                forecastResponse?.closeQuietly()
+            }
 
             if (wEx == null && weather.isNullOrInvalid()) {
-                    wEx = WeatherException(ErrorStatus.NOWEATHER)
-                } else if (weather != null) {
-                    if (supportsWeatherLocale()) weather.locale = locale
+                wEx = WeatherException(ErrorStatus.NOWEATHER)
+            } else if (weather != null) {
+                if (supportsWeatherLocale()) weather.locale = locale
 
-                    weather.query = location_query
-                }
-
-                if (wEx != null) throw wEx
-
-                return@withContext weather!!
+                weather.query = location_query
             }
+
+            if (wEx != null) throw wEx
+
+            return@withContext weather!!
+        }
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {

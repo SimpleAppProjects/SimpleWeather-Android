@@ -113,9 +113,9 @@ class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             locations = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(
                 Log.ERROR,
@@ -200,9 +200,9 @@ class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
         } catch (ex: Exception) {
             result = null
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR)
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND)
+                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
             Logger.writeLine(
                 Log.ERROR,
@@ -260,9 +260,7 @@ class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
             }
         } catch (ex: Exception) {
             if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR).apply {
-                    initCause(ex)
-                }
+                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
             } else if (ex is WeatherException) {
                 wEx = ex
             }

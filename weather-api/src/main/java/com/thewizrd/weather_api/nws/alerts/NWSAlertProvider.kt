@@ -90,15 +90,19 @@ class NWSAlertProvider : WeatherAlertProvider, RateLimitedRequest {
                 // End Stream
                 stream.closeQuietly()
             } catch (ex: Exception) {
-                    Logger.writeLine(Log.ERROR, ex, "NWSAlertProvider: error getting weather alert data")
-                } finally {
-                    response?.closeQuietly()
-                }
-
-                if (alerts == null) {
-                    alerts = emptyList()
-                }
-
-                return@withContext alerts
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "NWSAlertProvider: error getting weather alert data"
+                )
+            } finally {
+                response?.closeQuietly()
             }
+
+            if (alerts == null) {
+                alerts = emptyList()
+            }
+
+            return@withContext alerts
+        }
 }
