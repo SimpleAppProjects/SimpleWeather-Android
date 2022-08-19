@@ -2,7 +2,6 @@ package com.thewizrd.simpleweather.viewmodels
 
 import android.app.Application
 import android.content.*
-import android.location.Location
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
@@ -26,9 +25,10 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
-import com.thewizrd.shared_resources.locationdata.toLocation
-import com.thewizrd.shared_resources.locationdata.toLocationData
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.CustomException
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
@@ -37,8 +37,6 @@ import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
-import kotlin.coroutines.coroutineContext
-import kotlin.math.abs
 
 sealed interface WeatherNowState {
     val weather: WeatherUiModel?
@@ -170,6 +168,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                 val result = updateLocation()
 
                 if (result is LocationResult.Changed) {
+                    settingsManager.updateLocation(result.data)
                     locData = result.data
                 }
             }
@@ -200,6 +199,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                 if (settingsManager.useFollowGPS()) {
                     val result = updateLocation()
                     if (result is LocationResult.Changed) {
+                        settingsManager.updateLocation(result.data)
                         weatherDataLoader.updateLocation(result.data)
                     }
                 }
@@ -311,7 +311,6 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
     }
 
     private suspend fun updateLocation(): LocationResult {
-        var locationChanged = false
         var locationData = getLocationData()
 
         if (settingsManager.getDataSync() == WearableDataSync.OFF && settingsManager.useFollowGPS() && (locationData == null || locationData.locationType == LocationType.GPS)) {
@@ -326,96 +325,10 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                 return LocationResult.NotChanged(locationData)
             }
 
-            var location = withContext(Dispatchers.IO) {
-                val result: Location? = try {
-                    withTimeoutOrNull(5000) {
-                        locationProvider.getLastLocation()
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-                result
-            }
-
-            if (!coroutineContext.isActive) {
-                return LocationResult.NotChanged(locationData)
-            }
-
-            /* Get current location from provider */
-            if (location == null) {
-                location = withTimeoutOrNull(30000) {
-                    locationProvider.getCurrentLocation()
-                }
-            }
-
-            if (!coroutineContext.isActive) {
-                return LocationResult.NotChanged(locationData)
-            }
-
-            if (location != null) {
-                var lastGPSLocData = settingsManager.getLastGPSLocData()
-
-                // Check previous location difference
-                if (lastGPSLocData?.isValid == true && locationData != null && ConversionMethods.calculateGeopositionDistance(
-                        locationData.toLocation(),
-                        location
-                    ) < 1600
-                ) {
-                    return LocationResult.NotChanged(locationData)
-                }
-
-                if (lastGPSLocData?.isValid == true &&
-                    abs(
-                        ConversionMethods.calculateHaversine(
-                            lastGPSLocData.latitude, lastGPSLocData.longitude,
-                            location.latitude, location.longitude
-                        )
-                    ) < 1600
-                ) {
-                    return LocationResult.NotChanged(locationData)
-                }
-
-                val view = try {
-                    withContext(Dispatchers.IO) {
-                        wm.getLocation(location)
-                    }
-                } catch (e: WeatherException) {
-                    viewModelState.update {
-                        val errorMessages =
-                            it.errorMessages + ErrorMessage.Resource(R.string.error_retrieve_location)
-                        it.copy(errorMessages = errorMessages)
-                    }
-                    return LocationResult.NotChanged(locationData)
-                }
-
-                if (view == null || view.locationQuery.isNullOrBlank()) {
-                    // Stop since there is no valid query
-                    return LocationResult.NotChanged(locationData)
-                } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
-                    val tzId =
-                        weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)
-                    if ("unknown" != tzId)
-                        view.locationTZLong = tzId
-                }
-
-                if (!coroutineContext.isActive) {
-                    return LocationResult.NotChanged(locationData)
-                }
-
-                // Save location as last known
-                lastGPSLocData = view.toLocationData(location)
-                settingsManager.updateLocation(lastGPSLocData)
-
-                locationData = lastGPSLocData
-                locationChanged = true
-            }
+            return locationProvider.getLatestLocationData(locationData)
         }
 
-        return if (locationChanged && locationData != null) {
-            LocationResult.Changed(locationData)
-        } else {
-            return LocationResult.NotChanged(locationData)
-        }
+        return LocationResult.NotChanged(locationData)
     }
 
     private fun checkInvalidLocation(locationData: LocationData?) {

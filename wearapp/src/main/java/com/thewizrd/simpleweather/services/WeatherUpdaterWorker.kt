@@ -1,9 +1,7 @@
 package com.thewizrd.simpleweather.services
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ServiceInfo
-import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.util.Log
@@ -11,30 +9,27 @@ import androidx.core.location.LocationManagerCompat
 import androidx.work.*
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationProvider
+import com.thewizrd.common.location.LocationResult
+import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.exceptions.WeatherException
-import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
-import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.absoluteValue
 
 class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     companion object {
@@ -165,7 +160,18 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             if (settingsManager.isWeatherLoaded()) {
                 if (settingsManager.getDataSync() == WearableDataSync.OFF && settingsManager.useFollowGPS()) {
                     try {
-                        locationChanged = updateLocation()
+                        val result = updateLocation()
+
+                        when (result) {
+                            is LocationResult.Changed -> {
+                                locationChanged = true
+                                settingsManager.saveLastGPSLocData(result.data)
+                            }
+                            else -> {
+                                // no-op
+                            }
+                        }
+
                         Timber.tag(TAG).i("locationChanged = $locationChanged...")
                     } catch (e: CancellationException) {
                         // ignore
@@ -221,81 +227,24 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             weather
         }
 
-        @SuppressLint("MissingPermission")
-        private suspend fun updateLocation(): Boolean = withContext(Dispatchers.Default) {
-            val context = sharedDeps.context
-            val wm = weatherModule.weatherManager
+        private suspend fun updateLocation(): LocationResult {
+            val context = appLib.context
             val locationProvider = LocationProvider(context)
 
             if (settingsManager.useFollowGPS()) {
                 if (!context.locationPermissionEnabled()) {
-                    return@withContext false
+                    return LocationResult.PermissionDenied()
                 }
 
-                val locMan = context.getSystemService(LocationManager::class.java)
+                val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                 if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                    return@withContext false
+                    return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
                 }
 
-                var location: Location? = try {
-                    withTimeoutOrNull(10 * 1000) {
-                        locationProvider.getLastLocation()
-                    }
-                } catch (e: Exception) {
-                    Logger.writeLine(Log.ERROR, e)
-                    null
-                }
-
-                if (location == null) {
-                    location = withTimeoutOrNull(60000) {
-                        locationProvider.getCurrentLocation()
-                    }
-                }
-
-                if (location != null) {
-                    val lastGPSLocData = settingsManager.getLastGPSLocData()
-
-                    // Check previous location difference
-                    if (lastGPSLocData?.isValid == true && ConversionMethods.calculateHaversine(
-                            lastGPSLocData.latitude,
-                            lastGPSLocData.longitude,
-                            location.latitude,
-                            location.longitude
-                        ).absoluteValue < 1600
-                    ) {
-                        return@withContext false
-                    }
-
-                    val query_vm = try {
-                        withContext(Dispatchers.IO) {
-                            wm.getLocation(location)
-                        }
-                    } catch (e: WeatherException) {
-                        Logger.writeLine(Log.ERROR, e)
-                        return@withContext false
-                    }
-
-                    if (query_vm == null || query_vm.locationQuery.isNullOrBlank()) {
-                        // Stop since there is no valid query
-                        return@withContext false
-                    } else if (query_vm.locationTZLong.isNullOrBlank() && query_vm.locationLat != 0.0 && query_vm.locationLong != 0.0) {
-                        val tzId =
-                            weatherModule.tzdbService.getTimeZone(
-                                query_vm.locationLat,
-                                query_vm.locationLong
-                            )
-
-                        if ("unknown" != tzId) {
-                            query_vm.locationTZLong = tzId
-                        }
-                    }
-
-                    // Save location as last known
-                    settingsManager.saveLastGPSLocData(query_vm.toLocationData(location))
-                    return@withContext true
-                }
+                return locationProvider.getLatestLocationData(settingsManager.getLastGPSLocData())
             }
-            false
+
+            return LocationResult.NotChanged(null)
         }
     }
 }
