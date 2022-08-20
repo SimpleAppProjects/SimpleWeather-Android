@@ -69,6 +69,9 @@ class WeatherChartsFragment : ToolbarFragment() {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherChartsFragment: onCreate")
 
+        enterTransition = null
+        exitTransition = null
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
                 locationData = JSONParser.deserializer(

@@ -74,10 +74,13 @@ class WeatherAQIFragment : ToolbarFragment() {
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("WeatherAQIFragment: onCreate")
 
+        enterTransition = null
+        exitTransition = null
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.KEY_DATA)) {
                 locationData = JSONParser.deserializer(
-                        savedInstanceState.getString(Constants.KEY_DATA),
+                    savedInstanceState.getString(Constants.KEY_DATA),
                     LocationData::class.java
                 )
             }

@@ -99,6 +99,10 @@ class WeatherListFragment : ToolbarFragment() {
         if (args.weatherListType == WeatherListType.ALERTS) {
             enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
             returnTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
+            exitTransition = null
+        } else {
+            enterTransition = null
+            exitTransition = null
         }
 
         if (savedInstanceState != null) {
