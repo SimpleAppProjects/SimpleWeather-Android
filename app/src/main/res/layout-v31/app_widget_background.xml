@@ -7,4 +7,5 @@
     android:importantForAccessibility="no"
     android:adjustViewBounds="true"
     android:scaleType="centerCrop"
-    tools:src="@drawable/background_overlay" />
+    tools:src="@drawable/background_overlay"
+    tools:viewBindingIgnore="true" />
