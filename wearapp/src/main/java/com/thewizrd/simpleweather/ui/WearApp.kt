@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.ui
 import android.text.format.DateFormat
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -20,12 +21,18 @@ import com.thewizrd.simpleweather.ui.components.CustomTimeText
 import com.thewizrd.simpleweather.ui.navigation.DestinationScrollType
 import com.thewizrd.simpleweather.ui.navigation.SCROLL_TYPE_NAV_ARGUMENT
 import com.thewizrd.simpleweather.ui.theme.WearAppTheme
+import com.thewizrd.simpleweather.ui.theme.activityViewModel
+import com.thewizrd.simpleweather.ui.time.ZonedTimeSource
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 
 @Composable
 fun WearApp(
     modifier: Modifier = Modifier,
     swipeDismissableNavController: NavHostController = rememberSwipeDismissableNavController()
 ) {
+    val wNowViewModel = activityViewModel<WeatherNowViewModel>()
+    val uiState by wNowViewModel.uiState.collectAsState()
+
     WearAppTheme {
         val currentBackStackEntry by swipeDismissableNavController.currentBackStackEntryAsState()
 
@@ -67,12 +74,13 @@ fun WearApp(
                     CustomTimeText(
                         modifier = timeTextModifier ?: Modifier,
                         visible = timeTextModifier != null,
-                        timeSource = TimeTextDefaults.timeSource(
-                            if (DateFormat.is24HourFormat(LocalContext.current)) {
-                                TimeTextDefaults.TimeFormat24Hours
+                        timeSource = ZonedTimeSource(
+                            timeFormat = if (DateFormat.is24HourFormat(LocalContext.current)) {
+                                "${DateTimeConstants.CLOCK_FORMAT_24HR} ${DateTimeConstants.TIMEZONE_NAME}"
                             } else {
-                                DateTimeConstants.CLOCK_FORMAT_12HR
-                            }
+                                "${DateTimeConstants.CLOCK_FORMAT_12HR} ${DateTimeConstants.TIMEZONE_NAME}"
+                            },
+                            timeZone = uiState.locationData?.tzLong
                         )
                     )
                 }
