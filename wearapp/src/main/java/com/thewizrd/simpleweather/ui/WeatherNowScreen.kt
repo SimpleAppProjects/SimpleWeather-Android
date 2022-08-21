@@ -132,14 +132,14 @@ fun WeatherNowScreen(
                     }
                 }
                 if (uiState.showDisconnectedView) {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .padding(
                                 vertical = 8.dp,
                                 horizontal = dimensionResource(id = R.dimen.inner_layout_padding)
                             )
                             .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_baseline_cloud_off_24),

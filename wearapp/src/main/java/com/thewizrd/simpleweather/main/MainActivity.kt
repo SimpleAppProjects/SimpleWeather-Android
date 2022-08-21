@@ -130,6 +130,12 @@ class MainActivity : WearableListenerActivity() {
                 }
             }
         }
+
+        if (settingsManager.getDataSync() != WearableDataSync.OFF) {
+            lifecycleScope.launch {
+                wNowViewModel.updateConnectionStatus(getConnectionStatus())
+            }
+        }
     }
 
     override fun onResume() {

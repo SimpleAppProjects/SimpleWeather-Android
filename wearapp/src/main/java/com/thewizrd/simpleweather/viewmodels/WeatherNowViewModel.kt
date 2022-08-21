@@ -501,7 +501,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
 
     fun updateConnectionStatus(connectionStatus: WearConnectionStatus) {
         viewModelState.update {
-            it.copy(showDisconnectedView = connectionStatus != WearConnectionStatus.CONNECTED)
+            it.copy(showDisconnectedView = settingsManager.getDataSync() != WearableDataSync.OFF && connectionStatus != WearConnectionStatus.CONNECTED)
         }
     }
 
