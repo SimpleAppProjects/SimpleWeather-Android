@@ -337,10 +337,7 @@ fun WeatherNowScreen(
                                     contentDescription = null
                                 )
                                 Text(
-                                    text = spannableStringToAnnotatedString(
-                                        popData.value,
-                                        LocalDensity.current
-                                    ),
+                                    text = spannableStringToAnnotatedString(popData.value),
                                     style = MaterialTheme.typography.caption1,
                                     textAlign = TextAlign.End,
                                     maxLines = 1,
@@ -365,10 +362,7 @@ fun WeatherNowScreen(
                                     contentDescription = null
                                 )
                                 Text(
-                                    text = spannableStringToAnnotatedString(
-                                        windData.value,
-                                        LocalDensity.current
-                                    ),
+                                    text = spannableStringToAnnotatedString(windData.value),
                                     style = MaterialTheme.typography.caption1,
                                     textAlign = TextAlign.End,
                                     maxLines = 1,

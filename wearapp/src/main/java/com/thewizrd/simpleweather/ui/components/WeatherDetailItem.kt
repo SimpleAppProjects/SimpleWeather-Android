@@ -35,18 +35,12 @@ fun WeatherDetailItem(
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
-                text = spannableStringToAnnotatedString(
-                    model.label,
-                    density
-                )
+                text = spannableStringToAnnotatedString(model.label)
             )
         },
         secondaryLabel = {
             Text(
-                text = spannableStringToAnnotatedString(
-                    model.value,
-                    density
-                )
+                text = spannableStringToAnnotatedString(model.value)
             )
         },
         onClick = {},

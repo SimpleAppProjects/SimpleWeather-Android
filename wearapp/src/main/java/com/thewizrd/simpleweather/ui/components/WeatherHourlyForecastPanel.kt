@@ -152,10 +152,7 @@ fun WeatherHourlyForecastPanel(
                         contentDescription = null
                     )
                     Text(
-                        text = spannableStringToAnnotatedString(
-                            popData.value,
-                            LocalDensity.current
-                        ),
+                        text = spannableStringToAnnotatedString(popData.value),
                         style = MaterialTheme.typography.body1.copy(fontSize = 14.sp),
                         textAlign = TextAlign.End,
                         maxLines = 1,
@@ -186,7 +183,7 @@ fun WeatherHourlyForecastPanel(
                         contentDescription = null
                     )
                     Text(
-                        text = spannableStringToAnnotatedString(windSpeed, LocalDensity.current),
+                        text = spannableStringToAnnotatedString(windSpeed),
                         style = MaterialTheme.typography.body1.copy(fontSize = 14.sp),
                         textAlign = TextAlign.End,
                         maxLines = 1,

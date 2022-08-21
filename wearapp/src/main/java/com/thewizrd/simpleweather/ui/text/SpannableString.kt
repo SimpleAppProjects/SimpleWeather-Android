@@ -72,14 +72,14 @@ fun annotatedStringResource(@StringRes id: Int): AnnotatedString {
 @Composable
 fun spannableStringToAnnotatedString(
     text: CharSequence
-) {
+): AnnotatedString {
     val density = LocalDensity.current
-    return remember {
+    return remember(text) {
         spannableStringToAnnotatedString(text, density)
     }
 }
 
-fun spannableStringToAnnotatedString(
+private fun spannableStringToAnnotatedString(
     text: CharSequence,
     density: Density
 ): AnnotatedString {
