@@ -7,16 +7,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -28,7 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.map
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -41,13 +41,10 @@ import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
-import com.thewizrd.common.controls.WeatherAlertsViewModel
-import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.common.controls.WeatherUiModel
+import com.thewizrd.common.controls.*
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
@@ -56,60 +53,34 @@ import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
-import com.thewizrd.simpleweather.ui.components.ForecastItem
-import com.thewizrd.simpleweather.ui.components.HourlyForecastItem
-import com.thewizrd.simpleweather.ui.components.LoadingContent
-import com.thewizrd.simpleweather.ui.components.WearDivider
+import com.thewizrd.simpleweather.ui.components.*
 import com.thewizrd.simpleweather.ui.navigation.Screen
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
-import com.thewizrd.simpleweather.ui.theme.activityViewModel
 import com.thewizrd.simpleweather.ui.theme.findActivity
-import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
+import com.thewizrd.simpleweather.viewmodels.WeatherNowState
 import com.thewizrd.simpleweather.viewmodels.WeatherNowStateModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterNotNull
-import kotlin.math.max
 
 @Composable
 fun WeatherNowScreen(
     navController: NavHostController,
-    backStackEntry: NavBackStackEntry
+    backStackEntry: NavBackStackEntry,
+    wNowViewModel: WeatherNowViewModel,
+    uiState: WeatherNowState,
+    weather: WeatherUiModel,
+    alerts: List<WeatherAlertViewModel>,
+    forecasts: List<ForecastItemViewModel>,
+    hourlyForecasts: List<HourlyForecastItemViewModel>,
+    hasMinutely: Boolean
 ) {
     val stateModel = viewModel<WeatherNowStateModel>()
     val scrollState = scrollState(it = backStackEntry)
     val focusRequester = remember { FocusRequester() }
-    val containerWidth = LocalConfiguration.current.screenWidthDp
     val activity = LocalContext.current.findActivity()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val wNowViewModel = activityViewModel<WeatherNowViewModel>()
-    val alertsView = activityViewModel<WeatherAlertsViewModel>()
-    val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
-
-    val alerts by alertsView.getAlerts().collectAsState()
-    val forecasts by forecastsPanelView.getForecasts().map {
-        val maxItemCount = max(4f, containerWidth / 50f).toInt()
-        it.take(maxItemCount)
-    }.observeAsState(emptyList())
-    val hourlyForecasts by forecastsPanelView.getHourlyForecasts().map {
-        it.take(12)
-    }.observeAsState(emptyList())
-    val hasMinutely by forecastsPanelView.getMinutelyForecasts().map {
-        it.isNotEmpty()
-    }.observeAsState(false)
-
-    val uiState by wNowViewModel.uiState.collectAsState()
     val scrollLoading by stateModel.isLoading.collectAsState()
-
-    val weather by wNowViewModel.weather.filterNotNull().collectAsState(WeatherUiModel())
-
-    val weatherIconDrawable = remember(weather.weatherIcon) {
-        ContextCompat.getDrawable(
-            activity,
-            sharedDeps.weatherIconsManager.getWeatherIconResource(weather.weatherIcon)
-        )
-    }
 
     LoadingContent(
         empty = uiState.isLoading && (uiState.noLocationAvailable || weather.location.isNullOrEmpty()) || scrollLoading,
@@ -683,10 +654,15 @@ fun WeatherNowScreen(
                 )
             }
         }
+
+        LaunchedEffect(Unit) {
+            lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                focusRequester.requestFocus()
+            }
+        }
     }
 
     LaunchedEffect(stateModel) {
-        delay(500)
         stateModel.updateLoadingState(false)
     }
 

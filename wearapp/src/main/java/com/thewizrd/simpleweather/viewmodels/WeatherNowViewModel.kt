@@ -132,12 +132,12 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
         viewModelState.value.toWeatherNowState()
     )
 
-    val weather = viewModelState.map {
+    val weather = viewModelState.mapNotNull {
         it.weather
     }.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
-        null
+        viewModelState.value.weather ?: WeatherUiModel()
     )
 
     val errorMessages = viewModelState.map {

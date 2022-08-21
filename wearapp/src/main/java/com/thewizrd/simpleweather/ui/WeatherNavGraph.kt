@@ -2,23 +2,54 @@ package com.thewizrd.simpleweather.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.lifecycle.map
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
+import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.simpleweather.ui.navigation.DestinationScrollType
 import com.thewizrd.simpleweather.ui.navigation.SCROLL_TYPE_NAV_ARGUMENT
 import com.thewizrd.simpleweather.ui.navigation.Screen
+import com.thewizrd.simpleweather.ui.theme.activityViewModel
+import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
+import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
+import kotlin.math.max
 
 @Composable
 fun WeatherNavGraph(
     navController: NavHostController,
     startDestination: Screen = Screen.WeatherNow
 ) {
+    val containerWidth = LocalConfiguration.current.screenWidthDp
+
+    val wNowViewModel = activityViewModel<WeatherNowViewModel>()
+    val alertsView = activityViewModel<WeatherAlertsViewModel>()
+    val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
+
+    val uiState by wNowViewModel.uiState.collectAsState()
+    val weather by wNowViewModel.weather.collectAsState()
+
+    val alerts by alertsView.getAlerts().collectAsState()
+    val forecasts by forecastsPanelView.getForecasts().map {
+        val maxItemCount = max(4f, containerWidth / 50f).toInt()
+        it.take(maxItemCount)
+    }.observeAsState(emptyList())
+    val hourlyForecasts by forecastsPanelView.getHourlyForecasts().map {
+        it.take(12)
+    }.observeAsState(emptyList())
+    val hasMinutely by forecastsPanelView.getMinutelyForecasts().map {
+        it.isNotEmpty()
+    }.observeAsState(false)
+
     SwipeDismissableNavHost(
         navController = navController,
         startDestination = startDestination.route,
@@ -34,8 +65,15 @@ fun WeatherNavGraph(
             )
         ) {
             WeatherNowScreen(
-                backStackEntry = it,
-                navController = navController
+                navController,
+                it,
+                wNowViewModel,
+                uiState,
+                weather,
+                alerts,
+                forecasts,
+                hourlyForecasts,
+                hasMinutely
             )
         }
 
@@ -48,7 +86,7 @@ fun WeatherNavGraph(
                 }
             )
         ) {
-            WeatherAlertsScreen(backStackEntry = it)
+            WeatherAlertsScreen(backStackEntry = it, alerts)
         }
 
         composable(
@@ -60,7 +98,7 @@ fun WeatherNavGraph(
                 }
             )
         ) {
-            WeatherDetailsScreen(it)
+            WeatherDetailsScreen(it, weather.weatherDetailsMap.values)
         }
 
         composable(
