@@ -1,6 +1,5 @@
 package com.thewizrd.simpleweather.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -8,24 +7,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
-import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 
@@ -33,27 +26,11 @@ import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 fun WeatherForecastPanel(
     model: ForecastItemViewModel
 ) {
-    val ctx = LocalContext.current
-    val defaultIconProvider =
-        sharedDeps.weatherIconsManager.getIconProvider(WeatherIconsEFProvider.KEY)
-
-    val weatherIconDrawable = remember {
-        ContextCompat.getDrawable(
-            ctx,
-            sharedDeps.weatherIconsManager.getWeatherIconResource(model.weatherIcon)
-        )
-    }
-    val popData = remember {
+    val popData = remember(model.extras) {
         model.extras?.get(WeatherDetailsType.POPCHANCE)
     }
-    val popDrawable = popData?.let {
-        ContextCompat.getDrawable(ctx, defaultIconProvider.getWeatherIconResource(it.icon))
-    }
-    val windData = remember {
+    val windData = remember(model.extras) {
         model.extras?.get(WeatherDetailsType.WINDSPEED)
-    }
-    val windDrawable = windData?.let {
-        ContextCompat.getDrawable(ctx, defaultIconProvider.getWeatherIconResource(it.icon))
     }
 
     Column(
@@ -79,12 +56,12 @@ fun WeatherForecastPanel(
                 text = model.date ?: WeatherIcons.EM_DASH,
                 style = MaterialTheme.typography.body1
             )
-            Image(
+            WeatherIcon(
                 modifier = Modifier.size(
                     width = 32.dp, height = 36.dp
                 ),
-                painter = rememberDrawablePainter(weatherIconDrawable),
-                contentDescription = null
+                weatherIcon = model.weatherIcon,
+                shouldAnimate = true
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -139,7 +116,7 @@ fun WeatherForecastPanel(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp),
-                        painter = rememberDrawablePainter(drawable = popDrawable),
+                        painter = painterResource(R.drawable.wi_umbrella),
                         tint = colorResource(R.color.colorPrimaryLight),
                         contentDescription = null
                     )
@@ -162,7 +139,7 @@ fun WeatherForecastPanel(
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat()),
-                        painter = rememberDrawablePainter(drawable = windDrawable),
+                        painter = painterResource(R.drawable.wi_wind_direction),
                         tint = Color(0xFF20B2AA),
                         contentDescription = null
                     )

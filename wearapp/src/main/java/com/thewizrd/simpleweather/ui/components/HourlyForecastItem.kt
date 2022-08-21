@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.ui.components
 
 import android.content.res.Configuration
-import android.graphics.drawable.Drawable
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -20,17 +19,13 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.core.content.ContextCompat
-import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.DateTimeConstants
-import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.simpleweather.R
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -39,19 +34,13 @@ fun HourlyForecastItem(
     model: HourlyForecastItemViewModel
 ) {
     val ctx = LocalContext.current
-    val weatherIconDrawable = remember {
-        ContextCompat.getDrawable(
-            ctx,
-            sharedDeps.weatherIconsManager.getWeatherIconResource(model.weatherIcon)
-        )
-    }
-    val dateStr = remember {
+    val dateStr = remember(ctx, model.forecast.date) {
         buildAnnotatedStringDate(model.forecast.date, DateFormat.is24HourFormat(ctx))
     }
 
     HourlyForecastItem(
         date = dateStr,
-        weatherIconDrawable = weatherIconDrawable,
+        weatherIcon = model.weatherIcon,
         hiTemp = model.hiTemp
     )
 }
@@ -59,7 +48,7 @@ fun HourlyForecastItem(
 @Composable
 fun HourlyForecastItem(
     date: AnnotatedString,
-    weatherIconDrawable: Drawable?,
+    weatherIcon: String?,
     hiTemp: String
 ) {
     Row(
@@ -74,13 +63,13 @@ fun HourlyForecastItem(
             style = MaterialTheme.typography.body1,
             textAlign = TextAlign.Center
         )
-        Icon(
+        WeatherIcon(
             modifier = Modifier
                 .padding(2.dp)
                 .size(36.dp)
                 .weight(1f),
-            painter = rememberDrawablePainter(weatherIconDrawable),
-            contentDescription = null
+            weatherIcon = weatherIcon,
+            shouldAnimate = true
         )
         Text(
             modifier = Modifier
@@ -171,19 +160,13 @@ fun PreviewHourlyForecastItem() {
         contentAlignment = Alignment.Center
     ) {
         val ctx = LocalContext.current
-        val weatherIconDrawable = remember {
-            ContextCompat.getDrawable(
-                ctx,
-                R.drawable.wi_day_cloudy
-            )
-        }
-        val dateStr = remember {
+        val dateStr = remember(ctx) {
             buildAnnotatedStringDatePreview(ZonedDateTime.now())
         }
 
         HourlyForecastItem(
             date = dateStr,
-            weatherIconDrawable = weatherIconDrawable,
+            weatherIcon = WeatherIcons.DAY_CLOUDY,
             hiTemp = "82°"
         )
     }

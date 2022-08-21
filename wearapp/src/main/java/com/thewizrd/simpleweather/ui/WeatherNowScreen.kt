@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.ui
 
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,7 +13,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -25,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -35,7 +32,6 @@ import androidx.navigation.NavHostController
 import androidx.wear.compose.material.*
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.accompanist.flowlayout.FlowCrossAxisAlignment
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
@@ -207,14 +203,14 @@ fun WeatherNowScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Image(
+                        WeatherIcon(
                             modifier = Modifier
                                 .height(60.dp)
                                 .weight(1f)
                                 .padding(end = 8.dp),
-                            painter = rememberDrawablePainter(drawable = weatherIconDrawable),
-                            contentDescription = null,
-                            alignment = Alignment.CenterEnd
+                            alignment = IconAlignment.End,
+                            weatherIcon = weather.weatherIcon,
+                            shouldAnimate = true
                         )
                         Text(
                             modifier = Modifier

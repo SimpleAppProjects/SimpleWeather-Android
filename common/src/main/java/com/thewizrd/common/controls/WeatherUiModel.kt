@@ -93,7 +93,8 @@ class WeatherUiModel() {
 
     private var unitCode: String? = null
     private var localeCode: String? = null
-    private var iconProvider: String? = null
+    var iconProvider: String? = null
+        private set
 
     private val context
         get() = sharedDeps.context
@@ -116,14 +117,10 @@ class WeatherUiModel() {
                 weatherData = weather
 
                 // Location
-                if (location != weather.location.name) {
-                    location = weather.location.name
-                }
+                location = weather.location.name
 
                 // Summary
-                if (weatherSummary != weather.condition.summary) {
-                    weatherSummary = weather.condition.summary
-                }
+                weatherSummary = weather.condition.summary
 
                 // Additional Details
                 if (weather.location.latitude != null && weather.location.longitude != null) {
@@ -136,26 +133,23 @@ class WeatherUiModel() {
                 }
 
                 // Additional Details
-                if (weatherSource != weather.source) {
-                    weatherSource = weather.source
-                }
+                weatherSource = weather.source
 
                 // Language
                 weatherLocale = weather.locale
 
                 // Refresh locale/unit dependent values
-                refreshView(false)
+                refreshView()
             } else if (unitCode != settingsManager.getUnitString() ||
                 localeCode != LocaleUtils.getLocaleCode() ||
                 iconProvider != settingsManager.getIconsProvider()
             ) {
-                val iconChanged = iconProvider != settingsManager.getIconsProvider()
-                refreshView(iconChanged)
+                refreshView()
             }
         }
     }
 
-    private fun refreshView(iconChanged: Boolean) {
+    private fun refreshView() {
         val provider = weatherModule.weatherManager.getWeatherProvider(weatherData!!.source)
 
         val isFahrenheit = Units.FAHRENHEIT == settingsManager.getTemperatureUnit()
@@ -170,31 +164,28 @@ class WeatherUiModel() {
         iconProvider = settingsManager.getIconsProvider()
 
         // Date Updated
-        if (updateDate != getLastBuildDate(weatherData!!)) {
-            updateDate = getLastBuildDate(weatherData!!)
-        }
+        updateDate = getLastBuildDate(weatherData!!)
 
         // Update current condition
-        val newCurTemp = if (weatherData?.condition?.tempF != null &&
-                             weatherData!!.condition.tempF != weatherData!!.condition.tempC) {
-            val temp = if (isFahrenheit) Math.round(weatherData!!.condition.tempF) else Math.round(weatherData!!.condition.tempC)
+        curTemp = if (weatherData?.condition?.tempF != null &&
+            weatherData!!.condition.tempF != weatherData!!.condition.tempC
+        ) {
+            val temp = if (isFahrenheit) Math.round(weatherData!!.condition.tempF) else Math.round(
+                weatherData!!.condition.tempC
+            )
             String.format(LocaleUtils.getLocale(), "%d°%s", temp, tempUnit)
         } else {
             WeatherIcons.PLACEHOLDER
         }
 
-        if (curTemp != newCurTemp) {
-            curTemp = newCurTemp
-        }
+        val weatherCondition =
+            if (provider.supportsWeatherLocale()) weatherData!!.condition.weather else provider.getWeatherCondition(
+                weatherData!!.condition.icon
+            )
+        curCondition =
+            if (weatherCondition.isNullOrBlank()) WeatherIcons.EM_DASH else weatherCondition
 
-        val weatherCondition = if (provider.supportsWeatherLocale()) weatherData!!.condition.weather else provider.getWeatherCondition(weatherData!!.condition.icon)
-        val newCondition = if (weatherCondition.isNullOrBlank()) WeatherIcons.EM_DASH else weatherCondition
-        if (curCondition != newCondition) {
-            curCondition = newCondition
-        }
-        if (iconChanged || weatherIcon != weatherData!!.condition.icon) {
-            weatherIcon = weatherData!!.condition.icon
-        }
+        weatherIcon = weatherData!!.condition.icon
 
         run {
             var shouldHideHi = false
@@ -202,16 +193,17 @@ class WeatherUiModel() {
 
             val newHiTemp: String
             if (weatherData?.condition?.highF != null &&
-                weatherData!!.condition.highF != weatherData!!.condition.highC) {
-                newHiTemp = (if (isFahrenheit) Math.round(weatherData!!.condition.highF) else Math.round(weatherData!!.condition.highC)).toString() + "°"
+                weatherData!!.condition.highF != weatherData!!.condition.highC
+            ) {
+                newHiTemp =
+                    (if (isFahrenheit) Math.round(weatherData!!.condition.highF) else Math.round(
+                        weatherData!!.condition.highC
+                    )).toString() + "°"
             } else {
                 newHiTemp = WeatherIcons.PLACEHOLDER
                 shouldHideHi = true
             }
-
-            if (hiTemp != newHiTemp) {
-                hiTemp = newHiTemp
-            }
+            hiTemp = newHiTemp
 
             val newLoTemp: String
             if (weatherData?.condition?.lowF != null &&
@@ -221,10 +213,7 @@ class WeatherUiModel() {
                 newLoTemp = WeatherIcons.PLACEHOLDER
                 shouldHideLo = true
             }
-
-            if (loTemp != newLoTemp) {
-                loTemp = newLoTemp
-            }
+            loTemp = newLoTemp
 
             this.isShowHiLo = (!shouldHideHi || !shouldHideLo) && hiTemp != loTemp
         }
