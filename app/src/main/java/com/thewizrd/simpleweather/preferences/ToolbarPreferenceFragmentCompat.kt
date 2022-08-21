@@ -2,12 +2,17 @@ package com.thewizrd.simpleweather.preferences
 
 import android.app.Activity
 import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.preference.Preference
+import androidx.preference.PreferenceGroup
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior
 import com.google.android.material.appbar.MaterialToolbar
@@ -74,6 +79,8 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        preferenceScreen.tintIcons(requireContext().getAttrColor(R.attr.colorPrimary))
+
         // Toolbar
         binding.toolbar.setTitle(titleResId)
         binding.appBar.liftOnScrollTargetViewId = listView.id
@@ -100,6 +107,17 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
             } else {
                 binding.appBar.setBackgroundColor(statusBarColor)
             }
+        }
+    }
+
+    private fun Preference.tintIcons(@ColorInt color: Int) {
+        if (this is PreferenceGroup) {
+            for (i in 0 until preferenceCount) {
+                getPreference(i).tintIcons(color)
+            }
+        } else {
+            val icon: Drawable? = icon
+            icon?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         }
     }
 }

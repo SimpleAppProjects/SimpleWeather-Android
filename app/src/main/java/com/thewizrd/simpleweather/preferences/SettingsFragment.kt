@@ -9,8 +9,6 @@ import android.content.Intent.FilterComparison
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -25,7 +23,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +42,6 @@ import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
-import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.BuildConfig
@@ -123,17 +119,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         private const val KEY_APIREGISTER = "key_apiregister"
         private const val CATEGORY_NOTIFICATION = "category_notification"
         private const val CATEGORY_API = "category_api"
-
-        private fun tintIcons(preference: Preference, @ColorInt color: Int) {
-            if (preference is PreferenceGroup) {
-                for (i in 0 until preference.preferenceCount) {
-                    tintIcons(preference.getPreference(i), color)
-                }
-            } else {
-                val icon: Drawable? = preference.icon
-                icon?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-            }
-        }
     }
 
     override val titleResId: Int
@@ -883,8 +868,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 popChanceNotifPref.isVisible = true
             }
         }
-
-        tintIcons(preferenceScreen, requireContext().getAttrColor(R.attr.colorPrimary))
     }
 
     @Deprecated("Deprecated in Java")
