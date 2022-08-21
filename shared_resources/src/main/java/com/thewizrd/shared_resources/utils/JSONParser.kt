@@ -179,6 +179,7 @@ object JSONParser {
 
         val buffer = Buffer()
         val writer = JsonWriter.of(buffer)
+        writer.serializeNulls = true
 
         try {
             `object`.toJson(writer)
