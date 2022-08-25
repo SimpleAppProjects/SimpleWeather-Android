@@ -52,7 +52,12 @@ fun WeatherForecastScreen(
             null
         }
     ) {
-        items(forecasts) {
+        items(
+            forecasts,
+            key = {
+                it.hashCode()
+            }
+        ) {
             it?.let {
                 WeatherForecastPanel(model = it)
             }

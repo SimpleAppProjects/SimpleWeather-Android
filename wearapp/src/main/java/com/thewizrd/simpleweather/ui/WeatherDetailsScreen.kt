@@ -33,7 +33,7 @@ fun WeatherDetailsScreen(
         anchorType = ScalingLazyListAnchorType.ItemStart
     ) {
         weatherDetails.forEach {
-            item {
+            item(key = it.detailsType) {
                 WeatherDetailItem(model = it)
             }
         }

@@ -37,7 +37,9 @@ fun WeatherAlertsScreen(
         contentPadding = PaddingValues(vertical = 48.dp),
         autoCentering = null
     ) {
-        items(alerts) { alert ->
+        items(alerts, key = {
+            it.hashCode()
+        }) { alert ->
             WeatherAlertPanel(alert)
         }
     }

@@ -52,7 +52,12 @@ fun WeatherHourlyForecastScreen(
             null
         }
     ) {
-        items(hourlyForecasts) {
+        items(
+            hourlyForecasts,
+            key = {
+                it.hashCode()
+            }
+        ) {
             it?.let {
                 WeatherHourlyForecastPanel(model = it)
             }

@@ -54,7 +54,12 @@ fun WeatherMinutelyForecastScreen(
         }
     ) {
         minutelyForecasts?.let { minFcasts ->
-            items(minFcasts) {
+            items(
+                minFcasts,
+                key = {
+                    it.hashCode()
+                }
+            ) {
                 WeatherMinutelyForecastPanel(model = it)
             }
         }
