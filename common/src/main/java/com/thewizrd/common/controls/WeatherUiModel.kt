@@ -620,6 +620,66 @@ class WeatherUiModel() {
 
     val isValid: Boolean
         get() = weatherData?.isValid == true
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WeatherUiModel
+
+        if (location != other.location) return false
+        if (updateDate != other.updateDate) return false
+        if (curTemp != other.curTemp) return false
+        if (curCondition != other.curCondition) return false
+        if (weatherIcon != other.weatherIcon) return false
+        if (hiTemp != other.hiTemp) return false
+        if (loTemp != other.loTemp) return false
+        if (isShowHiLo != other.isShowHiLo) return false
+        if (weatherSummary != other.weatherSummary) return false
+        if (sunPhase != other.sunPhase) return false
+        if (uvIndex != other.uvIndex) return false
+        if (beaufort != other.beaufort) return false
+        if (moonPhase != other.moonPhase) return false
+        if (airQuality != other.airQuality) return false
+        if (pollen != other.pollen) return false
+        if (locationCoord != other.locationCoord) return false
+        if (weatherCredit != other.weatherCredit) return false
+        if (weatherSource != other.weatherSource) return false
+        if (weatherLocale != other.weatherLocale) return false
+        if (weatherDetailsMap != other.weatherDetailsMap) return false
+        if (unitCode != other.unitCode) return false
+        if (localeCode != other.localeCode) return false
+        if (iconProvider != other.iconProvider) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = location?.hashCode() ?: 0
+        result = 31 * result + (updateDate?.hashCode() ?: 0)
+        result = 31 * result + (curTemp?.hashCode() ?: 0)
+        result = 31 * result + (curCondition?.hashCode() ?: 0)
+        result = 31 * result + weatherIcon.hashCode()
+        result = 31 * result + (hiTemp?.hashCode() ?: 0)
+        result = 31 * result + (loTemp?.hashCode() ?: 0)
+        result = 31 * result + isShowHiLo.hashCode()
+        result = 31 * result + (weatherSummary?.hashCode() ?: 0)
+        result = 31 * result + (sunPhase?.hashCode() ?: 0)
+        result = 31 * result + (uvIndex?.hashCode() ?: 0)
+        result = 31 * result + (beaufort?.hashCode() ?: 0)
+        result = 31 * result + (moonPhase?.hashCode() ?: 0)
+        result = 31 * result + (airQuality?.hashCode() ?: 0)
+        result = 31 * result + (pollen?.hashCode() ?: 0)
+        result = 31 * result + locationCoord.hashCode()
+        result = 31 * result + (weatherCredit?.hashCode() ?: 0)
+        result = 31 * result + (weatherSource?.hashCode() ?: 0)
+        result = 31 * result + (weatherLocale?.hashCode() ?: 0)
+        result = 31 * result + weatherDetailsMap.hashCode()
+        result = 31 * result + (unitCode?.hashCode() ?: 0)
+        result = 31 * result + (localeCode?.hashCode() ?: 0)
+        result = 31 * result + (iconProvider?.hashCode() ?: 0)
+        return result
+    }
 }
 
 fun Weather.toUiModel(): WeatherUiModel {

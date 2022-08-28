@@ -16,6 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.ScalingLazyListAnchorType
+import androidx.wear.compose.material.ScalingLazyListState
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import com.thewizrd.common.controls.ForecastsListViewModel
 import com.thewizrd.shared_resources.Constants
@@ -26,10 +27,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun WeatherForecastScreen(
+    scalingLazyListState: ScalingLazyListState,
+    focusRequester: FocusRequester,
     backStackEntry: NavBackStackEntry
 ) {
-    val scalingLazyListState = scalingLazyListState(it = backStackEntry)
-    val focusRequester = remember { FocusRequester() }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val scrollToPosition = remember(backStackEntry) {

@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
@@ -16,6 +18,10 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.weatherdata.model.Forecasts
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.weather_api.weatherModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -30,22 +36,24 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private val forecasts = MutableLiveData<List<ForecastItemViewModel>>()
-    private val hourlyForecasts = MutableLiveData<List<HourlyForecastItemViewModel>>()
-    private val minutelyForecasts = MutableLiveData<List<MinutelyForecastViewModel>>()
+    private val forecasts = MutableStateFlow<List<ForecastItemViewModel>>(emptyList())
+    private val hourlyForecasts = MutableStateFlow<List<HourlyForecastItemViewModel>>(emptyList())
+    private val minutelyForecasts = MutableStateFlow<List<MinutelyForecastViewModel>>(emptyList())
 
-    private var currentForecastsData: LiveData<Forecasts>? = null
-    private var currentHrForecastsData: LiveData<List<HourlyForecast>>? = null
+    private var currentForecastsData: Flow<Forecasts> = emptyFlow()
+    private var currentHrForecastsData: Flow<List<HourlyForecast>> = emptyFlow()
 
-    fun getForecasts(): LiveData<List<ForecastItemViewModel>> {
+    private var flowScope: CoroutineScope? = null
+
+    fun getForecasts(): StateFlow<List<ForecastItemViewModel>> {
         return forecasts
     }
 
-    fun getHourlyForecasts(): LiveData<List<HourlyForecastItemViewModel>> {
+    fun getHourlyForecasts(): StateFlow<List<HourlyForecastItemViewModel>> {
         return hourlyForecasts
     }
 
-    fun getMinutelyForecasts(): LiveData<List<MinutelyForecastViewModel>> {
+    fun getMinutelyForecasts(): StateFlow<List<MinutelyForecastViewModel>> {
         return minutelyForecasts
     }
 
@@ -60,23 +68,29 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
                 localeCode = LocaleUtils.getLocaleCode()
                 iconProvider = settingsManager.getIconsProvider()
 
-                currentForecastsData?.removeObserver(forecastObserver)
-                currentForecastsData = weatherDAO.getLiveForecastData(location.query)
+                flowScope?.cancel()
 
-                currentForecastsData!!.observeForever(forecastObserver)
-                forecasts.postValue(forecastMapper.apply(currentForecastsData!!.value))
-                minutelyForecasts.postValue(minForecastMapper.apply(currentForecastsData!!.value))
+                currentForecastsData = weatherDAO.getLiveForecastData(location.query).asFlow()
 
-                currentHrForecastsData?.removeObserver(hrforecastObserver)
                 val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
                 currentHrForecastsData =
                     weatherDAO.getLiveHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
                         location.query, 6,
                         ZonedDateTime.now(location.tzOffset).minusHours((hrInterval * 0.5).toLong())
                             .truncatedTo(ChronoUnit.HOURS)
-                    )
-                currentHrForecastsData!!.observeForever(hrforecastObserver)
-                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
+                    ).asFlow()
+
+                flowScope = CoroutineScope(SupervisorJob())
+                flowScope?.launch {
+                    currentForecastsData.collect {
+                        forecasts.emit(forecastMapper.apply(it))
+                    }
+                }
+                flowScope?.launch {
+                    currentHrForecastsData.collect {
+                        hourlyForecasts.emit(hrForecastMapper.apply(it))
+                    }
+                }
             }
         } else if (!ObjectsCompat.equals(unitCode, settingsManager.getUnitString()) ||
             !ObjectsCompat.equals(localeCode, LocaleUtils.getLocaleCode()) ||
@@ -86,12 +100,14 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
             localeCode = LocaleUtils.getLocaleCode()
             iconProvider = settingsManager.getIconsProvider()
 
-            if (currentForecastsData?.value != null) {
-                forecasts.postValue(forecastMapper.apply(currentForecastsData!!.value))
-                minutelyForecasts.postValue(minForecastMapper.apply(currentForecastsData!!.value))
-            }
-            if (currentHrForecastsData?.value != null) {
-                hourlyForecasts.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
+            viewModelScope.launch {
+                currentForecastsData.lastOrNull()?.let {
+                    forecasts.emit(forecastMapper.apply(it))
+                    minutelyForecasts.emit(minForecastMapper.apply(it))
+                }
+                currentHrForecastsData.lastOrNull()?.let {
+                    hourlyForecasts.emit(hrForecastMapper.apply(it))
+                }
             }
         }
     }
@@ -141,24 +157,10 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
             emptyList()
         }
 
-    private val forecastObserver = Observer<Forecasts?> { forecastData ->
-        forecasts.postValue(forecastMapper.apply(forecastData))
-        minutelyForecasts.postValue(minForecastMapper.apply(forecastData))
-    }
-
-    private val hrforecastObserver = Observer<List<HourlyForecast>?> { forecastData ->
-        hourlyForecasts.postValue(hrForecastMapper.apply(forecastData))
-    }
-
     override fun onCleared() {
         super.onCleared()
 
+        flowScope?.cancel()
         locationData = null
-
-        currentForecastsData?.removeObserver(forecastObserver)
-        currentHrForecastsData?.removeObserver(hrforecastObserver)
-
-        currentForecastsData = null
-        currentHrForecastsData = null
     }
 }

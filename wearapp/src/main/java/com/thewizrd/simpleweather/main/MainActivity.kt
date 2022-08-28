@@ -25,7 +25,7 @@ import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
-import com.thewizrd.simpleweather.ui.WearApp
+import com.thewizrd.simpleweather.ui.WeatherNow
 import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
@@ -80,7 +80,7 @@ class MainActivity : WearableListenerActivity() {
         )
 
         setContent {
-            WearApp()
+            WeatherNow()
         }
 
         lifecycleScope.launchWhenCreated {
