@@ -1,74 +1,74 @@
 package com.thewizrd.simpleweather.ui
 
 import android.text.format.DateFormat
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyListState
-import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.google.android.horologist.compose.navscaffold.WearNavScaffold
-import com.google.android.horologist.compose.navscaffold.scalingLazyColumnComposable
-import com.google.android.horologist.compose.navscaffold.scrollStateComposable
+import androidx.wear.compose.material.*
+import com.google.android.horologist.compose.layout.fadeAway
+import com.google.android.horologist.compose.layout.fadeAwayScalingLazyList
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.simpleweather.ui.components.CustomTimeText
 import com.thewizrd.simpleweather.ui.navigation.Screen
+import com.thewizrd.simpleweather.ui.navigation.WeatherNowNavController
 import com.thewizrd.simpleweather.ui.theme.WearAppTheme
 import com.thewizrd.simpleweather.ui.theme.activityViewModel
 import com.thewizrd.simpleweather.ui.time.ZonedTimeSource
 import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlin.math.max
 
 @Composable
 fun WeatherNow(
-    modifier: Modifier = Modifier,
-    swipeDismissableNavController: NavHostController = rememberSwipeDismissableNavController()
+    modifier: Modifier = Modifier
 ) {
-    val navController by rememberUpdatedState(newValue = swipeDismissableNavController)
     val containerWidth = LocalConfiguration.current.screenWidthDp
 
     val wNowViewModel = activityViewModel<WeatherNowViewModel>()
     val alertsView = activityViewModel<WeatherAlertsViewModel>()
     val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
 
-    val uiState by wNowViewModel.uiState.collectAsState(Dispatchers.Default)
-    val weather by wNowViewModel.weather.collectAsState(Dispatchers.Default)
+    val uiState by wNowViewModel.uiState.collectAsState()
+    val weather by wNowViewModel.weather.collectAsState()
 
-    val alerts by alertsView.getAlerts().collectAsState(Dispatchers.Default)
+    val alerts by alertsView.getAlerts().collectAsState()
     val forecasts by remember(forecastsPanelView.getForecasts()) {
         forecastsPanelView.getForecasts().map {
             val maxItemCount = max(4f, containerWidth / 50f).toInt()
             it.take(maxItemCount)
         }
-    }.collectAsState(emptyList(), Dispatchers.Default)
+    }.collectAsState(emptyList())
     val hourlyForecasts by remember(forecastsPanelView.getHourlyForecasts()) {
         forecastsPanelView.getHourlyForecasts().map {
             it.take(12)
         }
-    }.collectAsState(emptyList(), Dispatchers.Default)
+    }.collectAsState(emptyList())
     val hasMinutely by remember(forecastsPanelView.getMinutelyForecasts()) {
         forecastsPanelView.getMinutelyForecasts().map {
             it.isNotEmpty()
         }
-    }.collectAsState(false, Dispatchers.Default)
+    }.collectAsState(false)
+
+    val scrollState = rememberScrollState()
+    val focusRequester = remember { FocusRequester() }
+    val navController = remember { WeatherNowNavController() }
 
     WearAppTheme {
-        WearNavScaffold(
+        Scaffold(
             modifier = modifier.background(MaterialTheme.colors.background),
             timeText = {
                 CustomTimeText(
-                    modifier = it,
+                    modifier = Modifier.fadeAway { scrollState },
                     visible = true,
                     timeSource = ZonedTimeSource(
                         timeFormat = if (DateFormat.is24HourFormat(LocalContext.current)) {
@@ -80,92 +80,94 @@ fun WeatherNow(
                     )
                 )
             },
-            navController = navController,
-            startDestination = Screen.WeatherNow.route
+            vignette = {
+                Vignette(vignettePosition = VignettePosition.TopAndBottom)
+            }
         ) {
-            scrollStateComposable(
-                route = Screen.WeatherNow.route,
-                scrollStateBuilder = { ScrollState(0) }
-            ) {
-                WeatherNowScreen(
-                    navController,
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    wNowViewModel,
-                    uiState,
-                    weather,
-                    alerts,
-                    forecasts,
-                    hourlyForecasts,
-                    hasMinutely
-                )
-            }
+            WeatherNowScreen(
+                navController,
+                scrollState,
+                focusRequester,
+                wNowViewModel,
+                uiState,
+                weather,
+                alerts,
+                forecasts,
+                hourlyForecasts,
+                hasMinutely
+            )
 
-            scalingLazyColumnComposable(
-                route = Screen.Alerts.route,
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
-                WeatherAlertsScreen(
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    alerts
-                )
-            }
+            /* WeatherNow Detail Views */
+            val currentDestination by navController.currentDestinationFlow.collectAsState(null)
 
-            scalingLazyColumnComposable(
-                route = Screen.Details.route,
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
-                WeatherDetailsScreen(
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    weather.weatherDetailsMap.values
-                )
-            }
+            if (currentDestination?.route != null) {
+                SwipeToDismissBox(
+                    onDismissed = {
+                        navController.navigate(null)
+                    },
+                    backgroundKey = SwipeToDismissKeys.Background,
+                    contentKey = currentDestination?.route ?: "",
+                    hasBackground = true
+                ) { isBackground ->
+                    val swipeFocusRequester = remember { FocusRequester() }
+                    val fragmentScrollState = rememberScalingLazyListState()
 
-            scalingLazyColumnComposable(
-                route = Screen.Forecast.route + "?${Constants.KEY_POSITION}={${Constants.KEY_POSITION}}",
-                arguments = listOf(
-                    navArgument(Constants.KEY_POSITION) {
-                        type = NavType.IntType
-                        defaultValue = 0
+                    if (!isBackground) {
+                        Scaffold(
+                            modifier = modifier.background(MaterialTheme.colors.background),
+                            timeText = {
+                                CustomTimeText(
+                                    modifier = Modifier.fadeAwayScalingLazyList { fragmentScrollState },
+                                    visible = true,
+                                    timeSource = ZonedTimeSource(
+                                        timeFormat = if (DateFormat.is24HourFormat(LocalContext.current)) {
+                                            "${DateTimeConstants.CLOCK_FORMAT_24HR} ${DateTimeConstants.TIMEZONE_NAME}"
+                                        } else {
+                                            "${DateTimeConstants.CLOCK_FORMAT_12HR} ${DateTimeConstants.TIMEZONE_NAME}"
+                                        },
+                                        timeZone = uiState.locationData?.tzLong
+                                    )
+                                )
+                            },
+                            vignette = {
+                                Vignette(vignettePosition = VignettePosition.TopAndBottom)
+                            }
+                        ) {
+                            when (currentDestination?.route) {
+                                Screen.Alerts.route -> {
+                                    WeatherAlertsScreen(alerts)
+                                }
+                                Screen.Details.route -> {
+                                    val detailItems = remember(weather) {
+                                        weather.weatherDetailsMap.values
+                                    }
+
+                                    WeatherDetailsScreen(detailItems)
+                                }
+                                Screen.Forecast.route -> {
+                                    val scrollToPosition = remember(currentDestination) {
+                                        currentDestination?.args?.getInt(Constants.KEY_POSITION)
+                                            ?: 0
+                                    }
+
+                                    WeatherForecastScreen(scrollToPosition)
+                                }
+                                Screen.HourlyForecast.route -> {
+                                    val scrollToPosition = remember(currentDestination) {
+                                        currentDestination?.args?.getInt(Constants.KEY_POSITION)
+                                            ?: 0
+                                    }
+
+                                    WeatherHourlyForecastScreen(scrollToPosition)
+                                }
+                                Screen.Precipitation.route -> {
+                                    WeatherMinutelyForecastScreen()
+                                }
+                                else -> {}
+                            }
+                        }
                     }
-                ),
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
-                WeatherForecastScreen(
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    it.backStackEntry
-                )
-            }
-
-            scalingLazyColumnComposable(
-                route = Screen.HourlyForecast.route + "?${Constants.KEY_POSITION}={${Constants.KEY_POSITION}}",
-                arguments = listOf(
-                    navArgument(Constants.KEY_POSITION) {
-                        type = NavType.IntType
-                        defaultValue = 0
-                    }
-                ),
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
-                WeatherHourlyForecastScreen(
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    it.backStackEntry
-                )
-            }
-
-            scalingLazyColumnComposable(
-                route = Screen.Precipitation.route,
-                scrollStateBuilder = { ScalingLazyListState() }
-            ) {
-                WeatherMinutelyForecastScreen(
-                    it.scrollableState,
-                    it.viewModel.focusRequester,
-                    it.backStackEntry
-                )
+                }
             }
         }
     }

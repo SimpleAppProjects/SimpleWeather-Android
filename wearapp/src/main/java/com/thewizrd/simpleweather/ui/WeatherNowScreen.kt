@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -30,8 +31,6 @@ import androidx.core.util.ObjectsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.wear.compose.material.*
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
@@ -55,6 +54,7 @@ import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
 import com.thewizrd.simpleweather.ui.components.*
 import com.thewizrd.simpleweather.ui.navigation.Screen
+import com.thewizrd.simpleweather.ui.navigation.WeatherNowNavController
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 import com.thewizrd.simpleweather.ui.theme.findActivity
 import com.thewizrd.simpleweather.ui.utils.LogCompositions
@@ -65,7 +65,7 @@ import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 
 @Composable
 fun WeatherNowScreen(
-    navController: NavHostController,
+    navController: WeatherNowNavController,
     scrollState: ScrollState,
     focusRequester: FocusRequester,
     wNowViewModel: WeatherNowViewModel,
@@ -280,9 +280,7 @@ private fun DisconnectionAlert() {
 }
 
 @Composable
-private fun AlertsBox(
-    navController: NavController
-) {
+private fun AlertsBox(navController: WeatherNowNavController) {
     Box(contentAlignment = Alignment.Center) {
         CompactButton(
             onClick = {
@@ -455,7 +453,7 @@ private fun HiLoLayout(
 @Composable
 private fun ConditionDetails(
     weather: WeatherUiModel,
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     val popData = remember(weather) {
         weather.weatherDetailsMap[WeatherDetailsType.POPCHANCE]
@@ -581,7 +579,7 @@ private fun WeatherSummary(
 @Composable
 private fun ForecastPanels(
     forecasts: List<ForecastItemViewModel>,
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     Row(
         modifier = Modifier
@@ -594,7 +592,9 @@ private fun ForecastPanels(
                     .weight(1f)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        navController.navigate(Screen.Forecast.route + "?${Constants.KEY_POSITION}=$idx")
+                        navController.navigate(Screen.Forecast.route, Bundle().apply {
+                            putInt(Constants.KEY_POSITION, idx)
+                        })
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -609,7 +609,7 @@ private fun ForecastPanels(
 @Composable
 private fun HourlyForecastPanels(
     hourlyForecasts: List<HourlyForecastItemViewModel>,
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     Column(
         modifier = Modifier
@@ -621,7 +621,9 @@ private fun HourlyForecastPanels(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        navController.navigate(Screen.HourlyForecast.route + "?${Constants.KEY_POSITION}=$idx")
+                        navController.navigate(Screen.HourlyForecast.route, Bundle().apply {
+                            putInt(Constants.KEY_POSITION, idx)
+                        })
                     }
             ) {
                 HourlyForecastItem(model = it)
@@ -663,7 +665,7 @@ private fun WeatherCreditText(
 
 @Composable
 private fun ForecastsButton(
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     NavigationButton(
         label = stringResource(id = R.string.label_forecast),
@@ -675,7 +677,7 @@ private fun ForecastsButton(
 
 @Composable
 private fun HourlyForecastsButton(
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     NavigationButton(
         label = stringResource(id = R.string.label_hourlyforecast),
@@ -687,7 +689,7 @@ private fun HourlyForecastsButton(
 
 @Composable
 private fun MinutelyForecastsButton(
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     NavigationButton(
         label = stringResource(id = R.string.label_precipitation),
@@ -699,7 +701,7 @@ private fun MinutelyForecastsButton(
 
 @Composable
 private fun DetailsButton(
-    navController: NavController
+    navController: WeatherNowNavController
 ) {
     NavigationButton(
         label = stringResource(id = R.string.label_details),
