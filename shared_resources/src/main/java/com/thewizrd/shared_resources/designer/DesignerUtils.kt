@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.PreferenceManager
 import com.thewizrd.shared_resources.*
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 
 fun Context.initializeDependencies() {
     val appContext = this.applicationContext

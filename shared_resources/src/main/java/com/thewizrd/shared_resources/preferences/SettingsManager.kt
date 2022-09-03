@@ -1,7 +1,6 @@
-package com.thewizrd.shared_resources.utils
+package com.thewizrd.shared_resources.preferences
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
@@ -21,9 +20,13 @@ import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_FORMATTER
 import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_MIN
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.Units.*
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -39,14 +42,12 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-@SuppressLint("CommitPrefEdits")
 class SettingsManager(context: Context) {
     private val appContext = context.applicationContext
     val isPhone = context.resources.getBoolean(R.bool.isPhone)
 
     // Shared Settings
     private val preferences = PreferenceManager.getDefaultSharedPreferences(appContext)
-    private val editor = preferences.edit()
     private val wuSharedPrefs = appContext.getSharedPreferences(
         WeatherAPI.WEATHERUNDERGROUND,
         Context.MODE_PRIVATE
@@ -432,8 +433,9 @@ class SettingsManager(context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun setDataSync(value: WearableDataSync) {
-        editor.putString(KEY_DATASYNC, value.value.toString())
-        editor.commit()
+        preferences.edit {
+            putString(KEY_DATASYNC, value.value.toString())
+        }
     }
 
     // Settings Members
@@ -443,8 +445,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setTemperatureUnit(@TemperatureUnits unit: String?) {
-        editor.putString(KEY_TEMPUNIT, unit)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_TEMPUNIT, unit)
+        }
     }
 
     @SpeedUnits
@@ -453,8 +456,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setSpeedUnit(@SpeedUnits unit: String?) {
-        editor.putString(KEY_SPEEDUNIT, unit)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_SPEEDUNIT, unit)
+        }
     }
 
     @PressureUnits
@@ -463,8 +467,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setPressureUnit(@PressureUnits unit: String?) {
-        editor.putString(KEY_PRESSUREUNIT, unit)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_PRESSUREUNIT, unit)
+        }
     }
 
     @DistanceUnits
@@ -473,8 +478,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setDistanceUnit(@DistanceUnits unit: String?) {
-        editor.putString(KEY_DISTANCEUNIT, unit)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_DISTANCEUNIT, unit)
+        }
     }
 
     @PrecipitationUnits
@@ -483,8 +489,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setPrecipitationUnit(@PrecipitationUnits unit: String?) {
-        editor.putString(KEY_PRECIPITATIONUNIT, unit)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_PRECIPITATIONUNIT, unit)
+        }
     }
 
     fun getUnitString(): String {
@@ -499,12 +506,13 @@ class SettingsManager(context: Context) {
 
     fun setDefaultUnits(@TemperatureUnits unit: String) {
         val isFahrenheit = FAHRENHEIT == unit
-        editor.putString(KEY_TEMPUNIT, unit)
-        editor.putString(KEY_SPEEDUNIT, if (isFahrenheit) MILES_PER_HOUR else KILOMETERS_PER_HOUR)
-        editor.putString(KEY_PRESSUREUNIT, if (isFahrenheit) INHG else MILLIBAR)
-        editor.putString(KEY_DISTANCEUNIT, if (isFahrenheit) MILES else KILOMETERS)
-        editor.putString(KEY_PRECIPITATIONUNIT, if (isFahrenheit) INCHES else MILLIMETERS)
-        editor.apply()
+        preferences.edit {
+            putString(KEY_TEMPUNIT, unit)
+            putString(KEY_SPEEDUNIT, if (isFahrenheit) MILES_PER_HOUR else KILOMETERS_PER_HOUR)
+            putString(KEY_PRESSUREUNIT, if (isFahrenheit) INHG else MILLIBAR)
+            putString(KEY_DISTANCEUNIT, if (isFahrenheit) MILES else KILOMETERS)
+            putString(KEY_PRECIPITATIONUNIT, if (isFahrenheit) INCHES else MILLIMETERS)
+        }
     }
 
     fun isWeatherLoaded(): Boolean {
@@ -517,8 +525,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setWeatherLoaded(isLoaded: Boolean) {
-        editor.putBoolean(KEY_WEATHERLOADED, isLoaded)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_WEATHERLOADED, isLoaded)
+        }
     }
 
     @WeatherAPI.WeatherProviders
@@ -533,8 +542,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setAPI(@WeatherAPI.WeatherProviders api: String?) {
-        editor.putString(KEY_API, api)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_API, api)
+        }
     }
 
     @Deprecated("Use getAPIKey()", ReplaceWith("getAPIKey()"))
@@ -562,8 +572,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setAPIKey(@WeatherAPI.WeatherProviders provider: String, key: String?) {
-        editor.putString("${KEY_APIKEY_PREFIX}_${provider}", key)
-        editor.commit()
+        preferences.edit {
+            putString("${KEY_APIKEY_PREFIX}_${provider}", key)
+        }
     }
 
     fun getAPIKeyMap(): Map<String, Any?> {
@@ -582,8 +593,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setFollowGPS(value: Boolean) {
-        editor.putBoolean(KEY_FOLLOWGPS, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_FOLLOWGPS, value)
+        }
     }
 
     private fun getLastGPSLocation(): String? {
@@ -591,8 +603,9 @@ class SettingsManager(context: Context) {
     }
 
     private fun setLastGPSLocation(value: String?) {
-        editor.putString(KEY_LASTGPSLOCATION, value)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_LASTGPSLOCATION, value)
+        }
     }
 
     fun getUpdateTime(): LocalDateTime {
@@ -607,8 +620,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setUpdateTime(value: LocalDateTime) {
-        editor.putString(KEY_UPDATETIME, value.format(LOCAL_DATE_TIME_FORMATTER))
-        editor.commit()
+        preferences.edit {
+            putString(KEY_UPDATETIME, value.format(LOCAL_DATE_TIME_FORMATTER))
+        }
     }
 
     fun getRefreshInterval(): Int {
@@ -616,8 +630,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setRefreshInterval(value: Int) {
-        editor.putString(KEY_REFRESHINTERVAL, value.toString())
-        editor.commit()
+        preferences.edit {
+            putString(KEY_REFRESHINTERVAL, value.toString())
+        }
     }
 
     fun showOngoingNotification(): Boolean {
@@ -625,8 +640,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setOngoingNotification(value: Boolean) {
-        editor.putBoolean(KEY_ONGOINGNOTIFICATION, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_ONGOINGNOTIFICATION, value)
+        }
     }
 
     fun getNotificationIcon(): String {
@@ -647,8 +663,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setAlerts(value: Boolean) {
-        editor.putBoolean(KEY_USEALERTS, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_USEALERTS, value)
+        }
     }
 
     fun getUserThemeMode(): UserThemeMode {
@@ -661,8 +678,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setUserThemeMode(value: UserThemeMode) {
-        editor.putString(KEY_USERTHEME, value.value.toString())
-        editor.commit()
+        preferences.edit {
+            putString(KEY_USERTHEME, value.value.toString())
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -672,8 +690,9 @@ class SettingsManager(context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     fun setRequestBGAccess(value: Boolean) {
-        editor.putBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(Manifest.permission.ACCESS_BACKGROUND_LOCATION, value)
+        }
     }
     // END - !ANDROID_WEAR
 
@@ -730,8 +749,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setPersonalKey(value: Boolean) {
-        editor.putBoolean(KEY_USEPERSONALKEY, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_USEPERSONALKEY, value)
+        }
     }
 
     fun getVersionCode(): Long {
@@ -767,11 +787,11 @@ class SettingsManager(context: Context) {
     }
 
     fun setOnBoardingComplete(value: Boolean) {
-        editor.putBoolean(KEY_ONBOARDINGCOMPLETE, value)
-        editor.commit()
+        preferences.edit {
+            putBoolean(KEY_ONBOARDINGCOMPLETE, value)
+        }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     fun getAnimatorScale(): Float {
         return Settings.Global.getFloat(appContext.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f)
     }
@@ -781,8 +801,9 @@ class SettingsManager(context: Context) {
     }
 
     fun setIconsProvider(iconsSource: String?) {
-        editor.putString(KEY_ICONSSOURCE, iconsSource)
-        editor.commit()
+        preferences.edit {
+            putString(KEY_ICONSSOURCE, iconsSource)
+        }
     }
 
     fun isDailyNotificationEnabled(): Boolean {
@@ -790,7 +811,7 @@ class SettingsManager(context: Context) {
     }
 
     fun setDailyNotificationEnabled(value: Boolean) {
-        preferences.edit(true) {
+        preferences.edit {
             putBoolean(KEY_DAILYNOTIFICATION, value)
         }
     }
@@ -800,7 +821,7 @@ class SettingsManager(context: Context) {
     }
 
     fun setDailyNotificationTime(value: String) {
-        preferences.edit(true) {
+        preferences.edit {
             putString(KEY_DAILYNOTIFICATIONTIME, value)
         }
     }
@@ -810,7 +831,7 @@ class SettingsManager(context: Context) {
     }
 
     fun setPoPChanceNotificationEnabled(value: Boolean) {
-        preferences.edit(true) {
+        preferences.edit {
             putBoolean(KEY_POPCHANCENOTIFICATION, value)
         }
     }
@@ -827,8 +848,11 @@ class SettingsManager(context: Context) {
     }
 
     fun setLastPoPChanceNotificationTime(value: ZonedDateTime) {
-        preferences.edit(true) {
-            putString(KEY_LASTCHANCENOTIFICATIONTIME, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
+        preferences.edit {
+            putString(
+                KEY_LASTCHANCENOTIFICATIONTIME,
+                value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+            )
         }
     }
 }

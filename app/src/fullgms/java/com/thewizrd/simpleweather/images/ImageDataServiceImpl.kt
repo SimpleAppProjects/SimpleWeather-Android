@@ -9,8 +9,12 @@ import androidx.core.content.edit
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.firebase.FirebaseHelper
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.ConnectivityUtils
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.model.ImageData
 import com.thewizrd.weather_api.utils.APIRequestUtils.createThrowable

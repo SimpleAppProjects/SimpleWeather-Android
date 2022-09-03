@@ -422,9 +422,11 @@ object WidgetUtils {
         return false
     }
 
-    private fun saveIds(key: String, idList: List<Int>): Boolean {
+    private fun saveIds(key: String, idList: List<Int>) {
         val json = JSONParser.serializer(idList, listType<Int>())
-        return widgetPrefs.edit().putString(key, json).commit()
+        widgetPrefs.edit {
+            putString(key, json)
+        }
     }
 
     private fun getPreferences(appWidgetId: Int): SharedPreferences {

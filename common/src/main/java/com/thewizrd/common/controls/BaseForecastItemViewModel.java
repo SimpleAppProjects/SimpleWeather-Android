@@ -3,7 +3,7 @@ package com.thewizrd.common.controls;
 import com.thewizrd.shared_resources.ApplicationLibKt;
 import com.thewizrd.shared_resources.SharedModuleKt;
 import com.thewizrd.shared_resources.icons.WeatherIconsManager;
-import com.thewizrd.shared_resources.utils.SettingsManager;
+import com.thewizrd.shared_resources.preferences.SettingsManager;
 import com.thewizrd.weather_api.WeatherModuleKt;
 import com.thewizrd.weather_api.weatherdata.WeatherProviderManager;
 

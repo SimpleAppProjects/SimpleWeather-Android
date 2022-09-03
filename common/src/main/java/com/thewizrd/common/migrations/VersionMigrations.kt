@@ -11,8 +11,12 @@ import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.preferences.UpdateSettings
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers

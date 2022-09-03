@@ -3,7 +3,7 @@ package com.thewizrd.common.migrations
 import android.content.Context
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.LocationsDAO
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

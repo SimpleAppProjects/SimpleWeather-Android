@@ -22,9 +22,13 @@ import androidx.work.Configuration
 import com.google.android.material.color.DynamicColors
 import com.thewizrd.common.CommonModule
 import com.thewizrd.common.commonModule
-import com.thewizrd.common.utils.SettingsListener
+import com.thewizrd.common.preferences.SettingsListener
 import com.thewizrd.shared_resources.*
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.extras.attachToBaseContext
 import com.thewizrd.simpleweather.extras.initializeExtras
 import com.thewizrd.simpleweather.extras.initializeFirebase

@@ -18,11 +18,15 @@ import com.thewizrd.common.utils.ImageUtils.rotateBitmap
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.StringUtils.containsDigits
 import com.thewizrd.shared_resources.utils.StringUtils.isNullOrWhitespace
 import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
+import com.thewizrd.shared_resources.utils.Units
+import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
 

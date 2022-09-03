@@ -8,8 +8,8 @@ import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

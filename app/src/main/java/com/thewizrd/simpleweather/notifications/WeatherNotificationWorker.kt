@@ -11,8 +11,8 @@ import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

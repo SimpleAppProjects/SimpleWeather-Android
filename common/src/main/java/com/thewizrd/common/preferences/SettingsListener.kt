@@ -1,20 +1,19 @@
-package com.thewizrd.common.utils
+package com.thewizrd.common.preferences
 
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.annotation.NonNull
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.thewizrd.shared_resources.ApplicationLib
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.DateTimeUtils
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.weather_api.weatherModule
 
 // Shared Preferences listener
-class SettingsListener(@NonNull private val app: ApplicationLib) :
+class SettingsListener(private val app: ApplicationLib) :
     SharedPreferences.OnSharedPreferenceChangeListener {
     private val localBroadcastManager = LocalBroadcastManager.getInstance(app.context)
     private val settingsMgr = SettingsManager(app.context)

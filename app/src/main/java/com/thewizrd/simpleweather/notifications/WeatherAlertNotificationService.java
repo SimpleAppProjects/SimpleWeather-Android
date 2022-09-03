@@ -38,7 +38,6 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
 
     // Shared Settings
     private static final SharedPreferences notifPrefs = ApplicationLibKt.getAppLib().getContext().getSharedPreferences("notifications", Context.MODE_PRIVATE);
-    private static final SharedPreferences.Editor editor = notifPrefs.edit();
 
     private static final String KEY_NOTIFS = "notifications";
 
@@ -74,7 +73,7 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
     @Override
     public void onDestroy() {
         String json = JSONParser.serializer(mNotifications, HashMap.class);
-        editor.putString(KEY_NOTIFS, json).commit();
+        notifPrefs.edit().putString(KEY_NOTIFS, json).apply();
 
         super.onDestroy();
     }

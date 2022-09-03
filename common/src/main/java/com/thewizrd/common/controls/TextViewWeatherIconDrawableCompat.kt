@@ -13,9 +13,9 @@ import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.icons.AVDIconsProviderInterface
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.SettingsManager
 
 class TextViewWeatherIconDrawableCompat : TextViewDrawableCompat {
     private var mWeatherIconStart: String? = null

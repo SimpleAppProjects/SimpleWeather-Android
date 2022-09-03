@@ -3,7 +3,7 @@ package com.thewizrd.shared_resources
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 

@@ -11,7 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ServiceCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorker
 import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorkerActions

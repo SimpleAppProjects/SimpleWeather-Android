@@ -4,8 +4,8 @@ import android.util.Log
 import com.google.android.gms.wearable.*
 import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

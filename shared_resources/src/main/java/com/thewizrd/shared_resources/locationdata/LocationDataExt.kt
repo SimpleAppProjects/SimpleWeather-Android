@@ -3,7 +3,7 @@ package com.thewizrd.shared_resources.locationdata
 import android.location.Location
 import android.location.LocationManager
 import com.thewizrd.shared_resources.appLib
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 
 fun buildEmptyGPSLocation(): LocationData {
     var weatherSource: String? = null

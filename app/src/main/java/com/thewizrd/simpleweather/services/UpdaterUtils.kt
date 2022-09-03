@@ -3,7 +3,7 @@ package com.thewizrd.simpleweather.services
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.thewizrd.shared_resources.utils.SettingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorker
 import com.thewizrd.simpleweather.notifications.DailyWeatherNotificationWorkerActions
 import com.thewizrd.simpleweather.utils.PowerUtils

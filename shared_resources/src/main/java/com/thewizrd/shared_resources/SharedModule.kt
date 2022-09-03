@@ -3,8 +3,8 @@ package com.thewizrd.shared_resources
 import android.content.Context
 import com.thewizrd.shared_resources.icons.WeatherIconsManager
 import com.thewizrd.shared_resources.okhttp3.CacheInterceptor
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File

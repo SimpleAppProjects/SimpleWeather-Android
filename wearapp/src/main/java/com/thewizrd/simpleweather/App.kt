@@ -12,13 +12,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import com.thewizrd.common.CommonModule
 import com.thewizrd.common.commonModule
-import com.thewizrd.common.utils.SettingsListener
+import com.thewizrd.common.preferences.SettingsListener
 import com.thewizrd.extras.extrasModule
 import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

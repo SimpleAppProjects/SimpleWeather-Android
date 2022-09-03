@@ -10,8 +10,8 @@ import androidx.core.content.getSystemService
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.common.helpers.areNotificationsEnabled
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper
 import kotlinx.coroutines.Dispatchers

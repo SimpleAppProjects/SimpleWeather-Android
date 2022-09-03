@@ -20,9 +20,9 @@ import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.utils.SettingsManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding
 import com.thewizrd.simpleweather.extras.enableAdditionalRefreshIntervals
