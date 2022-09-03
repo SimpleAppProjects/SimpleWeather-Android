@@ -10,7 +10,9 @@
         <attr name="android:checkable" />
         <attr name="android:checked" />
         <attr name="primaryText" format="string" />
+        <attr name="primaryTextAppearance" format="reference" />
         <attr name="secondaryText" format="string" />
+        <attr name="secondaryTextAppearance" format="reference" />
         <attr name="controlType">
             <enum name="none" value="0" />
             <enum name="checkbox" value="1" />

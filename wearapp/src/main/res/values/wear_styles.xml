@@ -9,6 +9,17 @@
         <item name="android:background">@drawable/button_background_solid</item>
         <!--<item name="android:minWidth">172dp</item>-->
         <item name="minHeight">52dp</item>
+        <item name="primaryTextAppearance">@style/TextAppearance.WearChipButton.PrimaryText</item>
+        <item name="secondaryTextAppearance">@style/TextAppearance.WearChipButton.SecondaryText
+        </item>
+    </style>
+
+    <style name="TextAppearance.WearChipButton.PrimaryText" parent="TextAppearance.Roboto.Button">
+        <item name="android:textColor">@color/wear_chip_primary_text_color</item>
+    </style>
+
+    <style name="TextAppearance.WearChipButton.SecondaryText" parent="TextAppearance.Roboto.Caption2">
+        <item name="android:textColor">@color/wear_chip_secondary_text_color</item>
     </style>
 
     <style name="Widget.Wear.WearChipButton.Accent" parent="Widget.Wear.WearChipButton">

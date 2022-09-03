@@ -54,6 +54,7 @@ class WearChipButton @JvmOverloads constructor(
     private val mPrimaryTextView: TextView
     private val mSecondaryTextView: TextView
     private val mSelectionControlContainer: ViewGroup
+    private val mContentContainer: ViewGroup
 
     private var buttonBackgroundTint: ColorStateList? = null
     private var buttonControlTint: ColorStateList? = null
@@ -74,6 +75,7 @@ class WearChipButton @JvmOverloads constructor(
         mPrimaryTextView = findViewById(R.id.wear_chip_primary_text)
         mSecondaryTextView = findViewById(R.id.wear_chip_secondary_text)
         mSelectionControlContainer = findViewById(R.id.wear_chip_selection_control_container)
+        mContentContainer = findViewById(R.id.wear_chip_content)
 
         mPrimaryTextView.maxLines = 2
         mSecondaryTextView.maxLines = 1
@@ -97,8 +99,20 @@ class WearChipButton @JvmOverloads constructor(
             if (a.hasValue(R.styleable.WearChipButton_primaryText)) {
                 setPrimaryText(a.getString(R.styleable.WearChipButton_primaryText))
             }
+            if (a.hasValue(R.styleable.WearChipButton_primaryTextAppearance)) {
+                a.getResourceId(R.styleable.WearChipButton_primaryTextAppearance, 0)
+                    .takeIf { it != 0 }?.let { resId ->
+                        mPrimaryTextView.setTextAppearance(resId)
+                    }
+            }
             if (a.hasValue(R.styleable.WearChipButton_secondaryText)) {
                 setSecondaryText(a.getString(R.styleable.WearChipButton_secondaryText))
+            }
+            if (a.hasValue(R.styleable.WearChipButton_secondaryTextAppearance)) {
+                a.getResourceId(R.styleable.WearChipButton_secondaryTextAppearance, 0)
+                    .takeIf { it != 0 }?.let { resId ->
+                        mSecondaryTextView.setTextAppearance(resId)
+                    }
             }
             if (a.hasValue(R.styleable.WearChipButton_backgroundTint)) {
                 val colorResId = a.getResourceId(R.styleable.WearChipButton_backgroundTint, 0)
@@ -247,6 +261,26 @@ class WearChipButton @JvmOverloads constructor(
     fun setControlViewVisibility(visibility: Int) {
         if (getControlView() != null) {
             mSelectionControlContainer.visibility = visibility
+        }
+    }
+
+    fun setContentView(view: View?) {
+        mContentContainer.removeAllViews()
+        if (view != null) {
+            mContentContainer.addView(view)
+            mContentContainer.visibility = View.VISIBLE
+        } else {
+            mContentContainer.visibility = View.GONE
+        }
+    }
+
+    fun getContentView(): View? {
+        return mContentContainer.getChildAt(0)
+    }
+
+    fun setContentViewVisibility(visibility: Int) {
+        if (getContentView() != null) {
+            mContentContainer.visibility = visibility
         }
     }
 
