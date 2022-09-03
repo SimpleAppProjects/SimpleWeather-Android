@@ -79,6 +79,11 @@ fun spannableStringToAnnotatedString(
     }
 }
 
+@Composable
+fun CharSequence.toAnnotatedString(): AnnotatedString {
+    return spannableStringToAnnotatedString(text = this)
+}
+
 private fun spannableStringToAnnotatedString(
     text: CharSequence,
     density: Density

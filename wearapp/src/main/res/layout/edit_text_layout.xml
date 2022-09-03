@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/edit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@null"
+    android:longClickable="false"
+    android:textColor="@android:color/white"
+    android:textColorHint="@android:color/white"
+    android:textSelectHandle="@android:color/transparent"
+    android:textIsSelectable="false"
+    android:selectAllOnFocus="false"
+    android:maxLines="1"
+    android:inputType="text"
+    android:fontFamily="@font/roboto" />
