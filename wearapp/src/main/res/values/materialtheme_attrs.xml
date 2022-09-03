@@ -13,4 +13,5 @@
     <attr format="reference" name="textAppearanceButton" />
     <attr format="reference" name="textAppearanceCaption1" />
     <attr format="reference" name="textAppearanceCaption2" />
+    <attr format="reference" name="textAppearanceCaption3" />
 </resources>

@@ -104,6 +104,7 @@
         <item name="textAppearanceButton">@style/TextAppearance.Roboto.Button</item>
         <item name="textAppearanceCaption1">@style/TextAppearance.Roboto.Caption1</item>
         <item name="textAppearanceCaption2">@style/TextAppearance.Roboto.Caption2</item>
+        <item name="textAppearanceCaption3">@style/TextAppearance.Roboto.Caption3</item>
     </style>
 
     <style name="Widget.MaterialButton.OutlinedButton.IconOnly" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
@@ -261,22 +262,23 @@
     </style>
 
     <!-- Wear Material -->
+    <!-- Note: android:letterSpacing = letterSpacing.sp / textSize.sp -->
     <style name="TextAppearance.Roboto.Display1" parent="TextAppearance.Roboto">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="fontFamily">@font/roboto_medium</item>
-        <item name="android:textSize">50sp</item>
-        <item name="android:lineHeight" tools:ignore="NewApi">56dp</item>
-        <item name="lineHeight">56dp</item>
-        <item name="android:letterSpacing">0.0</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:lineHeight" tools:ignore="NewApi">46dp</item>
+        <item name="lineHeight">46dp</item>
+        <item name="android:letterSpacing">0.0125</item>
     </style>
 
     <style name="TextAppearance.Roboto.Display2" parent="TextAppearance.Roboto">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="fontFamily">@font/roboto_medium</item>
-        <item name="android:textSize">40sp</item>
+        <item name="android:textSize">34sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">40dp</item>
         <item name="lineHeight">40dp</item>
-        <item name="android:letterSpacing">0.0</item>
+        <item name="android:letterSpacing">0.0294117647058824</item>
     </style>
 
     <style name="TextAppearance.Roboto.Display3" parent="TextAppearance.Roboto">
@@ -285,7 +287,7 @@
         <item name="android:textSize">30sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">36dp</item>
         <item name="lineHeight">36dp</item>
-        <item name="android:letterSpacing">0.0</item>
+        <item name="android:letterSpacing">0.026666666666666</item>
     </style>
 
     <style name="TextAppearance.Roboto.Title1" parent="TextAppearance.Roboto">
@@ -294,7 +296,7 @@
         <item name="android:textSize">24sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">28dp</item>
         <item name="lineHeight">28dp</item>
-        <item name="android:letterSpacing">-0.004</item>
+        <item name="android:letterSpacing">0.0083333333333333</item>
     </style>
 
     <style name="TextAppearance.Roboto.Title2" parent="TextAppearance.Roboto">
@@ -303,7 +305,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">24dp</item>
         <item name="lineHeight">24dp</item>
-        <item name="android:letterSpacing">0.005</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
 
     <style name="TextAppearance.Roboto.Title3" parent="TextAppearance.Roboto">
@@ -312,7 +314,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">20dp</item>
         <item name="lineHeight">20dp</item>
-        <item name="android:letterSpacing">0.024</item>
+        <item name="android:letterSpacing">0.0125</item>
     </style>
 
     <style name="TextAppearance.Roboto.Body1" parent="TextAppearance.Roboto">
@@ -321,7 +323,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">20dp</item>
         <item name="lineHeight">20dp</item>
-        <item name="android:letterSpacing">0.019</item>
+        <item name="android:letterSpacing">0.01125</item>
     </style>
 
     <style name="TextAppearance.Roboto.Body2" parent="TextAppearance.Roboto">
@@ -330,7 +332,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:lineHeight" tools:ignore="NewApi">18dp</item>
         <item name="lineHeight">18dp</item>
-        <item name="android:letterSpacing">0.021</item>
+        <item name="android:letterSpacing">0.0142857142857143</item>
     </style>
 
     <style name="TextAppearance.Roboto.Button" parent="TextAppearance.Roboto">
@@ -339,21 +341,36 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.013</item>
+        <item name="android:lineHeight" tools:ignore="NewApi">19dp</item>
+        <item name="lineHeight">19dp</item>
+        <item name="android:letterSpacing">0.0253333333333333</item>
     </style>
 
     <style name="TextAppearance.Roboto.Caption1" parent="TextAppearance.Roboto">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:letterSpacing">0.023</item>
+        <item name="android:lineHeight" tools:ignore="NewApi">18dp</item>
+        <item name="lineHeight">18dp</item>
+        <item name="android:letterSpacing">0.0071428571428571</item>
     </style>
 
     <style name="TextAppearance.Roboto.Caption2" parent="TextAppearance.Roboto">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:letterSpacing">0.033</item>
+        <item name="android:lineHeight" tools:ignore="NewApi">16dp</item>
+        <item name="lineHeight">16dp</item>
+        <item name="android:letterSpacing">0.0083333333333333</item>
+    </style>
+
+    <style name="TextAppearance.Roboto.Caption3" parent="TextAppearance.Roboto">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:lineHeight" tools:ignore="NewApi">14dp</item>
+        <item name="lineHeight">14dp</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
 
 </resources>
