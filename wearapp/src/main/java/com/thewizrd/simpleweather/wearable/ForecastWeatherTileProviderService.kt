@@ -49,7 +49,6 @@ class ForecastWeatherTileProviderService : WeatherTileProviderService() {
                 wim.getWeatherIconResource(viewModel.weatherIcon)
             )
         )
-        updateViews.setTextViewText(R.id.weather_condition, viewModel.curCondition)
 
         // Details
         val chanceModel = viewModel.weatherDetailsMap[WeatherDetailsType.POPCHANCE]
