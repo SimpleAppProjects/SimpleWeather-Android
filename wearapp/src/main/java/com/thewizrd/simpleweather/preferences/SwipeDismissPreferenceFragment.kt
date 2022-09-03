@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -52,6 +53,19 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
     ): View {
         binding = ActivitySettingsBinding.inflate(inflater, container, false)
         val inflatedView = super.onCreateView(inflater, container, savedInstanceState)
+
+        // Add padding for time text and scroll
+        inflatedView.findViewById<RecyclerView>(R.id.recycler_view)?.let {
+            it.updatePadding(top = inflater.context.dpToPx(12f).toInt())
+
+            it.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    binding.timeText.apply {
+                        translationY = -recyclerView.computeVerticalScrollOffset().toFloat()
+                    }
+                }
+            })
+        }
 
         binding.swipeLayout.addView(inflatedView)
         binding.swipeLayout.isSwipeable = true

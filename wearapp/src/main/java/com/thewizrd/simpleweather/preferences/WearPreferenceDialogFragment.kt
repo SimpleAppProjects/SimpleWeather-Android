@@ -19,7 +19,7 @@ import com.thewizrd.common.helpers.SpacerItemDecoration
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.WearChipButton
-import com.thewizrd.simpleweather.databinding.ActivitySettingsBinding
+import com.thewizrd.simpleweather.databinding.LayoutSwipedismissableBinding
 import com.thewizrd.simpleweather.databinding.LayoutWearDialogBinding
 import com.thewizrd.simpleweather.fragments.WearDialogInterface
 import com.thewizrd.simpleweather.fragments.WearDialogParams
@@ -106,7 +106,7 @@ abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterf
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val swipeLayoutBinding = ActivitySettingsBinding.inflate(inflater, container, false)
+        val swipeLayoutBinding = LayoutSwipedismissableBinding.inflate(inflater, container, false)
         swipeLayoutBinding.swipeLayout.isSwipeable = true
         swipeLayoutBinding.swipeLayout.addCallback(object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout?) {

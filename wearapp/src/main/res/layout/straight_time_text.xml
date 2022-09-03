@@ -34,18 +34,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHorizontal_chainStyle="packed"
+        tools:visibility="gone"
         tools:text="ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
 
     <TextView
         android:id="@+id/timeTextDivider"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/time_padding_between_text"
+        android:paddingHorizontal="4dp"
         android:textAppearance="@style/TextAppearanceTime"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/timeTextClock"
         app:layout_constraintStart_toEndOf="@id/timeTextTitle"
         app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone"
         tools:text="·" />
 
     <TextView
