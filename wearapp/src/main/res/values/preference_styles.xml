@@ -40,4 +40,18 @@
         <item name="android:layout">@layout/wear_switch_preference</item>
     </style>
 
+    <style name="WearPreference.RadioPreference" parent="@style/Preference.SwitchPreference.Material">
+        <item name="android:layout">@layout/wear_radio_preference</item>
+    </style>
+
+    <style name="Preference.RadioPreference.Material" parent="@style/Preference.SwitchPreference.Material">
+        <item name="android:layout">@layout/preference_radio</item>
+        <item name="android:widgetLayout">@layout/preference_widget_radiobutton</item>
+    </style>
+
+    <style name="Preference.IconPreference.Material" parent="@style/Preference.SwitchPreference.Material">
+        <item name="android:layout">@layout/preference_icon</item>
+        <item name="android:widgetLayout">@layout/preference_widget_radiobutton</item>
+    </style>
+
 </resources>

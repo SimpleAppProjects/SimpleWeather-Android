@@ -49,7 +49,7 @@ import com.thewizrd.simpleweather.fragments.WearDialogFragment
 import com.thewizrd.simpleweather.fragments.WearDialogParams
 import com.thewizrd.simpleweather.helpers.AcceptDenyDialog
 import com.thewizrd.simpleweather.helpers.showConfirmationOverlay
-import com.thewizrd.simpleweather.preferences.iconpreference.IconProviderPickerFragment
+import com.thewizrd.simpleweather.preferences.iconpreference.WearIconProviderPickerFragment
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
@@ -858,7 +858,7 @@ class SettingsActivity : WearableListenerActivity() {
         }
     }
 
-    class IconsFragment : IconProviderPickerFragment() {
+    class IconsFragment : WearIconProviderPickerFragment() {
         override val titleResId: Int
             get() = R.string.pref_title_icons
 

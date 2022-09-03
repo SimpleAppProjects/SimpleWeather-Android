@@ -35,23 +35,15 @@ public class IconProviderPreference extends RadioButtonPreference {
     }
 
     public IconProviderPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public IconProviderPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+        this(context, attrs, defStyleAttr, R.style.Preference_IconPreference_Material);
     }
 
     public IconProviderPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
-    private void init() {
-        setWidgetLayoutResource(R.layout.preference_widget_radiobutton);
-        setLayoutResource(R.layout.preference_icon);
     }
 
     @NonNull

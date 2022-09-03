@@ -1,9 +1,11 @@
 package com.thewizrd.simpleweather.preferences.radiopreference;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
@@ -14,8 +16,6 @@ import java.util.Objects;
 
 public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFragment
         implements RadioButtonPreference.OnClickListener {
-
-    private static final String TAG = "RadioButtonPckrFrgmt";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -29,7 +29,7 @@ public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFr
     protected abstract int getPreferenceScreenResId();
 
     @Override
-    public void onRadioButtonClicked(RadioButtonPreference selected) {
+    public void onRadioButtonClicked(@NonNull RadioButtonPreference selected) {
         final String selectedKey = selected.getKey();
         onRadioButtonConfirmed(selectedKey);
     }
@@ -68,7 +68,7 @@ public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFr
 
         final int customLayoutResId = getRadioButtonPreferenceCustomLayoutResId();
         for (CandidateInfo info : candidateList) {
-            RadioButtonPreference pref = new RadioButtonPreference(getContext());
+            RadioButtonPreference pref = createRadioButtonPreference(requireContext());
             if (customLayoutResId > 0) {
                 pref.setLayoutResource(customLayoutResId);
             }
@@ -79,8 +79,8 @@ public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFr
         mayCheckOnlyRadioButton();
     }
 
-    public RadioButtonPreference bindPreference(RadioButtonPreference pref,
-                                                String key, CandidateInfo info, String defaultKey) {
+    public RadioButtonPreference bindPreference(@NonNull RadioButtonPreference pref,
+                                                String key, @NonNull CandidateInfo info, String defaultKey) {
         pref.setTitle(info.loadLabel());
         pref.setIcon(info.loadIcon());
         pref.setKey(key);
@@ -134,5 +134,10 @@ public abstract class RadioButtonPickerFragment extends SwipeDismissPreferenceFr
     @LayoutRes
     protected int getRadioButtonPreferenceCustomLayoutResId() {
         return 0;
+    }
+
+    @NonNull
+    protected RadioButtonPreference createRadioButtonPreference(@NonNull Context context) {
+        return new RadioButtonPreference(context);
     }
 }
