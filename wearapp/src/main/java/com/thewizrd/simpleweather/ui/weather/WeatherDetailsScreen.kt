@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.ui
+package com.thewizrd.simpleweather.ui.weather
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -14,6 +14,7 @@ import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.ScalingLazyListAnchorType
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import com.thewizrd.common.controls.DetailItemViewModel
+import com.thewizrd.simpleweather.ui.ScalingLazyListStateViewModel
 import com.thewizrd.simpleweather.ui.components.WeatherDetailItem
 
 @Composable

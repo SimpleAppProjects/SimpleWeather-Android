@@ -1,11 +1,9 @@
-package com.thewizrd.simpleweather.ui
+package com.thewizrd.simpleweather.ui.weather
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -18,21 +16,17 @@ import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.ScalingLazyListAnchorType
 import androidx.wear.compose.material.items
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
-import com.thewizrd.shared_resources.Constants
-import com.thewizrd.simpleweather.ui.components.WeatherMinutelyForecastPanel
-import com.thewizrd.simpleweather.ui.theme.activityViewModel
-import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
+import com.thewizrd.common.controls.WeatherAlertViewModel
+import com.thewizrd.simpleweather.ui.ScalingLazyListStateViewModel
+import com.thewizrd.simpleweather.ui.components.WeatherAlertPanel
 
 @Composable
-fun WeatherMinutelyForecastScreen(
+fun WeatherAlertsScreen(
     backStackEntry: NavBackStackEntry,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    alerts: List<WeatherAlertViewModel>
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val forecastsPanelView = activityViewModel<ForecastPanelsViewModel>()
-    val minutelyForecasts by forecastsPanelView.getMinutelyForecasts().collectAsState()
-
     val scrollStateViewModel: ScalingLazyListStateViewModel = viewModel(backStackEntry)
 
     ScalingLazyColumn(
@@ -41,21 +35,13 @@ fun WeatherMinutelyForecastScreen(
             .scrollableColumn(focusRequester, scrollStateViewModel.scrollState),
         state = scrollStateViewModel.scrollState,
         anchorType = ScalingLazyListAnchorType.ItemCenter,
-        contentPadding = PaddingValues(top = 48.dp)
+        contentPadding = PaddingValues(vertical = 48.dp),
+        autoCentering = null
     ) {
-        items(
-            minutelyForecasts,
-            key = {
-                it.hashCode()
-            }
-        ) {
-            WeatherMinutelyForecastPanel(model = it)
-        }
-    }
-
-    LaunchedEffect(backStackEntry) {
-        backStackEntry.arguments?.getInt(Constants.KEY_POSITION)?.let { position ->
-            scrollStateViewModel.scrollState.scrollToItem(position)
+        items(alerts, key = {
+            it.hashCode()
+        }) { alert ->
+            WeatherAlertPanel(alert)
         }
     }
 

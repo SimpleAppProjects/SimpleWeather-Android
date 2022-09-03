@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.ui
+package com.thewizrd.simpleweather.ui.weather
 
 import android.app.Activity
 import android.content.Intent

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.ui
+package com.thewizrd.simpleweather.ui.weather
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
@@ -24,6 +24,8 @@ import com.google.android.horologist.compose.layout.fadeAwayScalingLazyList
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
+import com.thewizrd.simpleweather.ui.ScalingLazyListStateViewModel
+import com.thewizrd.simpleweather.ui.ScrollStateViewModel
 import com.thewizrd.simpleweather.ui.components.CustomTimeText
 import com.thewizrd.simpleweather.ui.navigation.DestinationScrollType
 import com.thewizrd.simpleweather.ui.navigation.SCROLL_TYPE_NAV_ARGUMENT

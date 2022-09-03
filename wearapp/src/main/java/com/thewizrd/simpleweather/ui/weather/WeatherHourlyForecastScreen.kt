@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.ui
+package com.thewizrd.simpleweather.ui.weather
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +18,7 @@ import androidx.wear.compose.material.ScalingLazyListAnchorType
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import com.thewizrd.common.controls.ForecastsListViewModel
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.simpleweather.ui.ScalingLazyListStateViewModel
 import com.thewizrd.simpleweather.ui.components.LoadingPagingContent
 import com.thewizrd.simpleweather.ui.components.WeatherHourlyForecastPanel
 import com.thewizrd.simpleweather.ui.paging.items
