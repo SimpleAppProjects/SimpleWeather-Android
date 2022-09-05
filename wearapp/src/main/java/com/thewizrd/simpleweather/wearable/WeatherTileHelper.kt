@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.wearable
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import androidx.wear.tiles.TileService
 import com.google.android.clockwork.tiles.TileProviderUpdateRequester
 import com.thewizrd.shared_resources.utils.Logger
 
@@ -21,11 +22,12 @@ object WeatherTileHelper {
             )
         )
             .requestUpdateAll()
-        TileProviderUpdateRequester(
-            context.applicationContext,
-            ComponentName(context.applicationContext, CurrentWeatherTileProviderService::class.java)
+
+        TileService.getUpdater(
+            context.applicationContext
         )
-            .requestUpdateAll()
+            .requestUpdate(CurrentWeatherTileProviderService::class.java)
+
         TileProviderUpdateRequester(
             context.applicationContext,
             ComponentName(

@@ -259,11 +259,11 @@
             android:exported="true"
             android:name=".wearable.CurrentWeatherTileProviderService">
             <intent-filter>
-                <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
 
             <meta-data
-                android:name="com.google.android.clockwork.tiles.PREVIEW"
+                android:name="androidx.wear.tiles.PREVIEW"
                 android:resource="@drawable/tile_preview_current" />
         </service>
 

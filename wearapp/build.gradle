@@ -155,6 +155,14 @@ dependencies {
     implementation 'androidx.wear.watchface:watchface-complications-data:1.1.1'
     implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.1.1'
 
+    // WearOS Tile
+    implementation("androidx.wear.tiles:tiles:1.1.0")
+    implementation("androidx.wear.tiles:tiles-material:1.1.0")
+    debugImplementation("androidx.wear.tiles:tiles-renderer:1.1.0")
+    testImplementation("androidx.wear.tiles:tiles-testing:1.1.0")
+    implementation "com.google.android.horologist:horologist-tiles:0.1.5"
+    implementation "com.google.android.horologist:horologist-compose-tools:0.1.5"
+
     // WearOS Compose
     implementation "androidx.activity:activity-compose:$activity_version"
     implementation "androidx.compose.compiler:compiler:$compose_compiler_version"
