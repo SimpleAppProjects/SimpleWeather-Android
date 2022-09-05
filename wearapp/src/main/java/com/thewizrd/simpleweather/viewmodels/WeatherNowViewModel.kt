@@ -15,6 +15,7 @@ import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.wearable.WearConnectionStatus
 import com.thewizrd.common.wearable.WearableHelper
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherResult
@@ -369,6 +370,14 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                 if (WearableHelper.LocationPath == intent.action || WearableHelper.WeatherPath == intent.action) {
                     if (WearableHelper.WeatherPath == intent.action) {
                         weatherDataReceived = true
+                        if (intent.getBooleanExtra(
+                                WearableSettings.KEY_PARTIAL_WEATHER_UPDATE,
+                                false
+                            )
+                        ) {
+                            // Location is already up-to-date; we're just updating the weather
+                            locationDataReceived = true
+                        }
                     }
 
                     if (WearableHelper.LocationPath == intent.action) {

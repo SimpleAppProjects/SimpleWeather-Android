@@ -41,6 +41,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 WearableWorkerActions.ACTION_SENDSETTINGSUPDATE,
                 WearableWorkerActions.ACTION_SENDLOCATIONUPDATE,
                 WearableWorkerActions.ACTION_SENDWEATHERUPDATE,
+                WearableWorkerActions.ACTION_SENDPARTIALWEATHERUPDATE,
                 WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
                     startWork(context.applicationContext, intentAction, urgent)
                 }
@@ -109,6 +110,9 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 }
                 WearableWorkerActions.ACTION_SENDWEATHERUPDATE -> {
                     createWeatherDataRequest(urgent)
+                }
+                WearableWorkerActions.ACTION_SENDPARTIALWEATHERUPDATE -> {
+                    createWeatherDataRequest(urgent, partialUpdate = true)
                 }
                 WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
                     sendSetupStatus(inputData.getString(KEY_NODEID))
@@ -234,7 +238,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         }
     }
 
-    private suspend fun createWeatherDataRequest(urgent: Boolean) {
+    private suspend fun createWeatherDataRequest(urgent: Boolean, partialUpdate: Boolean = false) {
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.WeatherPath)
             val homeData = settingsManager.getHomeData()!!
@@ -258,7 +262,14 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 )
             }
 
-            mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
+            mapRequest.dataMap.putLong(
+                WearableSettings.KEY_UPDATETIME,
+                Instant.now(Clock.systemUTC()).toEpochMilli()
+            )
+            mapRequest.dataMap.putBoolean(
+                WearableSettings.KEY_PARTIAL_WEATHER_UPDATE,
+                partialUpdate
+            )
 
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()

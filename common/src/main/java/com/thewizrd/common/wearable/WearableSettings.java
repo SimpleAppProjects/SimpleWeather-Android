@@ -24,4 +24,6 @@ public class WearableSettings {
     public static final String KEY_PRECIPITATIONUNIT = "precipitation_unit";
 
     public static final String KEY_DEVSETTINGS = "devsettings";
+
+    public static final String KEY_PARTIAL_WEATHER_UPDATE = "partial_weather_update";
 }

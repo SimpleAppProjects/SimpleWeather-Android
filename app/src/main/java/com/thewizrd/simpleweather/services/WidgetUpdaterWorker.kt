@@ -1,18 +1,24 @@
 package com.thewizrd.simpleweather.services
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.work.*
 import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
+import com.thewizrd.common.weatherdata.WeatherResult
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.exceptions.ErrorStatus
+import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.notifications.PoPChanceNotificationHelper
 import com.thewizrd.simpleweather.notifications.WeatherNotificationWorker
 import com.thewizrd.simpleweather.shortcuts.ShortcutCreatorWorker
@@ -138,8 +144,15 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
 
             if (settingsManager.isWeatherLoaded()) {
                 // If saved data DNE (for current location), refresh weather
-                if (getWeather() == null) {
-                    getWeather(true)
+                val result = loadWeather()
+                if (result !is WeatherResult.Success && result !is WeatherResult.WeatherWithError) {
+                    if (loadWeather(true).let { it is WeatherResult.Success && !it.isSavedData }) {
+                        localBroadcastManager.sendBroadcast(
+                            Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE).apply {
+                                putExtra(WearableSettings.KEY_PARTIAL_WEATHER_UPDATE, true)
+                            }
+                        )
+                    }
                 }
 
                 if (WidgetUpdaterHelper.widgetsExist()) {
@@ -162,31 +175,29 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
             Timber.tag(TAG).i("Work completed successfully...")
         }
 
-        private suspend fun getWeather(forceRefresh: Boolean = false): Weather? =
+        private suspend fun loadWeather(forceRefresh: Boolean = false): WeatherResult =
             withContext(Dispatchers.IO) {
                 Timber.tag(TAG).d("Getting weather data for home...")
 
-                val weather = try {
-                    val locData = settingsManager.getHomeData() ?: return@withContext null
-                    WeatherDataLoader(locData)
-                        .loadWeatherData(
-                            WeatherRequest.Builder()
-                                .run {
-                                    if (forceRefresh) {
-                                        this.forceRefresh(false)
-                                            .loadAlerts()
-                                            .loadForecasts()
-                                    } else {
-                                        this.forceLoadSavedData()
-                                    }
+                val locData =
+                    settingsManager.getHomeData() ?: return@withContext WeatherResult.Error(
+                        WeatherException(ErrorStatus.NOWEATHER)
+                    )
+
+                WeatherDataLoader(locData)
+                    .loadWeatherResult(
+                        WeatherRequest.Builder()
+                            .run {
+                                if (forceRefresh) {
+                                    this.forceRefresh(false)
+                                        .loadAlerts()
+                                        .loadForecasts()
+                                } else {
+                                    this.forceLoadSavedData()
                                 }
-                                .build()
-                        )
-                } catch (ex: Exception) {
-                    Logger.writeLine(Log.ERROR, ex, "%s: getWeather error", TAG)
-                    null
-                }
-                weather
+                            }
+                            .build()
+                    )
             }
     }
 }

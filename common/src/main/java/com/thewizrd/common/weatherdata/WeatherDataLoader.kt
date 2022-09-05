@@ -22,7 +22,6 @@ import java.time.Duration
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
 
@@ -205,12 +204,6 @@ class WeatherDataLoader {
                 if ((request.isLoadAlerts || weather.weatherAlerts != null) && wm.supportsAlerts()) {
                     if (!loadedSavedAlertData) {
                         saveWeatherAlerts(weather.weatherAlerts)
-                    }
-                }
-
-                if (appLib.isPhone) {
-                    if (Objects.equals(location, settingsMgr.getHomeData())) {
-                        localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE))
                     }
                 }
             } else {

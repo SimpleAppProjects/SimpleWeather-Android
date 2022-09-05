@@ -223,7 +223,13 @@ object DataSyncManager {
 
             // Send callback to receiver
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(
-                    Intent(WearableHelper.WeatherPath))
+                Intent(WearableHelper.WeatherPath).apply {
+                    putExtra(
+                        WearableSettings.KEY_PARTIAL_WEATHER_UPDATE,
+                        dataMap.getBoolean(WearableSettings.KEY_PARTIAL_WEATHER_UPDATE)
+                    )
+                }
+            )
         }
     }
 

@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
@@ -13,14 +14,17 @@ import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherResult
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.CustomException
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
@@ -186,11 +190,14 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         viewModelScope.launch {
+            var locationChanged = false
+
             if (settingsManager.useFollowGPS()) {
                 val result = updateLocation()
                 if (result is LocationResult.Changed) {
                     settingsManager.updateLocation(result.data)
                     weatherDataLoader.updateLocation(result.data)
+                    locationChanged = true
                 }
             }
 
@@ -200,6 +207,17 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     .loadAlerts()
                     .build()
             )
+
+            if (result is WeatherResult.Success && !result.isSavedData) {
+                if (locationChanged) {
+                    localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_WEATHER_SENDLOCATIONUPDATE))
+                }
+                localBroadcastManager.sendBroadcast(
+                    Intent(CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE).apply {
+                        putExtra(WearableSettings.KEY_PARTIAL_WEATHER_UPDATE, !locationChanged)
+                    }
+                )
+            }
 
             updateWeatherState(result)
         }

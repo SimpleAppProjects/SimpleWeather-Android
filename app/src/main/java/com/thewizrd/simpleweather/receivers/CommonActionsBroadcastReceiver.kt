@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -97,9 +98,16 @@ class CommonActionsBroadcastReceiver : BroadcastReceiver() {
                 }
             }
             CommonActions.ACTION_WEATHER_SENDWEATHERUPDATE -> {
+                val partialUpdate =
+                    intent.getBooleanExtra(WearableSettings.KEY_PARTIAL_WEATHER_UPDATE, false)
+
                 WearableWorker.enqueueAction(
                     context,
-                    WearableWorkerActions.ACTION_SENDWEATHERUPDATE
+                    if (partialUpdate) {
+                        WearableWorkerActions.ACTION_SENDPARTIALWEATHERUPDATE
+                    } else {
+                        WearableWorkerActions.ACTION_SENDWEATHERUPDATE
+                    }
                 )
             }
             CommonActions.ACTION_SETTINGS_SENDUPDATE -> {
