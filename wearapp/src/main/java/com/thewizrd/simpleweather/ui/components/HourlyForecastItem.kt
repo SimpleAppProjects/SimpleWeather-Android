@@ -31,7 +31,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HourlyForecastItem(
-    model: HourlyForecastItemViewModel
+    model: HourlyForecastItemViewModel,
+    iconProvider: String? = null
 ) {
     val ctx = LocalContext.current
     val dateStr = remember(ctx, model.forecast.date) {
@@ -41,6 +42,7 @@ fun HourlyForecastItem(
     HourlyForecastItem(
         date = dateStr,
         weatherIcon = model.weatherIcon,
+        iconProvider = iconProvider,
         hiTemp = model.hiTemp
     )
 }
@@ -49,6 +51,7 @@ fun HourlyForecastItem(
 fun HourlyForecastItem(
     date: AnnotatedString,
     weatherIcon: String?,
+    iconProvider: String? = null,
     hiTemp: String
 ) {
     Row(
@@ -69,6 +72,7 @@ fun HourlyForecastItem(
                 .size(36.dp)
                 .weight(1f),
             weatherIcon = weatherIcon,
+            iconProvider = iconProvider,
             shouldAnimate = true
         )
         Text(

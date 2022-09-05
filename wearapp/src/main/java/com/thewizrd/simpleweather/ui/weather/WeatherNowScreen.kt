@@ -130,6 +130,7 @@ fun WeatherNowScreen(
                     // Icon + Temp
                     IconTempRow(
                         weatherIcon = weather.weatherIcon,
+                        iconProvider = weather.iconProvider,
                         curTemp = weather.curTemp,
                         tempUnit = weather.tempUnit
                     )
@@ -160,12 +161,14 @@ fun WeatherNowScreen(
                     if (forecasts.isNotEmpty()) {
                         ForecastPanels(
                             forecasts = forecasts,
+                            iconProvider = weather.iconProvider,
                             navController = navController
                         )
                     }
                     if (hourlyForecasts.isNotEmpty()) {
                         HourlyForecastPanels(
                             hourlyForecasts = hourlyForecasts,
+                            iconProvider = weather.iconProvider,
                             navController = navController
                         )
                     }
@@ -335,7 +338,8 @@ private fun ColumnScope.WeatherLocation(
 private fun IconTempRow(
     weatherIcon: String,
     curTemp: String?,
-    tempUnit: String?
+    tempUnit: String?,
+    iconProvider: String? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -347,6 +351,7 @@ private fun IconTempRow(
                 .padding(end = 8.dp),
             alignment = IconAlignment.End,
             weatherIcon = weatherIcon,
+            iconProvider = iconProvider,
             shouldAnimate = true
         )
         Text(
@@ -578,7 +583,8 @@ private fun WeatherSummary(
 @Composable
 private fun ForecastPanels(
     forecasts: List<ForecastItemViewModel>,
-    navController: NavHostController
+    navController: NavHostController,
+    iconProvider: String? = null
 ) {
     Row(
         modifier = Modifier
@@ -596,7 +602,8 @@ private fun ForecastPanels(
                 contentAlignment = Alignment.Center
             ) {
                 ForecastItem(
-                    model = it
+                    model = it,
+                    iconProvider = iconProvider
                 )
             }
         }
@@ -606,7 +613,8 @@ private fun ForecastPanels(
 @Composable
 private fun HourlyForecastPanels(
     hourlyForecasts: List<HourlyForecastItemViewModel>,
-    navController: NavHostController
+    navController: NavHostController,
+    iconProvider: String? = null
 ) {
     Column(
         modifier = Modifier
@@ -621,7 +629,10 @@ private fun HourlyForecastPanels(
                         navController.navigate(Screen.HourlyForecast.route + "?${Constants.KEY_POSITION}=$idx")
                     }
             ) {
-                HourlyForecastItem(model = it)
+                HourlyForecastItem(
+                    model = it,
+                    iconProvider = iconProvider
+                )
             }
         }
     }

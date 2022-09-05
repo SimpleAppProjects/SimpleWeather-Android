@@ -21,12 +21,14 @@ import com.thewizrd.shared_resources.utils.StringUtils.removeDigitChars
 @Composable
 fun ForecastItem(
     modifier: Modifier = Modifier,
-    model: ForecastItemViewModel
+    model: ForecastItemViewModel,
+    iconProvider: String? = null
 ) {
     ForecastItem(
         modifier = modifier,
         date = model.date.removeDigitChars(),
         weatherIcon = model.weatherIcon,
+        iconProvider = iconProvider,
         hiTemp = model.hiTemp,
         loTemp = model.loTemp
     )
@@ -37,6 +39,7 @@ fun ForecastItem(
     modifier: Modifier = Modifier,
     date: String,
     weatherIcon: String?,
+    iconProvider: String? = null,
     hiTemp: String,
     loTemp: String
 ) {
@@ -55,6 +58,7 @@ fun ForecastItem(
                 .padding(2.dp)
                 .size(36.dp),
             weatherIcon = weatherIcon,
+            iconProvider = iconProvider,
             shouldAnimate = true
         )
         Text(
