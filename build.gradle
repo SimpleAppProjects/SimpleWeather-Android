@@ -9,7 +9,7 @@ buildscript {
         kotlin_version = '1.7.10'
         kotlinx_version = '1.6.4'
 
-        firebase_version = '30.3.2'
+        firebase_version = '30.4.0'
 
         activity_version = '1.6.0-rc01'
         appcompat_version = '1.6.0-beta01'

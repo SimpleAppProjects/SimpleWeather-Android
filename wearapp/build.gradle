@@ -160,8 +160,8 @@ dependencies {
     implementation("androidx.wear.tiles:tiles-material:1.1.0")
     debugImplementation("androidx.wear.tiles:tiles-renderer:1.1.0")
     testImplementation("androidx.wear.tiles:tiles-testing:1.1.0")
-    implementation "com.google.android.horologist:horologist-tiles:0.1.5"
-    implementation "com.google.android.horologist:horologist-compose-tools:0.1.5"
+    implementation 'com.google.android.horologist:horologist-tiles:0.1.8'
+    implementation 'com.google.android.horologist:horologist-compose-tools:0.1.8'
 
     // WearOS Compose
     implementation "androidx.activity:activity-compose:$activity_version"
@@ -179,7 +179,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-drawablepainter:0.25.0"
     implementation "com.google.accompanist:accompanist-flowlayout:0.25.0"
     implementation "com.google.accompanist:accompanist-swiperefresh:0.25.0"
-    implementation 'com.google.android.horologist:horologist-compose-layout:0.1.5'
+    implementation 'com.google.android.horologist:horologist-compose-layout:0.1.8'
 
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
