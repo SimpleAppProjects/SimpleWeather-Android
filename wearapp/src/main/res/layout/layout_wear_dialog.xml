@@ -125,7 +125,7 @@
             android:id="@+id/buttonPanel"
             style="?android:attr/buttonBarStyle"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:gravity="center_horizontal|bottom"
             android:orientation="horizontal"
@@ -135,7 +135,6 @@
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@id/bottom"
             app:layout_constraintEnd_toStartOf="@id/right"
-            app:layout_constraintHeight_default="wrap"
             app:layout_constraintStart_toEndOf="@id/left"
             app:layout_constraintVertical_bias="1">
 
