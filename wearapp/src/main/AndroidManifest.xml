@@ -82,6 +82,17 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".receivers.DebugModeReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="SimpleWeather.Droid.action.DEBUG_MODE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/label_nav_weathernow"
