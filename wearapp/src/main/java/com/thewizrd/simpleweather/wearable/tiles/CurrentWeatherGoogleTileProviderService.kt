@@ -1,54 +1,46 @@
 package com.thewizrd.simpleweather.wearable.tiles
 
-import android.widget.RemoteViews
-import com.thewizrd.common.controls.WeatherUiModel
-import com.thewizrd.common.utils.ImageUtils
+import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
+import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.Colors
-import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
-import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_HI_ICON
+import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_LO_ICON
+import com.thewizrd.simpleweather.wearable.tiles.layouts.currentWeatherGoogleTileLayout
 
-class CurrentWeatherGoogleTileProviderService : WeatherTileProviderService() {
-    companion object {
-        private const val TAG = "CurrentWeatherGoogleTileProviderService"
+class CurrentWeatherGoogleTileProviderService : WeatherCoroutinesTileService() {
+    override fun renderTile(
+        weather: Weather?,
+        deviceParameters: DeviceParameters
+    ): LayoutElementBuilders.LayoutElement {
+        resources.clear()
+        resources.add("$ID_WEATHER_ICON_PREFIX${weather?.condition?.icon ?: WeatherIcons.NA}")
+        resources.add(ID_WEATHER_HI_ICON)
+        resources.add(ID_WEATHER_LO_ICON)
+
+        return currentWeatherGoogleTileLayout(weather, this, deviceParameters)
     }
 
-    override val LOGTAG = TAG
-
-    override suspend fun buildUpdate(weather: Weather): RemoteViews {
-        val wim = sharedDeps.weatherIconsManager
-        val updateViews = RemoteViews(packageName, R.layout.tile_layout_currentweather_google)
-        val viewModel = WeatherUiModel(weather)
-        val mDarkIconCtx = getThemeContextOverride(false)
-
-        updateViews.setOnClickPendingIntent(R.id.tile, getTapIntent(applicationContext))
-
-        updateViews.setImageViewBitmap(
-            R.id.weather_icon,
-            ImageUtils.bitmapFromDrawable(
-                mDarkIconCtx,
-                wim.getWeatherIconResource(viewModel.weatherIcon)
-            )
-        )
-
-        updateViews.setTextViewText(
-            R.id.condition_temp,
-            viewModel.curTemp?.replace(viewModel.tempUnit ?: "", "") ?: WeatherIcons.PLACEHOLDER
-        )
-        updateViews.setTextColor(
-            R.id.condition_temp,
-            weather.condition?.tempF?.let { getColorFromTempF(it, Colors.WHITE) } ?: Colors.WHITE
-        )
-        updateViews.setTextViewText(R.id.condition_weather, viewModel.curCondition)
-        updateViews.setTextViewText(R.id.location_name, viewModel.location)
-
-        updateViews.setTextViewText(R.id.condition_hi, viewModel.hiTemp ?: WeatherIcons.PLACEHOLDER)
-        updateViews.setTextViewText(R.id.condition_lo, viewModel.loTemp ?: WeatherIcons.PLACEHOLDER)
-
-
-        return updateViews
+    override fun ResourceBuilders.Resources.Builder.produceRequestedResource(
+        deviceParameters: DeviceParameters,
+        id: String
+    ) {
+        when (id) {
+            ID_WEATHER_HI_ICON -> {
+                addIdToImageMapping(
+                    ID_WEATHER_HI_ICON,
+                    drawableResToImageResource(R.drawable.ic_arrow_upward_24dp)
+                )
+            }
+            ID_WEATHER_LO_ICON -> {
+                addIdToImageMapping(
+                    ID_WEATHER_LO_ICON,
+                    drawableResToImageResource(R.drawable.ic_arrow_downward_24dp)
+                )
+            }
+        }
     }
 }

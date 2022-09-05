@@ -138,7 +138,7 @@ abstract class WeatherCoroutinesTileService : CoroutinesTileService() {
     /**
      * Add resources directly to the builder.
      */
-    protected open fun Resources.Builder.produceRequestedResources(
+    private fun Resources.Builder.produceRequestedResources(
         deviceParameters: DeviceParameters,
         resourceIds: List<String>
     ) {
@@ -158,9 +158,17 @@ abstract class WeatherCoroutinesTileService : CoroutinesTileService() {
                             wim.getWeatherIconResource(icon)
                         ).toImageResource()
                     )
+                } else {
+                    produceRequestedResource(deviceParameters, id)
                 }
             }
         }
+    }
+
+    protected open fun Resources.Builder.produceRequestedResource(
+        deviceParameters: DeviceParameters,
+        id: String
+    ) {
     }
 
     protected open fun getLaunchAction(): Action {

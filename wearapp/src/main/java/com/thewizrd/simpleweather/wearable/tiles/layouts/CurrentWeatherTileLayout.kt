@@ -44,7 +44,7 @@ internal fun currentWeatherTileLayout(
     )
 }
 
-private fun currentWeatherTileLayout(
+internal fun currentWeatherTileLayout(
     context: Context,
     deviceParameters: DeviceParameters,
     location: String,
@@ -58,7 +58,7 @@ private fun currentWeatherTileLayout(
 ): LayoutElement = PrimaryLayout.Builder(deviceParameters)
     .setPrimaryLabelTextContent(
         Text.Builder(context, location)
-            .setColor(ColorBuilders.argb(Colors.WHITE))
+            .setColor(ColorBuilders.argb(Colors.SIMPLEBLUELIGHT))
             .setTypography(Typography.TYPOGRAPHY_CAPTION1)
             .build()
     )
@@ -87,7 +87,7 @@ private fun currentWeatherTileLayout(
             )
             .addContent(
                 Box.Builder()
-                    .setWidth(expand())
+                    .setWidth(if (showHiLo) wrap() else expand())
                     .setHeight(wrap())
                     .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                     .addContent(

@@ -28,13 +28,9 @@ object WeatherTileHelper {
         )
             .requestUpdate(CurrentWeatherTileProviderService::class.java)
 
-        TileProviderUpdateRequester(
-            context.applicationContext,
-            ComponentName(
-                context.applicationContext,
-                CurrentWeatherGoogleTileProviderService::class.java
-            )
+        TileService.getUpdater(
+            context.applicationContext
         )
-            .requestUpdateAll()
+            .requestUpdate(CurrentWeatherGoogleTileProviderService::class.java)
     }
 }
