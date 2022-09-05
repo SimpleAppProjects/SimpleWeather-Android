@@ -1,11 +1,14 @@
 package com.thewizrd.simpleweather.wearable
 
 import android.content.Intent
+import android.util.Log
+import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.LaunchActivity
 
 class WearableDataListenerService : WearableListenerService() {
@@ -26,6 +29,8 @@ class WearableDataListenerService : WearableListenerService() {
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        Logger.writeLine(Log.DEBUG, "onMessageReceived: ${messageEvent.path}")
+
         when (messageEvent.path) {
             WearableHelper.StartActivityPath -> {
                 val startIntent = Intent(this, LaunchActivity::class.java)
@@ -45,5 +50,13 @@ class WearableDataListenerService : WearableListenerService() {
                 WearableWorker.sendSetupStatus(this, messageEvent.sourceNodeId)
             }
         }
+    }
+
+    override fun onCapabilityChanged(capabilityInfo: CapabilityInfo) {
+        super.onCapabilityChanged(capabilityInfo)
+        Logger.writeLine(
+            Log.DEBUG,
+            "onCapabilityChanged: device connected (${capabilityInfo.nodes.isNotEmpty()})"
+        )
     }
 }
