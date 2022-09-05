@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.tiles.layouts
 
 import android.content.Context
 import androidx.annotation.ColorInt
@@ -15,6 +15,7 @@ import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.simpleweather.wearable.tiles.ID_WEATHER_ICON_PREFIX
 
 internal fun currentWeatherTileLayout(
     weather: Weather?,
@@ -27,7 +28,7 @@ internal fun currentWeatherTileLayout(
         context,
         deviceParameters,
         location = viewModel?.location ?: WeatherIcons.PLACEHOLDER,
-        weatherIconId = "${ID_WEATHER_ICON_PREFIX}${viewModel?.weatherIcon ?: WeatherIcons.NA}",
+        weatherIconId = "$ID_WEATHER_ICON_PREFIX${viewModel?.weatherIcon ?: WeatherIcons.NA}",
         currentTemperature = viewModel?.curTemp?.replace(viewModel.tempUnit ?: "", "")
             ?: WeatherIcons.PLACEHOLDER,
         currentTemperatureColor = weather?.condition?.tempF?.let {

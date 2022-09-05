@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.complications
 
 import android.app.PendingIntent
 import android.content.Context

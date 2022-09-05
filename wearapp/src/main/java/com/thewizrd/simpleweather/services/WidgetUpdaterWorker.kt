@@ -18,8 +18,8 @@ import com.thewizrd.simpleweather.services.ServiceNotificationHelper.JOB_ID
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.getForegroundNotification
 import com.thewizrd.simpleweather.services.ServiceNotificationHelper.initChannel
 import com.thewizrd.simpleweather.wearable.WearableWorker
-import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
-import com.thewizrd.simpleweather.wearable.WeatherTileHelper
+import com.thewizrd.simpleweather.wearable.complications.WeatherComplicationHelper
+import com.thewizrd.simpleweather.wearable.tiles.WeatherTileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

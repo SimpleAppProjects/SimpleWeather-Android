@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.tiles
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -17,6 +17,7 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.tools.WearPreviewDevices
+import com.thewizrd.simpleweather.wearable.tiles.layouts.currentWeatherTileLayout
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -46,14 +47,14 @@ fun CurrentWeatherTilePreview() {
         val wim = sharedDeps.weatherIconsManager
 
         addIdToImageMapping(
-            "${ID_WEATHER_ICON_PREFIX}${WeatherIcons.DAY_SUNNY}",
+            "$ID_WEATHER_ICON_PREFIX${WeatherIcons.DAY_SUNNY}",
             ImageUtils.bitmapFromDrawable(
                 context,
                 wim.getWeatherIconResource(WeatherIcons.DAY_SUNNY)
             ).toImageResource()
         )
         addIdToImageMapping(
-            "${ID_WEATHER_ICON_PREFIX}${WeatherIcons.NA}",
+            "$ID_WEATHER_ICON_PREFIX${WeatherIcons.NA}",
             ImageUtils.bitmapFromDrawable(
                 context,
                 wim.getWeatherIconResource(WeatherIcons.NA)

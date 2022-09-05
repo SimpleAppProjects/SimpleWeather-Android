@@ -86,7 +86,7 @@
             android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/label_nav_weathernow"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
-            android:name=".wearable.WeatherComplicationService"
+            android:name=".wearable.complications.WeatherComplicationService"
             android:exported="true">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -104,7 +104,7 @@
             android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/complication_label_weather_hilo"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
-            android:name=".wearable.WeatherHiLoComplicationService"
+            android:name=".wearable.complications.WeatherHiLoComplicationService"
             android:exported="true">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -118,7 +118,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.PrecipitationComplicationService"
+            android:name=".wearable.complications.PrecipitationComplicationService"
             android:icon="@drawable/wi_umbrella_white"
             android:label="@string/label_chance"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -135,7 +135,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.UVComplicationService"
+            android:name=".wearable.complications.UVComplicationService"
             android:icon="@drawable/wi_day_sunny_white"
             android:label="@string/label_uv"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -152,7 +152,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.AQIComplicationService"
+            android:name=".wearable.complications.AQIComplicationService"
             android:icon="@drawable/wi_cloud_white"
             android:label="@string/label_airquality_short"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -169,7 +169,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.BeaufortComplicationService"
+            android:name=".wearable.complications.BeaufortComplicationService"
             android:icon="@drawable/wi_strong_wind_white"
             android:label="@string/label_beaufort"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -186,7 +186,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.HumidityComplicationService"
+            android:name=".wearable.complications.HumidityComplicationService"
             android:icon="@drawable/wi_humidity_white"
             android:label="@string/label_humidity"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -203,7 +203,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.WindComplicationService"
+            android:name=".wearable.complications.WindComplicationService"
             android:icon="@drawable/wi_wind_direction_white"
             android:label="@string/label_wind"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -220,7 +220,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".wearable.FeelsLikeComplicationService"
+            android:name=".wearable.complications.FeelsLikeComplicationService"
             android:icon="@drawable/wi_thermometer_white"
             android:label="@string/label_feelslike"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"
@@ -242,7 +242,7 @@
             android:label="@string/tile_label_weather_forecast"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
-            android:name=".wearable.ForecastWeatherTileProviderService">
+            android:name=".wearable.tiles.ForecastWeatherTileProviderService">
             <intent-filter>
                 <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
             </intent-filter>
@@ -257,7 +257,7 @@
             android:label="@string/tile_label_currentweather"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
-            android:name=".wearable.CurrentWeatherTileProviderService">
+            android:name=".wearable.tiles.CurrentWeatherTileProviderService">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
@@ -272,7 +272,7 @@
             android:label="@string/tile_label_currentweather"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             android:exported="true"
-            android:name=".wearable.CurrentWeatherGoogleTileProviderService">
+            android:name=".wearable.tiles.CurrentWeatherGoogleTileProviderService">
             <intent-filter>
                 <action android:name="com.google.android.clockwork.ACTION_TILE_UPDATE_REQUEST" />
             </intent-filter>

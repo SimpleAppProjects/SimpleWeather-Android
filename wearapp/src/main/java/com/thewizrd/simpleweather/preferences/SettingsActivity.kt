@@ -53,8 +53,8 @@ import com.thewizrd.simpleweather.preferences.iconpreference.WearIconProviderPic
 import com.thewizrd.simpleweather.preferences.radiopreference.CandidateInfo
 import com.thewizrd.simpleweather.preferences.radiopreference.RadioButtonPreference
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
-import com.thewizrd.simpleweather.wearable.WeatherComplicationHelper
-import com.thewizrd.simpleweather.wearable.WeatherTileHelper
+import com.thewizrd.simpleweather.wearable.complications.WeatherComplicationHelper
+import com.thewizrd.simpleweather.wearable.tiles.WeatherTileHelper
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.tiles
 
 import android.widget.RemoteViews
 import com.thewizrd.common.controls.WeatherUiModel

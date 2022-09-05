@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.complications
 
 import android.content.ComponentName
 import android.content.Context

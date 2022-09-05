@@ -1,4 +1,4 @@
-package com.thewizrd.simpleweather.wearable
+package com.thewizrd.simpleweather.wearable.tiles
 
 import androidx.wear.tiles.ActionBuilders.*
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
