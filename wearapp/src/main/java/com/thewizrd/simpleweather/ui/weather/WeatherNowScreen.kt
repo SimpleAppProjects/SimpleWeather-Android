@@ -531,13 +531,15 @@ private fun WeatherSummary(
     weatherSummary: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    val dialogScrollState = rememberScalingLazyListState(0)
+    val dialogScrollState = rememberScalingLazyListState()
+    val focusRequester = remember { FocusRequester() }
 
     Dialog(
         showDialog = showDialog,
         onDismissRequest = { showDialog = false },
     ) {
         Alert(
+            modifier = Modifier.scrollableColumn(focusRequester, dialogScrollState),
             title = {
                 Text(
                     text = "",
@@ -559,6 +561,10 @@ private fun WeatherSummary(
                 style = MaterialTheme.typography.caption1,
                 color = MaterialTheme.colors.onBackground,
             )
+        }
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
     }
     WearDivider()
