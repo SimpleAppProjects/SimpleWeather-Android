@@ -121,7 +121,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         if (!(target instanceof FavoritesPanelAdapter.LocationPanelViewHolder))
             return false;
 
-        FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) recyclerView.getAdapter();
+        final FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) target.getBindingAdapter();
         return adapter == null || target.getBindingAdapterPosition() != 1;
     }
 
@@ -163,7 +163,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
                 float topY = viewHolder.itemView.getTop() + dY;
                 float bottomY = topY + viewHolder.itemView.getHeight();
                 float upperLimit = 0;
-                FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) recyclerView.getAdapter();
+                final FavoritesPanelAdapter adapter = (FavoritesPanelAdapter) viewHolder.getBindingAdapter();
 
                 if (adapter != null && adapter.getHeaderViewHolder() != null) {
                     upperLimit = adapter.getHeaderViewHolder().itemView.getTop();
