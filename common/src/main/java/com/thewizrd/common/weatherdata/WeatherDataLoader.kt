@@ -550,8 +550,11 @@ class WeatherDataLoader {
     private suspend fun saveWeatherForecasts(weather: Weather) = withContext(Dispatchers.IO) {
         val forecasts = Forecasts(weather)
         settingsMgr.saveWeatherForecasts(forecasts)
-        val hrForecasts = MutableList(weather.hrForecast.size) {
-            HourlyForecasts(weather.query, weather.hrForecast[it])
+
+        val hrForecasts = weather.hrForecast?.let { hrfcasts ->
+            MutableList(hrfcasts.size) {
+                HourlyForecasts(weather.query, hrfcasts[it])
+            }
         }
 
         settingsMgr.saveWeatherForecasts(location.query, hrForecasts)
