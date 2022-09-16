@@ -9,7 +9,10 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
@@ -27,6 +30,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
+import com.thewizrd.common.helpers.SimpleGestureListener
 import com.thewizrd.common.utils.ActivityUtils.setFullScreen
 import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.common.utils.ErrorMessage
@@ -325,33 +329,37 @@ class LocationSearchActivity : UserLocaleActivity(), UserThemeMode.OnThemeChange
         binding.recyclerView.isEnabled = !show
     }
 
-    private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
+    private val gestureListener = object : SimpleGestureListener() {
         private var mY = 0
         private var shouldCloseKeyboard = false
 
-        override fun onDown(e: MotionEvent): Boolean {
-            mY = e.y.toInt()
+        override fun onDown(e: MotionEvent?): Boolean {
+            e?.run {
+                mY = y.toInt()
+            }
             return super.onDown(e)
         }
 
-        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
             setResult(RESULT_CANCELED)
             onBackPressedDispatcher.onBackPressed()
             return super.onSingleTapConfirmed(e)
         }
 
         override fun onScroll(
-            e1: MotionEvent,
-            e2: MotionEvent,
+            e1: MotionEvent?,
+            e2: MotionEvent?,
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            val newY = e2.y.toInt()
-            val dY = mY - newY
-            mY = newY
-            // Set flag to hide the keyboard if we're scrolling down
-            // So we can see what's behind the keyboard
-            shouldCloseKeyboard = dY > 0
+            e2?.run {
+                val newY = y.toInt()
+                val dY = mY - newY
+                mY = newY
+                // Set flag to hide the keyboard if we're scrolling down
+                // So we can see what's behind the keyboard
+                shouldCloseKeyboard = dY > 0
+            }
 
             if (shouldCloseKeyboard) {
                 hideInputMethod(binding.recyclerView)
@@ -362,17 +370,19 @@ class LocationSearchActivity : UserLocaleActivity(), UserThemeMode.OnThemeChange
         }
 
         override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
+            e1: MotionEvent?,
+            e2: MotionEvent?,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            val newY = e2.y.toInt()
-            val dY = mY - newY
-            mY = newY
-            // Set flag to hide the keyboard if we're scrolling down
-            // So we can see what's behind the keyboard
-            shouldCloseKeyboard = dY > 0
+            e2?.run {
+                val newY = y.toInt()
+                val dY = mY - newY
+                mY = newY
+                // Set flag to hide the keyboard if we're scrolling down
+                // So we can see what's behind the keyboard
+                shouldCloseKeyboard = dY > 0
+            }
 
             if (shouldCloseKeyboard) {
                 hideInputMethod(binding.recyclerView)
