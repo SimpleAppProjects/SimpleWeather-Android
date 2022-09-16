@@ -24,6 +24,7 @@ import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -394,6 +395,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
 

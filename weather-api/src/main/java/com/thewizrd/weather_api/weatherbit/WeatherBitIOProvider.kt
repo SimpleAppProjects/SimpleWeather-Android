@@ -26,6 +26,7 @@ import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -483,11 +484,13 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             // c04: 804	Overcast clouds
             weatherIcon = WeatherIcons.OVERCAST
         } else {
+            logMissingIcon(icon)
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         }
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
 

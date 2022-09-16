@@ -22,6 +22,7 @@ import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -402,11 +403,13 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             // Sprinkle
             weatherIcon = WeatherIcons.SPRINKLE
         } else {
+            logMissingIcon(icon)
             weatherIcon = if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         }
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
 

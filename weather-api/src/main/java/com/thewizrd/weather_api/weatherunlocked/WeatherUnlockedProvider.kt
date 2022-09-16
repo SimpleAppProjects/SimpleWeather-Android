@@ -24,6 +24,7 @@ import com.thewizrd.weather_api.nws.SolCalcAstroProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
@@ -287,11 +288,9 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
     }
 
     override fun getWeatherIcon(isNight: Boolean, icon: String?): String {
-        var weatherIcon = ""
+        val code = icon?.toIntOrNull() ?: return WeatherIcons.NA
 
-        val code = icon?.toIntOrNull() ?: return WeatherIcons.NA;
-
-        weatherIcon = when (code) {
+        val weatherIcon = when (code) {
             0 /* Sunny skies/Clear skies */ -> {
                 if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
             }
@@ -398,12 +397,10 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             94  /* Moderate or heavy snow with thunder */ -> {
                 WeatherIcons.SNOW_THUNDERSTORM
             }
-            else -> WeatherIcons.NA
-        }
-
-        if (weatherIcon.isBlank()) {
-            // Not Available
-            weatherIcon = WeatherIcons.NA
+            else -> {
+                logMissingIcon(icon)
+                WeatherIcons.NA
+            }
         }
 
         return weatherIcon

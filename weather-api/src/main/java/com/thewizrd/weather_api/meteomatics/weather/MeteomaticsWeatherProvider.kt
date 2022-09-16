@@ -26,6 +26,7 @@ import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -403,7 +404,10 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             14, 114 -> WeatherIcons.THUNDERSTORM
             15, 115 -> WeatherIcons.SPRINKLE
             16, 116 -> WeatherIcons.SANDSTORM
-            else -> WeatherIcons.NA
+            else -> {
+                logMissingIcon(icon)
+                WeatherIcons.NA
+            }
         }
     }
 
@@ -426,7 +430,10 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             14, 114 -> context.getString(R.string.weather_tstorms)
             15, 115 -> context.getString(R.string.weather_drizzle)
             16, 116 -> context.getString(R.string.weather_dust)
-            else -> context.getString(R.string.weather_notavailable)
+            else -> {
+                logMissingIcon(icon)
+                context.getString(R.string.weather_notavailable)
+            }
         }
     }
 

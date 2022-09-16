@@ -20,6 +20,7 @@ import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -40,8 +41,10 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         private const val SUNRISE_QUERY_URL = "https://api.met.no/weatherapi/sunrise/2.0/.json?%s&date=%s&offset=+00:00"
 
         private fun getNeutralIconName(icon_variant: String?): String {
-            return icon_variant?.replace("_day", "")?.replace("_night", "")?.replace("_polartwilight", "")
-                   ?: ""
+            return icon_variant?.replace("_day", "")
+                ?.replace("_night", "")
+                ?.replace("_polartwilight", "")
+                ?: ""
         }
     }
 
@@ -345,6 +348,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
 
@@ -354,7 +358,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
     override fun getWeatherCondition(icon: String?): String {
         if (icon == null) return context.getString(R.string.weather_notavailable)
 
-        return when (val neutralIcon = getNeutralIconName(icon)) {
+        return when (getNeutralIconName(icon)) {
             "clearsky" -> {
                 context.getString(R.string.weather_clearsky)
             }
@@ -410,7 +414,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 context.getString(R.string.weather_snow)
             }
             else -> {
-                super.getWeatherCondition(neutralIcon)
+                super.getWeatherCondition(icon)
             }
         }
     }

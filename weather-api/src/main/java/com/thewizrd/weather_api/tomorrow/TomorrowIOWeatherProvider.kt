@@ -30,6 +30,7 @@ import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -942,6 +943,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
         return weatherIcon
@@ -1115,7 +1117,10 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
             8001, 80010, 80011,
             8003, 80030, 80031,
             8002, 80020, 80021 -> context.getString(R.string.weather_tstorms)
-            else -> context.getString(R.string.weather_notavailable)
+            else -> {
+                logMissingIcon(icon)
+                context.getString(R.string.weather_notavailable)
+            }
         }
     }
 

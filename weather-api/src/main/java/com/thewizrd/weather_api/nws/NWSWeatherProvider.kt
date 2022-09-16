@@ -26,6 +26,7 @@ import com.thewizrd.weather_api.nws.observation.ForecastResponse
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
@@ -467,11 +468,13 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         } else if (icon.contains("skc")) {
             if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         } else {
+            logMissingIcon(icon)
             if (isNight) WeatherIcons.NIGHT_CLEAR else WeatherIcons.DAY_SUNNY
         }
 
         if (weatherIcon.isBlank()) {
             // Not Available
+            logMissingIcon(icon)
             weatherIcon = WeatherIcons.NA
         }
 

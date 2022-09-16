@@ -26,6 +26,7 @@ import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
 import com.thewizrd.weather_api.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.weather_api.utils.RateLimitedRequest
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import java.time.Duration
 import java.time.LocalDate
@@ -455,7 +456,10 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 context.getString(R.string.weather_windy)
             }
             WeatherIcons.HURRICANE -> context.getString(R.string.weather_tropicalstorm)
-            else -> context.getString(R.string.weather_notavailable)
+            else -> {
+                logMissingIcon(icon)
+                context.getString(R.string.weather_notavailable)
+            }
         }
     }
 

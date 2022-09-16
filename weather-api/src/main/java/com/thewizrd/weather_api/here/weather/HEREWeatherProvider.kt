@@ -24,6 +24,7 @@ import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.createThrowable
+import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherdata.WeatherProviderImpl
 import kotlinx.coroutines.Dispatchers
@@ -582,6 +583,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 }
                 else -> {
                     // Not Available
+                    logMissingIcon(icon)
                     WeatherIcons.NA
                 }
             }
