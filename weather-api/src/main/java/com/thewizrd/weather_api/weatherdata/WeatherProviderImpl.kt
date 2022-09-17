@@ -215,13 +215,20 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                             DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT)
                         )
 
-                        if (i == 0 && weather.condition.uv == null && date.isEqual(weather.condition.observationTime.toLocalDate())) {
+                        if (weather.condition.uv == null && date.isEqual(weather.condition.observationTime.toLocalDate())) {
                             if (weather.astronomy.sunrise != null && weather.astronomy.sunset != null) {
                                 val obsLocalTime = weather.condition.observationTime.toLocalTime()
-                                // if before sunrise or after sunset, uv min
-                                if (obsLocalTime.isBefore(weather.astronomy.sunrise.toLocalTime()) || obsLocalTime.isAfter(
-                                        weather.astronomy.sunset.toLocalTime()
-                                    )
+                                // if before sunrise, after sunset, or +/- 2hrs before/after sunrise/sunset, uv min
+                                if (obsLocalTime.isBefore(weather.astronomy.sunrise.toLocalTime()) ||
+                                    obsLocalTime.isAfter(weather.astronomy.sunset.toLocalTime()) ||
+                                    Duration.between(
+                                        weather.astronomy.sunrise.toLocalTime(),
+                                        obsLocalTime
+                                    ).abs().toHours() <= 2 ||
+                                    Duration.between(
+                                        weather.astronomy.sunset.toLocalTime(),
+                                        obsLocalTime
+                                    ).abs().toHours() <= 2
                                 ) {
                                     weather.condition.uv = UV(uviData.min?.toFloat() ?: 0f)
                                 } else {
