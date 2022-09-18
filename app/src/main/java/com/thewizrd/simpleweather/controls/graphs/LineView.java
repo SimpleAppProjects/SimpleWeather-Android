@@ -13,7 +13,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -23,7 +22,6 @@ import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
 import com.thewizrd.shared_resources.utils.LocaleUtils;
 import com.thewizrd.shared_resources.utils.StringUtils;
-import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
@@ -303,11 +301,6 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
             backgroundGridWidth = longestTextWidth;
 
             final int mParentWidth = getScrollViewer().getMeasuredWidth();
-
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
-                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
-            }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();

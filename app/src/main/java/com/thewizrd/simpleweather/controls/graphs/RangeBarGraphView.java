@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
-import com.thewizrd.simpleweather.BuildConfig;
 
 import java.util.ArrayList;
 
@@ -154,13 +153,9 @@ public class RangeBarGraphView extends BaseGraphHorizontalScrollView<RangeBarGra
         private void refreshGridWidth() {
             // Reset the grid width
             backgroundGridWidth = longestTextWidth;
-            final float defaultPadding = ContextUtils.dpToPx(getContext(), 8f);
 
+            final float defaultPadding = ContextUtils.dpToPx(getContext(), 8f);
             final int mParentWidth = getScrollViewer().getMeasuredWidth();
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "refreshGridWidth: parent width = " + getScrollViewer().getMeasuredWidth());
-                Log.d(TAG, "refreshGridWidth: measure width = " + getMeasuredWidth());
-            }
 
             if (getGraphExtentWidth() < mParentWidth) {
                 int freeSpace = mParentWidth - getGraphExtentWidth();

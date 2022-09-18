@@ -6,9 +6,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.ColorInt;
@@ -18,7 +16,6 @@ import androidx.annotation.Px;
 
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ContextUtils;
-import com.thewizrd.simpleweather.BuildConfig;
 import com.thewizrd.simpleweather.R;
 
 import java.util.ArrayList;
@@ -196,13 +193,6 @@ public abstract class BaseGraphView<T extends GraphData<? extends GraphDataSet<?
 
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (BuildConfig.DEBUG) {
-            Log.d("BaseGraphView", "onMeasure: measuredWidth = " + getMeasuredWidth());
-            if (getParent() instanceof ViewGroup) {
-                Log.d("BaseGraphView", "onMeasure: parentWidth = " + ((ViewGroup) getParent()).getMeasuredWidth());
-            }
-        }
-
         onPreMeasure();
         mViewWidth = measureWidth(widthMeasureSpec);
         mViewHeight = measureHeight(heightMeasureSpec);

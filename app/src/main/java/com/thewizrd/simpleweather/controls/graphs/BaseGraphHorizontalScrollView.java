@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,8 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
-
-import com.thewizrd.simpleweather.BuildConfig;
 
 public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extends GraphDataSet<? extends GraphEntry>>> extends HorizontalScrollView implements IGraph {
     private HorizontalScrollView mScrollViewer;
@@ -290,11 +287,6 @@ public abstract class BaseGraphHorizontalScrollView<T extends GraphData<? extend
             }
 
             int desiredWidth = getMeasuredWidth() - widthPadding;
-
-            if (BuildConfig.DEBUG) {
-                Log.d("BaseGraphScrollView", "onMeasure: desiredWidth = " + desiredWidth);
-                Log.d("BaseGraphScrollView", "onMeasure: child width = " + child.getMeasuredWidth());
-            }
 
             if (child.getMeasuredWidth() < desiredWidth) {
                 final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
