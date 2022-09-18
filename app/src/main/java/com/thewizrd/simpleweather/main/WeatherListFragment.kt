@@ -155,7 +155,7 @@ class WeatherListFragment : ToolbarFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.show()
 
         viewLifecycleOwner.lifecycleScope.launch {
             twoPaneStateViewModel.twoPaneState.collectLatest { state ->
@@ -242,7 +242,7 @@ class WeatherListFragment : ToolbarFragment() {
                     SimpleRecyclerViewAdapterObserver() {
                     override fun onChanged() {
                         alertAdapter.unregisterAdapterDataObserver(this)
-                        binding.progressBar.visibility = View.GONE
+                        binding.progressBar.hide()
                     }
                 })
 
@@ -254,7 +254,7 @@ class WeatherListFragment : ToolbarFragment() {
             }
             else -> {
                 binding.recyclerView.adapter = null
-                binding.progressBar.visibility = View.GONE
+                binding.progressBar.hide()
             }
         }
     }
@@ -282,7 +282,7 @@ class WeatherListFragment : ToolbarFragment() {
                             }
                         }
                     })
-                    binding.progressBar.isVisible = false
+                    binding.progressBar.hide()
                 }
             }
         })

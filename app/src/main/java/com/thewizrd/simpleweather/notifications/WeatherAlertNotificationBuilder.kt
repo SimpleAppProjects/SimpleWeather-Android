@@ -52,7 +52,7 @@ object WeatherAlertNotificationBuilder {
         // Start WeatherNow Activity with weather data
         val intent = Intent(context, MainActivity::class.java)
             .setAction(WeatherAlertNotificationService.ACTION_SHOWALERTS)
-            .putExtra(Constants.KEY_DATA, JSONParser.serializer(location, LocationData::class.java))
+            .putExtra(Constants.KEY_DATA, JSONParser.serializer(location))
             .putExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS, true)
             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val clickPendingIntent = PendingIntent.getActivity(

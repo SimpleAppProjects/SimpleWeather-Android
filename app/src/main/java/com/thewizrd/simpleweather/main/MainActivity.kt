@@ -174,10 +174,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
                     )
                 } else {
                     lifecycleScope.launch(Dispatchers.Main.immediate) {
-                        // Commit transaction now, if needed, since we'll try to access
-                        // the NavController almost immediately after
-                        initializeNavFragment(args, true)
-                        initializeNavController()
+                        initializeNavFragment(args)
                     }
                 }
                 return@launch
@@ -186,18 +183,17 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         }
     }
 
-    private fun initializeNavFragment(args: Bundle, commitNow: Boolean = false) {
+    private fun initializeNavFragment(args: Bundle) {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment == null) {
             val hostFragment = NavHostFragment.create(R.navigation.nav_graph, args)
-            val transaction = supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, hostFragment)
-                    .setPrimaryNavigationFragment(hostFragment)
-
-            if (commitNow)
-                transaction.commitNowAllowingStateLoss()
-            else
-                transaction.commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, hostFragment)
+                .setPrimaryNavigationFragment(hostFragment)
+                .runOnCommit {
+                    initializeNavController()
+                }
+                .commitAllowingStateLoss()
         }
     }
 
@@ -219,10 +215,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
     }
 
     private fun initializeNavController() {
-        // Don't initialize the controller to early
-        // The fragment may not have called onCreate yet; which is where the NavController gets assigned
-        // It should be ready once we reach onStart
-        lifecycleScope.launchWhenStarted {
+        if (mNavController == null) {
             mNavController = getNavController()
 
             getNavBar()?.setupWithNavController(mNavController!!)
@@ -242,13 +235,19 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
 
             // Alerts: from weather alert notification
             if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
-                val destination = mNavController!!.currentDestination
-                if (destination != null && destination.id != R.id.weatherListFragment) {
-                    val locationData = settingsManager.getHomeData()
-                    val args = NavGraphDirections.actionGlobalWeatherListFragment()
-                        .setData(JSONParser.serializer(locationData, LocationData::class.java))
-                        .setWeatherListType(WeatherListType.ALERTS)
-                    mNavController!!.navigate(args)
+                mNavController?.currentDestination?.let { destination ->
+                    if (destination.id != R.id.weatherAlertFragment) {
+                        val args = NavGraphDirections.actionGlobalWeatherAlertFragment()
+                            .setData(intent.getStringExtra(Constants.KEY_DATA))
+                        mNavController?.navigate(args)
+                    }
+
+                    // Modify intent to prevent this action from reoccurring
+                    intent = intent.apply {
+                        action = null
+                        removeExtra(Constants.KEY_DATA)
+                        removeExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS)
+                    }
                 }
             }
 
@@ -259,38 +258,29 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
     }
 
     private fun getNavController(): NavController {
-        var mNavController: NavController? = null
+        var navController: NavController? = null
         try {
-            mNavController = findNavController(R.id.fragment_container)
+            navController = findNavController(R.id.fragment_container)
         } catch (e: IllegalStateException) {
             // View not yet created
             // Retrieve by fragment
         }
 
-        if (mNavController == null) {
+        if (navController == null) {
             val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             if (fragment !is NavHostFragment) {
                 throw IllegalStateException("NavHostFragment not yet initialized!")
             } else {
-                mNavController = fragment.navController
+                navController = fragment.navController
             }
         }
 
-        return mNavController
+        return navController
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        // Alerts: from weather alert notification
-        if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
-            val args = Bundle()
-            if (intent.extras != null) {
-                args.putAll(intent.extras)
-            }
-            args.putSerializable(Constants.ARGS_WEATHERLISTTYPE, WeatherListType.ALERTS)
-            mNavController?.navigate(R.id.weatherListFragment, args)
-        }
+        setIntent(intent)
     }
 
     override fun onResumeFragments() {
@@ -314,6 +304,25 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
             val webView = container.getChildAt(0) as WebView
             webView.resumeTimers()
         }
+
+        // Alerts: from weather alert notification
+        if (WeatherAlertNotificationService.ACTION_SHOWALERTS == intent?.action) {
+            mNavController?.let { navController ->
+                val destination = navController.currentDestination
+                if (destination != null && destination.id != R.id.weatherAlertFragment) {
+                    val args = NavGraphDirections.actionGlobalWeatherAlertFragment()
+                        .setData(intent.getStringExtra(Constants.KEY_DATA))
+                    navController.navigate(args)
+                }
+
+                // Modify intent to prevent this action from reoccurring
+                intent = intent.apply {
+                    action = null
+                    removeExtra(Constants.KEY_DATA)
+                    removeExtra(WeatherAlertNotificationService.ACTION_SHOWALERTS)
+                }
+            }
+        }
     }
 
     override fun onPause() {
@@ -328,6 +337,7 @@ class MainActivity : UserLocaleActivity(), OnThemeChangeListener, WindowColorMan
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == INSTALL_REQUESTCODE) {
             if (resultCode != RESULT_OK) {

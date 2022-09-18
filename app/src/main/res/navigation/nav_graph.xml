@@ -36,23 +36,15 @@
             android:defaultValue="@null" />
     </fragment>
     <fragment
-        android:id="@+id/weatherListFragment"
-        android:name="com.thewizrd.simpleweather.main.WeatherListFragment"
-        android:label="WeatherListFragment"
+        android:id="@+id/weatherAlertFragment"
+        android:name="com.thewizrd.simpleweather.main.WeatherAlertFragment"
+        android:label="WeatherAlertFragment"
         tools:layout="@layout/fragment_weather_list">
         <argument
             android:name="data"
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />
-        <argument
-            android:name="WeatherListType"
-            app:argType="com.thewizrd.simpleweather.main.WeatherListType"
-            android:defaultValue="FORECAST" />
-        <argument
-            android:name="position"
-            app:argType="integer"
-            android:defaultValue="0" />
     </fragment>
     <fragment
         android:id="@+id/weatherRadarFragment"
@@ -133,8 +125,8 @@
             app:destination="@id/premiumFragment" />
     </fragment>
     <action
-        android:id="@+id/action_global_weatherListFragment"
-        app:destination="@id/weatherListFragment" />
+        android:id="@+id/action_global_weatherAlertFragment"
+        app:destination="@id/weatherAlertFragment" />
     <fragment
         android:id="@+id/premiumFragment"
         android:name="com.thewizrd.extras.premium.PremiumFragment"
