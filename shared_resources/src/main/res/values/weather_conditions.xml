@@ -54,4 +54,7 @@
     <string name="weather_lightfog">Light Fog</string>
     <string name="weather_drizzle">Drizzle</string>
 
+    <string name="weather_lightwind">Light Wind</string>
+    <string name="weather_smog">Smog</string>
+
 </resources>

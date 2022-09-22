@@ -388,7 +388,11 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             WeatherIcons.NIGHT_ALT_THUNDERSTORM,
             WeatherIcons.THUNDERSTORM,
             WeatherIcons.DAY_STORM_SHOWERS,
-            WeatherIcons.NIGHT_ALT_STORM_SHOWERS -> {
+            WeatherIcons.NIGHT_ALT_STORM_SHOWERS,
+            WeatherIcons.STORM_SHOWERS,
+            WeatherIcons.DAY_LIGHTNING,
+            WeatherIcons.NIGHT_ALT_LIGHTNING,
+            WeatherIcons.LIGHTNING -> {
                 context.getString(R.string.weather_tstorms)
             }
             WeatherIcons.DAY_SLEET,
@@ -431,7 +435,9 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             WeatherIcons.SLEET_STORM -> {
                 context.getString(R.string.weather_sleet_tstorms)
             }
-            WeatherIcons.SNOWFLAKE_COLD -> context.getString(R.string.weather_cold)
+            WeatherIcons.SNOWFLAKE_COLD -> {
+                context.getString(R.string.weather_cold)
+            }
             WeatherIcons.DAY_HOT,
             WeatherIcons.NIGHT_HOT,
             WeatherIcons.HOT -> {
@@ -442,9 +448,15 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             WeatherIcons.HAZE -> {
                 context.getString(R.string.weather_haze)
             }
-            WeatherIcons.SMOKE -> context.getString(R.string.weather_smoky)
-            WeatherIcons.SANDSTORM, WeatherIcons.DUST -> context.getString(R.string.weather_dust)
-            WeatherIcons.TORNADO -> context.getString(R.string.weather_tornado)
+            WeatherIcons.SMOKE -> {
+                context.getString(R.string.weather_smoky)
+            }
+            WeatherIcons.SANDSTORM, WeatherIcons.DUST -> {
+                context.getString(R.string.weather_dust)
+            }
+            WeatherIcons.TORNADO -> {
+                context.getString(R.string.weather_tornado)
+            }
             WeatherIcons.DAY_RAIN_MIX,
             WeatherIcons.NIGHT_ALT_RAIN_MIX,
             WeatherIcons.RAIN_MIX -> {
@@ -462,7 +474,22 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
             WeatherIcons.STRONG_WIND -> {
                 context.getString(R.string.weather_windy)
             }
-            WeatherIcons.HURRICANE -> context.getString(R.string.weather_tropicalstorm)
+            WeatherIcons.HURRICANE -> {
+                context.getString(R.string.weather_tropicalstorm)
+            }
+            WeatherIcons.DAY_RAIN_WIND,
+            WeatherIcons.NIGHT_ALT_RAIN_WIND,
+            WeatherIcons.RAIN_WIND -> {
+                context.getString(R.string.weather_heavyrain)
+            }
+            WeatherIcons.DAY_LIGHT_WIND,
+            WeatherIcons.NIGHT_LIGHT_WIND,
+            WeatherIcons.LIGHT_WIND -> {
+                context.getString(R.string.weather_lightwind)
+            }
+            WeatherIcons.SMOG -> {
+                context.getString(R.string.weather_smog)
+            }
             else -> {
                 logMissingIcon(icon)
                 context.getString(R.string.weather_notavailable)
