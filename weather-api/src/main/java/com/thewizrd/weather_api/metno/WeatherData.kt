@@ -140,21 +140,28 @@ fun createCondition(time: TimeseriesItem): Condition {
         tempF = ConversionMethods.CtoF(time.data.instant.details.airTemperature)
         tempC = time.data.instant.details.airTemperature
         windDegrees = Math.round(time.data.instant.details.windFromDirection)
-        windMph = Math.round(ConversionMethods.msecToMph(time.data.instant.details.windSpeed)).toFloat()
-        windKph = Math.round(ConversionMethods.msecToKph(time.data.instant.details.windSpeed)).toFloat()
-        feelslikeF = getFeelsLikeTemp(tempF, windMph, Math.round(time.data.instant.details.relativeHumidity))
+        windMph =
+            Math.round(ConversionMethods.msecToMph(time.data.instant.details.windSpeed)).toFloat()
+        windKph =
+            Math.round(ConversionMethods.msecToKph(time.data.instant.details.windSpeed)).toFloat()
+        feelslikeF =
+            getFeelsLikeTemp(tempF, windMph, Math.round(time.data.instant.details.relativeHumidity))
         feelslikeC = ConversionMethods.FtoC(feelslikeF)
         if (time.data.instant.details.windSpeedOfGust != null) {
-            windGustMph = Math.round(ConversionMethods.msecToMph(time.data.instant.details.windSpeedOfGust)).toFloat()
-            windGustKph = Math.round(ConversionMethods.msecToKph(time.data.instant.details.windSpeedOfGust)).toFloat()
+            windGustMph =
+                Math.round(ConversionMethods.msecToMph(time.data.instant.details.windSpeedOfGust))
+                    .toFloat()
+            windGustKph =
+                Math.round(ConversionMethods.msecToKph(time.data.instant.details.windSpeedOfGust))
+                    .toFloat()
         }
 
-        if (time.data.next12Hours != null) {
-            icon = time.data.next12Hours.summary.symbolCode
+        if (time.data.next1Hours != null) {
+            icon = time.data.next1Hours.summary.symbolCode
         } else if (time.data.next6Hours != null) {
             icon = time.data.next6Hours.summary.symbolCode
-        } else if (time.data.next1Hours != null) {
-            icon = time.data.next1Hours.summary.symbolCode
+        } else if (time.data.next12Hours != null) {
+            icon = time.data.next12Hours.summary.symbolCode
         }
 
         beaufort = Beaufort(getBeaufortScale(time.data.instant.details.windSpeed))
@@ -205,19 +212,26 @@ fun createPrecipitation(time: TimeseriesItem): Precipitation {
 fun createHourlyForecast(hr_forecast: TimeseriesItem): HourlyForecast {
     return HourlyForecast().apply {
         // new DateTimeOffset(, TimeSpan.Zero);
-        date = ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(hr_forecast.time)), ZoneOffset.UTC)
+        date = ZonedDateTime.ofInstant(
+            Instant.from(DateTimeFormatter.ISO_INSTANT.parse(hr_forecast.time)),
+            ZoneOffset.UTC
+        )
         highF = ConversionMethods.CtoF(hr_forecast.data.instant.details.airTemperature)
         highC = hr_forecast.data.instant.details.airTemperature
         windDegrees = Math.round(hr_forecast.data.instant.details.windFromDirection)
-        windMph = ConversionMethods.msecToMph(hr_forecast.data.instant.details.windSpeed).roundToInt().toFloat()
-        windKph = ConversionMethods.msecToKph(hr_forecast.data.instant.details.windSpeed).roundToInt().toFloat()
+        windMph =
+            ConversionMethods.msecToMph(hr_forecast.data.instant.details.windSpeed).roundToInt()
+                .toFloat()
+        windKph =
+            ConversionMethods.msecToKph(hr_forecast.data.instant.details.windSpeed).roundToInt()
+                .toFloat()
 
-        if (hr_forecast.data.next12Hours != null) {
-            icon = hr_forecast.data.next12Hours.summary.symbolCode
+        if (hr_forecast.data.next1Hours != null) {
+            icon = hr_forecast.data.next1Hours.summary.symbolCode
         } else if (hr_forecast.data.next6Hours != null) {
             icon = hr_forecast.data.next6Hours.summary.symbolCode
-        } else if (hr_forecast.data.next1Hours != null) {
-            icon = hr_forecast.data.next1Hours.summary.symbolCode
+        } else if (hr_forecast.data.next12Hours != null) {
+            icon = hr_forecast.data.next12Hours.summary.symbolCode
         }
 
         val humidity = hr_forecast.data.instant.details.relativeHumidity
