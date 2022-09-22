@@ -145,4 +145,49 @@ object StringUtils {
             return sb.toString()
         }
     }
+
+    fun String.escapeUnicode(): String {
+        // https://stackoverflow.com/a/48706264
+        return native2ascii(this)
+    }
+
+    /**
+     * Encode a String like äöü to \u00e4\u00f6\u00fc
+     *
+     * @param text
+     * @return
+     */
+    private fun native2ascii(text: String): String {
+        val sb = StringBuilder()
+        for (ch in text.toCharArray()) {
+            sb.append(native2ascii(ch))
+        }
+        return sb.toString()
+    }
+
+    /**
+     * Encode a Character like ä to \u00e4
+     *
+     * @param ch
+     * @return
+     */
+    private fun native2ascii(ch: Char): String {
+        return if (ch > '\u007f') {
+            val sb = StringBuilder()
+            // write \udddd
+            sb.append("\\u")
+            val hex = StringBuffer(Integer.toHexString(ch.code))
+            hex.reverse()
+            val length = 4 - hex.length
+            for (j in 0 until length) {
+                hex.append('0')
+            }
+            for (j in 0..3) {
+                sb.append(hex[3 - j])
+            }
+            sb.toString()
+        } else {
+            ch.toString()
+        }
+    }
 }
