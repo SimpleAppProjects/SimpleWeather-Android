@@ -7,13 +7,11 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
 import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.common.wearable.WearableSettings
-import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.shared_resources.weatherdata.model.Weather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -95,6 +93,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             return Result.success()
 
         val mWearNodesWithApp = findWearDevicesWithApp()
+
         if (!mWearNodesWithApp.isEmpty()) {
             when (intentAction) {
                 WearableWorkerActions.ACTION_SENDUPDATE -> {
@@ -115,7 +114,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                     createWeatherDataRequest(urgent, partialUpdate = true)
                 }
                 WearableWorkerActions.ACTION_SENDSETUPSTATUS -> {
-                    sendSetupStatus(inputData.getString(KEY_NODEID))
+                    inputData.getString(KEY_NODEID)?.let { sendSetupStatus(it) }
                 }
             }
         }
@@ -134,23 +133,25 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             null
         }
 
-        return@withContext if (capabilityInfo != null) {
-            capabilityInfo.nodes
-        } else {
-            emptySet()
-        }
+        return@withContext capabilityInfo?.nodes ?: emptySet()
     }
 
     private suspend fun createSettingsDataRequest(urgent: Boolean) {
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.SettingsPath)
-            mapRequest.dataMap.putString(WearableSettings.KEY_API, settingsManager.getAPI())
-            mapRequest.dataMap.putString(WearableSettings.KEY_APIKEY, settingsManager.getAPIKey())
+            mapRequest.dataMap.putString(WearableSettings.KEY_API, settingsManager.getAPI() ?: "")
+            mapRequest.dataMap.putString(
+                WearableSettings.KEY_APIKEY,
+                settingsManager.getAPIKey() ?: ""
+            )
             mapRequest.dataMap.putBoolean(
                 WearableSettings.KEY_APIKEY_VERIFIED,
                 settingsManager.getAPI()?.let { settingsManager.isKeyVerified(it) } ?: false
             )
-            mapRequest.dataMap.putBoolean(WearableSettings.KEY_FOLLOWGPS, settingsManager.useFollowGPS())
+            mapRequest.dataMap.putBoolean(
+                WearableSettings.KEY_FOLLOWGPS,
+                settingsManager.useFollowGPS()
+            )
             mapRequest.dataMap.putString(
                 WearableSettings.KEY_TEMPUNIT,
                 settingsManager.getTemperatureUnit()
@@ -185,7 +186,10 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_APIKEYS, apiKeyMap)
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_APIKEYS_VERIFIED, apiKeyVerifyMap)
 
-            mapRequest.dataMap.putString(WearableSettings.KEY_LANGUAGE, LocaleUtils.getLocaleCode())
+            mapRequest.dataMap.putString(
+                WearableSettings.KEY_LANGUAGE,
+                LocaleUtils.getLocaleCode() ?: ""
+            )
             mapRequest.dataMap.putString(
                 WearableSettings.KEY_ICONPROVIDER,
                 settingsManager.getIconsProvider()
@@ -217,8 +221,14 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         withContext(Dispatchers.IO) {
             val mapRequest = PutDataMapRequest.create(WearableHelper.LocationPath)
             val homeData = settingsManager.getHomeData()
-            mapRequest.dataMap.putString(WearableSettings.KEY_LOCATIONDATA, JSONParser.serializer(homeData, LocationData::class.java))
-            mapRequest.dataMap.putLong(WearableSettings.KEY_UPDATETIME, Instant.now(Clock.systemUTC()).toEpochMilli())
+            mapRequest.dataMap.putString(
+                WearableSettings.KEY_LOCATIONDATA,
+                JSONParser.serializer(homeData) ?: ""
+            )
+            mapRequest.dataMap.putLong(
+                WearableSettings.KEY_UPDATETIME,
+                Instant.now().toEpochMilli()
+            )
             val request = mapRequest.asPutDataRequest()
             if (urgent) request.setUrgent()
             try {
@@ -256,8 +266,8 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
                 mapRequest.dataMap.putAsset(
                     WearableSettings.KEY_WEATHERDATA,
                     Asset.createFromBytes(
-                        JSONParser.serializer(weatherData, Weather::class.java)
-                            ?.toByteArray(Charset.forName("UTF-8")) ?: byteArrayOf()
+                        JSONParser.serializer(weatherData)?.toByteArray(Charset.forName("UTF-8"))
+                            ?: byteArrayOf()
                     )
                 )
             }
@@ -290,7 +300,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
         }
     }
 
-    private suspend fun sendSetupStatus(nodeID: String?) =
+    private suspend fun sendSetupStatus(nodeID: String) =
         withContext(Dispatchers.IO) {
             try {
                 val client = Wearable.getMessageClient(applicationContext)
