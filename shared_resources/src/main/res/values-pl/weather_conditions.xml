@@ -48,4 +48,6 @@
     <string name="weather_mostlyclear">"Przeważnie bezchmurnie"</string>
     <string name="weather_lightfog">"Lekka mgła"</string>
     <string name="weather_drizzle">"Mżawka"</string>
+    <string name="weather_lightwind">"Lekki wiatr"</string>
+    <string name="weather_smog">"Smog"</string>
 </resources>

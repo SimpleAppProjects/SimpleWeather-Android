@@ -64,4 +64,6 @@
 
     <!-- Fuzzy -->
     <string name="weather_drizzle">"Llovizna"</string>
+    <string name="weather_lightwind">"Viento ligero"</string>
+    <string name="weather_smog">"Niebla tóxica"</string>
 </resources>

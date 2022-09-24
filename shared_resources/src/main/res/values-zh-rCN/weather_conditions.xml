@@ -115,4 +115,6 @@
     <!-- Fuzzy -->
     <string name="weather_lightfog">"轻微的雾"</string>
     <string name="weather_drizzle">"细雨"</string>
+    <string name="weather_lightwind">"轻风"</string>
+    <string name="weather_smog">"雾霾"</string>
 </resources>

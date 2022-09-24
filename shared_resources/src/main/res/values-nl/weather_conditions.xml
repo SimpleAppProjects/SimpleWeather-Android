@@ -48,4 +48,6 @@
     <string name="weather_mostlyclear">"Voornamelijk helder"</string>
     <string name="weather_lightfog">"Lichte Mist"</string>
     <string name="weather_drizzle">"Motregen"</string>
+    <string name="weather_lightwind">"Lichte wind"</string>
+    <string name="weather_smog">"Smog"</string>
 </resources>

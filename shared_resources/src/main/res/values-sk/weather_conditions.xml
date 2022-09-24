@@ -50,4 +50,6 @@
     <!-- Fuzzy -->
     <string name="weather_lightfog">"Mierna hmla"</string>
     <string name="weather_drizzle">"Mrholenie"</string>
+    <string name="weather_lightwind">"Ľahký vietor"</string>
+    <string name="weather_smog">"Smog"</string>
 </resources>

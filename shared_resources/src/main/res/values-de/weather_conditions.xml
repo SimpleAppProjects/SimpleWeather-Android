@@ -85,4 +85,6 @@
     <!-- Fuzzy -->
     <string name="weather_lightfog">"Leichter Nebel"</string>
     <string name="weather_drizzle">"Nieselregen"</string>
+    <string name="weather_lightwind">"Leichter Wind"</string>
+    <string name="weather_smog">"Smog"</string>
 </resources>

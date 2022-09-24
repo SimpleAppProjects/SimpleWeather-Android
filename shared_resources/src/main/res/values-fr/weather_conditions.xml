@@ -52,4 +52,6 @@
     <!-- Fuzzy -->
     <string name="weather_lightfog">"Léger brouillard"</string>
     <string name="weather_drizzle">"Bruine"</string>
+    <string name="weather_lightwind">"Vent léger"</string>
+    <string name="weather_smog">"Smog"</string>
 </resources>
