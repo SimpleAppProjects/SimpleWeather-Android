@@ -35,6 +35,6 @@ class TZDBServiceImpl : TZDBService {
             }
         }
 
-        return "UTC"
+        return "unknown"
     }
 }
