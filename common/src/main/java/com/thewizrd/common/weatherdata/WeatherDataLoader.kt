@@ -130,6 +130,19 @@ class WeatherDataLoader {
         try {
             coroutineContext.ensureActive()
 
+            // Is the timezone valid? If not try to fetch a valid zone id
+            if (!wm.isRegionSupported(location.countryCode) && (location.tzLong == "unknown" || location.tzLong == "UTC")) {
+                if (location.latitude != 0.0 && location.longitude != 0.0) {
+                    val tzId =
+                        weatherModule.tzdbService.getTimeZone(location.latitude, location.longitude)
+                    if ("unknown" != tzId) {
+                        location.tzLong = tzId
+                        // Update DB here or somewhere else
+                        settingsMgr.updateLocation(location)
+                    }
+                }
+            }
+
             if (!wm.isRegionSupported(location.countryCode)) {
                 // If location data hasn't been updated, try loading weather from the previous provider
                 if (!location.weatherSource.isNullOrBlank()) {

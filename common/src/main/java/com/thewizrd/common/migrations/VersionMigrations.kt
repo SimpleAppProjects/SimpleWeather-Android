@@ -114,6 +114,31 @@ object VersionMigrations {
                 DevSettingsEnabler.clearPreferences(context)
             }
 
+            if (settingsMgr.getVersionCode() < 335701300) {
+                // Tz refresh
+                val locations = mutableListOf<LocationData>()
+                if (appLib.isPhone) {
+                    locations.addAll(settingsMgr.getLocationData())
+                }
+                settingsMgr.getLastGPSLocData()?.let { locations.add(it) }
+
+                locations.forEach { location ->
+                    if (location.tzLong == "unknown" || location.tzLong == "UTC") {
+                        if (location.latitude != 0.0 && location.longitude != 0.0) {
+                            val tzId = weatherModule.tzdbService.getTimeZone(
+                                location.latitude,
+                                location.longitude
+                            )
+                            if ("unknown" != tzId) {
+                                location.tzLong = tzId
+                                // Update DB here or somewhere else
+                                settingsMgr.updateLocation(location)
+                            }
+                        }
+                    }
+                }
+            }
+
             val bundle = Bundle().apply {
                 putString("API", settingsMgr.getAPI())
                 putString("API_IsInternalKey", (!settingsMgr.usePersonalKey()).toString())
