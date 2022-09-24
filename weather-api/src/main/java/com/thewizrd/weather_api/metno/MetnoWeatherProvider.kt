@@ -240,8 +240,8 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         if (icon == null) return WeatherIcons.NA
 
         //val isNeutral = icon.split("_").size == 1
-        val isDay = icon.endsWith("day")
-        val isNight = icon.endsWith("night")
+        val isDay = icon.endsWith("day") && !isNight
+        val isNight = icon.endsWith("night") && isNight
         //val isPolarTwilight = icon.endsWith("polartwilight")
 
         when (getNeutralIconName(icon)) {
