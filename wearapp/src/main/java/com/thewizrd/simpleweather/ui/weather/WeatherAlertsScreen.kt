@@ -1,13 +1,11 @@
 package com.thewizrd.simpleweather.ui.weather
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,9 +32,7 @@ fun WeatherAlertsScreen(
             .fillMaxWidth()
             .scrollableColumn(focusRequester, scrollStateViewModel.scrollState),
         state = scrollStateViewModel.scrollState,
-        anchorType = ScalingLazyListAnchorType.ItemCenter,
-        contentPadding = PaddingValues(vertical = 48.dp),
-        autoCentering = null
+        anchorType = ScalingLazyListAnchorType.ItemCenter
     ) {
         items(alerts, key = {
             it.hashCode()

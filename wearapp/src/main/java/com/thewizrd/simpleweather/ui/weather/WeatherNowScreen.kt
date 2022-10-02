@@ -283,7 +283,10 @@ private fun DisconnectionAlert() {
 
 @Composable
 private fun AlertsBox(navController: NavHostController) {
-    Box(contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
         CompactButton(
             onClick = {
                 navController.navigate(Screen.Alerts.route)

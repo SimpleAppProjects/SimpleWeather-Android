@@ -1,52 +1,62 @@
 package com.thewizrd.simpleweather.ui.components
 
-import android.content.res.Configuration
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.*
 import androidx.wear.compose.material.dialog.Dialog
-import com.google.android.horologist.compose.layout.fillMaxRectangle
+import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import com.thewizrd.common.controls.WeatherAlertViewModel
-import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
+import com.thewizrd.shared_resources.utils.getColorFromAlertSeverity
+import com.thewizrd.shared_resources.utils.getDrawableFromAlertType
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
 import com.thewizrd.simpleweather.R
-import java.time.ZonedDateTime
+import com.thewizrd.simpleweather.ui.dialog.Alert
+import com.thewizrd.simpleweather.ui.tools.WearPreviewDevices
 
 @Composable
 fun WeatherAlertPanel(
     model: WeatherAlertViewModel
 ) {
+    WeatherAlertPanel(
+        title = model.title,
+        alertBodyMessage = model.alertBodyMessage,
+        alertSeverityColor = model.alertSeverityColor,
+        alertDrawable = model.alertDrawable
+    )
+}
+
+@Composable
+private fun WeatherAlertPanel(
+    title: String,
+    alertBodyMessage: String,
+    @ColorInt alertSeverityColor: Int,
+    @DrawableRes alertDrawable: Int = R.drawable.ic_error
+) {
     var showDialog by remember { mutableStateOf(false) }
-    val severityColor = remember { Color(model.alertSeverityColor) }
+    val severityColor = remember(alertSeverityColor) { Color(alertSeverityColor) }
 
     Chip(
         modifier = Modifier.fillMaxWidth(),
         label = {
-            Text(text = model.title)
+            Text(text = title)
         },
         icon = {
             Icon(
                 modifier = Modifier.size(24.dp),
                 tint = Color.White,
-                painter = painterResource(id = model.alertDrawable),
+                painter = painterResource(id = alertDrawable),
                 contentDescription = null
             )
         },
@@ -59,105 +69,67 @@ fun WeatherAlertPanel(
     )
 
     // show alert dialog on click
+    val dialogScrollState = rememberScalingLazyListState()
     Dialog(
         showDialog = showDialog,
         onDismissRequest = {
             showDialog = false
-        }
+        },
+        scrollState = dialogScrollState
     ) {
-        val scrollState = rememberScrollState()
+        val focusRequester = remember { FocusRequester() }
 
-        Column(
-            modifier = Modifier
-                .fillMaxRectangle()
-                .verticalScroll(scrollState)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Alert(
+            modifier = Modifier.scrollableColumn(focusRequester, dialogScrollState),
+            scrollState = dialogScrollState,
+            title = {
+                Text(
+                    text = title,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2
+                )
+            },
+            icon = {
                 Box(
-                    Modifier.background(
-                        color = severityColor,
-                        shape = CircleShape
-                    )
+                    modifier = Modifier
+                        .background(
+                            color = severityColor,
+                            shape = CircleShape
+                        )
+                        .padding(2.dp)
                 ) {
                     Icon(
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(4.dp),
-                        painter = painterResource(id = model.alertDrawable),
+                            .wrapContentSize(align = Alignment.Center),
+                        painter = painterResource(id = alertDrawable),
                         contentDescription = null
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = model.title,
-                    maxLines = 2,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            },
+            message = {
+                Text(text = alertBodyMessage)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row {
-                Text(text = model.alertBodyMessage)
-            }
+        )
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
     }
 }
 
-@Preview(
-    apiLevel = 26,
-    uiMode = Configuration.UI_MODE_TYPE_WATCH,
-    showSystemUi = true,
-    device = Devices.WEAR_OS_LARGE_ROUND,
-    widthDp = 360,
-    heightDp = 360,
-    showBackground = true,
-    backgroundColor = 0xFF000000
-)
-@Preview(
-    apiLevel = 26,
-    uiMode = Configuration.UI_MODE_TYPE_WATCH,
-    showSystemUi = true,
-    device = Devices.WEAR_OS_SQUARE,
-    widthDp = 360,
-    heightDp = 360,
-    showBackground = true,
-    backgroundColor = 0xFF000000
-)
-@Preview(
-    apiLevel = 26,
-    uiMode = Configuration.UI_MODE_TYPE_WATCH,
-    showSystemUi = true,
-    device = Devices.WEAR_OS_SMALL_ROUND,
-    widthDp = 320,
-    heightDp = 320,
-    showBackground = true,
-    backgroundColor = 0xFF000000
-)
+@WearPreviewDevices
 @Composable
-fun PreviewWeatherAlertPanel() {
-    val scrollState = rememberScrollState()
-
+private fun PreviewWeatherAlertPanel() {
     Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(horizontal = dimensionResource(id = R.dimen.list_item_padding))
-            .verticalScroll(scrollState),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         WeatherAlertPanel(
-            WeatherAlertViewModel(
-                WeatherAlert().apply {
-                    type = WeatherAlertType.WINTERWEATHER
-                    severity = WeatherAlertSeverity.SEVERE
-                    title = "Winter Weather Advisory"
-                    message = "Winter Weather Advisory"
-                    date = ZonedDateTime.now()
-                    expiresDate = ZonedDateTime.now().plusDays(1)
-                }
-            )
+            title = "Winter Weather Advisory",
+            alertBodyMessage = "Winter Weather Advisory",
+            alertDrawable = WeatherAlertType.WINTERWEATHER.getDrawableFromAlertType(),
+            alertSeverityColor = WeatherAlertSeverity.SEVERE.getColorFromAlertSeverity()
         )
     }
 }
