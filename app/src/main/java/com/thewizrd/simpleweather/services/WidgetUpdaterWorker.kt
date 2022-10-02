@@ -79,7 +79,7 @@ class WidgetUpdaterWorker(context: Context, workerParams: WorkerParameters) : Co
         }
 
         private fun enqueueWork(context: Context) {
-            Logger.writeLine(Log.INFO, "%s: Requesting work")
+            Logger.writeLine(Log.INFO, "%s: Requesting work", TAG)
 
             val updateRequest = PeriodicWorkRequest.Builder(
                 WidgetUpdaterWorker::class.java,
