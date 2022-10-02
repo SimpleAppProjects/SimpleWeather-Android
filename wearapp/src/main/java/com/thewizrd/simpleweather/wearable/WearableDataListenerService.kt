@@ -100,14 +100,14 @@ class WearableDataListenerService : WearableListenerService() {
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
         super.onMessageReceived(messageEvent)
-        Logger.writeLine(Log.DEBUG, "onMessageReceived: ${messageEvent.path}")
+        Logger.writeLine(Log.DEBUG, "$TAG: onMessageReceived: ${messageEvent.path}")
     }
 
     override fun onCapabilityChanged(capabilityInfo: CapabilityInfo) {
         super.onCapabilityChanged(capabilityInfo)
         Logger.writeLine(
             Log.DEBUG,
-            "onCapabilityChanged: device connected (${capabilityInfo.nodes.isNotEmpty()})"
+            "$TAG: onCapabilityChanged: device connected (${capabilityInfo.nodes.isNotEmpty()})"
         )
     }
 }
