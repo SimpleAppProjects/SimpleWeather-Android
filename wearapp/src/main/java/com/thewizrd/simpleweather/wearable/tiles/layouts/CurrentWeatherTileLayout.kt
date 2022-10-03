@@ -6,6 +6,8 @@ import androidx.wear.tiles.ColorBuilders
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.tiles.DimensionBuilders.*
 import androidx.wear.tiles.LayoutElementBuilders.*
+import androidx.wear.tiles.ModifiersBuilders.Modifiers
+import androidx.wear.tiles.ModifiersBuilders.Padding
 import androidx.wear.tiles.material.Text
 import androidx.wear.tiles.material.Typography
 import androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH
@@ -94,6 +96,15 @@ internal fun currentWeatherTileLayout(
                         Text.Builder(context, currentTemperature)
                             .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                             .setColor(ColorBuilders.argb(currentTemperatureColor))
+                            .setModifiers(
+                                Modifiers.Builder()
+                                    .setPadding(
+                                        Padding.Builder()
+                                            .setStart(dp(4f))
+                                            .build()
+                                    )
+                                    .build()
+                            )
                             .build()
                     )
                     .build()

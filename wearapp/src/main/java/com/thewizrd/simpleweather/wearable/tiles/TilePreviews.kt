@@ -36,7 +36,7 @@ fun CurrentWeatherTilePreview() {
                 currentWeatherTileLayout(
                     context,
                     context.deviceParams(),
-                    location = "New York",
+                    location = "New York, New York",
                     weatherIconId = "$ID_WEATHER_ICON_PREFIX${WeatherIcons.DAY_SUNNY}",
                     currentTemperature = "70°",
                     currentTemperatureColor = getColorFromTempF(70f),
@@ -81,7 +81,7 @@ fun CurrentWeatherGoogleTilePreview() {
                 currentWeatherGoogleTileLayout(
                     context,
                     context.deviceParams(),
-                    location = "New York",
+                    location = "New York, New York",
                     weatherIconId = "$ID_WEATHER_ICON_PREFIX${WeatherIcons.DAY_SUNNY}",
                     currentTemperature = "70°",
                     currentTemperatureColor = getColorFromTempF(70f),
