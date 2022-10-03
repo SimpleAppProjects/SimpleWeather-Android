@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.ScalingLazyListAnchorType
 import androidx.wear.compose.material.items
@@ -32,7 +33,8 @@ fun WeatherAlertsScreen(
             .fillMaxWidth()
             .scrollableColumn(focusRequester, scrollStateViewModel.scrollState),
         state = scrollStateViewModel.scrollState,
-        anchorType = ScalingLazyListAnchorType.ItemCenter
+        anchorType = if (alerts.size > 1) ScalingLazyListAnchorType.ItemStart else ScalingLazyListAnchorType.ItemCenter,
+        autoCentering = AutoCenteringParams(itemIndex = if (alerts.size > 1) 1 else 0)
     ) {
         items(alerts, key = {
             it.hashCode()
