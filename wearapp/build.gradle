@@ -119,7 +119,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "androidx.preference:preference-ktx:$preference_version"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.annotation:annotation:1.4.0'
+    implementation "androidx.annotation:annotation:$annotation_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
