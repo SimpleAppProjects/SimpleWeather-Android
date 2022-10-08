@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.alpha
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.GlideException
@@ -24,7 +25,6 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.simpleweather.viewmodels.getImageData
@@ -211,7 +211,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
             WidgetUtils.setBackgroundUri(appWidgetId, backgroundURI)
 
             val bmp = suspendCancellableCoroutine<Bitmap?> {
-                val task = GlideApp.with(context)
+                val task = Glide.with(context)
                     .asBitmap()
                     .load(backgroundURI)
                     .apply(
@@ -300,7 +300,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
             val cornerRadius = context.dpToPx(16f)
 
             try {
-                GlideApp.with(context)
+                Glide.with(context)
                     .asBitmap()
                     .load(WidgetUtils.getBackgroundUri(appWidgetId))
                     .apply(

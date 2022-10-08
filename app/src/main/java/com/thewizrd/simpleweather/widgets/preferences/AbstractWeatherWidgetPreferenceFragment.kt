@@ -32,6 +32,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.LocationPermissionLauncher
@@ -54,7 +55,6 @@ import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.*
-import com.thewizrd.simpleweather.GlideApp
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.activities.LocationSearch
 import com.thewizrd.simpleweather.databinding.FragmentWidgetSetupBinding
@@ -159,7 +159,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
             this.getThemeContextOverride(!this.isNightMode())
         }
 
-        mGlide = GlideApp.with(this)
+        mGlide = Glide.with(this)
 
         locationProvider = LocationProvider(requireContext())
 
