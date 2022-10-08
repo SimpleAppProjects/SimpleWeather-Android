@@ -13,13 +13,11 @@ import com.google.android.play.core.splitcompat.SplitCompat
 import com.thewizrd.extras.extrasModule
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.store.PlayStoreUtils
-import com.thewizrd.simpleweather.App
-import com.thewizrd.simpleweather.BuildConfig
-import com.thewizrd.simpleweather.FirebaseConfigurator
-import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.*
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
+import com.thewizrd.simpleweather.preferences.BaseSettingsFragment
 import com.thewizrd.simpleweather.preferences.SettingsFragment
-import com.thewizrd.simpleweather.preferences.SettingsFragmentDirections
+import com.thewizrd.simpleweather.preferences.`SettingsFragment$IconsFragmentDirections`
 import com.thewizrd.simpleweather.snackbar.Snackbar
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import timber.log.Timber
@@ -61,11 +59,10 @@ fun isWeatherAPISupported(api: String?): Boolean {
     return extrasModule.isWeatherAPISupported(api)
 }
 
-fun SettingsFragment.navigateToPremiumFragment() {
+fun BaseSettingsFragment.navigateToPremiumFragment() {
     // Navigate to premium page
     if (isPremiumSupported()) {
-        rootView.findNavController()
-            .safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment())
+        rootView.findNavController().safeNavigate(NavGraphDirections.actionGlobalPremiumFragment())
     } else {
         showSnackbar(
             Snackbar.make(
@@ -82,7 +79,8 @@ fun SettingsFragment.navigateToPremiumFragment() {
 fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
     // Navigate to premium page
     if (isPremiumSupported()) {
-        rootView.findNavController().navigate(R.id.action_iconsFragment_to_premiumFragment)
+        rootView.findNavController()
+            .navigate(`SettingsFragment$IconsFragmentDirections`.actionIconsFragmentToPremiumFragment())
     } else {
         showSnackbar(
             Snackbar.make(
@@ -126,7 +124,7 @@ fun SettingsFragment.createPremiumPreference(): Preference {
     premiumPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
         if (isPremiumSupported()) {
             rootView.findNavController().safeNavigate(
-                SettingsFragmentDirections.actionSettingsFragmentToPremiumFragment()
+                NavGraphDirections.actionGlobalPremiumFragment()
             )
         } else {
             showSnackbar(

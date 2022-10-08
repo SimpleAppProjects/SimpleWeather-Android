@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.squareup.moshi.JsonReader
@@ -91,14 +92,36 @@ class SettingsManager(context: Context) {
         // !ANDROID_WEAR
         const val KEY_ONGOINGNOTIFICATION = "key_ongoingnotification"
         const val KEY_NOTIFICATIONICON = "key_notificationicon"
+        const val KEY_NOTIFICATIONFCAST = "key_notificationfcast"
         private const val KEY_ONBOARDINGCOMPLETE = "key_onboardcomplete"
         const val KEY_USERTHEME = "key_usertheme"
+
         const val TEMPERATURE_ICON = "0"
         const val CONDITION_ICON = "1"
+
+        @StringDef(
+            TEMPERATURE_ICON,
+            CONDITION_ICON
+        )
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class NotificationIconOption
+
+        const val NOTIF_FORECAST_NONE = "0"
+        const val NOTIF_FORECAST_DAILY = "1"
+        const val NOTIF_FORECAST_HOURLY = "2"
+
+        @StringDef(
+            NOTIF_FORECAST_NONE,
+            NOTIF_FORECAST_DAILY,
+            NOTIF_FORECAST_HOURLY
+        )
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class NotificationForecastType
 
         const val KEY_DAILYNOTIFICATION = "key_dailynotification"
         const val KEY_DAILYNOTIFICATIONTIME = "key_dailynotificationtime"
         const val KEY_POPCHANCENOTIFICATION = "key_popchancenotification"
+        const val KEY_POPCHANCEPCT = "key_popchancepct"
         const val KEY_LASTCHANCENOTIFICATIONTIME = "key_lastchancenotificationtime"
 
         // Format: HH:mm (24-hr)
@@ -645,11 +668,33 @@ class SettingsManager(context: Context) {
         }
     }
 
+    @NotificationIconOption
     fun getNotificationIcon(): String {
         return if (!preferences.contains(KEY_NOTIFICATIONICON)) {
             TEMPERATURE_ICON
         } else {
             preferences.getString(KEY_NOTIFICATIONICON, TEMPERATURE_ICON)!!
+        }
+    }
+
+    @NotificationForecastType
+    fun getNotificationForecastType(): String {
+        return preferences.getString(KEY_NOTIFICATIONFCAST, NOTIF_FORECAST_NONE)
+            ?: NOTIF_FORECAST_NONE
+    }
+
+    fun setNotificationForecastType(@NotificationForecastType forecastType: String) {
+        preferences.edit {
+            putString(
+                KEY_NOTIFICATIONFCAST,
+                when (forecastType) {
+                    NOTIF_FORECAST_NONE,
+                    NOTIF_FORECAST_DAILY,
+                    NOTIF_FORECAST_HOURLY ->
+                        forecastType
+                    else -> NOTIF_FORECAST_NONE
+                }
+            )
         }
     }
 
@@ -852,6 +897,28 @@ class SettingsManager(context: Context) {
             putString(
                 KEY_LASTCHANCENOTIFICATIONTIME,
                 value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+            )
+        }
+    }
+
+    fun getPoPChanceMinimumPercentage(): Int {
+        return preferences.getString(KEY_POPCHANCEPCT, "60")?.toIntOrNull() ?: 60
+    }
+
+    fun setPoPChanceMinimumPercentage(
+        @androidx.annotation.IntRange(
+            from = 40L,
+            to = 90L
+        ) pct: Int
+    ) {
+        preferences.edit {
+            putString(
+                KEY_POPCHANCEPCT,
+                if (pct in 40..90) {
+                    pct
+                } else {
+                    60
+                }.toString()
             )
         }
     }

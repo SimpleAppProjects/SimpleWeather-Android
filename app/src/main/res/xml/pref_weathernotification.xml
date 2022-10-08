@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="key_ongoingnotification"
+        android:summary="@string/pref_summary_notification"
+        android:title="@string/pref_title_onnotification" />
+
+    <ListPreference
+        android:defaultValue="0"
+        android:dependency="key_ongoingnotification"
+        android:entries="@array/notification_entries"
+        android:entryValues="@array/notification_values"
+        android:key="key_notificationicon"
+        android:summary="%s"
+        android:title="@string/pref_title_notificationicon" />
+
+    <ListPreference
+        android:defaultValue="0"
+        android:dependency="key_ongoingnotification"
+        android:entries="@array/notification_fcastopt_entries"
+        android:entryValues="@array/notification_fcastopt_values"
+        android:key="key_notificationfcast"
+        android:summary="%s"
+        android:title="@string/label_forecast" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="key_dailynotification"
+        android:title="@string/not_channel_name_dailynotification" />
+
+    <com.thewizrd.simpleweather.preferences.timepickerpreference.TimePickerPreference
+        android:defaultValue="08:00"
+        android:key="key_dailynotificationtime"
+        android:title="@string/pref_title_time"
+        android:dependency="key_dailynotification" />
+
+</PreferenceScreen>

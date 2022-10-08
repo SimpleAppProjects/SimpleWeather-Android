@@ -10,14 +10,16 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.core.app.NotificationCompat
-import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.common.controls.WeatherUiModel
+import com.thewizrd.common.controls.*
 import com.thewizrd.common.utils.ImageUtils.bitmapFromDrawable
 import com.thewizrd.common.utils.ImageUtils.rotateBitmap
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
+import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
@@ -29,13 +31,19 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
+import com.thewizrd.weather_api.weatherModule
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
+import kotlin.math.min
 
 object WeatherNotificationBuilder {
     private const val TAG = "WeatherNotificationBuilder"
+    private const val MAX_FORECASTS = 6
 
-    fun updateNotification(
+    suspend fun updateNotification(
         context: Context,
         notChannelID: String,
+        location: LocationData,
         viewModel: WeatherUiModel
     ): Notification {
         val wim = sharedDeps.weatherIconsManager
@@ -67,7 +75,7 @@ object WeatherNotificationBuilder {
             R.id.condition_weather,
             String.format(
                 "%s° - %s",
-                if (temp.isNotBlank()) temp else WeatherIcons.PLACEHOLDER,
+                temp.ifBlank { WeatherIcons.PLACEHOLDER },
                 condition
             )
         )
@@ -201,19 +209,68 @@ object WeatherNotificationBuilder {
 
         // Builds the notification and issues it.
         val notifColor = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            val temp_float = temp.toFloatOrNull()
-            if (temp_float != null) {
-                val temp_f = if (viewModel.curTemp!!.endsWith(Units.FAHRENHEIT)) {
-                    temp_float
+            val tempFloat = temp.toFloatOrNull()
+            if (tempFloat != null) {
+                val tempF = if (viewModel.curTemp!!.endsWith(Units.FAHRENHEIT)) {
+                    tempFloat
                 } else {
-                    ConversionMethods.CtoF(temp_float)
+                    ConversionMethods.CtoF(tempFloat)
                 }
-                getColorFromTempF(temp_f)
+                getColorFromTempF(tempF)
             } else {
                 Colors.SIMPLEBLUE
             }
         } else {
             0 // Don't colorize; use Material You colors
+        }
+
+        val forecastType = settingsManager.getNotificationForecastType()
+        val forecastItemLayoutId = if (wim.isFontIcon) {
+            R.layout.weather_notification_forecast_item_tintable
+        } else {
+            R.layout.weather_notification_forecast_item
+        }
+
+        when (forecastType) {
+            SettingsManager.NOTIF_FORECAST_NONE -> {
+                bigUpdateViews.setViewVisibility(R.id.forecast_layout, View.GONE)
+            }
+            SettingsManager.NOTIF_FORECAST_DAILY -> {
+                val forecasts = getForecasts(location, MAX_FORECASTS)
+
+                bigUpdateViews.removeAllViews(R.id.forecast_container)
+                forecasts.forEach {
+                    addForecastItem(
+                        bigUpdateViews,
+                        R.id.forecast_container,
+                        forecastItemLayoutId,
+                        it
+                    )
+                }
+
+                bigUpdateViews.setViewVisibility(
+                    R.id.forecast_layout,
+                    if (forecasts.isNotEmpty()) View.VISIBLE else View.GONE
+                )
+            }
+            SettingsManager.NOTIF_FORECAST_HOURLY -> {
+                val hourlyForecasts = getHourlyForecasts(location, MAX_FORECASTS)
+
+                bigUpdateViews.removeAllViews(R.id.forecast_container)
+                hourlyForecasts.forEach {
+                    addForecastItem(
+                        bigUpdateViews,
+                        R.id.forecast_container,
+                        forecastItemLayoutId,
+                        it
+                    )
+                }
+
+                bigUpdateViews.setViewVisibility(
+                    R.id.forecast_layout,
+                    if (hourlyForecasts.isNotEmpty()) View.VISIBLE else View.GONE
+                )
+            }
         }
 
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
@@ -257,5 +314,77 @@ object WeatherNotificationBuilder {
                 .setContentIntent(contentIntent)
                 .build()
         }
+    }
+
+    private fun addForecastItem(
+        remoteViews: RemoteViews,
+        @IdRes containerId: Int,
+        @LayoutRes layoutId: Int,
+        forecast: BaseForecastItemViewModel
+    ) {
+        val forecastItem = RemoteViews(remoteViews.`package`, layoutId)
+
+        forecastItem.setTextViewText(R.id.forecast_date, forecast.shortDate)
+        forecastItem.setTextViewText(R.id.forecast_hi, forecast.hiTemp)
+        if (forecast is ForecastItemViewModel) {
+            forecastItem.setTextViewText(R.id.forecast_lo, forecast.loTemp)
+        }
+
+        // WeatherIcon
+        val wim = sharedDeps.weatherIconsManager
+        val weatherIconResId = wim.getWeatherIconResource(forecast.weatherIcon)
+        forecastItem.setImageViewResource(R.id.forecast_icon, weatherIconResId)
+
+        if (forecast is HourlyForecastItemViewModel) {
+            forecastItem.setViewVisibility(R.id.forecast_divider, View.GONE)
+            forecastItem.setViewVisibility(R.id.forecast_lo, View.GONE)
+        }
+
+        remoteViews.addView(containerId, forecastItem)
+    }
+
+    private suspend fun getForecasts(
+        locData: LocationData,
+        forecastLength: Int
+    ): List<ForecastItemViewModel> {
+        val fcastData = settingsManager.getWeatherForecastData(locData.query)
+        val fcasts = fcastData?.forecast
+
+        if (fcasts?.isNotEmpty() == true) {
+            return ArrayList<ForecastItemViewModel>(forecastLength).also {
+                for (i in 0 until min(forecastLength, fcasts.size)) {
+                    it.add(ForecastItemViewModel(fcasts[i]))
+                }
+            }
+        }
+
+        return emptyList()
+    }
+
+    private suspend fun getHourlyForecasts(
+        locData: LocationData,
+        forecastLength: Int
+    ): List<HourlyForecastItemViewModel> {
+        val now = ZonedDateTime.now().withZoneSameInstant(locData.tzOffset)
+        val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+        val hrfcasts = settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+            locData.query,
+            forecastLength,
+            now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
+        )
+
+        if (hrfcasts.isNotEmpty()) {
+            return ArrayList<HourlyForecastItemViewModel>(forecastLength).apply {
+                var count = 0
+                for (fcast in hrfcasts) {
+                    add(HourlyForecastItemViewModel(fcast))
+                    count++
+
+                    if (count >= forecastLength) break
+                }
+            }
+        }
+
+        return emptyList()
     }
 }

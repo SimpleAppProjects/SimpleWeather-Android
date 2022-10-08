@@ -83,8 +83,11 @@
             android:id="@+id/action_settingsFragment_to_iconsFragment"
             app:destination="@id/iconsFragment" />
         <action
-            android:id="@+id/action_settingsFragment_to_premiumFragment"
-            app:destination="@id/premiumFragment" />
+            android:id="@+id/action_settingsFragment_to_weatherNotificationFragment"
+            app:destination="@id/weatherNotificationFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_weatherAlertsFragment"
+            app:destination="@id/weatherAlertsFragment" />
     </fragment>
     <fragment
         android:id="@+id/aboutAppFragment"
@@ -124,6 +127,14 @@
             android:id="@+id/action_iconsFragment_to_premiumFragment"
             app:destination="@id/premiumFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/weatherNotificationFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$WeatherNotificationFragment"
+        android:label="WeatherNotificationFragment" />
+    <fragment
+        android:id="@+id/weatherAlertsFragment"
+        android:name="com.thewizrd.simpleweather.preferences.SettingsFragment$WeatherAlertsFragment"
+        android:label="WeatherAlertsFragment" />
     <action
         android:id="@+id/action_global_weatherAlertFragment"
         app:destination="@id/weatherAlertFragment" />
@@ -135,4 +146,7 @@
         android:id="@+id/devSettingsFragment"
         android:name="com.thewizrd.simpleweather.preferences.DevSettingsFragment"
         android:label="DevSettingsFragment" />
+    <action
+        android:id="@+id/action_global_premiumFragment"
+        app:destination="@id/premiumFragment" />
 </navigation>

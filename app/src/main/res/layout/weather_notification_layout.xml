@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/not_vert_padding"
     android:paddingEnd="@dimen/not_horiz_padding"
     android:paddingBottom="@dimen/not_vert_padding"
-    tools:ignore="UseAppTint"
+    tools:ignore="ContentDescription,UseAppTint"
     tools:viewBindingIgnore="true">
 
     <LinearLayout
@@ -228,6 +228,33 @@
                 tools:text="16 mph" />
 
         </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/forecast_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:alpha="0.1"
+            android:src="@drawable/border"
+            android:paddingHorizontal="8dp" />
+
+        <LinearLayout
+            android:id="@+id/forecast_container"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:baselineAligned="false"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 

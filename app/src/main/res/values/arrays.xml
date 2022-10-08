@@ -60,4 +60,30 @@
         <item>5</item>
         <item>6</item>
     </string-array>
+    <string-array name="notification_fcastopt_entries">
+        <item>@string/pref_summary_off</item>
+        <item>@string/label_fcast_daily</item>
+        <item>@string/label_hourlyforecast</item>
+    </string-array>
+    <string-array name="notification_fcastopt_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="popchancepct_entries">
+        <item>>= 40%</item>
+        <item>>= 50%</item>
+        <item>>= 60%</item>
+        <item>>= 70%</item>
+        <item>>= 80%</item>
+        <item>>= 90%</item>
+    </string-array>
+    <string-array name="popchancepct_values">
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+    </string-array>
 </resources>

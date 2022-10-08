@@ -98,35 +98,37 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
             val settingsManager = SettingsManager(context.applicationContext)
 
             if (settingsManager.isWeatherLoaded() && context.areNotificationsEnabled()) {
-                val weather = withContext(Dispatchers.IO) {
-                    val locData = settingsManager.getHomeData() ?: return@withContext null
-                    val wLoader = WeatherDataLoader(locData)
-                    val request = WeatherRequest.Builder()
-                    if (forceRefresh)
-                        request.forceRefresh(false)
-                    else
-                        request.forceLoadSavedData()
+                if (settingsManager.showOngoingNotification()) {
+                    val locData = settingsManager.getHomeData() ?: return
+                    val weather = withContext(Dispatchers.IO) {
+                        val wLoader = WeatherDataLoader(locData)
+                        val request = WeatherRequest.Builder()
+                        if (forceRefresh)
+                            request.forceRefresh(false)
+                        else
+                            request.forceLoadSavedData()
 
-                    try {
-                        wLoader.loadWeatherData(request.build())
-                    } catch (e: Exception) {
-                        null
+                        try {
+                            wLoader.loadWeatherData(request.build())
+                        } catch (e: Exception) {
+                            null
+                        }
                     }
-                }
 
-                if (settingsManager.showOngoingNotification() && weather != null) {
                     // Gets an instance of the NotificationManager service
-                    val mNotifyMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    val mNotifyMgr =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                     initChannel(context, mNotifyMgr)
 
                     // Update notification
                     val mNotification = WeatherNotificationBuilder.updateNotification(
                         context,
                         NOT_CHANNEL_ID,
+                        locData,
                         WeatherUiModel(weather)
                     )
                     mNotifyMgr.notify(PERSISTENT_NOT_ID, mNotification)
-                } else if (!settingsManager.showOngoingNotification()) {
+                } else {
                     removeNotification(context)
                 }
             }

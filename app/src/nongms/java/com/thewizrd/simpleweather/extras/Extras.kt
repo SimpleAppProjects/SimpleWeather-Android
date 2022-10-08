@@ -9,6 +9,7 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.simpleweather.App
 import com.thewizrd.simpleweather.locale.UserLocaleActivity
 import com.thewizrd.simpleweather.preferences.SettingsFragment
+import com.thewizrd.simpleweather.preferences.BaseSettingsFragment
 
 fun initializeExtras() {
     // no-op
@@ -36,7 +37,7 @@ fun isWeatherAPISupported(api: String?): Boolean {
     return true
 }
 
-fun SettingsFragment.navigateToPremiumFragment() {
+fun BaseSettingsFragment.navigateToPremiumFragment() {
     // no-op
 }
 

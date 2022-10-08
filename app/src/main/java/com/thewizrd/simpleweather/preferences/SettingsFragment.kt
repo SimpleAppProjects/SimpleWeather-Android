@@ -21,8 +21,6 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +30,10 @@ import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.thewizrd.common.helpers.*
+import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
+import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -43,6 +44,7 @@ import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.StringUtils.toPascalCase
 import com.thewizrd.shared_resources.utils.UserThemeMode.OnThemeChangeListener
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.BuildConfig
@@ -71,9 +73,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class SettingsFragment : ToolbarPreferenceFragmentCompat(),
-        OnSharedPreferenceChangeListener,
-        OnThemeChangeListener {
+class SettingsFragment : BaseSettingsFragment(),
+    OnSharedPreferenceChangeListener,
+    OnThemeChangeListener {
     // Preferences
     private lateinit var followGps: SwitchPreferenceCompat
     private lateinit var intervalPref: ListPreference
@@ -81,17 +83,11 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var radarProviderPref: ListPreference
     private lateinit var personalKeyPref: SwitchPreferenceCompat
     private lateinit var keyEntry: EditTextPreference
-    private lateinit var onGoingNotification: SwitchPreferenceCompat
-    private lateinit var notificationIcon: ListPreference
-    private lateinit var alertNotification: SwitchPreferenceCompat
     private lateinit var registerPref: Preference
     private lateinit var themePref: ListPreference
     private lateinit var languagePref: ListPreference
 
     private var premiumPref: Preference? = null
-    private lateinit var dailyNotifPref: SwitchPreferenceCompat
-    private lateinit var dailyNotifTimePref: TimePickerPreference
-    private lateinit var popChanceNotifPref: SwitchPreferenceCompat
 
     // Background ops
     private lateinit var foregroundPref: SwitchPreferenceCompat
@@ -100,13 +96,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
     private lateinit var apiCategory: PreferenceCategory
     private lateinit var aboutCategory: PreferenceCategory
 
-    // Intent queue
-    private val intentQueue = mutableSetOf<FilterComparison>()
     private var mThemeChangeListeners: MutableList<OnThemeChangeListener>? = null
     private var splitInstallRequest: InstallRequest? = null
-
-    private lateinit var locationPermissionLauncher: LocationPermissionLauncher
-    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
@@ -118,6 +109,8 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         private const val KEY_PREMIUM = "key_premium"
         private const val KEY_ABOUTAPP = "key_aboutapp"
         private const val KEY_APIREGISTER = "key_apiregister"
+        private const val KEY_WEATHERNOTIFICATION = "key_weathernotification"
+        private const val KEY_ALERTS = "key_alerts"
         private const val CATEGORY_NOTIFICATION = "category_notification"
         private const val CATEGORY_API = "category_api"
     }
@@ -170,34 +163,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         super.onCreate(savedInstanceState)
         AnalyticsLogger.logEvent("SettingsFragment: onCreate")
 
-        locationPermissionLauncher = LocationPermissionLauncher(
-            this,
-            locationCallback = { granted ->
-                if (granted) {
-                    // permission was granted, yay!
-                    // Do the task you need to do.
-                    followGps.isChecked = true
-                    settingsManager.setFollowGPS(true)
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    followGps.isChecked = false
-                    settingsManager.setFollowGPS(false)
-                    context?.let {
-                        showSnackbar(
-                            Snackbar.make(
-                                it,
-                                R.string.error_location_denied,
-                                Snackbar.Duration.SHORT
-                            )
-                        )
-                    }
-                }
-            }
-        )
-        notificationPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
-
         onBackPressedCallback = object : OnBackPressedCallback(isProviderAndKeyInvalid()) {
             override fun handleOnBackPressed() {
                 if (isProviderAndKeyInvalid()) {
@@ -216,6 +181,29 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+    }
+
+    override fun onLocationPermissionCallback(granted: Boolean) {
+        if (granted) {
+            // permission was granted, yay!
+            // Do the task you need to do.
+            followGps.isChecked = true
+            settingsManager.setFollowGPS(true)
+        } else {
+            // permission denied, boo! Disable the
+            // functionality that depends on this permission.
+            followGps.isChecked = false
+            settingsManager.setFollowGPS(false)
+            context?.let {
+                showSnackbar(
+                    Snackbar.make(
+                        it,
+                        R.string.error_location_denied,
+                        Snackbar.Duration.SHORT
+                    )
+                )
+            }
+        }
     }
 
     private fun checkBackPressedCallback() {
@@ -264,6 +252,10 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         unregisterOnThemeChangeListener(requireActivity() as OnThemeChangeListener)
         unregisterOnThemeChangeListener(this)
 
+        super.onPause()
+    }
+
+    override fun processIntentQueue(intentQueue: Collection<FilterComparison>) {
         intentQueue.forEach { filter ->
             when {
                 CommonActions.ACTION_SETTINGS_UPDATEAPI == filter.intent.action -> {
@@ -322,10 +314,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 }
             }
         }
-
-        intentQueue.clear()
-
-        super.onPause()
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -568,8 +556,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                     updateRegisterLink()
                 }
 
-                updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
-
                 lifecycleScope.launch(Dispatchers.Main) {
                     checkBackPressedCallback()
                 }
@@ -642,78 +628,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         radarProviderPref.entries = entries
         radarProviderPref.entryValues = entryValues
         radarProviderPref.value = RadarProvider.getRadarProvider()
-
-        onGoingNotification = findPreference(SettingsManager.KEY_ONGOINGNOTIFICATION)!!
-        onGoingNotification.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val context = preference.context.applicationContext
-
-            // On-going notification
-            if (newValue as Boolean) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (!preference.context.notificationPermissionEnabled()) {
-                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        return@OnPreferenceChangeListener false
-                    }
-                }
-
-                WeatherNotificationWorker.requestRefreshNotification(context)
-
-                if (notCategory.findPreference<Preference?>(SettingsManager.KEY_NOTIFICATIONICON) == null)
-                    notCategory.addPreference(notificationIcon)
-
-                checkBackgroundLocationAccess()
-
-                enqueueIntent(
-                    Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
-                )
-            } else {
-                WeatherNotificationWorker.removeNotification(context)
-
-                notCategory.removePreference(notificationIcon)
-
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))
-            }
-
-            true
-        }
-
-        notificationIcon = findPreference(SettingsManager.KEY_NOTIFICATIONICON)!!
-        notificationIcon.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            WeatherNotificationWorker.requestRefreshNotification(preference.context.applicationContext)
-            true
-        }
-
-        // Remove preferences
-        if (!onGoingNotification.isChecked) {
-            notCategory.removePreference(notificationIcon)
-        }
-
-        alertNotification = findPreference(SettingsManager.KEY_USEALERTS)!!
-        alertNotification.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val context = preference.context.applicationContext
-
-            // Alert notification
-            if (newValue as Boolean) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (!preference.context.notificationPermissionEnabled()) {
-                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        return@OnPreferenceChangeListener false
-                    }
-                }
-
-                enqueueIntent(
-                    Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
-                )
-            } else {
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))
-            }
-            true
-        }
-        updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
 
         findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Display the fragment as the main content.
@@ -803,53 +717,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                 true
             }
 
-        dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
-        dailyNotifPref.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
-                if (newValue == true && !areNotificationExtrasEnabled()) {
-                    runWithView {
-                        navigateToPremiumFragment()
-                    }
-                    return@OnPreferenceChangeListener false
-                }
-                UpdaterUtils.enableDailyNotificationService(preference.context, newValue as Boolean)
-            if (newValue) {
-                checkBackgroundLocationAccess()
-            }
-            true
-        }
-        dailyNotifTimePref = findPreference(SettingsManager.KEY_DAILYNOTIFICATIONTIME)!!
-        dailyNotifTimePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            settingsManager.setDailyNotificationTime(newValue.toString())
-            UpdaterUtils.rescheduleDailyNotificationService(preference.context)
-            true
-        }
-        popChanceNotifPref = findPreference(SettingsManager.KEY_POPCHANCENOTIFICATION)!!
-        popChanceNotifPref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            if (newValue == true && !areNotificationExtrasEnabled()) {
-                runWithView {
-                    navigateToPremiumFragment()
-                }
-                return@OnPreferenceChangeListener false
-            }
-
-            val context = preference.context.applicationContext
-
-            // Alert notification
-            if (newValue as Boolean) {
-                enqueueIntent(
-                    Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
-                )
-
-                checkBackgroundLocationAccess()
-            } else {
-                enqueueIntent(Intent(context, WeatherUpdaterWorker::class.java)
-                        .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK))
-            }
-            true
-        }
-
         val aboutPref = findPreference<Preference>(KEY_ABOUTAPP)!!
         aboutCategory = aboutPref.parent as PreferenceCategory
 
@@ -858,15 +725,31 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
             premiumPref?.let {
                 aboutCategory.removePreference(it)
             }
-            dailyNotifPref.isVisible = false
-            dailyNotifTimePref.isVisible = false
-            popChanceNotifPref.isVisible = false
         } else if (aboutCategory.findPreference<Preference>(KEY_PREMIUM) == null) {
             premiumPref?.let {
                 aboutCategory.addPreference(it)
-                dailyNotifPref.isVisible = true
-                dailyNotifTimePref.isVisible = true
-                popChanceNotifPref.isVisible = true
+            }
+        }
+
+        findPreference<Preference>(KEY_WEATHERNOTIFICATION)?.apply {
+            summary =
+                "${getString(R.string.pref_title_onnotification)}, ${getString(R.string.not_channel_name_dailynotification)}".toPascalCase()
+            setOnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToWeatherNotificationFragment())
+                true
+            }
+        }
+
+        findPreference<Preference>(KEY_ALERTS)?.apply {
+            summary =
+                "${getString(R.string.pref_title_alerts)}, ${getString(R.string.not_channel_name_precipnotification)}".toPascalCase()
+            setOnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToWeatherAlertsFragment())
+                true
             }
         }
     }
@@ -910,7 +793,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
                             settingsManager.setKeyVerified(provider, true)
 
                             updateKeySummary()
-                            updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
 
                             fragment.dialog?.dismiss()
                         } else {
@@ -1002,35 +884,6 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    private fun updateAlertPreference(enable: Boolean) {
-        alertNotification.isEnabled = enable
-        alertNotification.summary = if (enable) getString(R.string.pref_summary_alerts) else getString(R.string.pref_summary_alerts_disabled)
-    }
-
-    private fun enqueueIntent(intent: Intent?): Boolean {
-        if (intent == null) {
-            return false
-        } else {
-            if (WeatherUpdaterWorker.ACTION_REQUEUEWORK == intent.action || (WeatherUpdaterWorker.ACTION_ENQUEUEWORK == intent.action)) {
-                for (filter: FilterComparison in intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_CANCELWORK == filter.intent.action) {
-                        intentQueue.remove(filter)
-                        break
-                    }
-                }
-            } else if (WeatherUpdaterWorker.ACTION_CANCELWORK == intent.action) {
-                for (filter: FilterComparison in intentQueue) {
-                    if (WeatherUpdaterWorker.ACTION_REQUEUEWORK == filter.intent.action || WeatherUpdaterWorker.ACTION_ENQUEUEWORK == intent.action) {
-                        intentQueue.remove(filter)
-                        break
-                    }
-                }
-            }
-
-            return intentQueue.add(FilterComparison(intent))
-        }
-    }
-
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         if (key.isNullOrBlank()) return
 
@@ -1082,26 +935,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    private fun checkBackgroundLocationAccess() {
-        activity?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !settingsManager.requestedBGAccess() &&
-                !it.backgroundLocationPermissionEnabled()
-            ) {
-                val snackbar = Snackbar.make(
-                    it,
-                    it.getBackgroundLocationRationale(),
-                    Snackbar.Duration.VERY_LONG
-                )
-                snackbar.setAction(android.R.string.ok) { v ->
-                    locationPermissionLauncher.requestBackgroundLocationPermission()
-                }
-                showSnackbar(snackbar, null)
-                settingsManager.setRequestBGAccess(true)
-            }
-        }
-    }
-
-    class UnitsFragment : ToolbarPreferenceFragmentCompat() {
+    class UnitsFragment : BaseSettingsFragment() {
         companion object {
             private const val KEY_RESETUNITS = "key_resetunits"
         }
@@ -1215,7 +1049,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    class FeaturesFragment : ToolbarPreferenceFragmentCompat() {
+    class FeaturesFragment : BaseSettingsFragment() {
         override val titleResId: Int
             get() = R.string.pref_title_features
 
@@ -1227,7 +1061,171 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    class AboutAppFragment : ToolbarPreferenceFragmentCompat() {
+    class WeatherNotificationFragment : BaseSettingsFragment() {
+        private lateinit var onGoingNotification: SwitchPreferenceCompat
+        private lateinit var notificationIcon: ListPreference
+        private lateinit var notificationForecast: ListPreference
+        private lateinit var dailyNotifPref: SwitchPreferenceCompat
+        private lateinit var dailyNotifTimePref: TimePickerPreference
+
+        override val titleResId: Int
+            get() = R.string.pref_title_onnotification
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_weathernotification, rootKey)
+
+            onGoingNotification = findPreference(SettingsManager.KEY_ONGOINGNOTIFICATION)!!
+            onGoingNotification.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val context = preference.context.applicationContext
+
+                    // On-going notification
+                    if (newValue as Boolean) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (!preference.context.notificationPermissionEnabled()) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                return@OnPreferenceChangeListener false
+                            }
+                        }
+
+                        WeatherNotificationWorker.requestRefreshNotification(context)
+
+                        checkBackgroundLocationAccess()
+
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                        )
+                    } else {
+                        WeatherNotificationWorker.removeNotification(context)
+
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK)
+                        )
+                    }
+
+                    true
+                }
+
+            notificationIcon = findPreference(SettingsManager.KEY_NOTIFICATIONICON)!!
+            notificationIcon.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, _ ->
+                    WeatherNotificationWorker.requestRefreshNotification(preference.context.applicationContext)
+                    true
+                }
+
+            notificationForecast = findPreference(SettingsManager.KEY_NOTIFICATIONFCAST)!!
+            notificationForecast.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, _ ->
+                    WeatherNotificationWorker.requestRefreshNotification(preference.context.applicationContext)
+                    true
+                }
+
+            dailyNotifPref = findPreference(SettingsManager.KEY_DAILYNOTIFICATION)!!
+            dailyNotifPref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    if (newValue == true && !areNotificationExtrasEnabled()) {
+                        runWithView {
+                            navigateToPremiumFragment()
+                        }
+                        return@OnPreferenceChangeListener false
+                    }
+                    UpdaterUtils.enableDailyNotificationService(
+                        preference.context,
+                        newValue as Boolean
+                    )
+                    if (newValue) {
+                        checkBackgroundLocationAccess()
+                    }
+                    true
+                }
+            dailyNotifTimePref = findPreference(SettingsManager.KEY_DAILYNOTIFICATIONTIME)!!
+            dailyNotifTimePref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    settingsManager.setDailyNotificationTime(newValue.toString())
+                    UpdaterUtils.rescheduleDailyNotificationService(preference.context)
+                    true
+                }
+        }
+    }
+
+    class WeatherAlertsFragment : BaseSettingsFragment() {
+        private lateinit var alertNotification: SwitchPreferenceCompat
+        private lateinit var popChanceNotifPref: SwitchPreferenceCompat
+
+        override val titleResId: Int
+            get() = R.string.label_nav_alerts
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.pref_alerts, rootKey)
+
+            alertNotification = findPreference(SettingsManager.KEY_USEALERTS)!!
+            alertNotification.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val context = preference.context.applicationContext
+
+                    // Alert notification
+                    if (newValue as Boolean) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (!preference.context.notificationPermissionEnabled()) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                return@OnPreferenceChangeListener false
+                            }
+                        }
+
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                        )
+                    } else {
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK)
+                        )
+                    }
+                    true
+                }
+            updateAlertPreference(weatherModule.weatherManager.supportsAlerts())
+
+            popChanceNotifPref = findPreference(SettingsManager.KEY_POPCHANCENOTIFICATION)!!
+            popChanceNotifPref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    if (newValue == true && !areNotificationExtrasEnabled()) {
+                        runWithView {
+                            navigateToPremiumFragment()
+                        }
+                        return@OnPreferenceChangeListener false
+                    }
+
+                    val context = preference.context.applicationContext
+
+                    // Alert notification
+                    if (newValue as Boolean) {
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)
+                        )
+
+                        checkBackgroundLocationAccess()
+                    } else {
+                        enqueueIntent(
+                            Intent(context, WeatherUpdaterWorker::class.java)
+                                .setAction(WeatherUpdaterWorker.ACTION_CANCELWORK)
+                        )
+                    }
+                    true
+                }
+        }
+
+        private fun updateAlertPreference(enable: Boolean) {
+            alertNotification.isEnabled = enable
+            alertNotification.summary =
+                if (enable) getString(R.string.pref_summary_alerts) else getString(R.string.pref_summary_alerts_disabled)
+        }
+    }
+
+    class AboutAppFragment : BaseSettingsFragment() {
         companion object {
             // Preference Keys
             private const val KEY_ABOUTCREDITS = "key_aboutcredits"
@@ -1305,7 +1303,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    class CreditsFragment : ToolbarPreferenceFragmentCompat() {
+    class CreditsFragment : BaseSettingsFragment() {
         companion object {
             private const val CATEGORY_ICONS = "key_caticons"
         }
@@ -1349,7 +1347,7 @@ class SettingsFragment : ToolbarPreferenceFragmentCompat(),
         }
     }
 
-    class OSSCreditsFragment : ToolbarPreferenceFragmentCompat() {
+    class OSSCreditsFragment : BaseSettingsFragment() {
         override val titleResId: Int
             get() = R.string.pref_title_oslibs
 

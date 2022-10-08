@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.thewizrd.common.helpers.areNotificationsEnabled
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
@@ -77,7 +78,8 @@ object PoPChanceNotificationHelper {
         if (hrForecasts.isNullOrEmpty()) return false
 
         // Find the next hour with a 60% or higher chance of precipitation
-        val forecast = hrForecasts.find { it.extras?.pop != null && it.extras.pop >= 60 }
+        val forecast =
+            hrForecasts.find { it.extras?.pop != null && it.extras.pop >= settingsManager.getPoPChanceMinimumPercentage() }
 
         // Proceed if within the next 3hrs
         if (forecast == null || Duration.between(now.truncatedTo(ChronoUnit.HOURS), forecast.date)
