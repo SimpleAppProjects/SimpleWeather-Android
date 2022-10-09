@@ -36,7 +36,7 @@ buildscript {
         horologist_version = '0.1.13'
         accompanist_version = '0.25.0'
 
-        glide_version = '4.14.1'
+        glide_version = '4.14.2'
         icu4j_version = '71.1'
         moshi_version = '1.14.0'
         okhttp_version = '4.10.0'
