@@ -21,8 +21,13 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
         private const val TAG = "WeatherComplicationService"
     }
 
-    override val supportedComplicationTypes =
-        setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
+    override val supportedComplicationTypes: Set<ComplicationType> =
+        setOf(
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
     private val complicationIconResId = R.drawable.wi_day_sunny
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
@@ -53,6 +58,25 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
+                ).build()
+            }
+            ComplicationType.MONOCHROMATIC_IMAGE -> {
+                MonochromaticImageComplicationData.Builder(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE)
+                    ).build(),
+                    PlainComplicationText.Builder("70° - Sunny").build()
+                ).build()
+            }
+            ComplicationType.SMALL_IMAGE -> {
+                SmallImageComplicationData.Builder(
+                    SmallImage.Builder(
+                        Icon.createWithResource(this, complicationIconResId)
+                            .setTint(Colors.WHITESMOKE),
+                        SmallImageType.ICON
+                    ).build(),
+                    PlainComplicationText.Builder("70° - Sunny").build()
                 ).build()
             }
             else -> {
@@ -103,11 +127,13 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
             )
         )
 
+        val contentDescription = PlainComplicationText.Builder("$temp - $condition").build()
+
         when (dataType) {
             ComplicationType.SHORT_TEXT -> {
                 val builder = ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(temp).build(),
-                    PlainComplicationText.Builder("$temp - $condition").build()
+                    contentDescription
                 )
 
                 builder.setMonochromaticImage(
@@ -135,7 +161,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
             ComplicationType.LONG_TEXT -> {
                 val builder = LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(condition).build(),
-                    PlainComplicationText.Builder("$temp - $condition").build()
+                    contentDescription
                 ).setTitle(
                     PlainComplicationText.Builder(temp).build()
                 )
@@ -164,6 +190,43 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
 
                 builder.setTapAction(getTapIntent(this))
                 return builder.build()
+            }
+            ComplicationType.MONOCHROMATIC_IMAGE -> {
+                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
+                return MonochromaticImageComplicationData.Builder(
+                    MonochromaticImage.Builder(
+                        Icon.createWithResource(
+                            this,
+                            wip.getWeatherIconResource(weather.condition.icon)
+                        )
+                            .setTint(Colors.WHITESMOKE)
+                    ).build(),
+                    contentDescription
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
+            }
+            ComplicationType.SMALL_IMAGE -> {
+                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
+                return SmallImageComplicationData.Builder(
+                    SmallImage.Builder(
+                        icon,
+                        SmallImageType.ICON
+                    ).setAmbientImage(
+                        Icon.createWithBitmap(
+                            ImageUtils.tintedBitmapFromDrawable(
+                                this,
+                                wip.getWeatherIconResource(weather.condition.icon),
+                                Colors.WHITE
+                            )
+                        )
+                    ).build(),
+                    contentDescription
+                ).setTapAction(
+                    getTapIntent(this)
+                ).build()
             }
             else -> {
                 return null
