@@ -33,3 +33,4 @@ API_KEY.txt
 *.7z
 google-services.json
 /.privado/
+/.detekt
