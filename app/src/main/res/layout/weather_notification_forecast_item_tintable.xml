@@ -19,7 +19,6 @@
         android:maxLines="1"
         android:padding="2dp"
         android:textAppearance="@style/TextAppearance.Compat.Notification"
-        android:textSize="12sp"
         tools:text="Mon" />
 
     <ImageView
@@ -27,10 +26,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="-4dp"
         android:adjustViewBounds="true"
-        android:maxHeight="48dp"
-        android:maxWidth="48dp"
+        android:maxHeight="42dp"
+        android:maxWidth="42dp"
         android:padding="4dp"
         android:scaleType="fitCenter"
         android:src="@drawable/wi_day_thunderstorm"
@@ -51,7 +49,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Compat.Notification"
-            android:textSize="12sp"
             tools:text="70°" />
 
         <TextView
@@ -64,8 +61,7 @@
             android:paddingEnd="2dp"
             android:paddingRight="2dp"
             android:text="|"
-            android:textAppearance="@style/TextAppearance.Compat.Notification"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Compat.Notification" />
 
         <TextView
             android:id="@+id/forecast_lo"
@@ -75,7 +71,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Compat.Notification"
-            android:textSize="12sp"
             tools:text="52°" />
 
     </LinearLayout>

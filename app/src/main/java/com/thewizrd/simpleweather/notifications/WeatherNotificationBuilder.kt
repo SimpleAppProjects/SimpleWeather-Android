@@ -236,7 +236,7 @@ object WeatherNotificationBuilder {
                 bigUpdateViews.setViewVisibility(R.id.forecast_layout, View.GONE)
             }
             SettingsManager.NOTIF_FORECAST_DAILY -> {
-                val forecasts = getForecasts(location, MAX_FORECASTS)
+                val forecasts = getForecasts(location, MAX_FORECASTS - 1)
 
                 bigUpdateViews.removeAllViews(R.id.forecast_container)
                 forecasts.forEach {
