@@ -3,16 +3,22 @@ package com.thewizrd.simpleweather.preferences
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.format.DateFormat
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.preference.Preference
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.R
+import com.thewizrd.simpleweather.preferences.timepickerpreference.TimePickerPreference
 import com.thewizrd.simpleweather.services.UpdaterUtils
 import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.snackbar.Snackbar
+import java.util.*
 
 abstract class BaseSettingsFragment : ToolbarPreferenceFragmentCompat() {
     // Intent queue
@@ -125,5 +131,44 @@ abstract class BaseSettingsFragment : ToolbarPreferenceFragmentCompat() {
         intentQueue.clear()
 
         super.onPause()
+    }
+
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        if (preference is TimePickerPreference) {
+            val TAG = MaterialTimePicker::class.java.name
+
+            if (parentFragmentManager.findFragmentByTag(TAG) != null) {
+                return
+            }
+
+            val is24hour = DateFormat.is24HourFormat(preference.getContext())
+
+            val f = MaterialTimePicker.Builder()
+                .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
+                .setHour(preference.hourOfDay)
+                .setMinute(preference.minute)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .build()
+            f.addOnPositiveButtonClickListener {
+                if (preference.callChangeListener(
+                        String.format(
+                            Locale.ROOT,
+                            "%02d:%02d",
+                            f.hour,
+                            f.minute
+                        )
+                    )
+                ) {
+                    preference.setTime(f.hour, f.minute)
+                }
+            }
+
+            runWithView {
+                f.setTargetFragment(this@BaseSettingsFragment, 0)
+                f.show(parentFragmentManager, TAG)
+            }
+        } else {
+            super.onDisplayPreferenceDialog(preference)
+        }
     }
 }

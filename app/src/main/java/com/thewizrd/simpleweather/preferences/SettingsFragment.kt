@@ -16,7 +16,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.text.SpannableString
 import android.text.TextUtils
-import android.text.format.DateFormat
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.Toast
@@ -28,8 +27,6 @@ import androidx.navigation.findNavController
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
@@ -814,39 +811,6 @@ class SettingsFragment : BaseSettingsFragment(),
                     parentFragmentManager,
                     KeyEntryPreferenceDialogFragment::class.java.name
                 )
-            }
-        } else if (preference is TimePickerPreference) {
-            val TAG = MaterialTimePicker::class.java.name
-
-            if (parentFragmentManager.findFragmentByTag(TAG) != null) {
-                return
-            }
-
-            val is24hour = DateFormat.is24HourFormat(preference.getContext())
-
-            val f = MaterialTimePicker.Builder()
-                .setTimeFormat(if (is24hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
-                .setHour(preference.hourOfDay)
-                .setMinute(preference.minute)
-                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                .build()
-            f.addOnPositiveButtonClickListener {
-                if (preference.callChangeListener(
-                        String.format(
-                            Locale.ROOT,
-                            "%02d:%02d",
-                            f.hour,
-                            f.minute
-                        )
-                    )
-                ) {
-                    preference.setTime(f.hour, f.minute)
-                }
-            }
-
-            runWithView {
-                f.setTargetFragment(this@SettingsFragment, 0)
-                f.show(parentFragmentManager, TAG)
             }
         } else if (preference.key == LocaleUtils.KEY_LANGUAGE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Disable dialog for SDK 33+
