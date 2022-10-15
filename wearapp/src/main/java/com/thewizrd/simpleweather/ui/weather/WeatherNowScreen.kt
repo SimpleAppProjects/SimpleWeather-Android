@@ -698,7 +698,7 @@ private fun HourlyForecastsButton(
         label = stringResource(id = R.string.label_hourlyforecast),
         iconDrawableId = R.drawable.ic_access_time_black_24dp
     ) {
-        navController.navigate(Screen.Forecast.route)
+        navController.navigate(Screen.HourlyForecast.route)
     }
 }
 

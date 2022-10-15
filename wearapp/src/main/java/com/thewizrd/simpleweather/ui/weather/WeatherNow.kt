@@ -26,6 +26,7 @@ import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.simpleweather.ui.ScalingLazyListStateViewModel
 import com.thewizrd.simpleweather.ui.ScrollStateViewModel
+import com.thewizrd.simpleweather.ui.components.CustomPositionIndicator
 import com.thewizrd.simpleweather.ui.components.CustomTimeText
 import com.thewizrd.simpleweather.ui.navigation.DestinationScrollType
 import com.thewizrd.simpleweather.ui.navigation.SCROLL_TYPE_NAV_ARGUMENT
@@ -74,12 +75,14 @@ fun WeatherNow(
     val navController = rememberSwipeDismissableNavController()
 
     WearAppTheme {
+        var showScaffolding by remember { mutableStateOf(true) }
+
         Scaffold(
             modifier = modifier.background(MaterialTheme.colors.background),
             timeText = {
                 CustomTimeText(
                     modifier = Modifier.fadeAway { scrollState },
-                    visible = true,
+                    visible = showScaffolding,
                     timeSource = ZonedTimeSource(
                         timeFormat = if (DateFormat.is24HourFormat(LocalContext.current)) {
                             "${DateTimeConstants.CLOCK_FORMAT_24HR} ${DateTimeConstants.TIMEZONE_NAME}"
@@ -94,7 +97,10 @@ fun WeatherNow(
                 Vignette(vignettePosition = VignettePosition.TopAndBottom)
             },
             positionIndicator = {
-                PositionIndicator(scrollState = scrollState)
+                CustomPositionIndicator(
+                    visible = showScaffolding,
+                    scrollState = scrollState
+                )
             }
         ) {
             WeatherNowScreen(
@@ -213,7 +219,7 @@ fun WeatherNow(
                 ) { isBackground ->
                     if (!isBackground) {
                         Scaffold(
-                            modifier = modifier.background(MaterialTheme.colors.background),
+                            modifier = Modifier.background(MaterialTheme.colors.background),
                             timeText = {
                                 // Scaffold places time at top of screen to follow Material Design guidelines.
                                 // (Time is hidden while scrolling.)
@@ -302,6 +308,16 @@ fun WeatherNow(
                                 }
                             }
                         }
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    showScaffolding = false
+                }
+
+                DisposableEffect(Unit) {
+                    onDispose {
+                        showScaffolding = true
                     }
                 }
             }
