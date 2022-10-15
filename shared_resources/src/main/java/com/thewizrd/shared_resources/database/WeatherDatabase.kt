@@ -121,7 +121,7 @@ abstract class WeatherDatabase : RoomDatabase() {
 
                         val hrForecastCursor = database.query(
                             "SELECT hrforecastblob from weatherdata WHERE query = ?",
-                            arrayOf<Any>(query)
+                            arrayOf(query)
                         )
 
                         try {
@@ -143,7 +143,7 @@ abstract class WeatherDatabase : RoomDatabase() {
 
                                             database.execSQL(
                                                 "INSERT INTO hr_forecasts (`query`, `dateblob`, `hrforecastblob`) VALUES (?, ?, ?)",
-                                                arrayOf<Any>(query, dtoStr, json)
+                                                arrayOf(query, dtoStr, json)
                                             )
                                         }
                                     }
@@ -194,22 +194,24 @@ abstract class WeatherDatabase : RoomDatabase() {
 
                 cursor.use { weatherCursor ->
                     while (weatherCursor.moveToNext()) {
-                        val query = weatherCursor.getString(weatherCursor.getColumnIndex("query"))
+                        val query = weatherCursor.getString(
+                            weatherCursor.getColumnIndexOrThrow("query")
+                        )
 
                         // Update forecasts
                         database.execSQL(
                             "UPDATE forecasts SET `forecastblob` = `REPLACE`(`forecastblob`, ?, ?) WHERE `query` = ?",
-                            arrayOf<Any>("\"pop\"", "\"cloudiness\"", query)
+                            arrayOf("\"pop\"", "\"cloudiness\"", query)
                         )
                         database.execSQL(
                             "UPDATE hr_forecasts SET `hrforecastblob` = `REPLACE`(`hrforecastblob`, ?, ?) WHERE `query` = ?",
-                            arrayOf<Any>("\"pop\"", "\"cloudiness\"", query)
+                            arrayOf("\"pop\"", "\"cloudiness\"", query)
                         )
 
                         // Update weather data
                         database.execSQL(
                             "UPDATE weatherdata SET `precipitationblob` = `REPLACE`(`precipitationblob`, ?, ?) WHERE `query` = ?",
-                            arrayOf<Any>("\"pop\"", "\"cloudiness\"", query)
+                            arrayOf("\"pop\"", "\"cloudiness\"", query)
                         )
                     }
                 }
