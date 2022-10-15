@@ -81,7 +81,7 @@ dependencies {
 
     fullgmsImplementation 'com.google.android.gms:play-services-basement:18.1.0'
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.2'
-    fullgmsImplementation 'com.google.android.gms:play-services-location:20.0.0'
+    fullgmsImplementation "com.google.android.gms:play-services-location:$gms_location_version"
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:18.0.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 }

@@ -11,7 +11,8 @@ buildscript {
 
         desugar_version = '1.2.2'
 
-        firebase_version = '30.5.0'
+        firebase_version = '31.0.0'
+        gms_location_version = '21.0.0'
 
         annotation_version = '1.5.0'
         activity_version = '1.6.0'
@@ -24,7 +25,7 @@ buildscript {
         paging_version = '3.1.1'
         preference_version = '1.2.0'
         recyclerview_version = '1.2.1'
-        room_version = '2.5.0-alpha03'
+        room_version = '2.5.0-beta01'
         coresplash_version = '1.0.0'
         work_version = '2.7.1'
 
@@ -50,10 +51,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath 'com.google.gms:google-services:4.3.14'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
-        classpath 'com.google.firebase:perf-plugin:1.4.1'
+        classpath 'com.google.firebase:perf-plugin:1.4.2'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
