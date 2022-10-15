@@ -44,12 +44,7 @@ fun WeatherMinutelyForecastScreen(
         anchorType = ScalingLazyListAnchorType.ItemCenter,
         contentPadding = PaddingValues(top = 48.dp)
     ) {
-        items(
-            minutelyForecasts,
-            key = {
-                it.hashCode()
-            }
-        ) {
+        items(minutelyForecasts) {
             WeatherMinutelyForecastPanel(model = it)
         }
     }

@@ -36,9 +36,7 @@ fun WeatherAlertsScreen(
         anchorType = if (alerts.size > 1) ScalingLazyListAnchorType.ItemStart else ScalingLazyListAnchorType.ItemCenter,
         autoCentering = AutoCenteringParams(itemIndex = if (alerts.size > 1) 1 else 0)
     ) {
-        items(alerts, key = {
-            it.hashCode()
-        }) { alert ->
+        items(alerts) { alert ->
             WeatherAlertPanel(alert)
         }
     }

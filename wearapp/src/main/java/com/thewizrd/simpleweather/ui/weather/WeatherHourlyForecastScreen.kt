@@ -47,12 +47,7 @@ fun WeatherHourlyForecastScreen(
             anchorType = ScalingLazyListAnchorType.ItemCenter,
             contentPadding = PaddingValues(top = 48.dp)
         ) {
-            items(
-                hourlyForecasts,
-                key = {
-                    it.hashCode()
-                }
-            ) {
+            items(hourlyForecasts) {
                 it?.let {
                     WeatherHourlyForecastPanel(model = it)
                 }
