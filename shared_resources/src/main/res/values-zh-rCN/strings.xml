@@ -216,4 +216,6 @@
 
     <!-- Fuzzy -->
     <string name="label_minutelyforecast">"分钟预报"</string>
+    <string name="hint_username">"用户名"</string>
+    <string name="hint_password">"密码"</string>
 </resources>

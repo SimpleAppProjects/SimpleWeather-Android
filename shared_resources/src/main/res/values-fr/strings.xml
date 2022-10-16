@@ -194,4 +194,6 @@
 
     <!-- Fuzzy -->
     <string name="label_minutelyforecast">"Prévisions à la minute"</string>
+    <string name="hint_username">"Nom d'utilisateur"</string>
+    <string name="hint_password">"Mot de passe"</string>
 </resources>

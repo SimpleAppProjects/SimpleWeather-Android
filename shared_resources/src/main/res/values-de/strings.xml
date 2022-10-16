@@ -240,4 +240,6 @@
 Minute-by-Minute Forecast -->
     <!-- Fuzzy -->
     <string name="label_minutelyforecast">"Vorhersage im Minutentakt"</string>
+    <string name="hint_username">"Nutzername"</string>
+    <string name="hint_password">"Passwort"</string>
 </resources>
