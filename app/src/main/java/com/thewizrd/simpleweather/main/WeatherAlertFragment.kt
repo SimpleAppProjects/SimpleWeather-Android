@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
-import com.thewizrd.common.controls.ForecastsListViewModel
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.Constants
@@ -37,7 +35,6 @@ import kotlinx.coroutines.launch
 
 class WeatherAlertFragment : ToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
-    private val forecastsView: ForecastsListViewModel by viewModels()
     private val alertsView: WeatherAlertsViewModel by activityViewModels()
 
     private var locationData: LocationData? = null
@@ -138,7 +135,6 @@ class WeatherAlertFragment : ToolbarFragment() {
         }
 
         locationData?.let {
-            forecastsView.updateForecasts(it)
             alertsView.updateAlerts(it)
         }
 

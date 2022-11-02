@@ -50,7 +50,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
             forecast.date.format(DateTimeUtils.ofPatternForUserLocale(pattern))
         }
 
-        shortDate = if (DateFormat.is24HourFormat(context)) {
+        shortDate = if (is24hr) {
             val skeleton = DateTimeConstants.SKELETON_24HR
             forecast.date.format(
                 DateTimeUtils.ofPatternForUserLocale(

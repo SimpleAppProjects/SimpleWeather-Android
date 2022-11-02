@@ -179,7 +179,7 @@ class WeatherChartsFragment : ToolbarFragment() {
             chartsView.updateForecasts(it)
         }
 
-        binding.progressBar.isVisible = false
+        binding.progressBar.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

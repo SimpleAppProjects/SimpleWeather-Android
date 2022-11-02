@@ -211,7 +211,11 @@ class LocationPanel : MaterialCardView {
     }
 
     fun showLoading(show: Boolean) {
-        binding.progressBar.isVisible = show
+        if (show) {
+            binding.progressBar.show()
+        } else {
+            binding.progressBar.hide()
+        }
         isClickable = !show
     }
 

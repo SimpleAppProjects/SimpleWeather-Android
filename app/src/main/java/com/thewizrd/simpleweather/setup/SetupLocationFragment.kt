@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.launch
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -142,7 +141,10 @@ class SetupLocationFragment : CustomFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             locationSearchViewModel.isLoading.collect { loading ->
-                binding.progressBar.isVisible = loading
+                if (loading)
+                    binding.progressBar.show()
+                else
+                    binding.progressBar.hide()
             }
         }
 

@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -144,7 +146,7 @@ class WeatherAQIFragment : ToolbarFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.progressBar.isVisible = true
+        binding.progressBar.show()
 
         viewLifecycleOwner.lifecycleScope.launch {
             twoPaneStateViewModel.twoPaneState.collectLatest { state ->
@@ -156,8 +158,48 @@ class WeatherAQIFragment : ToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             wNowViewModel.weather.collect {
                 currentAQIAdapter.updateItem(it?.airQuality)
-                binding.progressBar.isVisible = false
+                binding.progressBar.hide()
             }
+        }
+
+        if (args.data.isNullOrBlank() && savedInstanceState?.containsKey(Constants.KEY_DATA) != true) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                wNowViewModel.uiState.collect {
+                    locationData = it.locationData
+                    initialize()
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                initialize()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!isHidden) {
+            AnalyticsLogger.logEvent("WeatherAQIFragment: onResume")
+        }
+    }
+
+    override fun onPause() {
+        AnalyticsLogger.logEvent("WeatherAQIFragment: onPause")
+        super.onPause()
+    }
+
+    override val titleResId: Int
+        get() = R.string.label_airquality
+
+    private fun initialize() {
+        if (locationData == null) {
+            locationData = wNowViewModel.uiState.value.locationData
+        }
+
+        locationData?.let {
+            aqiView.updateForecasts(it)
         }
 
         aqiView.getAQIForecastData().observe(viewLifecycleOwner) {
@@ -180,21 +222,6 @@ class WeatherAQIFragment : ToolbarFragment() {
             }
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        if (!isHidden) {
-            AnalyticsLogger.logEvent("WeatherAQIFragment: onResume")
-        }
-    }
-
-    override fun onPause() {
-        AnalyticsLogger.logEvent("WeatherAQIFragment: onPause")
-        super.onPause()
-    }
-
-    override val titleResId: Int
-        get() = R.string.label_airquality
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Save data
