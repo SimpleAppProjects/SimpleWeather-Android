@@ -45,9 +45,9 @@ class WeatherDataLoader {
             Logger.writeLine(
                 Log.WARN,
                 "Location: %s",
-                JSONParser.serializer(location, LocationData::class.java)
+                JSONParser.serializer(locationData, LocationData::class.java)
             )
-            throw IllegalArgumentException("location")
+            throw IllegalArgumentException("locationData")
         }
 
         this.location = locationData
@@ -277,12 +277,16 @@ class WeatherDataLoader {
                                         0f
                                     ) == 0f
                                 ) {
-                                    throw WeatherException(ErrorStatus.UNKNOWN)
+                                    throw WeatherException(ErrorStatus.UNKNOWN).apply {
+                                        initCause(Exception("Invalid location data: ${weather.location}"))
+                                    }
                                 }
 
                                 location.query = wm.updateLocationQuery(weather)
                             } else {
-                                throw WeatherException(ErrorStatus.UNKNOWN)
+                                throw WeatherException(ErrorStatus.UNKNOWN).apply {
+                                    initCause(Exception("Invalid location state: location (${location}), weather (${weather})"))
+                                }
                             }
 
                             location.weatherSource = settingsMgr.getAPI()

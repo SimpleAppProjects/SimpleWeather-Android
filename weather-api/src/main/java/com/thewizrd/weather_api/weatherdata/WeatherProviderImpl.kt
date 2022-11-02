@@ -138,7 +138,9 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
     @Throws(WeatherException::class)
     override suspend fun getWeather(location: LocationData?): Weather {
         if (location?.query == null)
-            throw WeatherException(ErrorStatus.UNKNOWN)
+            throw WeatherException(ErrorStatus.UNKNOWN).apply {
+                initCause(IllegalArgumentException("location?.query"))
+            }
 
         val weather = getWeather(location.query, location.countryCode)
 

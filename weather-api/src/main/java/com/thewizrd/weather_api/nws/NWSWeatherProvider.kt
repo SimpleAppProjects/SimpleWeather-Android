@@ -95,7 +95,9 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
                 // NWS only supports locations in U.S.
                 if (!LocationUtils.isUS(country_code)) {
-                    throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                    throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
+                        initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${country_code})"))
+                    }
                 }
 
                 val client = sharedDeps.httpClient

@@ -42,7 +42,9 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         ac_query: String?, weatherAPI: String?
     ): Collection<LocationQuery> = withContext(Dispatchers.IO) {
         if (!isGeocoderAvailable()) {
-            throw WeatherException(ErrorStatus.UNKNOWN)
+            throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                initCause(Exception("Geocoder unavailable"))
+            }
         }
 
         var locations: Collection<LocationQuery>? = null
@@ -84,7 +86,9 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         model: LocationQuery
     ): LocationQuery = withContext(Dispatchers.IO) {
         if (!isGeocoderAvailable()) {
-            throw WeatherException(ErrorStatus.NETWORKERROR)
+            throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                initCause(Exception("Geocoder unavailable"))
+            }
         }
 
         val location: LocationQuery
@@ -118,7 +122,9 @@ open class AndroidLocationProvider : WeatherLocationProviderImpl() {
         coordinate: Coordinate, weatherAPI: String?
     ): LocationQuery = withContext(Dispatchers.IO) {
         if (!isGeocoderAvailable()) {
-            throw WeatherException(ErrorStatus.NETWORKERROR)
+            throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                initCause(Exception("Geocoder unavailable"))
+            }
         }
 
         val location: LocationQuery

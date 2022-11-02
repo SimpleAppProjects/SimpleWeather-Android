@@ -111,7 +111,9 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
             // MeteoFrance only supports locations in France
             if (!LocationUtils.isFrance(country_code)) {
-                throw WeatherException(ErrorStatus.QUERYNOTFOUND)
+                throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
+                    initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${country_code})"))
+                }
             }
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())

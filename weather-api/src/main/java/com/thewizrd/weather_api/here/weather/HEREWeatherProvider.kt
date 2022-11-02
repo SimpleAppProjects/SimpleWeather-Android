@@ -112,7 +112,9 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     val authorization = hereOAuthService.getBearerToken(false)
 
                     if (authorization.isNullOrBlank()) {
-                        throw WeatherException(ErrorStatus.NETWORKERROR)
+                        throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                            initCause(Exception("Invalid bearer token: $authorization"))
+                        }
                     }
 
                     val url = if (LocationUtils.isUSorCanada(country_code)) {
@@ -242,7 +244,9 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             val authorization = hereOAuthService.getBearerToken(false)
 
             if (authorization.isNullOrBlank()) {
-                throw WeatherException(ErrorStatus.NETWORKERROR)
+                throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                    initCause(Exception("Invalid bearer token: $authorization"))
+                }
             }
 
             val country_code = location.countryCode
