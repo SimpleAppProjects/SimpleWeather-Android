@@ -39,9 +39,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
@@ -52,17 +52,17 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build(),
                     PlainComplicationText.Builder("UV Index: 3, Moderate").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("3, Moderate").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -101,9 +101,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(uvModel.index.toString()).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -118,9 +118,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -130,10 +130,10 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         "${getString(R.string.label_uv)}: ${uvModel.index}, ${uvModel.description}"
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("${uvModel.index}, ${uvModel.description}")
                         .build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
