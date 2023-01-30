@@ -41,16 +41,16 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()
+                )/*.setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()*/
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("Wind").build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
-                ).setTitle(
-                    PlainComplicationText.Builder("5 mph, SSE").build()
+                )/*.setTitle(
+                    PlainComplicationText.Builder("5 mph, SSE").build()*/
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -129,8 +129,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()
+                )/*.setTitle(
+                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()*/
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
@@ -139,8 +139,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(getString(R.string.label_wind)).build(),
                     PlainComplicationText.Builder(windSpeedLong).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(windSpeedLong).build()
+                )/*.setTitle(
+                    PlainComplicationText.Builder(windSpeedLong).build()*/
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
