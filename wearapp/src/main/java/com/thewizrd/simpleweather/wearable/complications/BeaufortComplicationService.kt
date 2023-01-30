@@ -40,9 +40,9 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("Beaufort").build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
@@ -53,17 +53,17 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("Beaufort").build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("Beaufort").build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("3, Gentle Breeze").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -104,9 +104,9 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(beaufortModel.progress.toString()).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(beaufortModel.beaufort.label).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -121,9 +121,9 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(beaufortModel.beaufort.label).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -133,11 +133,11 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         "${beaufortModel.beaufort.label}: ${beaufortModel.progress}, ${beaufortModel.beaufort.value}"
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(
                         "${beaufortModel.progress}, ${beaufortModel.beaufort.value}"
                     ).build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)

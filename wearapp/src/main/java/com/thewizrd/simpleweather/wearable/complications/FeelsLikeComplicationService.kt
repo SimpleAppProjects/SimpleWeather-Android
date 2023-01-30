@@ -34,17 +34,17 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_feelslike)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(getString(R.string.label_feelslike)).build(),
                     PlainComplicationText.Builder("Feels like: 75°").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("75°").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -90,9 +90,9 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_feelslike)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -100,9 +100,9 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     PlainComplicationText.Builder(
                         String.format("%s: %s", getString(R.string.label_feelslike), tempStr)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(tempStr).build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)

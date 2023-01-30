@@ -48,17 +48,17 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_chance)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("Chance").build(),
                     PlainComplicationText.Builder("Chance: 50%").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("50%").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -109,9 +109,9 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_chance)).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -121,9 +121,9 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder(
                         "${getString(R.string.label_chance)}: ${popChance}%"
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("${popChance}%").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)

@@ -35,9 +35,9 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder("70°").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("75° | 65°").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -48,9 +48,9 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("70° - Sunny").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("75° | 65°").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -178,9 +178,9 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 val builder = LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("$temp - $condition").build(),
                     PlainComplicationText.Builder("$temp - $condition").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("$hiTemp | $loTemp").build()
-                )
+                )*/
 
                 // Weather Icon
                 if (wim.isFontIcon) {

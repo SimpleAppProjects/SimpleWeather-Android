@@ -41,17 +41,17 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_wind)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder("Wind").build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("5 mph, SSE").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -129,9 +129,9 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_wind)).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -139,9 +139,9 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(getString(R.string.label_wind)).build(),
                     PlainComplicationText.Builder(windSpeedLong).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(windSpeedLong).build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
