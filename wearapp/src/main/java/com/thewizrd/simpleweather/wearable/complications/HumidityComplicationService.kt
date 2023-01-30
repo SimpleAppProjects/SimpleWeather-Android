@@ -50,18 +50,18 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
-                ).build()
+                )*/.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
                     PlainComplicationText.Builder(getString(R.string.label_humidity)).build(),
                     PlainComplicationText.Builder("${getString(R.string.label_humidity)}: 75%")
                         .build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("75%").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
@@ -115,9 +115,9 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder(getString(R.string.label_humidity)).build()
-                ).setTapAction(
+                )*/.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -127,9 +127,9 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         "${getString(R.string.label_humidity)}: ${humidityPct}%"
                     ).build()
-                ).setTitle(
+                )/*.setTitle(
                     PlainComplicationText.Builder("${humidityPct}%").build()
-                ).setMonochromaticImage(
+                )*/.setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
