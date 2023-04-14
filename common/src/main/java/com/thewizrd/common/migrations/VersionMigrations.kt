@@ -10,7 +10,6 @@ import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
@@ -104,14 +103,14 @@ object VersionMigrations {
                 }
 
                 // DevSettings -> settings.setAPIKey
-                val devSettingsMap = DevSettingsEnabler.getPreferenceMap(context)
+                val devSettingsMap = settingsMgr.getDevSettingsPreferenceMap()
                 devSettingsMap.forEach { (key, value) ->
                     if (value is String) {
                         settingsMgr.setAPIKey(key, value)
                         settingsMgr.setKeyVerified(key, true)
                     }
                 }
-                DevSettingsEnabler.clearPreferences(context)
+                settingsMgr.clearDevSettingsPreferences()
             }
 
             if (settingsMgr.getVersionCode() < 335701300) {

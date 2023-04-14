@@ -332,7 +332,7 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun updateLocation(): LocationResult {
         var locationData = getLocationData()
 
-        if (settingsManager.useFollowGPS() && locationData?.locationType == LocationType.GPS) {
+        if (settingsManager.useFollowGPS() && (locationData == null || locationData.locationType == LocationType.GPS)) {
             if (!getApplication<Application>().locationPermissionEnabled()) {
                 return LocationResult.NotChanged(locationData)
             }

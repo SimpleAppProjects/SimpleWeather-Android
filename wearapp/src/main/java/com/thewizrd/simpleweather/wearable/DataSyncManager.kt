@@ -14,7 +14,6 @@ import com.thewizrd.common.wearable.WearableSettings
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.JSONParser
@@ -100,12 +99,11 @@ object DataSyncManager {
 
                 val devSettingsMap = dataMap.getDataMap(WearableSettings.KEY_DEVSETTINGS)
                 if (devSettingsMap != null) {
-                    DevSettingsEnabler.clearPreferences(
-                        appContext,
+                    settingsMgr.clearDevSettingsPreferences(
                         devSettingsMap.getBoolean(WearableSettings.KEY_DEVSETTINGS, false)
                     )
                 } else {
-                    DevSettingsEnabler.clearPreferences(appContext, false)
+                    settingsMgr.clearDevSettingsPreferences(false)
                 }
 
                 val apiKeyMap = dataMap.getDataMap(WearableSettings.KEY_APIKEYS)

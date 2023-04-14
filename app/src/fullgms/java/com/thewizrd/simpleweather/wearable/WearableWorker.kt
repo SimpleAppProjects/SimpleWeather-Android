@@ -7,7 +7,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.wearable.*
 import com.thewizrd.common.wearable.WearableHelper
 import com.thewizrd.common.wearable.WearableSettings
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
@@ -168,7 +167,7 @@ class WearableWorker(context: Context, workerParams: WorkerParameters) :
             )
             mapRequest.dataMap.putDataMap(WearableSettings.KEY_UNITS, unitMap)
 
-            if (DevSettingsEnabler.isDevSettingsEnabled(applicationContext)) {
+            if (settingsManager.isDevSettingsEnabled()) {
                 val devSettingsMap = DataMap().apply {
                     putBoolean(WearableSettings.KEY_DEVSETTINGS, true)
                 }

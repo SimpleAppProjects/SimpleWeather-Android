@@ -89,7 +89,7 @@
             app:layout_constraintStart_toEndOf="@id/aqi_index"
             app:layout_constraintTop_toBottomOf="@id/aqi_level"
             app:layout_constraintBottom_toTopOf="@id/aqi_progressBar"
-            tools:text="@string/aqi_desc_51_100" />
+            tools:text="@string/aqi_desc_201_300" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/aqi_barrier"

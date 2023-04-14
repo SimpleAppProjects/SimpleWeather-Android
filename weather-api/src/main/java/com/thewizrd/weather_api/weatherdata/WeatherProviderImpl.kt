@@ -11,7 +11,6 @@ import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.LocationUtils
@@ -181,7 +180,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
         }
 
         if (weather.condition.pollen == null) {
-            if (DevSettingsEnabler.isDevSettingsEnabled(context)) {
+            if (settingsManager.isDevSettingsEnabled()) {
                 weather.condition.pollen = TomorrowIOWeatherProvider().getPollenData(location)
             }
         }
@@ -239,7 +238,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                                             location.tzOffset
                                         )
                                     val solarNoon =
-                                        weather.astronomy.sunrise.plusSeconds(totalSunlightTime)
+                                        weather.astronomy.sunrise.plusSeconds(totalSunlightTime / 2)
 
                                     // If +/- 2hrs within solar noon, UV max
                                     if (Duration.between(solarNoon.toLocalTime(), obsLocalTime)

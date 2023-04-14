@@ -2,6 +2,7 @@ package com.thewizrd.shared_resources.preferences
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -17,17 +18,15 @@ import com.thewizrd.shared_resources.database.LocationsDAO
 import com.thewizrd.shared_resources.database.LocationsDatabase
 import com.thewizrd.shared_resources.database.WeatherDAO
 import com.thewizrd.shared_resources.database.WeatherDatabase
+import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.buildEmptyGPSLocation
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.*
 import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_FORMATTER
 import com.thewizrd.shared_resources.utils.DateTimeUtils.LOCAL_DATE_TIME_MIN
-import com.thewizrd.shared_resources.utils.JSONParser
-import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.Units.*
-import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
@@ -54,6 +53,7 @@ class SettingsManager(context: Context) {
         Context.MODE_PRIVATE
     )
     private val versionPrefs = appContext.getSharedPreferences("version", Context.MODE_PRIVATE)
+    private val devSettings = appContext.getSharedPreferences("devsettings", Context.MODE_PRIVATE)
 
     companion object {
         const val TAG = "SettingsManager"
@@ -95,6 +95,7 @@ class SettingsManager(context: Context) {
         const val KEY_NOTIFICATIONFCAST = "key_notificationfcast"
         private const val KEY_ONBOARDINGCOMPLETE = "key_onboardcomplete"
         const val KEY_USERTHEME = "key_usertheme"
+        private const val KEY_DEVSETTINGSENABLED = "key_devsettingsenabled"
 
         const val TEMPERATURE_ICON = "0"
         const val CONDITION_ICON = "1"
@@ -837,8 +838,37 @@ class SettingsManager(context: Context) {
         }
     }
 
+    fun isDevSettingsEnabled(): Boolean {
+        return devSettings.getBoolean(KEY_DEVSETTINGSENABLED, false)
+    }
+
+    fun setDevSettingsEnabled(enable: Boolean) {
+        devSettings.edit(true) {
+            putBoolean(KEY_DEVSETTINGSENABLED, enable)
+        }
+        localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_SENDUPDATE))
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun getDevSettingsPreferenceMap(): Map<String, Any?> {
+        return devSettings.all.minus(KEY_DEVSETTINGSENABLED)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun clearDevSettingsPreferences(enable: Boolean? = null) {
+        val enabled = enable ?: isDevSettingsEnabled()
+        devSettings.edit(true) {
+            clear()
+            putBoolean(KEY_DEVSETTINGSENABLED, enabled)
+        }
+    }
+
     fun getAnimatorScale(): Float {
-        return Settings.Global.getFloat(appContext.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f)
+        return Settings.Global.getFloat(
+            appContext.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1.0f
+        )
     }
 
     fun getIconsProvider(): String {

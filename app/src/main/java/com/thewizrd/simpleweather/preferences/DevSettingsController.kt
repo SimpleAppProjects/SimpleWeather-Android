@@ -6,7 +6,7 @@ import androidx.navigation.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 
 class DevSettingsController(private val prefFragment: PreferenceFragmentCompat, private val prefKey: String) {
@@ -33,12 +33,12 @@ class DevSettingsController(private val prefFragment: PreferenceFragmentCompat, 
                     .safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToDevSettingsFragment())
                 true
             }
-            isVisible = DevSettingsEnabler.isDevSettingsEnabled(context)
+            isVisible = settingsManager.isDevSettingsEnabled()
         }.also { devSettingPref = it })
     }
 
     fun onStart() {
-        mDevHitCountdown = if (DevSettingsEnabler.isDevSettingsEnabled(context)) {
+        mDevHitCountdown = if (settingsManager.isDevSettingsEnabled()) {
             -1
         } else {
             TAPS_TO_BE_A_DEVELOPER
@@ -73,7 +73,7 @@ class DevSettingsController(private val prefFragment: PreferenceFragmentCompat, 
 
     private fun enableDevSettings() {
         mDevHitCountdown = 0
-        DevSettingsEnabler.setDevSettingsEnabled(context, true)
+        settingsManager.setDevSettingsEnabled(true)
         // Refresh prefs
         prefFragment.activity?.recreate()
     }

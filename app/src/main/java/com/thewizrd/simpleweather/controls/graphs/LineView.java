@@ -649,7 +649,7 @@ public class LineView extends BaseGraphHorizontalScrollView<LineViewData> {
                 for (int i = 0; i < seriesSize; i++) {
                     String title = mData.getDataSetByIndex(i).getSeriesLabel();
                     if (StringUtils.isNullOrWhitespace(title)) {
-                        title = "Series " + i;
+                        title = String.format(LocaleUtils.getLocale(), "%s %d", getContext().getString(R.string.label_series), i);
                     }
 
                     bottomTextPaint.getTextBounds(title, 0, title.length(), r);

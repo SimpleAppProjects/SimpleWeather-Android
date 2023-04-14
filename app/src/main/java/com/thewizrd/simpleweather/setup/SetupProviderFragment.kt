@@ -22,7 +22,6 @@ import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -57,7 +56,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
         settingsManager.setPersonalKey(true)
         if (BuildConfig.IS_NONGMS) {
-            DevSettingsEnabler.setDevSettingsEnabled(requireContext(), true)
+            settingsManager.setDevSettingsEnabled(true)
         }
     }
 

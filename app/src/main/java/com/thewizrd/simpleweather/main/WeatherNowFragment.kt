@@ -452,7 +452,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                 rowSpec = GridLayout.spec(0, GridLayout.CENTER)
             }
 
-            conditionPanelBinding.root.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRIght, oldBottom ->
+            conditionPanelBinding.root.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
                 val rootHeight = bottom - top
                 val oldRootHeight = oldBottom - oldTop
                 val context = view.context

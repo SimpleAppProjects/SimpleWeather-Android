@@ -110,6 +110,9 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
 
     override fun onDestroyView() {
         super.onDestroyView()
+        this.googleMap = null
+        availableRadarFrames.clear()
+        radarLayers.clear()
         radarContainerBinding = null
     }
 

@@ -1166,6 +1166,13 @@ class SettingsFragment : BaseSettingsFragment(),
 
                     // Alert notification
                     if (newValue as Boolean) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (!preference.context.notificationPermissionEnabled()) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                return@OnPreferenceChangeListener false
+                            }
+                        }
+
                         enqueueIntent(
                             Intent(context, WeatherUpdaterWorker::class.java)
                                 .setAction(WeatherUpdaterWorker.ACTION_ENQUEUEWORK)

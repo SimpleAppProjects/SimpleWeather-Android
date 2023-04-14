@@ -3,9 +3,8 @@ package com.thewizrd.shared_resources.weatherdata
 import androidx.annotation.StringDef
 import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.controls.ProviderEntry
+import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationQuery
-import com.thewizrd.shared_resources.preferences.DevSettingsEnabler
-import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 
 object WeatherAPI {
@@ -62,7 +61,7 @@ object WeatherAPI {
     val APIs: Set<ProviderEntry>
         get() {
             return if (BuildConfig.IS_NONGMS) {
-                if (DevSettingsEnabler.isDevSettingsEnabled(sharedDeps.context)) {
+                if (settingsManager.isDevSettingsEnabled()) {
                     NonGMSAPIs.toMutableSet().apply {
                         plusAssign(TestingAPIs)
                     }
@@ -70,7 +69,7 @@ object WeatherAPI {
                     NonGMSAPIs.toSet()
                 }
             } else {
-                if (DevSettingsEnabler.isDevSettingsEnabled(sharedDeps.context)) {
+                if (settingsManager.isDevSettingsEnabled()) {
                     GMSFullAPIs.toMutableSet().apply {
                         plusAssign(TestingAPIs)
                     }
