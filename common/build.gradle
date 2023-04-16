@@ -62,7 +62,7 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$core_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
-    implementation 'androidx.arch.core:core-runtime:2.1.0'
+    implementation "androidx.arch.core:core-runtime:$arch_core_runtime_version"
     implementation "com.google.android.material:material:$material_version"
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
@@ -79,7 +79,7 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glide_version"
     implementation "com.ibm.icu:icu4j:$icu4j_version"
 
-    fullgmsImplementation 'com.google.android.gms:play-services-basement:18.1.0'
+    fullgmsImplementation 'com.google.android.gms:play-services-basement:18.2.0'
     fullgmsImplementation 'com.google.android.gms:play-services-tasks:18.0.2'
     fullgmsImplementation "com.google.android.gms:play-services-location:$gms_location_version"
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:18.0.0'
