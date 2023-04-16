@@ -13,7 +13,9 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:orientation="horizontal"
-        app:cardBackgroundColor="?colorSecondaryContainer">
+        app:cardBackgroundColor="?colorSurfaceVariant"
+        app:cardElevation="@dimen/m3_searchbar_elevation"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.SearchBar">
 
         <LinearLayout
             android:id="@+id/search_box_collapsed"
@@ -30,7 +32,7 @@
                 android:importantForAccessibility="no"
                 android:padding="4dp"
                 app:srcCompat="@drawable/ic_search_white_24dp"
-                app:tint="?colorOnSecondaryContainer" />
+                app:tint="?colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/search_box_start_search"
@@ -40,9 +42,9 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:hint="@string/setup_location_prompt"
-                android:textAppearance="?textAppearanceLabelLarge"
-                android:textColor="?colorOnSecondaryContainer"
-                android:textColorHint="?colorOnSecondaryContainer" />
+                android:textAppearance="@style/TextAppearance.Material3.SearchBar"
+                android:textColor="?colorOnSurfaceVariant"
+                android:textColorHint="?colorOnSurfaceVariant" />
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>

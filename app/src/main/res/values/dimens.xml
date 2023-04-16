@@ -2,7 +2,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
 
-    <dimen name="searchview_height_region_search">48dp</dimen>
+    <dimen name="searchview_height_region_search">@dimen/m3_searchbar_height</dimen> <!-- 56dp -->
 
     <!-- Material dimens -->
     <dimen name="appbar_elevation">4dp</dimen>
