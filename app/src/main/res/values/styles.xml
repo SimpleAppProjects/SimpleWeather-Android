@@ -161,6 +161,16 @@
 
     <style name="CustomPreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
         <item name="sliderPreferenceStyle">@style/Preference.SliderPreference.Material</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.MaterialSwitchCompat</item>
+        <item name="switchPreferenceStyle">@style/Preference.MaterialSwitch</item>
+    </style>
+
+    <style name="Preference.MaterialSwitch" parent="Preference.SwitchPreference.Material">
+        <item name="android:widgetLayout">@layout/preference_widget_materialswitch</item>
+    </style>
+
+    <style name="Preference.MaterialSwitchCompat" parent="Preference.SwitchPreference.Material">
+        <item name="android:widgetLayout">@layout/preference_widget_materialswitch_compat</item>
     </style>
 
     <style name="SetupTheme" parent="AppTheme">
