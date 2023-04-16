@@ -38,7 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Collections
 
 class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
     private var job: Job? = null
@@ -81,12 +81,12 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
             viewLifecycleOwnerLiveData.observe(
                 this@WeatherWidget4x3LocationFragment,
                 object : Observer<LifecycleOwner> {
-                    override fun onChanged(t: LifecycleOwner?) {
+                    override fun onChanged(value: LifecycleOwner) {
                         viewLifecycleOwnerLiveData.removeObserver(this)
                         if (locationPref.values?.contains(Constants.KEY_GPS) == true && !requireContext().backgroundLocationPermissionEnabled()) {
                             binding.bgLocationLayout.visibility = View.VISIBLE
                         }
-                        t?.lifecycleScope?.launchWhenStarted {
+                        value.lifecycleScope.launchWhenStarted {
                             updateWidgetView()
                         }
                     }

@@ -41,7 +41,11 @@ import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.ArrayListPreference
 import com.thewizrd.simpleweather.snackbar.Snackbar
-import com.thewizrd.simpleweather.widgets.*
+import com.thewizrd.simpleweather.widgets.WeatherWidgetProvider
+import com.thewizrd.simpleweather.widgets.WidgetGraphType
+import com.thewizrd.simpleweather.widgets.WidgetType
+import com.thewizrd.simpleweather.widgets.WidgetUpdaterHelper
+import com.thewizrd.simpleweather.widgets.WidgetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -105,7 +109,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             viewLifecycleOwnerLiveData.observe(
                 this@WeatherWidgetPreferenceFragment,
                 object : Observer<LifecycleOwner> {
-                    override fun onChanged(t: LifecycleOwner?) {
+                    override fun onChanged(value: LifecycleOwner) {
                         viewLifecycleOwnerLiveData.removeObserver(this)
                         if (locationPref.value == Constants.KEY_GPS && !requireContext().backgroundLocationPermissionEnabled()) {
                             binding.bgLocationLayout.visibility = View.VISIBLE

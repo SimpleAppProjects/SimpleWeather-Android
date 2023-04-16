@@ -32,6 +32,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okio.Buffer
 import timber.log.Timber
@@ -136,6 +138,7 @@ class SettingsManager(context: Context) {
         // Weather Data
         private var lastGPSLocData: LocationData? = null
         private var loaded: Boolean = false
+        private val mutex = Mutex()
 
         fun isLoaded() = loaded
     }
@@ -148,11 +151,12 @@ class SettingsManager(context: Context) {
         return WeatherDatabase.getInstance(appContext)
     }
 
-    @Synchronized
-    suspend fun loadIfNeeded() = withContext(Dispatchers.IO) {
-        if (!loaded) {
-            load()
-            loaded = true
+    suspend fun loadIfNeeded() = mutex.withLock {
+        withContext(Dispatchers.IO) {
+            if (!loaded) {
+                load()
+                loaded = true
+            }
         }
     }
 

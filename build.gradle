@@ -21,7 +21,7 @@ buildscript {
         core_version = '1.10.0'
         arch_core_runtime_version = '2.2.0'
         fragment_version = '1.5.6'
-        lifecycle_version = '2.5.1'
+        lifecycle_version = '2.6.1'
         nav_version = '2.5.3'
         paging_version = '3.1.1'
         preference_version = '1.2.0'

@@ -5,10 +5,31 @@ import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +52,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.*
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CircularProgressIndicator
+import androidx.wear.compose.material.CompactButton
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
 import com.google.accompanist.flowlayout.FlowCrossAxisAlignment
@@ -39,7 +68,11 @@ import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
-import com.thewizrd.common.controls.*
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
+import com.thewizrd.common.controls.WeatherAlertViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -52,7 +85,12 @@ import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.setup.SetupActivity
-import com.thewizrd.simpleweather.ui.components.*
+import com.thewizrd.simpleweather.ui.components.ForecastItem
+import com.thewizrd.simpleweather.ui.components.HourlyForecastItem
+import com.thewizrd.simpleweather.ui.components.IconAlignment
+import com.thewizrd.simpleweather.ui.components.LoadingContent
+import com.thewizrd.simpleweather.ui.components.WearDivider
+import com.thewizrd.simpleweather.ui.components.WeatherIcon
 import com.thewizrd.simpleweather.ui.navigation.Screen
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 import com.thewizrd.simpleweather.ui.theme.findActivity
@@ -754,7 +792,7 @@ private fun SettingsButton(
 private fun OpenOnPhoneButton() {
     NavigationButton(
         label = stringResource(id = R.string.action_openonphone),
-        iconDrawableId = R.drawable.open_on_phone
+        iconDrawableId = R.drawable.common_full_open_on_phone
     ) {
         localBroadcastManager.sendBroadcast(
             Intent(WearableListenerActivity.ACTION_OPENONPHONE)

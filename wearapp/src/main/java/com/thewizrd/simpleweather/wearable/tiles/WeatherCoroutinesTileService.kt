@@ -13,7 +13,7 @@ import androidx.wear.tiles.ResourceBuilders.Resources
 import androidx.wear.tiles.TileBuilders.Tile
 import androidx.wear.tiles.TimelineBuilders.Timeline
 import androidx.wear.tiles.TimelineBuilders.TimelineEntry
-import com.google.android.horologist.tiles.ExperimentalHorologistTilesApi
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
 import com.google.android.horologist.tiles.images.toImageResource
 import com.thewizrd.common.utils.ImageUtils
@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 
 internal const val ID_WEATHER_ICON_PREFIX = "weather_icon:"
 
-@OptIn(ExperimentalHorologistTilesApi::class)
+@OptIn(ExperimentalHorologistApi::class)
 abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     companion object {
         /**

@@ -87,6 +87,7 @@ class LaunchActivity : ComponentActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == INSTALL_REQUESTCODE) {
             if (resultCode != RESULT_OK) {

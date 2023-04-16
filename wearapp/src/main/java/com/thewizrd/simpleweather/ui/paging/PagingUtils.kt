@@ -5,9 +5,9 @@ import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.paging.compose.LazyPagingItems
-import androidx.wear.compose.material.ScalingLazyListItemScope
-import androidx.wear.compose.material.ScalingLazyListScope
-import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 
 fun <T : Any> ScalingLazyListScope.items(
     items: LazyPagingItems<T>,
