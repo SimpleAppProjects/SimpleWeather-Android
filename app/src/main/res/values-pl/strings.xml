@@ -103,8 +103,10 @@
 
     <!-- Example: 80% chance of rain in 2 hours
 (%1$d) -> Percentage | (%2$s) -> Time in minutes or hours -->
-    <string name="precipitation_text_format">"%1$d%% szans na deszcz w ciągu %2$s"</string>
-    <string name="precipitation_nexthour_text_format">"%1$d%% szans na deszcz w ciągu najbliższej godziny"</string>
+    <string name="precipitation_text_format">"%1$d%% szans na opady w ciągu %2$s"</string>
+
+    <!-- Changed to "Percipation" in translation, because this string applies also to other type of percip. -->
+    <string name="precipitation_nexthour_text_format">"%1$d%% szans na opady w ciągu najbliższej godziny"</string>
 
     <!-- Weather Summary or Weather Overview -->
     <!-- Fuzzy -->
@@ -133,6 +135,6 @@
     <string name="pref_category_customsize">"Rozmiar ikony i czcionki"</string>
     <string name="pref_title_textsize">"Rozmiar czcionki"</string>
     <string name="pref_title_iconsize">"Rozmiar ikony"</string>
-    <string name="precipitation_minutely_starting_text_format">"Deszcz zacznie padać za około %1$s"</string>
-    <string name="precipitation_minutely_stopping_text_format">"Deszcz przestanie padać za około %1$s"</string>
+    <string name="precipitation_minutely_starting_text_format">"Opady rozpoczną się za około %1$s"</string>
+    <string name="precipitation_minutely_stopping_text_format">"Opady zakończą się za około %1$s"</string>
 </resources>

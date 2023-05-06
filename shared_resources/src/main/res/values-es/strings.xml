@@ -229,4 +229,6 @@
     <string name="label_minutelyforecast">"Previsión de minutos"</string>
     <string name="hint_username">"Nombre de usuario"</string>
     <string name="hint_password">"Contraseña"</string>
+    <string name="pref_title_privacypolicy">"Política de privacidad"</string>
+    <string name="pref_title_termsofservice">"Zmluvné podmienky"</string>
 </resources>

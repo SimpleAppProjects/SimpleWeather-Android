@@ -200,4 +200,6 @@
     <string name="label_minutelyforecast">"Minuut Voorspelling"</string>
     <string name="hint_username">"Gebruikersnaam"</string>
     <string name="hint_password">"Wachtwoord"</string>
+    <string name="pref_title_privacypolicy">"Privacybeleid"</string>
+    <string name="pref_title_termsofservice">"Servicevoorwaarden"</string>
 </resources>

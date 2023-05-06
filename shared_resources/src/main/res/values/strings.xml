@@ -225,5 +225,7 @@
     <string name="hint_appcode" translatable="false">App Code/Key</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
+    <string name="pref_title_privacypolicy">Privacy Policy</string>
+    <string name="pref_title_termsofservice">Terms of Service</string>
 
 </resources>

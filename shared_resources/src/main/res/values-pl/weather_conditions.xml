@@ -34,7 +34,7 @@
     <string name="weather_isotstorms">"Lokalne burze z piorunami"</string>
     <string name="weather_scatteredtstorms">"Rozproszone burze z piorunami"</string>
     <string name="weather_scatteredshowers">"Rozproszone przelotne opady"</string>
-    <string name="weather_heavysnow">"Obfite opady śniegu"</string>
+    <string name="weather_heavysnow">"Silne opady śniegu"</string>
     <string name="weather_fog">"Mgła"</string>
     <string name="weather_lightrain">"Lekki deszcz"</string>
     <string name="weather_rain">"Deszcz"</string>

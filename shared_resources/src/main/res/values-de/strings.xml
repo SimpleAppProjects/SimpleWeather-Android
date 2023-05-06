@@ -242,4 +242,6 @@ Minute-by-Minute Forecast -->
     <string name="label_minutelyforecast">"Vorhersage im Minutentakt"</string>
     <string name="hint_username">"Nutzername"</string>
     <string name="hint_password">"Passwort"</string>
+    <string name="pref_title_privacypolicy">"Datenschutzerklärung"</string>
+    <string name="pref_title_termsofservice">"Nutzungsbedingungen"</string>
 </resources>

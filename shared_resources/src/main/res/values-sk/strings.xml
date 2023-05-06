@@ -200,4 +200,6 @@
     <string name="label_minutelyforecast">"Minútová predpoveď"</string>
     <string name="hint_username">"Používateľské meno"</string>
     <string name="hint_password">"Heslo"</string>
+    <string name="pref_title_privacypolicy">"Pravidlá ochrany súkromia"</string>
+    <string name="pref_title_termsofservice">"Podmienky služby"</string>
 </resources>

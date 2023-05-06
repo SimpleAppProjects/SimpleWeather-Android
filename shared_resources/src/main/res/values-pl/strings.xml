@@ -89,8 +89,6 @@
     <string name="pref_summary_alerts_disabled">"Ten dostawca pogody nie oferuje alarmów pogodowych"</string>
     <string name="pref_title_apiregister">"Utwórz konto"</string>
     <string name="pref_summary_apiregister">"Utwórz konto aby zarejestrować klucz"</string>
-
-    <!-- Fuzzy -->
     <string name="error_message_weather_region_unsupported">"Ten kraj nie jest obsługiwany przez tego dostawcę usług pogodowych"</string>
 
     <!-- Locations -->
@@ -205,4 +203,6 @@
     <string name="label_minutelyforecast">"Prognoza minutowa"</string>
     <string name="hint_username">"Nazwa użytkownika"</string>
     <string name="hint_password">"Hasło"</string>
+    <string name="pref_title_privacypolicy">"Polityka prywatności"</string>
+    <string name="pref_title_termsofservice">"Warunki korzystania z usługi"</string>
 </resources>
