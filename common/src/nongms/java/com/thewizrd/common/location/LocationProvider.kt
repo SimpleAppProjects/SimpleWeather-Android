@@ -149,7 +149,7 @@ class LocationProvider(private val context: Context) {
                     )
                 ) < 1600
             ) {
-                return LocationResult.NotChanged(previousLocation)
+                return LocationResult.NotChanged(lastGPSLocData)
             }
 
             val wm = weatherModule.weatherManager

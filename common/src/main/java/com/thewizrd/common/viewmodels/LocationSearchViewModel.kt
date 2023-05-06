@@ -19,7 +19,11 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -114,12 +118,23 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
                 is LocationResult.Changed -> {
                     currentLocation = result.data
                 }
+
+                is LocationResult.NotChanged -> {
+                    if (result.data?.isValid == true) {
+                        currentLocation = result.data
+                    } else {
+                        postErrorMessage(R.string.error_retrieve_location)
+                    }
+                }
+
                 is LocationResult.PermissionDenied -> {
                     postErrorMessage(R.string.error_location_denied)
                 }
+
                 is LocationResult.Error -> {
                     postErrorMessage(result.errorMessage)
                 }
+
                 else -> {
                     postErrorMessage(R.string.error_retrieve_location)
                 }
