@@ -161,17 +161,17 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val query = try {
-                    String.format(Locale.ROOT, "id=%d", location_query.toInt())
-                } catch (ex: NumberFormatException) {
-                    location_query
+            val query = try {
+                String.format(Locale.ROOT, "id=%d", location.query.toInt())
+            } catch (ex: NumberFormatException) {
+                updateLocationQuery(location)
                 }
 
                 val key =
@@ -229,7 +229,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
 
-                    weather.query = location_query
+                    weather.query = location.query
                 }
 
                 if (wEx != null) throw wEx

@@ -105,19 +105,20 @@ class MeteoFranceProvider : WeatherProviderImpl() {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
             // MeteoFrance only supports locations in France
-            if (!LocationUtils.isFrance(country_code)) {
+            if (!LocationUtils.isFrance(location.countryCode)) {
                 throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
-                    initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${country_code})"))
+                    initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${location.countryCode})"))
                 }
             }
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
             val key = getAPIKey()
 
@@ -137,11 +138,11 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
-                    .url(String.format(CURRENT_QUERY_URL, location_query, locale, key))
+                    .url(String.format(CURRENT_QUERY_URL, query, locale, key))
                     .build()
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                    .url(String.format(FORECAST_QUERY_URL, location_query, locale, key))
+                    .url(String.format(FORECAST_QUERY_URL, query, locale, key))
                     .build()
 
                 // Connect to webstream
@@ -212,7 +213,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             } else if (weather != null) {
                 if (supportsWeatherLocale()) weather.locale = locale
 
-                weather.query = location_query
+                weather.query = query
             }
 
             if (wEx != null) throw wEx

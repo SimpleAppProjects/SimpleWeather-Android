@@ -159,12 +159,13 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
             val key =
                 if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
@@ -184,11 +185,11 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
-                    .url(String.format(CURRENT_QUERY_URL, location_query, locale, key))
+                    .url(String.format(CURRENT_QUERY_URL, query, locale, key))
                     .build()
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                    .url(String.format(FORECAST_QUERY_URL, location_query, locale, key))
+                    .url(String.format(FORECAST_QUERY_URL, query, locale, key))
                     .build()
 
                 // Connect to webstream
@@ -237,7 +238,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             } else if (weather != null) {
                 if (supportsWeatherLocale()) weather.locale = locale
 
-                weather.query = location_query
+                weather.query = query
             }
 
             if (wEx != null) throw wEx

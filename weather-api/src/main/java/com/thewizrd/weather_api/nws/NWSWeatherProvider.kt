@@ -89,32 +89,34 @@ class NWSWeatherProvider : WeatherProviderImpl() {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                // NWS only supports locations in U.S.
-                if (!LocationUtils.isUS(country_code)) {
-                    throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
-                        initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${country_code})"))
-                    }
+            // NWS only supports locations in U.S.
+            if (!LocationUtils.isUS(location.countryCode)) {
+                throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
+                    initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${location.countryCode})"))
                 }
+            }
 
-                val client = sharedDeps.httpClient
-                var observationResponse: Response? = null
-                var forecastResponse: Response? = null
-                var wEx: WeatherException? = null
+            val query = updateLocationQuery(location)
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit()
+            val client = sharedDeps.httpClient
+            var observationResponse: Response? = null
+            var forecastResponse: Response? = null
+            var wEx: WeatherException? = null
+
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
 
                     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
                     val version = String.format("v%s", packageInfo.versionName)
 
                     val observationRequest = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
-                        .url(String.format(FORECAST_QUERY_URL, location_query))
+                        .url(String.format(FORECAST_QUERY_URL, query))
                             .addHeader("Accept", "application/ld+json")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                             .build()
@@ -133,7 +135,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                     observationStream.closeQuietly()
 
                     val hrForecastRequest = Request.Builder()
-                        .url(String.format(HRFORECAST_QUERY_URL, location_query))
+                        .url(String.format(HRFORECAST_QUERY_URL, query))
                         .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                         .addHeader("Accept", "application/ld+json")
                         .addHeader(
@@ -170,7 +172,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
                 if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
-                    weather.query = location_query
+                    weather.query = query
                 }
 
                 if (wEx != null) throw wEx

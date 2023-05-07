@@ -36,9 +36,6 @@ interface WeatherProvider {
     suspend fun getLocation(location: Location): LocationQuery?
 
     @Throws(WeatherException::class)
-    suspend fun getWeather(location_query: String, country_code: String): Weather
-
-    @Throws(WeatherException::class)
     suspend fun getWeather(location: LocationData?): Weather
 
     suspend fun getAlerts(location: LocationData): Collection<WeatherAlert>?

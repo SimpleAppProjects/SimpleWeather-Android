@@ -102,13 +102,14 @@ class WeatherKitProvider : WeatherProviderImpl() {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
             var wEx: WeatherException? = null
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
             val client = sharedDeps.httpClient
             var response: Response? = null
@@ -128,13 +129,13 @@ class WeatherKitProvider : WeatherProviderImpl() {
                 val requestUri = Uri.parse(BASE_URL).buildUpon()
                     .appendPath("weather")
                     .appendPath(locale)
-                    .appendPath(location_query)
-                    .appendQueryParameter("countryCode", country_code)
+                    .appendEncodedPath(query)
+                    .appendQueryParameter("countryCode", location.countryCode)
                     .appendQueryParameter(
                         "dataSets",
                         "currentWeather,forecastDaily,forecastHourly,forecastNextHour,weatherAlerts"
                     )
-                    .appendQueryParameter("timezone", "UTC")
+                    .appendQueryParameter("timezone", location.tzLong)
                     .build()
 
                 val request = Request.Builder()
@@ -178,7 +179,7 @@ class WeatherKitProvider : WeatherProviderImpl() {
             } else if (weather != null) {
                 if (supportsWeatherLocale()) weather.locale = locale
 
-                weather.query = location_query
+                weather.query = query
             }
 
             if (wEx != null) throw wEx

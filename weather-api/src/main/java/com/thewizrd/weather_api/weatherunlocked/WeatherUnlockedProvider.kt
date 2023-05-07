@@ -99,12 +99,13 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
         get() = Keys.getWUnlockedKey()
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
             val client = sharedDeps.httpClient
             var currentResponse: Response? = null
@@ -118,28 +119,12 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
                     .addHeader("Accept", "application/json")
-                    .url(
-                        String.format(
-                            CURRENT_QUERY_URL,
-                            location_query,
-                            appID,
-                            appKey,
-                            locale
-                        )
-                    )
+                    .url(String.format(CURRENT_QUERY_URL, query, appID, appKey, locale))
                     .build()
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                     .addHeader("Accept", "application/json")
-                    .url(
-                        String.format(
-                            FORECAST_QUERY_URL,
-                            location_query,
-                            appID,
-                            appKey,
-                            locale
-                        )
-                    )
+                    .url(String.format(FORECAST_QUERY_URL, query, appID, appKey, locale))
                     .build()
 
                 // Connect to webstream
@@ -192,7 +177,7 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
             } else if (weather != null) {
                 if (supportsWeatherLocale()) weather.locale = locale
 
-                weather.query = location_query
+                weather.query = query
             }
 
             if (wEx != null) throw wEx

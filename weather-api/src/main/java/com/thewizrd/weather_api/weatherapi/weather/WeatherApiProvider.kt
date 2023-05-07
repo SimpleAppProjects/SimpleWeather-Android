@@ -155,15 +155,16 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
-                val key =
-                    if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
+            val key =
+                if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
 
                 val client = sharedDeps.httpClient
                 var response: Response? = null
@@ -179,7 +180,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
 
                     val request = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
-                        .url(String.format(WEATHER_QUERY_URL, location_query, locale, key))
+                        .url(String.format(WEATHER_QUERY_URL, query, locale, key))
                         .build()
 
                     // Connect to webstream
@@ -217,7 +218,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
 
-                    weather.query = location_query
+                    weather.query = query
                 }
 
                 if (wEx != null) throw wEx

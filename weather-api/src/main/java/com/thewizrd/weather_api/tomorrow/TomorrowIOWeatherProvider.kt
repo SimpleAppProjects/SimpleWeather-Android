@@ -160,15 +160,16 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
-                val key =
-                    if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
+            val key =
+                if (settingsManager.usePersonalKey()) settingsManager.getAPIKey(getWeatherAPI()) else getAPIKey()
 
                 val client = sharedDeps.httpClient
                 var response: Response? = null
@@ -186,7 +187,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
                     val requestUri = Uri.parse(BASE_URL).buildUpon()
                         .appendQueryParameter("apikey", key)
-                        .appendQueryParameter("location", location_query)
+                        .appendQueryParameter("location", query)
                         .appendQueryParameter(
                             "fields",
                             "temperature,temperatureApparent,temperatureMin,temperatureMax,dewPoint,humidity,windSpeed,windDirection,windGust,pressureSeaLevel,precipitationIntensity,precipitationProbability,snowAccumulation,sunriseTime,sunsetTime,visibility,cloudCover,moonPhase,weatherCode,weatherCodeFullDay,weatherCodeDay,weatherCodeNight,treeIndex,grassIndex,weedIndex,epaIndex,particulateMatter25,particulateMatter10,pollutantO3,pollutantNO2,pollutantCO,pollutantSO2"
@@ -203,8 +204,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                         .build()
 
                     val minutelyRequestUri = Uri.parse(BASE_URL).buildUpon()
-                            .appendQueryParameter("apikey", key)
-                            .appendQueryParameter("location", location_query)
+                        .appendQueryParameter("apikey", key)
+                        .appendQueryParameter("location", query)
                             .appendQueryParameter("fields", "precipitationIntensity,precipitationProbability")
                             .appendQueryParameter("timesteps", "1m")
                             .appendQueryParameter("units", "metric")
@@ -219,7 +220,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
                     val alertsRequestUri = Uri.parse(EVENTS_BASE_URL).buildUpon()
                         .appendQueryParameter("apikey", key)
-                        .appendQueryParameter("location", location_query)
+                        .appendQueryParameter("location", query)
                         .appendQueryParameter("insights", "air")
                         .appendQueryParameter("insights", "fires")
                         .appendQueryParameter("insights", "wind")
@@ -290,7 +291,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                 } else if (weather != null) {
                     if (supportsWeatherLocale()) weather.locale = locale
 
-                    weather.query = location_query
+                    weather.query = query
                 }
 
                 if (wEx != null) throw wEx

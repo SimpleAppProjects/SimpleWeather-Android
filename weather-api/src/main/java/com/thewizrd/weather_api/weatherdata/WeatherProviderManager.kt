@@ -117,12 +117,6 @@ class WeatherProviderManager internal constructor() : WeatherProvider {
 
     @WorkerThread
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather {
-        return _weatherProvider!!.getWeather(location_query, country_code)
-    }
-
-    @WorkerThread
-    @Throws(WeatherException::class)
     override suspend fun getWeather(location: LocationData?): Weather {
         return _weatherProvider!!.getWeather(location)
     }

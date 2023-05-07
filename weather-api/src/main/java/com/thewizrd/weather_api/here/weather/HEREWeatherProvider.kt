@@ -94,16 +94,17 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
             val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
             val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val query = updateLocationQuery(location)
 
             val client = sharedDeps.httpClient
-                var response: Response? = null
-                var wEx: WeatherException? = null
+            var response: Response? = null
+            var wEx: WeatherException? = null
 
                 try {
                     // If were under rate limit, deny request
@@ -117,10 +118,10 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                         }
                     }
 
-                    val url = if (LocationUtils.isUSorCanada(country_code)) {
-                        String.format(WEATHER_US_CA_QUERY_URL, location_query, locale)
+                    val url = if (LocationUtils.isUSorCanada(location.countryCode)) {
+                        String.format(WEATHER_US_CA_QUERY_URL, query, locale)
                     } else {
-                        String.format(WEATHER_GLOBAL_QUERY_URL, location_query, locale)
+                        String.format(WEATHER_GLOBAL_QUERY_URL, query, locale)
                     }
 
                     val request = Request.Builder()
@@ -177,7 +178,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     if (supportsWeatherLocale())
                         weather.locale = locale
 
-                    weather.query = location_query
+                    weather.query = query
                 }
 
                 if (wEx != null) throw wEx

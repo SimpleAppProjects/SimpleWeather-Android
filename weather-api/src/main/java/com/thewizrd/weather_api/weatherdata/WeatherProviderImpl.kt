@@ -113,14 +113,12 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
     /**
      * Retrieve weather data from the weather provider
      *
-     * @param location_query Location query to retrieve weather data;
-     * Query string is defined in [LocationQuery.updateLocationQuery]
-     * @param country_code   Country code for the location defined by location_query parameter
+     * @param location Location Data object
      * @return Weather data object
      * @throws WeatherException Weather Exception
      */
     @Throws(WeatherException::class)
-    abstract override suspend fun getWeather(location_query: String, country_code: String): Weather
+    protected abstract suspend fun getWeatherData(location: LocationData): Weather
 
     /**
      * This method is used to update the weather data retrieved with the query
@@ -141,7 +139,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 initCause(IllegalArgumentException("location?.query"))
             }
 
-        val weather = getWeather(updateLocationQuery(location), location.countryCode)
+        val weather = getWeatherData(location)
 
         if (location.tzLong.isNullOrBlank()) {
             if (!weather.location.tzLong.isNullOrBlank()) {

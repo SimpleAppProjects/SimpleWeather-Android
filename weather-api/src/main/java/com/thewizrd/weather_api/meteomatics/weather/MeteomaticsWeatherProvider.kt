@@ -46,7 +46,7 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class MeteomaticsWeatherProvider : WeatherProviderImpl() {
@@ -147,7 +147,7 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
         return AuthType.BASIC
     }
 
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
+    override suspend fun getWeatherData(location: LocationData): Weather =
         withContext(Dispatchers.IO) {
             var weather: Weather?
 
@@ -162,6 +162,8 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                 throw WeatherException(ErrorStatus.INVALIDAPIKEY)
             }
 
+            val query = updateLocationQuery(location)
+
             val client = sharedDeps.httpClient
             var wEx: WeatherException? = null
 
@@ -171,17 +173,17 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
 
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
-                    .url(createCurrentRequestUri(location_query).toString())
+                    .url(createCurrentRequestUri(query).toString())
                     .header("Authorization", key!!)
                     .build()
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                    .url(createDailyRequestUri(location_query).toString())
+                    .url(createDailyRequestUri(query).toString())
                     .header("Authorization", key)
                     .build()
                 val hourlyRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 3, TimeUnit.HOURS)
-                    .url(createHourlyRequestUri(ZonedDateTime.now(), location_query).toString())
+                    .url(createHourlyRequestUri(ZonedDateTime.now(), query).toString())
                     .header("Authorization", key)
                     .build()
 
@@ -233,7 +235,7 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
             if (wEx == null && weather.isNullOrInvalid()) {
                 wEx = WeatherException(ErrorStatus.NOWEATHER)
             } else if (weather != null) {
-                weather.query = location_query
+                weather.query = query
             }
 
             if (wEx != null) throw wEx

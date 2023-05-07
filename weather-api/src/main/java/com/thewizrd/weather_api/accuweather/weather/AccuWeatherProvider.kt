@@ -138,17 +138,17 @@ class AccuWeatherProvider : WeatherProviderImpl() {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
-                val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
+            val uLocale = ULocale.forLocale(LocaleUtils.getLocale())
+            val locale = localeToLangCode(uLocale.language, uLocale.toLanguageTag())
 
-                val client = sharedDeps.httpClient
-                var wEx: WeatherException? = null
+            val client = sharedDeps.httpClient
+            var wEx: WeatherException? = null
 
-                try {
+            try {
                     // If were under rate limit, deny request
                     checkRateLimit()
 
@@ -162,7 +162,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     }
 
                     val request5dayUri = Uri.parse(DAILY_5DAY_FORECAST_URL).buildUpon()
-                            .appendPath(location_query)
+                        .appendPath(location.query)
                             .appendQueryParameter("apikey", key)
                             .appendQueryParameter("language", locale)
                             .appendQueryParameter("details", "true")
@@ -174,7 +174,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .build()
 
                     val requestHourlyUri = Uri.parse(HOURLY_12HR_FORECAST_URL).buildUpon()
-                            .appendPath(location_query)
+                        .appendPath(location.query)
                             .appendQueryParameter("apikey", key)
                             .appendQueryParameter("language", locale)
                             .appendQueryParameter("details", "true")
@@ -186,7 +186,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                             .build()
 
                     val requestCurrentUri = Uri.parse(CURRENT_CONDITIONS_URL).buildUpon()
-                            .appendPath(location_query)
+                        .appendPath(location.query)
                             .appendQueryParameter("apikey", key)
                             .appendQueryParameter("language", locale)
                             .appendQueryParameter("details", "true")
@@ -253,7 +253,7 @@ class AccuWeatherProvider : WeatherProviderImpl() {
                     if (supportsWeatherLocale())
                         weather.locale = locale
 
-                    weather.query = location_query
+                    weather.query = location.query
                 }
 
                 if (wEx != null) throw wEx

@@ -81,24 +81,26 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
     }
 
     @Throws(WeatherException::class)
-    override suspend fun getWeather(location_query: String, country_code: String): Weather =
-            withContext(Dispatchers.IO) {
-                var weather: Weather?
+    override suspend fun getWeatherData(location: LocationData): Weather =
+        withContext(Dispatchers.IO) {
+            var weather: Weather?
 
-                var forecastResponse: okhttp3.Response? = null
-                var sunriseResponse: okhttp3.Response? = null
-                var wEx: WeatherException? = null
+            var forecastResponse: okhttp3.Response? = null
+            var sunriseResponse: okhttp3.Response? = null
+            var wEx: WeatherException? = null
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit()
+            val query = updateLocationQuery(location)
 
-                    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-                    val version = String.format("v%s", packageInfo.versionName)
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
 
-                    val forecastRequest = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
-                        .url(String.format(FORECAST_QUERY_URL, location_query))
+                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                val version = String.format("v%s", packageInfo.versionName)
+
+                val forecastRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
+                    .url(String.format(FORECAST_QUERY_URL, query))
                             .addHeader("Accept-Encoding", "gzip")
                             .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
                             .build()
@@ -106,7 +108,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
                     val sunriseRequest = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
-                        .url(String.format(SUNRISE_QUERY_URL, location_query, date))
+                        .url(String.format(SUNRISE_QUERY_URL, query, date))
                         .addHeader("Accept-Encoding", "gzip")
                         .addHeader(
                             "User-Agent",
@@ -156,7 +158,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 if (wEx == null && weather.isNullOrInvalid()) {
                     wEx = WeatherException(ErrorStatus.NOWEATHER)
                 } else if (weather != null) {
-                    weather.query = location_query
+                    weather.query = query
                 }
 
                 if (wEx != null) throw wEx
