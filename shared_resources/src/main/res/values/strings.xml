@@ -14,6 +14,7 @@
     <string name="api_wunlocked" translatable="false">WeatherUnlocked</string>
     <string name="api_weatherapi" translatable="false">WeatherAPI.com</string>
     <string name="api_tomorrowio" translatable="false">Tomorrow.io</string>
+    <string name="api_apple_weather" translatable="false">Apple Weather</string>
     <string name="radar_earthnullschool" translatable="false">EarthWindMap Project</string>
     <string name="radar_rainviewer" translatable="false">RainViewer</string>
     <string name="label_gpsfollow">Current Location</string>
@@ -98,6 +99,9 @@
     <string name="summary_default">Default</string>
     <string name="copyright_here" translatable="false">
         The HERE Logo is a trademark or registered trademark of HERE Global B.V.
+    </string>
+    <string name="copyright_apple_weather" translatable="false">
+        Apple Weather and (Apple) Weather are trademarks of Apple Inc.
     </string>
     <string name="pref_summary_currentlocation">Allow access to current location via GPS</string>
     <string name="pref_summary_apikey">Enter Provider Key required for %1$s</string>

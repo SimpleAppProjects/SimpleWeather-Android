@@ -10,6 +10,12 @@
         <Preference android:layout="@layout/credit_here">
             <intent android:data="https://here.com/en" />
         </Preference>
+        <com.thewizrd.simpleweather.preferences.WearPreference
+            android:summary="@string/copyright_apple_weather"
+            android:title="@string/api_apple_weather" />
+        <Preference android:layout="@layout/credit_apple_weather">
+            <intent android:data="https://weatherkit.apple.com/legal-attribution.html" />
+        </Preference>
         <com.thewizrd.simpleweather.preferences.WearPreference android:title="@string/api_metno" />
         <Preference android:layout="@layout/credit_metno">
             <intent android:data="https://www.met.no/en" />

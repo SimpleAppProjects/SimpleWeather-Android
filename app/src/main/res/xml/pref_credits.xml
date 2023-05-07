@@ -11,6 +11,14 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://here.com/en" />
         </Preference>
+        <Preference
+            android:summary="@string/copyright_apple_weather"
+            android:title="@string/api_apple_weather" />
+        <Preference android:layout="@layout/credit_apple_weather">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://weatherkit.apple.com/legal-attribution.html" />
+        </Preference>
         <Preference android:title="@string/api_metno" />
         <Preference android:layout="@layout/credit_metno">
             <intent
