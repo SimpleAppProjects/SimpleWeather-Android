@@ -24,7 +24,7 @@ import okhttp3.internal.closeQuietly
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 class HEREOAuthServiceImpl : HEREOAuthService {
     companion object {
@@ -106,7 +106,9 @@ class HEREOAuthServiceImpl : HEREOAuthService {
                     JSONParser.deserializer<Token>(tokenJSON, Token::class.java)
                 }
 
-                if (token != null && token.expirationDate.plusSeconds(-90).isAfter(ZonedDateTime.now(ZoneOffset.UTC))) {
+                if (token != null && token.expirationDate.minusSeconds(90)
+                        .isAfter(ZonedDateTime.now(ZoneOffset.UTC))
+                ) {
                     return token.access_token
                 }
             }

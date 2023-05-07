@@ -28,6 +28,11 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
+            externalNativeBuild {
+                ndkBuild {
+                    arguments "DEBUG=true"
+                }
+            }
         }
         release {
             minifyEnabled true
@@ -107,6 +112,13 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.ibm.icu:icu4j:$icu4j_version"
+
+    // JWT
+    api 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly('io.jsonwebtoken:jjwt-orgjson:0.11.5') {
+        exclude group: 'org.json', module: 'json' //provided by Android natively
+    }
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"

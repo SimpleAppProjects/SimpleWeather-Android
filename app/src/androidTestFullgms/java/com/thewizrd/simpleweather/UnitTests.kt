@@ -526,4 +526,16 @@ class UnitTests {
 
         assertTrue(zStr == "Asia/Qostanay" || zStr == "GMT+06:00")
     }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getWeatherKitWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider =
+                weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
+            val weather =
+                getWeather(provider, Coordinate(34.0207305, -118.6919157))
+            assertTrue(weather.isValid && WeatherUiModel(weather).isValid)
+        }
+    }
 }

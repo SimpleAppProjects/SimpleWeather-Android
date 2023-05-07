@@ -21,6 +21,7 @@ object WeatherAPI {
     const val ACCUWEATHER = "accuweather"
     const val WEATHERBITIO = "weatherbitio"
     const val METEOMATICS = "meteomatics"
+    const val APPLE = "apple"
 
     // Location APIs
     const val ANDROID = "android"
@@ -49,7 +50,8 @@ object WeatherAPI {
         TOMORROWIO,
         ACCUWEATHER,
         WEATHERBITIO,
-        METEOMATICS
+        METEOMATICS,
+        APPLE
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
@@ -132,6 +134,12 @@ object WeatherAPI {
                 METEOMATICS,
                 "https://www.meteomatics.com/",
                 "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
+            ),
+            ProviderEntry(
+                "Apple Weather",
+                APPLE,
+                "https://developer.apple.com/weatherkit/",
+                "https://developer.apple.com/weatherkit/"
             )
         )
     }

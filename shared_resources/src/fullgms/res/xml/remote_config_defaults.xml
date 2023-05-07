@@ -111,6 +111,16 @@
         </value>
     </entry>
     <entry>
+        <key>apple</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "google",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
         <value>weatherapi</value>
     </entry>

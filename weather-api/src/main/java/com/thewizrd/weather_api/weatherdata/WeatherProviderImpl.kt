@@ -141,7 +141,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                 initCause(IllegalArgumentException("location?.query"))
             }
 
-        val weather = getWeather(location.query, location.countryCode)
+        val weather = getWeather(updateLocationQuery(location), location.countryCode)
 
         if (location.tzLong.isNullOrBlank()) {
             if (!weather.location.tzLong.isNullOrBlank()) {

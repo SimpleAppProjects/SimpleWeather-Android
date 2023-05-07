@@ -16,6 +16,7 @@ import com.thewizrd.weather_api.openweather.weather.onecall.OWMOneCallWeatherPro
 import com.thewizrd.weather_api.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.weather_api.weatherapi.weather.WeatherApiProvider
 import com.thewizrd.weather_api.weatherbit.WeatherBitIOProvider
+import com.thewizrd.weather_api.weatherkit.WeatherKitProvider
 import com.thewizrd.weather_api.weatherunlocked.WeatherUnlockedProvider
 
 class WeatherProviderFactoryImpl : WeatherProviderFactory {
@@ -46,6 +47,7 @@ class WeatherProviderFactoryImpl : WeatherProviderFactory {
             WeatherAPI.ACCUWEATHER -> AccuWeatherProvider()
             WeatherAPI.WEATHERBITIO -> WeatherBitIOProvider()
             WeatherAPI.METEOMATICS -> MeteomaticsWeatherProvider()
+            WeatherAPI.APPLE -> WeatherKitProvider()
             else -> {
                 if (!BuildConfig.DEBUG) {
                     if (!BuildConfig.IS_NONGMS)

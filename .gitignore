@@ -16,6 +16,7 @@ API_KEY.txt
 .cxx
 /weather-api/src/main/jni/fullgms
 /weather-api/src/fullgms/java/com/thewizrd/weather_api/keys/Keys.java
+/weather-api/src/fullgms/java/com/thewizrd/weather_api/keys/WeatherKitConfig.kt
 /app/debug
 /app/release
 /app/fullgms
