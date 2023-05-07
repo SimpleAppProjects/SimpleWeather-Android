@@ -37,6 +37,10 @@ fun isWeatherAPISupported(api: String?): Boolean {
     return true
 }
 
+fun isPremiumWeatherAPI(api: String?): Boolean {
+    return false
+}
+
 fun BaseSettingsFragment.navigateToPremiumFragment() {
     // no-op
 }

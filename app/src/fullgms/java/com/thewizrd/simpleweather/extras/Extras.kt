@@ -59,6 +59,10 @@ fun isWeatherAPISupported(api: String?): Boolean {
     return extrasModule.isWeatherAPISupported(api)
 }
 
+fun isPremiumWeatherAPI(api: String?): Boolean {
+    return extrasModule.isPremiumWeatherAPI(api)
+}
+
 fun BaseSettingsFragment.navigateToPremiumFragment() {
     // Navigate to premium page
     if (isPremiumSupported()) {

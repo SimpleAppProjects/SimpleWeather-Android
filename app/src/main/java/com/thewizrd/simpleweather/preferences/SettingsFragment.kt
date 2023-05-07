@@ -271,27 +271,33 @@ class SettingsFragment : BaseSettingsFragment(),
                         WeatherUpdaterWorker.ACTION_UPDATEWEATHER
                     )
                 }
+
                 WidgetWorker::class.java.name == filter.intent.component!!.className -> {
                     when (filter.intent.action) {
                         WidgetWorker.ACTION_REFRESHGPSWIDGETS -> WidgetWorker.enqueueRefreshGPSWidgets(
                             requireContext()
                         )
+
                         WidgetWorker.ACTION_RESETGPSWIDGETS -> WidgetWorker.enqueueResetGPSWidgets(
                             requireContext()
                         )
                     }
                 }
+
                 WeatherUpdaterWorker::class.java.name == filter.intent.component!!.className -> {
                     when (filter.intent.action) {
                         WeatherUpdaterWorker.ACTION_REQUEUEWORK -> {
                             UpdaterUtils.updateAlarm(requireContext())
                         }
+
                         WeatherUpdaterWorker.ACTION_ENQUEUEWORK -> {
                             UpdaterUtils.startAlarm(requireContext())
                         }
+
                         WeatherUpdaterWorker.ACTION_CANCELWORK -> {
                             UpdaterUtils.cancelAlarm(requireContext())
                         }
+
                         else -> {
                             WeatherUpdaterWorker.enqueueAction(
                                 requireContext(),
@@ -300,12 +306,15 @@ class SettingsFragment : BaseSettingsFragment(),
                         }
                     }
                 }
+
                 WearableWorker::class.java.name == filter.intent.component!!.className -> {
                     WearableWorker.enqueueAction(requireContext(), (filter.intent.action)!!)
                 }
+
                 CommonActionsBroadcastReceiver::class.java.name == filter.intent.component!!.className -> {
                     localBroadcastManager.sendBroadcast(filter.intent)
                 }
+
                 else -> {
                     requireContext().startService(filter.intent)
                 }
@@ -390,43 +399,48 @@ class SettingsFragment : BaseSettingsFragment(),
         }
 
         themePref = findPreference(SettingsManager.KEY_USERTHEME)!!
-        themePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val args = Bundle()
-            args.putString("mode", newValue.toString())
-            AnalyticsLogger.logEvent("Settings: theme changed", args)
+        themePref.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference, newValue ->
+                val args = Bundle()
+                args.putString("mode", newValue.toString())
+                AnalyticsLogger.logEvent("Settings: theme changed", args)
 
-            val mode: UserThemeMode
-            when (newValue.toString()) {
-                "0" -> {
-                    mode = UserThemeMode.FOLLOW_SYSTEM
-                    if (Build.VERSION.SDK_INT >= 29)
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    else
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                val mode: UserThemeMode
+                when (newValue.toString()) {
+                    "0" -> {
+                        mode = UserThemeMode.FOLLOW_SYSTEM
+                        if (Build.VERSION.SDK_INT >= 29)
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        else
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
+
+                    "1" -> {
+                        mode = UserThemeMode.DARK
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    }
+
+                    "2" -> {
+                        mode = UserThemeMode.AMOLED_DARK
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    }
+
+                    "3" -> {
+                        mode = UserThemeMode.LIGHT
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+
+                    else -> {
+                        mode = UserThemeMode.FOLLOW_SYSTEM
+                        if (Build.VERSION.SDK_INT >= 29)
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        else
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
                 }
-                "1" -> {
-                    mode = UserThemeMode.DARK
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                "2" -> {
-                    mode = UserThemeMode.AMOLED_DARK
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                "3" -> {
-                    mode = UserThemeMode.LIGHT
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                }
-                else -> {
-                    mode = UserThemeMode.FOLLOW_SYSTEM
-                    if (Build.VERSION.SDK_INT >= 29)
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    else
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                }
+                dispatchThemeChanged(mode)
+                true
             }
-            dispatchThemeChanged(mode)
-            true
-        }
 
         keyEntry = findPreference(SettingsManager.KEY_APIKEY)!!
         personalKeyPref = findPreference(SettingsManager.KEY_USEPERSONALKEY)!!
@@ -445,18 +459,18 @@ class SettingsFragment : BaseSettingsFragment(),
                     if (!selectedWProv.isKeyRequired() || !selectedWProv.getAPIKey()
                             .isNullOrBlank()
                     ) {
-                    // We're using our own (verified) keys
+                        // We're using our own (verified) keys
                         settingsManager.setKeyVerified(providerPref.value, true)
                         settingsManager.setAPI(providerPref.value)
+                    }
+
+                    keyEntry.isEnabled = false
+                    apiCategory.removePreference(keyEntry)
+                    apiCategory.removePreference(registerPref)
                 }
 
-                keyEntry.isEnabled = false
-                apiCategory.removePreference(keyEntry)
-                apiCategory.removePreference(registerPref)
+                true
             }
-
-            true
-        }
 
         val providers = WeatherAPI.APIs
         providerPref = findPreference(SettingsManager.KEY_API)!!
@@ -626,19 +640,21 @@ class SettingsFragment : BaseSettingsFragment(),
         radarProviderPref.entryValues = entryValues
         radarProviderPref.value = RadarProvider.getRadarProvider()
 
-        findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            // Display the fragment as the main content.
-            activity?.findNavController(R.id.fragment_container)
-                ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
-            true
-        }
+        findPreference<Preference>(KEY_ICONS)!!.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToIconsFragment())
+                true
+            }
 
-        findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            // Display the fragment as the main content.
-            activity?.findNavController(R.id.fragment_container)
-                ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
-            true
-        }
+        findPreference<Preference>(KEY_FEATURES)!!.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+                // Display the fragment as the main content.
+                activity?.findNavController(R.id.fragment_container)
+                    ?.safeNavigate(SettingsFragmentDirections.actionSettingsFragmentToFeaturesFragment2())
+                true
+            }
 
         languagePref = findPreference(LocaleUtils.KEY_LANGUAGE)!!
         val langCodes = languagePref.entryValues
@@ -814,6 +830,22 @@ class SettingsFragment : BaseSettingsFragment(),
             }
         } else if (preference.key == LocaleUtils.KEY_LANGUAGE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Disable dialog for SDK 33+
+        } else if (preference.key == SettingsManager.KEY_API && preference is ListPreference) {
+            val TAG = WeatherAPIPreferenceDialogFragment::class.java.name
+
+            if (parentFragmentManager.findFragmentByTag(TAG) != null) {
+                return
+            }
+
+            val fragment = WeatherAPIPreferenceDialogFragment.newInstance(preference.getKey())
+
+            runWithView {
+                fragment.setTargetFragment(this@SettingsFragment, 0)
+                fragment.show(
+                    parentFragmentManager,
+                    KeyEntryPreferenceDialogFragment::class.java.name
+                )
+            }
         } else {
             super.onDisplayPreferenceDialog(preference)
         }
@@ -844,7 +876,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
         if (prov != null) {
             registerPref.intent = Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse(prov.apiRegisterURL))
+                .setData(Uri.parse(prov.apiRegisterURL))
         }
     }
 
@@ -861,6 +893,7 @@ class SettingsFragment : BaseSettingsFragment(),
                         .setAction(WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)
                 )
             }
+
             SettingsManager.KEY_FOLLOWGPS -> {
                 val value = sharedPreferences.getBoolean(key, false)
                 enqueueIntent(
@@ -884,12 +917,14 @@ class SettingsFragment : BaseSettingsFragment(),
                         .setAction(if (value) WidgetWorker.ACTION_REFRESHGPSWIDGETS else WidgetWorker.ACTION_RESETGPSWIDGETS)
                 )
             }
+
             SettingsManager.KEY_REFRESHINTERVAL -> {
                 enqueueIntent(
                     Intent(ctx, WeatherUpdaterWorker::class.java)
                         .setAction(WeatherUpdaterWorker.ACTION_REQUEUEWORK)
                 )
             }
+
             LocaleUtils.KEY_LANGUAGE -> {
                 enqueueIntent(
                     Intent(ctx, WearableWorker::class.java)
@@ -930,32 +965,33 @@ class SettingsFragment : BaseSettingsFragment(),
             precipationUnitPref.onPreferenceChangeListener = onUnitChangeListener
             pressureUnitPref.onPreferenceChangeListener = onUnitChangeListener
 
-            findPreference<Preference>(KEY_RESETUNITS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                activity?.let {
-                    MaterialAlertDialogBuilder(it)
-                        .setTitle(R.string.pref_title_units)
-                        .setItems(R.array.default_units) { dialog, which ->
-                            val isFahrenheit: Boolean = which == 0
-                            tempUnitPref.value =
-                                if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
-                            speedUnitPref.value =
-                                if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
-                            distanceUnitPref.value =
-                                if (isFahrenheit) Units.MILES else Units.KILOMETERS
-                            precipationUnitPref.value =
-                                if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
-                            pressureUnitPref.value =
-                                if (isFahrenheit) Units.INHG else Units.MILLIBAR
-                            dialog.dismiss()
+            findPreference<Preference>(KEY_RESETUNITS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    activity?.let {
+                        MaterialAlertDialogBuilder(it)
+                            .setTitle(R.string.pref_title_units)
+                            .setItems(R.array.default_units) { dialog, which ->
+                                val isFahrenheit: Boolean = which == 0
+                                tempUnitPref.value =
+                                    if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
+                                speedUnitPref.value =
+                                    if (isFahrenheit) Units.MILES_PER_HOUR else Units.KILOMETERS_PER_HOUR
+                                distanceUnitPref.value =
+                                    if (isFahrenheit) Units.MILES else Units.KILOMETERS
+                                precipationUnitPref.value =
+                                    if (isFahrenheit) Units.INCHES else Units.MILLIMETERS
+                                pressureUnitPref.value =
+                                    if (isFahrenheit) Units.INHG else Units.MILLIBAR
+                                dialog.dismiss()
 
-                            localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
-                        }
-                        .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-                        .setCancelable(true)
-                        .show()
+                                localBroadcastManager.sendBroadcast(Intent(CommonActions.ACTION_SETTINGS_UPDATEUNIT))
+                            }
+                            .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+                            .setCancelable(true)
+                            .show()
+                    }
+                    true
                 }
-                true
-            }
         }
 
         private val onUnitChangeListener =
@@ -989,9 +1025,10 @@ class SettingsFragment : BaseSettingsFragment(),
             return true
         }
 
-        override fun bindPreferenceExtra(pref: RadioButtonPreference, key: String,
-                                         info: CandidateInfo, defaultKey: String?,
-                                         systemDefaultKey: String?
+        override fun bindPreferenceExtra(
+            pref: RadioButtonPreference, key: String,
+            info: CandidateInfo, defaultKey: String?,
+            systemDefaultKey: String?
         ) {
             super.bindPreferenceExtra(pref, key, info, defaultKey, systemDefaultKey)
             pref.isPersistent = false
@@ -1226,34 +1263,37 @@ class SettingsFragment : BaseSettingsFragment(),
                     activity?.findNavController(R.id.fragment_container)
                         ?.safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToCreditsFragment())
                     true
-            }
+                }
 
-            findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                // Display the fragment as the main content.
-                activity?.findNavController(R.id.fragment_container)
-                    ?.safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
-                true
-            }
+            findPreference<Preference>(KEY_ABOUTOSLIBS)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    // Display the fragment as the main content.
+                    activity?.findNavController(R.id.fragment_container)
+                        ?.safeNavigate(`SettingsFragment$AboutAppFragmentDirections`.actionAboutAppFragmentToOSSCreditsFragment())
+                    true
+                }
 
-            findPreference<Preference>(KEY_FEEDBACK)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                val sendTo = Intent(Intent.ACTION_SENDTO)
-                sendTo.data = Uri.parse("mailto:thewizrd.dev+SimpleWeatherAndroid@gmail.com")
-                startActivity(Intent.createChooser(sendTo, null))
-                true
-            }
+            findPreference<Preference>(KEY_FEEDBACK)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener {
+                    val sendTo = Intent(Intent.ACTION_SENDTO)
+                    sendTo.data = Uri.parse("mailto:thewizrd.dev+SimpleWeatherAndroid@gmail.com")
+                    startActivity(Intent.createChooser(sendTo, null))
+                    true
+                }
 
             setupReviewPreference(findPreference(KEY_RATEREVIEW)!!)
 
-            findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-                preference.intent?.let {
-                    runCatching {
-                        if (it.resolveActivity(requireActivity().packageManager) != null) {
-                            startActivity(it)
+            findPreference<Preference>(KEY_TRANSLATE)!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { preference ->
+                    preference.intent?.let {
+                        runCatching {
+                            if (it.resolveActivity(requireActivity().packageManager) != null) {
+                                startActivity(it)
+                            }
                         }
                     }
+                    true
                 }
-                true
-            }
 
             runCatching {
                 val packageInfo =

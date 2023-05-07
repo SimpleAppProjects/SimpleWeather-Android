@@ -98,6 +98,12 @@ object WeatherAPI {
                 "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
             ),
             ProviderEntry(
+                "Apple Weather",
+                APPLE,
+                "https://developer.apple.com/weatherkit/",
+                "https://developer.apple.com/weatherkit/"
+            ),
+            ProviderEntry(
                 "MET Norway", METNO,
                 "https://www.met.no/en", "https://www.met.no/en"
             ),
@@ -134,12 +140,6 @@ object WeatherAPI {
                 METEOMATICS,
                 "https://www.meteomatics.com/",
                 "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
-            ),
-            ProviderEntry(
-                "Apple Weather",
-                APPLE,
-                "https://developer.apple.com/weatherkit/",
-                "https://developer.apple.com/weatherkit/"
             )
         )
     }
