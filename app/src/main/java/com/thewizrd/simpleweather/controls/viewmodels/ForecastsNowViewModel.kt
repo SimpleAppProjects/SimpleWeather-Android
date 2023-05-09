@@ -4,7 +4,11 @@ import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -98,8 +102,8 @@ class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
             localeCode = LocaleUtils.getLocaleCode()
             iconProvider = settingsManager.getIconsProvider()
 
-            if (currentHrForecastsData?.value != null) {
-                hourlyForecastsListData.postValue(hrForecastMapper.apply(currentHrForecastsData!!.value))
+            currentHrForecastsData?.value?.let {
+                hourlyForecastsListData.postValue(hrForecastMapper.apply(it))
             }
         }
     }
@@ -117,12 +121,12 @@ class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
         input?.minForecast?.filter { !it.date.isBefore(now) }?.takeUnless { it.isEmpty() }?.take(60)
     }
 
-    private val forecastObserver: Observer<Forecasts> = Observer<Forecasts> { forecastData ->
+    private val forecastObserver: Observer<Forecasts?> = Observer { forecastData ->
         this.forecastData.postValue(forecastData?.forecast)
         this.minutelyForecastData.postValue(precipMinGraphMapper.apply(forecastData))
     }
 
-    private val hrforecastObserver: Observer<List<HourlyForecast>> = Observer<List<HourlyForecast>> { forecastData ->
+    private val hrforecastObserver: Observer<List<HourlyForecast>?> = Observer { forecastData ->
         this.hourlyForecastsData.postValue(forecastData)
         this.hourlyForecastsListData.postValue(hrForecastMapper.apply(forecastData))
     }
