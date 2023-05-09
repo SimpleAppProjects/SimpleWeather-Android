@@ -108,6 +108,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
+    kapt "com.github.nename0:moshi-java-codegen:1.1.1"
 
     fullgmsImplementation 'com.google.android.gms:play-services-base:18.2.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"

@@ -1,8 +1,10 @@
 package com.thewizrd.shared_resources.remoteconfig;
 
 import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonClass;
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI;
 
+@JsonClass(generateAdapter = true, generator = "java")
 public final class WeatherProviderConfig {
 
     @Json(name = "locSource")

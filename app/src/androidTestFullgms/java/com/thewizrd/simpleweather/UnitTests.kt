@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.remoteconfig.WeatherProviderConfig
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.JSONParser
@@ -26,6 +27,8 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.images.ImageDatabase
+import com.thewizrd.simpleweather.images.model.ImageData
+import com.thewizrd.simpleweather.updates.UpdateInfo
 import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.google.location.GoogleLocationProvider
 import com.thewizrd.weather_api.google.location.createLocationModel
@@ -38,6 +41,7 @@ import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.tomorrow.TomorrowIOWeatherProvider
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.location.WeatherApiLocationProvider
+import com.thewizrd.weather_api.weatherkit.CurrentWeather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -537,5 +541,22 @@ class UnitTests {
                 getWeather(provider, Coordinate(34.0207305, -118.6919157))
             assertTrue(weather.isValid && WeatherUiModel(weather).isValid)
         }
+    }
+
+    @Test
+    fun moshiSerializeTest() {
+        JSONParser.deserializer<WeatherProviderConfig>(
+            "{\"enabled\":false,\"locSource\":\"weatherapi\",\"newWeatherSource\":\"wunlocked\"}",
+            WeatherProviderConfig::class.java
+        )
+        JSONParser.deserializer<ImageData>(
+            "{\"color\":\"#FFA9C3D9\",\"imageURL\":\"https://about:blank\",\"artistName\":\"artist\",\"condition\":\"day\",\"originalLink\":\"https://about:blank\",\"siteName\":\"web\"}",
+            ImageData::class.java
+        )
+        JSONParser.deserializer<CurrentWeather>("{}", CurrentWeather::class.java)
+        JSONParser.deserializer<UpdateInfo>(
+            "{\"version\":0,\"updatePriority\":0}",
+            UpdateInfo::class.java
+        )
     }
 }
