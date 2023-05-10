@@ -22,6 +22,10 @@ object Logger {
         }
     }
 
+    fun isDebugLoggerEnabled(): Boolean {
+        return Timber.forest().any { it is FileLoggingTree }
+    }
+
     fun enableDebugLogger(context: Context, enable: Boolean) {
         if (enable) {
             if (!Timber.forest().any { it is FileLoggingTree }) {
