@@ -20,11 +20,27 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
-import com.thewizrd.simpleweather.widgets.remoteviews.*
+import com.thewizrd.simpleweather.widgets.remoteviews.AbstractWidgetRemoteViewCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget1x1Creator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2Creator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2MaterialYouCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2PillMaterialYouCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget3x1MaterialYouCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x1Creator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x1GoogleCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x1NotificationCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2ClockCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2Creator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2GraphCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2HuaweiCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2MaterialYouCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x2TomorrowCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x3LocationsCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget4x4MaterialYouCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.*
+import java.util.Locale
 
 object WidgetUtils {
     // Shared Settings
@@ -197,7 +213,7 @@ object WidgetUtils {
     }
 
     private fun getVersion(): Int {
-        return widgetPrefs.getString(KEY_VERSION, null)?.toInt() ?: 5
+        return widgetPrefs.getString(KEY_VERSION, null)?.toInt() ?: CurrentPrefsVersion
     }
 
     private fun setVersion(value: Int) {
