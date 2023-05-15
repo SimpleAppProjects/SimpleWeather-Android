@@ -143,7 +143,7 @@ fun createHourlyForecast(hour: HourWeatherConditions): HourlyForecast {
         highF = ConversionMethods.CtoF(hour.temperature)
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
-            .getWeatherIcon(hour.daylight ?: false, hour.conditionCode)
+            .getWeatherIcon(hour.daylight?.not() ?: false, hour.conditionCode)
         condition = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
             .getWeatherCondition(hour.conditionCode)
 
@@ -257,7 +257,7 @@ fun createCondition(
         feelslikeF = ConversionMethods.CtoF(current.temperatureApparent)
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
-            .getWeatherIcon(current.daylight ?: false, current.conditionCode)
+            .getWeatherIcon(current.daylight?.not() ?: false, current.conditionCode)
 
         beaufort = Beaufort(getBeaufortScale(windMph.toInt()))
         uv = UV(current.uvIndex.toFloat())
