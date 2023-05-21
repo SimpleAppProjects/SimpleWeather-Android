@@ -98,18 +98,9 @@ object WeatherAPI {
                 "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
             ),
             ProviderEntry(
-                "Apple Weather",
-                APPLE,
+                "Apple Weather", APPLE,
                 "https://developer.apple.com/weatherkit/",
                 "https://developer.apple.com/weatherkit/"
-            ),
-            ProviderEntry(
-                "MET Norway", METNO,
-                "https://www.met.no/en", "https://www.met.no/en"
-            ),
-            ProviderEntry(
-                "National Weather Service (United States)", NWS,
-                "https://www.weather.gov", "https://www.weather.gov"
             ),
             ProviderEntry(
                 "OpenWeatherMap", OPENWEATHERMAP,
@@ -120,12 +111,16 @@ object WeatherAPI {
                 "https://weatherapi.com", "https://weatherapi.com/api"
             ),
             ProviderEntry(
-                "WeatherUnlocked", WEATHERUNLOCKED,
-                "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
+                "National Weather Service (United States)", NWS,
+                "https://www.weather.gov", "https://www.weather.gov"
             ),
             ProviderEntry(
                 "Meteo France", METEOFRANCE,
                 "https://meteofrance.com/", "https://meteofrance.com/"
+            ),
+            ProviderEntry(
+                "MET Norway", METNO,
+                "https://www.met.no/en", "https://www.met.no/en"
             ),
             ProviderEntry(
                 "Tomorrow.io", TOMORROWIO,
@@ -136,8 +131,11 @@ object WeatherAPI {
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
             ),
             ProviderEntry(
-                "Meteomatics",
-                METEOMATICS,
+                "WeatherUnlocked", WEATHERUNLOCKED,
+                "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
+            ),
+            ProviderEntry(
+                "Meteomatics", METEOMATICS,
                 "https://www.meteomatics.com/",
                 "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
@@ -151,12 +149,12 @@ object WeatherAPI {
                 "https://www.met.no/en", "https://www.met.no/en"
             ),
             ProviderEntry(
-                "National Weather Service (United States)", NWS,
-                "https://www.weather.gov", "https://www.weather.gov"
-            ),
-            ProviderEntry(
                 "OpenWeatherMap", OPENWEATHERMAP,
                 "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+            ),
+            ProviderEntry(
+                "National Weather Service (United States)", NWS,
+                "https://www.weather.gov", "https://www.weather.gov"
             ),
             ProviderEntry(
                 "WeatherAPI.com", WEATHERAPI,
@@ -171,8 +169,7 @@ object WeatherAPI {
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
             ),
             ProviderEntry(
-                "Meteomatics",
-                METEOMATICS,
+                "Meteomatics", METEOMATICS,
                 "https://www.meteomatics.com/",
                 "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
