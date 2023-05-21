@@ -45,7 +45,7 @@ import java.io.IOException
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRadarViewProvider(context, rootView) {
@@ -212,14 +212,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
                 animationPosition = 0
 
                 if (root?.radar != null) {
-                    if (root.radar?.past?.isNotEmpty() == true) {
-                        availableRadarFrames.addAll(root.radar.past.mapNotNull { input: RadarItem? ->
+                    root.radar?.past?.takeIf { it.isNotEmpty() }?.let {
+                        availableRadarFrames.addAll(it.mapNotNull { input: RadarItem? ->
                             input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                         })
                     }
 
-                    if (root.radar?.nowcast?.isNotEmpty() == true) {
-                        availableRadarFrames.addAll(root.radar.nowcast.mapNotNull { input: RadarItem? ->
+                    root.radar?.nowcast?.takeIf { it.isNotEmpty() }?.let {
+                        availableRadarFrames.addAll(it.mapNotNull { input: RadarItem? ->
                             input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                         })
                     }

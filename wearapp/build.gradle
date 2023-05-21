@@ -4,6 +4,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -130,7 +131,7 @@ dependencies {
 
     implementation "androidx.arch.core:core-runtime:$arch_core_runtime_version"
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     implementation "com.google.android.material:material:$material_version"
@@ -190,6 +191,6 @@ dependencies {
     implementation "com.ibm.icu:icu4j:$icu4j_version"
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
 }
