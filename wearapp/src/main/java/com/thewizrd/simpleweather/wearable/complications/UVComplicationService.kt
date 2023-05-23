@@ -39,9 +39,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).build()
+                )
+                    //.setTitle(PlainComplicationText.Builder(getString(R.string.label_uv)).build())
+                    .build()
             }
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
@@ -52,9 +52,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).build()
+                )
+                    //.setTitle(PlainComplicationText.Builder(getString(R.string.label_uv)).build())
+                    .build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -101,9 +101,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(uvModel.index.toString()).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).setTapAction(
+                )
+                    //.setTitle(PlainComplicationText.Builder(getString(R.string.label_uv)).build())
+                    .setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -118,9 +118,9 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
-                ).setTapAction(
+                )
+                    //.setTitle(PlainComplicationText.Builder(getString(R.string.label_uv)).build())
+                    .setTapAction(
                     getTapIntent(this)
                 ).build()
             }
