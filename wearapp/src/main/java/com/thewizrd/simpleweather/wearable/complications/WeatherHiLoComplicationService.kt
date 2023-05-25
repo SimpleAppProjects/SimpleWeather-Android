@@ -1,7 +1,17 @@
 package com.thewizrd.simpleweather.wearable.complications
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -40,8 +50,6 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder("75°/65°").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
-                ).setTitle(
-                    PlainComplicationText.Builder("75° | 65°").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)

@@ -1,7 +1,18 @@
 package com.thewizrd.simpleweather.wearable.complications
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.BeaufortViewModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
@@ -59,8 +70,6 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder("Beaufort").build()
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
@@ -156,8 +165,6 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(beaufortModel.beaufort.label).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

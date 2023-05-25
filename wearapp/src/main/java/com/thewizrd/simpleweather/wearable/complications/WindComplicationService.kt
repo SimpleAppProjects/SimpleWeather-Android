@@ -1,11 +1,25 @@
 package com.thewizrd.simpleweather.wearable.complications
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Units
+import com.thewizrd.shared_resources.utils.getWindDirection
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
@@ -46,8 +60,6 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
@@ -105,6 +117,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).build()
             }
+
             else -> {
                 null
             }
@@ -176,8 +189,6 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                             )
                         )
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_wind)).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
@@ -243,6 +254,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                         .build()
                 ).build()
             }
+
             else -> {
                 null
             }

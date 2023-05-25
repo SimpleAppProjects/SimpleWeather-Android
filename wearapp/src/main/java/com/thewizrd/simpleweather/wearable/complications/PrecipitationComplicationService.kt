@@ -1,7 +1,14 @@
 package com.thewizrd.simpleweather.wearable.complications
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -48,8 +55,6 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
@@ -109,8 +114,6 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

@@ -1,7 +1,14 @@
 package com.thewizrd.simpleweather.wearable.complications
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.data.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import com.thewizrd.common.controls.AirQualityViewModel
 import com.thewizrd.common.weatherdata.WeatherDataLoader
@@ -112,9 +119,6 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
-                        .build()
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
@@ -177,9 +181,6 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
-                        .build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
