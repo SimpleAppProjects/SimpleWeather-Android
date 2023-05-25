@@ -221,7 +221,7 @@
             android:exported="true">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-                android:value="SHORT_TEXT,LONG_TEXT" />
+                android:value="SHORT_TEXT,LONG_TEXT,ICON" />
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="3600" />

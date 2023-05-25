@@ -17,7 +17,12 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
     }
 
     override val supportedComplicationTypes: Set<ComplicationType> =
-        setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
+        setOf(
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
     private val complicationIconResId = R.drawable.wi_strong_wind
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
@@ -56,6 +61,48 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithResource(this, complicationIconResId)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
+                ).build()
+            }
+
+            ComplicationType.MONOCHROMATIC_IMAGE -> {
+                MonochromaticImageComplicationData.Builder(
+                    MonochromaticImage.Builder(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), 330.0f // 150° + 180
+                            )
+                        )
+                    ).build(),
+                    PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
+                ).build()
+            }
+
+            ComplicationType.SMALL_IMAGE -> {
+                SmallImageComplicationData.Builder(
+                    SmallImage.Builder(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), 330.0f // 150° + 180
+                            )
+                        ),
+                        SmallImageType.ICON
+                    ).setAmbientImage(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), 330.0f // 150° + 180
+                            )
+                        )
+                    ).build(),
+                    PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).build()
             }
             else -> {
@@ -148,6 +195,52 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setTapAction(
                     getTapIntent(this)
+                ).build()
+            }
+
+            ComplicationType.MONOCHROMATIC_IMAGE -> {
+                MonochromaticImageComplicationData.Builder(
+                    MonochromaticImage.Builder(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), windDirection.toFloat() + 180
+                            )
+                        )
+                            .setTint(Colors.WHITESMOKE)
+                    ).build(),
+                    PlainComplicationText.Builder("${getString(R.string.label_wind)}: $windSpeedLong")
+                        .build()
+                ).build()
+            }
+
+            ComplicationType.SMALL_IMAGE -> {
+                SmallImageComplicationData.Builder(
+                    SmallImage.Builder(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), windDirection.toFloat() + 180
+                            )
+                        ),
+                        SmallImageType.ICON
+                    ).setAmbientImage(
+                        Icon.createWithBitmap(
+                            ImageUtils.rotateBitmap(
+                                ImageUtils.bitmapFromDrawable(
+                                    getThemeContextOverride(false),
+                                    R.drawable.wi_wind_direction_white
+                                ), windDirection.toFloat() + 180
+                            )
+                        )
+                            .setTint(Colors.WHITESMOKE)
+                    ).build(),
+                    PlainComplicationText.Builder("${getString(R.string.label_wind)}: $windSpeedLong")
+                        .build()
                 ).build()
             }
             else -> {
