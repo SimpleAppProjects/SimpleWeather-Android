@@ -167,8 +167,8 @@ dependencies {
     fullgmsImplementation "com.google.android.gms:play-services-location:$gms_location_version"
     fullgmsImplementation 'com.google.android.gms:play-services-maps:18.1.0'
     fullgmsImplementation 'com.google.android.gms:play-services-wearable:18.0.0'
-    fullgmsImplementation 'com.google.android.play:app-update-ktx:2.0.1'
-    fullgmsImplementation 'com.google.android.play:feature-delivery-ktx:2.0.1'
+    fullgmsImplementation 'com.google.android.play:app-update-ktx:2.1.0'
+    fullgmsImplementation 'com.google.android.play:feature-delivery-ktx:2.1.0'
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 
     nongmsImplementation 'org.osmdroid:osmdroid-android:6.1.16'

@@ -15,7 +15,7 @@ buildscript {
         gms_location_version = '21.0.1'
 
         annotation_version = '1.6.0'
-        activity_version = '1.7.1'
+        activity_version = '1.7.2'
         appcompat_version = '1.6.1'
         constraintlayout_version = '2.1.4'
         core_version = '1.10.1'
@@ -41,7 +41,7 @@ buildscript {
 
         compose_compiler_version = '1.4.7'
         compose_version = '1.4.3'
-        wear_compose_version = '1.2.0-alpha10'
+        wear_compose_version = '1.2.0-beta01'
         horologist_version = '0.3.11'
         accompanist_version = '0.25.0'
 
