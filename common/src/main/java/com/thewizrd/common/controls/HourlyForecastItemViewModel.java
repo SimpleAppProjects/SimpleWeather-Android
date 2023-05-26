@@ -186,6 +186,10 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
                         pressureVal = forecast.getExtras().getPressureMb();
                         pressureUnit = context.getString(R.string.unit_mBar);
                         break;
+                    case Units.MMHG:
+                        pressureVal = ConversionMethods.inHgToMmHg(forecast.getExtras().getPressureIn());
+                        pressureUnit = context.getString(R.string.unit_mmHg);
+                        break;
                 }
 
                 detailExtras.put(WeatherDetailsType.PRESSURE, new DetailItemViewModel(WeatherDetailsType.PRESSURE,

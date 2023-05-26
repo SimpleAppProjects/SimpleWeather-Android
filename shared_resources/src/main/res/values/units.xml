@@ -16,6 +16,8 @@
     <string name="unit_inHg" translatable="false">inHg</string>
     <!-- Pressure: millibar -->
     <string name="unit_mBar" translatable="false">mb</string>
+    <!-- Pressure: mm -->
+    <string name="unit_mmHg" translatable="false">mmHg</string>
     <!-- Distance: miles -->
     <string name="unit_miles" translatable="false">mi</string>
     <!-- Pressure: kilometers -->

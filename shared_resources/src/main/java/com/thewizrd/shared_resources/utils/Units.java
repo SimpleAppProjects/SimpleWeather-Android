@@ -25,7 +25,8 @@ public final class Units {
 
     @StringDef({
             INHG,
-            MILLIBAR
+            MILLIBAR,
+            MMHG
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface PressureUnits {
@@ -54,6 +55,7 @@ public final class Units {
     public static final String METERS_PER_SECOND = "MSEC";
     public static final String INHG = "INMERCURY";
     public static final String MILLIBAR = "MILLIBAR";
+    public static final String MMHG = "MMMERCURY";
     public static final String MILES = "MILES";
     public static final String KILOMETERS = "KILOMETERS";
     public static final String INCHES = "INCHES";

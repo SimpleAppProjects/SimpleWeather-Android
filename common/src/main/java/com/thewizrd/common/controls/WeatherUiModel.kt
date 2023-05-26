@@ -311,10 +311,17 @@ class WeatherUiModel() {
                     pressureVal = weatherData!!.atmosphere.pressureIn
                     pressureUnit = context.getString(R.string.unit_inHg)
                 }
+
                 Units.MILLIBAR -> {
                     pressureVal = weatherData!!.atmosphere.pressureMb
                     pressureUnit = context.getString(R.string.unit_mBar)
                 }
+
+                Units.MMHG -> {
+                    pressureVal = ConversionMethods.inHgToMmHg(weatherData!!.atmosphere.pressureIn)
+                    pressureUnit = context.getString(R.string.unit_mmHg)
+                }
+
                 else -> {
                     pressureVal = weatherData!!.atmosphere.pressureIn
                     pressureUnit = context.getString(R.string.unit_inHg)

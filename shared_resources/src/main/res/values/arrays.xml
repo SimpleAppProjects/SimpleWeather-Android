@@ -70,10 +70,12 @@
     <string-array name="pressureunit_entries">
         <item>@string/unit_inHg</item>
         <item>@string/unit_mBar</item>
+        <item>@string/unit_mmHg</item>
     </string-array>
     <string-array name="pressureunit_values">
         <item>INMERCURY</item>
         <item>MILLIBAR</item>
+        <item>MMMERCURY</item>
     </string-array>
     <string-array name="distanceunit_entries">
         <item>@string/unit_miles</item>

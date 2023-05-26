@@ -13,6 +13,7 @@ public class ConversionMethods {
     private static final float KM_TO_MI = 0.621371192f;
     private static final float MI_TO_KM = 1.609344f;
     private static final float INHG_TO_MB = 1013.25f / 29.92f;
+    private static final float INHG_TO_MMHG = 25.4f;
     private static final float MB_TO_INHG = 29.92f / 1013.25f;
     private static final float MSEC_TO_MPH = 2.23694f;
     private static final float MSEC_TO_KPH = 3.6f;
@@ -27,6 +28,10 @@ public class ConversionMethods {
 
     public static float inHgToMB(float input) {
         return INHG_TO_MB * input;
+    }
+
+    public static float inHgToMmHg(float input) {
+        return INHG_TO_MMHG * input;
     }
 
     public static float paToInHg(float input) {
