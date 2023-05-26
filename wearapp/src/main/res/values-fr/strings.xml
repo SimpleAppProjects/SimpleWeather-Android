@@ -43,4 +43,5 @@
     <!-- Complication Labels
 Weather (High/Low) -->
     <string name="complication_label_weather_hilo">"Météo (Max / Min)"</string>
+    <string name="complication_label_weather_currentlocation">"Météo (emplacement actuel)"</string>
 </resources>

@@ -60,4 +60,5 @@
 Weather (High/Low) -->
     <!-- Fuzzy -->
     <string name="complication_label_weather_hilo">"天气 (高溫 / 低溫)"</string>
+    <string name="complication_label_weather_currentlocation">"天气 (当前地址)"</string>
 </resources>

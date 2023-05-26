@@ -37,13 +37,15 @@ object WeatherComplicationHelper {
         val complicationServices = setOf(
             WeatherComplicationService::class.java,
             WeatherHiLoComplicationService::class.java,
+            CurrentLocationWeatherComplicationService::class.java,
             PrecipitationComplicationService::class.java,
             UVComplicationService::class.java,
             AQIComplicationService::class.java,
             BeaufortComplicationService::class.java,
             HumidityComplicationService::class.java,
             WindComplicationService::class.java,
-            FeelsLikeComplicationService::class.java
+            FeelsLikeComplicationService::class.java,
+            DewPointComplicationService::class.java
         )
 
         complicationServices.forEach {

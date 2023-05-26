@@ -44,4 +44,5 @@
 Weather (High/Low) -->
     <!-- Fuzzy -->
     <string name="complication_label_weather_hilo">"Počasie (V. / N.)"</string>
+    <string name="complication_label_weather_currentlocation">"Počasie (súčasná poloha)"</string>
 </resources>

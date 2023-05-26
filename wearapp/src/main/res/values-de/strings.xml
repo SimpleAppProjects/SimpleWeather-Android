@@ -46,4 +46,5 @@
     <!-- Complication Labels
 Weather (High/Low) -->
     <string name="complication_label_weather_hilo">"Wetter (hoch / niedrig)"</string>
+    <string name="complication_label_weather_currentlocation">"Wetter (Standort)"</string>
 </resources>
