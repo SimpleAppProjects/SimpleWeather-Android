@@ -3,21 +3,33 @@ package com.thewizrd.simpleweather.widgets
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.util.ObjectsCompat
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import java.util.Collections
+import java.util.Locale
 
 class AppChoiceDialogBuilder(private val context: Context) {
     private lateinit var mAdapter: AppsListAdapter
@@ -98,7 +110,11 @@ class AppChoiceDialogBuilder(private val context: Context) {
 
     private fun updateAppsList() {
         scope.launch(Dispatchers.Default) {
-            val infos = context.packageManager.getInstalledApplications(0)
+            val infos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getInstalledApplications(ApplicationInfoFlags.of(0))
+            } else {
+                context.packageManager.getInstalledApplications(0)
+            }
 
             // Sort result
             Collections.sort(infos, ApplicationInfo.DisplayNameComparator(context.packageManager))
