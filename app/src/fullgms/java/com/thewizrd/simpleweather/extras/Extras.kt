@@ -25,15 +25,14 @@ import timber.log.Timber
 fun initializeExtras() {
     extrasModule.initialize()
 
-    if (BuildConfig.DEBUG) {
-        MapsInitializer.initialize(appLib.context, MapsInitializer.Renderer.LATEST) {
-            when (it) {
-                MapsInitializer.Renderer.LATEST -> {
-                    Timber.tag("Application").d("The latest version of the renderer is used.")
-                }
-                MapsInitializer.Renderer.LEGACY -> {
-                    Timber.tag("Application").d("The legacy version of the renderer is used.")
-                }
+    MapsInitializer.initialize(appLib.context, MapsInitializer.Renderer.LATEST) {
+        when (it) {
+            MapsInitializer.Renderer.LATEST -> {
+                Timber.tag("Application").d("The latest version of the renderer is used.")
+            }
+
+            MapsInitializer.Renderer.LEGACY -> {
+                Timber.tag("Application").d("The legacy version of the renderer is used.")
             }
         }
     }
