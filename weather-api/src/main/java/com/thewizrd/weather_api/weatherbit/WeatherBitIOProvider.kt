@@ -54,6 +54,8 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
             BASE_URL + "current?%s&lang=%s&units=M&include=minutely,alerts&key=%s"
         private const val FORECAST_QUERY_URL =
             BASE_URL + "forecast/daily?%s&lang=%s&units=M&key=%s"
+        private const val HRFORECAST_QUERY_URL =
+            BASE_URL + "forecast/hourly?%s&lang=%s&units=M&key=%s"
         private const val ALERTS_QUERY_URL =
             BASE_URL + "alerts?%s&key=%s"
     }
@@ -191,6 +193,10 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
                     .url(String.format(FORECAST_QUERY_URL, query, locale, key))
                     .build()
+                val hrForecastRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                    .url(String.format(HRFORECAST_QUERY_URL, query, locale, key))
+                    .build()
 
                 // Connect to webstream
                 currentResponse = client.newCall(currentRequest).await()
@@ -219,7 +225,19 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 requireNotNull(currRoot)
                 requireNotNull(foreRoot)
 
-                weather = createWeatherData(currRoot, foreRoot)
+                var hourlyRoot: HourlyResponse? = null
+
+                runCatching {
+                    val hrForecastResponse = client.newCall(hrForecastRequest).await()
+                    checkForErrors(hrForecastResponse)
+                    hrForecastResponse.getStream().use {
+                        hourlyRoot =
+                            JSONParser.deserializer<HourlyResponse>(it, HourlyResponse::class.java)
+                    }
+                    hrForecastResponse.closeQuietly()
+                }
+
+                weather = createWeatherData(currRoot, foreRoot, hourlyRoot)
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {

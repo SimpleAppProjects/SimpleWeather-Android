@@ -6,15 +6,36 @@ import com.thewizrd.shared_resources.utils.StringUtils.toUpperCase
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.weatherdata.model.AirQuality
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
+import com.thewizrd.shared_resources.weatherdata.model.Atmosphere
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort
+import com.thewizrd.shared_resources.weatherdata.model.Condition
+import com.thewizrd.shared_resources.weatherdata.model.Forecast
+import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
+import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
+import com.thewizrd.shared_resources.weatherdata.model.Precipitation
+import com.thewizrd.shared_resources.weatherdata.model.UV
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.weather_api.weatherModule
 import java.text.DecimalFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 
-fun createWeatherData(currRoot: CurrentResponse, foreRoot: ForecastResponse): Weather {
+fun createWeatherData(
+    currRoot: CurrentResponse,
+    foreRoot: ForecastResponse,
+    hourlyRoot: HourlyResponse?
+): Weather {
     return Weather().apply {
         val currData = currRoot.data?.first()!!
         val tzLong = currData.timezone!!
@@ -29,6 +50,16 @@ fun createWeatherData(currRoot: CurrentResponse, foreRoot: ForecastResponse): We
         for (day in foreRoot.data!!) {
             val fcast = createForecast(day!!)
             forecast.add(fcast)
+        }
+
+        hourlyRoot?.data?.let {
+            hrForecast = ArrayList(it.size)
+
+            it.forEach { hourly ->
+                hrForecast.add(createHourlyForecast(hourly!!).apply {
+                    date = date.withZoneSameInstant(zoneId)
+                })
+            }
         }
 
         currRoot.minutely?.let {
@@ -113,6 +144,67 @@ fun createForecast(forecast: ForecastDataItem): Forecast {
             extras.dewpointF = ConversionMethods.CtoF(it).roundToInt().toFloat()
         }
         forecast.appMaxTemp?.let {
+            extras.feelslikeC = it
+            extras.feelslikeF = ConversionMethods.CtoF(it)
+        }
+        extras.pop = forecast.pop
+        forecast.vis?.let {
+            extras.visibilityKm = it
+            extras.visibilityMi = ConversionMethods.kmToMi(it)
+        }
+        forecast.windGustSpd?.let {
+            extras.windGustMph = ConversionMethods.msecToMph(it)
+            extras.windGustKph = ConversionMethods.msecToKph(it)
+        }
+        forecast.precip?.let {
+            extras.qpfRainMm = it
+            extras.qpfRainIn = ConversionMethods.mmToIn(it)
+        }
+        forecast.snow?.let {
+            extras.qpfSnowCm = it / 10f
+            extras.qpfSnowIn = ConversionMethods.mmToIn(it)
+        }
+        extras.uvIndex = forecast.uv
+    }
+}
+
+fun createHourlyForecast(forecast: HourlyForecastDataItem): HourlyForecast {
+    return HourlyForecast().apply {
+        date =
+            ZonedDateTime.ofInstant(Instant.ofEpochSecond(forecast.ts!!.toLong()), ZoneOffset.UTC)
+        forecast.temp?.let {
+            highC = it
+            highF = ConversionMethods.CtoF(it)
+        }
+        condition = forecast.weather?.description?.toUpperCase()
+        icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERBITIO)
+            .getWeatherIcon(forecast.weather?.icon)
+
+        windDegrees = forecast.windDir
+        forecast.windSpd?.let {
+            windKph = ConversionMethods.msecToKph(it)
+            windMph = ConversionMethods.msecToMph(it)
+        }
+
+        // Extras
+        extras = ForecastExtras()
+        extras.humidity = forecast.rh
+        extras.cloudiness = forecast.clouds
+        // 1hPA = 1mbar
+        forecast.slp?.let {
+            extras.pressureMb = it
+            extras.pressureIn = ConversionMethods.mbToInHg(it)
+        }
+        extras.windDegrees = forecast.windDir
+        forecast.windSpd?.let {
+            extras.windMph = ConversionMethods.msecToMph(it)
+            extras.windKph = ConversionMethods.msecToKph(it)
+        }
+        forecast.dewpt?.let {
+            extras.dewpointC = it
+            extras.dewpointF = ConversionMethods.CtoF(it).roundToInt().toFloat()
+        }
+        forecast.appTemp?.let {
             extras.feelslikeC = it
             extras.feelslikeF = ConversionMethods.CtoF(it)
         }
