@@ -1,7 +1,7 @@
 package com.thewizrd.shared_resources.icons
 
 import com.thewizrd.shared_resources.appLib
-import java.util.*
+import java.util.Collections
 
 class WeatherIconsManager internal constructor() : WeatherIconsProvider {
     private val _iconProviders = mutableMapOf<String, WeatherIconProvider>()
@@ -13,6 +13,7 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
         defaultIconMap.addIconProvider(WeatherIconsEFProvider())
         defaultIconMap.addIconProvider(WUndergroundIconsProvider())
         defaultIconMap.addIconProvider(WeatherIconicProvider())
+        defaultIconMap.addIconProvider(JDWIIconsProvider())
         defaultIconProviders = Collections.unmodifiableMap(defaultIconMap)
 
         // Register default icon providers
