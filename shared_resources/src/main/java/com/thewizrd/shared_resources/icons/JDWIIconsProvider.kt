@@ -50,8 +50,8 @@ class JDWIIconsProvider : WeatherIconProvider() {
             WeatherIcons.DAY_STORM_SHOWERS,
             WeatherIcons.DAY_THUNDERSTORM -> R.drawable.jdwi_storm_day
 
-            WeatherIcons.DAY_RAIN -> R.drawable.jdwi_rain_day
-            WeatherIcons.DAY_RAIN_WIND -> R.drawable.jdwi_rain_day
+            WeatherIcons.DAY_RAIN,
+            WeatherIcons.DAY_RAIN_WIND,
             WeatherIcons.DAY_SHOWERS,
             WeatherIcons.DAY_SPRINKLE -> R.drawable.jdwi_rain_day
 
@@ -108,24 +108,23 @@ class JDWIIconsProvider : WeatherIconProvider() {
             WeatherIcons.FOG,
             WeatherIcons.HAZE -> R.drawable.jdwi_fog
 
-            WeatherIcons.HAIL -> R.drawable.jdwi_sleet
+            WeatherIcons.HAIL,
+            WeatherIcons.RAIN_MIX,
+            WeatherIcons.SLEET,
+            WeatherIcons.SLEET_STORM -> R.drawable.jdwi_sleet
 
             WeatherIcons.HOT -> R.drawable.material_thermometer_gain
 
             WeatherIcons.CLOUDY_GUSTS,
             WeatherIcons.CLOUDY_WINDY,
-            WeatherIcons.LIGHT_WIND -> R.drawable.jdwi_windy
+            WeatherIcons.LIGHT_WIND,
+            WeatherIcons.WINDY,
+            WeatherIcons.STRONG_WIND -> R.drawable.jdwi_windy
 
             WeatherIcons.RAIN,
             WeatherIcons.RAIN_WIND,
             WeatherIcons.SHOWERS,
-            WeatherIcons.SPRINKLE,
-            WeatherIcons.WINDY,
-            WeatherIcons.STRONG_WIND -> R.drawable.jdwi_rain
-
-            WeatherIcons.RAIN_MIX,
-            WeatherIcons.SLEET,
-            WeatherIcons.SLEET_STORM -> R.drawable.jdwi_sleet
+            WeatherIcons.SPRINKLE -> R.drawable.jdwi_rain
 
             WeatherIcons.SNOW,
             WeatherIcons.SNOW_THUNDERSTORM,
