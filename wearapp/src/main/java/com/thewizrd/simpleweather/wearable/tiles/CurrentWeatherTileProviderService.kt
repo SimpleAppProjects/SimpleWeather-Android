@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.wearable.tiles
 
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.wearable.tiles.layouts.currentWeatherTileLayout

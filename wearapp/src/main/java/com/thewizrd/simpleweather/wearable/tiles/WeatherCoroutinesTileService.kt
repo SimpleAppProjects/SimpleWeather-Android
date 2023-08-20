@@ -1,18 +1,18 @@
 package com.thewizrd.simpleweather.wearable.tiles
 
-import androidx.wear.tiles.ActionBuilders.*
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.tiles.DimensionBuilders
+import androidx.wear.protolayout.ActionBuilders.*
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders
+import androidx.wear.protolayout.LayoutElementBuilders.*
+import androidx.wear.protolayout.ModifiersBuilders
+import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.ResourceBuilders.Resources
+import androidx.wear.protolayout.TimelineBuilders.Timeline
+import androidx.wear.protolayout.TimelineBuilders.TimelineEntry
 import androidx.wear.tiles.EventBuilders
-import androidx.wear.tiles.LayoutElementBuilders.*
-import androidx.wear.tiles.ModifiersBuilders
-import androidx.wear.tiles.ModifiersBuilders.Clickable
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest
 import androidx.wear.tiles.RequestBuilders.TileRequest
-import androidx.wear.tiles.ResourceBuilders.Resources
 import androidx.wear.tiles.TileBuilders.Tile
-import androidx.wear.tiles.TimelineBuilders.Timeline
-import androidx.wear.tiles.TimelineBuilders.TimelineEntry
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
 import com.google.android.horologist.tiles.images.toImageResource
@@ -84,7 +84,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     final override suspend fun tileRequest(requestParams: TileRequest): Tile {
         val weather = getWeather()
 
-        val rootLayout = renderTile(weather, requestParams.deviceParameters!!)
+        val rootLayout = renderTile(weather, requestParams.deviceConfiguration)
 
         val singleTileTimeline = Timeline.Builder()
             .addTimelineEntry(
@@ -115,7 +115,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
 
         return Tile.Builder()
             .setResourcesVersion(System.currentTimeMillis().toString())
-            .setTimeline(singleTileTimeline)
+            .setTileTimeline(singleTileTimeline)
             .setFreshnessIntervalMillis(freshnessIntervalMillis)
             .build()
     }
@@ -130,7 +130,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             .setVersion(requestParams.version)
             .apply {
                 produceRequestedResources(
-                    requestParams.deviceParameters!!,
+                    requestParams.deviceConfiguration,
                     requestParams.resourceIds
                 )
             }

@@ -1,8 +1,8 @@
 package com.thewizrd.simpleweather.wearable.tiles
 
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ResourceBuilders
 import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.weatherdata.model.Weather
