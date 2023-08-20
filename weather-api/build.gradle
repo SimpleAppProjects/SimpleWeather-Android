@@ -2,6 +2,7 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -13,24 +14,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas".toString())
-                arg("room.incremental", "true")
-                arg("room.expandProjection", "true")
-            }
-        }
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += [
-                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                        "room.incremental"     : "true",
-                        "room.expandProjection": "true"
-                ]
-            }
-        }
     }
 
     buildTypes {
@@ -113,7 +96,7 @@ dependencies {
     implementation "androidx.preference:preference-ktx:$preference_version"
 
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     // Room migration testing
     androidTestImplementation "androidx.room:room-testing:$room_version"
@@ -129,11 +112,11 @@ dependencies {
     }
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
     kapt "com.github.nename0:moshi-java-codegen:1.1.1"
 
-    fullgmsImplementation 'com.google.android.libraries.places:places:3.1.0'
+    fullgmsImplementation 'com.google.android.libraries.places:places:3.2.0'
     fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
 }
@@ -152,4 +135,38 @@ android.libraryVariants.all { variant ->
     if (name.contains('fullgms')) {
         variant.preBuildProvider.configure { dependsOn(keyCheck) }
     }
+}
+
+class RoomSchemaArgProvider implements CommandLineArgumentProvider {
+
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File schemaDir
+
+    @Input
+    Boolean incremental;
+
+    @Input
+    Boolean expandProjection;
+
+    RoomSchemaArgProvider(File schemaDir, Boolean incremental, Boolean expandProjection) {
+        this.schemaDir = schemaDir
+        this.incremental = incremental
+        this.expandProjection = expandProjection
+    }
+
+    @Override
+    Iterable<String> asArguments() {
+        // Note: If you're using KSP, you should change the line below to return
+        // ["room.schemaLocation=${schemaDir.path}"]
+        return [
+                "room.schemaLocation=${schemaDir.path}".toString(),
+                "room.incremental=" + (incremental ?: true),
+                "room.expandProjection=" + (expandProjection ?: true)
+        ]
+    }
+}
+
+ksp {
+    arg(new RoomSchemaArgProvider(new File(projectDir, "schemas"), true, true))
 }
