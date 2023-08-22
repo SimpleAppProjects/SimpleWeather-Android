@@ -32,7 +32,7 @@ abstract class UserLocaleActivity : AppCompatLiteActivity() {
     }
 
     private val listener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences?, key: String ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String? ->
             if (!key.isNullOrWhitespace()) {
                 if (LocaleUtils.KEY_LANGUAGE == key) {
                     ActivityCompat.recreate(this@UserLocaleActivity)
