@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 @TargetApi(24)
 public class TileProviderUpdateRequester {
@@ -26,7 +27,10 @@ public class TileProviderUpdateRequester {
         Intent intent = new Intent("android.support.wearable.tiles.ACTION_REQUEST_UPDATE_ALL");
         intent.setPackage("com.google.android.wearable.app");
         intent.putExtra("android.support.wearable.tiles.EXTRA_PROVIDER_COMPONENT", this.mProviderComponent);
-        intent.putExtra("android.support.wearable.tiles.EXTRA_PENDING_INTENT", PendingIntent.getActivity(this.mContext, 0, new Intent(""), 0));
+        if (Build.VERSION.SDK_INT >= 31)
+            intent.putExtra("android.support.wearable.tiles.EXTRA_PENDING_INTENT", PendingIntent.getActivity(this.mContext, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
+        else
+            intent.putExtra("android.support.wearable.tiles.EXTRA_PENDING_INTENT", PendingIntent.getActivity(this.mContext, 0, new Intent(""), 0));
         return intent;
 
     }
