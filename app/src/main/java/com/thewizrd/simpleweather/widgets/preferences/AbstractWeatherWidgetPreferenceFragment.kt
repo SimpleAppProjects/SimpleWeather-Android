@@ -418,25 +418,27 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
         }
     }
 
-    // TODO: Find a fix for Android 13+ (READ_EXTERNAL_STORAGE is deprecated)
+    @SuppressLint("MissingPermission")
     protected fun loadWallpaperBackground(skipPermissions: Boolean = false) {
-        if (!skipPermissions && PermissionChecker.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PermissionChecker.PERMISSION_GRANTED
-        ) {
-            wallpaperPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            return
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            if (!skipPermissions && PermissionChecker.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PermissionChecker.PERMISSION_GRANTED
+            ) {
+                wallpaperPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                return
+            }
 
-        runWithView {
-            runCatching {
-                val wallpaperMgr = WallpaperManager.getInstance(requireContext())
-                wallpaperMgr.fastDrawable?.let { drawable ->
-                    binding.widgetBackground.setImageDrawable(drawable)
+            runWithView {
+                runCatching {
+                    val wallpaperMgr = WallpaperManager.getInstance(requireContext())
+                    wallpaperMgr.fastDrawable?.let { drawable ->
+                        binding.widgetBackground.setImageDrawable(drawable)
+                    }
+                }.onFailure {
+                    Logger.writeLine(Log.DEBUG, it)
                 }
-            }.onFailure {
-                Logger.writeLine(Log.DEBUG, it)
             }
         }
     }
