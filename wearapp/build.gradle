@@ -90,7 +90,6 @@ dependencies {
     implementation project(":shared_resources")
     implementation project(":weather-api")
     implementation project(":common")
-    implementation project(":unofficialtileapi")
     implementation project(":extras")
 
     // Core library

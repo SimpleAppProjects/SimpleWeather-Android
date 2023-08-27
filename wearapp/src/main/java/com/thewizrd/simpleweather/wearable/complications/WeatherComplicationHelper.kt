@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.wearable.complications
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import com.thewizrd.shared_resources.utils.Logger
 
@@ -12,7 +13,7 @@ object WeatherComplicationHelper {
     @JvmStatic
     fun requestComplicationUpdate(
         context: Context,
-        serviceClass: Class<*>,
+        serviceClass: Class<out ComplicationDataSourceService>,
         complicationId: Int
     ) {
         Logger.writeLine(

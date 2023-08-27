@@ -38,6 +38,7 @@
     <!-- Tile Labels -->
     <string name="tile_label_currentweather">Current Weather</string>
     <string name="tile_label_weather_forecast">Weather + Forecast</string>
+    <string name="tile_label_weather_hrforecast">Weather + Hourly Forecast</string>
 
     <!-- Complication Labels -->
     <!-- Weather (High/Low) -->

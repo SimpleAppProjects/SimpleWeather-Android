@@ -372,7 +372,7 @@ class SettingsManager(context: Context) {
     }
 
     suspend fun updateLocation(location: LocationData?) {
-        if (appLib.isPhone) {
+        if (isPhone) {
             if (location?.locationType == LocationType.GPS && location.isValid) {
                 saveLastGPSLocData(location)
             } else if (location?.locationType == LocationType.SEARCH && location.isValid) {

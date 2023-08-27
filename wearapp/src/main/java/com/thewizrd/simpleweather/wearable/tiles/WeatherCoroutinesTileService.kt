@@ -1,11 +1,15 @@
 package com.thewizrd.simpleweather.wearable.tiles
 
-import androidx.wear.protolayout.ActionBuilders.*
+import android.graphics.Bitmap
+import android.os.Build
+import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.DimensionBuilders
-import androidx.wear.protolayout.LayoutElementBuilders.*
+import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.ResourceBuilders.ImageResource
+import androidx.wear.protolayout.ResourceBuilders.InlineImageResource
 import androidx.wear.protolayout.ResourceBuilders.Resources
 import androidx.wear.protolayout.TimelineBuilders.Timeline
 import androidx.wear.protolayout.TimelineBuilders.TimelineEntry
@@ -15,7 +19,6 @@ import androidx.wear.tiles.RequestBuilders.TileRequest
 import androidx.wear.tiles.TileBuilders.Tile
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
-import com.google.android.horologist.tiles.images.toImageResource
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
@@ -29,21 +32,16 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 internal const val ID_WEATHER_ICON_PREFIX = "weather_icon:"
+internal const val ID_FORECAST_ICON_PREFIX = "forecast:"
 
 @OptIn(ExperimentalHorologistApi::class)
 abstract class WeatherCoroutinesTileService : SuspendingTileService() {
-    companion object {
-        /**
-         * A constant for non updating resources where each id will always contain the same content.
-         */
-        const val PERMANENT_RESOURCES_VERSION: String = "0"
-    }
-
     open val freshnessIntervalMillis: Long = 0L
 
-    protected val resources = mutableListOf<String>()
+    protected val resources = mutableSetOf<String>()
 
     override fun onTileAddEvent(requestParams: EventBuilders.TileAddEvent) {
         super.onTileAddEvent(requestParams)
@@ -90,9 +88,9 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             .addTimelineEntry(
                 TimelineEntry.Builder()
                     .setLayout(
-                        Layout.Builder()
+                        LayoutElementBuilders.Layout.Builder()
                             .setRoot(
-                                Box.Builder()
+                                LayoutElementBuilders.Box.Builder()
                                     .addContent(rootLayout)
                                     .setHeight(DimensionBuilders.expand())
                                     .setWidth(DimensionBuilders.expand())
@@ -123,7 +121,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     abstract fun renderTile(
         weather: Weather?,
         deviceParameters: DeviceParameters
-    ): LayoutElement
+    ): LayoutElementBuilders.LayoutElement
 
     final override suspend fun resourcesRequest(requestParams: ResourcesRequest): Resources {
         return Resources.Builder()
@@ -144,8 +142,6 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
         deviceParameters: DeviceParameters,
         resourceIds: List<String>
     ) {
-        val wim = sharedDeps.weatherIconsManager
-        val darkIconCtx = applicationContext.getThemeContextOverride(false)
         val resources = resourceIds.takeIf { it.isNotEmpty() } ?: resources
 
         if (resources.isNotEmpty()) {
@@ -155,10 +151,17 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
 
                     this.addIdToImageMapping(
                         id,
-                        ImageUtils.bitmapFromDrawable(
-                            darkIconCtx,
-                            wim.getWeatherIconResource(icon)
-                        ).toImageResource()
+                        createImageResourceFromWeatherIcon(icon)
+                    )
+                } else if (id.startsWith(ID_FORECAST_ICON_PREFIX)) {
+                    val icon = id.removePrefix(ID_FORECAST_ICON_PREFIX).run {
+                        // forecast idx
+                        this.removeRange(0, indexOfFirst { it == ':' } + 1)
+                    }
+
+                    this.addIdToImageMapping(
+                        id,
+                        createImageResourceFromWeatherIcon(icon)
                     )
                 } else {
                     produceRequestedResource(deviceParameters, id)
@@ -173,14 +176,42 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     ) {
     }
 
-    protected open fun getLaunchAction(): Action {
-        return LaunchAction.Builder()
+    protected open fun getLaunchAction(): ActionBuilders.Action {
+        return ActionBuilders.LaunchAction.Builder()
             .setAndroidActivity(
-                AndroidActivity.Builder()
+                ActionBuilders.AndroidActivity.Builder()
                     .setPackageName(this.packageName)
                     .setClassName(LaunchActivity::class.java.name)
                     .build()
             )
             .build()
+    }
+
+    private fun createImageResourceFromWeatherIcon(icon: String): ImageResource {
+        val wim = sharedDeps.weatherIconsManager
+        val darkIconCtx = applicationContext.getThemeContextOverride(false)
+
+        return ImageUtils.bitmapFromDrawable(
+            darkIconCtx,
+            wim.getWeatherIconResource(icon)
+        ).run {
+            val buffer = ByteArrayOutputStream().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, this)
+                } else {
+                    compress(Bitmap.CompressFormat.PNG, 100, this)
+                }
+            }.toByteArray()
+
+            ImageResource.Builder()
+                .setInlineResource(
+                    InlineImageResource.Builder()
+                        .setData(buffer)
+                        .setWidthPx(width)
+                        .setHeightPx(height)
+                        .build()
+                )
+                .build()
+        }
     }
 }

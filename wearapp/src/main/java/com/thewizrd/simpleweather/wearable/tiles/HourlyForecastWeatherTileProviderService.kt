@@ -11,11 +11,14 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_CHANCE_ICON
 import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_CLOUDINESS_ICON
 import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_WINDSPEED_ICON
-import com.thewizrd.simpleweather.wearable.tiles.layouts.forecastWeatherTileLayout
+import com.thewizrd.simpleweather.wearable.tiles.layouts.hourlyForecastWeatherTileLayout
+import com.thewizrd.weather_api.weatherModule
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
-class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
+class HourlyForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
     companion object {
-        private const val TAG = "ForecastWeatherTileProviderService"
+        private const val TAG = "HourlyForecastWeatherTileProviderService"
         private const val FORECAST_LENGTH = 4
     }
 
@@ -24,17 +27,17 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
         deviceParameters: DeviceParameters
     ): LayoutElementBuilders.LayoutElement {
         resources.clear()
-        resources.add("${ID_WEATHER_ICON_PREFIX}${weather?.condition?.icon ?: WeatherIcons.NA}")
+        resources.add("$ID_WEATHER_ICON_PREFIX${weather?.condition?.icon ?: WeatherIcons.NA}")
         resources.add(ID_WEATHER_CHANCE_ICON)
         resources.add(ID_WEATHER_CLOUDINESS_ICON)
         resources.add(ID_WEATHER_WINDSPEED_ICON)
 
         // Add forecast icons to resources
-        weather?.forecast?.forEachIndexed { index, forecast ->
+        weather?.hrForecast?.forEachIndexed { index, forecast ->
             resources.add("${ID_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
         }
 
-        return forecastWeatherTileLayout(weather, this, deviceParameters)
+        return hourlyForecastWeatherTileLayout(weather, this, deviceParameters)
     }
 
     override fun ResourceBuilders.Resources.Builder.produceRequestedResource(
@@ -68,12 +71,21 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
     override suspend fun getWeather(): Weather? {
         val weather = super.getWeather()
 
-        if (weather != null && weather.forecast.isNullOrEmpty()) {
+        if (weather != null && weather.hrForecast.isNullOrEmpty()) {
             val locationData = settingsManager.getHomeData()
 
             if (locationData?.isValid == true) {
-                val forecasts = settingsManager.getWeatherForecastData(locationData.query)
-                weather.forecast = forecasts?.forecast?.take(FORECAST_LENGTH)
+                val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
+                val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+
+                val forecasts =
+                    settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                        locationData.query,
+                        FORECAST_LENGTH,
+                        now.minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
+                    )
+
+                weather.hrForecast = forecasts.take(FORECAST_LENGTH)
             }
         }
 
