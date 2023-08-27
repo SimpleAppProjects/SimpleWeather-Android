@@ -1,0 +1,6 @@
+[submodule "weathericons"]
+	path = weathericons
+	url = https://github.com/SimpleAppProjects/simpleweather-android.weathericons.git
+[submodule "extras"]
+	path = extras
+	url = https://github.com/SimpleAppProjects/simpleweather-android.extra.git
