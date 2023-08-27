@@ -350,9 +350,11 @@ private fun ColumnScope.WeatherLocation(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(id = R.dimen.inner_layout_padding)
+                start = dimensionResource(id = R.dimen.inner_layout_padding),
+                end = dimensionResource(id = R.dimen.inner_layout_padding),
+                top = 2.dp
             )
-            .defaultMinSize(minHeight = 48.dp)
+            .defaultMinSize(minHeight = 56.dp)
             .wrapContentHeight(Alignment.CenterVertically),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
         crossAxisAlignment = FlowCrossAxisAlignment.Center,
@@ -370,7 +372,9 @@ private fun ColumnScope.WeatherLocation(
             text = locationName ?: WeatherIcons.EM_DASH,
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
-            style = MaterialTheme.typography.button
+            style = MaterialTheme.typography.button,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -389,7 +393,8 @@ private fun IconTempRow(
             modifier = Modifier
                 .height(60.dp)
                 .weight(1f)
-                .padding(end = 8.dp),
+                .padding(end = 8.dp)
+                .align(Alignment.CenterVertically),
             alignment = IconAlignment.End,
             weatherIcon = weatherIcon,
             iconProvider = iconProvider,
@@ -398,7 +403,8 @@ private fun IconTempRow(
         Text(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 8.dp),
+                .padding(start = 8.dp)
+                .align(Alignment.CenterVertically),
             text = curTemp ?: WeatherIcons.PLACEHOLDER,
             textAlign = TextAlign.Start,
             maxLines = 1,
