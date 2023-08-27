@@ -34,7 +34,6 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.wearable.tiles.ID_FORECAST_ICON_PREFIX
 import com.thewizrd.simpleweather.wearable.tiles.ID_HR_FORECAST_ICON_PREFIX
 import com.thewizrd.simpleweather.wearable.tiles.ID_WEATHER_ICON_PREFIX
 import java.time.format.DateTimeFormatter
@@ -376,7 +375,7 @@ internal fun forecastItemLayout(
     )
     .addContent(
         Image.Builder()
-            .setResourceId("${ID_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
+            .setResourceId("${ID_WEATHER_ICON_PREFIX}${forecast.icon ?: WeatherIcons.NA}")
             .setHeight(dp(28f))
             .setWidth(dp(28f))
             .setContentScaleMode(CONTENT_SCALE_MODE_FIT)

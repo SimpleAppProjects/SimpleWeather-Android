@@ -23,6 +23,7 @@ import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.di.settingsManager
+import com.thewizrd.shared_resources.icons.WeatherIconProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.wearable.WearableDataSync
@@ -32,6 +33,7 @@ import com.thewizrd.simpleweather.services.WeatherUpdaterWorker
 import com.thewizrd.simpleweather.services.WidgetUpdaterWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 
 internal const val ID_WEATHER_ICON_PREFIX = "weather_icon:"
@@ -46,6 +48,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
 
     override fun onTileAddEvent(requestParams: EventBuilders.TileAddEvent) {
         super.onTileAddEvent(requestParams)
+        Timber.tag(this::class.java.name).d("onTileAddEvent")
 
         // Enqueue work if not already
         WidgetUpdaterWorker.enqueueAction(this, WidgetUpdaterWorker.ACTION_ENQUEUEWORK)
@@ -81,8 +84,12 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     }
 
     final override suspend fun tileRequest(requestParams: TileRequest): Tile {
+        Timber.tag(this::class.java.name).d("tileRequest")
+
+        Timber.tag(this::class.java.name).d("getWeather")
         val weather = getWeather()
 
+        Timber.tag(this::class.java.name).d("renderTile")
         val rootLayout = renderTile(weather, requestParams)
 
         val singleTileTimeline = Timeline.Builder()
@@ -112,8 +119,11 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             )
             .build()
 
+        val wipKey = (sharedDeps.weatherIconsManager.iconProvider as WeatherIconProvider).key
+        Timber.tag(this::class.java.name).d("buildTile: v($wipKey)")
+
         return Tile.Builder()
-            .setResourcesVersion(System.currentTimeMillis().toString())
+            .setResourcesVersion(wipKey)
             .setTileTimeline(singleTileTimeline)
             .setFreshnessIntervalMillis(freshnessIntervalMillis)
             .build()
@@ -125,10 +135,13 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     ): LayoutElementBuilders.LayoutElement
 
     final override suspend fun resourcesRequest(requestParams: ResourcesRequest): Resources {
+        Timber.tag(this::class.java.name).d("resourcesRequest: v(${requestParams.version})")
+
         return Resources.Builder()
             .setVersion(requestParams.version)
             .apply {
                 produceRequestedResources(
+                    requestParams.version,
                     requestParams.deviceConfiguration,
                     requestParams.resourceIds
                 )
@@ -140,9 +153,11 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
      * Add resources directly to the builder.
      */
     private fun Resources.Builder.produceRequestedResources(
+        wipKey: String,
         deviceParameters: DeviceParameters,
         resourceIds: List<String>
     ) {
+        Timber.tag(this::class.java.name).d("produceRequestedResources")
         val resources = resourceIds.takeIf { it.isNotEmpty() } ?: resources
 
         if (resources.isNotEmpty()) {
@@ -152,27 +167,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
 
                     this.addIdToImageMapping(
                         id,
-                        createImageResourceFromWeatherIcon(icon)
-                    )
-                } else if (id.startsWith(ID_FORECAST_ICON_PREFIX)) {
-                    val icon = id.removePrefix(ID_FORECAST_ICON_PREFIX).run {
-                        // forecast idx
-                        this.removeRange(0, indexOfFirst { it == ':' } + 1)
-                    }
-
-                    this.addIdToImageMapping(
-                        id,
-                        createImageResourceFromWeatherIcon(icon)
-                    )
-                } else if (id.startsWith(ID_HR_FORECAST_ICON_PREFIX)) {
-                    val icon = id.removePrefix(ID_HR_FORECAST_ICON_PREFIX).run {
-                        // hr forecast idx
-                        this.removeRange(0, indexOfFirst { it == ':' } + 1)
-                    }
-
-                    this.addIdToImageMapping(
-                        id,
-                        createImageResourceFromWeatherIcon(icon)
+                        createImageResourceFromWeatherIcon(wipKey, icon)
                     )
                 } else {
                     produceRequestedResource(deviceParameters, id)
@@ -198,13 +193,25 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             .build()
     }
 
+    private fun createImageResourceFromWeatherIcon(wipKey: String, icon: String): ImageResource {
+        val wim = sharedDeps.weatherIconsManager
+        return createImageResourceFromWeatherIcon(wim.getIconProvider(wipKey), icon)
+    }
+
     private fun createImageResourceFromWeatherIcon(icon: String): ImageResource {
         val wim = sharedDeps.weatherIconsManager
+        return createImageResourceFromWeatherIcon(wim.iconProvider as WeatherIconProvider, icon)
+    }
+
+    private fun createImageResourceFromWeatherIcon(
+        iconProvider: WeatherIconProvider,
+        icon: String
+    ): ImageResource {
         val darkIconCtx = applicationContext.getThemeContextOverride(false)
 
         return ImageUtils.bitmapFromDrawable(
             darkIconCtx,
-            wim.getWeatherIconResource(icon)
+            iconProvider.getWeatherIconResource(icon)
         ).run {
             val buffer = ByteArrayOutputStream().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

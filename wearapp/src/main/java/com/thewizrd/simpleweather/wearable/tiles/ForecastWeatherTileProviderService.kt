@@ -35,13 +35,13 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
         resources.add(ID_WEATHER_WINDSPEED_ICON)
 
         // Add forecast icons to resources
-        weather?.forecast?.take(FORECAST_LENGTH)?.forEachIndexed { index, forecast ->
-            resources.add("${ID_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
+        weather?.forecast?.take(FORECAST_LENGTH)?.forEach { forecast ->
+            resources.add("${ID_WEATHER_ICON_PREFIX}${forecast.icon ?: WeatherIcons.NA}")
         }
 
         // Add forecast icons to resources
-        weather?.hrForecast?.take(FORECAST_LENGTH)?.forEachIndexed { index, forecast ->
-            resources.add("${ID_HR_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
+        weather?.hrForecast?.take(FORECAST_LENGTH)?.forEach { forecast ->
+            resources.add("${ID_WEATHER_ICON_PREFIX}${forecast.icon ?: WeatherIcons.NA}")
         }
 
         return if (requestParams.currentState.lastClickableId == ID_HR_FORECAST_ICON_PREFIX && !weather?.hrForecast.isNullOrEmpty()) {

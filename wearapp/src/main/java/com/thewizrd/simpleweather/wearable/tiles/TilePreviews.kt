@@ -195,9 +195,9 @@ fun ForecastWeatherTilePreview() {
             ID_WEATHER_WINDSPEED_ICON,
             drawableResToImageResource(R.drawable.wi_strong_wind)
         )
-        forecasts.forEachIndexed { index, item ->
+        forecasts.forEach { item ->
             addIdToImageMapping(
-                "${ID_FORECAST_ICON_PREFIX}idx=${index}:${item.icon}",
+                "${ID_WEATHER_ICON_PREFIX}${item.icon}",
                 ImageUtils.tintedBitmapFromDrawable(
                     context,
                     R.drawable.wi_cloudy,
@@ -269,9 +269,9 @@ fun HourlyForecastWeatherTilePreview() {
             ID_WEATHER_WINDSPEED_ICON,
             drawableResToImageResource(R.drawable.wi_strong_wind)
         )
-        forecasts.forEachIndexed { index, item ->
+        forecasts.forEach { item ->
             addIdToImageMapping(
-                "${ID_FORECAST_ICON_PREFIX}idx=${index}:${item.icon}",
+                "${ID_WEATHER_ICON_PREFIX}${item.icon}",
                 ImageUtils.tintedBitmapFromDrawable(
                     context,
                     R.drawable.wi_cloudy,
