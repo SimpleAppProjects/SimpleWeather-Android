@@ -1036,6 +1036,8 @@ class SettingsFragment : BaseSettingsFragment(),
 
         override fun onSelectionPerformed(success: Boolean) {
             super.onSelectionPerformed(success)
+            sharedDeps.weatherIconsManager.updateIconProvider()
+
             val context = prefContext.applicationContext
             WidgetUpdaterWorker.enqueueAction(context, WidgetUpdaterWorker.ACTION_UPDATEWIDGETS)
             WearableWorker.enqueueAction(context, WearableWorkerActions.ACTION_SENDSETTINGSUPDATE)

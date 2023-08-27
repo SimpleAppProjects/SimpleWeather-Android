@@ -1,7 +1,12 @@
 package com.thewizrd.simpleweather.preferences
 
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.Intent.FilterComparison
+import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.Color
 import android.location.LocationManager
@@ -18,7 +23,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.arch.core.util.Function
 import androidx.core.location.LocationManagerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.*
+import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import androidx.preference.SwitchPreference
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
 import com.thewizrd.common.helpers.LocationPermissionLauncher
@@ -34,9 +43,14 @@ import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.store.PlayStoreUtils
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.AnalyticsLogger
+import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.wearable.WearableDataSync
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.BuildConfig
@@ -887,6 +901,7 @@ class SettingsActivity : WearableListenerActivity() {
 
         override fun onSelectionPerformed(success: Boolean) {
             super.onSelectionPerformed(success)
+            sharedDeps.weatherIconsManager.updateIconProvider()
 
             // Update tiles and complications
             WeatherComplicationHelper.requestComplicationUpdateAll(requireContext())
