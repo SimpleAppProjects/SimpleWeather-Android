@@ -1,7 +1,7 @@
 package com.thewizrd.weather_api.nws
 
 import android.util.Log
-import com.google.gson.JsonStreamParser
+import com.squareup.moshi.JsonReader
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -15,6 +15,9 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
+import com.thewizrd.shared_resources.utils.forEachString
+import com.thewizrd.shared_resources.utils.getAsJSONArray
+import com.thewizrd.shared_resources.utils.getAsJSONObject
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -35,9 +38,11 @@ import kotlinx.coroutines.withContext
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
+import okio.buffer
+import okio.source
+import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalTime
@@ -181,178 +186,174 @@ class NWSWeatherProvider : WeatherProviderImpl() {
             }
 
     private fun createHourlyForecastResponse(forecastStream: InputStream): HourlyForecastResponse {
-        val forecastData = HourlyForecastResponse()
-        val forecastParser = JsonStreamParser(InputStreamReader(forecastStream))
+        forecastStream.source().buffer().use { buffer ->
+            val forecastData = HourlyForecastResponse()
+            val forecastParser = JsonReader.of(buffer)
 
-        if (forecastParser.hasNext()) {
-            val element = forecastParser.next()
-            val fcastRoot = element.asJsonObject
+            if (forecastParser.hasNext()) {
+                val element = forecastParser.readJsonValue()
+                val fcastRoot = (element as? Map<*, *>)?.let {
+                    JSONObject(it)
+                } ?: return forecastData
 
-            forecastData.creationDate = fcastRoot["creationDate"].asString
-            forecastData.location = Location()
+                forecastData.creationDate = fcastRoot.getString("creationDate")
+                forecastData.location = Location()
 
-            val location = fcastRoot.getAsJsonObject("location")
-            forecastData.location.latitude = location.getAsJsonPrimitive("latitude").asDouble
-            forecastData.location.longitude = location.getAsJsonPrimitive("longitude").asDouble
+                fcastRoot.getAsJSONObject("location")?.let { location ->
+                    forecastData.location.latitude = location.getDouble("latitude")
+                    forecastData.location.longitude = location.getDouble("longitude")
+                }
 
-            val periodNameList = fcastRoot.getAsJsonObject("PeriodNameList")
-            val sortedKeys: SortedSet<String> = TreeSet(Comparator { o1, o2 ->
-                val x = o1.toIntOrNull()
-                val y = o2.toIntOrNull()
-                if (x != null && y != null) {
-                    Integer.compare(x, y)
-                } else {
-                    if (o1 == null) {
-                        return@Comparator -1
+                val periodNameList = fcastRoot.getAsJSONObject("PeriodNameList")
+                val sortedKeys =
+                    periodNameList?.keys()?.asSequence()?.toSortedSet(Comparator { o1, o2 ->
+                        val x = o1.toIntOrNull()
+                        val y = o2.toIntOrNull()
+                        if (x != null && y != null) {
+                            Integer.compare(x, y)
+                        } else {
+                            if (o1 == null) {
+                                return@Comparator -1
+                            }
+                            if (o2 == null) {
+                                1
+                            } else o1.compareTo(o2)
+                        }
+                    }) ?: emptySet()
+
+                forecastData.periodsItems = ArrayList(sortedKeys.size)
+
+                for (periodNumber in sortedKeys) {
+                    val periodName = periodNameList?.getString(periodNumber) ?: continue
+
+                    if (!fcastRoot.has(periodName)) continue
+
+                    val item = PeriodsItem()
+
+                    val periodObj = fcastRoot.getAsJSONObject(periodName) ?: continue
+                    val timeArr = periodObj.getAsJSONArray("time") ?: continue
+                    val unixTimeArr = periodObj.getAsJSONArray("unixtime") ?: continue
+                    val windChillArr = periodObj.getAsJSONArray("windChill")
+                    val windSpeedArr = periodObj.getAsJSONArray("windSpeed")
+                    val cloudAmtArr = periodObj.getAsJSONArray("cloudAmount")
+                    val popArr = periodObj.getAsJSONArray("pop")
+                    val humidityArr = periodObj.getAsJSONArray("relativeHumidity")
+                    val windGustArr = periodObj.getAsJSONArray("windGust")
+                    val tempArr = periodObj.getAsJSONArray("temperature")
+                    val windDirArr = periodObj.getAsJSONArray("windDirection")
+                    val iconArr = periodObj.getAsJSONArray("iconLink")
+                    val conditionTxtArr = periodObj.getAsJSONArray("weather")
+
+                    item.periodName = periodObj.getString("periodName")
+
+                    item.time = ArrayList(timeArr.length())
+                    timeArr.forEachString { time ->
+                        item.time.add(time)
                     }
-                    if (o2 == null) {
-                        1
-                    } else o1.compareTo(o2)
-                }
-            })
-            sortedKeys.addAll(periodNameList.keySet())
 
-            forecastData.periodsItems = ArrayList(sortedKeys.size)
-
-            for (periodNumber in sortedKeys) {
-                val periodName = periodNameList.getAsJsonPrimitive(periodNumber).asString
-
-                if (!fcastRoot.has(periodName)) continue
-
-                val item = PeriodsItem()
-
-                val periodObj = fcastRoot.getAsJsonObject(periodName)
-                val timeArr = periodObj.getAsJsonArray("time")
-                val unixTimeArr = periodObj.getAsJsonArray("unixtime")
-                val windChillArr = periodObj.getAsJsonArray("windChill")
-                val windSpeedArr = periodObj.getAsJsonArray("windSpeed")
-                val cloudAmtArr = periodObj.getAsJsonArray("cloudAmount")
-                val popArr = periodObj.getAsJsonArray("pop")
-                val humidityArr = periodObj.getAsJsonArray("relativeHumidity")
-                val windGustArr = periodObj.getAsJsonArray("windGust")
-                val tempArr = periodObj.getAsJsonArray("temperature")
-                val windDirArr = periodObj.getAsJsonArray("windDirection")
-                val iconArr = periodObj.getAsJsonArray("iconLink")
-                val conditionTxtArr = periodObj.getAsJsonArray("weather")
-
-                item.periodName = periodObj.getAsJsonPrimitive("periodName").asString
-
-                item.time = ArrayList(timeArr.size())
-                for (jsonElement in timeArr) {
-                    val time = jsonElement.asString
-                    item.time.add(time)
-                }
-
-                item.unixtime = ArrayList(unixTimeArr.size())
-                for (jsonElement in unixTimeArr) {
-                    val time = jsonElement.asString
-                    item.unixtime.add(time)
-                }
-
-                if (windChillArr != null) {
-                    item.windChill = ArrayList(windChillArr.size())
-                    for (jsonElement in windChillArr) {
-                        val windChill = jsonElement.asString
-                        item.windChill.add(windChill)
+                    item.unixtime = ArrayList(unixTimeArr.length())
+                    unixTimeArr.forEachString { time ->
+                        item.unixtime.add(time)
                     }
-                } else {
-                    item.windChill = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (windSpeedArr != null) {
-                    item.windSpeed = ArrayList(windSpeedArr.size())
-                    for (jsonElement in windSpeedArr) {
-                        val windSpeed = jsonElement.asString
-                        item.windSpeed.add(windSpeed)
+                    if (windChillArr != null) {
+                        item.windChill = ArrayList(windChillArr.length())
+                        windChillArr.forEachString { windChill ->
+                            item.windChill.add(windChill)
+                        }
+                    } else {
+                        item.windChill = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.windSpeed = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (cloudAmtArr != null) {
-                    item.cloudAmount = ArrayList(cloudAmtArr.size())
-                    for (jsonElement in cloudAmtArr) {
-                        val cloudAmt = jsonElement.asString
-                        item.cloudAmount.add(cloudAmt)
+                    if (windSpeedArr != null) {
+                        item.windSpeed = ArrayList(windSpeedArr.length())
+                        windSpeedArr.forEachString { windSpeed ->
+                            item.windSpeed.add(windSpeed)
+                        }
+                    } else {
+                        item.windSpeed = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.cloudAmount = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (popArr != null) {
-                    item.pop = ArrayList(popArr.size())
-                    for (jsonElement in popArr) {
-                        val pop = jsonElement.asString
-                        item.pop.add(pop)
+                    if (cloudAmtArr != null) {
+                        item.cloudAmount = ArrayList(cloudAmtArr.length())
+                        cloudAmtArr.forEachString { cloudAmt ->
+                            item.cloudAmount.add(cloudAmt)
+                        }
+                    } else {
+                        item.cloudAmount = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.pop = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (humidityArr != null) {
-                    item.relativeHumidity = ArrayList(humidityArr.size())
-                    for (jsonElement in humidityArr) {
-                        val humidity = jsonElement.asString
-                        item.relativeHumidity.add(humidity)
+                    if (popArr != null) {
+                        item.pop = ArrayList(popArr.length())
+                        popArr.forEachString { pop ->
+                            item.pop.add(pop)
+                        }
+                    } else {
+                        item.pop = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.relativeHumidity = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (windGustArr != null) {
-                    item.windGust = ArrayList(windGustArr.size())
-                    for (jsonElement in windGustArr) {
-                        val windGust = jsonElement.asString
-                        item.windGust.add(windGust)
+                    if (humidityArr != null) {
+                        item.relativeHumidity = ArrayList(humidityArr.length())
+                        humidityArr.forEachString { humidity ->
+                            item.relativeHumidity.add(humidity)
+                        }
+                    } else {
+                        item.relativeHumidity =
+                            Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.windGust = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (tempArr != null) {
-                    item.temperature = ArrayList(tempArr.size())
-                    for (jsonElement in tempArr) {
-                        val temp = jsonElement.asString
-                        item.temperature.add(temp)
+                    if (windGustArr != null) {
+                        item.windGust = ArrayList(windGustArr.length())
+                        windGustArr.forEachString { windGust ->
+                            item.windGust.add(windGust)
+                        }
+                    } else {
+                        item.windGust = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.temperature = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (windDirArr != null) {
-                    item.windDirection = ArrayList(windDirArr.size())
-                    for (jsonElement in windDirArr) {
-                        val windDir = jsonElement.asString
-                        item.windDirection.add(windDir)
+                    if (tempArr != null) {
+                        item.temperature = ArrayList(tempArr.length())
+                        tempArr.forEachString { temp ->
+                            item.temperature.add(temp)
+                        }
+                    } else {
+                        item.temperature = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.windDirection = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (iconArr != null) {
-                    item.iconLink = ArrayList(iconArr.size())
-                    for (jsonElement in iconArr) {
-                        val icon = jsonElement.asString
-                        item.iconLink.add(icon)
+                    if (windDirArr != null) {
+                        item.windDirection = ArrayList(windDirArr.length())
+                        windDirArr.forEachString { windDir ->
+                            item.windDirection.add(windDir)
+                        }
+                    } else {
+                        item.windDirection =
+                            Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.iconLink = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                if (conditionTxtArr != null) {
-                    item.weather = ArrayList(conditionTxtArr.size())
-                    for (jsonElement in conditionTxtArr) {
-                        val condition = jsonElement.asString
-                        item.weather.add(condition)
+                    if (iconArr != null) {
+                        item.iconLink = ArrayList(iconArr.length())
+                        iconArr.forEachString { icon ->
+                            item.iconLink.add(icon)
+                        }
+                    } else {
+                        item.iconLink = Collections.nCopies<String?>(unixTimeArr.length(), null)
                     }
-                } else {
-                    item.weather = Collections.nCopies<String?>(unixTimeArr.size(), null)
-                }
 
-                forecastData.periodsItems.add(item)
+                    if (conditionTxtArr != null) {
+                        item.weather = ArrayList(conditionTxtArr.length())
+                        conditionTxtArr.forEachString { condition ->
+                            item.weather.add(condition)
+                        }
+                    } else {
+                        item.weather = Collections.nCopies<String?>(unixTimeArr.length(), null)
+                    }
+
+                    forecastData.periodsItems.add(item)
+                }
             }
+
+            return forecastData
         }
-        return forecastData
     }
 
     @Throws(WeatherException::class)

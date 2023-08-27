@@ -64,7 +64,7 @@ open class CityDBLocationProvider : WeatherLocationProviderImpl() {
 
         try {
             val df = DecimalFormat.getInstance() as DecimalFormat
-            df.applyPattern("0.0")
+            df.applyPattern("0")
             df.roundingMode = RoundingMode.DOWN // Truncate value
 
             val lat = df.format(coordinate.latitude)

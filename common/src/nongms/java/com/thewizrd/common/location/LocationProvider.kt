@@ -109,7 +109,7 @@ class LocationProvider(private val context: Context) {
                 errorMessage = ErrorMessage.Resource(R.string.error_enable_location_services)
             )
         }
-        if (!mContext.locationPermissionEnabled()) return LocationResult.PermissionDenied()
+        if (!context.locationPermissionEnabled()) return LocationResult.PermissionDenied()
 
         var location = withContext(Dispatchers.IO) {
             val result: Location? = try {

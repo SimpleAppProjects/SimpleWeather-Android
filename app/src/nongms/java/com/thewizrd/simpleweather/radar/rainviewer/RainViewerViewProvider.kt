@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
@@ -186,14 +187,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
                 animationPosition = 0
 
                 if (root?.radar != null) {
-                    if (root.radar?.past?.isNotEmpty() == true) {
-                        availableRadarFrames.addAll(root.radar.past.mapNotNull { input: RadarItem? ->
+                    root.radar?.past?.takeIf { it.isNotEmpty() }?.let {
+                        availableRadarFrames.addAll(it.mapNotNull { input: RadarItem? ->
                             input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                         })
                     }
 
-                    if (root.radar?.nowcast?.isNotEmpty() == true) {
-                        availableRadarFrames.addAll(root.radar.nowcast.mapNotNull { input: RadarItem? ->
+                    root.radar?.nowcast?.takeIf { it.isNotEmpty() }?.let {
+                        availableRadarFrames.addAll(it.mapNotNull { input: RadarItem? ->
                             input?.let { RadarFrame(input.time.toLong(), root.host, input.path) }
                         })
                     }

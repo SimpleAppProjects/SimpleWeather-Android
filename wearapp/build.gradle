@@ -90,7 +90,7 @@ dependencies {
     implementation project(":shared_resources")
     implementation project(":weather-api")
     implementation project(":common")
-    implementation project(":extras")
+    fullgmsImplementation project(":extras")
 
     // Core library
     androidTestImplementation "androidx.test:core:$test_core_version"
