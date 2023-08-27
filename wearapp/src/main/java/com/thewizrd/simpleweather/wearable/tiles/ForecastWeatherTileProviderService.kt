@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.wearable.tiles
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.tiles.RequestBuilders
 import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -12,6 +13,10 @@ import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_CHANCE_ICON
 import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_CLOUDINESS_ICON
 import com.thewizrd.simpleweather.wearable.tiles.layouts.ID_WEATHER_WINDSPEED_ICON
 import com.thewizrd.simpleweather.wearable.tiles.layouts.forecastWeatherTileLayout
+import com.thewizrd.simpleweather.wearable.tiles.layouts.hourlyForecastWeatherTileLayout
+import com.thewizrd.weather_api.weatherModule
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
     companion object {
@@ -21,7 +26,7 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
 
     override fun renderTile(
         weather: Weather?,
-        deviceParameters: DeviceParameters
+        requestParams: RequestBuilders.TileRequest
     ): LayoutElementBuilders.LayoutElement {
         resources.clear()
         resources.add("${ID_WEATHER_ICON_PREFIX}${weather?.condition?.icon ?: WeatherIcons.NA}")
@@ -30,11 +35,20 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
         resources.add(ID_WEATHER_WINDSPEED_ICON)
 
         // Add forecast icons to resources
-        weather?.forecast?.forEachIndexed { index, forecast ->
+        weather?.forecast?.take(FORECAST_LENGTH)?.forEachIndexed { index, forecast ->
             resources.add("${ID_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
         }
 
-        return forecastWeatherTileLayout(weather, this, deviceParameters)
+        // Add forecast icons to resources
+        weather?.hrForecast?.take(FORECAST_LENGTH)?.forEachIndexed { index, forecast ->
+            resources.add("${ID_HR_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
+        }
+
+        return if (requestParams.currentState.lastClickableId == ID_HR_FORECAST_ICON_PREFIX && !weather?.hrForecast.isNullOrEmpty()) {
+            hourlyForecastWeatherTileLayout(weather, this, requestParams.deviceConfiguration)
+        } else {
+            forecastWeatherTileLayout(weather, this, requestParams.deviceConfiguration)
+        }
     }
 
     override fun ResourceBuilders.Resources.Builder.produceRequestedResource(
@@ -68,12 +82,29 @@ class ForecastWeatherTileProviderService : WeatherCoroutinesTileService() {
     override suspend fun getWeather(): Weather? {
         val weather = super.getWeather()
 
-        if (weather != null && weather.forecast.isNullOrEmpty()) {
+        if (weather != null && (weather.forecast.isNullOrEmpty() || weather.hrForecast.isNullOrEmpty())) {
             val locationData = settingsManager.getHomeData()
 
             if (locationData?.isValid == true) {
-                val forecasts = settingsManager.getWeatherForecastData(locationData.query)
-                weather.forecast = forecasts?.forecast?.take(FORECAST_LENGTH)
+                if (weather.forecast.isNullOrEmpty()) {
+                    val forecasts = settingsManager.getWeatherForecastData(locationData.query)
+                    weather.forecast = forecasts?.forecast?.take(FORECAST_LENGTH)
+                }
+
+                if (weather.hrForecast.isNullOrEmpty()) {
+                    val now = ZonedDateTime.now().withZoneSameInstant(locationData.tzOffset)
+                    val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+
+                    val hrforecasts =
+                        settingsManager.getHourlyForecastsByQueryOrderByDateByLimitFilterByDate(
+                            locationData.query,
+                            FORECAST_LENGTH,
+                            now.minusHours((hrInterval * 0.5).toLong())
+                                .truncatedTo(ChronoUnit.HOURS)
+                        )
+
+                    weather.hrForecast = hrforecasts.take(FORECAST_LENGTH)
+                }
             }
         }
 

@@ -20,11 +20,6 @@ object WeatherTileHelper {
         TileService.getUpdater(
             context.applicationContext
         )
-            .requestUpdate(HourlyForecastWeatherTileProviderService::class.java)
-
-        TileService.getUpdater(
-            context.applicationContext
-        )
             .requestUpdate(CurrentWeatherTileProviderService::class.java)
 
         TileService.getUpdater(

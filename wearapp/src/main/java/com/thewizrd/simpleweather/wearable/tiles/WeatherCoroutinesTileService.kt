@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream
 
 internal const val ID_WEATHER_ICON_PREFIX = "weather_icon:"
 internal const val ID_FORECAST_ICON_PREFIX = "forecast:"
+internal const val ID_HR_FORECAST_ICON_PREFIX = "hrforecast:"
 
 @OptIn(ExperimentalHorologistApi::class)
 abstract class WeatherCoroutinesTileService : SuspendingTileService() {
@@ -82,7 +83,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
     final override suspend fun tileRequest(requestParams: TileRequest): Tile {
         val weather = getWeather()
 
-        val rootLayout = renderTile(weather, requestParams.deviceConfiguration)
+        val rootLayout = renderTile(weather, requestParams)
 
         val singleTileTimeline = Timeline.Builder()
             .addTimelineEntry(
@@ -120,7 +121,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
 
     abstract fun renderTile(
         weather: Weather?,
-        deviceParameters: DeviceParameters
+        requestParams: TileRequest
     ): LayoutElementBuilders.LayoutElement
 
     final override suspend fun resourcesRequest(requestParams: ResourcesRequest): Resources {
@@ -156,6 +157,16 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
                 } else if (id.startsWith(ID_FORECAST_ICON_PREFIX)) {
                     val icon = id.removePrefix(ID_FORECAST_ICON_PREFIX).run {
                         // forecast idx
+                        this.removeRange(0, indexOfFirst { it == ':' } + 1)
+                    }
+
+                    this.addIdToImageMapping(
+                        id,
+                        createImageResourceFromWeatherIcon(icon)
+                    )
+                } else if (id.startsWith(ID_HR_FORECAST_ICON_PREFIX)) {
+                    val icon = id.removePrefix(ID_HR_FORECAST_ICON_PREFIX).run {
+                        // hr forecast idx
                         this.removeRange(0, indexOfFirst { it == ':' } + 1)
                     }
 

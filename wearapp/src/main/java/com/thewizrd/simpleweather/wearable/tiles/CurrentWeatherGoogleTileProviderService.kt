@@ -3,6 +3,7 @@ package com.thewizrd.simpleweather.wearable.tiles
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.tiles.RequestBuilders
 import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -14,14 +15,14 @@ import com.thewizrd.simpleweather.wearable.tiles.layouts.currentWeatherGoogleTil
 class CurrentWeatherGoogleTileProviderService : WeatherCoroutinesTileService() {
     override fun renderTile(
         weather: Weather?,
-        deviceParameters: DeviceParameters
+        requestParams: RequestBuilders.TileRequest
     ): LayoutElementBuilders.LayoutElement {
         resources.clear()
         resources.add("$ID_WEATHER_ICON_PREFIX${weather?.condition?.icon ?: WeatherIcons.NA}")
         resources.add(ID_WEATHER_HI_ICON)
         resources.add(ID_WEATHER_LO_ICON)
 
-        return currentWeatherGoogleTileLayout(weather, this, deviceParameters)
+        return currentWeatherGoogleTileLayout(weather, this, requestParams.deviceConfiguration)
     }
 
     override fun ResourceBuilders.Resources.Builder.produceRequestedResource(

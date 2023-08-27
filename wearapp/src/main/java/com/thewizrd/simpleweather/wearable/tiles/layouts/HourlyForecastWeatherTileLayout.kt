@@ -2,6 +2,7 @@ package com.thewizrd.simpleweather.wearable.tiles.layouts
 
 import android.content.Context
 import android.text.format.DateFormat
+import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ColorBuilders.ColorProp
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.DeviceParametersBuilders.SCREEN_SHAPE_ROUND
@@ -18,6 +19,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.LayoutElementBuilders.Row
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer
 import androidx.wear.protolayout.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
+import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers
 import androidx.wear.protolayout.ModifiersBuilders.Padding
 import androidx.wear.protolayout.material.Text
@@ -35,6 +37,7 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.wearable.tiles.ID_FORECAST_ICON_PREFIX
+import com.thewizrd.simpleweather.wearable.tiles.ID_HR_FORECAST_ICON_PREFIX
 import com.thewizrd.simpleweather.wearable.tiles.ID_WEATHER_ICON_PREFIX
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -325,6 +328,19 @@ internal fun hourlyForecastWeatherTileLayout(
                     }
                     .build()
             )
+            .setModifiers(
+                Modifiers.Builder()
+                    .setClickable(
+                        ModifiersBuilders.Clickable.Builder()
+                            .setId(ID_FORECAST_ICON_PREFIX)
+                            .setOnClick(
+                                ActionBuilders.LoadAction.Builder()
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
             .build()
     )
     .build()
@@ -358,7 +374,7 @@ internal fun hourlyForecastItemLayout(
     )
     .addContent(
         Image.Builder()
-            .setResourceId("${ID_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
+            .setResourceId("${ID_HR_FORECAST_ICON_PREFIX}idx=${index}:${forecast.icon ?: WeatherIcons.NA}")
             .setHeight(dp(28f))
             .setWidth(dp(28f))
             .setContentScaleMode(CONTENT_SCALE_MODE_FIT)
