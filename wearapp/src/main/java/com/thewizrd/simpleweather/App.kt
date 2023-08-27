@@ -13,12 +13,16 @@ import androidx.preference.PreferenceManager
 import com.thewizrd.common.CommonModule
 import com.thewizrd.common.commonModule
 import com.thewizrd.common.preferences.SettingsListener
-import com.thewizrd.extras.extrasModule
-import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.AppState
+import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.shared_resources.SharedModule
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.simpleweather.extras.initializeExtras
 import com.thewizrd.simpleweather.receivers.CommonActionsBroadcastReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -80,7 +84,7 @@ class App : Application(), ActivityLifecycleCallbacks {
         }
 
         registerCommonReceiver()
-        extrasModule.initialize()
+        initializeExtras()
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

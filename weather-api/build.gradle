@@ -19,11 +19,6 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "DEBUG=true"
-                }
-            }
         }
         release {
             minifyEnabled true
@@ -48,12 +43,6 @@ android {
         }
     }
 
-    externalNativeBuild {
-        ndkBuild {
-            path 'src/main/jni/Android.mk'
-        }
-    }
-
     flavorDimensions 'gms'
     productFlavors {
         nongms {
@@ -61,11 +50,6 @@ android {
         }
         fullgms {
             dimension 'gms'
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "FULL_GMS_VERSION=true"
-                }
-            }
         }
     }
     namespace 'com.thewizrd.weather_api'
@@ -119,22 +103,6 @@ dependencies {
     fullgmsImplementation 'com.google.android.libraries.places:places:3.2.0'
     fullgmsImplementation 'com.android.volley:volley:1.2.1' // Required by Places API ^^^
     fullgmsImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$kotlinx_version"
-}
-
-task keyCheck(type:Exec) {
-    workingDir '../'
-    commandLine 'cmd', '/c', 'keycheck.bat'
-
-    doLast {
-        executionResult.getOrNull()?.assertNormalExitValue()
-    }
-}
-
-android.libraryVariants.all { variant ->
-    def name = variant.flavorName
-    if (name.contains('fullgms')) {
-        variant.preBuildProvider.configure { dependsOn(keyCheck) }
-    }
 }
 
 class RoomSchemaArgProvider implements CommandLineArgumentProvider {

@@ -11,6 +11,10 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.wearable.WearableListenerActivity
 
+fun initializeExtras() {
+    extrasModule.initialize()
+}
+
 fun isIconPackSupported(packKey: String?): Boolean {
     return extrasModule.isIconPackSupported(packKey)
 }

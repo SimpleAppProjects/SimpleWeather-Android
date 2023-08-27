@@ -1,7 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.devtools.ksp'
@@ -192,4 +189,10 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
+}
+
+if (getGradle().getStartParameter().getTaskRequests().toString().contains("Fullgms")) {
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.crashlytics'
+    apply plugin: 'com.google.firebase.firebase-perf'
 }
