@@ -10,6 +10,9 @@ import timber.log.Timber.DebugTree
 
 object Logger {
     @JvmStatic
+    internal var DEBUG_MODE_ENABLED = false
+
+    @JvmStatic
     fun init(context: Context) {
         if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
@@ -27,6 +30,8 @@ object Logger {
     }
 
     fun enableDebugLogger(context: Context, enable: Boolean) {
+        DEBUG_MODE_ENABLED = enable
+
         if (enable) {
             if (!Timber.forest().any { it is FileLoggingTree }) {
                 Timber.plant(FileLoggingTree(context.applicationContext))

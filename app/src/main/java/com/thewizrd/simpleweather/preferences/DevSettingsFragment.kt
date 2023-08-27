@@ -104,7 +104,7 @@ class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
         })
 
         miscCategory.addPreference(SwitchPreference(context).apply {
-            title = "Enable Debug Logger"
+            title = "Enable Debug Mode"
             isPersistent = false
             isChecked = Logger.isDebugLoggerEnabled()
             onPreferenceChangeListener =
