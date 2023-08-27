@@ -83,7 +83,7 @@ data class HourlyForecastDataItem(
 	var snowDepth: Float? = null,
 
 	@field:Json(name = "dni")
-	var dni: Int? = null,
+	var dni: Float? = null,
 
 	@field:Json(name = "uv")
 	var uv: Float? = null,

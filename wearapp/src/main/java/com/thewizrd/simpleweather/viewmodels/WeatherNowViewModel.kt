@@ -1,7 +1,11 @@
 package com.thewizrd.simpleweather.viewmodels
 
 import android.app.Application
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
@@ -35,8 +39,19 @@ import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.wearable.WearableWorker
 import com.thewizrd.weather_api.weatherModule
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 sealed interface WeatherNowState {
@@ -242,8 +257,9 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                     if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(state.locationData)
+                            "Location: %s; countryCode: %s",
+                            JSONParser.serializer(state.locationData),
+                            state.locationData.countryCode
                         )
                         Logger.writeLine(
                             Log.WARN,
@@ -280,8 +296,9 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                     if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(state.locationData)
+                            "Location: %s; countryCode: %s",
+                            JSONParser.serializer(state.locationData),
+                            state.locationData.countryCode
                         )
                         Logger.writeLine(
                             Log.WARN,

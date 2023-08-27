@@ -72,7 +72,7 @@ public class WeatherAlertNotificationService extends SafeJobIntentService {
 
     @Override
     public void onDestroy() {
-        String json = JSONParser.serializer(mNotifications, HashMap.class);
+        String json = JSONParser.serializer(mNotifications, Map.class);
         notifPrefs.edit().putString(KEY_NOTIFS, json).apply();
 
         super.onDestroy();

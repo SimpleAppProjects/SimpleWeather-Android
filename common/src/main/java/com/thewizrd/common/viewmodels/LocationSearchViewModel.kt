@@ -1,6 +1,7 @@
 package com.thewizrd.common.viewmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,8 @@ import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -162,6 +165,12 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
                 }
 
                 if (!wm.isRegionSupported(locQuery.locationCountry)) {
+                    Logger.writeLine(
+                        Log.WARN,
+                        "Location: %s; countryCode: %s",
+                        JSONParser.serializer(locQuery.toLocationData()),
+                        locQuery.locationCountry
+                    )
                     postErrorMessage(R.string.error_message_weather_region_unsupported)
                     viewModelState.update {
                         it.copy(isLoading = false)
@@ -286,6 +295,12 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
             }
 
             if (!wm.isRegionSupported(queryResult.locationCountry)) {
+                Logger.writeLine(
+                    Log.WARN,
+                    "Location: %s; countryCode: %s",
+                    JSONParser.serializer(queryResult.toLocationData()),
+                    locQuery.locationCountry
+                )
                 postErrorMessage(R.string.error_message_weather_region_unsupported)
                 viewModelState.update {
                     it.copy(isLoading = false)
