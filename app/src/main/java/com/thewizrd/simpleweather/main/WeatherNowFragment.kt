@@ -1145,7 +1145,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                         .transition(BitmapTransitionOptions.withCrossFade(300))
                         .addListener(object : RequestListener<Bitmap?> {
                             override fun onLoadFailed(
-                                e: GlideException?, model: Any,
+                                e: GlideException?, model: Any?,
                                 target: Target<Bitmap?>,
                                 isFirstResource: Boolean
                             ): Boolean {
@@ -1155,7 +1155,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                             }
 
                             override fun onResourceReady(
-                                resource: Bitmap?, model: Any,
+                                resource: Bitmap, model: Any,
                                 target: Target<Bitmap?>,
                                 dataSource: DataSource,
                                 isFirstResource: Boolean
