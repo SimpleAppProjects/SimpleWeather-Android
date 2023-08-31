@@ -38,7 +38,7 @@ jobs:
     - name: Upload debug APK
       uses: actions/upload-artifact@v3
       with:
-          name: ${{ env.date_today }} - APK(s) debug generated
+          name: ${{ env.module }}-${{ env.variant }}-${{ env.date_today }}-debug.apk
           path: ${{ env.module }}/build/outputs/apk/${{ env.variant }}/debug/${{ env.module }}-${{ env.variant }}-debug.apk
   release:
     name: Release APK
@@ -63,5 +63,5 @@ jobs:
     - name: Upload release APK
       uses: actions/upload-artifact@v3
       with:
-          name: ${{ env.date_today }} - APK(s) debug generated
+          name: ${{ env.module }}-${{ env.variant }}-${{ env.date_today }}-release.apk
           path: ${{ env.module }}/build/outputs/apk/${{ env.variant }}/release/${{ env.module }}-${{ env.variant }}-release.apk
