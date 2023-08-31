@@ -31,8 +31,6 @@ jobs:
         cache: gradle
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
     # APK Debug
     - name: Build debug APK
       run: ./gradlew assemble${{ env.variant }}Debug
@@ -58,8 +56,6 @@ jobs:
         cache: gradle
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
     # APK Release
     - name: Build release APK
       run: ./gradlew assemble${{ env.variant }}
