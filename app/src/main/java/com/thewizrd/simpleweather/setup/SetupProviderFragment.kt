@@ -175,6 +175,16 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
             }
 
         registerPref = findPreference(KEY_APIREGISTER)!!
+        registerPref.setOnPreferenceClickListener { preference ->
+            preference.intent?.let {
+                runCatching {
+                    if (it.resolveActivity(preference.context.packageManager) != null) {
+                        startActivity(it)
+                    }
+                }
+            }
+            true
+        }
 
         providerPref.value = settingsManager.getAPI()
 

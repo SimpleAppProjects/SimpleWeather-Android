@@ -4,7 +4,11 @@ import android.app.Application
 import androidx.annotation.MainThread
 import androidx.arch.core.util.Function
 import androidx.core.util.ObjectsCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import com.thewizrd.common.controls.AirQualityViewModel
 import com.thewizrd.shared_resources.database.WeatherDatabase
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -49,7 +53,7 @@ class AirQualityForecastViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private val forecastObserver = Observer<Forecasts> { forecastData ->
+    private val forecastObserver = Observer<Forecasts?> { forecastData ->
         this.aqiForecastData.postValue(forecastData?.aqiForecast)
     }
 

@@ -157,8 +157,9 @@ class WeatherDataLoader {
                 if (weather == null) {
                     Logger.writeLine(
                         Log.WARN,
-                        "Location: %s",
-                        JSONParser.serializer(location, LocationData::class.java)
+                        "Location: %s; countryCode: %s",
+                        JSONParser.serializer(location),
+                        location.countryCode
                     )
                     throw WeatherException(ErrorStatus.QUERYNOTFOUND).initCause(CustomException(R.string.error_message_weather_region_unsupported))
                 }

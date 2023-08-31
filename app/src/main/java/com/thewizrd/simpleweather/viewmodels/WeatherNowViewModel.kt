@@ -34,7 +34,11 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.ImageDataViewModel
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -230,8 +234,9 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(state.locationData)
+                            "Location: %s; countryCode: %s",
+                            JSONParser.serializer(state.locationData),
+                            state.locationData.countryCode
                         )
                         Logger.writeLine(
                             Log.WARN,
@@ -288,8 +293,9 @@ class WeatherNowViewModel(app: Application) : AndroidViewModel(app) {
                     if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
-                            "Location: %s",
-                            JSONParser.serializer(state.locationData)
+                            "Location: %s; countryCode: %s",
+                            JSONParser.serializer(state.locationData),
+                            state.locationData.countryCode
                         )
                         Logger.writeLine(
                             Log.WARN,

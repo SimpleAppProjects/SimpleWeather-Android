@@ -576,6 +576,16 @@ class SettingsFragment : BaseSettingsFragment(),
         }
 
         registerPref = findPreference(KEY_APIREGISTER)!!
+        registerPref.setOnPreferenceClickListener { preference ->
+            preference.intent?.let {
+                runCatching {
+                    if (it.resolveActivity(preference.context.packageManager) != null) {
+                        startActivity(it)
+                    }
+                }
+            }
+            true
+        }
 
         // Set key as verified if API Key is req for API and its set
         if (weatherModule.weatherManager.isKeyRequired()) {
