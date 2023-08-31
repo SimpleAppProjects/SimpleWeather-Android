@@ -1,22 +1,41 @@
-# SimpleWeather
+<div align="center">
+<br>
+<img src="shared_resources/src/main/res/drawable-xxxhdpi/ic_logo.png" width="250" />
+</div>
 
-A simple weather application
+<h1 align="center">SimpleWeather</h1>
+<p align="center">A simple weather application</p>
+<div align="center">
+Available for <a href='https://github.com/SimpleAppProjects/SimpleWeather-Windows'>Windows</a> & <a href='https://github.com/SimpleAppProjects/SimpleWeather-Android'>Android</a> devices
+</div>
 
-Available for <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Windows'>Windows 10</a> & <a href='https://github.com/bryan2894-playgrnd/SimpleWeather-Android'>Android</a> devices
+<br>
 
-## Preview
+<h1 align="center">Download</h1>
 
-![App Preview](https://lh3.googleusercontent.com/pw/ACtC-3ejZweBEAaLojPCsKHl1q_r579MWOTIhPNA4JSsnqsGvJm890NFIosjR_qOEcwGRSfZiRX66v2AbRi7aozLsYRSNtqEx-LT04v2d6KEJjeDQ3c2J9b4K_h5a0VeVyY2C5hpk2OQC4qri2Z5gb-esuy1_g?authuser=0)
-
-## Release
-
+<div align="center">
 <a href='https://play.google.com/store/apps/details?id=com.thewizrd.simpleweather&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width=300/></a>
+<a href='https://github.com/SimpleAppProjects/SimpleWeather-Android/releases'><img alt='Get it on Github' src='https://camo.githubusercontent.com/70bffd8873ab81e1bb0bccc44e488c3a989e3bd5/68747470733a2f2f692e6962622e636f2f71306d6463345a2f6765742d69742d6f6e2d6769746875622e706e67' width=300/></a>
+</div>
 
-<b>OR</b>
+<h1 align="center">Build Instructions</h1>
 
-Download the package (.apk) to sideload from <a href="https://github.com/SimpleAppProjects/SimpleWeather-Android/releases">HERE</a>
+Checkout [public](https://github.com/SimpleAppProjects/SimpleWeather-Android/tree/public) branch in
+order to build.
 
-## License
+Checkout missing modules:
+
+    git submodule update
+
+<h1 align="center">Preview</h1>
+
+<div align="center">
+   <img src="https://lh3.googleusercontent.com/pw/ACtC-3ejZweBEAaLojPCsKHl1q_r579MWOTIhPNA4JSsnqsGvJm890NFIosjR_qOEcwGRSfZiRX66v2AbRi7aozLsYRSNtqEx-LT04v2d6KEJjeDQ3c2J9b4K_h5a0VeVyY2C5hpk2OQC4qri2Z5gb-esuy1_g?authuser=0" />
+</div>
+
+<br>
+
+<h1 align="center">License</h1>
 
     Copyright 2017 Dave Antoine
 
