@@ -105,9 +105,6 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("57").build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
-                        .build()
                 ).build()
             }
             ComplicationType.SHORT_TEXT -> {
@@ -163,9 +160,6 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(aqiIndex.toString()).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
-                        .build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

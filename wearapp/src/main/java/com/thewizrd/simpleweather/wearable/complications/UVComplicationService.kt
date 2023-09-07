@@ -47,7 +47,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setText(
                     PlainComplicationText.Builder("3").build()
                 ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
+                    PlainComplicationText.Builder("UV").build()
                 ).build()
             }
             ComplicationType.SHORT_TEXT -> {
@@ -107,7 +107,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setText(
                     PlainComplicationText.Builder(uvModel.index.toString()).build()
                 ).setTitle(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build()
+                    PlainComplicationText.Builder("UV").build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
