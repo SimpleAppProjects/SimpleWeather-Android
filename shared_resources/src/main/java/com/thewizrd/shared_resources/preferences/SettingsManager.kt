@@ -74,7 +74,7 @@ class SettingsManager(context: Context) {
         const val KEY_APIKEY = "API_KEY"
         private const val KEY_APIKEY_VERIFIED = "API_KEY_VERIFIED"
         const val KEY_APIKEY_PREFIX = "api_key"
-        private const val KEY_USECELSIUS = "key_usecelsius"
+        const val KEY_USECELSIUS = "key_usecelsius"
         const val KEY_WEATHERLOADED = "weatherLoaded"
         const val KEY_FOLLOWGPS = "key_followgps"
         private const val KEY_LASTGPSLOCATION = "key_lastgpslocation"
