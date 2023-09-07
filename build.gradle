@@ -19,7 +19,7 @@ buildscript {
         activity_version = '1.7.2'
         appcompat_version = '1.6.1'
         constraintlayout_version = '2.1.4'
-        core_version = '1.10.1'
+        core_version = '1.12.0-rc01'
         arch_core_runtime_version = '2.2.0'
         fragment_version = '1.6.1'
         lifecycle_version = '2.6.1'
