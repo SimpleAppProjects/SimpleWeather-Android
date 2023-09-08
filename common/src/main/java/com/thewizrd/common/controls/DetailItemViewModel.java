@@ -3,6 +3,7 @@ package com.thewizrd.common.controls;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.thewizrd.shared_resources.R;
 import com.thewizrd.shared_resources.SharedModuleKt;
@@ -270,6 +271,11 @@ public class DetailItemViewModel {
         } else if (uv.getIndex() >= 11) {
             this.value = context.getString(R.string.uv_11);
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public DetailItemViewModel(@NonNull WeatherDetailsType detailsType) {
+        this.detailsType = detailsType;
     }
 
     @NonNull
