@@ -141,7 +141,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             .setVersion(requestParams.version)
             .apply {
                 produceRequestedResources(
-                    requestParams.version,
+                    requestParams.version.split(':').first(),
                     requestParams.deviceConfiguration,
                     requestParams.resourceIds
                 )
@@ -157,8 +157,8 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
         deviceParameters: DeviceParameters,
         resourceIds: List<String>
     ) {
-        Timber.tag(this::class.java.name).d("produceRequestedResources")
-        Timber.tag(this::class.java.name).e("res - resIds = $resourceIds")
+        Timber.tag(this::class.java.name).d("produceRequestedResources: key = $wipKey")
+        Timber.tag(this::class.java.name).d("res - resIds = $resourceIds")
 
         val resources = resourceIds.takeIf { it.isNotEmpty() } ?: resources
 
