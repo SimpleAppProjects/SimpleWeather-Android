@@ -44,4 +44,5 @@
 Weather (High/Low) -->
     <string name="complication_label_weather_hilo">"Pogoda (Maks / Min)"</string>
     <string name="complication_label_weather_currentlocation">"Pogoda (obecna lokalizacja)"</string>
+    <string name="tile_label_weather_hrforecast">"Pogoda + prognoza godzinowa"</string>
 </resources>

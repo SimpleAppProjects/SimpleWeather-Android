@@ -44,4 +44,5 @@
 Weather (High/Low) -->
     <string name="complication_label_weather_hilo">"Tiempo (Máx / Mín)"</string>
     <string name="complication_label_weather_currentlocation">"Tiempo (ubicación actual)"</string>
+    <string name="tile_label_weather_hrforecast">"Tiempo + Previsión horaria"</string>
 </resources>

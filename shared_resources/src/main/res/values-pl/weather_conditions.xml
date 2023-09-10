@@ -31,7 +31,7 @@
     <string name="weather_fair">"Ładnie"</string>
     <string name="weather_rainandhail">"Deszcz z gradem"</string>
     <string name="weather_hot">"Gorąco"</string>
-    <string name="weather_isotstorms">"Miejscowe burze z piorunami"</string>
+    <string name="weather_isotstorms">"Pojedyncze burze z piorunami"</string>
     <string name="weather_scatteredtstorms">"Rozproszone burze z piorunami"</string>
     <string name="weather_scatteredshowers">"Rozproszone przelotne opady"</string>
     <string name="weather_heavysnow">"Silne opady śniegu"</string>
