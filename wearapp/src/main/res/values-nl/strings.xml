@@ -44,4 +44,5 @@
 Weather (High/Low) -->
     <string name="complication_label_weather_hilo">"Weer (Max / Min)"</string>
     <string name="complication_label_weather_currentlocation">"Weer (huidige locatie)"</string>
+    <string name="tile_label_weather_hrforecast">"Weer + Uurvoorspelling"</string>
 </resources>

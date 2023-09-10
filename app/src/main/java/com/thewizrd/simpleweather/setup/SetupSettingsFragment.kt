@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.NonNull
+import androidx.core.text.util.LocalePreferences
 import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -77,11 +78,16 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_setup, rootKey)
 
+        val unitPref = findPreference<SwitchPreferenceCompat>(SettingsManager.KEY_USECELSIUS)!!
         val intervalPref = findPreference<ListPreference>(SettingsManager.KEY_REFRESHINTERVAL)!!
         val notIconPref = findPreference<ListPreference>(SettingsManager.KEY_NOTIFICATIONICON)!!
         val onGoingPref =
             findPreference<SwitchPreferenceCompat>(SettingsManager.KEY_ONGOINGNOTIFICATION)!!
         val alertsPref = findPreference<SwitchPreferenceCompat>(SettingsManager.KEY_USEALERTS)!!
+
+        if (LocalePreferences.getTemperatureUnit() == LocalePreferences.TemperatureUnit.CELSIUS) {
+            unitPref.setDefaultValue(true)
+        }
 
         if (enableAdditionalRefreshIntervals()) {
             intervalPref.setEntries(R.array.premium_refreshinterval_entries)

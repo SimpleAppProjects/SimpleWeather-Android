@@ -57,8 +57,6 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder("3").build()
-                ).setTitle(
-                    PlainComplicationText.Builder("Beaufort").build()
                 ).build()
             }
             ComplicationType.SHORT_TEXT -> {
@@ -150,8 +148,6 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     ).build()
                 ).setText(
                     PlainComplicationText.Builder(beaufortModel.progress.toString()).build()
-                ).setTitle(
-                    PlainComplicationText.Builder(beaufortModel.beaufort.label).build()
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()

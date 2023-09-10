@@ -123,7 +123,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
         Timber.tag(this::class.java.name).d("buildTile: v($wipKey)")
 
         return Tile.Builder()
-            .setResourcesVersion(wipKey)
+            .setResourcesVersion("${wipKey}:${weather?.location?.name}:${weather?.condition?.observationTime}")
             .setTileTimeline(singleTileTimeline)
             .setFreshnessIntervalMillis(freshnessIntervalMillis)
             .build()
@@ -141,7 +141,7 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
             .setVersion(requestParams.version)
             .apply {
                 produceRequestedResources(
-                    requestParams.version,
+                    requestParams.version.split(':').first(),
                     requestParams.deviceConfiguration,
                     requestParams.resourceIds
                 )
@@ -157,7 +157,9 @@ abstract class WeatherCoroutinesTileService : SuspendingTileService() {
         deviceParameters: DeviceParameters,
         resourceIds: List<String>
     ) {
-        Timber.tag(this::class.java.name).d("produceRequestedResources")
+        Timber.tag(this::class.java.name).d("produceRequestedResources: key = $wipKey")
+        Timber.tag(this::class.java.name).d("res - resIds = $resourceIds")
+
         val resources = resourceIds.takeIf { it.isNotEmpty() } ?: resources
 
         if (resources.isNotEmpty()) {
