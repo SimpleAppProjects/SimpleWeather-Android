@@ -47,6 +47,7 @@ android {
     productFlavors {
         nongms {
             dimension 'gms'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         fullgms {
             dimension 'gms'
