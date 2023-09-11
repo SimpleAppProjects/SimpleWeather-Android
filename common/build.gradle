@@ -45,6 +45,7 @@ android {
         nongms {
             dimension 'gms'
             buildConfigField "boolean", "IS_NONGMS", "true"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         fullgms {
             dimension 'gms'
