@@ -49,6 +49,13 @@ class SetupActivity : UserLocaleActivity() {
         binding = FragmentSetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportFragmentManager.addOnBackStackChangedListener {
+            // Bring focus back
+            supportFragmentManager.findFragmentById(android.R.id.content)?.let { f ->
+                f.view?.requestFocus()
+            } ?: binding.root.requestFocus()
+        }
+
         // Controls
         binding.searchButton.setOnClickListener {
             supportFragmentManager.beginTransaction()

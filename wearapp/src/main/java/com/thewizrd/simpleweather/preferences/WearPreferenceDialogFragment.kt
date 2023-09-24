@@ -282,9 +282,7 @@ abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterf
             )
         )
 
-        binding.content.addView(recyclerView)
-
-        if (params.mCheckedItem > 0) {
+        if (params.mCheckedItem >= 0) {
             recyclerView.addOnChildAttachStateChangeListener(object :
                 RecyclerView.OnChildAttachStateChangeListener {
                 override fun onChildViewAttachedToWindow(view: View) {
@@ -296,7 +294,7 @@ abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterf
                             view.viewTreeObserver.removeOnPreDrawListener(this)
 
                             val height = view.measuredHeight
-                            binding.root.scrollBy(0, params.mCheckedItem * height)
+                            binding.root.scrollTo(0, params.mCheckedItem * height)
 
                             return true
                         }
@@ -306,6 +304,8 @@ abstract class WearPreferenceDialogFragment : DialogFragment(), WearDialogInterf
                 override fun onChildViewDetachedFromWindow(view: View) {}
             })
         }
+
+        binding.content.addView(recyclerView)
     }
 
     private inner class DialogListAdapter(private val params: WearDialogParams) :

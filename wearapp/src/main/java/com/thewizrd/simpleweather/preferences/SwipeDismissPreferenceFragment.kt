@@ -81,6 +81,11 @@ abstract class SwipeDismissPreferenceFragment : PreferenceFragmentCompat() {
         return binding.swipeLayout
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.swipeLayout.requestFocus()
+    }
+
     override fun onDestroyView() {
         binding.swipeLayout.removeCallback(swipeCallback)
         super.onDestroyView()
