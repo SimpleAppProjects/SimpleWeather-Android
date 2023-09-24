@@ -32,11 +32,21 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.main.MainActivity
-import com.thewizrd.simpleweather.widgets.preferences.*
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLOR
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGCOLORCODE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_BGSTYLE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_FORECASTOPTION
+import com.thewizrd.simpleweather.widgets.preferences.KEY_ICONSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TEXTSIZE
+import com.thewizrd.simpleweather.widgets.preferences.KEY_TXTCOLORCODE
 import com.thewizrd.simpleweather.widgets.remoteviews.CustomBackgroundWidgetRemoteViewCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WidgetRemoteViewCreator
 import com.thewizrd.weather_api.weatherModule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
@@ -311,6 +321,32 @@ object WidgetUpdaterHelper {
             // Needed to determine how many items to show when resizing
             WidgetUtils.setMaxForecastLength(appWidgetId, forecasts.size)
             WidgetUtils.setMaxHrForecastLength(appWidgetId, hourlyForecasts.size)
+
+            if (info.widgetType == WidgetType.Widget4x1) {
+                updateViews.removeAllViews(R.id.layout_container)
+                updateViews.addView(
+                    R.id.layout_container, RemoteViews(
+                        context.packageName,
+                        if (forecastPanel != null && hrForecastPanel != null) {
+                            R.layout.app_widget_forecast_layout_anim
+                        } else {
+                            R.layout.app_widget_forecast_layout
+                        }
+                    )
+                )
+            } else if (info.widgetType == WidgetType.Widget4x2) {
+                updateViews.removeAllViews(R.id.forecast_container)
+                updateViews.addView(
+                    R.id.forecast_container, RemoteViews(
+                        context.packageName,
+                        if (forecastPanel != null && hrForecastPanel != null) {
+                            R.layout.app_widget_forecast_layout_anim
+                        } else {
+                            R.layout.app_widget_forecast_layout
+                        }
+                    )
+                )
+            }
 
             if (forecastPanel != null) {
                 updateViews.addView(R.id.forecast_layout, forecastPanel)

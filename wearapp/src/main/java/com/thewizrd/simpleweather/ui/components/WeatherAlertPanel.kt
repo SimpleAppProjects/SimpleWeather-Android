@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Chip
@@ -29,6 +31,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Dialog
+import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.google.android.horologist.compose.navscaffold.scrollableColumn
 import com.thewizrd.common.controls.WeatherAlertViewModel
 import com.thewizrd.shared_resources.utils.getColorFromAlertSeverity
@@ -62,9 +65,14 @@ private fun WeatherAlertPanel(
     val severityColor = remember(alertSeverityColor) { Color(alertSeverityColor) }
 
     Chip(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         label = {
-            Text(text = title)
+            Text(
+                text = title,
+                overflow = TextOverflow.Ellipsis
+            )
         },
         icon = {
             Icon(
@@ -133,6 +141,7 @@ private fun WeatherAlertPanel(
 }
 
 @WearPreviewDevices
+@WearPreviewFontScales
 @Composable
 private fun PreviewWeatherAlertPanel() {
     Box(

@@ -60,6 +60,7 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
@@ -578,7 +579,10 @@ private fun WeatherSummary(
     weatherSummary: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    val dialogScrollState = rememberScalingLazyListState()
+    val dialogScrollState = rememberScalingLazyListState(
+        initialCenterItemIndex = 0,
+        initialCenterItemScrollOffset = 0
+    )
     val focusRequester = remember { FocusRequester() }
 
     Dialog(
@@ -610,8 +614,11 @@ private fun WeatherSummary(
             )
         }
 
+        PositionIndicator(scalingLazyListState = dialogScrollState)
+
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
+            dialogScrollState.scrollToItem(0, 0)
         }
     }
     WearDivider()
@@ -817,11 +824,20 @@ private fun NavigationButton(
     Chip(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .padding(vertical = 2.dp, horizontal = 16.dp),
         onClick = onClick,
         colors = ChipDefaults.secondaryChipColors(),
         label = {
-            Text(text = label)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = label,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = true,
+                maxLines = 2
+            )
         },
         icon = {
             Icon(

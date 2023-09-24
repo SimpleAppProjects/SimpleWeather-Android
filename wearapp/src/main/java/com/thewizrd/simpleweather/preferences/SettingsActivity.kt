@@ -28,8 +28,10 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreference
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.widget.ConfirmationOverlay
+import androidx.wear.widget.WearableLinearLayoutManager
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
@@ -117,6 +119,10 @@ class SettingsActivity : WearableListenerActivity() {
 
         supportFragmentManager.addOnBackStackChangedListener {
             fragmentOnBackPressedCallback.isEnabled = supportFragmentManager.backStackEntryCount > 0
+
+            supportFragmentManager.findFragmentById(android.R.id.content)?.let { f ->
+                f.view?.requestFocus()
+            }
         }
 
         // Display the fragment as the main content.
@@ -1003,6 +1009,10 @@ class SettingsActivity : WearableListenerActivity() {
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_oslibs, rootKey)
+        }
+
+        override fun onCreateLayoutManager(): RecyclerView.LayoutManager {
+            return WearableLinearLayoutManager(context, null)
         }
     }
 }
