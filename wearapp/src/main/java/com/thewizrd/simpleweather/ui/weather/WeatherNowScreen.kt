@@ -824,11 +824,20 @@ private fun NavigationButton(
     Chip(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
             .padding(vertical = 2.dp, horizontal = 16.dp),
         onClick = onClick,
         colors = ChipDefaults.secondaryChipColors(),
         label = {
-            Text(text = label)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = label,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = true,
+                maxLines = 2
+            )
         },
         icon = {
             Icon(
