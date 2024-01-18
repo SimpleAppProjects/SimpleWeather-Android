@@ -5,9 +5,19 @@ import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.utils.getFeelsLikeTemp
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
+import com.thewizrd.shared_resources.weatherdata.model.Atmosphere
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort
+import com.thewizrd.shared_resources.weatherdata.model.Condition
+import com.thewizrd.shared_resources.weatherdata.model.Forecast
+import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
+import com.thewizrd.shared_resources.weatherdata.model.Precipitation
+import com.thewizrd.shared_resources.weatherdata.model.UV
+import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -15,10 +25,10 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 
-fun createWeatherData(foreRoot: Response, astroRoot: AstroResponse): Weather {
+fun createWeatherData(foreRoot: Response, sunRoot: SunResponse?, moonRoot: MoonResponse?): Weather {
     return Weather().apply {
         val now = ZonedDateTime.now(ZoneOffset.UTC)
 
@@ -104,12 +114,19 @@ fun createWeatherData(foreRoot: Response, astroRoot: AstroResponse): Weather {
             hrForecast.removeAt(hrForecast.size - 1)
         }
 
-        astronomy = createAstronomy(astroRoot)
+        if (sunRoot != null && moonRoot != null) {
+            astronomy = createAstronomy(sunRoot, moonRoot)
+        }
         ttl = 120
 
         val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
         df.applyPattern("#.####")
-        query = String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.latitude), location.longitude)
+        query = String.format(
+            Locale.ROOT,
+            "lat=%s&lon=%s",
+            df.format(location.latitude),
+            location.longitude
+        )
 
         if ((condition.highF == null || condition.highC == null) && forecast.size > 0) {
             condition.highF = forecast[0].highF
@@ -128,8 +145,8 @@ fun createLocation(foreRoot: Response): Location {
     return Location().apply {
         // API doesn't provide location name (at all)
         name = null
-        latitude = foreRoot.geometry.coordinates[1]
-        longitude = foreRoot.geometry.coordinates[0]
+        latitude = foreRoot.geometry?.coordinates?.get(1)
+        longitude = foreRoot.geometry?.coordinates?.get(0)
         tzLong = null
     }
 }
@@ -290,31 +307,45 @@ fun createForecast(time: TimeseriesItem): Forecast {
     }
 }
 
-fun createAstronomy(astroRoot: AstroResponse): Astronomy {
+fun createAstronomy(sunRoot: SunResponse, moonRoot: MoonResponse): Astronomy {
     return Astronomy().apply {
-        var moonPhaseValue = -1
+        sunRoot.properties?.sunrise?.time?.let {
+            sunrise =
+                ZonedDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+        }
+        sunRoot.properties?.sunset?.time?.let {
+            sunset =
+                ZonedDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+        }
+        moonRoot.properties?.moonrise?.time?.let {
+            moonrise =
+                ZonedDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+        }
+        moonRoot.properties?.moonset?.time?.let {
+            moonset =
+                ZonedDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+        }
 
-        for (time in astroRoot.location.time) {
-            if (time.sunrise != null) {
-                sunrise = ZonedDateTime.parse(astroRoot.location.time[0].sunrise.time,
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
-            }
-            if (time.sunset != null) {
-                sunset = ZonedDateTime.parse(astroRoot.location.time[0].sunset.time,
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+        moonRoot.properties?.moonphase?.let { moonPhaseValue ->
+            val moonPhaseType = if (moonPhaseValue >= 0.1f && moonPhaseValue < 89.9f) {
+                MoonPhaseType.WAXING_CRESCENT
+            } else if (moonPhaseValue >= 89.9f && moonPhaseValue < 90.1f) {
+                MoonPhaseType.FIRST_QTR
+            } else if (moonPhaseValue >= 90.1f && moonPhaseValue < 179.9f) {
+                MoonPhaseType.WAXING_GIBBOUS
+            } else if (moonPhaseValue >= 179.9f && moonPhaseValue < 180.1f) {
+                MoonPhaseType.FULL_MOON
+            } else if (moonPhaseValue >= 180.1f && moonPhaseValue < 269.9f) {
+                MoonPhaseType.WANING_GIBBOUS
+            } else if (moonPhaseValue >= 269.9f && moonPhaseValue < 270.1f) {
+                MoonPhaseType.LAST_QTR
+            } else if (moonPhaseValue >= 270.1f && moonPhaseValue < 359.9f) {
+                MoonPhaseType.WANING_CRESCENT
+            } else { // 0
+                MoonPhaseType.NEWMOON
             }
 
-            if (time.moonrise != null) {
-                moonrise = ZonedDateTime.parse(astroRoot.location.time[0].moonrise.time,
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
-            }
-            if (time.moonset != null) {
-                moonset = ZonedDateTime.parse(astroRoot.location.time[0].moonset.time,
-                        DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
-            }
-
-            if (time.moonphase != null)
-                moonPhaseValue = time.moonphase.value.toFloat().roundToInt()
+            moonPhase = MoonPhase(moonPhaseType)
         }
 
         // If the sun won't set/rise, set time to the future
@@ -330,25 +361,5 @@ fun createAstronomy(astroRoot: AstroResponse): Astronomy {
         if (moonset == null) {
             moonset = DateTimeUtils.LOCALDATETIME_MIN
         }
-
-        val moonPhaseType = if (moonPhaseValue >= 2 && moonPhaseValue < 23) {
-            MoonPhaseType.WAXING_CRESCENT
-        } else if (moonPhaseValue >= 23 && moonPhaseValue < 26) {
-            MoonPhaseType.FIRST_QTR
-        } else if (moonPhaseValue >= 26 && moonPhaseValue < 48) {
-            MoonPhaseType.WAXING_GIBBOUS
-        } else if (moonPhaseValue >= 48 && moonPhaseValue < 52) {
-            MoonPhaseType.FULL_MOON
-        } else if (moonPhaseValue >= 52 && moonPhaseValue < 73) {
-            MoonPhaseType.WANING_GIBBOUS
-        } else if (moonPhaseValue >= 73 && moonPhaseValue < 76) {
-            MoonPhaseType.LAST_QTR
-        } else if (moonPhaseValue >= 76 && moonPhaseValue < 98) {
-            MoonPhaseType.WANING_CRESCENT
-        } else { // 0, 1, 98, 99, 100
-            MoonPhaseType.NEWMOON
-        }
-
-        moonPhase = MoonPhase(moonPhaseType)
     }
 }

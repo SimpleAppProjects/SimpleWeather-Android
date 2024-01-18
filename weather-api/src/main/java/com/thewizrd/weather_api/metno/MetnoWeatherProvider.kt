@@ -37,8 +37,12 @@ import java.util.concurrent.TimeUnit
 
 class MetnoWeatherProvider : WeatherProviderImpl() {
     companion object {
-        private const val FORECAST_QUERY_URL = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?%s"
-        private const val SUNRISE_QUERY_URL = "https://api.met.no/weatherapi/sunrise/2.0/.json?%s&date=%s&offset=+00:00"
+        private const val FORECAST_QUERY_URL =
+            "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?%s"
+        private const val SUN_QUERY_URL =
+            "https://api.met.no/weatherapi/sunrise/3.0/sun?%s&date=%s&offset=+00:00"
+        private const val MOON_QUERY_URL =
+            "https://api.met.no/weatherapi/sunrise/3.0/moon?%s&date=%s&offset=+00:00"
 
         private fun getNeutralIconName(icon_variant: String?): String {
             return icon_variant?.replace("_day", "")
@@ -86,7 +90,8 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
             var weather: Weather?
 
             var forecastResponse: okhttp3.Response? = null
-            var sunriseResponse: okhttp3.Response? = null
+            var sunResponse: okhttp3.Response? = null
+            var moonResponse: okhttp3.Response? = null
             var wEx: WeatherException? = null
 
             val query = updateLocationQuery(location)
@@ -101,70 +106,96 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
                     .url(String.format(FORECAST_QUERY_URL, query))
-                            .addHeader("Accept-Encoding", "gzip")
-                            .addHeader("User-Agent", String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version))
-                            .build()
-
-                    val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
-                    val sunriseRequest = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
-                        .url(String.format(SUNRISE_QUERY_URL, query, date))
-                        .addHeader("Accept-Encoding", "gzip")
-                        .addHeader(
-                            "User-Agent",
-                            String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
-                        )
-                        .build()
-
-                    // Connect to webstream
-                    forecastResponse = httpClient.newCall(forecastRequest).await()
-                    checkForErrors(forecastResponse)
-
-                    sunriseResponse = httpClient.newCall(sunriseRequest).await()
-                    checkForErrors(sunriseResponse)
-
-                    val forecastStream = forecastResponse.getStream()
-                    val sunrisesetStream = sunriseResponse.getStream()
-
-                    // Load weather
-                    val foreRoot =
-                        JSONParser.deserializer<Response>(forecastStream, Response::class.java)
-                    val astroRoot = JSONParser.deserializer<AstroResponse>(
-                        sunrisesetStream,
-                        AstroResponse::class.java
+                    .addHeader("Accept-Encoding", "gzip")
+                    .addHeader(
+                        "User-Agent",
+                        String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
                     )
+                    .build()
 
-                    // End Stream
-                    forecastStream.closeQuietly()
-                    sunrisesetStream.closeQuietly()
+                val date = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT))
 
-                    requireNotNull(foreRoot)
-                    requireNotNull(astroRoot)
+                val sunRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                    .url(String.format(SUN_QUERY_URL, query, date))
+                    .addHeader("Accept-Encoding", "gzip")
+                    .addHeader(
+                        "User-Agent",
+                        String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
+                    )
+                    .build()
 
-                    weather = createWeatherData(foreRoot, astroRoot)
-                } catch (ex: Exception) {
-                    weather = null
-                    if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
-                    } else if (ex is WeatherException) {
-                        wEx = ex
-                    }
-                    Logger.writeLine(Log.ERROR, ex, "MetnoWeatherProvider: error getting weather data")
-                } finally {
-                    forecastResponse?.closeQuietly()
-                    sunriseResponse?.closeQuietly()
+                val moonRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                    .url(String.format(MOON_QUERY_URL, query, date))
+                    .addHeader("Accept-Encoding", "gzip")
+                    .addHeader(
+                        "User-Agent",
+                        String.format("SimpleWeather (thewizrd.dev@gmail.com) %s", version)
+                    )
+                    .build()
+
+                // Connect to webstream
+                forecastResponse = httpClient.newCall(forecastRequest).await()
+                checkForErrors(forecastResponse)
+
+                sunResponse = httpClient.newCall(sunRequest).await()
+                checkForErrors(sunResponse)
+
+                moonResponse = httpClient.newCall(moonRequest).await()
+                checkForErrors(moonResponse)
+
+                val forecastStream = forecastResponse.getStream()
+                val sunStream = sunResponse.getStream()
+                val moonStream = moonResponse.getStream()
+
+                // Load weather
+                val foreRoot =
+                    JSONParser.deserializer<Response>(forecastStream, Response::class.java)
+                val sunRoot = JSONParser.deserializer<SunResponse>(
+                    sunStream,
+                    SunResponse::class.java
+                )
+                val moonRoot = JSONParser.deserializer<MoonResponse>(
+                    moonStream,
+                    MoonResponse::class.java
+                )
+
+                // End Stream
+                forecastStream.closeQuietly()
+                sunStream.closeQuietly()
+                moonStream.closeQuietly()
+
+                requireNotNull(foreRoot)
+                requireNotNull(sunRoot)
+                requireNotNull(moonRoot)
+
+                weather = createWeatherData(foreRoot, sunRoot, moonRoot)
+            } catch (ex: Exception) {
+                weather = null
+                if (ex is IOException) {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                } else if (ex is WeatherException) {
+                    wEx = ex
                 }
-
-                if (wEx == null && weather.isNullOrInvalid()) {
-                    wEx = WeatherException(ErrorStatus.NOWEATHER)
-                } else if (weather != null) {
-                    weather.query = query
-                }
-
-                if (wEx != null) throw wEx
-
-                return@withContext weather!!
+                Logger.writeLine(Log.ERROR, ex, "MetnoWeatherProvider: error getting weather data")
+            } finally {
+                forecastResponse?.closeQuietly()
+                sunResponse?.closeQuietly()
+                moonResponse?.closeQuietly()
             }
+
+            if (wEx == null && weather.isNullOrInvalid()) {
+                wEx = WeatherException(ErrorStatus.NOWEATHER)
+            } else if (weather != null) {
+                weather.query = query
+            }
+
+            if (wEx != null) throw wEx
+
+            return@withContext weather!!
+        }
 
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
         // OWM reports datetime in UTC; add location tz_offset
@@ -197,8 +228,10 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         val sunset = weather.astronomy.sunset.toLocalTime()
 
         weather.condition.weather = getWeatherCondition(weather.condition.icon)
-        weather.condition.icon = getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
-        weather.condition.observationTime = weather.condition.observationTime.withZoneSameInstant(offset)
+        weather.condition.icon =
+            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition.icon)
+        weather.condition.observationTime =
+            weather.condition.observationTime.withZoneSameInstant(offset)
 
         for (forecast in weather.forecast) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
@@ -222,13 +255,23 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
     override fun updateLocationQuery(weather: Weather): String {
         val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
         df.applyPattern("0.####")
-        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(weather.location.latitude), df.format(weather.location.longitude))
+        return String.format(
+            Locale.ROOT,
+            "lat=%s&lon=%s",
+            df.format(weather.location.latitude),
+            df.format(weather.location.longitude)
+        )
     }
 
     override fun updateLocationQuery(location: LocationData): String {
         val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
         df.applyPattern("0.####")
-        return String.format(Locale.ROOT, "lat=%s&lon=%s", df.format(location.latitude), df.format(location.longitude))
+        return String.format(
+            Locale.ROOT,
+            "lat=%s&lon=%s",
+            df.format(location.latitude),
+            df.format(location.longitude)
+        )
     }
 
     override fun getWeatherIcon(icon: String?): String {
@@ -253,6 +296,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.DAY_SUNNY
                 }
             }
+
             "cloudy" -> weatherIcon = WeatherIcons.CLOUDY
             "fair", "partlycloudy" -> {
                 weatherIcon = when {
@@ -260,6 +304,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.DAY_PARTLY_CLOUDY
                 }
             }
+
             "fog" -> weatherIcon = WeatherIcons.FOG
             "heavyrain" -> weatherIcon = WeatherIcons.RAIN_WIND
             "heavyrainandthunder" -> weatherIcon = WeatherIcons.THUNDERSTORM
@@ -270,6 +315,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.RAIN_WIND
                 }
             }
+
             "heavyrainshowersandthunder", "lightrainshowersandthunder" -> {
                 weatherIcon = when {
                     isDay -> WeatherIcons.DAY_STORM_SHOWERS
@@ -277,6 +323,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.STORM_SHOWERS
                 }
             }
+
             "heavysleet", "lightsleet", "sleet" -> weatherIcon = WeatherIcons.SLEET
             "heavysleetandthunder", "lightsleetandthunder", "sleetandthunder" -> {
                 weatherIcon = when {
@@ -284,6 +331,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.DAY_SLEET_STORM
                 }
             }
+
             "heavysleetshowersandthunder", "lightssleetshowersandthunder",
             "sleetshowersandthunder" -> {
                 weatherIcon = when {
@@ -292,6 +340,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SLEET_STORM
                 }
             }
+
             "heavysleetshowers" -> {
                 weatherIcon = when {
                     isDay -> WeatherIcons.DAY_SLEET
@@ -299,6 +348,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SLEET
                 }
             }
+
             "heavysnow" -> weatherIcon = WeatherIcons.SNOW_WIND
             "heavysnowandthunder", "heavysnowshowersandthunder", "lightsnowandthunder",
             "lightssnowshowersandthunder", "snowandthunder", "snowshowersandthunder" -> {
@@ -307,6 +357,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.DAY_SNOW_THUNDERSTORM
                 }
             }
+
             "heavysnowshowers" -> {
                 weatherIcon = when {
                     isDay -> WeatherIcons.DAY_SNOW_WIND
@@ -314,6 +365,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SNOW_WIND
                 }
             }
+
             "lightrain" -> weatherIcon = WeatherIcons.SPRINKLE
             "lightrainandthunder", "rainandthunder" -> weatherIcon = WeatherIcons.STORM_SHOWERS
             "lightrainshowers", "rainshowers" -> {
@@ -323,6 +375,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SHOWERS
                 }
             }
+
             "lightsleetshowers", "sleetshowers" -> {
                 weatherIcon = when {
                     isDay -> WeatherIcons.DAY_SLEET
@@ -330,6 +383,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SLEET
                 }
             }
+
             "lightsnow", "snow" -> weatherIcon = WeatherIcons.SNOW
             "lightsnowshowers", "snowshowers" -> {
                 weatherIcon = when {
@@ -338,6 +392,7 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                     else -> WeatherIcons.SNOW
                 }
             }
+
             "rain" -> weatherIcon = WeatherIcons.RAIN
             "rainshowersandthunder" -> {
                 weatherIcon = when {
@@ -364,57 +419,74 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
             "clearsky" -> {
                 context.getString(R.string.weather_clearsky)
             }
+
             "cloudy" -> {
                 context.getString(R.string.weather_cloudy)
             }
+
             "fair" -> {
                 context.getString(R.string.weather_fair)
             }
+
             "fog" -> {
                 context.getString(R.string.weather_fog)
             }
+
             "heavyrain" -> {
                 context.getString(R.string.weather_heavyrain)
             }
+
             "heavyrainandthunder", "heavyrainshowersandthunder", "lightrainandthunder",
             "lightrainshowersandthunder", "rainandthunder", "rainshowersandthunder" -> {
                 context.getString(R.string.weather_tstorms)
             }
+
             "heavyrainshowers", "lightrainshowers", "rainshowers" -> {
                 context.getString(R.string.weather_rainshowers)
             }
+
             "heavysleet", "heavysleetshowers" -> {
                 context.getString(R.string.weather_sleet)
             }
+
             "heavysleetandthunder", "heavysleetshowersandthunder", "lightsleetandthunder",
             "lightssleetshowersandthunder", "sleetandthunder", "sleetshowersandthunder" -> {
                 context.getString(R.string.weather_sleet_tstorms)
             }
+
             "heavysnow", "heavysnowshowers" -> {
                 context.getString(R.string.weather_heavysnow)
             }
+
             "heavysnowandthunder", "heavysnowshowersandthunder", "lightsnowandthunder",
             "lightssnowshowersandthunder", "snowandthunder", "snowshowersandthunder" -> {
                 context.getString(R.string.weather_snow_tstorms)
             }
+
             "lightrain" -> {
                 context.getString(R.string.weather_lightrain)
             }
+
             "lightsleet", "lightsleetshowers", "sleet", "sleetshowers" -> {
                 context.getString(R.string.weather_sleet)
             }
+
             "lightsnow", "lightsnowshowers" -> {
                 context.getString(R.string.weather_lightsnowshowers)
             }
+
             "partlycloudy" -> {
                 context.getString(R.string.weather_partlycloudy)
             }
+
             "rain" -> {
                 context.getString(R.string.weather_rain)
             }
+
             "snow", "snowshowers" -> {
                 context.getString(R.string.weather_snow)
             }
+
             else -> {
                 super.getWeatherCondition(icon)
             }
@@ -443,7 +515,8 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
             val now = ZonedDateTime.now(tz).toLocalTime()
 
             // Determine whether its night using sunset/rise times
-            if (now.toNanoOfDay() < sunrise.toNanoOfDay() || now.toNanoOfDay() > sunset.toNanoOfDay()) isNight = true
+            if (now.toNanoOfDay() < sunrise.toNanoOfDay() || now.toNanoOfDay() > sunset.toNanoOfDay()) isNight =
+                true
         }
 
         return isNight
