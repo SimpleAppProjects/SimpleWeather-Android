@@ -3,16 +3,19 @@ package com.thewizrd.common.location
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import androidx.core.os.CancellationSignal
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.Wearable
 import com.thewizrd.common.R
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
@@ -22,6 +25,7 @@ import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.toLocation
 import com.thewizrd.shared_resources.locationdata.toLocationData
+import com.thewizrd.shared_resources.utils.ContextUtils.isPhone
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.weather_api.weatherModule
@@ -65,16 +69,12 @@ class LocationProvider {
     suspend fun getLastLocation(): Location? {
         if (!checkPermissions()) return null
 
-        if (isGMSAvailable) {
+        val isFusedLocationAvailable = canUseFusedLocation().await()
+
+        if (isFusedLocationAvailable) {
             return mFusedLocationProviderClient.lastLocation.await()
         } else {
-            val locCriteria = Criteria().apply {
-                accuracy = Criteria.ACCURACY_COARSE
-                isCostAllowed = false
-                powerRequirement = Criteria.POWER_LOW
-            }
-
-            val provider = mLocationMgr.getBestProvider(locCriteria, true) ?: return null
+            val provider = getBestProvider() ?: return null
             return mLocationMgr.getLastKnownLocation(provider)
         }
     }
@@ -89,74 +89,75 @@ class LocationProvider {
             return@suspendCancellableCoroutine
         }
 
-        if (isGMSAvailable) {
-            val cts = CancellationTokenSource()
+        canUseFusedLocation()
+            .continueWith { task ->
+                if (!continuation.isActive) return@continueWith
 
-            continuation.invokeOnCancellation {
-                cts.cancel()
-            }
+                val isFusedLocationAvailable = task.result
 
-            mFusedLocationProviderClient.getCurrentLocation(
-                LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
-                cts.token
-            ).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    Logger.writeLine(Log.INFO, "$TAG: Location update received...")
+                if (isFusedLocationAvailable) {
+                    val cts = CancellationTokenSource()
 
-                    if (continuation.isActive) {
-                        continuation.resume(it.result)
+                    continuation.invokeOnCancellation {
+                        cts.cancel()
+                    }
+
+                    mFusedLocationProviderClient.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        cts.token
+                    ).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Logger.writeLine(Log.INFO, "$TAG: Location update received...")
+
+                            if (continuation.isActive) {
+                                continuation.resume(it.result)
+                            }
+                        } else {
+                            it.exception?.let { ex ->
+                                Logger.writeLine(Log.INFO, ex, "$TAG: Error retrieving location...")
+                            }
+
+                            if (continuation.isActive) {
+                                continuation.resume(null)
+                            }
+                        }
                     }
                 } else {
-                    it.exception?.let { ex ->
-                        Logger.writeLine(Log.INFO, ex, "$TAG: Error retrieving location...")
+                    val cancelSignal = CancellationSignal()
+
+                    continuation.invokeOnCancellation {
+                        cancelSignal.cancel()
                     }
 
-                    if (continuation.isActive) {
-                        continuation.resume(null)
+                    val provider = getBestProvider()
+
+                    if (provider == null) {
+                        if (continuation.isActive) {
+                            continuation.resume(null)
+                        }
+                        return@continueWith
+                    }
+
+                    runCatching {
+                        LocationManagerCompat.getCurrentLocation(
+                            mLocationMgr,
+                            provider,
+                            cancelSignal,
+                            Executors.newSingleThreadExecutor()
+                        ) {
+                            Logger.writeLine(Log.INFO, "$TAG: Location update received...")
+                            if (continuation.isActive) {
+                                continuation.resume(it)
+                            }
+                        }
+                    }.onFailure {
+                        Logger.writeLine(Log.INFO, it, "$TAG: Error retrieving location...")
+                        if (continuation.isActive) {
+                            continuation.resume(null)
+                        }
                     }
                 }
             }
-        } else {
-            val locCriteria = Criteria().apply {
-                accuracy = Criteria.ACCURACY_COARSE
-                isCostAllowed = false
-                powerRequirement = Criteria.POWER_LOW
-            }
-
-            val cancelSignal = CancellationSignal()
-
-            continuation.invokeOnCancellation {
-                cancelSignal.cancel()
-            }
-
-            val provider = mLocationMgr.getBestProvider(locCriteria, true)
-
-            if (provider == null) {
-                if (continuation.isActive) {
-                    continuation.resume(null)
-                }
-                return@suspendCancellableCoroutine
-            }
-
-            runCatching {
-                LocationManagerCompat.getCurrentLocation(
-                    mLocationMgr,
-                    provider,
-                    cancelSignal,
-                    Executors.newSingleThreadExecutor()
-                ) {
-                    Logger.writeLine(Log.INFO, "$TAG: Location update received...")
-                    if (continuation.isActive) {
-                        continuation.resume(it)
-                    }
-                }
-            }.onFailure {
-                Logger.writeLine(Log.INFO, it, "$TAG: Error retrieving location...")
-                if (continuation.isActive) {
-                    continuation.resume(null)
-                }
-            }
-        }
     }
 
     suspend fun getLatestLocationData(previousLocation: LocationData? = null): LocationResult {
@@ -235,5 +236,81 @@ class LocationProvider {
         }
 
         return LocationResult.NotChanged(previousLocation, false)
+    }
+
+    private fun getBestProvider(): String? {
+        val enabledProviders = mLocationMgr.getProviders(true)
+
+        if (enabledProviders.isNotEmpty()) {
+            return if (mContext.isPhone() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && enabledProviders.contains(
+                    LocationManager.FUSED_PROVIDER
+                )
+            ) {
+                LocationManager.FUSED_PROVIDER
+            } else if (enabledProviders.contains(LocationManager.GPS_PROVIDER)) {
+                LocationManager.GPS_PROVIDER
+            } else if (enabledProviders.contains(LocationManager.NETWORK_PROVIDER)) {
+                LocationManager.NETWORK_PROVIDER
+            } else if (enabledProviders.contains(LocationManager.PASSIVE_PROVIDER)) {
+                LocationManager.PASSIVE_PROVIDER
+            } else {
+                enabledProviders.first()
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * On non-wearables: Check if Google Play Services are available. If so, return [com.google.android.gms.location.LocationAvailability.isLocationAvailable]
+     *
+     * On wearables: Check if Google Play Services are available. If so, check if any paired phone is available and nearby.
+     * If so, confirm fused location availability [com.google.android.gms.location.LocationAvailability.isLocationAvailable]
+     *
+     * @see [FusedLocationProviderClient.getLocationAvailability]
+     * @see [com.google.android.gms.wearable.NodeClient.getConnectedNodes]
+     * @return true if we can use fused location provider
+     */
+    private fun canUseFusedLocation(): Task<Boolean> {
+        return Tasks.forResult(isGMSAvailable)
+            .continueWithTask {
+                val isGMSAvailable = it.result
+
+                if (isGMSAvailable) {
+                    if (!mContext.isPhone()) {
+                        // Wearables: FusedLocationProvider will likely not be of use if phone is not connected nearby
+                        // Verify phone status
+                        Wearable.getNodeClient(mContext)
+                            .connectedNodes
+                            .continueWithTask { nodesTask ->
+                                if (it.isSuccessful) {
+                                    val nodes = nodesTask.result
+                                    val isNearbyNodes = nodes.any { n -> n.isNearby }
+                                    if (isNearbyNodes) {
+                                        isFusedLocationAvailable()
+                                    } else {
+                                        Tasks.forResult(false)
+                                    }
+                                } else {
+                                    Tasks.forResult(false)
+                                }
+                            }
+                    } else {
+                        isFusedLocationAvailable()
+                    }
+                } else {
+                    Tasks.forResult(false)
+                }
+            }
+    }
+
+    private fun isFusedLocationAvailable(): Task<Boolean> {
+        return mFusedLocationProviderClient.locationAvailability.continueWith { avail ->
+            if (avail.isSuccessful) {
+                avail.result.isLocationAvailable
+            } else {
+                false
+            }
+        }
     }
 }
