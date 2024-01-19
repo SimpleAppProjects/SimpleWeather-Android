@@ -22,7 +22,9 @@ interface WeatherProvider {
 
     fun needsExternalAlertData(): Boolean
 
-    fun isRegionSupported(countryCode: String?): Boolean
+    fun isRegionSupported(location: LocationData): Boolean
+
+    fun isRegionSupported(location: LocationQuery): Boolean
 
     fun getHourlyForecastInterval(): Int
 

@@ -58,7 +58,11 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
         return true
     }
 
-    override fun isRegionSupported(countryCode: String?): Boolean {
+    override fun isRegionSupported(location: LocationData): Boolean {
+        return true
+    }
+
+    override fun isRegionSupported(location: LocationQuery): Boolean {
         return true
     }
 
@@ -277,7 +281,7 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
      * @return A collection of weather alerts currently available
      */
     override suspend fun getAlerts(location: LocationData): Collection<WeatherAlert>? {
-        return if (LocationUtils.isUS(location.countryCode)) {
+        return if (LocationUtils.isUS(location)) {
             NWSAlertProvider().getAlerts(location)
         } else {
             //WeatherApiProvider().getAlerts(location)

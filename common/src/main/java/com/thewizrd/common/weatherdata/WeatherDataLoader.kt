@@ -131,7 +131,7 @@ class WeatherDataLoader {
             coroutineContext.ensureActive()
 
             // Is the timezone valid? If not try to fetch a valid zone id
-            if (!wm.isRegionSupported(location.countryCode) && (location.tzLong == "unknown" || location.tzLong == "UTC")) {
+            if (!wm.isRegionSupported(location) && (location.tzLong == "unknown" || location.tzLong == "UTC")) {
                 if (location.latitude != 0.0 && location.longitude != 0.0) {
                     val tzId =
                         weatherModule.tzdbService.getTimeZone(location.latitude, location.longitude)
@@ -143,12 +143,12 @@ class WeatherDataLoader {
                 }
             }
 
-            if (!wm.isRegionSupported(location.countryCode)) {
+            if (!wm.isRegionSupported(location)) {
                 // If location data hasn't been updated, try loading weather from the previous provider
                 if (!location.weatherSource.isNullOrBlank()) {
                     val provider =
                         weatherModule.weatherManager.getWeatherProvider(location.weatherSource)
-                    if (provider.isRegionSupported(location.countryCode)) {
+                    if (provider.isRegionSupported(location)) {
                         weather = provider.getWeather(location)
                     }
                 }
@@ -267,7 +267,7 @@ class WeatherDataLoader {
                     if (weather != null && weather.source != settingsMgr.getAPI() || location.weatherSource != settingsMgr.getAPI()) {
                         // Only update location data if location region is supported by new API
                         // If not don't update so we can use fallback (previously used API)
-                        if (wm.isRegionSupported(location.countryCode)) {
+                        if (wm.isRegionSupported(location)) {
                             // Update location query and source for new API
                             val oldKey = location.query ?: null
 

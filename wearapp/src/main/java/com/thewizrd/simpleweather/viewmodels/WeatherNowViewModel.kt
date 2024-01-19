@@ -254,7 +254,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
         viewModelState.update { state ->
             when (result) {
                 is WeatherResult.Error -> {
-                    if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
+                    if (state.locationData?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
                             "Location: %s; countryCode: %s",
@@ -293,7 +293,7 @@ class WeatherNowViewModel(private val app: Application) : AndroidViewModel(app),
                     )
                 }
                 is WeatherResult.WeatherWithError -> {
-                    if (state.locationData?.countryCode?.let { !wm.isRegionSupported(it) } == true) {
+                    if (state.locationData?.let { !wm.isRegionSupported(it) } == true) {
                         Logger.writeLine(
                             Log.WARN,
                             "Location: %s; countryCode: %s",

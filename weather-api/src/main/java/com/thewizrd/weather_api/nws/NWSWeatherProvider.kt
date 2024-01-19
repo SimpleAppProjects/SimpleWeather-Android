@@ -7,6 +7,7 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
@@ -77,8 +78,12 @@ class NWSWeatherProvider : WeatherProviderImpl() {
         return false
     }
 
-    override fun isRegionSupported(countryCode: String?): Boolean {
-        return LocationUtils.isUS(countryCode)
+    override fun isRegionSupported(location: LocationData): Boolean {
+        return LocationUtils.isUS(location)
+    }
+
+    override fun isRegionSupported(location: LocationQuery): Boolean {
+        return LocationUtils.isUS(location)
     }
 
     override fun isKeyRequired(): Boolean {
@@ -99,7 +104,7 @@ class NWSWeatherProvider : WeatherProviderImpl() {
             var weather: Weather?
 
             // NWS only supports locations in U.S.
-            if (!LocationUtils.isUS(location.countryCode)) {
+            if (!LocationUtils.isUS(location)) {
                 throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
                     initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${location.countryCode})"))
                 }

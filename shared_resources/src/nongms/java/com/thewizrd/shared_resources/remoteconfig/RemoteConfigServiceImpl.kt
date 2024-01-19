@@ -1,6 +1,8 @@
 package com.thewizrd.shared_resources.remoteconfig
 
 import android.location.Geocoder
+import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WeatherProviders
@@ -28,13 +30,36 @@ class RemoteConfigServiceImpl : RemoteConfigService {
     }
 
     @WeatherProviders
-    override fun getDefaultWeatherProvider(countryCode: String?): String {
-        return if (LocationUtils.isUS(countryCode)) {
-            WeatherAPI.NWS
-        } else if (LocationUtils.isFrance(countryCode)) {
-            WeatherAPI.METEOFRANCE
-        } else {
-            getDefaultWeatherProvider()
+    override fun getDefaultWeatherProvider(location: LocationQuery): String {
+        return when {
+            LocationUtils.isUS(location) -> {
+                WeatherAPI.NWS
+            }
+
+            LocationUtils.isFrance(location) -> {
+                WeatherAPI.METEOFRANCE
+            }
+
+            else -> {
+                getDefaultWeatherProvider()
+            }
+        }
+    }
+
+    @WeatherProviders
+    override fun getDefaultWeatherProvider(location: LocationData): String {
+        return when {
+            LocationUtils.isUS(location) -> {
+                WeatherAPI.NWS
+            }
+
+            LocationUtils.isFrance(location) -> {
+                WeatherAPI.METEOFRANCE
+            }
+
+            else -> {
+                getDefaultWeatherProvider()
+            }
         }
     }
 

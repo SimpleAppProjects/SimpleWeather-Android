@@ -73,8 +73,12 @@ class WeatherProviderManager internal constructor() : WeatherProvider {
         return _weatherProvider!!.needsExternalAlertData()
     }
 
-    override fun isRegionSupported(countryCode: String?): Boolean {
-        return _weatherProvider!!.isRegionSupported(countryCode)
+    override fun isRegionSupported(location: LocationData): Boolean {
+        return _weatherProvider!!.isRegionSupported(location)
+    }
+
+    override fun isRegionSupported(location: LocationQuery): Boolean {
+        return _weatherProvider!!.isRegionSupported(location)
     }
 
     override fun getHourlyForecastInterval(): Int {
