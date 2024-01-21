@@ -29,9 +29,8 @@ class LaunchActivity : ComponentActivity() {
     private var isReadyToView = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        val splashScreen = installSplashScreen()
 
         // Stop activity from rendering until next activity or if immediate update available
         val content = findViewById<View>(android.R.id.content)
