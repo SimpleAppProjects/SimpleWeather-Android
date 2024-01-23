@@ -28,7 +28,7 @@ buildscript {
         preference_version = '1.2.1'
         recyclerview_version = '1.3.1'
         room_version = '2.5.2'
-        coresplash_version = '1.0.0'
+        coresplash_version = '1.0.1'
         work_version = '2.8.1'
 
         test_core_version = '1.5.0'

@@ -106,85 +106,86 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
             var response: Response? = null
             var wEx: WeatherException? = null
 
-                try {
-                    // If were under rate limit, deny request
-                    checkRateLimit()
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
 
-                    val authorization = hereOAuthService.getBearerToken(false)
+                val authorization = hereOAuthService.getBearerToken(false)
 
-                    if (authorization.isNullOrBlank()) {
-                        throw WeatherException(ErrorStatus.NETWORKERROR).apply {
-                            initCause(Exception("Invalid bearer token: $authorization"))
-                        }
+                if (authorization.isNullOrBlank()) {
+                    throw WeatherException(ErrorStatus.NETWORKERROR).apply {
+                        initCause(Exception("Invalid bearer token: $authorization"))
                     }
+                }
 
-                    val url = if (LocationUtils.isUSorCanada(location.countryCode)) {
-                        String.format(WEATHER_US_CA_QUERY_URL, query, locale)
-                    } else {
-                        String.format(WEATHER_GLOBAL_QUERY_URL, query, locale)
-                    }
+                val url = if (LocationUtils.isUSorCanada(location)) {
+                    String.format(WEATHER_US_CA_QUERY_URL, query, locale)
+                } else {
+                    String.format(WEATHER_GLOBAL_QUERY_URL, query, locale)
+                }
 
-                    val request = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                        .url(url)
-                        .addHeader("Authorization", authorization)
-                        .build()
+                val request = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                    .url(url)
+                    .addHeader("Authorization", authorization)
+                    .build()
 
-                    // Connect to webstream
-                    response = client.newCall(request).await()
-                    checkForErrors(response)
+                // Connect to webstream
+                response = client.newCall(request).await()
+                checkForErrors(response)
 
-                    val stream = response.getStream()
+                val stream = response.getStream()
 
-                    // Load weather
-                    val root: Rootobject? = JSONParser.deserializer(stream, Rootobject::class.java)
+                // Load weather
+                val root: Rootobject? = JSONParser.deserializer(stream, Rootobject::class.java)
 
-                    // Check for errors
-                    when (root?.type) {
-                        "Invalid Request" -> throw WeatherException(
-                            ErrorStatus.QUERYNOTFOUND,
-                            response.createThrowable()
-                        )
-                        "Unauthorized" -> throw WeatherException(ErrorStatus.INVALIDAPIKEY)
-                    }
-
-                    // End Stream
-                    stream.closeQuietly()
-
-                    requireNotNull(root)
-
-                    weather = createWeatherData(root)
-
-                    // Add weather alerts if available
-                    weather.weatherAlerts = createWeatherAlerts(
-                        root,
-                        weather.location.latitude, weather.location.longitude
+                // Check for errors
+                when (root?.type) {
+                    "Invalid Request" -> throw WeatherException(
+                        ErrorStatus.QUERYNOTFOUND,
+                        response.createThrowable()
                     )
-                } catch (ex: Exception) {
-                    weather = null
-                    if (ex is IOException) {
-                        wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
-                    } else if (ex is WeatherException) {
-                        wEx = ex
-                    }
-                    Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather data")
-                } finally {
-                    response?.close()
+
+                    "Unauthorized" -> throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                 }
 
-                if (wEx == null && weather.isNullOrInvalid()) {
-                    wEx = WeatherException(ErrorStatus.NOWEATHER)
-                } else if (weather != null) {
-                    if (supportsWeatherLocale())
-                        weather.locale = locale
+                // End Stream
+                stream.closeQuietly()
 
-                    weather.query = query
+                requireNotNull(root)
+
+                weather = createWeatherData(root)
+
+                // Add weather alerts if available
+                weather.weatherAlerts = createWeatherAlerts(
+                    root,
+                    weather.location.latitude, weather.location.longitude
+                )
+            } catch (ex: Exception) {
+                weather = null
+                if (ex is IOException) {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                } else if (ex is WeatherException) {
+                    wEx = ex
                 }
-
-                if (wEx != null) throw wEx
-
-                return@withContext weather!!
+                Logger.writeLine(Log.ERROR, ex, "HEREWeatherProvider: error getting weather data")
+            } finally {
+                response?.close()
             }
+
+            if (wEx == null && weather.isNullOrInvalid()) {
+                wEx = WeatherException(ErrorStatus.NOWEATHER)
+            } else if (weather != null) {
+                if (supportsWeatherLocale())
+                    weather.locale = locale
+
+                weather.query = query
+            }
+
+            if (wEx != null) throw wEx
+
+            return@withContext weather!!
+        }
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
@@ -250,8 +251,7 @@ class HEREWeatherProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 }
             }
 
-            val country_code = location.countryCode
-            val url = if (LocationUtils.isUSorCanada(country_code)) {
+            val url = if (LocationUtils.isUSorCanada(location)) {
                 String.format(ALERT_US_CA_QUERY_URL, location.query, locale)
             } else {
                 String.format(ALERT_GLOBAL_QUERY_URL, location.query, locale)

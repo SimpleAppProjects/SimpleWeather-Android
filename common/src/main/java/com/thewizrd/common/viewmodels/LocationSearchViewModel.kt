@@ -19,6 +19,7 @@ import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -148,10 +149,10 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
 
                 if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                     // Set default provider based on location
-                    val provider =
-                        remoteConfigService.getDefaultWeatherProvider(locQuery.locationCountry)
+                    val provider = remoteConfigService.getDefaultWeatherProvider(locQuery)
                     settingsManager.setAPI(provider)
                     locQuery.updateWeatherSource(provider)
+                    wm.updateAPI()
                 }
 
                 if (settingsManager.usePersonalKey() && settingsManager.getAPIKey()
@@ -164,11 +165,11 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
 
-                if (!wm.isRegionSupported(locQuery.locationCountry)) {
+                if (!wm.isRegionSupported(locQuery)) {
                     Logger.writeLine(
                         Log.WARN,
                         "Location: %s; countryCode: %s",
-                        JSONParser.serializer(locQuery.toLocationData()),
+                        JSONParser.serializer(locQuery.toLocationData(LocationType.GPS)),
                         locQuery.locationCountry
                     )
                     postErrorMessage(R.string.error_message_weather_region_unsupported)
@@ -179,7 +180,7 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
                 }
 
                 viewModelState.update {
-                    it.copy(currentLocation = currentLocation)
+                    it.copy(currentLocation = locQuery.toLocationData(LocationType.GPS))
                 }
             }
 
@@ -288,13 +289,13 @@ class LocationSearchViewModel(app: Application) : AndroidViewModel(app) {
 
             if (!settingsManager.isWeatherLoaded() && !BuildConfig.IS_NONGMS) {
                 // Set default provider based on location
-                val provider =
-                    remoteConfigService.getDefaultWeatherProvider(queryResult.locationCountry)
+                val provider = remoteConfigService.getDefaultWeatherProvider(queryResult)
                 settingsManager.setAPI(provider)
                 queryResult.updateWeatherSource(provider)
+                wm.updateAPI()
             }
 
-            if (!wm.isRegionSupported(queryResult.locationCountry)) {
+            if (!wm.isRegionSupported(queryResult)) {
                 Logger.writeLine(
                     Log.WARN,
                     "Location: %s; countryCode: %s",

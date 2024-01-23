@@ -551,62 +551,44 @@ class WeatherUiModel() {
 
         // Astronomy
         if (weatherData?.astronomy != null) {
-            sunPhase = SunPhaseViewModel(weatherData!!.astronomy, weatherData!!.location.tzOffset)
+            val astroTimeFormatter = if (DateFormat.is24HourFormat(sharedDeps.context)) {
+                DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_24HR);
+            } else {
+                DateTimeUtils.ofPatternForInvariantLocale(DateTimeConstants.CLOCK_FORMAT_12HR_AMPM);
+            }
 
-            weatherDetailsMap[WeatherDetailsType.SUNRISE] =
-                DetailItemViewModel(WeatherDetailsType.SUNRISE, sunPhase!!.sunrise)
-            weatherDetailsMap[WeatherDetailsType.SUNSET] =
-                DetailItemViewModel(WeatherDetailsType.SUNSET, sunPhase!!.sunset)
+            if (weatherData?.astronomy?.sunrise != null && weatherData?.astronomy?.sunset != null) {
+                sunPhase =
+                    SunPhaseViewModel(weatherData!!.astronomy, weatherData!!.location.tzOffset)
+            }
 
-            moonPhase = MoonPhaseViewModel(weatherData!!.astronomy)
+            weatherData?.astronomy?.sunrise?.let {
+                weatherDetailsMap[WeatherDetailsType.SUNRISE] =
+                    DetailItemViewModel(WeatherDetailsType.SUNRISE, astroTimeFormatter.format(it))
+            }
+            weatherData?.astronomy?.sunset?.let {
+                weatherDetailsMap[WeatherDetailsType.SUNSET] =
+                    DetailItemViewModel(WeatherDetailsType.SUNSET, astroTimeFormatter.format(it))
+            }
 
             if (weatherData?.astronomy?.moonrise != null && weatherData?.astronomy?.moonset != null) {
-                if (DateFormat.is24HourFormat(context)) {
-                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
-                        weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
-                            WeatherDetailsType.MOONRISE,
-                            weatherData!!.astronomy.moonrise.format(
-                                DateTimeUtils.ofPatternForUserLocale(
-                                    DateTimeConstants.CLOCK_FORMAT_24HR
-                                )
-                            )
-                        )
-                    }
-                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
-                        weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
-                            WeatherDetailsType.MOONSET,
-                            weatherData!!.astronomy.moonset.format(
-                                DateTimeUtils.ofPatternForUserLocale(
-                                    DateTimeConstants.CLOCK_FORMAT_24HR
-                                )
-                            )
-                        )
-                    }
-                } else {
-                    if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
-                        weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
-                            WeatherDetailsType.MOONRISE,
-                            weatherData!!.astronomy.moonrise.format(
-                                DateTimeUtils.ofPatternForUserLocale(
-                                    DateTimeConstants.CLOCK_FORMAT_12HR_AMPM
-                                )
-                            )
-                        )
-                    }
-                    if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
-                        weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
-                            WeatherDetailsType.MOONSET,
-                            weatherData!!.astronomy.moonset.format(
-                                DateTimeUtils.ofPatternForUserLocale(
-                                    DateTimeConstants.CLOCK_FORMAT_12HR_AMPM
-                                )
-                            )
-                        )
-                    }
+                if (weatherData!!.astronomy.moonrise.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
+                    weatherDetailsMap[WeatherDetailsType.MOONRISE] = DetailItemViewModel(
+                        WeatherDetailsType.MOONRISE,
+                        weatherData!!.astronomy.moonrise.format(astroTimeFormatter)
+                    )
+                }
+                if (weatherData!!.astronomy.moonset.isAfter(DateTimeUtils.LOCALDATETIME_MIN)) {
+                    weatherDetailsMap[WeatherDetailsType.MOONSET] = DetailItemViewModel(
+                        WeatherDetailsType.MOONSET,
+                        weatherData!!.astronomy.moonset.format(astroTimeFormatter)
+                    )
                 }
             }
 
             if (weatherData?.astronomy?.moonPhase != null) {
+                moonPhase = MoonPhaseViewModel(weatherData!!.astronomy)
+
                 if (!isPhone) {
                     weatherDetailsMap[WeatherDetailsType.MOONPHASE] =
                         DetailItemViewModel(weatherData!!.astronomy.moonPhase.phase)

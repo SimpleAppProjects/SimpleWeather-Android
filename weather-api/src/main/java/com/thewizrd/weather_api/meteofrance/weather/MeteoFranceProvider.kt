@@ -6,6 +6,7 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
@@ -80,8 +81,12 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         return false
     }
 
-    override fun isRegionSupported(countryCode: String?): Boolean {
-        return LocationUtils.isFrance(countryCode)
+    override fun isRegionSupported(location: LocationData): Boolean {
+        return LocationUtils.isFrance(location)
+    }
+
+    override fun isRegionSupported(location: LocationQuery): Boolean {
+        return LocationUtils.isFrance(location)
     }
 
     override fun getHourlyForecastInterval(): Int {
@@ -110,7 +115,7 @@ class MeteoFranceProvider : WeatherProviderImpl() {
             var weather: Weather?
 
             // MeteoFrance only supports locations in France
-            if (!LocationUtils.isFrance(location.countryCode)) {
+            if (!LocationUtils.isFrance(location)) {
                 throw WeatherException(ErrorStatus.QUERYNOTFOUND).apply {
                     initCause(Exception("Unsupported country code: provider (${getWeatherAPI()}), country (${location.countryCode})"))
                 }

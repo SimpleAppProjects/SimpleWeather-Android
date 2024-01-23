@@ -254,6 +254,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                             settingsManager.setAPIKey(provider, key)
                             settingsManager.setAPI(provider)
                             settingsManager.setKeyVerified(provider, true)
+                            settingsManager.setPersonalKey(true)
 
                             updateKeySummary()
 

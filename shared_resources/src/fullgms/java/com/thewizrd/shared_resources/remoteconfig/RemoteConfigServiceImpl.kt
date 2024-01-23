@@ -2,6 +2,8 @@ package com.thewizrd.shared_resources.remoteconfig
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.thewizrd.shared_resources.appLib
+import com.thewizrd.shared_resources.locationdata.LocationData
+import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
@@ -69,14 +71,33 @@ class RemoteConfigServiceImpl : RemoteConfigService {
     }
 
     @WeatherAPI.WeatherProviders
-    override fun getDefaultWeatherProvider(countryCode: String?): String {
+    override fun getDefaultWeatherProvider(location: LocationQuery): String {
         return when {
-            LocationUtils.isUS(countryCode) -> {
+            LocationUtils.isUS(location) -> {
                 WeatherAPI.NWS
             }
-            LocationUtils.isFrance(countryCode) -> {
+
+            LocationUtils.isFrance(location) -> {
                 WeatherAPI.METEOFRANCE
             }
+
+            else -> {
+                getDefaultWeatherProvider()
+            }
+        }
+    }
+
+    @WeatherAPI.WeatherProviders
+    override fun getDefaultWeatherProvider(location: LocationData): String {
+        return when {
+            LocationUtils.isUS(location) -> {
+                WeatherAPI.NWS
+            }
+
+            LocationUtils.isFrance(location) -> {
+                WeatherAPI.METEOFRANCE
+            }
+
             else -> {
                 getDefaultWeatherProvider()
             }
