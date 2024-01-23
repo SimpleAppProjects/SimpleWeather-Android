@@ -14,7 +14,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  debug:
+    name: Debug APK
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -42,12 +44,15 @@ jobs:
           path: ${{ env.module }}/build/outputs/apk/${{ env.variant }}/debug/${{ env.module }}-${{ env.variant }}-debug.apk
   release:
     name: Release APK
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
+    # Set Current Date As Env Variable
+    - name: Set current date as env variable
+      run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
     - name: set up JDK 17
       uses: actions/setup-java@v3
       with:
