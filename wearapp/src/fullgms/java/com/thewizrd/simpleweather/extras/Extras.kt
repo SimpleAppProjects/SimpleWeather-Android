@@ -21,6 +21,10 @@ fun initializeFirebase(context: Context) {
     FirebaseConfigurator.initialize(context)
 }
 
+fun initializeExtras() {
+    extrasModule.initialize()
+}
+
 fun isIconPackSupported(packKey: String?): Boolean {
     return extrasModule.isIconPackSupported(packKey)
 }

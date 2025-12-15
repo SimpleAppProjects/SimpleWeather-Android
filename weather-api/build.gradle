@@ -30,11 +30,6 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "DEBUG=true"
-                }
-            }
         }
         release {
             // Let the app module take care of this
@@ -64,12 +59,6 @@ android {
         }
     }
 
-    externalNativeBuild {
-        ndkBuild {
-            path 'src/main/jni/Android.mk'
-        }
-    }
-
     flavorDimensions 'gms'
     productFlavors {
         nongms {
@@ -77,11 +66,6 @@ android {
         }
         fullgms {
             dimension 'gms'
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "FULL_GMS_VERSION=true"
-                }
-            }
         }
     }
 
@@ -136,20 +120,4 @@ dependencies {
     fullgmsImplementation libs.places
     fullgmsImplementation libs.volley // Required by Places API ^^^
     fullgmsImplementation libs.kotlinx.coroutines.play.services
-}
-
-tasks.register('keyCheck', Exec) {
-    workingDir '../'
-    commandLine 'cmd', '/c', 'keycheck.bat'
-
-    doLast {
-        executionResult.getOrNull()?.assertNormalExitValue()
-    }
-}
-
-android.libraryVariants.configureEach { variant ->
-    def name = variant.flavorName
-    if (name.contains('fullgms')) {
-        variant.preBuildProvider.configure { dependsOn(keyCheck) }
-    }
 }
