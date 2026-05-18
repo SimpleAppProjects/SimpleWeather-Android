@@ -1,12 +1,12 @@
 [versions]
-compileSdkVersion = "36"
+compileSdkVersion = "37"
 minSdkVersion = "23"
 targetSdkVersion = "36"
 
-gradleVersion = "8.13.2"
-kotlin_version = '2.1.20'
+gradleVersion = "9.2.1"
+kotlin_version = "2.3.21"
 kotlinx_version = "1.11.0"
-ksp_version = '2.1.20-2.0.1'
+ksp_version = "2.3.6"
 
 desugar_version = '2.1.5'
 
@@ -70,6 +70,7 @@ revcat_version = "10.6.0"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
+legacy-kapt-plugin = { module = "com.android.legacy-kapt:com.android.legacy-kapt.gradle.plugin", version.ref = "gradleVersion" }
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin_version" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso_core_version" }
 junit = { module = "junit:junit", version.ref = "junit_version" }
@@ -79,7 +80,6 @@ firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlyti
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 firebase-perf-plugin = { module = "com.google.firebase:perf-plugin", version.ref = "firebasePerfPluginVersion" }
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin_version" }
 nav-safe-args-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "nav_version" }
 room-plugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room_version" }
 
@@ -187,6 +187,7 @@ jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt_version" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt_version" }
 jjwt-orgjson = { module = "io.jsonwebtoken:jjwt-orgjson", version.ref = "jjwt_version" }
 moshi-java-codegen = { module = "com.github.nename0:moshi-java-codegen", version = "1.1.1" }
+#noinspection GradleDependency
 places = { module = "com.google.android.libraries.places:places", version = "4.4.1" }
 volley = { module = "com.android.volley:volley", version = "1.2.1" }
 gms-play-services-basement = { module = "com.google.android.gms:play-services-basement", version.ref = "gms_basement_version" }
