@@ -11,6 +11,7 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
@@ -68,7 +69,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             ColorsUtils.isSuperLight(backgroundColor)
         )
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(viewCtx, R.style.ShadowText)
+            TextAppearanceSpan(viewCtx, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -114,7 +115,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             R.id.hi_icon,
             ImageUtils.tintedBitmapFromDrawable(
                 context,
-                R.drawable.wi_direction_up,
+                sharedRes.drawable.wi_direction_up,
                 textColor,
                 tempArrowIconSize,
                 tempArrowIconSize
@@ -124,7 +125,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
             R.id.lo_icon,
             ImageUtils.tintedBitmapFromDrawable(
                 context,
-                R.drawable.wi_direction_down,
+                sharedRes.drawable.wi_direction_down,
                 textColor,
                 tempArrowIconSize,
                 tempArrowIconSize
@@ -245,7 +246,7 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
         updateViews.setInt(R.id.refresh_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.refresh_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.refresh_button, R.drawable.ic_refresh)
+        updateViews.setImageViewResource(R.id.refresh_button, sharedRes.drawable.ic_refresh)
 
         // Setting icon
         updateViews.setImageViewBitmap(R.id.settings_button, null)
@@ -253,7 +254,10 @@ class WeatherWidget4x1NotificationCreator(context: Context) : WidgetRemoteViewCr
         updateViews.setInt(R.id.settings_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.settings_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.settings_button, R.drawable.ic_outline_settings_24)
+        updateViews.setImageViewResource(
+            R.id.settings_button,
+            sharedRes.drawable.ic_outline_settings_24
+        )
 
         // Location Name
         updateViews.setTextViewText(

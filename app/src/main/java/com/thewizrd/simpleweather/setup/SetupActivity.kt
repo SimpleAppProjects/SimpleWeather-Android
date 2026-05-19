@@ -19,6 +19,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.TransitionManager
+import com.google.android.material.R as materialRes
 import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.thewizrd.common.utils.ActivityUtils.setTransparentWindow
 import com.thewizrd.shared_resources.Constants
@@ -77,7 +78,7 @@ class SetupActivity : UserLocaleActivity() {
             insets
         }
 
-        val color = getAttrColor(R.attr.colorPrimarySurface)
+        val color = getAttrColor(materialRes.attr.colorPrimarySurface)
         window.setTransparentWindow(color)
 
         lifecycleScope.launch {

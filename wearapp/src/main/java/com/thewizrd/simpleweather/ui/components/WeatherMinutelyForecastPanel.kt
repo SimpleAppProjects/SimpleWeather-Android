@@ -24,6 +24,7 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.viewmodels.MinutelyForecastViewModel
@@ -79,9 +80,9 @@ private fun WeatherMinutelyForecastPanel(
                 modifier = Modifier
                     .weight(1f, false)
                     .size(20.dp),
-                painter = painterResource(R.drawable.wi_raindrop),
+                painter = painterResource(sharedRes.drawable.wi_raindrop),
                 contentDescription = null,
-                tint = colorResource(id = R.color.colorSecondaryDark)
+                tint = colorResource(id = sharedRes.color.colorSecondaryDark)
             )
         }
     }

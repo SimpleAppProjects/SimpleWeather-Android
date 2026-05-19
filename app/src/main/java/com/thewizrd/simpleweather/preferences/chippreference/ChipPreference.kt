@@ -14,6 +14,7 @@ import androidx.core.content.res.use
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
+import com.google.android.material.R as materialRes
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.shape.RelativeCornerSize
@@ -91,7 +92,10 @@ class ChipPreference @JvmOverloads constructor(
                     ),
                     intArrayOf(
                         Colors.TRANSPARENT,
-                        ContextCompat.getColor(context, R.color.material_on_surface_stroke)
+                        ContextCompat.getColor(
+                            context,
+                            materialRes.color.material_on_surface_stroke
+                        )
                     )
                 )
                 shapeAppearanceModel = if (index == 0 && entries.isNotEmpty()) {
@@ -113,8 +117,8 @@ class ChipPreference @JvmOverloads constructor(
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        context.getAttrColor(R.attr.colorPrimaryDark),
-                        context.getAttrColor(R.attr.colorSurfaceContainer)
+                        context.getAttrColor(androidx.appcompat.R.attr.colorPrimaryDark),
+                        context.getAttrColor(materialRes.attr.colorSurfaceContainer)
                     )
                 )
                 setTextColor(
@@ -124,8 +128,8 @@ class ChipPreference @JvmOverloads constructor(
                             intArrayOf(-android.R.attr.state_checked)
                         ),
                         intArrayOf(
-                            context.getAttrColor(R.attr.colorOnPrimary),
-                            context.getAttrColor(R.attr.colorOnSurface)
+                            context.getAttrColor(materialRes.attr.colorOnPrimary),
+                            context.getAttrColor(materialRes.attr.colorOnSurface)
                         )
                     )
                 )

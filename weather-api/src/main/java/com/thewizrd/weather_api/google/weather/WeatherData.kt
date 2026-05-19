@@ -18,7 +18,7 @@ import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.weather_api.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
 import java.time.ZonedDateTime

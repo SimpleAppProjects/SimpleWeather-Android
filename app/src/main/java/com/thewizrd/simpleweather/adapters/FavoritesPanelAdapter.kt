@@ -16,8 +16,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.helpers.ObservableArrayList
 import com.thewizrd.common.helpers.OnListChangedListener
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -197,7 +199,8 @@ class FavoritesPanelAdapter : LocationPanelAdapter(), ItemTouchHelperAdapter,
         return when (viewType) {
             LocationPanelItemType.HEADER_FAV -> {
                 HeaderViewHolder(
-                    LayoutInflater.from(context).inflate(R.layout.locations_header, parent, false)
+                    LayoutInflater.from(context)
+                        .inflate(commonRes.layout.locations_header, parent, false)
                 ).also {
                     headerViewHolder = it
                 }
@@ -444,10 +447,10 @@ class FavoritesPanelAdapter : LocationPanelAdapter(), ItemTouchHelperAdapter,
 
     class HeaderViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView),
         HeaderSetterInterface {
-        private var header = itemView.findViewById<TextView>(R.id.header)
+        private var header = itemView.findViewById<TextView>(commonRes.id.header)
 
         override fun setHeader() {
-            header.setText(R.string.label_favoritelocations)
+            header.setText(sharedRes.string.label_favoritelocations)
             header.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_star_24dp, 0, 0, 0)
         }
 
@@ -534,7 +537,7 @@ class FavoritesPanelAdapter : LocationPanelAdapter(), ItemTouchHelperAdapter,
                         mSnackMgr?.show(
                             com.thewizrd.simpleweather.snackbar.Snackbar.make(
                                 context,
-                                R.string.message_needfavorite,
+                                sharedRes.string.message_needfavorite,
                                 com.thewizrd.simpleweather.snackbar.Snackbar.Duration.SHORT
                             ), null
                         )
@@ -552,10 +555,10 @@ class FavoritesPanelAdapter : LocationPanelAdapter(), ItemTouchHelperAdapter,
                 // Make SnackBar
                 val snackbar = com.thewizrd.simpleweather.snackbar.Snackbar.make(
                     context,
-                    R.string.message_locationremoved,
+                    sharedRes.string.message_locationremoved,
                     com.thewizrd.simpleweather.snackbar.Snackbar.Duration.SHORT
                 )
-                snackbar.setAction(R.string.undo) { undoAction() }
+                snackbar.setAction(sharedRes.string.undo) { undoAction() }
 
                 val callback = object : Snackbar.Callback() {
                     override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {

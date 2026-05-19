@@ -18,13 +18,13 @@ import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.AirQualityUtils.getIndexFromData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
-import com.thewizrd.simpleweather.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import kotlin.math.max
+import com.thewizrd.shared_resources.R as sharedRes
 
 class AQIComplicationService : BaseWeatherComplicationService() {
     companion object {
@@ -37,7 +37,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_cloud
+    private val complicationIconResId = sharedRes.drawable.wi_cloud
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
         if (!supportedComplicationTypes.contains(request.complicationType)) {
@@ -158,7 +158,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                 RangedValueComplicationData.Builder(
                     aqiProgress, 0f, aqiProgressMax,
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_airquality_short)}: $aqiStr"
+                        "${getString(sharedRes.string.label_airquality_short)}: $aqiStr"
                     ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
@@ -177,7 +177,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(aqiShortStr).build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_airquality_short)}: $aqiStr"
+                        "${getString(sharedRes.string.label_airquality_short)}: $aqiStr"
                     ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
@@ -190,10 +190,10 @@ class AQIComplicationService : BaseWeatherComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_airquality_short))
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_airquality_short))
                         .build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_airquality_short)}: $aqiStr"
+                        "${getString(sharedRes.string.label_airquality_short)}: $aqiStr"
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(aqiStr).build()

@@ -5,7 +5,7 @@ import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.utils.AirQualityUtils
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData
 import com.thewizrd.simpleweather.controls.graphs.BarGraphDataSet
 import com.thewizrd.simpleweather.controls.graphs.BarGraphEntry

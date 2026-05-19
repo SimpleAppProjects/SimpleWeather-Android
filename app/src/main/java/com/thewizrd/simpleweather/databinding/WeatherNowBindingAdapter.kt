@@ -22,7 +22,7 @@ import com.thewizrd.shared_resources.utils.StringUtils.removeNonDigitChars
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.simpleweather.adapters.DetailsItemAdapter
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.adapters.HourlyForecastItemAdapter

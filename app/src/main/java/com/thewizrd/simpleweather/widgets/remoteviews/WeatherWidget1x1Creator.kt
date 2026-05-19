@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -64,7 +65,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
             ColorsUtils.isSuperLight(backgroundColor)
         )
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(viewCtx, R.style.ShadowText)
+            TextAppearanceSpan(viewCtx, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -121,7 +122,7 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         updateViews.setInt(R.id.refresh_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.refresh_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.refresh_button, R.drawable.ic_refresh)
+        updateViews.setImageViewResource(R.id.refresh_button, sharedRes.drawable.ic_refresh)
 
         // Setting icon
         updateViews.setImageViewBitmap(R.id.settings_button, null)
@@ -129,7 +130,10 @@ class WeatherWidget1x1Creator(context: Context) : WidgetRemoteViewCreator(contex
         updateViews.setInt(R.id.settings_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.settings_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.settings_button, R.drawable.ic_outline_settings_24)
+        updateViews.setImageViewResource(
+            R.id.settings_button,
+            sharedRes.drawable.ic_outline_settings_24
+        )
 
         // Location Name
         updateViews.setTextViewText(

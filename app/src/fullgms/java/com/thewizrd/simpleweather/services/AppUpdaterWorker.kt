@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.*
 import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.shared_resources.preferences.UpdateSettings
 import com.thewizrd.shared_resources.utils.Colors
@@ -94,7 +95,7 @@ class AppUpdaterWorker(context: Context, workerParams: WorkerParameters) :
                 initChannel(mNotifyMgr)
 
                 val mNotif = NotificationCompat.Builder(applicationContext, NOT_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_error_white)
+                    .setSmallIcon(sharedRes.drawable.ic_error_white)
                     .setContentTitle(applicationContext.getString(R.string.prompt_update_title))
                     .setContentText(applicationContext.getString(R.string.prompt_update_available))
                     .setContentIntent(getLaunchUpdatesIntent(applicationContext))

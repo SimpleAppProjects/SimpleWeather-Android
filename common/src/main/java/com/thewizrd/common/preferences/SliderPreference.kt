@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.slider.Slider
+import com.thewizrd.common.R as commonRes
 import com.thewizrd.shared_resources.R
 import java.math.BigDecimal
 import java.math.MathContext
@@ -99,8 +100,8 @@ class SliderPreference : Preference {
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        mSlider = holder.findViewById(R.id.seekbar) as Slider?
-        mSliderValueTextView = holder.findViewById(R.id.seekbar_value) as TextView?
+        mSlider = holder.findViewById(commonRes.id.seekbar) as Slider?
+        mSliderValueTextView = holder.findViewById(commonRes.id.seekbar_value) as TextView?
         val summaryView = holder.findViewById(android.R.id.summary) as TextView?
 
         if (mShowSliderValue) {

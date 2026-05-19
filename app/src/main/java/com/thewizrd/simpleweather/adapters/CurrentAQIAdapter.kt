@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.thewizrd.common.controls.AirQualityViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.LayoutAqiForecastItemBinding
@@ -32,7 +33,7 @@ class CurrentAQIAdapter : RecyclerView.Adapter<CurrentAQIAdapter.ViewHolder>() {
         fun bindModel(aqiData: AirQualityViewModel?) {
             binding.viewModel = aqiData
             binding.executePendingBindings()
-            binding.aqiDateLabel.text = context.getString(R.string.time_current)
+            binding.aqiDateLabel.text = context.getString(sharedRes.string.time_current)
         }
     }
 

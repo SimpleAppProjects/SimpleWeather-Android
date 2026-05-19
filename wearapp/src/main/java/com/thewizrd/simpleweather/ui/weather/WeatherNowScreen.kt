@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.ui.weather
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -83,6 +84,7 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -123,6 +125,7 @@ import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActions
 import kotlinx.coroutines.launch
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun WeatherNowScreen(
     navController: NavHostController,
@@ -376,12 +379,12 @@ private fun NoLocationsPrompt(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
         Icon(
-            painter = painterResource(R.drawable.ic_location_off_24dp),
+            painter = painterResource(sharedRes.drawable.ic_location_off_24dp),
             contentDescription = null,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = stringResource(id = R.string.prompt_location_not_set),
+            text = stringResource(id = sharedRes.string.prompt_location_not_set),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge
         )
@@ -431,7 +434,7 @@ private fun AlertsBox(navController: NavHostController) {
         ) {
             Icon(
                 modifier = Modifier.size(IconButtonDefaults.SmallIconSize),
-                painter = painterResource(id = R.drawable.ic_error_white),
+                painter = painterResource(id = sharedRes.drawable.ic_error_white),
                 tint = MaterialTheme.colorScheme.onErrorContainer,
                 contentDescription = null
             )
@@ -463,7 +466,7 @@ private fun ColumnScope.WeatherLocation(
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.CenterVertically),
-                painter = painterResource(id = R.drawable.ic_place_white_24dp),
+                painter = painterResource(id = sharedRes.drawable.ic_place_white_24dp),
                 contentDescription = null
             )
         }
@@ -568,7 +571,7 @@ private fun HiLoLayout(
                     modifier = Modifier
                         .size(30.dp)
                         .offset(x = (-4).dp),
-                    painter = painterResource(id = R.drawable.wi_direction_up),
+                    painter = painterResource(id = sharedRes.drawable.wi_direction_up),
                     tint = Color(0xFFFF4500),
                     contentDescription = null
                 )
@@ -594,7 +597,7 @@ private fun HiLoLayout(
                     modifier = Modifier
                         .size(30.dp)
                         .offset(x = (-4).dp),
-                    painter = painterResource(id = R.drawable.wi_direction_down),
+                    painter = painterResource(id = sharedRes.drawable.wi_direction_down),
                     tint = Color(0xFF87CEFA),
                     contentDescription = null
                 )
@@ -638,8 +641,8 @@ private fun ConditionDetails(
                         .size(20.dp)
                         .padding(end = 4.dp)
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = R.drawable.wi_umbrella),
-                    tint = colorResource(R.color.colorPrimaryLight),
+                    painter = painterResource(id = sharedRes.drawable.wi_umbrella),
+                    tint = colorResource(sharedRes.color.colorPrimaryLight),
                     contentDescription = null
                 )
                 Text(
@@ -648,7 +651,7 @@ private fun ConditionDetails(
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.End,
                     maxLines = 1,
-                    color = colorResource(R.color.colorPrimaryLight)
+                    color = colorResource(sharedRes.color.colorPrimaryLight)
                 )
             }
         }
@@ -665,7 +668,7 @@ private fun ConditionDetails(
                         .padding(end = 4.dp)
                         .rotate(windData.iconRotation.toFloat())
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = R.drawable.wi_wind_direction),
+                    painter = painterResource(id = sharedRes.drawable.wi_wind_direction),
                     tint = Color(0xFF20B2AA),
                     contentDescription = null
                 )
@@ -825,7 +828,7 @@ private fun ForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_forecast),
+        label = stringResource(id = sharedRes.string.label_forecast),
         iconDrawableId = R.drawable.ic_date_range_black_24dp
     ) {
         navController.navigate(Screen.Forecast.route)
@@ -837,7 +840,7 @@ private fun HourlyForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_hourlyforecast),
+        label = stringResource(id = sharedRes.string.label_hourlyforecast),
         iconDrawableId = R.drawable.ic_access_time_black_24dp
     ) {
         navController.navigate(Screen.HourlyForecast.route)
@@ -849,8 +852,8 @@ private fun MinutelyForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_precipitation),
-        iconDrawableId = R.drawable.wi_raindrops
+        label = stringResource(id = sharedRes.string.label_precipitation),
+        iconDrawableId = sharedRes.drawable.wi_raindrops
     ) {
         navController.navigate(Screen.Precipitation.route)
     }
@@ -861,7 +864,7 @@ private fun DetailsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_details),
+        label = stringResource(id = sharedRes.string.label_details),
         iconDrawableId = R.drawable.ic_list_black_24dp
     ) {
         navController.navigate(Screen.Details.route)
@@ -874,7 +877,7 @@ private fun DetailsTileEditorButton(
 ) {
     NavigationButton(
         label = stringResource(id = R.string.pref_title_detailstileeditor),
-        iconDrawableId = R.drawable.ic_mode_edit_white_24dp
+        iconDrawableId = sharedRes.drawable.ic_mode_edit_white_24dp
     ) {
         navController.navigate(Screen.DetailsTileEditor.route)
     }
@@ -897,8 +900,8 @@ private fun SettingsButton(
     activity: Activity
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.action_settings),
-        iconDrawableId = R.drawable.ic_settings_black_24dp
+        label = stringResource(id = sharedRes.string.action_settings),
+        iconDrawableId = sharedRes.drawable.ic_settings_black_24dp
     ) {
         activity.startActivity(Intent(activity, SettingsActivity::class.java))
     }
@@ -910,7 +913,7 @@ private fun OpenOnPhoneButton(
 ) {
     NavigationButton(
         label = stringResource(id = R.string.action_openonphone),
-        iconDrawableId = R.drawable.common_full_open_on_phone,
+        iconDrawableId = com.google.android.gms.base.R.drawable.common_full_open_on_phone,
         onClick = onOpenOnPhone
     )
 }

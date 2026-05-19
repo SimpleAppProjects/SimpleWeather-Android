@@ -10,6 +10,7 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import com.thewizrd.common.controls.UVIndexViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -29,7 +30,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_day_sunny
+    private val complicationIconResId = sharedRes.drawable.wi_day_sunny
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -67,7 +68,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_uv)).build(),
                     PlainComplicationText.Builder("UV Index: 3, Moderate").build()
                 ).setTitle(
                     PlainComplicationText.Builder("3, Moderate").build()
@@ -100,7 +101,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
         val uvIdxStr = uvModel?.index?.toString() ?: WeatherIcons.EM_DASH
         val uvProgress = uvModel?.progress?.toFloat() ?: 0f
         val uvProgressMax = uvModel?.let { max(it.progressMax, it.progress).toFloat() } ?: 11f
-        val contentDescription = "${getString(R.string.label_uv)}: $uvStr"
+        val contentDescription = "${getString(sharedRes.string.label_uv)}: $uvStr"
 
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
@@ -141,7 +142,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_uv)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_uv)).build(),
                     PlainComplicationText.Builder(
                         contentDescription
                     ).build()

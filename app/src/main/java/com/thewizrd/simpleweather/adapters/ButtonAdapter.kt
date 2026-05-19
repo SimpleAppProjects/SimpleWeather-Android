@@ -10,6 +10,7 @@ import androidx.annotation.Px
 import androidx.annotation.StringRes
 import androidx.core.view.updateMargins
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R as materialRes
 import com.google.android.material.button.MaterialButton
 import com.thewizrd.simpleweather.R
 
@@ -26,7 +27,11 @@ class ButtonAdapter(
                 layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 
                 addView(
-                    MaterialButton(parent.context, null, R.attr.materialButtonOutlinedStyle).apply {
+                    MaterialButton(
+                        parent.context,
+                        null,
+                        materialRes.attr.materialButtonOutlinedStyle
+                    ).apply {
                         layoutParams =
                             FrameLayout.LayoutParams(this@ButtonAdapter.width, WRAP_CONTENT).apply {
                                 gravity = this@ButtonAdapter.gravity

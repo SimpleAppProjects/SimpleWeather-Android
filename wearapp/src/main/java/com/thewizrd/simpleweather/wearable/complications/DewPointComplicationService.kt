@@ -8,6 +8,7 @@ import androidx.wear.watchface.complications.data.MonochromaticImage
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
@@ -24,7 +25,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
 
     override val supportedComplicationTypes =
         setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
-    private val complicationIconResId = R.drawable.wi_thermometer
+    private val complicationIconResId = sharedRes.drawable.wi_thermometer
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -45,7 +46,8 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_dewpoint)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_dewpoint))
+                        .build(),
                     PlainComplicationText.Builder("Dew Point: 38°").build()
                 ).setTitle(
                     PlainComplicationText.Builder("38°").build()
@@ -88,7 +90,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(tempStr).build(),
                     PlainComplicationText.Builder(
-                        String.format("%s: %s", getString(R.string.label_dewpoint), tempStr)
+                        String.format("%s: %s", getString(sharedRes.string.label_dewpoint), tempStr)
                     ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
@@ -101,9 +103,10 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_dewpoint)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_dewpoint))
+                        .build(),
                     PlainComplicationText.Builder(
-                        String.format("%s: %s", getString(R.string.label_dewpoint), tempStr)
+                        String.format("%s: %s", getString(sharedRes.string.label_dewpoint), tempStr)
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(tempStr).build()

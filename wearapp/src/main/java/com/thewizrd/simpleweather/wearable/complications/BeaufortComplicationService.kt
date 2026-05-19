@@ -15,6 +15,7 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.BeaufortViewModel
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
@@ -39,7 +40,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
-    private val complicationIconResId = R.drawable.wi_strong_wind
+    private val complicationIconResId = sharedRes.drawable.wi_strong_wind
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -89,7 +90,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(this, R.drawable.wi_wind_beaufort_3)
+                        Icon.createWithResource(this, sharedRes.drawable.wi_wind_beaufort_3)
                             .setTint(Colors.WHITESMOKE)
                     ).build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
@@ -101,12 +102,12 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         Icon.createWithBitmap(
                             ImageUtils.bitmapFromDrawable(
                                 getThemeContextOverride(false),
-                                R.drawable.wi_wind_beaufort_3
+                                sharedRes.drawable.wi_wind_beaufort_3
                             )
                         ),
                         SmallImageType.ICON
                     ).setAmbientImage(
-                        Icon.createWithResource(this, R.drawable.wi_wind_beaufort_3)
+                        Icon.createWithResource(this, sharedRes.drawable.wi_wind_beaufort_3)
                             .setTint(Colors.WHITESMOKE)
                     ).build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
@@ -137,7 +138,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
 
         val contentDescription = PlainComplicationText.Builder(
             beaufortModel?.let { "${beaufortModel.beaufort.label}: ${beaufortModel.progress}, ${beaufortModel.beaufort.value}" }
-                ?: "${getString(R.string.label_beaufort)}: ${getString(R.string.weather_notavailable)}"
+                ?: "${getString(sharedRes.string.label_beaufort)}: ${getString(sharedRes.string.weather_notavailable)}"
         ).build()
 
         val progressShortStr = beaufortModel?.progress?.toString() ?: WeatherIcons.EM_DASH
@@ -180,7 +181,8 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_beaufort)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_beaufort))
+                        .build(),
                     contentDescription
                 ).setTitle(
                     PlainComplicationText.Builder(

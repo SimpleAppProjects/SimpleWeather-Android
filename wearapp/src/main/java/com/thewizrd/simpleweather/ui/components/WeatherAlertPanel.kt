@@ -34,6 +34,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.thewizrd.common.controls.WeatherAlertViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.getColorFromAlertSeverity
 import com.thewizrd.shared_resources.utils.getDrawableFromAlertType
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
@@ -59,7 +60,7 @@ private fun WeatherAlertPanel(
     title: String,
     alertBodyMessage: CharSequence,
     @ColorInt alertSeverityColor: Int,
-    @DrawableRes alertDrawable: Int = R.drawable.ic_error
+    @DrawableRes alertDrawable: Int = sharedRes.drawable.ic_error
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val severityColor = remember(alertSeverityColor) { Color(alertSeverityColor) }

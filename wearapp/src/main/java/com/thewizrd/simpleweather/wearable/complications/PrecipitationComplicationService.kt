@@ -9,6 +9,7 @@ import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
@@ -26,7 +27,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_umbrella
+    private val complicationIconResId = sharedRes.drawable.wi_umbrella
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -95,7 +96,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     popChance?.toFloat() ?: 0f, 0f, 100f,
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_chance)).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
                         Icon.createWithResource(this, complicationIconResId)
@@ -113,7 +114,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(popChanceStr).build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_chance)}: $popChanceStr"
+                        "${getString(sharedRes.string.label_chance)}: $popChanceStr"
                     ).build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
@@ -126,9 +127,9 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_chance)).build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_chance)}: $popChanceStr"
+                        "${getString(sharedRes.string.label_chance)}: $popChanceStr"
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(popChanceStr).build()

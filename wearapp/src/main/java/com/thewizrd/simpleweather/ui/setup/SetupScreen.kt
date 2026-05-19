@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.wear.R as wearRes
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
@@ -44,6 +45,7 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
@@ -146,7 +148,7 @@ private fun SetupScreen(
             ) {
                 item {
                     ListHeader {
-                        Text(text = stringResource(id = R.string.app_name))
+                        Text(text = stringResource(id = sharedRes.string.app_name))
                     }
                 }
                 item {
@@ -161,7 +163,7 @@ private fun SetupScreen(
                         },
                         label = {
                             Text(
-                                text = stringResource(id = R.string.location_search_hint),
+                                text = stringResource(id = sharedRes.string.location_search_hint),
                                 color = LocalContentColor.current
                             )
                         },
@@ -184,12 +186,12 @@ private fun SetupScreen(
                             fetchGeoLocation()
                         },
                         label = {
-                            Text(text = stringResource(id = R.string.label_gpsfollow))
+                            Text(text = stringResource(id = sharedRes.string.label_gpsfollow))
                         },
                         icon = {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_my_location_white_24dp),
-                                contentDescription = stringResource(id = R.string.label_gpsfollow)
+                                painter = painterResource(id = sharedRes.drawable.ic_my_location_white_24dp),
+                                contentDescription = stringResource(id = sharedRes.string.label_gpsfollow)
                             )
                         }
                     )
@@ -211,7 +213,7 @@ private fun SetupScreen(
                             icon = {
                                 Icon(
                                     modifier = Modifier.size(ButtonDefaults.IconSize),
-                                    painter = painterResource(id = R.drawable.common_full_open_on_phone),
+                                    painter = painterResource(id = com.google.android.gms.base.R.drawable.common_full_open_on_phone),
                                     contentDescription = stringResource(id = R.string.action_setupfromphone)
                                 )
                             }
@@ -230,7 +232,7 @@ private fun SetupScreen(
                 },
                 text = {
                     Text(
-                        text = stringResource(id = R.string.error_location_denied),
+                        text = stringResource(id = sharedRes.string.error_location_denied),
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
@@ -238,7 +240,7 @@ private fun SetupScreen(
                 content = {
                     Icon(
                         modifier = Modifier.size(ConfirmationDialogDefaults.SmallIconSize),
-                        painter = painterResource(id = R.drawable.ic_location_off_24dp),
+                        painter = painterResource(id = sharedRes.drawable.ic_location_off_24dp),
                         contentDescription = null
                     )
                 }
@@ -264,7 +266,7 @@ private fun SetupScreen(
                                 errorMessage.exception.message
                             }
 
-                            else -> stringResource(R.string.werror_unknown)
+                            else -> stringResource(sharedRes.string.werror_unknown)
                         },
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -273,7 +275,7 @@ private fun SetupScreen(
                 content = {
                     Icon(
                         modifier = Modifier.size(ConfirmationDialogDefaults.SmallIconSize),
-                        painter = painterResource(id = R.drawable.ic_error_white),
+                        painter = painterResource(id = sharedRes.drawable.ic_error_white),
                         contentDescription = null
                     )
                 }

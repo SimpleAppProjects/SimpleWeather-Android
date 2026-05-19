@@ -13,6 +13,7 @@ import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.preferences.SettingsManager
@@ -235,7 +236,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                 val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                 if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                    return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
+                    return LocationResult.Error(errorMessage = ErrorMessage.Resource(sharedRes.string.error_retrieve_location))
                 }
 
                 return locationProvider.getLatestLocationData(settingsManager.getLastGPSLocData())

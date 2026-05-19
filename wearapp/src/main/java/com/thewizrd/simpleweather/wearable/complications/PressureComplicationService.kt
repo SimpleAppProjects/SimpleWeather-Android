@@ -9,6 +9,7 @@ import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
@@ -31,7 +32,7 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_barometer
+    private val complicationIconResId = sharedRes.drawable.wi_barometer
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
@@ -67,7 +68,8 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
 
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_pressure)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_pressure))
+                        .build(),
                     PlainComplicationText.Builder("Pressure: 30.3 inHg").build()
                 ).setTitle(
                     PlainComplicationText.Builder("30.3 inHg").build()
@@ -114,25 +116,25 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
         when (unit) {
             Units.INHG -> {
                 pressureVal = df.format(pressureIn)
-                pressureUnit = getString(R.string.unit_inHg)
-                pressureUnitShort = getString(R.string.unit_in)
+                pressureUnit = getString(sharedRes.string.unit_inHg)
+                pressureUnitShort = getString(sharedRes.string.unit_in)
             }
 
             Units.MILLIBAR -> {
                 pressureVal = df.format(pressureMb)
-                pressureUnit = getString(R.string.unit_mBar).also { pressureUnitShort = it }
+                pressureUnit = getString(sharedRes.string.unit_mBar).also { pressureUnitShort = it }
             }
 
             Units.MMHG -> {
                 pressureVal = df.format(ConversionMethods.inHgToMmHg(pressureIn))
-                pressureUnit = getString(R.string.unit_mmHg)
-                pressureUnitShort = getString(R.string.unit_mm)
+                pressureUnit = getString(sharedRes.string.unit_mmHg)
+                pressureUnitShort = getString(sharedRes.string.unit_mm)
             }
 
             else -> {
                 pressureVal = df.format(pressureIn)
-                pressureUnit = getString(R.string.unit_inHg)
-                pressureUnitShort = getString(R.string.unit_in)
+                pressureUnit = getString(sharedRes.string.unit_inHg)
+                pressureUnitShort = getString(sharedRes.string.unit_in)
             }
         }
 
@@ -154,8 +156,8 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setMonochromaticImage(
@@ -178,8 +180,8 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setMonochromaticImage(
@@ -194,12 +196,13 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
 
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_pressure)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_pressure))
+                        .build(),
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setTitle(

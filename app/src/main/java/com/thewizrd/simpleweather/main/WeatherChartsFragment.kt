@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.Constants
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
@@ -115,7 +116,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
@@ -224,7 +225,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
     }
 
     override val titleResId: Int
-        get() = R.string.label_forecast
+        get() = sharedRes.string.label_forecast
 
     private fun initialize() {
         if (locationData == null) {

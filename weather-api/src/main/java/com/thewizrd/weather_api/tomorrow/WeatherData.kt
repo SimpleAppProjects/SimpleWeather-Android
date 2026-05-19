@@ -27,7 +27,7 @@ import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.weather_api.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
 import java.time.ZoneOffset

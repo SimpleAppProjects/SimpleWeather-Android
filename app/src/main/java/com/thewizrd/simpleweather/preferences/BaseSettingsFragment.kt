@@ -10,6 +10,7 @@ import com.google.android.material.timepicker.TimeFormat
 import com.thewizrd.common.helpers.LocationPermissionLauncher
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.timepickerpreference.TimePickerPreference
@@ -44,7 +45,7 @@ abstract class BaseSettingsFragment : ToolbarPreferenceFragmentCompat() {
                 showSnackbar(
                     Snackbar.make(
                         it,
-                        R.string.error_location_denied,
+                        sharedRes.string.error_location_denied,
                         Snackbar.Duration.SHORT
                     )
                 )

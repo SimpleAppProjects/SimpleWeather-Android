@@ -18,6 +18,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.launch
 import androidx.annotation.ColorInt
+import androidx.appcompat.R as appcompatRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityOptionsCompat
@@ -44,6 +45,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.transition.TransitionManager
+import com.google.android.material.R as materialRes
 import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -56,6 +58,7 @@ import com.thewizrd.common.helpers.OnListChangedListener
 import com.thewizrd.common.utils.ActivityUtils.setLightStatusBar
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -136,7 +139,7 @@ class LocationsFragment : ToolbarFragment() {
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override val titleResId: Int
-        get() = R.string.label_nav_locations
+        get() = sharedRes.string.label_nav_locations
 
     override fun createSnackManager(activity: Activity): SnackbarManager {
         return SnackbarManager(rootView).apply {
@@ -199,7 +202,7 @@ class LocationsFragment : ToolbarFragment() {
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.error_location_denied,
+                                sharedRes.string.error_location_denied,
                                 Snackbar.Duration.SHORT
                             )
                         )
@@ -632,7 +635,7 @@ class LocationsFragment : ToolbarFragment() {
             ErrorStatus.NETWORKERROR, ErrorStatus.NOWEATHER -> {
                 val snackbar =
                     Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG)
-                snackbar.setAction(R.string.action_retry) {
+                snackbar.setAction(sharedRes.string.action_retry) {
                     locationsViewModel.refreshLocations()
                 }
                 showSnackbar(snackbar)
@@ -640,7 +643,7 @@ class LocationsFragment : ToolbarFragment() {
             ErrorStatus.LOCATIONNOTSUPPORTED -> {
                 showSnackbar(
                     Snackbar.make(rootView.context, wEx.message, Snackbar.Duration.LONG).apply {
-                        setAction(R.string.action_settings) {
+                        setAction(sharedRes.string.action_settings) {
                             runCatching {
                                 rootView.findNavController()
                                     .safeNavigate(NavGraphDirections.actionGlobalSettingsFragment())
@@ -787,11 +790,11 @@ class LocationsFragment : ToolbarFragment() {
 
         if (inEditMode) {
             val navIcon =
-                ContextCompat.getDrawable(toolbar.context, R.drawable.ic_close_white_24dp)!!
+                ContextCompat.getDrawable(toolbar.context, sharedRes.drawable.ic_close_white_24dp)!!
                     .mutate()
             DrawableCompat.setTint(
                 navIcon,
-                toolbar.context.getAttrColor(R.attr.colorOnPrimary)
+                toolbar.context.getAttrColor(materialRes.attr.colorOnPrimary)
             )
             toolbar.navigationIcon = navIcon
             toolbar.setNavigationOnClickListener {
@@ -812,7 +815,7 @@ class LocationsFragment : ToolbarFragment() {
             toolbar.setTitle(titleResId)
             toolbar.setTitleTextAppearance(
                 toolbar.context,
-                toolbar.context.getAttrResourceId(R.attr.textAppearanceHeadline6)
+                toolbar.context.getAttrResourceId(materialRes.attr.textAppearanceHeadline6)
             )
             (activity as? WindowColorManager)?.updateWindowColors()
         }
@@ -834,14 +837,14 @@ class LocationsFragment : ToolbarFragment() {
                     }
                     MenuItemCompat.setIconTintList(
                         it,
-                        ColorStateList.valueOf(toolbar.context.getAttrColor(R.attr.colorOnPrimary))
+                        ColorStateList.valueOf(toolbar.context.getAttrColor(materialRes.attr.colorOnPrimary))
                     )
                 }
                 R.id.action_done -> {
                     it.isVisible = inEditMode
                     MenuItemCompat.setIconTintList(
                         it,
-                        ColorStateList.valueOf(toolbar.context.getAttrColor(R.attr.colorOnPrimary))
+                        ColorStateList.valueOf(toolbar.context.getAttrColor(materialRes.attr.colorOnPrimary))
                     )
                 }
                 else -> it.isVisible = !inEditMode
@@ -850,9 +853,9 @@ class LocationsFragment : ToolbarFragment() {
 
         runAppBarAnimation(
             if (inEditMode) {
-                appBarLayout.context.getAttrColor(R.attr.colorPrimary)
+                appBarLayout.context.getAttrColor(appcompatRes.attr.colorPrimary)
             } else {
-                appBarLayout.context.getAttrColor(R.attr.colorSurface)
+                appBarLayout.context.getAttrColor(materialRes.attr.colorSurface)
             }
         )
     }
@@ -870,7 +873,7 @@ class LocationsFragment : ToolbarFragment() {
 
         if (mEditMode) {
             activity?.let {
-                val statusBarColor = it.getAttrColor(R.attr.colorPrimary)
+                val statusBarColor = it.getAttrColor(appcompatRes.attr.colorPrimary)
 
                 if (appBarLayout.background is MaterialShapeDrawable) {
                     val materialShapeDrawable = appBarLayout.background as MaterialShapeDrawable
@@ -895,7 +898,7 @@ class LocationsFragment : ToolbarFragment() {
             materialShapeDrawable.fillColor?.defaultColor
         } else {
             (appBarLayout.background as? ColorDrawable)?.color
-        } ?: appBarLayout.context.getAttrColor(R.attr.colorSurface)
+        } ?: appBarLayout.context.getAttrColor(materialRes.attr.colorSurface)
         if (colorFrom != colorTo) {
             if (mAppBarAnimator?.isRunning == true) {
                 mAppBarAnimator?.cancel()

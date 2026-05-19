@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.wear.R as wearRes
 import androidx.wear.compose.material3.ConfirmationDialog
 import androidx.wear.compose.material3.ConfirmationDialogDefaults
 import androidx.wear.compose.material3.FailureConfirmationDialog
@@ -90,7 +91,7 @@ fun ConfirmationOverlay(
                 },
                 content = {
                     val image =
-                        AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
+                        AnimatedImageVector.animatedVectorResource(wearRes.drawable.open_on_phone_animation)
                     var atEnd by remember { mutableStateOf(false) }
 
                     Icon(
@@ -102,7 +103,7 @@ fun ConfirmationOverlay(
                             }
                         ),
                         painter = rememberAnimatedVectorPainter(image, atEnd),
-                        contentDescription = stringResource(R.string.common_open_on_phone)
+                        contentDescription = stringResource(com.google.android.gms.base.R.string.common_open_on_phone)
                     )
 
                     LaunchedEffect(Unit) {

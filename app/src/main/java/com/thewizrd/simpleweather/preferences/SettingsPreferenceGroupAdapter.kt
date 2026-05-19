@@ -29,6 +29,7 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceGroupAdapter
 import androidx.preference.PreferenceViewHolder
+import com.google.android.material.R as materialRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
@@ -187,7 +188,7 @@ class SettingsPreferenceGroupAdapter(preferenceGroup: PreferenceGroup) :
         if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
             v.backgroundTintList = ColorStateList.valueOf(
                 ColorUtils.compositeColors(
-                    v.context.getAttrColor(R.attr.colorSurfaceDim),
+                    v.context.getAttrColor(materialRes.attr.colorSurfaceDim),
                     Colors.BLACK
                 )
             )

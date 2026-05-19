@@ -16,6 +16,7 @@ import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ActivityUtils.showToast
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.preferences.SettingsManager
@@ -79,7 +80,7 @@ class MainActivity : UserLocaleActivity() {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     settingsManager.setFollowGPS(false)
-                    showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
+                    showToast(sharedRes.string.error_location_denied, Toast.LENGTH_SHORT)
                 }
             }
         )

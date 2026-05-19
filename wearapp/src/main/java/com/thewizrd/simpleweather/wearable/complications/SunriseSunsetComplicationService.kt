@@ -9,6 +9,7 @@ import androidx.wear.watchface.complications.data.MonochromaticImage
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
@@ -39,7 +40,7 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder("Sunset: 6:05 PM").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(this, R.drawable.wi_sunset)
+                        Icon.createWithResource(this, sharedRes.drawable.wi_sunset)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
@@ -53,7 +54,7 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder("6:05 PM").build()
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(
-                        Icon.createWithResource(this, R.drawable.wi_sunset)
+                        Icon.createWithResource(this, sharedRes.drawable.wi_sunset)
                             .setTint(Colors.WHITESMOKE)
                     ).build()
                 ).build()
@@ -97,21 +98,21 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
         if (sunset != null && sunrise != null) {
             if (now.toLocalTime() > sunrise.toLocalTime()) {
                 text = sunset.format(fmt)
-                complicationIconResId = R.drawable.wi_sunset
-                desc = getString(R.string.label_sunset)
+                complicationIconResId = sharedRes.drawable.wi_sunset
+                desc = getString(sharedRes.string.label_sunset)
             } else {
                 text = sunrise.format(fmt)
-                complicationIconResId = R.drawable.wi_sunrise
-                desc = getString(R.string.label_sunrise)
+                complicationIconResId = sharedRes.drawable.wi_sunrise
+                desc = getString(sharedRes.string.label_sunrise)
             }
         } else if (sunset != null) {
             text = sunset.format(fmt)
-            complicationIconResId = R.drawable.wi_sunset
-            desc = getString(R.string.label_sunset)
+            complicationIconResId = sharedRes.drawable.wi_sunset
+            desc = getString(sharedRes.string.label_sunset)
         } else {
             text = sunrise?.format(fmt) ?: WeatherIcons.EM_DASH
-            complicationIconResId = R.drawable.wi_sunrise
-            desc = getString(R.string.label_sunrise)
+            complicationIconResId = sharedRes.drawable.wi_sunrise
+            desc = getString(sharedRes.string.label_sunrise)
         }
 
         return when (dataType) {

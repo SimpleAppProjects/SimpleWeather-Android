@@ -62,6 +62,7 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.utils.ImageUtils.rotate
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.designer.isInEditMode
@@ -152,7 +153,7 @@ internal fun detailsWeatherTileLayout(
                 when (detailItems.size) {
                     0 -> {
                         text(
-                            text = context.getString(R.string.label_nodata).layoutString,
+                            text = context.getString(sharedRes.string.label_nodata).layoutString,
                             typography = androidx.wear.protolayout.material3.Typography.LABEL_LARGE
                         )
                     }
@@ -192,14 +193,14 @@ internal fun detailsWeatherTileLayout(
                                     textEdgeButton(
                                         onClick = clickable(getLaunchAction(context)),
                                         labelContent = {
-                                            text(context.getString(R.string.label_nav_weathernow).layoutString)
+                                            text(context.getString(sharedRes.string.label_nav_weathernow).layoutString)
                                         }
                                     )
                                 } else {
                                     compactButton(
                                         onClick = clickable(getLaunchAction(context)),
                                         labelContent = {
-                                            text(context.getString(R.string.label_nav_weathernow).layoutString)
+                                            text(context.getString(sharedRes.string.label_nav_weathernow).layoutString)
                                         }
                                     )
                                 }

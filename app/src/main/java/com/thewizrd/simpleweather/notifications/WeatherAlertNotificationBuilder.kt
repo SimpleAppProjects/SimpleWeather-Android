@@ -1,5 +1,7 @@
 package com.thewizrd.simpleweather.notifications
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,12 +11,14 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.SystemClock
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.thewizrd.common.controls.WeatherAlertViewModel
 import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
@@ -40,6 +44,7 @@ object WeatherAlertNotificationBuilder {
     private const val MIN_GROUPCOUNT = 3
     private const val SUMMARY_ID = -1
 
+    @SuppressLint("MissingPermission")
     suspend fun createNotifications(location: LocationData, alerts: Collection<WeatherAlert>) = withContext(Dispatchers.Default) {
         val context = appLib.context
 
@@ -75,7 +80,7 @@ object WeatherAlertNotificationBuilder {
             val alertIconResId = alertVM.alertType.getDrawableFromAlertType()
 
             val notification = NotificationUtils.createNotificationBuilder(context, NOT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_error)
+                .setSmallIcon(sharedRes.drawable.ic_error)
                 .setStyle(Notification.BigTextStyle().bigText(alertVM.alertBodyMessage))
                 .setContentTitle(title)
                 .setContentText(contentText)
@@ -161,16 +166,16 @@ object WeatherAlertNotificationBuilder {
                     inboxStyle.addLine(notif.value)
                 }
 
-                inboxStyle.setBigContentTitle(context.getString(R.string.title_fragment_alerts))
-                inboxStyle.setSummaryText(context.getString(R.string.app_name))
+                inboxStyle.setBigContentTitle(context.getString(sharedRes.string.title_fragment_alerts))
+                inboxStyle.setSummaryText(context.getString(sharedRes.string.app_name))
             } else {
-                inboxStyle.setSummaryText(context.getString(R.string.title_fragment_alerts))
+                inboxStyle.setSummaryText(context.getString(sharedRes.string.title_fragment_alerts))
             }
 
             val mSummaryBuilder = NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_error)
-                    .setContentTitle(context.getString(R.string.title_fragment_alerts))
-                    .setContentText(context.getString(R.string.app_name))
+                .setSmallIcon(sharedRes.drawable.ic_error)
+                .setContentTitle(context.getString(sharedRes.string.title_fragment_alerts))
+                .setContentText(context.getString(sharedRes.string.app_name))
                     .setStyle(inboxStyle)
                     .setGroup(TAG)
                     .setGroupSummary(true)
@@ -245,8 +250,10 @@ object WeatherAlertNotificationBuilder {
             val mNotifyMgr =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-            val notchannel_name = context.resources.getString(R.string.not_channel_name_alerts)
-            val notchannel_desc = context.resources.getString(R.string.not_channel_desc_alerts)
+            val notchannel_name =
+                context.resources.getString(sharedRes.string.not_channel_name_alerts)
+            val notchannel_desc =
+                context.resources.getString(sharedRes.string.not_channel_desc_alerts)
             if (mChannel == null) {
                 mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_DEFAULT)
             }

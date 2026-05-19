@@ -46,7 +46,7 @@ public class ColorPreference extends DialogPreference {
 
     @SuppressLint("RestrictedApi")
     public ColorPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
+        this(context, attrs, TypedArrayUtils.getAttr(context, androidx.preference.R.attr.preferenceStyle,
                 android.R.attr.preferenceStyle));
     }
 

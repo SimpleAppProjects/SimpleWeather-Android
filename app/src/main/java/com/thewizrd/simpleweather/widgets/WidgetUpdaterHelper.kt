@@ -20,6 +20,7 @@ import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
@@ -439,7 +440,7 @@ object WidgetUpdaterHelper {
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowText)
+            TextAppearanceSpan(context, sharedRes.style.ShadowText)
         } else {
             null
         }

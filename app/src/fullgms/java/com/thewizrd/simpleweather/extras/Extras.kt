@@ -15,6 +15,7 @@ import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.firebase.Firebase
 import com.google.firebase.installations.installations
 import com.thewizrd.extras.extrasModule
+import com.thewizrd.extras.R as extrasRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.simpleweather.App
@@ -84,7 +85,7 @@ fun BaseSettingsFragment.navigateToPremiumFragment() {
         showSnackbar(
             Snackbar.make(
                 rootView.context,
-                R.string.message_premium_required,
+                extrasRes.string.message_premium_required,
                 Snackbar.Duration.SHORT
             ),
             null
@@ -102,7 +103,7 @@ fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
         showSnackbar(
             Snackbar.make(
                 rootView.context,
-                R.string.message_premium_required,
+                extrasRes.string.message_premium_required,
                 Snackbar.Duration.SHORT
             ),
             null
@@ -133,8 +134,8 @@ fun areNotificationExtrasEnabled(): Boolean {
 
 fun SettingsFragment.createPremiumPreference(): Preference {
     val premiumPref = Preference(requireContext()).apply {
-        title = context.getString(R.string.pref_title_premium)
-        summary = context.getString(R.string.pref_summary_premium)
+        title = context.getString(extrasRes.string.pref_title_premium)
+        summary = context.getString(extrasRes.string.pref_summary_premium)
         setIcon(R.drawable.ic_star_24dp)
         order = 0
     }
@@ -147,7 +148,7 @@ fun SettingsFragment.createPremiumPreference(): Preference {
             showSnackbar(
                 Snackbar.make(
                     rootView.context,
-                    R.string.message_premium_required,
+                    extrasRes.string.message_premium_required,
                     Snackbar.Duration.SHORT
                 ),
                 null

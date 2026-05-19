@@ -43,6 +43,7 @@ import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -191,7 +192,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.error_location_denied,
+                                sharedRes.string.error_location_denied,
                                 Snackbar.Duration.SHORT
                             )
                         )
@@ -206,7 +207,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.error_location_denied,
+                                sharedRes.string.error_location_denied,
                                 Snackbar.Duration.SHORT
                             )
                         )
@@ -467,7 +468,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                 requireContext().getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
+                return LocationResult.Error(errorMessage = ErrorMessage.Resource(sharedRes.string.error_retrieve_location))
             }
 
             return locationProvider.getLatestLocationData()
@@ -518,7 +519,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                     highC = 23f + index / 2f
                     lowF = 60f - index
                     lowC = 17f - index / 2f
-                    condition = getString(R.string.weather_sunny)
+                    condition = getString(sharedRes.string.weather_sunny)
                     icon = WeatherIcons.DAY_SUNNY
                     extras = ForecastExtras().apply {
                         feelslikeF = 80f
@@ -550,7 +551,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                     date = ZonedDateTime.now().plusHours(index.toLong())
                     highF = 70f + index
                     highC = 23f + index / 2f
-                    condition = getString(R.string.weather_sunny)
+                    condition = getString(sharedRes.string.weather_sunny)
                     icon = WeatherIcons.DAY_SUNNY
                     windMph = 5f
                     windKph = 8f
@@ -596,7 +597,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                 }
             }
             condition = Condition().apply {
-                weather = getString(R.string.weather_sunny)
+                weather = getString(sharedRes.string.weather_sunny)
                 tempF = 70f
                 tempC = 21f
                 windDegrees = 292

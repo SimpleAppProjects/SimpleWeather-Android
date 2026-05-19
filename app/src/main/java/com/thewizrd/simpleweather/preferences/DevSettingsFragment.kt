@@ -12,11 +12,11 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.BuildConfig
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.extras.updateFirebaseIdPreference
 import timber.log.Timber
 import java.io.File
@@ -25,7 +25,7 @@ import java.io.FileOutputStream
 class DevSettingsFragment : ToolbarPreferenceFragmentCompat() {
 
     override val titleResId: Int
-        get() = R.string.title_dev_settings
+        get() = sharedRes.string.title_dev_settings
 
     private lateinit var intentLauncher: ActivityResultLauncher<String>
     private var mLogFile: File? = null

@@ -17,6 +17,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.google.android.material.textfield.TextInputLayout
 import com.thewizrd.common.R
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
@@ -143,7 +144,7 @@ class KeyEntryPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
                     if (apiProvider == WeatherAPI.HERE) {
                         this.hint = "Access Key ID"
                     } else {
-                        this.setHint(R.string.hint_appid)
+                        this.setHint(sharedRes.string.hint_appid)
                     }
                     editText?.let { editText ->
                         editText.requestFocus()
@@ -159,7 +160,7 @@ class KeyEntryPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
                     if (apiProvider == WeatherAPI.HERE) {
                         this.hint = "Access Key Secret"
                     } else {
-                        this.setHint(R.string.hint_appcode)
+                        this.setHint(sharedRes.string.hint_appcode)
                     }
                     editText?.let { editText ->
                         editText.setText(credentials?.appCode ?: "")
@@ -174,7 +175,7 @@ class KeyEntryPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
                 val credentials = providerKey as? BasicAuthProviderKey
 
                 view.findViewById<TextInputLayout>(R.id.keyentry1_layout)?.apply {
-                    this.setHint(R.string.hint_username)
+                    this.setHint(sharedRes.string.hint_username)
                     editText?.let { editText ->
                         editText.requestFocus()
                         editText.setText(credentials?.username ?: "")
@@ -186,7 +187,7 @@ class KeyEntryPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
                     }
                 }
                 view.findViewById<TextInputLayout>(R.id.keyentry2_layout)?.apply {
-                    this.setHint(R.string.hint_password)
+                    this.setHint(sharedRes.string.hint_password)
                     endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
                     passwordVisibilityToggleRequested(true)
 
@@ -201,7 +202,7 @@ class KeyEntryPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
             }
             else -> {
                 view.findViewById<TextInputLayout>(R.id.keyentry1_layout)?.apply {
-                    this.setHint(R.string.key_hint)
+                    this.setHint(sharedRes.string.key_hint)
                     editText?.let { editText ->
                         editText.requestFocus()
                         editText.setText(key ?: "")

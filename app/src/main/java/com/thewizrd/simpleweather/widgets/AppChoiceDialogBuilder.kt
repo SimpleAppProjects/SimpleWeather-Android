@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.simpleweather.databinding.AppItemLayoutBinding
 import com.thewizrd.simpleweather.databinding.DialogAppchooserBinding
 import kotlinx.coroutines.CoroutineScope
@@ -75,7 +75,7 @@ class AppChoiceDialogBuilder(private val context: Context) {
 
     fun show() {
         val dialog = MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.abc_activitychooserview_choose_application)
+            .setTitle(androidx.appcompat.R.string.abc_activitychooserview_choose_application)
                 .setCancelable(true)
                 .setView(createView())
                 .setNegativeButton(android.R.string.cancel) { dialog, which -> dialog.cancel() }

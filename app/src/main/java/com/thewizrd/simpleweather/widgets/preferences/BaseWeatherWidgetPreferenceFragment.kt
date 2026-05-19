@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.thewizrd.common.preferences.SliderPreference
 import com.thewizrd.common.utils.glide.TransparentOverlay
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.colorpreference.ColorPreference
 import com.thewizrd.simpleweather.widgets.AppChoiceDialogBuilder
@@ -286,7 +287,7 @@ abstract class BaseWeatherWidgetPreferenceFragment : AbstractWeatherWidgetPrefer
             }
         }
 
-        clockPref.setSummary(R.string.summary_default)
+        clockPref.setSummary(sharedRes.string.summary_default)
     }
 
     private fun updateCalPreference(context: Context) {
@@ -304,7 +305,7 @@ abstract class BaseWeatherWidgetPreferenceFragment : AbstractWeatherWidgetPrefer
             }
         }
 
-        calPref.setSummary(R.string.summary_default)
+        calPref.setSummary(sharedRes.string.summary_default)
     }
 
     protected fun updateBackground() {

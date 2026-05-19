@@ -5,10 +5,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.thewizrd.common.BuildConfig
-import com.thewizrd.common.R
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData

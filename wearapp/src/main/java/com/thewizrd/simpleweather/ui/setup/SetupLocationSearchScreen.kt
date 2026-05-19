@@ -42,6 +42,7 @@ import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.R
@@ -71,6 +72,8 @@ fun SetupLocationSearchScreen(navController: NavController) {
         }
     }
 
+    val searchHintPrompt = stringResource(sharedRes.string.location_search_hint)
+
     SetupLocationSearchScreen(
         onVoiceSearch = {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -80,7 +83,7 @@ fun SetupLocationSearchScreen(navController: NavController) {
                 )
                 putExtra(
                     RecognizerIntent.EXTRA_PROMPT,
-                    context.getString(R.string.location_search_hint)
+                    searchHintPrompt
                 )
             }
 
@@ -148,7 +151,7 @@ private fun SetupLocationSearchScreen(
                     top = 26.dp, bottom = 16.dp
                 )
             ) {
-                Text(text = stringResource(id = R.string.location_search_hint))
+                Text(text = stringResource(id = sharedRes.string.location_search_hint))
             }
 
             Box(
@@ -171,7 +174,7 @@ private fun SetupLocationSearchScreen(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_keyboard_voice_black_24dp),
-                            contentDescription = stringResource(R.string.abc_searchview_description_voice)
+                            contentDescription = stringResource(androidx.appcompat.R.string.abc_searchview_description_voice)
                         )
                     }
 
@@ -189,7 +192,7 @@ private fun SetupLocationSearchScreen(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_keyboard_black_24dp),
-                            contentDescription = stringResource(R.string.abc_searchview_description_search)
+                            contentDescription = stringResource(androidx.appcompat.R.string.abc_searchview_description_search)
                         )
                     }
                 }

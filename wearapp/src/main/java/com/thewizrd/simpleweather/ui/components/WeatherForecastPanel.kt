@@ -33,6 +33,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.simpleweather.R
@@ -100,7 +101,7 @@ fun WeatherForecastPanel(
                     )
                     Icon(
                         modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.wi_direction_up),
+                        painter = painterResource(id = sharedRes.drawable.wi_direction_up),
                         tint = Color(0xFFFF4500),
                         contentDescription = null
                     )
@@ -118,7 +119,7 @@ fun WeatherForecastPanel(
                     )
                     Icon(
                         modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.wi_direction_down),
+                        painter = painterResource(id = sharedRes.drawable.wi_direction_down),
                         tint = Color(0xFF87CEFA),
                         contentDescription = null
                     )
@@ -136,8 +137,8 @@ fun WeatherForecastPanel(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp),
-                        painter = painterResource(R.drawable.wi_umbrella),
-                        tint = colorResource(R.color.colorPrimaryLight),
+                        painter = painterResource(sharedRes.drawable.wi_umbrella),
+                        tint = colorResource(sharedRes.color.colorPrimaryLight),
                         contentDescription = null
                     )
                     Text(
@@ -145,7 +146,7 @@ fun WeatherForecastPanel(
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
                         textAlign = TextAlign.End,
                         maxLines = 1,
-                        color = colorResource(R.color.colorPrimaryLight)
+                        color = colorResource(sharedRes.color.colorPrimaryLight)
                     )
                 }
             }
@@ -168,7 +169,7 @@ fun WeatherForecastPanel(
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat())
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(R.drawable.wi_wind_direction),
+                        painter = painterResource(sharedRes.drawable.wi_wind_direction),
                         tint = Color(0xFF20B2AA),
                         contentDescription = null
                     )

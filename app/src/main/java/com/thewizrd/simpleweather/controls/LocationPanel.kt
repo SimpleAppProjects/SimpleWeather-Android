@@ -25,6 +25,7 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.material.R as materialRes
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.thewizrd.common.controls.TextViewDrawableCompat
@@ -95,10 +96,14 @@ class LocationPanel : MaterialCardView {
         }
 
         shapeAppearanceModel =
-            ShapeAppearanceModel.builder(context, R.style.ShapeAppearance_Material3_Corner_Large, 0)
+            ShapeAppearanceModel.builder(
+                context,
+                materialRes.style.ShapeAppearance_Material3_Corner_Large,
+                0
+            )
                 .build()
 
-        setCardBackgroundColor(context.getAttrColor(R.attr.colorSurface))
+        setCardBackgroundColor(context.getAttrColor(materialRes.attr.colorSurface))
         overlayDrawable = ContextCompat.getDrawable(context, R.drawable.background_overlay)
 
         cardElevation = context.dpToPx(2f)
@@ -115,7 +120,7 @@ class LocationPanel : MaterialCardView {
         checkedIconTint = if (FeatureSettings.isLocationPanelImageEnabled) {
             ColorStateList.valueOf(Colors.WHITE)
         } else ColorStateList.valueOf(
-            context.getAttrColor(R.attr.colorPrimary)
+            context.getAttrColor(androidx.appcompat.R.attr.colorPrimary)
         )
         setRippleColorResource(
             if (FeatureSettings.isLocationPanelImageEnabled) {
@@ -266,7 +271,7 @@ object LocationPanelBindingAdapter {
             view.setTextColor(Colors.WHITE)
         } else {
             view.setShadowLayer(0f, view.shadowDx, view.shadowDy, Colors.TRANSPARENT)
-            view.setTextColor(view.context.getAttrColor(R.attr.colorOnSurface))
+            view.setTextColor(view.context.getAttrColor(materialRes.attr.colorOnSurface))
         }
     }
 
@@ -281,7 +286,7 @@ object LocationPanelBindingAdapter {
                 if (panelImageEnabled) {
                     Colors.WHITE
                 } else {
-                    view.context.getAttrColor(R.attr.colorOnSurface)
+                    view.context.getAttrColor(materialRes.attr.colorOnSurface)
                 }
             )
         )
@@ -296,7 +301,7 @@ object LocationPanelBindingAdapter {
                 if (panelImageEnabled) {
                     Colors.WHITE
                 } else {
-                    view.context.getAttrColor(R.attr.colorOnSurface)
+                    view.context.getAttrColor(materialRes.attr.colorOnSurface)
                 }
             )
         )

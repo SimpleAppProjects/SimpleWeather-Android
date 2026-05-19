@@ -30,6 +30,7 @@ import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.viewmodels.LocationSearchResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -79,7 +80,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
 
         lifecycleScope.launch {
             locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS)
-            locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH)
+            locationPref.addEntry(sharedRes.string.label_btn_add_location, Constants.KEY_SEARCH)
 
             val favs = settingsManager.getFavorites()
             favorites.addAll(favs)
@@ -412,7 +413,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                 locationPref.findEntryFromValue(it)?.toString()
             } ?: locationView.context.getString(R.string.pref_location)).run {
                 if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType) && txtShadowPref.isChecked) {
-                    applySpan(TextAppearanceSpan(locationView.context, R.style.ShadowText))
+                    applySpan(TextAppearanceSpan(locationView.context, sharedRes.style.ShadowText))
                 } else {
                     this
                 }
@@ -491,7 +492,11 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
         } else {
             context?.let {
                 showSnackbar(
-                    Snackbar.make(it, R.string.error_retrieve_location, Snackbar.Duration.SHORT)
+                    Snackbar.make(
+                        it,
+                        sharedRes.string.error_retrieve_location,
+                        Snackbar.Duration.SHORT
+                    )
                 )
             }
         }
@@ -527,7 +532,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             showSnackbar(
                 Snackbar.make(
                     ctx,
-                    R.string.error_enable_location_services,
+                    sharedRes.string.error_enable_location_services,
                     Snackbar.Duration.SHORT
                 )
             )
@@ -550,7 +555,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_location_denied,
+                            sharedRes.string.error_location_denied,
                             Snackbar.Duration.SHORT
                         )
                     )
@@ -560,7 +565,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_retrieve_location,
+                            sharedRes.string.error_retrieve_location,
                             Snackbar.Duration.SHORT
                         )
                     )

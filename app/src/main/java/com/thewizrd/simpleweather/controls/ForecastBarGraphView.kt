@@ -14,6 +14,7 @@ import androidx.core.view.forEachIndexed
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
@@ -219,13 +220,13 @@ class ForecastBarGraphView @JvmOverloads constructor(
     private fun getIconResourceFromForecastType(forecastType: ForecastType?): Int {
         return when (forecastType) {
             ForecastType.TEMPERATURE -> 0
-            ForecastType.MINUTELY -> R.drawable.wi_raindrop
-            ForecastType.PRECIPITATION -> R.drawable.wi_raindrop
-            ForecastType.WIND -> R.drawable.wi_direction_up_2x
-            ForecastType.HUMIDITY -> R.drawable.material_humidity_percentage
+            ForecastType.MINUTELY -> sharedRes.drawable.wi_raindrop
+            ForecastType.PRECIPITATION -> sharedRes.drawable.wi_raindrop
+            ForecastType.WIND -> sharedRes.drawable.wi_direction_up_2x
+            ForecastType.HUMIDITY -> sharedRes.drawable.material_humidity_percentage
             ForecastType.UVINDEX -> 0
-            ForecastType.RAIN -> R.drawable.material_water_drop
-            ForecastType.SNOW -> R.drawable.wi_snowflake_cold
+            ForecastType.RAIN -> sharedRes.drawable.material_water_drop
+            ForecastType.SNOW -> sharedRes.drawable.wi_snowflake_cold
             ForecastType.AIRQUALITY -> 0
             null -> 0
         }

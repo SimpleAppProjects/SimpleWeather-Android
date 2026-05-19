@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.databinding;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -44,6 +45,7 @@ public class ViewBindingAdapter {
         progressBar.setIndicatorColor(progressColor);
     }
 
+    @SuppressLint("RestrictedApi")
     @BindingAdapter("progressBackgroundColor")
     public static void updateProgressBackgroundColor(ProgressBar progressBar, @ColorInt int progressBackgroundColor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -68,7 +70,7 @@ public class ViewBindingAdapter {
     @BindingAdapter("attribution")
     public static void updateAttribution(final TextView view, final CharSequence attrib) {
         if (!TextUtils.isEmpty(attrib)) {
-            view.setText(String.format(Locale.ROOT, "%s %s", view.getContext().getString(R.string.credit_prefix), attrib));
+            view.setText(String.format(Locale.ROOT, "%s %s", view.getContext().getString(com.thewizrd.shared_resources.R.string.credit_prefix), attrib));
             view.setVisibility(View.VISIBLE);
         } else {
             view.setText("");

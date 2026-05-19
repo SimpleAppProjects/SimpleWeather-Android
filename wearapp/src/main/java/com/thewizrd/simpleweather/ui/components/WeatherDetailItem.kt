@@ -20,6 +20,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.compose.tools.WearPreviewDevices
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
@@ -53,7 +54,7 @@ fun WeatherDetailItem(
                     modifier = Modifier
                         .size(ButtonDefaults.IconSize)
                         .wrapContentSize(align = Alignment.Center),
-                    painter = painterResource(id = R.drawable.ic_error),
+                    painter = painterResource(id = sharedRes.drawable.ic_error),
                     contentDescription = "",
                     colorFilter = ColorFilter.tint(LocalContentColor.current)
                 )

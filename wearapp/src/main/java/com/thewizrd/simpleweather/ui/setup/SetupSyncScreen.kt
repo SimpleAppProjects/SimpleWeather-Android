@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.ui.setup
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -43,6 +44,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.touchTargetAwareSize
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeWatch
 import com.thewizrd.shared_resources.wearable.WearableDataSync
@@ -61,6 +63,7 @@ import com.thewizrd.simpleweather.wearable.WearableListenerActions.EXTRA_SUCCESS
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun SetupSyncScreen(
     navController: NavController,
@@ -196,7 +199,7 @@ private fun SetupSyncScreen(
                     },
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_close_white_24dp),
+                        painter = painterResource(sharedRes.drawable.ic_close_white_24dp),
                         contentDescription = stringResource(android.R.string.cancel)
                     )
                 }

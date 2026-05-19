@@ -17,7 +17,7 @@ import androidx.transition.Fade;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
 
-import com.thewizrd.common.R;
+import com.thewizrd.shared_resources.R;
 import com.thewizrd.common.databinding.WeatherAlertPanelBinding;
 
 public class WeatherAlertPanel extends FrameLayout {

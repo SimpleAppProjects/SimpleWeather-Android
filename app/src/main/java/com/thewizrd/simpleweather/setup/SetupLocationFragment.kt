@@ -20,6 +20,7 @@ import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchResult
 import com.thewizrd.common.viewmodels.LocationSearchViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -85,7 +86,7 @@ class SetupLocationFragment : CustomFragment() {
                     showSnackbar(
                         Snackbar.make(
                             requireContext(),
-                            R.string.error_location_denied,
+                            sharedRes.string.error_location_denied,
                             Snackbar.Duration.SHORT
                         )
                     )

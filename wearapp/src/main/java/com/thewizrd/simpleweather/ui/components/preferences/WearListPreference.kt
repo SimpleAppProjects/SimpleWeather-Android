@@ -28,6 +28,7 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Text
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.compose.tools.WearPreviewDevices
 
@@ -100,7 +101,7 @@ fun <T : Any> WearListPreference(
                     modifier = Modifier
                         .size(24.dp)
                         .wrapContentSize(align = Alignment.Center),
-                    painter = painterResource(id = R.drawable.ic_close_white_24dp),
+                    painter = painterResource(id = sharedRes.drawable.ic_close_white_24dp),
                     contentDescription = stringResource(id = android.R.string.cancel)
                 )
             }

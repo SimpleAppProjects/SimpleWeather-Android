@@ -39,8 +39,10 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R as materialRes
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.helpers.ListChangedArgs
 import com.thewizrd.common.helpers.OnListChangedListener
 import com.thewizrd.common.helpers.PermissionLauncher
@@ -51,6 +53,7 @@ import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.common.helpers.openAppSettingsActivity
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.common.utils.ActivityUtils.recreateCompat
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -165,7 +168,7 @@ class SettingsFragment : BaseSettingsFragment(),
     }
 
     override val titleResId: Int
-        get() = R.string.title_activity_settings
+        get() = sharedRes.string.title_activity_settings
 
     /**
      * Registers a listener.
@@ -220,7 +223,7 @@ class SettingsFragment : BaseSettingsFragment(),
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.message_enter_apikey,
+                                sharedRes.string.message_enter_apikey,
                                 Snackbar.Duration.LONG
                             )
                         )
@@ -247,7 +250,7 @@ class SettingsFragment : BaseSettingsFragment(),
                 showSnackbar(
                     Snackbar.make(
                         it,
-                        R.string.error_location_denied,
+                        sharedRes.string.error_location_denied,
                         Snackbar.Duration.SHORT
                     )
                 )
@@ -425,7 +428,7 @@ class SettingsFragment : BaseSettingsFragment(),
                                 showSnackbar(
                                     Snackbar.make(
                                         it,
-                                        R.string.error_enable_location_services,
+                                        sharedRes.string.error_enable_location_services,
                                         Snackbar.Duration.SHORT
                                     )
                                 )
@@ -456,11 +459,11 @@ class SettingsFragment : BaseSettingsFragment(),
         }
         intervalPref = findPreference(SettingsManager.KEY_REFRESHINTERVAL)!!
         if (enableAdditionalRefreshIntervals()) {
-            intervalPref.setEntries(R.array.premium_refreshinterval_entries)
-            intervalPref.setEntryValues(R.array.premium_refreshinterval_values)
+            intervalPref.setEntries(sharedRes.array.premium_refreshinterval_entries)
+            intervalPref.setEntryValues(sharedRes.array.premium_refreshinterval_values)
         } else {
-            intervalPref.setEntries(R.array.refreshinterval_entries)
-            intervalPref.setEntryValues(R.array.refreshinterval_values)
+            intervalPref.setEntries(sharedRes.array.refreshinterval_entries)
+            intervalPref.setEntryValues(sharedRes.array.refreshinterval_values)
         }
 
         themePref = findPreference(SettingsManager.KEY_USERTHEME)!!
@@ -786,7 +789,7 @@ class SettingsFragment : BaseSettingsFragment(),
             val code = langCodes[i]
 
             if (TextUtils.isEmpty(code)) {
-                langEntries[i] = requireContext().getString(R.string.summary_default)
+                langEntries[i] = requireContext().getString(sharedRes.string.summary_default)
             } else {
                 val localeCode = code.toString()
                 val locale = LocaleUtils.getLocaleForTag(localeCode)
@@ -797,7 +800,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
         languagePref.summaryProvider = SummaryProvider<ListPreference> { preference ->
             if (preference.value.isNullOrBlank()) {
-                preference.context.getString(R.string.summary_default)
+                preference.context.getString(sharedRes.string.summary_default)
             } else {
                 LocaleUtils.getLocaleDisplayName()
             }
@@ -859,7 +862,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
         findPreference<Preference>(KEY_WEATHERNOTIFICATION)?.apply {
             summary =
-                "${getString(R.string.pref_title_onnotification)}, ${getString(R.string.not_channel_name_dailynotification)}".toPascalCase()
+                "${getString(sharedRes.string.pref_title_onnotification)}, ${getString(R.string.not_channel_name_dailynotification)}".toPascalCase()
             setOnPreferenceClickListener {
                 // Display the fragment as the main content.
                 activity?.findNavController(R.id.fragment_container)
@@ -870,7 +873,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
         findPreference<Preference>(KEY_ALERTS)?.apply {
             summary =
-                "${getString(R.string.pref_title_alerts)}, ${getString(R.string.not_channel_name_precipnotification)}".toPascalCase()
+                "${getString(sharedRes.string.pref_title_alerts)}, ${getString(R.string.not_channel_name_precipnotification)}".toPascalCase()
             setOnPreferenceClickListener {
                 // Display the fragment as the main content.
                 activity?.findNavController(R.id.fragment_container)
@@ -925,7 +928,7 @@ class SettingsFragment : BaseSettingsFragment(),
                         } else {
                             Toast.makeText(
                                 it.context,
-                                R.string.message_keyinvalid,
+                                sharedRes.string.message_keyinvalid,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -974,12 +977,14 @@ class SettingsFragment : BaseSettingsFragment(),
             val keyVerified = settingsManager.isKeyVerified(providerPref.value)
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
             val summary = SpannableString(
-                if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)
+                if (keyVerified) getString(sharedRes.string.message_keyverified) else getString(
+                    sharedRes.string.message_keyinvalid
+                )
             )
             summary.setSpan(colorSpan, 0, summary.length, 0)
             keyEntry.summary = summary
         } else {
-            keyEntry.summary = getString(R.string.pref_summary_apikey, providerAPI)
+            keyEntry.summary = getString(sharedRes.string.pref_summary_apikey, providerAPI)
         }
     }
 
@@ -1066,7 +1071,7 @@ class SettingsFragment : BaseSettingsFragment(),
         private var unitsChanged = false
 
         override val titleResId: Int
-            get() = R.string.pref_title_units
+            get() = sharedRes.string.pref_title_units
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_units, null)
@@ -1087,8 +1092,8 @@ class SettingsFragment : BaseSettingsFragment(),
                 Preference.OnPreferenceClickListener {
                     activity?.let {
                         MaterialAlertDialogBuilder(it)
-                            .setTitle(R.string.pref_title_units)
-                            .setItems(R.array.default_units) { dialog, which ->
+                            .setTitle(sharedRes.string.pref_title_units)
+                            .setItems(sharedRes.array.default_units) { dialog, which ->
                                 val isFahrenheit: Boolean = which == 0
                                 tempUnitPref.value =
                                     if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
@@ -1129,7 +1134,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
     class IconsFragment : IconProviderPickerFragment() {
         override val titleResId: Int
-            get() = R.string.pref_title_icons
+            get() = sharedRes.string.pref_title_icons
 
         override fun getDefaultKey(): String {
             return settingsManager.getIconsProvider()
@@ -1192,7 +1197,7 @@ class SettingsFragment : BaseSettingsFragment(),
             binding.lifecycleOwner = this.viewLifecycleOwner
 
             // Setup Actionbar
-            toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+            toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
             toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
             appBarLayout.setExpanded(false)
@@ -1220,7 +1225,7 @@ class SettingsFragment : BaseSettingsFragment(),
                 }.also { nonOrderableFeaturesAdapter = it },
                 SpacerAdapter(requireContext().dpToPx(4f).toInt()),
                 ButtonAdapter(
-                    resId = R.string.action_reset,
+                    resId = sharedRes.string.action_reset,
                     padding = context?.dpToPx(8f)?.toInt() ?: 0,
                     gravity = Gravity.CENTER
                 ) {
@@ -1334,8 +1339,8 @@ class SettingsFragment : BaseSettingsFragment(),
         @SuppressLint("MissingSuperCall")
         override fun updateWindowColors() {
             context?.let { ctx ->
-                var backgroundColor = ctx.getAttrColor(R.attr.colorSurfaceContainer)
-                var statusBarColor = ctx.getAttrColor(R.attr.colorSurfaceContainer)
+                var backgroundColor = ctx.getAttrColor(materialRes.attr.colorSurfaceContainer)
+                var statusBarColor = ctx.getAttrColor(materialRes.attr.colorSurfaceContainer)
                 if (settingsManager.getUserThemeMode() === UserThemeMode.AMOLED_DARK) {
                     statusBarColor = Colors.BLACK
                     backgroundColor = Colors.BLACK
@@ -1369,7 +1374,7 @@ class SettingsFragment : BaseSettingsFragment(),
         private lateinit var onGoingNotifPermissionLauncher: PermissionLauncher
 
         override val titleResId: Int
-            get() = R.string.pref_title_onnotification
+            get() = sharedRes.string.pref_title_onnotification
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -1382,10 +1387,10 @@ class SettingsFragment : BaseSettingsFragment(),
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.notification_perm_denied,
+                                sharedRes.string.notification_perm_denied,
                                 Snackbar.Duration.SHORT
                             ).apply {
-                                setAction(R.string.action_settings) {
+                                setAction(sharedRes.string.action_settings) {
                                     runCatching {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             it.context.openAppNotificationSettingsActivity()
@@ -1487,7 +1492,7 @@ class SettingsFragment : BaseSettingsFragment(),
         private lateinit var popChanceNotifPermissionLauncher: PermissionLauncher
 
         override val titleResId: Int
-            get() = R.string.label_nav_alerts
+            get() = sharedRes.string.label_nav_alerts
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -1500,10 +1505,10 @@ class SettingsFragment : BaseSettingsFragment(),
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.notification_perm_denied,
+                                sharedRes.string.notification_perm_denied,
                                 Snackbar.Duration.SHORT
                             ).apply {
-                                setAction(R.string.action_settings) {
+                                setAction(sharedRes.string.action_settings) {
                                     runCatching {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             it.context.openAppNotificationSettingsActivity()
@@ -1525,10 +1530,10 @@ class SettingsFragment : BaseSettingsFragment(),
                         showSnackbar(
                             Snackbar.make(
                                 it,
-                                R.string.notification_perm_denied,
+                                sharedRes.string.notification_perm_denied,
                                 Snackbar.Duration.SHORT
                             ).apply {
-                                setAction(R.string.action_settings) {
+                                setAction(sharedRes.string.action_settings) {
                                     runCatching {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             it.context.openAppNotificationSettingsActivity()
@@ -1614,7 +1619,7 @@ class SettingsFragment : BaseSettingsFragment(),
         private fun updateAlertPreference(enable: Boolean) {
             alertNotification.isEnabled = enable
             alertNotification.summary =
-                if (enable) getString(R.string.pref_summary_alerts) else getString(R.string.pref_summary_alerts_disabled)
+                if (enable) getString(sharedRes.string.pref_summary_alerts) else getString(sharedRes.string.pref_summary_alerts_disabled)
         }
     }
 
@@ -1633,7 +1638,7 @@ class SettingsFragment : BaseSettingsFragment(),
         private lateinit var devSettingsController: DevSettingsController
 
         override val titleResId: Int
-            get() = R.string.pref_title_about
+            get() = sharedRes.string.pref_title_about
 
         override fun onCreate(savedInstanceState: Bundle?) {
             devSettingsController = DevSettingsController(this, KEY_ABOUTVERSION)
@@ -1708,7 +1713,7 @@ class SettingsFragment : BaseSettingsFragment(),
         }
 
         override val titleResId: Int
-            get() = R.string.pref_title_credits
+            get() = sharedRes.string.pref_title_credits
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_credits, null)
@@ -1748,7 +1753,7 @@ class SettingsFragment : BaseSettingsFragment(),
 
     class OSSCreditsFragment : BaseSettingsFragment() {
         override val titleResId: Int
-            get() = R.string.pref_title_oslibs
+            get() = sharedRes.string.pref_title_oslibs
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_oslibs, null)

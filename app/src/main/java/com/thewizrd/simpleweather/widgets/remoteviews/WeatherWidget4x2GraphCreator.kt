@@ -16,6 +16,7 @@ import androidx.core.view.forEach
 import androidx.databinding.DataBindingUtil
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -98,7 +99,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowText)
+            TextAppearanceSpan(context, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -120,7 +121,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         updateViews.setInt(R.id.refresh_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.refresh_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.refresh_button, R.drawable.ic_refresh)
+        updateViews.setImageViewResource(R.id.refresh_button, sharedRes.drawable.ic_refresh)
 
         // Setting icon
         updateViews.setImageViewBitmap(R.id.settings_button, null)
@@ -128,7 +129,10 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         updateViews.setInt(R.id.settings_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.settings_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.settings_button, R.drawable.ic_outline_settings_24)
+        updateViews.setImageViewResource(
+            R.id.settings_button,
+            sharedRes.drawable.ic_outline_settings_24
+        )
 
         // Location Name
         updateViews.setTextViewText(
@@ -206,7 +210,7 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowText)
+            TextAppearanceSpan(context, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -243,46 +247,47 @@ class WeatherWidget4x2GraphCreator(context: Context) : WidgetRemoteViewCreator(c
                 WidgetGraphType.HourlyForecast -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_hourlyforecast)
+                        context.getString(sharedRes.string.label_hourlyforecast)
                             .applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.Precipitation -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_precipitation)
+                        context.getString(sharedRes.string.label_precipitation)
                             .applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.Wind -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_wind).applySpan(textAppearanceSpan)
+                        context.getString(sharedRes.string.label_wind).applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.Humidity -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_humidity).applySpan(textAppearanceSpan)
+                        context.getString(sharedRes.string.label_humidity)
+                            .applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.UVIndex -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_uv).applySpan(textAppearanceSpan)
+                        context.getString(sharedRes.string.label_uv).applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.AirQuality -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_airquality_short)
+                        context.getString(sharedRes.string.label_airquality_short)
                             .applySpan(textAppearanceSpan)
                     )
                 }
                 WidgetGraphType.Minutely -> {
                     updateViews.setTextViewText(
                         R.id.graph_label,
-                        context.getString(R.string.label_precipitation)
+                        context.getString(sharedRes.string.label_precipitation)
                             .applySpan(textAppearanceSpan)
                     )
                 }

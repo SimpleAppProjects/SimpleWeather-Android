@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.simpleweather.R
@@ -62,7 +63,7 @@ class WeatherRadarFragment : ToolbarFragment() {
         ViewCompat.setTransitionName(binding.radarWebviewContainer, "radar")
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         toolbar.inflateMenu(R.menu.radar)
@@ -147,5 +148,5 @@ class WeatherRadarFragment : ToolbarFragment() {
     }
 
     override val titleResId: Int
-        get() = R.string.label_radar
+        get() = sharedRes.string.label_radar
 }

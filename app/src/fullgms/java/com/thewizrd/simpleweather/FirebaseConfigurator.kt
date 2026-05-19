@@ -9,6 +9,7 @@ import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.utils.AnalyticsProps
 import com.thewizrd.shared_resources.utils.ContextUtils.isLargeTablet
@@ -38,7 +39,7 @@ object FirebaseConfigurator {
             isCrashlyticsCollectionEnabled = true
             sendUnsentReports()
         }
-        FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.remote_config_defaults)
+        FirebaseRemoteConfig.getInstance().setDefaultsAsync(sharedRes.xml.remote_config_defaults)
 
         if (!BuildConfig.DEBUG) {
             Logger.registerLogger(CrashlyticsLoggingTree())

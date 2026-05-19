@@ -9,6 +9,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.R as materialRes
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -19,9 +20,7 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrResourceId
 import com.thewizrd.shared_resources.utils.UserThemeMode
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.FragmentCollapsingtoolbarLargeLayoutBinding
-import com.thewizrd.simpleweather.databinding.FragmentCollapsingtoolbarLayoutBinding
 
 abstract class LargeCollapsingToolbarFragment : WindowColorFragment() {
     // Views
@@ -67,7 +66,7 @@ abstract class LargeCollapsingToolbarFragment : WindowColorFragment() {
 
     protected fun setNavigationIconVisible(visible: Boolean) {
         if (visible) {
-            toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+            toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         } else {
             toolbar.navigationIcon = null
         }
@@ -83,7 +82,7 @@ abstract class LargeCollapsingToolbarFragment : WindowColorFragment() {
     override fun updateWindowColors() {
         context?.let { ctx ->
             var backgroundColor = ctx.getAttrColor(android.R.attr.colorBackground)
-            var statusBarColor = ctx.getAttrColor(R.attr.colorSurface)
+            var statusBarColor = ctx.getAttrColor(materialRes.attr.colorSurface)
             if (settingsManager.getUserThemeMode() === UserThemeMode.AMOLED_DARK) {
                 statusBarColor = Colors.BLACK
                 backgroundColor = statusBarColor

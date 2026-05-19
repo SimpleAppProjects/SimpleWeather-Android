@@ -41,6 +41,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -151,8 +152,8 @@ fun WeatherHourlyForecastPanel(
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(R.drawable.wi_umbrella),
-                        tint = colorResource(R.color.colorPrimaryLight),
+                        painter = painterResource(sharedRes.drawable.wi_umbrella),
+                        tint = colorResource(sharedRes.color.colorPrimaryLight),
                         contentDescription = null
                     )
                     Text(
@@ -161,7 +162,7 @@ fun WeatherHourlyForecastPanel(
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
                         textAlign = TextAlign.End,
                         maxLines = 1,
-                        color = colorResource(R.color.colorPrimaryLight)
+                        color = colorResource(sharedRes.color.colorPrimaryLight)
                     )
                 }
             }
@@ -184,7 +185,7 @@ fun WeatherHourlyForecastPanel(
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat())
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(R.drawable.wi_wind_direction),
+                        painter = painterResource(sharedRes.drawable.wi_wind_direction),
                         tint = Color(0xFF20B2AA),
                         contentDescription = null
                     )

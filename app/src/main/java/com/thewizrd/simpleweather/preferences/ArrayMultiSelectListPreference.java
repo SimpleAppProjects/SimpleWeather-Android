@@ -13,8 +13,6 @@ import androidx.annotation.StringRes;
 import androidx.preference.ListPreference;
 import androidx.preference.MultiSelectListPreference;
 
-import com.thewizrd.simpleweather.R;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -208,7 +206,7 @@ public class ArrayMultiSelectListPreference extends MultiSelectListPreference {
         @Override
         public CharSequence provideSummary(ArrayMultiSelectListPreference preference) {
             if (preference.getValues() == null || preference.getValues().isEmpty()) {
-                return (preference.getContext().getString(R.string.not_set));
+                return (preference.getContext().getString(androidx.preference.R.string.not_set));
             } else {
                 SpannableStringBuilder sb = new SpannableStringBuilder();
 

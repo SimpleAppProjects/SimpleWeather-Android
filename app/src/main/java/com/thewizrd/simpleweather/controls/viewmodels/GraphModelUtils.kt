@@ -1,7 +1,7 @@
 package com.thewizrd.simpleweather.controls.viewmodels
 
 import android.content.Context
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 
 object GraphModelUtils {
     @JvmStatic
