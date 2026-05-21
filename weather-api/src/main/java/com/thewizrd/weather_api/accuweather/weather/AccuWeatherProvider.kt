@@ -329,7 +329,7 @@ class AccuWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
-        // no-op
+        super.updateWeatherData(location, weather)
     }
 
     override suspend fun updateLocationQuery(weather: Weather): String {

@@ -2,6 +2,7 @@ package com.thewizrd.weather_api.weatherdata
 
 import android.location.Location
 import android.util.Log
+import androidx.annotation.CallSuper
 import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
@@ -16,6 +17,8 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.calculateDewpoint
+import com.thewizrd.shared_resources.utils.calculateFeelsLikeTemp
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
@@ -215,7 +218,20 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
      * @param weather  The weather data to update
      */
     @Throws(WeatherException::class)
-    protected abstract suspend fun updateWeatherData(location: LocationData, weather: Weather)
+    @CallSuper
+    protected open suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        weather.calculateDewpoint()
+        weather.calculateFeelsLikeTemp()
+
+        weather.forecast?.forEach {
+            it.calculateDewpoint()
+            it.calculateFeelsLikeTemp()
+        }
+        weather.hrForecast?.forEach {
+            it.calculateDewpoint()
+            it.calculateFeelsLikeTemp()
+        }
+    }
 
     private suspend fun updateAQIData(location: LocationData, weather: Weather) {
         val aqicnData = AQICNProvider().getAirQualityData(location)

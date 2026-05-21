@@ -344,6 +344,8 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
     }
 
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // Update forecast, hourly, sunrise/sunset, moonrise/moonset
         val offset = location.tzOffset
 

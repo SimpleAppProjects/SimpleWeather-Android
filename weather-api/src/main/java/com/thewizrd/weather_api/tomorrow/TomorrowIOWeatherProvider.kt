@@ -3,6 +3,7 @@ package com.thewizrd.weather_api.tomorrow
 import android.util.Log
 import androidx.core.net.toUri
 import com.ibm.icu.util.ULocale
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -21,7 +22,6 @@ import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
-import com.thewizrd.shared_resources.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
@@ -46,7 +46,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
@@ -396,6 +396,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
 
         // Update tz for weather properties

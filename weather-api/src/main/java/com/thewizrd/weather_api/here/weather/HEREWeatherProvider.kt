@@ -214,6 +214,8 @@ class HEREWeatherProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
 
         weather.weatherAlerts?.forEach { alert ->

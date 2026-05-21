@@ -3,6 +3,7 @@ package com.thewizrd.weather_api.weatherkit
 import android.util.Log
 import androidx.core.net.toUri
 import com.ibm.icu.util.ULocale
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -20,7 +21,6 @@ import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
-import com.thewizrd.shared_resources.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.google.location.getGoogleLocationProvider
 import com.thewizrd.weather_api.nws.SolCalcAstroProvider
@@ -42,7 +42,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class WeatherKitProvider : WeatherProviderImpl() {
@@ -189,6 +189,8 @@ class WeatherKitProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
 
         // Update tz for weather properties

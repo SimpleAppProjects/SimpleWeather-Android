@@ -11,7 +11,12 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.LocationUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.ZoneIdCompat
+import com.thewizrd.shared_resources.utils.createUnsupportedLocationException
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -38,7 +43,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class MeteoFranceProvider : WeatherProviderImpl() {
@@ -227,6 +232,8 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // MeteoFrance reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)

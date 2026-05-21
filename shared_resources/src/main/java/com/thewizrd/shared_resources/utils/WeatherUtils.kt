@@ -1,5 +1,5 @@
-@file:kotlin.jvm.JvmMultifileClass
-@file:kotlin.jvm.JvmName("WeatherUtils")
+@file:JvmMultifileClass
+@file:JvmName("WeatherUtils")
 
 package com.thewizrd.shared_resources.utils
 
@@ -9,8 +9,13 @@ import androidx.annotation.ColorInt
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.weatherdata.model.BaseForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.ZonedDateTime
+import kotlin.math.abs
+import kotlin.math.ln
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun getLastBuildDate(weather: Weather): String {
     val context = sharedDeps.context
@@ -71,7 +76,9 @@ fun getFeelsLikeTemp(temp_f: Float, wind_mph: Float, humidity_percent: Int): Flo
 
 fun calculateWindChill(temp_f: Float, wind_mph: Float): Float {
     return if (temp_f < 50) {
-        (35.74f + 0.6215f * temp_f - 35.75f * Math.pow(wind_mph.toDouble(), 0.16) + 0.4275f * temp_f * Math.pow(wind_mph.toDouble(), 0.16)).toFloat()
+        (35.74f + 0.6215f * temp_f - 35.75f * wind_mph.pow(0.16f) + 0.4275f * temp_f * wind_mph.pow(
+            0.16f
+        ))
     } else {
         temp_f
     }
@@ -83,17 +90,17 @@ fun calculateHeatIndex(temp_f: Float, humidity: Int): Float {
                   + (2.04901523 * temp_f)
                   + (10.14333127 * humidity)
                   - (0.22475541 * temp_f * humidity)
-                  - (0.00683783 * Math.pow(temp_f.toDouble(), 2.0))
-                  - (0.05481717 * Math.pow(humidity.toDouble(), 2.0))
-                  + (0.00122874 * Math.pow(temp_f.toDouble(), 2.0) * humidity)
-                  + (0.00085282 * temp_f * Math.pow(humidity.toDouble(), 2.0))
-                  - (0.00000199 * Math.pow(temp_f.toDouble(), 2.0) * Math.pow(humidity.toDouble(), 2.0)))
+                - (0.00683783 * temp_f.pow(2.0f))
+                - (0.05481717 * humidity.toFloat().pow(2.0f))
+                + (0.00122874 * temp_f.pow(2.0f) * humidity)
+                + (0.00085282 * temp_f * humidity.toFloat().pow(2.0f))
+                - (0.00000199 * temp_f.pow(2.0f) * humidity.toFloat().pow(2.0f)))
 
         if (humidity < 13 && temp_f > 80 && temp_f < 112) {
-            val adj = (13 - humidity) / 4f * Math.sqrt(((17 - Math.abs(temp_f - 95)) / 17).toDouble())
+            val adj = (13 - humidity) / 4f * sqrt(((17 - abs(temp_f - 95)) / 17))
             HI -= adj
         } else if (humidity > 85 && temp_f > 80 && temp_f < 87) {
-            val adj = ((humidity - 85) / 10f * ((87 - temp_f) / 5)).toDouble()
+            val adj = ((humidity - 85) / 10f * ((87 - temp_f) / 5))
             HI += adj
         }
 
@@ -107,12 +114,75 @@ fun calculateHeatIndex(temp_f: Float, humidity: Int): Float {
     }
 }
 
+fun Weather.calculateFeelsLikeTemp() {
+    if (this.condition == null) return
+    if (this.atmosphere == null) return
+
+    val currentTempF = this.condition?.tempF ?: return
+    val currentHumidity = this.atmosphere?.humidity ?: return
+    val currentWindMph = this.condition?.windMph ?: return
+    val currentFeelsLikeF = this.condition?.feelslikeF
+
+    if (currentFeelsLikeF == null) {
+        val feelsLikeF = getFeelsLikeTemp(currentTempF, currentWindMph, currentHumidity)
+        this.condition?.feelslikeF = feelsLikeF
+        this.condition?.feelslikeC = ConversionMethods.FtoC(feelsLikeF)
+    }
+}
+
+fun BaseForecast.calculateFeelsLikeTemp() {
+    if (this.extras == null) return
+
+    val tempF = this.highF ?: return
+    val humidity = this.extras?.humidity ?: return
+    val windMph = this.extras?.windMph ?: return
+    val currentFeelsLikeF = this.extras?.feelslikeF
+
+    if (currentFeelsLikeF == null) {
+        val feelsLikeF = getFeelsLikeTemp(tempF, windMph, humidity)
+        this.extras?.feelslikeF = feelsLikeF
+        this.extras?.feelslikeC = ConversionMethods.FtoC(feelsLikeF)
+    }
+}
+
 fun calculateDewpointF(temp_f: Float, humidity: Int): Float {
     return ConversionMethods.CtoF(calculateDewpointC(ConversionMethods.FtoC(temp_f), humidity))
 }
 
 fun calculateDewpointC(temp_c: Float, humidity: Int): Float {
-    return (243.04f * (Math.log((humidity / 100f).toDouble()) + ((17.625f * temp_c) / (243.04f + temp_c))) / (17.625f - Math.log((humidity / 100f).toDouble()) - ((17.625f * temp_c) / (243.04f + temp_c)))).toFloat()
+    return (243.04f * (ln((humidity / 100f)) + ((17.625f * temp_c) / (243.04f + temp_c))) / (17.625f - ln(
+        (humidity / 100f)
+    ) - ((17.625f * temp_c) / (243.04f + temp_c))))
+}
+
+fun Weather.calculateDewpoint() {
+    if (this.atmosphere == null) return
+
+    val currentTempC = this.condition?.tempC ?: return
+    val currentTempF = this.condition?.tempF ?: return
+    val currentHumidity = this.atmosphere?.humidity ?: return
+    val currentDewPointC = this.atmosphere?.dewpointC
+    val currentDewPointF = this.atmosphere?.dewpointF
+
+    if (currentDewPointC == null || currentDewPointF == null) {
+        this.atmosphere?.dewpointC = calculateDewpointC(currentTempC, currentHumidity)
+        this.atmosphere?.dewpointF = calculateDewpointF(currentTempF, currentHumidity)
+    }
+}
+
+fun BaseForecast.calculateDewpoint() {
+    if (this.extras == null) return
+
+    val tempC = this.highC ?: return
+    val tempF = this.highF ?: return
+    val humidity = this.extras?.humidity ?: return
+    val dewPointC = this.extras?.dewpointC
+    val dewPointF = this.extras?.dewpointF
+
+    if (dewPointC == null || dewPointF == null) {
+        this.extras?.dewpointC = calculateDewpointC(tempC, humidity)
+        this.extras?.dewpointF = calculateDewpointF(tempF, humidity)
+    }
 }
 
 @ColorInt
