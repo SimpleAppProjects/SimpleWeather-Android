@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.wear.R as wearRes
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
@@ -45,7 +44,6 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchViewModel
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
@@ -55,6 +53,7 @@ import com.thewizrd.simpleweather.ui.helpers.rememberLocationPermissionLauncher
 import com.thewizrd.simpleweather.ui.navigation.Screen
 import com.thewizrd.simpleweather.ui.theme.activityViewModel
 import com.thewizrd.simpleweather.ui.utils.rememberFocusRequester
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun SetupScreen(
@@ -213,7 +212,7 @@ private fun SetupScreen(
                             icon = {
                                 Icon(
                                     modifier = Modifier.size(ButtonDefaults.IconSize),
-                                    painter = painterResource(id = com.google.android.gms.base.R.drawable.common_full_open_on_phone),
+                                    painter = painterResource(id = R.drawable.ic_mobile_arrow_right),
                                     contentDescription = stringResource(id = R.string.action_setupfromphone)
                                 )
                             }

@@ -11,6 +11,7 @@ import androidx.core.os.CancellationSignal
 import com.thewizrd.common.R
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -106,7 +107,7 @@ class LocationProvider(private val context: Context) {
     suspend fun getLatestLocationData(previousLocation: LocationData? = null): LocationResult {
         if (!LocationManagerCompat.isLocationEnabled(mLocationMgr)) {
             return LocationResult.Error(
-                errorMessage = ErrorMessage.Resource(R.string.error_enable_location_services)
+                errorMessage = ErrorMessage.Resource(sharedRes.string.error_enable_location_services)
             )
         }
         if (!context.locationPermissionEnabled()) return LocationResult.PermissionDenied()
@@ -164,7 +165,7 @@ class LocationProvider(private val context: Context) {
 
             if (view == null || view.locationQuery.isNullOrBlank()) {
                 // Stop since there is no valid query
-                return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
+                return LocationResult.Error(errorMessage = ErrorMessage.Resource(sharedRes.string.error_retrieve_location))
             } else if (view.locationTZLong.isNullOrBlank() && view.locationLat != 0.0 && view.locationLong != 0.0) {
                 val tzId =
                     weatherModule.tzdbService.getTimeZone(view.locationLat, view.locationLong)

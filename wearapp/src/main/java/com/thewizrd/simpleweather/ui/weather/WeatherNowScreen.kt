@@ -84,7 +84,6 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ErrorMessage
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -124,6 +123,7 @@ import com.thewizrd.simpleweather.viewmodels.WeatherNowStateModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActions
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
@@ -913,7 +913,7 @@ private fun OpenOnPhoneButton(
 ) {
     NavigationButton(
         label = stringResource(id = R.string.action_openonphone),
-        iconDrawableId = com.google.android.gms.base.R.drawable.common_full_open_on_phone,
+        iconDrawableId = R.drawable.ic_mobile_arrow_right,
         onClick = onOpenOnPhone
     )
 }

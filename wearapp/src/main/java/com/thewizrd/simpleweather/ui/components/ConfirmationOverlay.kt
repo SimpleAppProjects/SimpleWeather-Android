@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.wear.R as wearRes
 import androidx.wear.compose.material3.ConfirmationDialog
 import androidx.wear.compose.material3.ConfirmationDialogDefaults
 import androidx.wear.compose.material3.FailureConfirmationDialog
@@ -23,6 +22,7 @@ import androidx.wear.compose.material3.Text
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.viewmodels.ConfirmationData
 import com.thewizrd.simpleweather.viewmodels.ConfirmationType
+import androidx.wear.R as wearRes
 
 @Composable
 fun ConfirmationOverlay(
@@ -103,7 +103,7 @@ fun ConfirmationOverlay(
                             }
                         ),
                         painter = rememberAnimatedVectorPainter(image, atEnd),
-                        contentDescription = stringResource(com.google.android.gms.base.R.string.common_open_on_phone)
+                        contentDescription = stringResource(R.string.action_openonphone)
                     )
 
                     LaunchedEffect(Unit) {
