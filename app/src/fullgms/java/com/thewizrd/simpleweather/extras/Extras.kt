@@ -15,7 +15,6 @@ import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.firebase.Firebase
 import com.google.firebase.installations.installations
 import com.thewizrd.extras.extrasModule
-import com.thewizrd.extras.R as extrasRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.store.PlayStoreUtils
 import com.thewizrd.simpleweather.App
@@ -33,6 +32,7 @@ import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import com.thewizrd.extras.R as extrasRes
 
 fun initializeExtras() {
     extrasModule.initialize()
@@ -125,7 +125,7 @@ fun isPremiumSupported(): Boolean {
 }
 
 fun isRadarInteractionEnabled(): Boolean {
-    return extrasModule.isAtLeastProEnabled()
+    return true
 }
 
 fun areNotificationExtrasEnabled(): Boolean {

@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
+import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import com.thewizrd.weather_api.keys.Keys
 import org.osmdroid.tileprovider.MapTileProviderBasic
@@ -92,7 +93,7 @@ class TomorrowIoRadarViewProvider(context: Context, rootView: ViewGroup) :
     override fun updateRadarView() {
         super.updateRadarView()
         radarContainerBinding!!.radarToolbar.visibility =
-            if (interactionsEnabled()/* && isRadarInteractionEnabled()*/) View.VISIBLE else View.GONE
+            if (interactionsEnabled() && isRadarInteractionEnabled()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {
