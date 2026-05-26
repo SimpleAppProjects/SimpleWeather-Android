@@ -43,7 +43,6 @@ import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.viewmodels.LocationSearchResult
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -56,6 +55,7 @@ import com.thewizrd.shared_resources.utils.ContextUtils.isNightMode
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
+import com.thewizrd.shared_resources.weatherdata.model.Astronomy
 import com.thewizrd.shared_resources.weatherdata.model.Atmosphere
 import com.thewizrd.shared_resources.weatherdata.model.Beaufort
 import com.thewizrd.shared_resources.weatherdata.model.Condition
@@ -65,6 +65,7 @@ import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
+import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.UV
@@ -91,6 +92,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.random.Random
+import com.thewizrd.shared_resources.R as sharedRes
 
 abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragmentCompat() {
     // Widget id for ConfigurationActivity
@@ -484,6 +486,7 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
         }
     }
 
+    @SuppressLint("RestrictedApi")
     protected fun updateMockLocation(locationName: String, locationQuery: String) {
         mockLocationData.name = locationName
         mockLocationData.query = locationQuery
@@ -623,7 +626,22 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                     ragweedPollenCount = Pollen.PollenCount.MODERATE
                 }
             }
-            atmosphere = Atmosphere()
+            atmosphere = Atmosphere().apply {
+                humidity = 80
+                pressureIn = 30.06f
+                pressureMb = 1018f
+                visibilityMi = 10f
+                visibilityKm = 16f
+                dewpointF = 62f
+                dewpointC = 16.6f
+            }
+            astronomy = Astronomy().apply {
+                sunrise = LocalDate.now().atTime(5, 30)
+                sunset = LocalDate.now().atTime(20, 0)
+                moonrise = LocalDate.now().atTime(15, 0)
+                moonset = LocalDate.now().atTime(3, 0)
+                moonPhase = MoonPhase(MoonPhase.MoonPhaseType.WAXING_GIBBOUS)
+            }
             precipitation = Precipitation().apply {
                 pop = 15
                 cloudiness = 25

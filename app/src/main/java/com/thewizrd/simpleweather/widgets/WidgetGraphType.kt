@@ -16,7 +16,7 @@ enum class WidgetGraphType(val value: Int) {
         private val map = SparseArray<WidgetGraphType>()
 
         init {
-            for (type in values()) {
+            for (type in entries) {
                 map.put(type.value, type)
             }
         }

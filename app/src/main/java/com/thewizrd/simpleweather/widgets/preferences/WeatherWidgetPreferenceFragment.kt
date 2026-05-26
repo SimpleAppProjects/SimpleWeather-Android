@@ -25,12 +25,13 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.thewizrd.common.controls.DetailItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.viewmodels.LocationSearchResult
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.controls.ComboBoxItem
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -57,6 +58,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.android.material.snackbar.Snackbar as materialSnackbar
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
     private lateinit var favorites: MutableCollection<LocationData>
@@ -69,6 +71,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
     private lateinit var fcastOptPref: ListPreference
     private lateinit var tap2switchPref: SwitchPreference
     private lateinit var graphTypePref: ListPreference
+    private lateinit var detailsTypePref: ListPreference
 
     override fun getPreferencesResId(): Int = R.xml.pref_widgetconfig
 
@@ -245,6 +248,32 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = false
         }
+
+        if (mWidgetType == WidgetType.Widget1x1Custom) {
+            detailsTypePref = findPreference(KEY_WEATHERDETAILSTYPEOPTION)!!
+
+            val entries = WeatherDetailsType.entries
+
+            detailsTypePref.entries = entries.map {
+                DetailItemViewModel(it, "").label
+            }.toTypedArray()
+            detailsTypePref.entryValues = entries.map { it.value.toString() }.toTypedArray()
+
+            detailsTypePref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { _, newValue ->
+                    mWidgetOptions.putSerializable(
+                        KEY_WEATHERDETAILSTYPEOPTION,
+                        WeatherDetailsType.valueOf(newValue.toString().toInt())
+                    )
+                    updateWidgetView()
+                    true
+                }
+            detailsTypePref.isVisible = true
+
+            val detailsType = WidgetUtils.getWidgetDetailsType(mAppWidgetId)
+            detailsTypePref.value = detailsType.value.toString()
+            detailsTypePref.callChangeListener(detailsTypePref.value)
+        }
     }
 
     override fun onSetupActivityResult(result: ActivityResult) {
@@ -348,6 +377,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     96f * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget1x1Custom -> 1
                         WidgetType.Widget2x2 -> 2
                         WidgetType.Widget4x1 -> 1
                         WidgetType.Widget4x2 -> 2
@@ -372,6 +402,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     96f * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget1x1Custom -> 1
                         WidgetType.Widget2x2 -> 4 /* 2 is too small */
                         WidgetType.Widget4x1 -> 4
                         WidgetType.Widget4x2 -> 4
@@ -629,6 +660,9 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
         if (mWidgetType == WidgetType.Widget4x2Graph) {
             WidgetUtils.setWidgetGraphType(mAppWidgetId, graphTypePref.value.toInt())
+        }
+        if (mWidgetType == WidgetType.Widget1x1Custom) {
+            WidgetUtils.setWidgetDetailsType(mAppWidgetId, detailsTypePref.value.toInt())
         }
 
         super.finalizeWidgetUpdate()

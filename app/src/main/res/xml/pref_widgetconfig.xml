@@ -16,6 +16,16 @@
             android:persistent="false"
             app:iconSpaceReserved="false" />
 
+        <ListPreference
+            android:defaultValue="0"
+            android:key="key_weatherdetailstypeoption"
+            android:persistent="false"
+            android:summary="%s"
+            android:title="@string/pref_title_feature_details"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
+
         <SwitchPreference
             android:defaultValue="true"
             android:key="key_hidelocname"
@@ -23,7 +33,8 @@
             android:summary="@string/locname_pref_summary"
             android:title="@string/locname_pref_title"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
 
         <SwitchPreference
             android:defaultValue="true"
@@ -64,7 +75,8 @@
             android:summary="@string/summary_default"
             android:title="@string/clock_pref_title"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
 
         <Preference
             android:defaultValue="@null"
@@ -73,7 +85,8 @@
             android:summary="@string/summary_default"
             android:title="@string/calendar_pref_title"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
 
     </PreferenceCategory>
 
@@ -121,7 +134,8 @@
             android:summary="%s"
             android:title="@string/pref_title_bgstyle"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
 
     </PreferenceCategory>
 
@@ -189,7 +203,8 @@
             android:summary="%s"
             android:title="@string/pref_title_widgetgraphtype"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            tools:isPreferenceVisible="true" />
 
     </PreferenceCategory>
 

@@ -10,6 +10,7 @@ import android.util.Log
 import android.util.SparseArray
 import androidx.annotation.ColorInt
 import androidx.core.content.edit
+import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -20,8 +21,10 @@ import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.verifyActivityInfo
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.simpleweather.widgets.preferences.KEY_WEATHERDETAILSTYPEOPTION
 import com.thewizrd.simpleweather.widgets.remoteviews.AbstractWidgetRemoteViewCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget1x1Creator
+import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget1x1CustomCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2Creator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2M3Creator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2MaterialYouCreator
@@ -258,6 +261,9 @@ object WidgetUtils {
             WidgetType.Widget1x1 -> {
                 mAppWidgetManager.getAppWidgetIds(WeatherWidgetProvider1x1.Info.getInstance().componentName)
             }
+            WidgetType.Widget1x1Custom -> {
+                mAppWidgetManager.getAppWidgetIds(WeatherWidgetProvider1x1Custom.Info.getInstance().componentName)
+            }
             WidgetType.Widget2x2 -> {
                 mAppWidgetManager.getAppWidgetIds(WeatherWidgetProvider2x2.Info.getInstance().componentName)
             }
@@ -306,11 +312,9 @@ object WidgetUtils {
             WidgetType.Widget2x2M3 -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider2x2M3.Info.getInstance().componentName
             )
-
             WidgetType.Widget4x4M3 -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x4M3.Info.getInstance().componentName
             )
-
             WidgetType.Widget4x2M3 -> mAppWidgetManager.getAppWidgetIds(
                 WeatherWidgetProvider4x2M3.Info.getInstance().componentName
             )
@@ -321,6 +325,7 @@ object WidgetUtils {
         return when (widgetType) {
             WidgetType.Unknown -> null
             WidgetType.Widget1x1 -> WeatherWidgetProvider1x1.Info.getInstance()
+            WidgetType.Widget1x1Custom -> WeatherWidgetProvider1x1Custom.Info.getInstance()
             WidgetType.Widget2x2 -> WeatherWidgetProvider2x2.Info.getInstance()
             WidgetType.Widget4x1 -> WeatherWidgetProvider4x1.Info.getInstance()
             WidgetType.Widget4x2 -> WeatherWidgetProvider4x2.Info.getInstance()
@@ -663,7 +668,8 @@ object WidgetUtils {
         val widgetWidth = getMinSizeForCell(
             when (widgetType) {
                 WidgetType.Unknown -> 0
-                WidgetType.Widget1x1 -> 1
+                WidgetType.Widget1x1,
+                WidgetType.Widget1x1Custom -> 1
                 WidgetType.Widget2x2 -> 2
                 WidgetType.Widget4x1 -> 4
                 WidgetType.Widget4x2 -> 4
@@ -688,7 +694,8 @@ object WidgetUtils {
         val widgetHeight = getMinSizeForCell(
             when (widgetType) {
                 WidgetType.Unknown -> 0
-                WidgetType.Widget1x1 -> 1
+                WidgetType.Widget1x1,
+                WidgetType.Widget1x1Custom -> 1
                 WidgetType.Widget2x2 -> 2
                 WidgetType.Widget4x1 -> 1
                 WidgetType.Widget4x2 -> 2
@@ -769,6 +776,9 @@ object WidgetUtils {
                 WeatherWidgetProvider1x1.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget1x1
                 }
+                WeatherWidgetProvider1x1Custom.Info.getInstance().widgetLayoutId -> {
+                    return WidgetType.Widget1x1Custom
+                }
                 WeatherWidgetProvider2x2.Info.getInstance().widgetLayoutId -> {
                     return WidgetType.Widget2x2
                 }
@@ -835,6 +845,7 @@ object WidgetUtils {
         return when (getWidgetTypeFromID(appWidgetId)) {
             WidgetType.Unknown -> throw IllegalArgumentException("Unknown widget type")
             WidgetType.Widget1x1 -> WeatherWidget1x1Creator(context)
+            WidgetType.Widget1x1Custom -> WeatherWidget1x1CustomCreator(context)
             WidgetType.Widget2x2 -> WeatherWidget2x2Creator(context)
             WidgetType.Widget4x1 -> WeatherWidget4x1Creator(context)
             WidgetType.Widget4x2 -> WeatherWidget4x2Creator(context)
@@ -922,7 +933,7 @@ object WidgetUtils {
     }
 
     fun isLocationNameOptionalWidget(widgetType: WidgetType): Boolean {
-        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Graph
+        return widgetType == WidgetType.Widget1x1 || widgetType == WidgetType.Widget1x1Custom || widgetType == WidgetType.Widget4x1 || widgetType == WidgetType.Widget4x1Google || widgetType == WidgetType.Widget4x2Clock || widgetType == WidgetType.Widget4x2Graph
     }
 
     fun isSettingsButtonOptional(widgetType: WidgetType): Boolean {
@@ -1182,6 +1193,20 @@ object WidgetUtils {
     fun setWidgetGraphType(widgetId: Int, value: Int) {
         getPreferences(widgetId).edit(true) {
             putInt(KEY_GRAPHTYPEOPTION, value)
+        }
+    }
+
+    fun getWidgetDetailsType(widgetId: Int): WeatherDetailsType {
+        val prefs = getPreferences(widgetId)
+
+        val value = prefs.getInt(KEY_WEATHERDETAILSTYPEOPTION, 0)
+
+        return WeatherDetailsType.valueOf(value)
+    }
+
+    fun setWidgetDetailsType(widgetId: Int, value: Int) {
+        getPreferences(widgetId).edit(true) {
+            putInt(KEY_WEATHERDETAILSTYPEOPTION, value)
         }
     }
 
