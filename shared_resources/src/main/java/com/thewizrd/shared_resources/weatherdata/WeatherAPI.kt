@@ -105,14 +105,14 @@ object WeatherAPI {
     private val GMSFullAPIs by lazy {
         listOf(
             ProviderEntry(
-                "HERE Weather", HERE,
-                "https://www.here.com/en",
-                "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
-            ),
-            ProviderEntry(
                 "Apple Weather", APPLE,
                 "https://developer.apple.com/weatherkit/",
                 "https://developer.apple.com/weatherkit/"
+            ),
+            ProviderEntry(
+                "HERE Weather", HERE,
+                "https://www.here.com/en",
+                "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
             ),
             ProviderEntry(
                 "OpenWeatherMap", OPENWEATHERMAP,
@@ -153,11 +153,6 @@ object WeatherAPI {
             ProviderEntry(
                 "WeatherUnlocked", WEATHERUNLOCKED,
                 "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
-            ),
-            ProviderEntry(
-                "Meteomatics", METEOMATICS,
-                "https://www.meteomatics.com/",
-                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }
@@ -181,6 +176,11 @@ object WeatherAPI {
                 "https://www.weather.gc.ca/", "https://www.weather.gc.ca/canada_e.html"
             ),
             ProviderEntry(
+                "HERE Weather", HERE,
+                "https://www.here.com/en",
+                "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
+            ),
+            ProviderEntry(
                 "OpenWeatherMap", OPENWEATHERMAP,
                 "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
             ),
@@ -195,11 +195,6 @@ object WeatherAPI {
             ProviderEntry(
                 "Weatherbit.io", WEATHERBITIO,
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
-            ),
-            ProviderEntry(
-                "Meteomatics", METEOMATICS,
-                "https://www.meteomatics.com/",
-                "https://www.meteomatics.com/en/sign-up-weather-api-free-basic-account/"
             )
         )
     }
