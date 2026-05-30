@@ -296,13 +296,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
         if (weather.weatherAlerts?.isNotEmpty() == true) {
             for (alert in weather.weatherAlerts) {
-                if (alert.date.offset != offset) {
-                    alert.date = alert.date.withZoneSameLocal(offset)
-                }
-
-                if (alert.expiresDate.offset != offset) {
-                    alert.expiresDate = alert.expiresDate.withZoneSameLocal(offset)
-                }
+                alert.date = alert.date.withZoneSameInstant(offset)
+                alert.expiresDate = alert.expiresDate.withZoneSameInstant(offset)
             }
         }
     }
