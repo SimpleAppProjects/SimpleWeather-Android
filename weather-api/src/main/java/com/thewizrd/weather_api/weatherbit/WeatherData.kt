@@ -233,6 +233,7 @@ fun createMinutelyForecast(item: MinutelyItem): MinutelyForecast {
     return MinutelyForecast().apply {
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(item.ts!!.toLong()), ZoneOffset.UTC)
         rainMm = item.precip
+        snowMm = item.snow
     }
 }
 

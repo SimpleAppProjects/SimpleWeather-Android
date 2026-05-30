@@ -14,8 +14,9 @@ import androidx.core.view.forEachIndexed
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.helpers.RecyclerOnClickListenerInterface
+import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData
@@ -24,6 +25,7 @@ import com.thewizrd.simpleweather.controls.viewmodels.ForecastType
 import com.thewizrd.simpleweather.databinding.LayoutBarBinding
 import com.thewizrd.simpleweather.databinding.LayoutBarViewBinding
 import kotlin.math.max
+import com.thewizrd.shared_resources.R as sharedRes
 
 class ForecastBarGraphView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -157,7 +159,10 @@ class ForecastBarGraphView @JvmOverloads constructor(
 
                     // Update icon
                     item.barIcon.rotation = data.xIconRotation.toFloat()
-                    item.barIcon.setImageResource(getIconResourceFromForecastType(forecastType))
+                    item.barIcon.setImageResource(
+                        getIconResourceFromWeatherIcon(data.xWeatherIcon)
+                            ?: getIconResourceFromForecastType(forecastType)
+                    )
 
                     if (getChildAt(i) == null) {
                         addView(
@@ -214,6 +219,14 @@ class ForecastBarGraphView @JvmOverloads constructor(
         }
 
         return heightChanged
+    }
+
+    @DrawableRes
+    private fun getIconResourceFromWeatherIcon(icon: String?): Int? {
+        return when (icon) {
+            WeatherIcons.NA, null -> null
+            else -> sharedDeps.weatherIconsManager.iconProvider.getWeatherIconResource(icon)
+        }
     }
 
     @DrawableRes

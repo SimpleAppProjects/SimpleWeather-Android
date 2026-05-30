@@ -24,6 +24,9 @@ public class MinutelyForecast extends CustomJsonObject {
     @Json(name = "rain_mm")
     private Float rainMm;
 
+    @Json(name = "snow_mm")
+    private Float snowMm;
+
     public ZonedDateTime getDate() {
         return date;
     }
@@ -38,6 +41,14 @@ public class MinutelyForecast extends CustomJsonObject {
 
     public void setRainMm(Float rainMm) {
         this.rainMm = rainMm;
+    }
+
+    public Float getSnowMm() {
+        return snowMm;
+    }
+
+    public void setSnowMm(Float snowMm) {
+        this.snowMm = snowMm;
     }
 
     @Override
@@ -77,6 +88,9 @@ public class MinutelyForecast extends CustomJsonObject {
                     case "rain_mm":
                         this.rainMm = NumberUtils.tryParseFloat(reader.nextString());
                         break;
+                    case "snow_mm":
+                        this.snowMm = NumberUtils.tryParseFloat(reader.nextString());
+                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -103,6 +117,10 @@ public class MinutelyForecast extends CustomJsonObject {
             // "rain_mm" : ""
             writer.name("rain_mm");
             writer.value(rainMm);
+
+            // "snow_mm" : ""
+            writer.name("snow_mm");
+            writer.value(snowMm);
 
             // }
             writer.endObject();

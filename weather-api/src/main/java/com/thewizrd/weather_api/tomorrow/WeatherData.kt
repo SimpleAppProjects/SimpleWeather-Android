@@ -1,6 +1,7 @@
 package com.thewizrd.weather_api.tomorrow
 
 import android.annotation.SuppressLint
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
@@ -27,7 +28,6 @@ import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.shared_resources.R
 import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -281,7 +281,17 @@ fun createHourlyForecast(item: IntervalsItem): HourlyForecast {
 fun createMinutelyForecast(item: IntervalsItem): MinutelyForecast {
     return MinutelyForecast().apply {
         date = ZonedDateTime.parse(item.startTime).withZoneSameInstant(ZoneOffset.UTC)
-        rainMm = item.values.precipitationIntensity
+        /**
+         * 0: No precipitation
+         * 1: Rain
+         * 2: Snow
+         * 3: Freezing Rain
+         * 4: Ice Pellets / Sleet
+         */
+        when (item.values.precipitationType) {
+            2 -> snowMm = item.values.precipitationIntensity
+            else -> rainMm = item.values.precipitationIntensity
+        }
     }
 }
 
