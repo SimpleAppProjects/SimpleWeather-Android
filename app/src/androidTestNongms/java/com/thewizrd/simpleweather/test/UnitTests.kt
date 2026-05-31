@@ -12,20 +12,23 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.thewizrd.common.CommonModule
 import com.thewizrd.common.commonModule
 import com.thewizrd.common.controls.WeatherUiModel
-import com.thewizrd.shared_resources.*
+import com.thewizrd.shared_resources.AppState
+import com.thewizrd.shared_resources.ApplicationLib
+import com.thewizrd.shared_resources.SharedModule
+import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.locationdata.toLocationData
 import com.thewizrd.shared_resources.preferences.SettingsManager
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.google.location.getFromLocationAsync
 import com.thewizrd.weather_api.google.location.getFromLocationNameAsync
@@ -41,7 +44,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +55,7 @@ import java.io.IOException
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class UnitTests {
@@ -543,6 +549,17 @@ class UnitTests {
                 weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
             val weather =
                 getWeather(provider, Coordinate(34.0207305, -118.6919157))
+            assertTrue(weather.isValid && WeatherUiModel(weather).isValid)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
+    fun getOpenMeteoWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENMETEO)
+            val weather =
+                getWeather(provider, Coordinate(52.52, 13.41)) // ~ Berlin
             assertTrue(weather.isValid && WeatherUiModel(weather).isValid)
         }
     }

@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.thewizrd.shared_resources.utils.StringUtils;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
@@ -69,7 +69,7 @@ public class OAuthRequest {
     }
 
     private static String getNonce() {
-        return Base64.encodeToString((System.nanoTime() + "").getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP);
+        return Base64.encodeToString((System.nanoTime() + "").getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }
 
     public String getAuthorizationHeader(String url) throws InvalidKeyException, NoSuchAlgorithmException {
@@ -121,9 +121,9 @@ public class OAuthRequest {
             lHasher = Mac.getInstance("HmacSHA1");
         }
 
-        SecretKeySpec secret_key = new SecretKeySpec(lCKey.getBytes(Charset.forName("UTF-8")), lHasher.getAlgorithm());
+        SecretKeySpec secret_key = new SecretKeySpec(lCKey.getBytes(StandardCharsets.UTF_8), lHasher.getAlgorithm());
         lHasher.init(secret_key);
-        lSign = Base64.encodeToString(lHasher.doFinal(lSign.getBytes(Charset.forName("UTF-8"))), Base64.NO_WRAP);
+        lSign = Base64.encodeToString(lHasher.doFinal(lSign.getBytes(StandardCharsets.UTF_8)), Base64.NO_WRAP);
 
         return "OAuth " +
                 "oauth_consumer_key=\"" + uriEncode(consumerKey) + "\", " +

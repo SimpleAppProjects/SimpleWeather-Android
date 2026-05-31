@@ -25,6 +25,7 @@ object WeatherAPI {
     const val APPLE = "apple"
     const val DWD = "dwd"
     const val ECCC = "eccc"
+    const val OPENMETEO = "open_meteo"
 
     // Location APIs
     const val ANDROID = "android"
@@ -44,7 +45,7 @@ object WeatherAPI {
      * 2) Add constructor for [Weather] data objects
      * 3) Update [LocationQuery] (if needed)
      * 4) Add API to provider list below
-     * 5) Add API to WeatherProviderManager / [com.thewizrd.weather_api.weatherdata.WeatherProviderFactoryImpl]
+     * 5) Add API to [com.thewizrd.weather_api.weatherdata.WeatherProviderFactoryImpl]
      * 6) Add to remote_config_defaults.xml
      */
     @StringDef(
@@ -63,7 +64,8 @@ object WeatherAPI {
         APPLE,
         DWD,
         ECCC,
-        GOOGLE
+        GOOGLE,
+        OPENMETEO
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class WeatherProviders
@@ -110,17 +112,9 @@ object WeatherAPI {
                 "https://developer.apple.com/weatherkit/"
             ),
             ProviderEntry(
-                "HERE Weather", HERE,
-                "https://www.here.com/en",
-                "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
-            ),
-            ProviderEntry(
-                "OpenWeatherMap", OPENWEATHERMAP,
-                "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
-            ),
-            ProviderEntry(
-                "WeatherAPI.com", WEATHERAPI,
-                "https://weatherapi.com", "https://weatherapi.com/api"
+                "Open-Meteo", OPENMETEO,
+                "https://open-meteo.com/",
+                "https://open-meteo.com/en/features"
             ),
             ProviderEntry(
                 "National Weather Service (United States)", NWS,
@@ -143,6 +137,19 @@ object WeatherAPI {
                 "https://www.met.no/en", "https://www.met.no/en"
             ),
             ProviderEntry(
+                "HERE Weather", HERE,
+                "https://www.here.com/en",
+                "https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account"
+            ),
+            ProviderEntry(
+                "OpenWeatherMap", OPENWEATHERMAP,
+                "http://www.openweathermap.org", "https://home.openweathermap.org/users/sign_up"
+            ),
+            ProviderEntry(
+                "WeatherAPI.com", WEATHERAPI,
+                "https://weatherapi.com", "https://weatherapi.com/api"
+            ),
+            ProviderEntry(
                 "Tomorrow.io", TOMORROWIO,
                 "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
             ),
@@ -162,6 +169,10 @@ object WeatherAPI {
             ProviderEntry(
                 "MET Norway", METNO,
                 "https://www.met.no/en", "https://www.met.no/en"
+            ),
+            ProviderEntry(
+                "Open-Meteo", OPENMETEO,
+                "https://open-meteo.com/", "https://open-meteo.com/en/features"
             ),
             ProviderEntry(
                 "National Weather Service (United States)", NWS,

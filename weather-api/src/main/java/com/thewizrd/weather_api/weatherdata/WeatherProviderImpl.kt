@@ -33,6 +33,7 @@ import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.extras.isPremiumEnabled
 import com.thewizrd.weather_api.google.pollen.GooglePollenProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
+import com.thewizrd.weather_api.openmeteo.OpenMeteoWeatherProvider
 import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
@@ -202,6 +203,18 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                     weather.condition!!.pollen =
                         GooglePollenProvider().getPollenData(location)?.apply {
                             attribution = context.getString(R.string.api_google)
+                        }
+                } else if (LocationUtils.isCAMSEuroCovered(location) && remoteConfigService.isProviderEnabled(
+                        WeatherAPI.OPENMETEO
+                    ) && (isPremiumEnabled() || BuildConfig.IS_NONGMS || settingsManager.isDevSettingsEnabled() && !settingsManager.getAPIKey(
+                        WeatherAPI.OPENMETEO
+                    ).isNullOrBlank())
+                ) {
+                    // Pollen coverage is only supported in Europe for Open-Meteo
+                    // https://open-meteo.com/en/docs/air-quality-api
+                    weather.condition!!.pollen =
+                        OpenMeteoWeatherProvider().getPollenData(location)?.apply {
+                            attribution = context.getString(R.string.api_openmeteo)
                         }
                 }
             }

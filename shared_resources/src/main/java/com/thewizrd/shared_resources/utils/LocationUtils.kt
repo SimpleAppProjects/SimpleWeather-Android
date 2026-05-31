@@ -35,6 +35,9 @@ object LocationUtils {
     private val DE_BOUNDING_BOX =
         BoundingBox(47.2701114, 55.099161, 5.8663153, 15.0419319)
 
+    private val CAMS_OPENMETEO_EUROPE_BBOX =
+        BoundingBox(-25.0, 45.0, 30.0, 72.0)
+
     private val NWS_SUPPORTED_COUNTRIES = setOf("US", "AS", "UM", "GU", "MP", "PR", "VI")
     private val NWS_SUPPORTED_LOCATIONS = listOf(
         US_BOUNDING_BOX,
@@ -231,6 +234,10 @@ object LocationUtils {
         } else {
             inGermanyBounds(location.locationLat, location.locationLong)
         }
+    }
+
+    fun isCAMSEuroCovered(location: LocationData): Boolean {
+        return CAMS_OPENMETEO_EUROPE_BBOX.intersects(location.latitude, location.longitude)
     }
 
     private data class BoundingBox(

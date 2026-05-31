@@ -60,4 +60,8 @@ public class Keys {
     public static String getGWeatherKey() {
         return null;
     }
+
+    public static String getOpenMeteoKey() {
+        return null;
+    }
 }

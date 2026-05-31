@@ -684,6 +684,17 @@ class UnitTests {
 
     @Throws(WeatherException::class)
     @Test
+    fun getOpenMeteoWeather() {
+        runBlocking(Dispatchers.Default) {
+            val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENMETEO)
+            val weather =
+                getWeather(provider, Coordinate(52.52, 13.41)) // ~ Berlin
+            assertTrue(weather.isValid && WeatherUiModel(weather).isValid)
+        }
+    }
+
+    @Throws(WeatherException::class)
+    @Test
     fun getGooglePollen() {
         val originalKey = settingsManager.getAPIKey(WeatherAPI.GOOGLE_POLLEN)
 
