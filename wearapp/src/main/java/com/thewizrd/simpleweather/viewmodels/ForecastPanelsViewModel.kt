@@ -89,6 +89,7 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
                 flowScope?.launch {
                     currentForecastsData.collect {
                         forecasts.emit(forecastMapper.apply(it))
+                        minutelyForecasts.emit(minForecastMapper.apply(it))
                     }
                 }
                 flowScope?.launch {

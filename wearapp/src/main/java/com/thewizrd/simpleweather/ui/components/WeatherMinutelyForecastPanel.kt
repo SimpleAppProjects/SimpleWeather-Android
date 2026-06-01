@@ -24,12 +24,12 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.viewmodels.MinutelyForecastViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherMinutelyForecastPanel(
@@ -37,14 +37,16 @@ fun WeatherMinutelyForecastPanel(
 ) {
     WeatherMinutelyForecastPanel(
         date = model.date,
-        rainAmount = model.rainAmount
+        precipAmount = model.precipAmount,
+        isSnow = model.isSnow
     )
 }
 
 @Composable
 private fun WeatherMinutelyForecastPanel(
     date: String? = null,
-    rainAmount: String? = null
+    precipAmount: String? = null,
+    isSnow: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -56,13 +58,19 @@ private fun WeatherMinutelyForecastPanel(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        Column(
             modifier = Modifier
                 .weight(1f),
-            textAlign = TextAlign.Center,
-            text = date ?: WeatherIcons.EM_DASH,
-            style = MaterialTheme.typography.bodyLarge
-        )
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = date ?: WeatherIcons.EM_DASH,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
         Column(
             modifier = Modifier
                 .weight(1f),
@@ -71,18 +79,25 @@ private fun WeatherMinutelyForecastPanel(
         ) {
             Text(
                 modifier = Modifier
-                    .weight(1f, false),
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 20.dp),
                 textAlign = TextAlign.Center,
-                text = rainAmount ?: WeatherIcons.PLACEHOLDER,
+                text = precipAmount ?: WeatherIcons.PLACEHOLDER,
                 style = MaterialTheme.typography.bodyLarge
             )
             Icon(
-                modifier = Modifier
-                    .weight(1f, false)
-                    .size(20.dp),
-                painter = painterResource(sharedRes.drawable.wi_raindrop),
+                modifier = Modifier.size(20.dp),
+                painter = if (isSnow) {
+                    painterResource(sharedRes.drawable.wi_snowflake_cold)
+                } else {
+                    painterResource(sharedRes.drawable.wi_raindrop)
+                },
                 contentDescription = null,
-                tint = colorResource(id = sharedRes.color.colorSecondaryDark)
+                tint = if (isSnow) {
+                    colorResource(id = sharedRes.color.colorSecondaryLight)
+                } else {
+                    colorResource(id = sharedRes.color.colorSecondaryDark)
+                }
             )
         }
     }
@@ -132,7 +147,7 @@ fun PreviewWeatherMinutelyForecastPanel() {
 
         WeatherMinutelyForecastPanel(
             date = ZonedDateTime.now().format(fmt),
-            rainAmount = "1.00 mm"
+            precipAmount = "1.00 mm"
         )
     }
 }
