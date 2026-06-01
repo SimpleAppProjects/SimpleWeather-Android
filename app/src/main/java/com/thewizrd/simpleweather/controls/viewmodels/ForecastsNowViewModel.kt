@@ -39,7 +39,7 @@ class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
 
     private val weatherDAO = WeatherDatabase.getWeatherDAO(app.applicationContext)
 
-    private var forecastData = MutableStateFlow<List<Forecast>??>(null)
+    private var forecastData = MutableStateFlow<List<Forecast>?>(null)
     private var hourlyForecastsData = MutableStateFlow<List<HourlyForecast>?>(null)
     private var minutelyForecastData = MutableStateFlow<List<MinutelyForecast>?>(null)
 
@@ -86,7 +86,7 @@ class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
                 flowScope?.launch {
                     currentForecastsData.collect {
                         forecastData.emit(it.forecast)
-                        minutelyForecastData.emit(it.minForecast)
+                        minutelyForecastData.emit(minForecastMapper.apply(it))
                     }
                 }
 
@@ -123,13 +123,12 @@ class ForecastsNowViewModel(app: Application) : AndroidViewModel(app) {
         input?.map { HourlyForecastNowViewModel(it) } ?: emptyList()
     }
 
-    private val precipMinGraphMapper = Function<Forecasts?, List<MinutelyForecast>?> { input ->
-        val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
+    private val minForecastMapper = Function<Forecasts?, List<MinutelyForecast>?> { input ->
         val now = ZonedDateTime.now(
             locationData?.tzOffset
                 ?: ZoneOffset.UTC
-        ).minusHours((hrInterval * 0.5).toLong()).truncatedTo(ChronoUnit.HOURS)
-        input?.minForecast?.filter { !it.date.isBefore(now) }?.takeUnless { it.isEmpty() }?.take(60)
+        ).truncatedTo(ChronoUnit.HOURS)
+        input?.minForecast?.filter { !it.date.isBefore(now) }
     }
 
     override fun onCleared() {
