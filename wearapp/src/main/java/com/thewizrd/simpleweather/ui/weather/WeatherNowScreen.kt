@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -77,6 +79,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.layout.fillMaxRectangle
+import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherAlertViewModel
@@ -200,24 +203,17 @@ fun WeatherNowScreen(
                             isGPSLocation = uiState.isGPSLocation
                         )
                         // Icon + Temp
-                        IconTempRow(
+                        CurrentConditionPanel(
+                            curCondition = weather.curCondition,
                             weatherIcon = weather.weatherIcon,
                             iconProvider = weather.iconProvider,
                             curTemp = weather.curTemp,
-                            tempUnit = weather.tempUnit
+                            tempUnit = weather.tempUnit,
+                            hiTemp = weather.hiTemp,
+                            loTemp = weather.loTemp,
+                            showHiLo = weather.isShowHiLo,
+                            feelsLikeDetail = weather.weatherDetailsMap[WeatherDetailsType.FEELSLIKE]
                         )
-                        // Condition
-                        weather.curCondition?.let { condition ->
-                            ConditionText(condition)
-                        }
-
-                        // HiLo Layout
-                        if (weather.isShowHiLo) {
-                            HiLoLayout(
-                                hiTemp = weather.hiTemp,
-                                loTemp = weather.loTemp
-                            )
-                        }
 
                         // Condition Details
                         ConditionDetails(
@@ -476,7 +472,7 @@ private fun ColumnScope.WeatherLocation(
                 .align(Alignment.CenterVertically),
             text = locationName ?: WeatherIcons.EM_DASH,
             textAlign = TextAlign.Center,
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             style = MaterialTheme.typography.labelLarge,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -485,40 +481,150 @@ private fun ColumnScope.WeatherLocation(
 }
 
 @Composable
-private fun IconTempRow(
+private fun CurrentConditionPanel(
     weatherIcon: String,
     curTemp: String?,
     tempUnit: String?,
-    iconProvider: String? = null
+    iconProvider: String? = null,
+    curCondition: String? = null,
+    hiTemp: String? = null,
+    loTemp: String? = null,
+    showHiLo: Boolean = false,
+    feelsLikeDetail: DetailItemViewModel? = null
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        WeatherIcon(
-            modifier = Modifier
-                .height(60.dp)
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-            alignment = IconAlignment.End,
-            weatherIcon = weatherIcon,
-            iconProvider = iconProvider,
-            shouldAnimate = true
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-            text = curTemp ?: WeatherIcons.PLACEHOLDER,
-            textAlign = TextAlign.Start,
-            maxLines = 1,
-            fontSize = 42.sp,
-            fontWeight = FontWeight.Light,
-            color = tempTextColor(
-                temp = curTemp,
-                tempUnit = tempUnit
+    val isRound = LocalConfiguration.current.isScreenRound
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = if (showHiLo) {
+                    if (isRound) 16.dp else 4.dp
+                } else {
+                    0.dp
+                }
             )
-        )
+    ) {
+        if (curCondition != null) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                text = curCondition,
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis,
+                letterSpacing = 0.sp,
+                maxLines = 2,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WeatherIcon(
+                modifier = Modifier
+                    .weight(1f)
+                    .apply {
+                        if (showHiLo) {
+                            heightIn(min = 24.dp, max = 52.dp)
+                        } else {
+                            height(60.dp)
+                        }
+                    }
+                    .align(Alignment.CenterVertically),
+                alignment = IconAlignment.End,
+                weatherIcon = weatherIcon,
+                iconProvider = iconProvider,
+                shouldAnimate = true
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                modifier = Modifier
+                    .weight(if (showHiLo) 2f else 1.5f)
+                    .align(Alignment.CenterVertically),
+                text = curTemp ?: WeatherIcons.PLACEHOLDER,
+                textAlign = if (showHiLo) TextAlign.Center else TextAlign.Start,
+                maxLines = 1,
+                fontSize = if (showHiLo) 28.sp else 36.sp,
+                fontWeight = FontWeight.Light,
+                color = tempTextColor(
+                    temp = curTemp,
+                    tempUnit = tempUnit
+                )
+            )
+            if (showHiLo) {
+                Spacer(modifier = Modifier.size(8.dp))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = hiTemp ?: WeatherIcons.PLACEHOLDER,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.End,
+                            maxLines = 1
+                        )
+                        Text(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            text = "↑",
+                            style = MaterialTheme.typography.bodyExtraSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.End,
+                            maxLines = 1,
+                            color = Color(0xFFFF4500),
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = loTemp ?: WeatherIcons.PLACEHOLDER,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.End,
+                            maxLines = 1
+                        )
+                        Text(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            text = "↓",
+                            style = MaterialTheme.typography.bodyExtraSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.End,
+                            maxLines = 1,
+                            color = Color(0xFF87CEFA),
+                        )
+                    }
+                }
+            }
+        }
+        // FeelsLike
+        feelsLikeDetail?.let { detail ->
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    text = buildString {
+                        append(detail.label)
+                        append(": ")
+                        append(detail.value)
+                    },
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    letterSpacing = 0.sp,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
     }
 }
 
@@ -999,6 +1105,9 @@ private fun PreviewWeatherNowScreen() {
             }
         }.toUiModel()
     }
+    val feelsLikeDetail = remember {
+        DetailItemViewModel(WeatherDetailsType.FEELSLIKE, "71°")
+    }
 
     CompositionLocalProvider(
         LocalContentColor provides Color.White,
@@ -1031,20 +1140,17 @@ private fun PreviewWeatherNowScreen() {
                 Box(
                     modifier = Modifier.background(Color.White.copy(alpha = 0.1f))
                 ) {
-                    IconTempRow(
+                    CurrentConditionPanel(
+                        curCondition = "Sunny",
                         weatherIcon = WeatherIcons.DAY_SUNNY,
-                        curTemp = "70°F",
-                        tempUnit = "F"
+                        curTemp = "120°F",
+                        tempUnit = "F",
+                        showHiLo = true,
+                        hiTemp = "110°",
+                        loTemp = "80°",
+                        feelsLikeDetail = feelsLikeDetail
                     )
                 }
-                // Condition
-                ConditionText("Sunny")
-
-                // HiLo Layout
-                HiLoLayout(
-                    hiTemp = "70°",
-                    loTemp = "60°"
-                )
 
                 // Condition Details
                 ConditionDetails(
