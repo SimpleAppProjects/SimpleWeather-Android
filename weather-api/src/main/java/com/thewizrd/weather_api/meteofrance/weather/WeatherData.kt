@@ -76,7 +76,7 @@ fun createWeatherData(currRoot: CurrentsResponse, foreRoot: ForecastResponse,
             condition!!.feelslikeC = ConversionMethods.FtoC(condition!!.feelslikeF)
         }
 
-        if ((condition?.highF == null || condition?.highC == null) && forecast!!.size > 0) {
+        if ((condition?.highF == null || condition?.highC == null) && forecast!!.isNotEmpty()) {
             condition!!.highF = forecast!![0].highF
             condition!!.highC = forecast!![0].highC
             condition!!.lowF = forecast!![0].lowF
@@ -188,16 +188,13 @@ fun createHourlyForecast(forecast: ForecastItem,
 
         if (forecast.wind != null) {
             if (forecast.wind!!.speed != null && forecast.wind!!.direction != null) {
-                windDegrees = forecast.wind!!.direction
-                windKph = ConversionMethods.msecToKph(forecast.wind!!.speed!!.toFloat())
-                windMph = ConversionMethods.msecToMph(forecast.wind!!.speed!!.toFloat())
-                extras.windDegrees = windDegrees
-                extras.windMph = windMph
-                extras.windKph = windKph
+                extras.windDegrees = forecast.wind!!.direction
+                extras.windMph = ConversionMethods.msecToMph(forecast.wind!!.speed!!)
+                extras.windKph = ConversionMethods.msecToKph(forecast.wind!!.speed!!)
             }
             if (forecast.wind!!.gust != null) {
-                extras.windGustKph = ConversionMethods.msecToKph(forecast.wind!!.gust!!.toFloat())
-                extras.windGustMph = ConversionMethods.msecToMph(forecast.wind!!.gust!!.toFloat())
+                extras.windGustKph = ConversionMethods.msecToKph(forecast.wind!!.gust!!)
+                extras.windGustMph = ConversionMethods.msecToMph(forecast.wind!!.gust!!)
             }
         }
 
@@ -317,9 +314,9 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
             windDegrees = currRoot.observation!!.wind!!.direction
             if (currRoot.observation!!.wind!!.speed != null) {
                 windKph =
-                    ConversionMethods.msecToKph(currRoot.observation!!.wind!!.speed!!.toFloat())
+                    ConversionMethods.msecToKph(currRoot.observation!!.wind!!.speed!!)
                 windMph =
-                    ConversionMethods.msecToMph(currRoot.observation!!.wind!!.speed!!.toFloat())
+                    ConversionMethods.msecToMph(currRoot.observation!!.wind!!.speed!!)
             }
         }
 

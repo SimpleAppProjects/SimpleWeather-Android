@@ -19,15 +19,6 @@ import okio.Buffer;
 
 public class HourlyForecast extends BaseForecast {
 
-    @Json(name = "wind_degrees")
-    private Integer windDegrees;
-
-    @Json(name = "wind_mph")
-    private Float windMph;
-
-    @Json(name = "wind_kph")
-    private Float windKph;
-
     @Json(name = "date")
     private String _date;
 
@@ -60,30 +51,6 @@ public class HourlyForecast extends BaseForecast {
 
     public void setDate(ZonedDateTime date) {
         _date = date.format(DateTimeUtils.getZonedDateTimeFormatter());
-    }
-
-    public Integer getWindDegrees() {
-        return windDegrees;
-    }
-
-    public void setWindDegrees(Integer windDegrees) {
-        this.windDegrees = windDegrees;
-    }
-
-    public Float getWindMph() {
-        return windMph;
-    }
-
-    public void setWindMph(Float windMph) {
-        this.windMph = windMph;
-    }
-
-    public Float getWindKph() {
-        return windKph;
-    }
-
-    public void setWindKph(Float windKph) {
-        this.windKph = windKph;
     }
 
     @Override
@@ -132,15 +99,6 @@ public class HourlyForecast extends BaseForecast {
                     case "icon":
                         this.icon = reader.nextString();
                         break;
-                    case "wind_degrees":
-                        this.windDegrees = NumberUtils.tryParseInt(reader.nextString());
-                        break;
-                    case "wind_mph":
-                        this.windMph = NumberUtils.tryParseFloat(reader.nextString());
-                        break;
-                    case "wind_kph":
-                        this.windKph = NumberUtils.tryParseFloat(reader.nextString());
-                        break;
                     case "extras":
                         this.extras = new ForecastExtras();
                         this.extras.fromJson(reader);
@@ -183,18 +141,6 @@ public class HourlyForecast extends BaseForecast {
             // "icon" : ""
             writer.name("icon");
             writer.value(icon);
-
-            // "wind_degrees" : ""
-            writer.name("wind_degrees");
-            writer.value(windDegrees);
-
-            // "wind_mph" : ""
-            writer.name("wind_mph");
-            writer.value(windMph);
-
-            // "wind_kph" : ""
-            writer.name("wind_kph");
-            writer.value(windKph);
 
             // "extras" : ""
             if (extras != null) {

@@ -11,9 +11,20 @@ import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.CommonActions
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.NumberUtils.getValueOrDefault
-import com.thewizrd.shared_resources.weatherdata.model.*
+import com.thewizrd.shared_resources.utils.createUnsupportedLocationException
+import com.thewizrd.shared_resources.utils.getBeaufortScale
+import com.thewizrd.shared_resources.weatherdata.model.Beaufort
+import com.thewizrd.shared_resources.weatherdata.model.Forecasts
+import com.thewizrd.shared_resources.weatherdata.model.HourlyForecasts
+import com.thewizrd.shared_resources.weatherdata.model.LocationType
+import com.thewizrd.shared_resources.weatherdata.model.UV
+import com.thewizrd.shared_resources.weatherdata.model.Weather
+import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -25,6 +36,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 class WeatherDataLoader {
     companion object {
@@ -441,13 +453,13 @@ class WeatherDataLoader {
                 weather.condition!!.tempF = hrf.highF
                 weather.condition!!.tempC = hrf.highC
 
-                weather.condition!!.windMph = hrf.windMph
-                weather.condition!!.windKph = hrf.windKph
-                weather.condition!!.windDegrees = hrf.windDegrees
+                weather.condition!!.windMph = hrf.extras?.windMph
+                weather.condition!!.windKph = hrf.extras?.windKph
+                weather.condition!!.windDegrees = hrf.extras?.windDegrees
 
-                if (hrf.windMph != null) {
+                if (hrf.extras?.windMph != null) {
                     weather.condition!!.beaufort =
-                        Beaufort(getBeaufortScale(Math.round(hrf.windMph)))
+                        Beaufort(getBeaufortScale(hrf.extras.windMph.roundToInt()))
                 }
                 weather.condition!!.feelslikeF = hrf.extras?.feelslikeF
                 weather.condition!!.feelslikeC = hrf.extras?.feelslikeC

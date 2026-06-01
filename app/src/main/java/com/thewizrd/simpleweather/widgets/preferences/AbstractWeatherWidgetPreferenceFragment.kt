@@ -556,8 +556,6 @@ abstract class AbstractWeatherWidgetPreferenceFragment : ToolbarPreferenceFragme
                     highC = 23f + index / 2f
                     condition = getString(sharedRes.string.weather_sunny)
                     icon = WeatherIcons.DAY_SUNNY
-                    windMph = 5f
-                    windKph = 8f
                     extras = ForecastExtras().apply {
                         feelslikeF = 80f
                         feelslikeC = 26f

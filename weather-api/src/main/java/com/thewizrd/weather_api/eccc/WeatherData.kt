@@ -188,12 +188,6 @@ fun createHourlyForecast(item: HourlyItem): HourlyForecast {
         highF = item.temperature?.imperial?.toFloatOrNull()
         highC = item.temperature?.metric?.toFloatOrNull()
 
-        windDegrees = item.windDir?.let {
-            getWindDirection(it)
-        }
-        windMph = item.windSpeed?.imperial?.toFloatOrNull()
-        windKph = item.windSpeed?.metric?.toFloatOrNull()
-
         icon = item.iconCode
         condition = item.condition
 
@@ -202,9 +196,11 @@ fun createHourlyForecast(item: HourlyItem): HourlyForecast {
         extras.feelslikeF = item.feelsLike?.imperial?.toFloatOrNull()
         extras.feelslikeC = item.feelsLike?.metric?.toFloatOrNull()
         extras.pop = item.precip?.toIntOrNull()
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = item.windDir?.let {
+            getWindDirection(it)
+        }
+        extras.windMph = item.windSpeed?.imperial?.toFloatOrNull()
+        extras.windKph = item.windSpeed?.metric?.toFloatOrNull()
         extras.windGustMph = item.windGust?.imperial?.toFloatOrNull()
         extras.windGustKph = item.windGust?.metric?.toFloatOrNull()
         extras.uvIndex = item.uv?.index?.toFloatOrNull()

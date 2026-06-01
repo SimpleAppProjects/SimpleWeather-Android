@@ -13,7 +13,6 @@ import androidx.wear.watchface.complications.data.SmallImage
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
@@ -24,8 +23,8 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getWindDirection
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WindComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -135,9 +134,9 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             return null
         }
 
-        val windMph = weather.condition?.windMph ?: hourlyForecast?.windMph
-        val windKph = weather.condition?.windKph ?: hourlyForecast?.windKph
-        val windDirection = weather.condition?.windDegrees ?: hourlyForecast?.windDegrees
+        val windMph = weather.condition?.windMph ?: hourlyForecast?.extras?.windMph
+        val windKph = weather.condition?.windKph ?: hourlyForecast?.extras?.windKph
+        val windDirection = weather.condition?.windDegrees ?: hourlyForecast?.extras?.windDegrees
 
         if (windMph == null || windKph == null || windDirection == null || windMph < 0 || windKph < 0 || windDirection < 0) {
             return buildUpdate(dataType)

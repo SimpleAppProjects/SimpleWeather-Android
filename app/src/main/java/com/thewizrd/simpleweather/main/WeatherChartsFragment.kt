@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
 import com.thewizrd.shared_resources.Constants
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.AnalyticsLogger
@@ -50,6 +49,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherChartsFragment : CollapsingToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
@@ -310,8 +310,8 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
                     if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
                         popData = ForecastGraphViewModel(ctx)
                     }
-                    if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
-                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
+                    if (hrfcasts.firstOrNull()?.extras?.windMph != null && hrfcasts.firstOrNull()?.extras?.windKph != null ||
+                        hrfcasts.lastOrNull()?.extras?.windMph != null && hrfcasts.lastOrNull()?.extras?.windKph != null
                     ) {
                         windData = ForecastGraphViewModel(ctx)
                     }
@@ -344,7 +344,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
                     }
                 }
                 if (windData != null) {
-                    if (hrfcast.windMph != null && hrfcast.windKph != null) {
+                    if (hrfcast.extras?.windMph != null && hrfcast.extras?.windKph != null) {
                         windData.addForecastData(
                             hrfcast,
                             ForecastType.WIND,

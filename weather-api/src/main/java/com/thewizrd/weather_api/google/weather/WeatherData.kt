@@ -258,12 +258,6 @@ fun createHourlyForecast(hour: ForecastHoursItem): HourlyForecast {
         icon = wm.getWeatherIcon(hour.isDaytime?.not() ?: false, hour.weatherCondition?.type)
         condition = hour.weatherCondition?.description?.text
 
-        windDegrees = hour.wind?.direction?.degrees
-        hour.wind?.speed?.value?.let {
-            windKph = it
-            windMph = ConversionMethods.kphTomph(it)
-        }
-
         extras = ForecastExtras()
         hour.feelsLikeTemperature?.degrees?.let {
             extras.feelslikeC = it
@@ -284,9 +278,11 @@ fun createHourlyForecast(hour: ForecastHoursItem): HourlyForecast {
             extras.pressureMb = it
             extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
-        extras.windDegrees = windDegrees
-        extras.windKph = windKph
-        extras.windMph = windMph
+        extras.windDegrees = hour.wind?.direction?.degrees
+        hour.wind?.speed?.value?.let {
+            extras.windKph = it
+            extras.windMph = ConversionMethods.kphTomph(it)
+        }
         hour.wind?.gust?.value?.let {
             extras.windGustKph = it
             extras.windGustMph = ConversionMethods.kphTomph(it)

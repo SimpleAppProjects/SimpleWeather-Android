@@ -62,7 +62,6 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.utils.ImageUtils.rotate
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.designer.isInEditMode
@@ -86,7 +85,6 @@ import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.LaunchActivity
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.DetailsWeatherTileUtils
 import com.thewizrd.simpleweather.ui.theme.wearTileColorScheme
 import com.thewizrd.simpleweather.ui.tiles.tools.WearPreviewDevices
@@ -97,6 +95,7 @@ import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
+import com.thewizrd.shared_resources.R as sharedRes
 
 internal const val ID_DETAIL_ICON_PREFIX = "detail_icon:"
 internal const val ID_ROTATION_PREFIX = "rotation:"
@@ -806,8 +805,6 @@ private fun buildMockWeatherData(): Weather {
                 highC = 23f + index / 2f
                 condition = "Sunny"
                 icon = WeatherIcons.DAY_SUNNY
-                windMph = 5f
-                windKph = 8f
                 extras = ForecastExtras().apply {
                     feelslikeF = 80f
                     feelslikeC = 26f

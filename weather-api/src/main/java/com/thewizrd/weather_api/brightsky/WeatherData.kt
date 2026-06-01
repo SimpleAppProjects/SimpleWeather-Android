@@ -232,22 +232,12 @@ fun createHourlyForecast(hr_forecast: WeatherItem): HourlyForecast {
             highF = ConversionMethods.CtoF(it)
             highC = it
         }
-        windDegrees = hr_forecast.windDirection?.roundToInt()
-        hr_forecast.windSpeed?.let {
-            windMph = ConversionMethods.kphTomph(it)
-            windKph = it
-        }
 
         icon = hr_forecast.icon
 
         // Extras
         val humidity = hr_forecast.relativeHumidity?.roundToInt()
         extras = ForecastExtras()
-        if (highF != null && windMph != null && humidity != null) {
-            val feelsLikeF = getFeelsLikeTemp(highF, windMph, humidity)
-            extras.feelslikeF = feelsLikeF
-            extras.feelslikeC = ConversionMethods.FtoC(feelsLikeF)
-        }
         extras.humidity = humidity
         hr_forecast.dewPoint?.let {
             extras.dewpointF = ConversionMethods.CtoF(it)
@@ -260,9 +250,11 @@ fun createHourlyForecast(hr_forecast: WeatherItem): HourlyForecast {
             extras.pressureIn = ConversionMethods.mbToInHg(it)
             extras.pressureMb = it
         }
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hr_forecast.windDirection?.roundToInt()
+        hr_forecast.windSpeed?.let {
+            extras.windMph = ConversionMethods.kphTomph(it)
+            extras.windKph = it
+        }
         hr_forecast.windGustSpeed?.let {
             extras.windGustMph = ConversionMethods.kphTomph(it)
             extras.windGustKph = it
@@ -270,6 +262,11 @@ fun createHourlyForecast(hr_forecast: WeatherItem): HourlyForecast {
         hr_forecast.visibility?.let {
             extras.visibilityMi = ConversionMethods.kmToMi(it / 1000f)
             extras.visibilityKm = it / 1000f
+        }
+        if (highF != null && extras.windMph != null && humidity != null) {
+            val feelsLikeF = getFeelsLikeTemp(highF, extras.windMph, humidity)
+            extras.feelslikeF = feelsLikeF
+            extras.feelslikeC = ConversionMethods.FtoC(feelsLikeF)
         }
     }
 }

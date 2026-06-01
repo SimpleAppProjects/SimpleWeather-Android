@@ -259,11 +259,11 @@ fun createHourlyForecast(item: IntervalsItem): HourlyForecast {
             extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
 
-        extras.windDegrees = item.values.windDirection?.roundToInt()?.also { windDegrees = it }
+        extras.windDegrees = item.values.windDirection?.roundToInt()
 
         item.values.windSpeed?.let { speed ->
-            extras.windMph = ConversionMethods.msecToMph(speed).also { windMph = it }
-            extras.windKph = ConversionMethods.msecToKph(speed).also { windKph = it }
+            extras.windMph = ConversionMethods.msecToMph(speed)
+            extras.windKph = ConversionMethods.msecToKph(speed)
         }
 
         item.values.windGust?.let {

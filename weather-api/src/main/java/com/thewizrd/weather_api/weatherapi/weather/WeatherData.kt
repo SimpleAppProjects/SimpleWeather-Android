@@ -164,10 +164,6 @@ fun createHourlyForecast(hour: HourItem, tzId: ZoneId): HourlyForecast {
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERAPI)
             .getWeatherIcon(hour.isDay == 0, hour.condition!!.code!!.toString())
 
-        windMph = hour.windMph
-        windKph = hour.windKph
-        windDegrees = hour.windDegree
-
         extras = ForecastExtras()
         extras.feelslikeF = hour.feelslikeF
         extras.feelslikeC = hour.feelslikeC
@@ -183,9 +179,9 @@ fun createHourlyForecast(hour: HourItem, tzId: ZoneId): HourlyForecast {
         extras.qpfSnowIn = hour.snowCm?.let { ConversionMethods.mmToIn(it * 10) }
         extras.pressureIn = hour.pressureIn
         extras.pressureMb = hour.pressureMb
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hour.windDegree
+        extras.windMph = hour.windMph
+        extras.windKph = hour.windKph
         extras.visibilityMi = hour.visMiles
         extras.visibilityKm = hour.visKm
         extras.windGustMph = hour.gustMph
