@@ -10,6 +10,7 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
+import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
@@ -23,6 +24,8 @@ import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
+import com.thewizrd.weather_api.nws.SolCalcAstroProvider
+import com.thewizrd.weather_api.smc.SunMoonCalcProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkRateLimit
 import com.thewizrd.weather_api.utils.APIRequestUtils.throwIfRateLimited
@@ -296,6 +299,46 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
         super.updateWeatherData(location, weather)
+
+        val newAstro = try {
+            SunMoonCalcProvider().getAstronomyData(location, weather.condition!!.observationTime)
+        } catch (e: WeatherException) {
+            Logger.writeLine(Log.ERROR, e, "Error")
+            SolCalcAstroProvider().getAstronomyData(location, weather.condition!!.observationTime)
+        }
+
+        if (weather.astronomy != null) {
+            runCatching {
+                if (weather.astronomy!!.sunrise == null || DateTimeUtils.LOCALDATETIME_MIN.isEqual(
+                        weather.astronomy!!.sunrise
+                    )
+                ) {
+                    weather.astronomy!!.sunrise = newAstro.sunrise
+                }
+                if (weather.astronomy!!.sunset == null || DateTimeUtils.LOCALDATETIME_MIN.isEqual(
+                        weather.astronomy!!.sunset
+                    )
+                ) {
+                    weather.astronomy!!.sunset = newAstro.sunset
+                }
+                if (weather.astronomy!!.moonrise == null || DateTimeUtils.LOCALDATETIME_MIN.isEqual(
+                        weather.astronomy!!.moonrise
+                    )
+                ) {
+                    weather.astronomy!!.moonrise = newAstro.moonrise
+                }
+                if (weather.astronomy!!.moonset == null || DateTimeUtils.LOCALDATETIME_MIN.isEqual(
+                        weather.astronomy!!.moonset
+                    )
+                ) {
+                    weather.astronomy!!.moonset = newAstro.moonset
+                }
+            }.getOrElse {
+                weather.astronomy = newAstro
+            }
+        } else {
+            weather.astronomy = newAstro
+        }
     }
 
     override suspend fun updateLocationQuery(weather: Weather): String {

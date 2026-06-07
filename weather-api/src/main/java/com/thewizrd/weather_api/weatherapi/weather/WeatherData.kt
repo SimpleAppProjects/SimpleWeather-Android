@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherapi.weather
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIO3
@@ -43,6 +44,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
+@SuppressLint("VisibleForTests")
 fun createWeatherData(root: ForecastResponse): Weather {
     return Weather().apply {
         location = createLocation(root.location!!)
@@ -61,11 +63,11 @@ fun createWeatherData(root: ForecastResponse): Weather {
 
         // Forecast
         for (day in root.forecast!!.forecastday!!) {
-            val fcast = createForecast(day, tzid)
+            val fcast = createForecast(day)
 
             day.hour?.forEach { hour ->
                 val date = ZonedDateTime.ofInstant(
-                    Instant.ofEpochSecond(hour.timeEpoch!!.toLong()),
+                    Instant.ofEpochSecond(hour.timeEpoch!!),
                     ZoneOffset.UTC
                 )
 
@@ -87,7 +89,7 @@ fun createWeatherData(root: ForecastResponse): Weather {
         precipitation = createPrecipitation(root.current!!)
         ttl = 180
 
-        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.size > 0) {
+        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.isNotEmpty()) {
             condition!!.highF = forecast!![0].highF
             condition!!.highC = forecast!![0].highC
             condition!!.lowF = forecast!![0].lowF
@@ -104,13 +106,13 @@ fun createLocation(location: com.thewizrd.weather_api.weatherapi.weather.Locatio
     return Location().apply {
         /* Use name from location provider */
         //name = location.name
-        latitude = location.lat!!.toFloat()
-        longitude = location.lon!!.toFloat()
+        latitude = location.lat!!
+        longitude = location.lon!!
         tzLong = location.tzId!!
     }
 }
 
-fun createForecast(day: ForecastdayItem, tzid: ZoneId): Forecast {
+fun createForecast(day: ForecastdayItem): Forecast {
     return Forecast().apply {
         date = day.dateEpoch?.let {
             ZonedDateTime.ofInstant(Instant.ofEpochSecond(it), ZoneOffset.UTC)
@@ -247,6 +249,10 @@ fun createAstronomy(astro: Astro): Astronomy {
 
         runCatching {
             sunrise = LocalTime.parse(astro.sunrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+        }.getOrElse {
+            if (astro.sunrise == "Polar Day" || astro.sunrise == "Polar Night") {
+                sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
+            }
         }
 
         runCatching {
@@ -256,6 +262,10 @@ fun createAstronomy(astro: Astro): Astronomy {
                 // Is next day
                 sunset = LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
                     .atDate(now.plusDays(1))
+            }
+        }.getOrElse {
+            if (astro.sunset == "Polar Day" || astro.sunset == "Polar Night") {
+                sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
             }
         }
 
@@ -280,10 +290,10 @@ fun createAstronomy(astro: Astro): Astronomy {
 
         // If the sun won't set/rise, set time to the future
         if (sunrise == null) {
-            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
+            sunrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (sunset == null) {
-            sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
+            sunset = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonrise == null) {
             moonrise = DateTimeUtils.LOCALDATETIME_MIN
