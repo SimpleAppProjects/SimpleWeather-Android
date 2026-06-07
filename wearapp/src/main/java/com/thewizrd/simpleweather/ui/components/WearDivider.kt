@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,19 +28,21 @@ fun WearDivider() {
             .height(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        val pathEffect = PathEffect.dashPathEffect(floatArrayOf(ctx.dpToPx(2f), ctx.dpToPx(4f)))
+        val strokeWidth = ctx.dpToPx(3f)
+        val pathEffect = PathEffect.dashPathEffect(floatArrayOf(0f, strokeWidth * 2))
 
         Canvas(
             modifier = Modifier
                 .width(48.dp)
-                .height(1.dp)
+                .height(4.dp)
         ) {
             drawLine(
                 color = Color.White,
-                strokeWidth = ctx.dpToPx(2f),
-                start = Offset(0f, 0f),
-                end = Offset(size.width, 0f),
-                pathEffect = pathEffect
+                strokeWidth = strokeWidth,
+                start = Offset(0f, size.height / 2f),
+                end = Offset(size.width, size.height / 2f),
+                cap = StrokeCap.Round,
+                pathEffect = pathEffect,
             )
         }
     }

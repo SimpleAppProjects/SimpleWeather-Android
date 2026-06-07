@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -45,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -203,17 +201,28 @@ fun WeatherNowScreen(
                             isGPSLocation = uiState.isGPSLocation
                         )
                         // Icon + Temp
-                        CurrentConditionPanel(
-                            curCondition = weather.curCondition,
+                        IconTempRow(
                             weatherIcon = weather.weatherIcon,
                             iconProvider = weather.iconProvider,
                             curTemp = weather.curTemp,
-                            tempUnit = weather.tempUnit,
-                            hiTemp = weather.hiTemp,
-                            loTemp = weather.loTemp,
-                            showHiLo = weather.isShowHiLo,
-                            feelsLikeDetail = weather.weatherDetailsMap[WeatherDetailsType.FEELSLIKE]
+                            tempUnit = weather.tempUnit
                         )
+                        // FeelsLike
+                        weather.weatherDetailsMap[WeatherDetailsType.FEELSLIKE]?.let {
+                            FeelsLikeText(it)
+                        }
+                        // Condition
+                        weather.curCondition?.let { condition ->
+                            ConditionText(condition)
+                        }
+
+                        // HiLo Layout
+                        if (weather.isShowHiLo) {
+                            HiLoLayout(
+                                hiTemp = weather.hiTemp,
+                                loTemp = weather.loTemp
+                            )
+                        }
 
                         // Condition Details
                         ConditionDetails(
@@ -472,7 +481,7 @@ private fun ColumnScope.WeatherLocation(
                 .align(Alignment.CenterVertically),
             text = locationName ?: WeatherIcons.EM_DASH,
             textAlign = TextAlign.Center,
-            fontSize = 14.sp,
+            fontSize = 16.sp,
             style = MaterialTheme.typography.labelLarge,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -481,151 +490,66 @@ private fun ColumnScope.WeatherLocation(
 }
 
 @Composable
-private fun CurrentConditionPanel(
+private fun IconTempRow(
     weatherIcon: String,
     curTemp: String?,
     tempUnit: String?,
-    iconProvider: String? = null,
-    curCondition: String? = null,
-    hiTemp: String? = null,
-    loTemp: String? = null,
-    showHiLo: Boolean = false,
-    feelsLikeDetail: DetailItemViewModel? = null
+    iconProvider: String? = null
 ) {
-    val isRound = LocalConfiguration.current.isScreenRound
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        WeatherIcon(
+            modifier = Modifier
+                .height(60.dp)
+                .weight(1f)
+                .align(Alignment.CenterVertically),
+            alignment = IconAlignment.End,
+            weatherIcon = weatherIcon,
+            iconProvider = iconProvider,
+            shouldAnimate = true
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically),
+            text = curTemp ?: WeatherIcons.PLACEHOLDER,
+            textAlign = TextAlign.Start,
+            maxLines = 1,
+            fontSize = 42.sp,
+            fontWeight = FontWeight.Light,
+            color = tempTextColor(
+                temp = curTemp,
+                tempUnit = tempUnit
+            )
+        )
+    }
+}
 
-    Column(
+@Composable
+private fun FeelsLikeText(
+    detail: DetailItemViewModel
+) {
+    Text(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = if (showHiLo) {
-                    if (isRound) 16.dp else 4.dp
-                } else {
-                    0.dp
-                }
-            )
-    ) {
-        if (curCondition != null) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                text = curCondition,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis,
-                letterSpacing = 0.sp,
-                maxLines = 2,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            WeatherIcon(
-                modifier = Modifier
-                    .weight(1f)
-                    .apply {
-                        if (showHiLo) {
-                            heightIn(min = 24.dp, max = 52.dp)
-                        } else {
-                            height(60.dp)
-                        }
-                    }
-                    .align(Alignment.CenterVertically),
-                alignment = IconAlignment.End,
-                weatherIcon = weatherIcon,
-                iconProvider = iconProvider,
-                shouldAnimate = true
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            Text(
-                modifier = Modifier
-                    .weight(if (showHiLo) 2f else 1.5f)
-                    .align(Alignment.CenterVertically),
-                text = curTemp ?: WeatherIcons.PLACEHOLDER,
-                textAlign = if (showHiLo) TextAlign.Center else TextAlign.Start,
-                maxLines = 1,
-                fontSize = if (showHiLo) 28.sp else 36.sp,
-                fontWeight = FontWeight.Light,
-                color = tempTextColor(
-                    temp = curTemp,
-                    tempUnit = tempUnit
-                )
-            )
-            if (showHiLo) {
-                Spacer(modifier = Modifier.size(8.dp))
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Text(
-                            text = hiTemp ?: WeatherIcons.PLACEHOLDER,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.End,
-                            maxLines = 1
-                        )
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            text = "↑",
-                            style = MaterialTheme.typography.bodyExtraSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.End,
-                            maxLines = 1,
-                            color = Color(0xFFFF4500),
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Text(
-                            text = loTemp ?: WeatherIcons.PLACEHOLDER,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.End,
-                            maxLines = 1
-                        )
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            text = "↓",
-                            style = MaterialTheme.typography.bodyExtraSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.End,
-                            maxLines = 1,
-                            color = Color(0xFF87CEFA),
-                        )
-                    }
-                }
-            }
-        }
-        // FeelsLike
-        feelsLikeDetail?.let { detail ->
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    text = buildString {
-                        append(detail.label)
-                        append(": ")
-                        append(detail.value)
-                    },
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis,
-                    letterSpacing = 0.sp,
-                    maxLines = 1,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-        }
-    }
+                horizontal = dimensionResource(id = R.dimen.wnow_horizontal_padding),
+                vertical = 4.dp
+            ),
+        text = buildString {
+            append(detail.label)
+            append(": ")
+            append(detail.value)
+        },
+        color = LocalContentColor.current.copy(alpha = 0.75f),
+        textAlign = TextAlign.Center,
+        overflow = TextOverflow.Ellipsis,
+        letterSpacing = 0.sp,
+        maxLines = 1,
+        style = MaterialTheme.typography.bodySmall
+    )
 }
 
 @Composable
@@ -1140,17 +1064,22 @@ private fun PreviewWeatherNowScreen() {
                 Box(
                     modifier = Modifier.background(Color.White.copy(alpha = 0.1f))
                 ) {
-                    CurrentConditionPanel(
-                        curCondition = "Sunny",
+                    IconTempRow(
                         weatherIcon = WeatherIcons.DAY_SUNNY,
-                        curTemp = "120°F",
-                        tempUnit = "F",
-                        showHiLo = true,
-                        hiTemp = "110°",
-                        loTemp = "80°",
-                        feelsLikeDetail = feelsLikeDetail
+                        curTemp = "70°F",
+                        tempUnit = "F"
                     )
                 }
+                // FeelsLike
+                FeelsLikeText(feelsLikeDetail)
+                // Condition
+                ConditionText("Sunny")
+
+                // HiLo Layout
+                HiLoLayout(
+                    hiTemp = "70°",
+                    loTemp = "60°"
+                )
 
                 // Condition Details
                 ConditionDetails(
