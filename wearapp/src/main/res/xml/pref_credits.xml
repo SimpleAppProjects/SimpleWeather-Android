@@ -42,11 +42,6 @@
             <intent android:data="https://aqicn.org" />
         </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
         <com.thewizrd.simpleweather.preferences.ProviderIconPreference
-            android:title="@string/api_wunlocked"
-            android:widgetLayout="@layout/credit_wunlocked">
-            <intent android:data="https://developer.weatherunlocked.com/" />
-        </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
-        <com.thewizrd.simpleweather.preferences.ProviderIconPreference
             android:title="@string/api_weatherapi"
             android:widgetLayout="@layout/credit_weatherapi">
             <intent android:data="https://www.weatherapi.com/" />

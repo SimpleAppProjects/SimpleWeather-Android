@@ -64,9 +64,9 @@
         <key>wunlocked</key>
         <value>
             {
-            "enabled": true,
+            "enabled": false,
             "locSource": "android",
-            "newWeatherSource": ""
+            "newWeatherSource": "weatherapi"
             }
         </value>
     </entry>

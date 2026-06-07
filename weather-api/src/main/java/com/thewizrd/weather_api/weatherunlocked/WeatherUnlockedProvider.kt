@@ -42,6 +42,7 @@ import java.time.ZonedDateTime
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Weather Unlocked API Services will be closing down on June 30th, 2026")
 class WeatherUnlockedProvider : WeatherProviderImpl() {
     companion object {
         private const val BASE_URL = "http://api.weatherunlocked.com/api/"

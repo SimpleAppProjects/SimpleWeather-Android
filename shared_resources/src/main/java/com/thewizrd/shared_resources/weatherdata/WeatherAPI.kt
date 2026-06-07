@@ -156,10 +156,6 @@ object WeatherAPI {
             ProviderEntry(
                 "Weatherbit.io", WEATHERBITIO,
                 "https://www.weatherbit.io/", "https://www.weatherbit.io/pricing"
-            ),
-            ProviderEntry(
-                "WeatherUnlocked", WEATHERUNLOCKED,
-                "https://developer.weatherunlocked.com/", "https://developer.weatherunlocked.com/"
             )
         )
     }

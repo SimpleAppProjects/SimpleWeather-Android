@@ -62,14 +62,6 @@
         </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
 
         <com.thewizrd.simpleweather.preferences.ProviderIconPreference
-            android:title="@string/api_wunlocked"
-            android:widgetLayout="@layout/credit_wunlocked">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://developer.weatherunlocked.com/" />
-        </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
-
-        <com.thewizrd.simpleweather.preferences.ProviderIconPreference
             android:title="@string/api_weatherapi"
             android:widgetLayout="@layout/credit_weatherapi">
             <intent
