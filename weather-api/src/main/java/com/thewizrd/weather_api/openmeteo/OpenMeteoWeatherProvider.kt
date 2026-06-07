@@ -85,7 +85,7 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
     }
 
     override fun isKeyRequired(): Boolean {
-        return !BuildConfig.IS_NONGMS
+        return BuildConfig.IS_NONGMS
     }
 
     override fun getAuthType(): AuthType {
@@ -171,7 +171,7 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                 // If were under rate limit, deny request
                 checkRateLimit()
 
-                if (isKeyRequired() && key.isNullOrBlank()) {
+                if ((isKeyRequired() || getAuthType() == AuthType.INTERNAL) && key.isNullOrBlank()) {
                     throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                 }
 
@@ -210,14 +210,18 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .appendQueryParameter("timeformat", "unixtime")
                     .appendQueryParameter("timezone", "auto")
                     .apply {
-                        if (isKeyRequired()) {
+                        if (isKeyRequired() || getAuthType() == AuthType.INTERNAL) {
                             this.appendQueryParameter("apikey", key)
                         }
                     }
                     .build()
 
                 val forecastRequest = Request.Builder()
-                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                    .cacheRequestIfNeeded(
+                        (isKeyRequired() || getAuthType() == AuthType.INTERNAL),
+                        30,
+                        TimeUnit.MINUTES
+                    )
                     .url(forecastRequestUri.toString())
                     .header("Accept", "application/json")
                     .build()
@@ -232,14 +236,18 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .appendQueryParameter("timeformat", "unixtime")
                     .appendQueryParameter("timezone", "auto")
                     .apply {
-                        if (isKeyRequired()) {
+                        if (isKeyRequired() || getAuthType() == AuthType.INTERNAL) {
                             this.appendQueryParameter("apikey", key)
                         }
                     }
                     .build()
 
                 val aqiRequest = Request.Builder()
-                    .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
+                    .cacheRequestIfNeeded(
+                        (isKeyRequired() || getAuthType() == AuthType.INTERNAL),
+                        20,
+                        TimeUnit.MINUTES
+                    )
                     .url(aqiRequestUri.toString())
                     .header("Accept", "application/json")
                     .build()
@@ -310,7 +318,7 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                 // If were under rate limit, deny request
                 checkRateLimit()
 
-                if (isKeyRequired() && key.isNullOrBlank()) {
+                if ((isKeyRequired() || getAuthType() == AuthType.INTERNAL) && key.isNullOrBlank()) {
                     throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                 }
 
@@ -333,14 +341,18 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .appendQueryParameter("timeformat", "unixtime")
                     .appendQueryParameter("timezone", "auto")
                     .apply {
-                        if (isKeyRequired()) {
+                        if (isKeyRequired() || getAuthType() == AuthType.INTERNAL) {
                             this.appendQueryParameter("apikey", key)
                         }
                     }
                     .build()
 
                 val request = Request.Builder()
-                    .cacheRequestIfNeeded(isKeyRequired(), 20, TimeUnit.MINUTES)
+                    .cacheRequestIfNeeded(
+                        isKeyRequired() || getAuthType() == AuthType.INTERNAL,
+                        20,
+                        TimeUnit.MINUTES
+                    )
                     .url(requestUri.toString())
                     .header("Accept", "application/json")
                     .build()
