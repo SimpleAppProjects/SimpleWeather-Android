@@ -13,10 +13,10 @@ android {
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 26
-        targetSdkVersion libs.versions.targetSdkVersion.get()
+        targetSdkVersion libs.versions.wearTargetSdkVersion.get()
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code [Android: 0, WearOS: 1])
         // ex) 345100131 = (34, 5.10, 013, 1)
-        versionCode 375140021
+        versionCode 365140031
         versionName "5.14.0"
 
         vectorDrawables {
