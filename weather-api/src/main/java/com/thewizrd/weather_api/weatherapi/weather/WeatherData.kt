@@ -30,6 +30,7 @@ import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
+import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -215,6 +216,42 @@ fun createCondition(current: Current, tzId: ZoneId): Condition {
         uv = UV(current.uv!!)
 
         airQuality = createAirQuality(current.airQuality)
+
+        current.pollen?.let { currentPollen ->
+            val treePollenValue = maxOf(
+                currentPollen.hazel ?: 0.0,
+                currentPollen.alder ?: 0.0,
+                currentPollen.birch ?: 0.0,
+                currentPollen.oak ?: 0.0
+            )
+            val grassPollenValue = currentPollen.grass ?: 0.0
+            val ragweedPollenValue =
+                maxOf(currentPollen.ragweed ?: 0.0, currentPollen.mugwort ?: 0.0)
+
+            pollen = Pollen().apply {
+                treePollenCount = when {
+                    treePollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    treePollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    treePollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    treePollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+                grassPollenCount = when {
+                    grassPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    grassPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    grassPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    grassPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+                ragweedPollenCount = when {
+                    ragweedPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    ragweedPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    ragweedPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    ragweedPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+            }
+        }
 
         observationTime = current.lastUpdatedEpoch?.let {
             ZonedDateTime.ofInstant(Instant.ofEpochSecond(it), ZoneOffset.UTC)

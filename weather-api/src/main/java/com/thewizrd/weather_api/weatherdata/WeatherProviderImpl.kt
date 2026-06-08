@@ -216,6 +216,11 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                         OpenMeteoWeatherProvider().getPollenData(location)?.apply {
                             attribution = context.getString(R.string.api_openmeteo)
                         }
+                } else if (remoteConfigService.isProviderEnabled(WeatherAPI.WEATHERAPI) && !BuildConfig.IS_NONGMS) {
+                    weather.condition!!.pollen =
+                        WeatherApiProvider().getPollenData(location)?.apply {
+                            attribution = context.getString(R.string.api_weatherapi)
+                        }
                 }
             }
         }

@@ -15,9 +15,11 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.utils.ZoneIdCompat
+import com.thewizrd.shared_resources.weatherdata.PollenProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAlertProvider
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
+import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -48,14 +50,16 @@ import java.time.ZonedDateTime
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
+class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenProvider {
     companion object {
         private const val BASE_URL = "https://api.weatherapi.com/v1/"
         private const val KEYCHECK_QUERY_URL = BASE_URL + "forecast.json?key=%s"
         private const val WEATHER_QUERY_URL =
-            BASE_URL + "forecast.json?q=%s&days=10&aqi=yes&alerts=yes&lang=%s&key=%s"
+            BASE_URL + "forecast.json?q=%s&days=10&aqi=yes&pollen=yes&alerts=yes&lang=%s&key=%s"
         private const val ALERTS_QUERY_URL =
             BASE_URL + "forecast.json?q=%s&days=1&hour=6&aqi=no&alerts=yes&lang=%s&key=%s"
+        private const val POLLEN_QUERY_URL =
+            BASE_URL + "current.json?q=%s&pollen=yes&key=%s"
     }
 
     init {
@@ -294,6 +298,100 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider {
             }
 
             return@withContext alerts
+        }
+
+    override suspend fun getPollenData(location: LocationData): Pollen? =
+        withContext(Dispatchers.IO) {
+            var pollenData: Pollen? = null
+
+            val key = getProviderKey()
+
+            val client = sharedDeps.httpClient
+            var response: Response? = null
+
+            try {
+                // If were under rate limit, deny request
+                checkRateLimit()
+
+                if (key.isNullOrBlank()) {
+                    throw WeatherException(ErrorStatus.INVALIDAPIKEY)
+                }
+
+                val request = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 30, TimeUnit.MINUTES)
+                    .url(
+                        String.format(
+                            POLLEN_QUERY_URL,
+                            updateLocationQuery(location),
+                            key
+                        )
+                    )
+                    .build()
+
+                // Connect to webstream
+                response = client.newCall(request).await()
+                checkForErrors(response)
+
+                val stream = response.getStream()
+
+                // Load weather
+                val root = JSONParser.deserializer<ForecastResponse>(
+                    stream,
+                    ForecastResponse::class.java
+                )
+
+                // End Stream
+                stream.closeQuietly()
+
+                requireNotNull(root)
+
+                root.current?.pollen?.let { currentPollen ->
+                    val treePollenValue = maxOf(
+                        currentPollen.hazel ?: 0.0,
+                        currentPollen.alder ?: 0.0,
+                        currentPollen.birch ?: 0.0,
+                        currentPollen.oak ?: 0.0
+                    )
+                    val grassPollenValue = currentPollen.grass ?: 0.0
+                    val ragweedPollenValue =
+                        maxOf(currentPollen.ragweed ?: 0.0, currentPollen.mugwort ?: 0.0)
+
+                    pollenData = Pollen().apply {
+                        treePollenCount = when {
+                            treePollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                            treePollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                            treePollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                            treePollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+                        grassPollenCount = when {
+                            grassPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                            grassPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                            grassPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                            grassPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+                        ragweedPollenCount = when {
+                            ragweedPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                            ragweedPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                            ragweedPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                            ragweedPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                            else -> Pollen.PollenCount.UNKNOWN
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                pollenData = null
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "WeatherApiProvider: error getting weather alert data"
+                )
+            } finally {
+                response?.closeQuietly()
+            }
+
+            return@withContext pollenData
         }
 
     @Throws(WeatherException::class)
