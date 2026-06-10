@@ -510,6 +510,30 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 weatherIcon = WeatherIcons.OVERCAST
             }
 
+            /* Haze */
+            1012 -> {
+                weatherIcon = WeatherIcons.HAZE
+            }
+
+            /*
+             * 1015: Dust Haze
+             * 1018: Blowing dust
+             * 1021: Dust storm
+             * 1045: Saharan dust
+             * 1048: Dust
+             */
+            1015, 1018, 1021, 1045, 1048 -> {
+                weatherIcon = WeatherIcons.DUST
+            }
+
+            /*
+             * 1024: Sandstorm
+             * 1027: Severe sandstorm
+             */
+            1024, 1027 -> {
+                weatherIcon = WeatherIcons.SANDSTORM
+            }
+
             /*
              * 1030: Mist
              * 1135: Fog
@@ -517,6 +541,22 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
              */
             1030, 1135, 1147 -> {
                 weatherIcon = WeatherIcons.FOG
+            }
+
+            /*
+             * 1033: Smoke
+             * 1036: Smoky haze
+             */
+            1033, 1036 -> {
+                weatherIcon = WeatherIcons.SMOKE
+            }
+
+            /*
+             * 1039: Smog
+             * 1042: Severe smog
+             */
+            1039, 1042 -> {
+                weatherIcon = WeatherIcons.SMOG
             }
 
             /*

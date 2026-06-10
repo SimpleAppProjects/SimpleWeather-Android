@@ -262,7 +262,7 @@ class BrightSkyProvider : WeatherProviderImpl() {
         for (forecast in weather.forecast!!) {
             forecast.icon.let {
                 forecast.icon = getWeatherIcon(it)
-                forecast.condition = getWeatherCondition(it)
+                forecast.condition = getWeatherCondition(forecast.icon)
             }
         }
 
@@ -277,7 +277,7 @@ class BrightSkyProvider : WeatherProviderImpl() {
                     hrfLocalTime.isBefore(sunrise) || hrfLocalTime.isAfter(sunset),
                     it
                 )
-                hr_forecast.condition = getWeatherCondition(it)
+                hr_forecast.condition = getWeatherCondition(hr_forecast.icon)
             }
         }
 

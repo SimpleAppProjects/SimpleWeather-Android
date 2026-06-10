@@ -249,25 +249,17 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         }
 
         // Update icons
-        val now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime()
-        val sunrise = weather.astronomy!!.sunrise.toLocalTime()
-        val sunset = weather.astronomy!!.sunset.toLocalTime()
-
-        weather.condition!!.icon =
-            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition!!.icon)
+        weather.condition!!.icon = getWeatherIcon(weather.condition!!.icon)
 
         for (forecast in weather.forecast!!) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
+            forecast.icon = getWeatherIcon(false, forecast.icon)
         }
 
         for (hr_forecast in weather.hrForecast!!) {
             val hrf_date = hr_forecast.date.withZoneSameInstant(offset)
             hr_forecast.date = hrf_date
-            val hrf_localTime = hrf_date.toLocalTime()
-            hr_forecast.icon = getWeatherIcon(
-                hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset),
-                hr_forecast.icon
-            )
+            hr_forecast.icon = getWeatherIcon(hr_forecast.icon)
         }
 
         if (!weather.weatherAlerts.isNullOrEmpty()) {

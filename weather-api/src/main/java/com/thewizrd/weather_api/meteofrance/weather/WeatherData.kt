@@ -124,9 +124,9 @@ fun createForecast(day: DailyForecastItem): Forecast {
             ) {
                 day.weather12H?.desc
             } else {
-                provider.getWeatherCondition(day.weather12H?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(false, day.weather12H?.icon))
             }
-        icon = provider.getWeatherIcon(false, day.weather12H?.icon)
+        icon = day.weather12H?.icon
 
         // Extras
         extras = ForecastExtras()
@@ -167,7 +167,7 @@ fun createHourlyForecast(forecast: ForecastItem,
             ) {
                 forecast.weather?.desc
             } else {
-                provider.getWeatherCondition(forecast.weather?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(forecast.weather?.icon))
             }
         icon = forecast.weather?.icon
 
@@ -306,7 +306,7 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
             ) {
                 currRoot.observation?.weather?.desc
             } else {
-                provider.getWeatherCondition(currRoot.observation?.weather?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(currRoot.observation?.weather?.icon))
             }
         icon = currRoot.observation?.weather?.icon
 

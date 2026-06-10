@@ -1007,7 +1007,9 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
             4210, 42100, 42101 -> context.getString(R.string.weather_rain)
             /* Heavy Rain */
             4201, 42010, 42011,
-            4211, 42110, 42111 -> context.getString(R.string.weather_heavyrain)
+            4211, 42110, 42111,
+            4202, 42020, 42021,
+            4212, 42120, 42121 -> context.getString(R.string.weather_heavyrain)
             /* Flurries */
             5001, 50010, 50011,
             5115, 51150, 51151,
