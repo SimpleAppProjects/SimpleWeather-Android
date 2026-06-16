@@ -55,15 +55,19 @@ fun createWeatherData(root: ForecastResponse): Weather {
                 .withZoneSameInstant(tzid)
         } ?: ZonedDateTime.now(tzid)
 
-        forecast = ArrayList(root.forecast!!.forecastday!!.size)
+        forecast = ArrayList<Forecast>().apply {
+            root.forecast?.forecastday?.size?.let {
+                ensureCapacity(it)
+            }
+        }
         hrForecast = ArrayList<HourlyForecast>().apply {
-            root.forecast!!.forecastday?.firstOrNull()?.hour?.size?.let {
+            root.forecast?.forecastday?.firstOrNull()?.hour?.size?.let {
                 ensureCapacity(it)
             }
         }
 
         // Forecast
-        for (day in root.forecast!!.forecastday!!) {
+        root.forecast?.forecastday?.forEach { day ->
             val fcast = createForecast(day)
 
             day.hour?.forEach { hour ->
@@ -82,10 +86,10 @@ fun createWeatherData(root: ForecastResponse): Weather {
 
         condition = createCondition(root.current!!, tzid)
         atmosphere = createAtmosphere(root.current!!)
-        if (root.forecast!!.forecastday!![0].date == condition!!.observationTime.toLocalDate()
+        if (root.forecast?.forecastday?.getOrNull(0)?.date == condition!!.observationTime.toLocalDate()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         ) {
-            astronomy = createAstronomy(root.forecast!!.forecastday!![0].astro!!)
+            astronomy = createAstronomy(root.forecast?.forecastday?.getOrNull(0)?.astro)
         }
         precipitation = createPrecipitation(root.current!!)
         ttl = 180
@@ -210,10 +214,10 @@ fun createCondition(current: Current, tzId: ZoneId): Condition {
         feelslikeC = current.feelslikeC
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERAPI)
-            .getWeatherIcon(current.isDay == 0, current.condition!!.code!!.toString())
+            .getWeatherIcon(current.isDay == 0, current.condition?.code?.toString())
 
         beaufort = Beaufort(getBeaufortScale(windMph.toInt()))
-        uv = UV(current.uv!!)
+        uv = current.uv?.let { UV(it) }
 
         airQuality = createAirQuality(current.airQuality)
 
@@ -280,41 +284,44 @@ fun createAtmosphere(current: Current): Atmosphere {
     }
 }
 
-fun createAstronomy(astro: Astro): Astronomy {
+fun createAstronomy(astro: Astro?): Astronomy {
     return Astronomy().apply {
         val now = LocalDate.now()
 
         runCatching {
-            sunrise = LocalTime.parse(astro.sunrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            sunrise =
+                LocalTime.parse(astro?.sunrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
         }.getOrElse {
-            if (astro.sunrise == "Polar Day" || astro.sunrise == "Polar Night") {
+            if (astro?.sunrise == "Polar Day" || astro?.sunrise == "Polar Night") {
                 sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
             }
         }
 
         runCatching {
             sunset =
-                LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+                LocalTime.parse(astro?.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
             if (sunrise != null && sunset.isBefore(sunrise)) {
                 // Is next day
-                sunset = LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
+                sunset = LocalTime.parse(astro?.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
                     .atDate(now.plusDays(1))
             }
         }.getOrElse {
-            if (astro.sunset == "Polar Day" || astro.sunset == "Polar Night") {
+            if (astro?.sunset == "Polar Day" || astro?.sunset == "Polar Night") {
                 sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
             }
         }
 
         runCatching {
-            moonrise = LocalTime.parse(astro.moonrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            moonrise =
+                LocalTime.parse(astro?.moonrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
         }
 
         runCatching {
-            moonset = LocalTime.parse(astro.moonset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            moonset =
+                LocalTime.parse(astro?.moonset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
         }
 
-        when (astro.moonPhase) {
+        when (astro?.moonPhase) {
             "New Moon" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.NEWMOON)
             "Waxing Crescent" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.WAXING_CRESCENT)
             "First Quarter" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.FIRST_QTR)

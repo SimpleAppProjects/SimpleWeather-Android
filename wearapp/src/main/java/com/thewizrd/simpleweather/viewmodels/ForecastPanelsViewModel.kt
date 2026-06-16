@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
@@ -75,7 +76,8 @@ class ForecastPanelsViewModel(app: Application) : AndroidViewModel(app) {
                 flowScope?.cancel()
 
                 currentForecastsData =
-                    weatherDAO.getLiveForecastData(location.query).distinctUntilChanged()
+                    weatherDAO.getLiveForecastData(location.query).filterNotNull()
+                        .distinctUntilChanged()
 
                 val hrInterval = weatherModule.weatherManager.getHourlyForecastInterval()
                 currentHrForecastsData =

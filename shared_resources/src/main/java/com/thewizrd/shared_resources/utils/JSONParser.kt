@@ -11,6 +11,8 @@ import com.thewizrd.shared_resources.json.CustomJsonConverter
 import com.thewizrd.shared_resources.json.DateConverter
 import com.thewizrd.shared_resources.json.LocalDateTimeConverter
 import com.thewizrd.shared_resources.json.ZonedDateTimeConverter
+import com.thewizrd.shared_resources.json.doubleNaNToNullAdapter
+import com.thewizrd.shared_resources.json.floatNaNToNullAdapter
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.weatherdata.model.AirQuality
 import com.thewizrd.shared_resources.weatherdata.model.Astronomy
@@ -68,6 +70,8 @@ object JSONParser {
             .add(Pollen::class.java, CustomJsonConverter(Pollen::class.java))
             .add(WeatherAlert::class.java, CustomJsonConverter(WeatherAlert::class.java))
             .add(KotlinJsonAdapterFactory())
+            .add(Double::class.java, doubleNaNToNullAdapter)
+            .add(Float::class.java, floatNaNToNullAdapter)
             .build()
     }
 

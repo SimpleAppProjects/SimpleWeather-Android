@@ -524,8 +524,7 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
              * 3: overcast
              */
             3 -> {
-                weatherIcon =
-                    if (isNight) WeatherIcons.NIGHT_OVERCAST else WeatherIcons.DAY_SUNNY_OVERCAST
+                weatherIcon = WeatherIcons.OVERCAST
             }
 
             /*

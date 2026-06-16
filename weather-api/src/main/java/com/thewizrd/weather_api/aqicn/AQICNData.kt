@@ -19,7 +19,7 @@ class AQICNData internal constructor(root: Rootobject) : AirQualityData() {
             pm10 = root.data?.iaqi?.pm10?.v?.roundToInt()
             co = root.data?.iaqi?.co?.v?.roundToInt()
 
-            index = root.data?.aqi ?: getIndexFromData()
+            index = root.data?.aqi?.toIntOrNull() ?: getIndexFromData()
         }
         aqiForecast = root.createAQIForecasts()
     }

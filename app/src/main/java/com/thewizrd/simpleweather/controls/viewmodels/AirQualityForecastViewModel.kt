@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class AirQualityForecastViewModel(app: Application) : AndroidViewModel(app) {
@@ -46,7 +47,8 @@ class AirQualityForecastViewModel(app: Application) : AndroidViewModel(app) {
                 flowScope?.cancel()
 
                 currentForecastsData =
-                    weatherDAO.getLiveForecastData(location.query).distinctUntilChanged()
+                    weatherDAO.getLiveForecastData(location.query).filterNotNull()
+                        .distinctUntilChanged()
 
                 flowScope = CoroutineScope(SupervisorJob())
                 flowScope?.launch {

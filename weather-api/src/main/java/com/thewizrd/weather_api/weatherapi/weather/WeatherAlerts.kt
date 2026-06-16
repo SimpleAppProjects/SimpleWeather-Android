@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherapi.weather
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
@@ -9,7 +10,7 @@ import java.time.format.DateTimeFormatter
 fun createWeatherAlerts(alerts: Alerts?): Collection<WeatherAlert>? {
     if (alerts?.alert.isNullOrEmpty()) return null
 
-    val weatherAlerts = ArrayList<WeatherAlert>(alerts!!.alert!!.size)
+    val weatherAlerts = ArrayList<WeatherAlert>(alerts.alert!!.size)
 
     for (alert in alerts.alert!!) {
         weatherAlerts.add(createWeatherAlert(alert))
@@ -18,6 +19,7 @@ fun createWeatherAlerts(alerts: Alerts?): Collection<WeatherAlert>? {
     return weatherAlerts
 }
 
+@SuppressLint("VisibleForTests")
 fun createWeatherAlert(alert: AlertItem): WeatherAlert {
     return WeatherAlert().apply {
         type = when {
@@ -52,9 +54,11 @@ fun createWeatherAlert(alert: AlertItem): WeatherAlert {
 
         attribution = alert.note ?: "WeatherAPI.com"
 
-        date = ZonedDateTime.parse(alert.effective,
-                DateTimeFormatter.ISO_ZONED_DATE_TIME)
-        expiresDate = ZonedDateTime.parse(alert.expires,
-                DateTimeFormatter.ISO_ZONED_DATE_TIME)
+        date =
+            alert.effective?.let { ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME) }
+                ?: ZonedDateTime.now()
+        expiresDate =
+            alert.expires?.let { ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME) }
+                ?: date.plusDays(1)
     }
 }

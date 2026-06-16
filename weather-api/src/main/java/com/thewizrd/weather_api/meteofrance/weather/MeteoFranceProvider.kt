@@ -182,12 +182,16 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                         .url(String.format(ALERTS_QUERY_URL, foreRoot.position!!.dept, key))
                         .build()
 
-                    alertsResponse = client.newCall(alertsRequest).await()
-                    alertStream = alertsResponse.getStream()
-                    alertsRoot = JSONParser.deserializer<AlertsResponse>(
-                        alertStream,
-                        AlertsResponse::class.java
-                    )
+                    runCatching {
+                        alertsResponse = client.newCall(alertsRequest).await()
+                        alertStream = alertsResponse.getStream()
+                        alertsRoot = JSONParser.deserializer<AlertsResponse>(
+                            alertStream,
+                            AlertsResponse::class.java
+                        )
+                    }.getOrElse {
+                        Logger.warn("MeteoFranceProvider", it, "Error fetching alerts")
+                    }
                 }
 
                 // End Stream

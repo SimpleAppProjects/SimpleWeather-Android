@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.wear.compose.material3.ConfirmationDialogDefaults
+import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -61,6 +62,7 @@ class ConfirmationViewModel : ViewModel() {
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class ConfirmationData(
     val message: String? = null,
     @DrawableRes val iconResId: Int? = null,
