@@ -1,19 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
+    android:width="32dp"
+    android:height="32dp"
     android:viewportWidth="32"
     android:viewportHeight="32">
     <group
+        android:translateX="-0.160000"
+        android:translateY="-0.612000"
         android:pivotX="16"
         android:pivotY="16"
         android:scaleX="1.5"
-        android:scaleY="1.5"
-        android:translateY="-1.0">
+        android:scaleY="1.5">
         <path
-            android:pathData="M16.736,8.096c-0.352,-0.288 -0.832,-0.288 -1.152,0 -0.224,0.192 -6.016,5.024 -6.016,10.656 0,3.616 2.944,6.592 6.592,6.592s6.592,-2.944 6.592,-6.592c0,-5.632 -5.76,-10.464 -6.016,-10.656zM16.16,23.552c-2.656,0 -4.8,-2.144 -4.8,-4.8 0,-3.84 3.424,-7.456 4.8,-8.768 1.376,1.312 4.8,4.928 4.8,8.768 0,2.656 -2.144,4.8 -4.8,4.8z"
+            android:pathData="M14.976,16.032C14.976,16.032 13.216,17.472 13.216,19.104C13.216,20.064 14.016,20.864 14.976,20.864C15.936,20.864 16.736,20.064 16.736,19.104C16.736,17.472 14.976,16.032 14.976,16.032Z"
             android:fillColor="@color/wicon_color" />
+    </group>
+    <group
+        android:translateX="-0.160000"
+        android:translateY="-0.612000"
+        android:pivotX="16"
+        android:pivotY="16"
+        android:scaleX="1.5"
+        android:scaleY="1.5">
         <path
-            android:pathData="M14.976,16.032c0,0 -1.76,1.44 -1.76,3.072 0,0.96 0.8,1.76 1.76,1.76s1.76,-0.8 1.76,-1.76c0,-1.632 -1.76,-3.072 -1.76,-3.072z"
+            android:pathData="M16.736,8.096C16.384,7.808 15.904,7.808 15.584,8.096C15.36,8.288 9.568,13.12 9.568,18.752C9.568,22.368 12.512,25.344 16.16,25.344C19.808,25.344 22.752,22.4 22.752,18.752C22.752,13.12 16.992,8.288 16.736,8.096ZM16.16,23.552C13.504,23.552 11.36,21.408 11.36,18.752C11.36,14.912 14.784,11.296 16.16,9.984C17.536,11.296 20.96,14.912 20.96,18.752C20.96,21.408 18.816,23.552 16.16,23.552Z"
             android:fillColor="@color/wicon_color" />
     </group>
 </vector>
