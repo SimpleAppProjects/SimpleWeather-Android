@@ -114,6 +114,7 @@ public class DetailCard extends LinearLayout {
     private void updateColors() {
         setBackgroundColor(ContextUtils.getAttrColor(getContext(), com.google.android.material.R.attr.colorSurfaceContainer));
         ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), androidx.appcompat.R.attr.colorPrimary)));
+        binding.detailIcon.setShowAsMonochrome(binding.detailIcon.getShowAsMonochrome());
         bgDrawable.setStrokeColor(ContextCompat.getColorStateList(getContext(), com.google.android.material.R.color.m3_card_stroke_color));
     }
 

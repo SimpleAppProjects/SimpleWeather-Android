@@ -13,12 +13,15 @@ import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.core.app.NotificationCompat
-import com.thewizrd.common.controls.*
+import com.thewizrd.common.controls.BaseForecastItemViewModel
+import com.thewizrd.common.controls.ForecastItemViewModel
+import com.thewizrd.common.controls.HourlyForecastItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
+import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils.bitmapFromDrawable
 import com.thewizrd.common.utils.ImageUtils.rotateBitmap
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.sharedDeps
@@ -47,7 +50,6 @@ object WeatherNotificationBuilder {
         viewModel: WeatherUiModel
     ): Notification {
         val wim = sharedDeps.weatherIconsManager
-        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         // Build update
         val updateViews = RemoteViews(
@@ -118,7 +120,7 @@ object WeatherNotificationBuilder {
         if (chanceModel != null) {
             updateViews.setImageViewResource(
                 R.id.weather_popicon,
-                wip.getWeatherIconResource(chanceModel.icon)
+                wim.getWeatherIconResource(chanceModel.icon)
             )
             updateViews.setTextViewText(R.id.weather_pop, chanceModel.value)
             updateViews.setViewVisibility(R.id.weather_pop_layout, View.VISIBLE)
@@ -134,7 +136,7 @@ object WeatherNotificationBuilder {
         }
 
         if (windModel != null) {
-            val windIconResId = wip.getWeatherIconResource(WeatherIcons.WIND_DIRECTION)
+            val windIconResId = wim.getWeatherIconResource(WeatherIcons.WIND_DIRECTION)
             if (windModel.iconRotation != 0) {
                 bigUpdateViews.setImageViewBitmap(
                     R.id.weather_windicon,
@@ -157,7 +159,7 @@ object WeatherNotificationBuilder {
         if (humidityModel != null) {
             bigUpdateViews.setImageViewResource(
                 R.id.humidity_icon,
-                wip.getWeatherIconResource(humidityModel.icon)
+                wim.getWeatherIconResource(humidityModel.icon)
             )
             bigUpdateViews.setTextViewText(R.id.humidity, humidityModel.value)
             bigUpdateViews.setViewVisibility(R.id.humidity_layout, View.VISIBLE)
@@ -166,7 +168,7 @@ object WeatherNotificationBuilder {
         if (windGustModel != null) {
             bigUpdateViews.setImageViewResource(
                 R.id.windgust_icon,
-                wip.getWeatherIconResource(windGustModel.icon)
+                wim.getWeatherIconResource(windGustModel.icon)
             )
             bigUpdateViews.setTextViewText(R.id.windgust, windGustModel.value)
             bigUpdateViews.setViewVisibility(R.id.windgust_layout, View.VISIBLE)
@@ -191,7 +193,7 @@ object WeatherNotificationBuilder {
                     weatherIconResId
                 } else {
                     // Use default icon pack here; animated icons are not supported here
-                    wip.getWeatherIconResource(viewModel.weatherIcon)
+                    wim.getWeatherIconResource(viewModel.weatherIcon)
                 }
             }
         }
