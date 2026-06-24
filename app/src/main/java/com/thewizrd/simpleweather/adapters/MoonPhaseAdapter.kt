@@ -50,6 +50,7 @@ class MoonPhaseAdapter : RecyclerView.Adapter<MoonPhaseAdapter.MoonPhaseViewHold
                     else -> 0.35f
                 }
             }
+            view.shouldAnimate = isSelected
         }
     }
 
