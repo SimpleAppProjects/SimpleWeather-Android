@@ -39,10 +39,8 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.R as materialRes
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
-import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.helpers.ListChangedArgs
 import com.thewizrd.common.helpers.OnListChangedListener
 import com.thewizrd.common.helpers.PermissionLauncher
@@ -53,7 +51,6 @@ import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.common.helpers.openAppSettingsActivity
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
 import com.thewizrd.common.utils.ActivityUtils.recreateCompat
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
@@ -124,6 +121,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import com.google.android.material.R as materialRes
+import com.thewizrd.shared_resources.R as sharedRes
 
 class SettingsFragment : BaseSettingsFragment(),
     OnSharedPreferenceChangeListener,
@@ -1172,6 +1171,10 @@ class SettingsFragment : BaseSettingsFragment(),
                 return
             }
             super.onRadioButtonConfirmed(selectedKey)
+            AnalyticsLogger.logEvent("W_Icon_Selected", Bundle().apply {
+                putString("iconProvider", selectedKey)
+            })
+            AnalyticsLogger.setUserProperty(AnalyticsProps.ICON_PROVIDER, selectedKey)
         }
     }
 

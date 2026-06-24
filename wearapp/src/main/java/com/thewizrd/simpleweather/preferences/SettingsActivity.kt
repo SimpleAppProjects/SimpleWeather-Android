@@ -43,7 +43,6 @@ import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.wearable.WearConnectionStatus
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.di.localBroadcastManager
@@ -90,6 +89,7 @@ import com.thewizrd.simpleweather.wearable.tiles.WeatherTileHelper
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
 class SettingsActivity : UserLocaleActivity() {
     companion object {
@@ -1006,6 +1006,10 @@ class SettingsActivity : UserLocaleActivity() {
                 return
             }
             super.onRadioButtonConfirmed(selectedKey)
+            AnalyticsLogger.logEvent("W_Icon_Selected", Bundle().apply {
+                putString("iconProvider", selectedKey)
+            })
+            AnalyticsLogger.setUserProperty(AnalyticsProps.ICON_PROVIDER, selectedKey)
         }
     }
 

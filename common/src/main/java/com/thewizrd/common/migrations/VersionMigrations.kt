@@ -157,6 +157,7 @@ object VersionMigrations {
                     "API_IsInternalKey",
                     (!settingsMgr.usePersonalKey(settingsMgr.getAPI())).toString()
                 )
+                putString("IconProvider", settingsMgr.getIconsProvider())
                 putLong("VersionCode", settingsMgr.getVersionCode())
                 putLong("CurrentVersionCode", versionCode)
             }
@@ -171,6 +172,10 @@ object VersionMigrations {
             AnalyticsLogger.setUserProperty(
                 AnalyticsProps.USER_LOCALE,
                 LocaleUtils.getLocale().toLanguageTag()
+            )
+            AnalyticsLogger.setUserProperty(
+                AnalyticsProps.ICON_PROVIDER,
+                settingsMgr.getIconsProvider()
             )
         }
 
