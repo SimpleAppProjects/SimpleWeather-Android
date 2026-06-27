@@ -15,7 +15,6 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
         defaultIconMap.addIconProvider(WeatherIconicProvider(isColored = true))
         defaultIconMap.addIconProvider(JDWIIconsProvider())
         defaultIconMap.addIconProvider(GoogleWeatherIconsProvider())
-        defaultIconMap.addIconProvider(WUndergroundIconsProvider())
         defaultIconProviders = Collections.unmodifiableMap(defaultIconMap)
 
         // Register default icon providers

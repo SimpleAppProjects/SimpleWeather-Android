@@ -14,7 +14,7 @@
         android:layout_weight="1"
         android:scaleType="fitCenter"
         android:layout_gravity="center"
-        tools:srcCompat="@drawable/wui_day_mostlycloudy" />
+        tools:srcCompat="@drawable/goog_mostly_cloudy_day" />
 
     <TextView
         android:id="@+id/condition_temp"
