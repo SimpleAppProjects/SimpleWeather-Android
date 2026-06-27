@@ -149,6 +149,9 @@ class WUndergroundIconsProvider : WeatherIconProvider() {
             WeatherIcons.DIRECTION_UP -> R.drawable.wi_direction_up
             WeatherIcons.DIRECTION_DOWN -> R.drawable.wi_direction_down
 
+            WeatherIcons.VISIBILITY -> R.drawable.material_visibility
+            WeatherIcons.AIR_QUALITY -> R.drawable.wi_windy
+
             // Beaufort
             WeatherIcons.WIND_BEAUFORT_0 -> R.drawable.wi_wind_beaufort_0
             WeatherIcons.WIND_BEAUFORT_1 -> R.drawable.wi_wind_beaufort_1

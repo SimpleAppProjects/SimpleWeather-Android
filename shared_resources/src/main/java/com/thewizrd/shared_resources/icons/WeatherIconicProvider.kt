@@ -130,6 +130,9 @@ class WeatherIconicProvider(private val isColored: Boolean = false) : WeatherIco
             WeatherIcons.DIRECTION_UP -> R.drawable.wi_direction_up
             WeatherIcons.DIRECTION_DOWN -> R.drawable.wi_direction_down
 
+            WeatherIcons.VISIBILITY -> R.drawable.material_visibility
+            WeatherIcons.AIR_QUALITY -> if (isColored) R.drawable.wic_color_fog else R.drawable.wic_fog
+
             WeatherIcons.WIND_BEAUFORT_0 -> R.drawable.wi_wind_beaufort_0
             WeatherIcons.WIND_BEAUFORT_1 -> R.drawable.wi_wind_beaufort_1
             WeatherIcons.WIND_BEAUFORT_2 -> R.drawable.wi_wind_beaufort_2

@@ -71,7 +71,6 @@ import androidx.wear.compose.material3.LocalContentColor
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -98,6 +97,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import java.util.Collections
 import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun DetailsWeatherTileConfigScreen(
@@ -541,7 +541,7 @@ private fun WeatherDetailsType.toWeatherIcon(): String = when (this) {
     WeatherDetailsType.WINDGUST -> WeatherIcons.CLOUDY_GUSTS
     WeatherDetailsType.HUMIDITY -> WeatherIcons.HUMIDITY
     WeatherDetailsType.PRESSURE -> WeatherIcons.BAROMETER
-    WeatherDetailsType.VISIBILITY -> WeatherIcons.FOG
+    WeatherDetailsType.VISIBILITY -> WeatherIcons.VISIBILITY
     WeatherDetailsType.POPCLOUDINESS -> WeatherIcons.CLOUDY
     WeatherDetailsType.POPCHANCE -> WeatherIcons.UMBRELLA
     WeatherDetailsType.POPRAIN -> WeatherIcons.RAINDROPS
@@ -552,7 +552,7 @@ private fun WeatherDetailsType.toWeatherIcon(): String = when (this) {
     WeatherDetailsType.MOONPHASE -> WeatherIcons.MOON_NEW
     WeatherDetailsType.BEAUFORT -> WeatherIcons.WIND_BEAUFORT_0
     WeatherDetailsType.UV -> WeatherIcons.UV_INDEX
-    WeatherDetailsType.AIRQUALITY -> WeatherIcons.CLOUDY_GUSTS
+    WeatherDetailsType.AIRQUALITY -> WeatherIcons.AIR_QUALITY
     WeatherDetailsType.TREEPOLLEN -> WeatherIcons.TREE_POLLEN
     WeatherDetailsType.GRASSPOLLEN -> WeatherIcons.GRASS_POLLEN
     WeatherDetailsType.RAGWEEDPOLLEN -> WeatherIcons.RAGWEED_POLLEN

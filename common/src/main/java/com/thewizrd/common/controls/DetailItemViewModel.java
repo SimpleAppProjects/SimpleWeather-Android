@@ -72,7 +72,7 @@ public class DetailItemViewModel {
                 break;
             case VISIBILITY:
                 this.label = context.getString(R.string.label_visibility);
-                this.icon = WeatherIcons.FOG;
+                this.icon = WeatherIcons.VISIBILITY;
                 break;
             case POPCHANCE:
                 this.label = context.getString(R.string.label_chance);
@@ -112,11 +112,11 @@ public class DetailItemViewModel {
                 break;
             case UV:
                 this.label = context.getString(R.string.label_uv);
-                this.icon = WeatherIcons.DAY_SUNNY;
+                this.icon = WeatherIcons.UV_INDEX;
                 break;
             case AIRQUALITY:
                 this.label = context.getString(R.string.label_airquality);
-                this.icon = WeatherIcons.CLOUDY_GUSTS;
+                this.icon = WeatherIcons.AIR_QUALITY;
                 break;
             case TREEPOLLEN:
                 this.label = context.getString(R.string.label_tree_pollen);
@@ -257,7 +257,7 @@ public class DetailItemViewModel {
         final Context context = SharedModuleKt.getSharedDeps().getContext();
         this.detailsType = WeatherDetailsType.AIRQUALITY;
         this.label = context.getString(R.string.label_airquality_short);
-        this.icon = WeatherIcons.CLOUDY_GUSTS;
+        this.icon = WeatherIcons.AIR_QUALITY;
         this.iconRotation = 0;
 
         if (aqi.getIndex() < 51) {
@@ -281,7 +281,7 @@ public class DetailItemViewModel {
         final Context context = SharedModuleKt.getSharedDeps().getContext();
         this.detailsType = WeatherDetailsType.UV;
         this.label = context.getString(R.string.label_uv);
-        this.icon = WeatherIcons.DAY_SUNNY;
+        this.icon = WeatherIcons.UV_INDEX;
         this.iconRotation = 0;
 
         if (uv.getIndex() < 3) {
