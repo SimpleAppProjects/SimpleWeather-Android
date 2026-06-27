@@ -11,11 +11,11 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
     init {
         val defaultIconMap = mutableMapOf<String, WeatherIconProvider>()
         defaultIconMap.addIconProvider(WeatherIconsEFProvider())
-        defaultIconMap.addIconProvider(WUndergroundIconsProvider())
         defaultIconMap.addIconProvider(WeatherIconicProvider())
         defaultIconMap.addIconProvider(WeatherIconicProvider(isColored = true))
         defaultIconMap.addIconProvider(JDWIIconsProvider())
         defaultIconMap.addIconProvider(GoogleWeatherIconsProvider())
+        defaultIconMap.addIconProvider(WUndergroundIconsProvider())
         defaultIconProviders = Collections.unmodifiableMap(defaultIconMap)
 
         // Register default icon providers
