@@ -15,9 +15,7 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.BeaufortViewModel
 import com.thewizrd.common.utils.ImageUtils
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -25,7 +23,7 @@ import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.model.Beaufort
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R as sharedRes
 
 class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -40,12 +38,24 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
-    private val complicationIconResId = sharedRes.drawable.wi_strong_wind
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val complicationIcon = WeatherIcons.WIND_BEAUFORT_3
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.RANGED_VALUE -> {
@@ -53,11 +63,16 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     3f, 0f, 12f,
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder("3").build()
                 ).setValueType(
                     RangedValueComplicationData.TYPE_RATING
@@ -68,11 +83,16 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("3").build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -81,35 +101,28 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder("3, Gentle Breeze").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, sharedRes.drawable.wi_wind_beaufort_3)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
                 ).build()
             }
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.bitmapFromDrawable(
-                                getThemeContextOverride(false),
-                                sharedRes.drawable.wi_wind_beaufort_3
-                            )
-                        ),
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithResource(this, sharedRes.drawable.wi_wind_beaufort_3)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
                 ).build()
             }
@@ -134,7 +147,6 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         val beaufortModel = beaufort?.let { BeaufortViewModel(it) }
 
         val wim = sharedDeps.weatherIconsManager
-        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val contentDescription = PlainComplicationText.Builder(
             beaufortModel?.let { "${beaufortModel.beaufort.label}: ${beaufortModel.progress}, ${beaufortModel.beaufort.value}" }
@@ -146,6 +158,16 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ?: WeatherIcons.EM_DASH
         val beaufortIcon = beaufortModel?.beaufort?.icon ?: WeatherIcons.WIND_BEAUFORT_0
 
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(beaufortIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(beaufortIcon)
+            )
+        )
+
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
@@ -154,11 +176,16 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     beaufortModel?.progressMax?.toFloat() ?: 1f,
                     contentDescription
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder(progressShortStr).build()
                 ).setTapAction(
                     getTapIntent(this)
@@ -171,11 +198,16 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(progressShortStr).build(),
                     contentDescription
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -189,23 +221,22 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                         progressStr
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            this,
-                            wip.getWeatherIconResource(beaufortIcon)
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)
@@ -213,21 +244,9 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             }
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.bitmapFromDrawable(
-                                getThemeContextOverride(false),
-                                wim.getWeatherIconResource(beaufortIcon)
-                            )
-                        ),
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithResource(
-                            this,
-                            wip.getWeatherIconResource(beaufortIcon)
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)

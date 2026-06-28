@@ -9,16 +9,20 @@ import androidx.wear.watchface.complications.data.MonochromaticImage
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import com.thewizrd.shared_resources.R as sharedRes
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import com.thewizrd.shared_resources.R as sharedRes
 
 class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -33,17 +37,34 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
             return NoDataComplicationData()
         }
 
+        val wim = sharedDeps.weatherIconsManager
+        val complicationIcon = WeatherIcons.SUNSET
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
+
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder("6:05 PM").build(),
                     PlainComplicationText.Builder("Sunset: 6:05 PM").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, sharedRes.drawable.wi_sunset)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
 
             ComplicationType.LONG_TEXT -> {
@@ -53,11 +74,16 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
                 ).setTitle(
                     PlainComplicationText.Builder("6:05 PM").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, sharedRes.drawable.wi_sunset)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
 
             else -> {
@@ -74,6 +100,8 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
         if (weather == null || !weather.isValid || !supportedComplicationTypes.contains(dataType)) {
             return null
         }
+
+        val wim = sharedDeps.weatherIconsManager
 
         val sunrise = weather.astronomy?.sunrise
         val sunset = weather.astronomy?.sunset
@@ -92,28 +120,38 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
         }
 
         val text: String
-        val complicationIconResId: Int
+        val complicationIcon: String
         val desc: String
 
         if (sunset != null && sunrise != null) {
             if (now.toLocalTime() > sunrise.toLocalTime()) {
                 text = sunset.format(fmt)
-                complicationIconResId = sharedRes.drawable.wi_sunset
+                complicationIcon = WeatherIcons.SUNSET
                 desc = getString(sharedRes.string.label_sunset)
             } else {
                 text = sunrise.format(fmt)
-                complicationIconResId = sharedRes.drawable.wi_sunrise
+                complicationIcon = WeatherIcons.SUNRISE
                 desc = getString(sharedRes.string.label_sunrise)
             }
         } else if (sunset != null) {
             text = sunset.format(fmt)
-            complicationIconResId = sharedRes.drawable.wi_sunset
+            complicationIcon = WeatherIcons.SUNSET
             desc = getString(sharedRes.string.label_sunset)
         } else {
             text = sunrise?.format(fmt) ?: WeatherIcons.EM_DASH
-            complicationIconResId = sharedRes.drawable.wi_sunrise
+            complicationIcon = WeatherIcons.SUNRISE
             desc = getString(sharedRes.string.label_sunrise)
         }
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (dataType) {
             ComplicationType.SHORT_TEXT -> {
@@ -121,11 +159,16 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder(text).build(),
                     PlainComplicationText.Builder("$desc: $text").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -137,11 +180,16 @@ class SunriseSunsetComplicationService : WeatherHourlyForecastComplicationServic
                 ).setTitle(
                     PlainComplicationText.Builder(text).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }

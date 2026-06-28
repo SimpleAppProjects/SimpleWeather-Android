@@ -8,15 +8,19 @@ import androidx.wear.watchface.complications.data.MonochromaticImage
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import com.thewizrd.shared_resources.R as sharedRes
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -25,12 +29,24 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
 
     override val supportedComplicationTypes =
         setOf(ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT)
-    private val complicationIconResId = sharedRes.drawable.wi_thermometer
+
+    private val complicationIcon = WeatherIcons.THERMOMETER
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
@@ -38,11 +54,16 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("38°").build(),
                     PlainComplicationText.Builder("Dew Point: 38°").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -52,11 +73,16 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder("38°").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             else -> {
                 null
@@ -73,6 +99,8 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
             return null
         }
 
+        val wim = sharedDeps.weatherIconsManager
+
         val dewPointF = weather.atmosphere?.dewpointF ?: hourlyForecast?.extras?.dewpointF
         val dewPointC = weather.atmosphere?.dewpointC ?: hourlyForecast?.extras?.dewpointC
 
@@ -85,6 +113,16 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
             String.format("$tempVal°$tempUnit")
         }
 
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
+
         return when (dataType) {
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
@@ -93,11 +131,16 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                         String.format("%s: %s", getString(sharedRes.string.label_dewpoint), tempStr)
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -111,11 +154,16 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder(tempStr).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }

@@ -9,12 +9,16 @@ import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import com.thewizrd.shared_resources.R as sharedRes
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R as sharedRes
 
 class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -27,12 +31,24 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = sharedRes.drawable.wi_humidity
+
+    private val complicationIcon = WeatherIcons.HUMIDITY
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.RANGED_VALUE -> {
@@ -41,11 +57,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("${getString(sharedRes.string.label_humidity)}: 75%")
                         .build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder("75%").build()
                 ).setValueType(
                     RangedValueComplicationData.TYPE_PERCENTAGE
@@ -57,11 +78,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("${getString(sharedRes.string.label_humidity)}: 75%")
                         .build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -72,11 +98,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder("75%").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             else -> {
                 null
@@ -93,8 +124,20 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
             return null
         }
 
+        val wim = sharedDeps.weatherIconsManager
+
         val humidityPct = weather.atmosphere?.humidity ?: hourlyForecast?.extras?.humidity
         val humidityStr = humidityPct?.let { "${it}%" } ?: WeatherIcons.EM_DASH
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
@@ -104,11 +147,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                         "${getString(sharedRes.string.label_humidity)}: $humidityStr"
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder(humidityStr).build()
                 ).setValueType(
                     RangedValueComplicationData.TYPE_PERCENTAGE
@@ -123,11 +171,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                         "${getString(sharedRes.string.label_humidity)}: $humidityStr"
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
@@ -141,11 +194,16 @@ class HumidityComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder(humidityStr).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }

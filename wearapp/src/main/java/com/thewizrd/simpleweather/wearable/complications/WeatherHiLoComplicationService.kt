@@ -13,10 +13,8 @@ import androidx.wear.watchface.complications.data.SmallImage
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -24,8 +22,8 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import com.thewizrd.weather_api.weatherModule
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
     companion object {
@@ -39,12 +37,23 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
-    private val complicationIconResId = sharedRes.drawable.wi_day_sunny
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val complicationIcon = WeatherIcons.DAY_SUNNY
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
@@ -52,11 +61,15 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     PlainComplicationText.Builder("75°/65°").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon).build(),
+                        )
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -65,11 +78,15 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder("75° | 65°").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon).build(),
+                        )
+                    }
+                }.build()
             }
             else -> {
                 null
@@ -145,6 +162,8 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
 
         val wim = sharedDeps.weatherIconsManager
         val weatherIcon = wim.getWeatherIconResource(weather.condition!!.icon)
+        val monochromaticIcon = Icon.createWithResource(this, weatherIcon)
+            .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
                 getThemeContextOverride(false),
@@ -177,20 +196,19 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     MonochromaticImage.Builder(icon).apply {
                         // Weather Icon
                         if (!wim.isFontIcon) {
-                            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-                            setAmbientImage(
-                                Icon.createWithBitmap(
-                                    ImageUtils.tintedBitmapFromDrawable(
-                                        this@WeatherHiLoComplicationService,
-                                        wip.getWeatherIconResource(weather.condition!!.icon),
-                                        Colors.WHITE
-                                    )
-                                )
-                            )
+                            setAmbientImage(monochromaticIcon)
                         }
                     }
                         .build()
                 )
+
+                if (!wim.isFontIcon) {
+                    builder.setSmallImage(
+                        SmallImage.Builder(icon, SmallImageType.ICON)
+                            .setAmbientImage(monochromaticIcon)
+                            .build()
+                    )
+                }
 
                 builder.setTapAction(getTapIntent(this))
                 return builder.build()
@@ -209,18 +227,9 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                         MonochromaticImage.Builder(icon).build()
                     )
                 } else {
-                    val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(
-                                Icon.createWithBitmap(
-                                    ImageUtils.tintedBitmapFromDrawable(
-                                        this,
-                                        wip.getWeatherIconResource(weather.condition!!.icon),
-                                        Colors.WHITE
-                                    )
-                                )
-                            )
+                            .setAmbientImage(monochromaticIcon)
                             .build()
                     )
                 }
@@ -229,37 +238,18 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 return builder.build()
             }
             ComplicationType.MONOCHROMATIC_IMAGE -> {
-                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-
                 return MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            this,
-                            wip.getWeatherIconResource(weather.condition!!.icon)
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)
                 ).build()
             }
             ComplicationType.SMALL_IMAGE -> {
-                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-
                 return SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        icon,
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithBitmap(
-                            ImageUtils.tintedBitmapFromDrawable(
-                                this,
-                                wip.getWeatherIconResource(weather.condition!!.icon),
-                                Colors.WHITE
-                            )
-                        )
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)
