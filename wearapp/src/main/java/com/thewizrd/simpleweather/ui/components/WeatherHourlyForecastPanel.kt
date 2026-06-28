@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -34,14 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -50,10 +47,12 @@ import com.thewizrd.shared_resources.utils.StringUtils
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 import java.time.ZonedDateTime
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherHourlyForecastPanel(
-    model: HourlyForecastItemViewModel
+    model: HourlyForecastItemViewModel,
+    iconProvider: String? = null
 ) {
     val ctx = LocalContext.current
     val isLargeHeight = LocalConfiguration.current.screenHeightDp >= 225
@@ -130,6 +129,7 @@ fun WeatherHourlyForecastPanel(
                     width = 32.dp, height = 36.dp
                 ),
                 weatherIcon = model.weatherIcon,
+                iconProvider = iconProvider,
                 shouldAnimate = true
             )
             Text(
@@ -147,14 +147,16 @@ fun WeatherHourlyForecastPanel(
         ) {
             if (popData != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(sharedRes.drawable.wi_umbrella),
+                        weatherIcon = WeatherIcons.UMBRELLA,
+                        iconProvider = iconProvider,
                         tint = colorResource(sharedRes.color.colorPrimaryLight),
-                        contentDescription = null
+                        showAsMonochrome = true,
+                        contentDescription = popData.label?.toString()
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
@@ -179,15 +181,17 @@ fun WeatherHourlyForecastPanel(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat())
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(sharedRes.drawable.wi_wind_direction),
+                        weatherIcon = WeatherIcons.WIND_DIRECTION,
+                        useDefaultIconProvider = true,
                         tint = Color(0xFF20B2AA),
-                        contentDescription = null
+                        showAsMonochrome = true,
+                        contentDescription = windData.label?.toString()
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),

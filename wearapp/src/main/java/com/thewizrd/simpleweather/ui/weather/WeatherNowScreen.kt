@@ -97,6 +97,7 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.shared_resources.weatherdata.model.Condition
 import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
@@ -666,14 +667,16 @@ private fun ConditionDetails(
             Row(
                 modifier = Modifier.padding(4.dp)
             ) {
-                Icon(
+                WeatherIcon(
                     modifier = Modifier
                         .size(20.dp)
                         .padding(end = 4.dp)
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = sharedRes.drawable.wi_umbrella),
+                    weatherIcon = WeatherIcons.UMBRELLA,
+                    iconProvider = weather.iconProvider,
                     tint = colorResource(sharedRes.color.colorPrimaryLight),
-                    contentDescription = null
+                    showAsMonochrome = true,
+                    contentDescription = popData.label?.toString()
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -692,15 +695,17 @@ private fun ConditionDetails(
             Row(
                 modifier = Modifier.padding(4.dp)
             ) {
-                Icon(
+                WeatherIcon(
                     modifier = Modifier
                         .size(20.dp)
                         .padding(end = 4.dp)
                         .rotate(windData.iconRotation.toFloat())
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = sharedRes.drawable.wi_wind_direction),
+                    weatherIcon = WeatherIcons.WIND_DIRECTION,
+                    useDefaultIconProvider = true,
                     tint = Color(0xFF20B2AA),
-                    contentDescription = null
+                    showAsMonochrome = true,
+                    contentDescription = windData.label?.toString()
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -1017,15 +1022,23 @@ private fun PreviewWeatherNowScreen() {
     }
     val weather = remember {
         Weather().apply {
+            location = Location().apply {
+                name = "New York"
+            }
             condition = Condition().apply {
                 icon = WeatherIcons.DAY_SUNNY
                 tempF = 70f
                 weather = "Sunny"
                 highF = 75f
                 lowF = 60f
+                windMph = 4f
+                windKph = 6.43f
+                windGustKph = 9f
+                windGustKph = 14.5f
+                windDegrees = 0
             }
-            location = Location().apply {
-                name = "New York"
+            precipitation = Precipitation().apply {
+                pop = 5
             }
         }.toUiModel()
     }

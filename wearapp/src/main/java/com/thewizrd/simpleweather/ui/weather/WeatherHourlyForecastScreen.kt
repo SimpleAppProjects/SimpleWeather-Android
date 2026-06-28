@@ -29,7 +29,8 @@ import com.thewizrd.simpleweather.ui.theme.activityViewModel
 @Composable
 fun WeatherHourlyForecastScreen(
     backStackEntry: NavBackStackEntry,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    iconProvider: String? = null
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -55,7 +56,7 @@ fun WeatherHourlyForecastScreen(
             ) {
                 items(hourlyForecasts) {
                     it?.let {
-                        WeatherHourlyForecastPanel(model = it)
+                        WeatherHourlyForecastPanel(model = it, iconProvider = iconProvider)
                     }
                 }
             }

@@ -33,15 +33,16 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherForecastPanel(
-    model: ForecastItemViewModel
+    model: ForecastItemViewModel,
+    iconProvider: String? = null
 ) {
     val context = LocalContext.current
     val isLargeHeight = LocalConfiguration.current.screenHeightDp >= 225
@@ -82,6 +83,7 @@ fun WeatherForecastPanel(
                     width = 32.dp, height = 36.dp
                 ),
                 weatherIcon = model.weatherIcon,
+                iconProvider = iconProvider,
                 shouldAnimate = true
             )
             Column(
@@ -133,13 +135,15 @@ fun WeatherForecastPanel(
         ) {
             if (popData != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp),
-                        painter = painterResource(sharedRes.drawable.wi_umbrella),
+                        weatherIcon = WeatherIcons.UMBRELLA,
+                        iconProvider = iconProvider,
                         tint = colorResource(sharedRes.color.colorPrimaryLight),
-                        contentDescription = null
+                        showAsMonochrome = true,
+                        contentDescription = popData.label?.toString()
                     )
                     Text(
                         text = spannableStringToAnnotatedString(popData.value),
@@ -163,15 +167,17 @@ fun WeatherForecastPanel(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat())
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(sharedRes.drawable.wi_wind_direction),
+                        weatherIcon = WeatherIcons.WIND_DIRECTION,
+                        useDefaultIconProvider = true,
                         tint = Color(0xFF20B2AA),
-                        contentDescription = null
+                        showAsMonochrome = true,
+                        contentDescription = windData.label?.toString()
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),

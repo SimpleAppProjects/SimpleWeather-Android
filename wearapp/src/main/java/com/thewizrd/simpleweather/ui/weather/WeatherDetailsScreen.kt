@@ -38,7 +38,8 @@ import com.thewizrd.simpleweather.ui.utils.rememberFocusRequester
 fun WeatherDetailsScreen(
     backStackEntry: NavBackStackEntry,
     focusRequester: FocusRequester,
-    weatherDetails: Collection<DetailItemViewModel>
+    weatherDetails: Collection<DetailItemViewModel>,
+    iconProvider: String? = null
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val scrollStateViewModel: ScalingLazyListStateViewModel = viewModel(backStackEntry)
@@ -57,7 +58,7 @@ fun WeatherDetailsScreen(
         ) {
             weatherDetails.forEach {
                 item(key = it.detailsType) {
-                    WeatherDetailItem(model = it)
+                    WeatherDetailItem(model = it, iconProvider = iconProvider)
                 }
             }
         }
