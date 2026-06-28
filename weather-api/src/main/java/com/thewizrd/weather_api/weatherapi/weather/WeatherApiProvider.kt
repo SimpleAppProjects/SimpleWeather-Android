@@ -510,8 +510,10 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 weatherIcon = WeatherIcons.OVERCAST
             }
 
-            /* Haze */
-            1012 -> {
+            /* 1012: Haze
+             * 1036: Smoky haze
+             */
+            1012, 1036 -> {
                 weatherIcon = WeatherIcons.HAZE
             }
 
@@ -545,9 +547,8 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
 
             /*
              * 1033: Smoke
-             * 1036: Smoky haze
              */
-            1033, 1036 -> {
+            1033 -> {
                 weatherIcon = WeatherIcons.SMOKE
             }
 
