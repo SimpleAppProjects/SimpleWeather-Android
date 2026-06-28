@@ -11,10 +11,10 @@ ksp_version = "2.3.6"
 
 desugar_version = '2.1.5'
 
-firebase_version = "34.14.0"
+firebase_version = "34.15.0"
 firebaseCrashlyticsGradleVersion = "3.0.7"
 firebasePerfPluginVersion = "2.0.2"
-gms_location_version = '21.3.0'
+gms_location_version = "21.4.0"
 gms_base_version = "18.10.0"
 gms_basement_version = "18.10.0"
 gms_tasks_version = "18.4.1"
@@ -28,7 +28,7 @@ constraintlayout_version = '2.2.1'
 core_version = "1.19.0"
 arch_core_runtime_version = '2.2.0'
 fragment_version = '1.8.9'
-lifecycle_version = "2.10.0"
+lifecycle_version = "2.11.0"
 nav_version = "2.9.8"
 paging_version = "3.5.0"
 preference_version = '1.2.1'
@@ -48,10 +48,10 @@ google_truth_version = '1.4.5'
 espresso_core_version = "3.7.0"
 
 material_version = "1.14.0"
-material_compose_version = "1.5.0-alpha21"
+material_compose_version = "1.5.0-alpha22"
 
 compose_compiler_version = '1.5.15'
-compose_bom_version = "2026.05.01"
+compose_bom_version = "2026.06.00"
 wear_version = "1.4.0"
 wear_compose_version = "1.6.2"
 wear_input_version = '1.2.0'
@@ -64,10 +64,10 @@ glide_version = "5.0.7"
 icu4j_version = "78.3"
 jjwt_version = '0.13.0'
 moshi_version = '1.15.2'
-okhttp_version = "5.3.2"
+okhttp_version = "5.4.0"
 timber_version = '5.0.1'
 
-revcat_version = "10.8.0"
+revcat_version = "10.11.0"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
