@@ -89,6 +89,10 @@ class RemoteConfigServiceImpl : RemoteConfigService {
                 WeatherAPI.ECCC
             }
 
+            LocationUtils.isOpenMeteoSupported(location) && isProviderEnabled(WeatherAPI.OPENMETEO) -> {
+                WeatherAPI.OPENMETEO
+            }
+
             else -> {
                 getDefaultWeatherProvider()
             }
@@ -112,6 +116,10 @@ class RemoteConfigServiceImpl : RemoteConfigService {
 
             LocationUtils.isCanada(location) && isProviderEnabled(WeatherAPI.ECCC) -> {
                 WeatherAPI.ECCC
+            }
+
+            LocationUtils.isOpenMeteoSupported(location) && isProviderEnabled(WeatherAPI.OPENMETEO) -> {
+                WeatherAPI.OPENMETEO
             }
 
             else -> {

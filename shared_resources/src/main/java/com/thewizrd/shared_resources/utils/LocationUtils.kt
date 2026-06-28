@@ -6,7 +6,8 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 
 object LocationUtils {
-    // Source: https://gist.github.com/graydon/11198540
+    // xMin -> lon_min, xMax -> lon_max; yMin -> lat_min, yMax -> lat_max
+    // xMax -> East, xMin -> West, yMax -> North, yMin -> South
     private val US_BOUNDING_BOX = BoundingBox(24.9493, 49.5904, -125.0011, -66.9326)
 
     // Canada
@@ -36,7 +37,51 @@ object LocationUtils {
         BoundingBox(47.2701114, 55.099161, 5.8663153, 15.0419319)
 
     private val CAMS_OPENMETEO_EUROPE_BBOX =
-        BoundingBox(-25.0, 45.0, 30.0, 72.0)
+        BoundingBox(30.0, 72.0, -25.0, 45.0)
+
+    // United Kingdom and Ireland
+    private val UK_IE_BOUNDING_BOX =
+        BoundingBox(49.674, 61.061, -14.015517, 2.0919117)
+
+    // Korea
+    private val KOREA_BOUNDING_BOX =
+        BoundingBox(32.9104556, 43.0078553939, 124.3017732603, 131.0789644224)
+
+    // Japan
+    private val JP_BOUNDING_BOX =
+        BoundingBox(20.2145811, 45.7563343, 122.7141754, 154.205541)
+
+    // Switzerland
+    private val CH_BOUNDING_BOX =
+        BoundingBox(45.8179579, 47.8084544, 5.9558318, 10.4922941)
+
+    // Met Norway Area
+    private val METNO_BOUNDING_BOX =
+        BoundingBox(54.4504920972, 81.0280176, -9.6846279, 34.6889114)
+
+    // Australia
+    private val AU_BOUNDING_BOX =
+        BoundingBox(-55.3228175, -9.0880125, 72.2461932, 168.2261259)
+
+    // China
+    private val CN_BOUNDING_BOX =
+        BoundingBox(17.917694912, 53.5608154, 73.4997347, 134.7751959)
+
+    // Netherlands
+    private val NL_BOUNDING_BOX =
+        BoundingBox(50.7218810189, 53.7801536938, 3.3388847969, 7.590283575)
+
+    // Denmark
+    private val DK_BOUNDING_BOX =
+        BoundingBox(54.4516667, 57.9524297, 7.7153255, 15.5530641)
+
+    // Italy
+    private val IT_BOUNDING_BOX =
+        BoundingBox(35.2889616, 47.0921485, 6.6272658, 18.7844746)
+
+    // Austria
+    private val AT_BOUNDING_BOX =
+        BoundingBox(46.3722987, 49.0205239, 9.5307487, 17.1607728)
 
     private val NWS_SUPPORTED_COUNTRIES = setOf("US", "AS", "UM", "GU", "MP", "PR", "VI")
     private val NWS_SUPPORTED_LOCATIONS = listOf(
@@ -45,6 +90,57 @@ object LocationUtils {
         VI_BOUNDING_BOX,
         GU_MP_BOUNDING_BOX,
         AS_BOUNDING_BOX
+    )
+
+    private val OPENMETEO_SUPPORTED_COUNTRIES = setOf(
+        "US", "AS", "UM", "GU", "MP", "PR", "VI", // NWS
+        "UK", "IE", // UK and Ireland - UK Met Office
+        "FR", // France - MeteoFrance
+        "KR", "KP", // Korea - KMA Korea
+        "JP", // JMA Japan
+        "CH", // Switzerland - MeteoSwiss
+        "NO", "DK", "SE", "FI", // Norway, Denmark, Sweden, Finland - Met Norway
+        "CA", // Canada - GEM Canada
+        "AU", // Australia - BOM Australia
+        "CN", // China - CMA China
+        "NL", // Netherlands - KNMI Netherlands
+        "DK", // Denmark - DMI Denmark
+        "IT", // Italy - ItaliaMeteo
+        "AT", // Austria - GeoSphere Austria
+    )
+    private val OPENMETEO_SUPPORTED_LOCATIONS = listOf(
+        // NWS
+        US_BOUNDING_BOX,
+        PR_BOUNDING_BOX,
+        VI_BOUNDING_BOX,
+        GU_MP_BOUNDING_BOX,
+        AS_BOUNDING_BOX,
+        // UK and Ireland
+        UK_IE_BOUNDING_BOX,
+        // France
+        FR_BOUNDING_BOX,
+        // Korea
+        KOREA_BOUNDING_BOX,
+        // Japan
+        JP_BOUNDING_BOX,
+        // Switzerland
+        CH_BOUNDING_BOX,
+        // MetNo
+        METNO_BOUNDING_BOX,
+        // Canada
+        CA_BOUNDING_BOX,
+        // Australia
+        AU_BOUNDING_BOX,
+        // China
+        CN_BOUNDING_BOX,
+        // Netherlands
+        NL_BOUNDING_BOX,
+        // Denmark
+        DK_BOUNDING_BOX,
+        // Italy
+        IT_BOUNDING_BOX,
+        // Austria,
+        AT_BOUNDING_BOX,
     )
 
     fun isUS(countryCode: String?): Boolean {
@@ -238,6 +334,36 @@ object LocationUtils {
 
     fun isCAMSEuroCovered(location: LocationData): Boolean {
         return CAMS_OPENMETEO_EUROPE_BBOX.intersects(location.latitude, location.longitude)
+    }
+
+    fun isOpenMeteoSupported(countryCode: String?): Boolean {
+        return OPENMETEO_SUPPORTED_COUNTRIES.contains(countryCode?.uppercase())
+    }
+
+    fun isOpenMeteoSupported(location: LocationData): Boolean {
+        return if (!location.countryCode.isNullOrBlank()) {
+            isOpenMeteoSupported(location.countryCode)
+        } else {
+            OPENMETEO_SUPPORTED_LOCATIONS.any {
+                it.intersects(
+                    location.latitude,
+                    location.longitude
+                )
+            }
+        }
+    }
+
+    fun isOpenMeteoSupported(location: LocationQuery): Boolean {
+        return if (!location.locationCountry.isNullOrBlank()) {
+            isOpenMeteoSupported(location.locationCountry)
+        } else {
+            OPENMETEO_SUPPORTED_LOCATIONS.any {
+                it.intersects(
+                    location.locationLat,
+                    location.locationLong
+                )
+            }
+        }
     }
 
     private data class BoundingBox(
