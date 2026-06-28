@@ -38,10 +38,11 @@ import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.weather.WeatherApiProvider
-import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.sin
 
 abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
     protected lateinit var mLocationProvider: WeatherLocationProvider
@@ -271,36 +272,21 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
 
                         if (weather.condition?.uv == null && date.isEqual(weather.condition!!.observationTime.toLocalDate())) {
                             if (weather.astronomy!!.sunrise != null && weather.astronomy!!.sunset != null) {
-                                val obsLocalTime = weather.condition!!.observationTime.toLocalTime()
-                                // if before sunrise, after sunset, or +/- 2hrs before/after sunrise/sunset, uv min
-                                if (obsLocalTime.isBefore(weather.astronomy!!.sunrise.toLocalTime()) ||
-                                    obsLocalTime.isAfter(weather.astronomy!!.sunset.toLocalTime()) ||
-                                    Duration.between(
-                                        weather.astronomy!!.sunrise.toLocalTime(),
-                                        obsLocalTime
-                                    ).abs().toHours() <= 2 ||
-                                    Duration.between(
-                                        weather.astronomy!!.sunset.toLocalTime(),
-                                        obsLocalTime
-                                    ).abs().toHours() <= 2
-                                ) {
-                                    weather.condition!!.uv = UV(uviData.min?.toFloat() ?: 0f)
-                                } else {
-                                    val totalSunlightTime =
-                                        weather.astronomy!!.sunset.toEpochSecond(location.tzOffset) - weather.astronomy!!.sunrise.toEpochSecond(
-                                            location.tzOffset
-                                        )
-                                    val solarNoon =
-                                        weather.astronomy!!.sunrise.plusSeconds(totalSunlightTime / 2)
+                                val sunrise =
+                                    weather.astronomy!!.sunrise.toEpochSecond(location.tzOffset)
+                                val sunset =
+                                    weather.astronomy!!.sunset.toEpochSecond(location.tzOffset)
+                                val obsTime = weather.condition!!.observationTime.toEpochSecond()
 
-                                    // If +/- 2hrs within solar noon, UV max
-                                    if (Duration.between(solarNoon.toLocalTime(), obsLocalTime)
-                                            .abs().toHours() <= 2
-                                    ) {
-                                        weather.condition!!.uv = UV(uviData.max?.toFloat() ?: 0f)
-                                    } else { // else uv avg
-                                        weather.condition!!.uv = UV(uviData.avg?.toFloat() ?: 0f)
-                                    }
+                                if (obsTime in (sunrise + 1) until sunset) {
+                                    val dayFraction =
+                                        (obsTime - sunrise).toDouble() / (sunset - sunrise)
+                                    val maxUV = uviData.max?.toFloat() ?: 0f
+                                    // Sinusoidal interpolation: peak at solar noon (dayFraction = 0.5)
+                                    weather.condition!!.uv =
+                                        UV(maxUV * sin(dayFraction * PI).toFloat())
+                                } else {
+                                    weather.condition!!.uv = UV(uviData.min?.toFloat() ?: 0f)
                                 }
                             }
                         }
