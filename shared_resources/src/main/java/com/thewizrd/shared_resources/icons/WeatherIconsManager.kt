@@ -96,6 +96,7 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
                 "pixeden-icons_set-weather" -> true
 
                 "meteocons-basmilius",
+                "meteocons-basmilius-line",
                 "wci_sliu_iconfinder",
                 "w-iconic-jackd248-multicolor" -> false
 
