@@ -14,7 +14,6 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.UVIndexViewModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -42,7 +41,6 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
-        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
         val complicationIcon = WeatherIcons.UV_INDEX_3
 
         val monochromaticIcon =

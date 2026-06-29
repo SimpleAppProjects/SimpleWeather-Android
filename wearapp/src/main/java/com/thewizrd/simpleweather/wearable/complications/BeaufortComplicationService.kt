@@ -23,6 +23,8 @@ import com.thewizrd.shared_resources.utils.getBeaufortScale
 import com.thewizrd.shared_resources.weatherdata.model.Beaufort
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
+import kotlin.math.max
+import kotlin.math.roundToInt
 import com.thewizrd.shared_resources.R as sharedRes
 
 class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
@@ -141,8 +143,8 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             return null
         }
 
-        val beaufort = weather.condition!!.beaufort ?: hourlyForecast?.extras?.windMph?.let {
-            Beaufort(getBeaufortScale(it))
+        val beaufort = weather.condition?.beaufort ?: hourlyForecast?.extras?.windMph?.let {
+            Beaufort(getBeaufortScale(it.roundToInt()))
         }
         val beaufortModel = beaufort?.let { BeaufortViewModel(it) }
 
@@ -156,6 +158,9 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         val progressShortStr = beaufortModel?.progress?.toString() ?: WeatherIcons.EM_DASH
         val progressStr = beaufortModel?.let { "${it.progress}, ${it.beaufort.value}" }
             ?: WeatherIcons.EM_DASH
+        val beaufortProgress = beaufortModel?.progress?.toFloat() ?: 0f
+        val beaufortProgressMax =
+            beaufortModel?.let { max(it.progressMax, it.progress).toFloat() } ?: 12f
         val beaufortIcon = beaufortModel?.beaufort?.icon ?: WeatherIcons.WIND_BEAUFORT_0
 
         val monochromaticIcon =
@@ -171,9 +176,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
-                    beaufortModel?.progress?.toFloat() ?: 0f,
-                    0f,
-                    beaufortModel?.progressMax?.toFloat() ?: 1f,
+                    beaufortProgress, 0f, beaufortProgressMax,
                     contentDescription
                 ).setMonochromaticImage(
                     MonochromaticImage.Builder(monochromaticIcon).build()

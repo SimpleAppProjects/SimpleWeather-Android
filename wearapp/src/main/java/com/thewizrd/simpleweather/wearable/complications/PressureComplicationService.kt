@@ -23,6 +23,8 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.text.DecimalFormat
+import kotlin.math.max
+import kotlin.math.min
 import com.thewizrd.shared_resources.R as sharedRes
 
 class PressureComplicationService : WeatherHourlyForecastComplicationService() {
@@ -178,9 +180,13 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
 
     private fun buildUpdate(
         dataType: ComplicationType,
-        pressureStr: String? = null, pressureStrShort: String? = null, pressureVal: Float? = null
+        pressureStr: String? = null, pressureStrShort: String? = null, pressureInVal: Float? = null
     ): ComplicationData? {
         val wim = sharedDeps.weatherIconsManager
+
+        val pressureProgress = pressureInVal ?: 26f
+        val pressureMin = min(pressureProgress, 26f)
+        val pressureMax = max(pressureProgress, 32f)
 
         val monochromaticIcon =
             Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
@@ -195,7 +201,7 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
-                    pressureVal ?: 26f, 26f, 32f,
+                    pressureProgress, pressureMin, pressureMax,
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
