@@ -6,7 +6,8 @@ import com.squareup.moshi.JsonWriter
 
 val doubleNaNToNullAdapter = object : JsonAdapter<Double>() {
     override fun fromJson(reader: JsonReader): Double? {
-        return reader.readJsonValue() as? Double
+        val value = reader.readJsonValue()
+        return (value as? Number)?.toDouble()
     }
 
     override fun toJson(writer: JsonWriter, value: Double?) {
@@ -20,7 +21,8 @@ val doubleNaNToNullAdapter = object : JsonAdapter<Double>() {
 
 val floatNaNToNullAdapter = object : JsonAdapter<Float>() {
     override fun fromJson(reader: JsonReader): Float? {
-        return reader.readJsonValue() as? Float
+        val value = reader.readJsonValue()
+        return (value as? Number)?.toFloat()
     }
 
     override fun toJson(writer: JsonWriter, value: Float?) {
