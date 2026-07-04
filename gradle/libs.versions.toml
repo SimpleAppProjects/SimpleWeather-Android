@@ -48,14 +48,15 @@ google_truth_version = '1.4.5'
 espresso_core_version = "3.7.0"
 
 material_version = "1.14.0"
-material_compose_version = "1.5.0-alpha22"
+material_compose_version = "1.5.0-alpha23"
 
 compose_compiler_version = '1.5.15'
-compose_bom_version = "2026.06.00"
+compose_bom_version = "2026.06.01"
 wear_version = "1.4.0"
 wear_compose_version = "1.6.2"
 wear_input_version = '1.2.0'
-wear_tiles_version = "1.6.0"
+wear_protolayout_version = "1.4.1"
+wear_tiles_version = "1.6.1"
 wear_watchface_version = "1.3.0"
 horologist_version = '0.7.15'
 accompanist_version = '0.37.3'
@@ -67,7 +68,7 @@ moshi_version = '1.15.2'
 okhttp_version = "5.4.0"
 timber_version = '5.0.1'
 
-revcat_version = "10.11.0"
+revcat_version = "10.12.0"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
@@ -144,8 +145,8 @@ wear-tiles-renderer = { module = "androidx.wear.tiles:tiles-renderer", version.r
 wear-tiles-testing = { module = "androidx.wear.tiles:tiles-testing", version.ref = "wear_tiles_version" }
 wear-tiles-tooling = { module = "androidx.wear.tiles:tiles-tooling", version.ref = "wear_tiles_version" }
 wear-tiles-tooling-preview = { module = "androidx.wear.tiles:tiles-tooling-preview", version.ref = "wear_tiles_version" }
-wear-protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "wear_version" }
-wear-protolayout-material3 = { module = "androidx.wear.protolayout:protolayout-material3", version.ref = "wear_version" }
+wear-protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "wear_protolayout_version" }
+wear-protolayout-material3 = { module = "androidx.wear.protolayout:protolayout-material3", version.ref = "wear_protolayout_version" }
 horologist-tiles = { module = "com.google.android.horologist:horologist-tiles", version.ref = "horologist_version" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity_version" }
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose_compiler_version" }
