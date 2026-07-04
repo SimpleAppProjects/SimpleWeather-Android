@@ -7,22 +7,22 @@ import com.squareup.moshi.JsonClass;
 public class Main {
 
     @Json(name = "temp")
-    private float temp;
+    private Float temp;
 
     @Json(name = "feels_like")
     private Float feelsLike;
 
     @Json(name = "temp_min")
-    private float tempMin;
+    private Float tempMin;
 
     @Json(name = "temp_max")
-    private float tempMax;
+    private Float tempMax;
 
     @Json(name = "humidity")
-    private int humidity;
+    private Integer humidity;
 
     @Json(name = "pressure")
-    private float pressure;
+    private Float pressure;
 
     @Json(name = "sea_level")
     private Float seaLevel;
@@ -30,11 +30,11 @@ public class Main {
     @Json(name = "grnd_level")
     private Float grndLevel;
 
-    public void setTemp(float temp) {
+    public void setTemp(Float temp) {
         this.temp = temp;
     }
 
-    public float getTemp() {
+    public Float getTemp() {
         return temp;
     }
 
@@ -46,35 +46,35 @@ public class Main {
         return feelsLike;
     }
 
-    public void setTempMin(float tempMin) {
+    public void setTempMin(Float tempMin) {
         this.tempMin = tempMin;
     }
 
-    public float getTempMin() {
+    public Float getTempMin() {
         return tempMin;
     }
 
-    public void setHumidity(int humidity) {
+    public void setHumidity(Integer humidity) {
         this.humidity = humidity;
     }
 
-    public int getHumidity() {
+    public Integer getHumidity() {
         return humidity;
     }
 
-    public void setPressure(float pressure) {
+    public void setPressure(Float pressure) {
         this.pressure = pressure;
     }
 
-    public float getPressure() {
+    public Float getPressure() {
         return pressure;
     }
 
-    public void setTempMax(float tempMax) {
+    public void setTempMax(Float tempMax) {
         this.tempMax = tempMax;
     }
 
-    public float getTempMax() {
+    public Float getTempMax() {
         return tempMax;
     }
 

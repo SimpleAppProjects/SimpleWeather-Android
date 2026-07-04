@@ -7,24 +7,24 @@ import com.squareup.moshi.JsonClass;
 public class Coord {
 
     @Json(name = "lon")
-    private float lon;
+    private Float lon;
 
     @Json(name = "lat")
-    private float lat;
+    private Float lat;
 
-    public void setLon(float lon) {
+    public void setLon(Float lon) {
         this.lon = lon;
     }
 
-    public float getLon() {
+    public Float getLon() {
         return lon;
     }
 
-    public void setLat(float lat) {
+    public void setLat(Float lat) {
         this.lat = lat;
     }
 
-    public float getLat() {
+    public Float getLat() {
         return lat;
     }
 }
