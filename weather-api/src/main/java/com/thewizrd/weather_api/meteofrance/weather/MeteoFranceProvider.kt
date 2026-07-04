@@ -1,6 +1,7 @@
 package com.thewizrd.weather_api.meteofrance.weather
 
 import android.util.Log
+import androidx.core.net.toUri
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -49,9 +50,6 @@ import java.util.concurrent.TimeUnit
 class MeteoFranceProvider : WeatherProviderImpl() {
     companion object {
         private const val BASE_URL = "https://webservice.meteofrance.com/"
-        private const val CURRENT_QUERY_URL = BASE_URL + "observation/gridded?%s&lang=%s&token=%s"
-        private const val FORECAST_QUERY_URL = BASE_URL + "forecast?%s&lang=%s&token=%s"
-        private const val ALERTS_QUERY_URL = BASE_URL + "warning/full?domain=%s&token=%s"
     }
 
     init {
@@ -145,13 +143,33 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                     throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                 }
 
+                val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
+                df.applyPattern("0.####")
+
+                val currentRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendPath("v2/observation")
+                    .appendQueryParameter("lat", df.format(location.latitude))
+                    .appendQueryParameter("lon", df.format(location.longitude))
+                    .appendQueryParameter("lang", locale)
+                    .appendQueryParameter("token", key)
+                    .build()
+
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
-                    .url(String.format(CURRENT_QUERY_URL, query, locale, key))
+                    .url(currentRequestUri.toString())
                     .build()
+
+                val forecastRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendPath("v2/forecast")
+                    .appendQueryParameter("lat", df.format(location.latitude))
+                    .appendQueryParameter("lon", df.format(location.longitude))
+                    .appendQueryParameter("lang", locale)
+                    .appendQueryParameter("token", key)
+                    .build()
+
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                    .url(String.format(FORECAST_QUERY_URL, query, locale, key))
+                    .url(forecastRequestUri.toString())
                     .build()
 
                 // Connect to webstream
@@ -176,10 +194,16 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 )
                 var alertsRoot: AlertsResponse? = null
 
-                if (foreRoot?.position?.dept != null) {
+                foreRoot?.properties?.frenchDepartment.let { dept ->
+                    val alertsRequestUri = BASE_URL.toUri().buildUpon()
+                        .appendPath("v3/warning/full")
+                        .appendQueryParameter("domain", dept)
+                        .appendQueryParameter("token", key)
+                        .build()
+
                     val alertsRequest = Request.Builder()
                         .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                        .url(String.format(ALERTS_QUERY_URL, foreRoot.position!!.dept, key))
+                        .url(alertsRequestUri.toString())
                         .build()
 
                     runCatching {

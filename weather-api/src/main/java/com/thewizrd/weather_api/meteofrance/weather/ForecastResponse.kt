@@ -6,242 +6,196 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class ForecastResponse(
 
-    @field:Json(name = "updated_on")
-    var updatedOn: Long? = null,
+	@Json(name = "update_time")
+	val updateTime: String? = null,
 
-    @field:Json(name = "probability_forecast")
-    var probabilityForecast: List<ProbabilityForecastItem?>? = null,
+	@Json(name = "geometry")
+	val geometry: Geometry? = null,
 
-    @field:Json(name = "forecast")
-    var forecast: List<ForecastItem?>? = null,
+	@Json(name = "type")
+	val type: String? = null,
 
-    @field:Json(name = "position")
-    var position: ForecastPosition? = null,
-
-    @field:Json(name = "daily_forecast")
-    var dailyForecast: List<DailyForecastItem?>? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class Rain(
-
-    @field:Json(name = "6h")
-    var jsonMember6h: Float? = null,
-
-    @field:Json(name = "3h")
-    var jsonMember3h: Float? = null,
-
-    @field:Json(name = "1h")
-    var jsonMember1h: Float? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class Weather12H(
-
-    @field:Json(name = "icon")
-    var icon: String? = null,
-
-    @field:Json(name = "desc")
-    var desc: String? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class ForecastItem(
-
-    @field:Json(name = "dt")
-    var dt: Long? = null,
-
-    @field:Json(name = "rain")
-    var rain: Rain? = null,
-
-    @field:Json(name = "T")
-    var T: ForecastTemp? = null,
-
-    @field:Json(name = "snow")
-    var snow: Snow? = null,
-
-    @field:Json(name = "weather")
-    var weather: Weather? = null,
-
-    @field:Json(name = "humidity")
-    var humidity: Int? = null,
-
-    @field:Json(name = "rain snow limit")
-    var rainSnowLimit: String? = null,
-
-    @field:Json(name = "iso0")
-    var iso0: Int? = null,
-
-    @field:Json(name = "sea_level")
-    var seaLevel: Float? = null,
-
-    @field:Json(name = "clouds")
-    var clouds: Int? = null,
-
-    @field:Json(name = "wind")
-    var wind: Wind? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class ForecastPosition(
-
-    @field:Json(name = "bulletin_cote")
-    var bulletinCote: Int? = null,
-
-    @field:Json(name = "country")
-    var country: String? = null,
-
-    @field:Json(name = "insee")
-    var insee: String? = null,
-
-    @field:Json(name = "timezone")
-    var timezone: String? = null,
-
-    @field:Json(name = "name")
-    var name: String? = null,
-
-    @field:Json(name = "lon")
-    var lon: Float? = null,
-
-    @field:Json(name = "dept")
-    var dept: String? = null,
-
-    @field:Json(name = "alti")
-    var alti: Int? = null,
-
-    @field:Json(name = "lat")
-    var lat: Float? = null,
-
-    @field:Json(name = "rain_product_available")
-    var rainProductAvailable: Int? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class Weather(
-
-    @field:Json(name = "icon")
-    var icon: String? = null,
-
-    @field:Json(name = "desc")
-    var desc: String? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class Precipitation(
-
-    @field:Json(name = "24h")
-    var jsonMember24h: Float? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class DailyForecastTemp(
-
-    @field:Json(name = "min")
-    var min: Float? = null,
-
-    @field:Json(name = "max")
-    var max: Float? = null,
-
-    @field:Json(name = "sea")
-    var sea: Float? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class ForecastTemp(
-
-    @field:Json(name = "value")
-    var value: Float? = null,
-
-    @field:Json(name = "windchill")
-    var windchill: Float? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class Sun(
-
-    @field:Json(name = "set")
-    var set: Long? = null,
-
-    @field:Json(name = "rise")
-    var rise: Long? = null
+	@Json(name = "properties")
+	val properties: ForecastProperties? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class DailyForecastItem(
 
-    @field:Json(name = "dt")
-    var dt: Long? = null,
+	@Json(name = "daily_weather_icon")
+	val dailyWeatherIcon: String? = null,
 
-    @field:Json(name = "precipitation")
-    var precipitation: Precipitation? = null,
+	@Json(name = "sunset_time")
+	val sunsetTime: String? = null,
 
-    @field:Json(name = "uv")
-    var uv: Float? = null,
+	@Json(name = "daily_weather_description")
+	val dailyWeatherDescription: String? = null,
 
-    @field:Json(name = "T")
-    var T: DailyForecastTemp? = null,
+	@Json(name = "uv_index")
+	val uvIndex: Float? = null,
 
-    @field:Json(name = "weather12H")
-    var weather12H: Weather12H? = null,
+	@Json(name = "T_max")
+	val tMax: Float? = null,
 
-    @field:Json(name = "humidity")
-    var humidity: Humidity? = null,
+	@Json(name = "total_precipitation_24h")
+	val totalPrecipitation24h: Float? = null,
 
-    @field:Json(name = "sun")
-    var sun: Sun? = null
-)
+	@Json(name = "relative_humidity_min")
+	val relativeHumidityMin: Int? = null,
 
-@JsonClass(generateAdapter = true)
-data class Snow(
+	@Json(name = "relative_humidity_max")
+	val relativeHumidityMax: Int? = null,
 
-    @field:Json(name = "6h")
-    var jsonMember6h: Float? = null,
+	@Json(name = "sunrise_time")
+	val sunriseTime: String? = null,
 
-    @field:Json(name = "3h")
-    var jsonMember3h: Float? = null,
+	@Json(name = "time")
+	val time: String? = null,
 
-    @field:Json(name = "1h")
-    var jsonMember1h: Float? = null
-)
+	@Json(name = "T_min")
+	val tMin: Float? = null,
 
-@JsonClass(generateAdapter = true)
-data class Humidity(
-
-    @field:Json(name = "min")
-    var min: Int? = null,
-
-    @field:Json(name = "max")
-    var max: Int? = null
+	@Json(name = "T_sea")
+	val tSea: Float? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class ProbabilityForecastItem(
 
-    @field:Json(name = "dt")
-    var dt: Long? = null,
+	@Json(name = "freezing_hazard")
+	val freezingHazard: Int? = null,
 
-    @field:Json(name = "rain")
-    var rain: Rain? = null,
+	@Json(name = "snow_hazard_3h")
+	val snowHazard3h: Float? = null,
 
-    @field:Json(name = "freezing")
-    var freezing: Int? = null,
+	@Json(name = "snow_hazard_6h")
+	val snowHazard6h: Float? = null,
 
-    @field:Json(name = "snow")
-    var snow: Snow? = null
+	@Json(name = "rain_hazard_3h")
+	val rainHazard3h: Float? = null,
+
+	@Json(name = "rain_hazard_6h")
+	val rainHazard6h: Float? = null,
+
+	@Json(name = "time")
+	val time: String? = null,
+
+	@Json(name = "storm_hazard")
+	val stormHazard: Int? = null
 )
 
 @JsonClass(generateAdapter = true)
-data class Wind(
+data class ForecastItem(
 
-    @field:Json(name = "icon")
-    var icon: String? = null,
+	@Json(name = "weather_icon")
+	val weatherIcon: String? = null,
 
-    @field:Json(name = "speed")
-    var speed: Float? = null,
+	@Json(name = "rain_24h")
+	val rain24h: Float? = null,
 
-    @field:Json(name = "gust")
-    var gust: Float? = null,
+	@Json(name = "T")
+	val t: Float? = null,
 
-    @field:Json(name = "direction")
-    var direction: Int? = null
+	@Json(name = "rain_12h")
+	val rain12h: Float? = null,
+
+	@Json(name = "weather_confidence_index")
+	val weatherConfidenceIndex: Int? = null,
+
+	@Json(name = "wind_speed")
+	val windSpeed: Float? = null,
+
+	@Json(name = "snow_6h")
+	val snow6h: Float? = null,
+
+	@Json(name = "snow_12h")
+	val snow12h: Float? = null,
+
+	@Json(name = "T_windchill")
+	val tWindchill: Float? = null,
+
+	@Json(name = "snow_24h")
+	val snow24h: Float? = null,
+
+	@Json(name = "snow_3h")
+	val snow3h: Float? = null,
+
+	@Json(name = "weather_description")
+	val weatherDescription: String? = null,
+
+	@Json(name = "rain_1h")
+	val rain1h: Float? = null,
+
+	@Json(name = "snow_1h")
+	val snow1h: Float? = null,
+
+	@Json(name = "rain_3h")
+	val rain3h: Float? = null,
+
+	@Json(name = "total_cloud_cover")
+	val totalCloudCover: Int? = null,
+
+	@Json(name = "wind_direction")
+	val windDirection: Int? = null,
+
+	@Json(name = "wind_speed_gust")
+	val windSpeedGust: Float? = null,
+
+	@Json(name = "P_sea")
+	val pSea: Float? = null,
+
+	@Json(name = "rain_snow_limit")
+	val rainSnowLimit: String? = null,
+
+	@Json(name = "wind_icon")
+	val windIcon: String? = null,
+
+	@Json(name = "rain_6h")
+	val rain6h: Float? = null,
+
+	@Json(name = "iso0")
+	val iso0: Int? = null,
+
+	@Json(name = "time")
+	val time: String? = null,
+
+	@Json(name = "relative_humidity")
+	val relativeHumidity: Int? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ForecastProperties(
+
+	@Json(name = "bulletin_cote")
+	val bulletinCote: Int? = null,
+
+	@Json(name = "altitude")
+	val altitude: Int? = null,
+
+	@Json(name = "country")
+	val country: String? = null,
+
+	@Json(name = "french_department")
+	val frenchDepartment: String? = null,
+
+	@Json(name = "insee")
+	val insee: String? = null,
+
+	@Json(name = "timezone")
+	val timezone: String? = null,
+
+	@Json(name = "probability_forecast")
+	val probabilityForecast: List<ProbabilityForecastItem>? = null,
+
+	@Json(name = "name")
+	val name: String? = null,
+
+	@Json(name = "forecast")
+	val forecast: List<ForecastItem>? = null,
+
+	@Json(name = "daily_forecast")
+	val dailyForecast: List<DailyForecastItem>? = null,
+
+	@Json(name = "rain_product_available")
+	val rainProductAvailable: Int? = null
 )
