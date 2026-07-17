@@ -61,14 +61,14 @@ wear_watchface_version = "1.3.0"
 horologist_version = '0.7.15'
 accompanist_version = '0.37.3'
 
-glide_version = "5.0.7"
+glide_version = "5.0.9"
 icu4j_version = "78.3"
 jjwt_version = '0.13.0'
 moshi_version = '1.15.2'
 okhttp_version = "5.4.0"
 timber_version = '5.0.1'
 
-revcat_version = "10.12.0"
+revcat_version = "10.14.0"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
