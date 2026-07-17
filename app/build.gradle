@@ -17,7 +17,7 @@ android {
         targetSdkVersion libs.versions.targetSdkVersion.get().toInteger()
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 0, WearOS: 1)
         // ex) 345100131 = (34, 5.10, 013, 0)
-        versionCode 375140090
+        versionCode 375140100
         versionName "5.14.0"
 
         vectorDrawables {
