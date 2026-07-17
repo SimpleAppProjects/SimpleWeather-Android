@@ -1,0 +1,53 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:pathData="M20,12m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"
+        android:fillColor="#F1F3F4"
+        android:fillType="evenOdd" />
+    <path
+        android:pathData="M20,12m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"
+        android:fillType="evenOdd">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="8"
+                android:startY="-0"
+                android:endX="31.586"
+                android:endY="23.586"
+                android:type="linear">
+                <item
+                    android:offset="0"
+                    android:color="#FFF1F3F4" />
+                <item
+                    android:offset="1"
+                    android:color="#FFDADCE0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M20,24c0,-5.523 -4.477,-10 -10,-10S0,18.477 0,24c0.015,-0.023 20.005,-0.015 20,0Z"
+        android:fillType="evenOdd">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="20"
+                android:startY="24"
+                android:endX="10"
+                android:endY="24"
+                android:type="linear">
+                <item
+                    android:offset="0"
+                    android:color="#FFFFFFFF" />
+                <item
+                    android:offset="1"
+                    android:color="#FFF1F3F4" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="m17.732,27.732 l1.768,-1.768 1.768,1.768a2.5,2.5 0,1 1,-3.536 0ZM25.732,27.732 L27.5,25.964 29.268,27.732a2.5,2.5 0,1 1,-3.536 0ZM17.768,10.768L19.536,9l1.767,1.768a2.5,2.5 0,1 1,-3.535 0ZM25.768,10.768L27.536,9l1.767,1.768a2.5,2.5 0,1 1,-3.535 0ZM17.768,19.768L19.536,18l1.767,1.768a2.5,2.5 0,1 1,-3.535 0ZM25.768,19.768L27.536,18l1.767,1.768a2.5,2.5 0,1 1,-3.535 0Z"
+        android:fillColor="#4285F4"
+        android:fillType="evenOdd" />
+</vector>
