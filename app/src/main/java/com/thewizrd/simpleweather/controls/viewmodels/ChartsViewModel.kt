@@ -86,7 +86,7 @@ class ChartsViewModel(app: Application) : AndroidViewModel(app) {
                         ?: ZoneOffset.UTC
                 ).truncatedTo(ChronoUnit.HOURS)
                 Pair(
-                    input.first?.minForecast?.filter { !it.date.isBefore(now) }?.take(60),
+                    input.first?.minForecast?.filter { !it.date.isBefore(now) },
                     input.second
                 )
             } else {

@@ -237,21 +237,21 @@ fun createCondition(current: Current, tzId: ZoneId): Condition {
                     treePollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
                     treePollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
                     treePollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
-                    treePollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    treePollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
                     else -> Pollen.PollenCount.UNKNOWN
                 }
                 grassPollenCount = when {
                     grassPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
                     grassPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
                     grassPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
-                    grassPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    grassPollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
                     else -> Pollen.PollenCount.UNKNOWN
                 }
                 ragweedPollenCount = when {
                     ragweedPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
                     ragweedPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
                     ragweedPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
-                    ragweedPollenValue >= 300.0 -> Pollen.PollenCount.LOW
+                    ragweedPollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
                     else -> Pollen.PollenCount.UNKNOWN
                 }
             }

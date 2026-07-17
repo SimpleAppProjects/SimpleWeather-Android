@@ -186,7 +186,7 @@ fun createHourlyForecasts(hourly: Hourly): List<HourlyForecast>? {
 
             hourly.snowfall?.getOrNull(index)?.let {
                 extras.qpfSnowCm = it
-                extras.qpfSnowIn = ConversionMethods.mmToIn(it)
+                extras.qpfSnowIn = ConversionMethods.mmToIn(it * 10)
             }
         }
     }

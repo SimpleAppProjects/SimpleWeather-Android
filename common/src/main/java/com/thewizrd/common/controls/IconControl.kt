@@ -166,7 +166,11 @@ class IconControl : AppCompatImageView {
     }
 
     private fun updateIconTint() {
-        if (showAsMonochrome || wim.isFontIcon) {
+        val wip = wim.getIconProvider(
+            iconProvider ?: SettingsManager(context).getIconsProvider()
+        )
+
+        if (showAsMonochrome || wip.isFontIcon) {
             ImageViewCompat.setImageTintList(this, mIconTint)
         } else {
             val tint = mIconTint

@@ -431,6 +431,9 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 ) {
                     weather.astronomy!!.moonset = newAstro.moonset
                 }
+                if (weather.astronomy!!.moonPhase == null) {
+                    weather.astronomy!!.moonPhase = newAstro.moonPhase
+                }
             }.getOrElse {
                 weather.astronomy = newAstro
             }
