@@ -28,11 +28,6 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "DEBUG=true"
-                }
-            }
         }
         release {
             // Let the app module take care of this
@@ -59,12 +54,6 @@ android {
         androidTest {
             // Adds exported schema location as test app assets.
             assets.srcDirs += files("$projectDir/schemas".toString())
-        }
-    }
-
-    externalNativeBuild {
-        ndkBuild {
-            path 'src/main/jni/Android.mk'
         }
     }
 
@@ -142,24 +131,4 @@ dependencies {
     fullgmsImplementation libs.places
     fullgmsImplementation libs.volley // Required by Places API ^^^
     fullgmsImplementation libs.kotlinx.coroutines.play.services
-}
-
-tasks.register('keyCheck', Exec) {
-    workingDir '../'
-    commandLine 'cmd', '/c', 'keycheck.bat'
-
-    doLast {
-        executionResult.getOrNull()?.assertNormalExitValue()
-    }
-}
-
-androidComponents {
-    onVariants(selector().all()) { variant ->
-        if (variant.flavorName?.contains('fullgms')) {
-            def taskName = "pre${variant.name.capitalize()}Build"
-            tasks.matching { it.name == taskName }.configureEach { task ->
-                task.dependsOn(keyCheck)
-            }
-        }
-    }
 }
