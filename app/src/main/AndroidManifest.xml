@@ -118,6 +118,19 @@
                 android:resource="@xml/app_widget_1x1_info" />
         </receiver>
         <receiver
+            android:name=".widgets.WeatherWidgetProvider1x1Custom"
+            android:label="@string/label_widget_weather_1x1"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_1x1_custom_info" />
+        </receiver>
+        <receiver
             android:name=".widgets.WeatherWidgetProvider2x2"
             android:label="@string/label_widget_weather_clock_2x2"
             android:exported="false">

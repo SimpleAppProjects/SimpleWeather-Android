@@ -333,7 +333,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
         XYTileSource(
             "RainViewer",
             MIN_ZOOM_LEVEL,
-            MAX_ZOOM_LEVEL,
+            7,
             256,
             "${mapFrame?.timeStamp ?: ""}.png",
             arrayOf(mapFrame?.host)

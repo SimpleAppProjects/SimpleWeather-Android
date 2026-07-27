@@ -27,6 +27,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import kotlin.math.roundToInt
 
 fun createWeatherData(
     foreRoot: Response,
@@ -254,9 +255,9 @@ fun createHourlyForecast(hr_forecast: TimeseriesItem): HourlyForecast {
         )
         highF = ConversionMethods.CtoF(hr_forecast.data.instant.details.airTemperature)
         highC = hr_forecast.data.instant.details.airTemperature
-        windDegrees = Math.round(hr_forecast.data.instant.details.windFromDirection)
-        windMph = ConversionMethods.msecToMph(hr_forecast.data.instant.details.windSpeed)
-        windKph = ConversionMethods.msecToKph(hr_forecast.data.instant.details.windSpeed)
+        val windDegrees = hr_forecast.data.instant.details.windFromDirection.roundToInt()
+        val windMph = ConversionMethods.msecToMph(hr_forecast.data.instant.details.windSpeed)
+        val windKph = ConversionMethods.msecToKph(hr_forecast.data.instant.details.windSpeed)
 
         if (hr_forecast.data.next1Hours != null) {
             icon = hr_forecast.data.next1Hours.summary.symbolCode
@@ -269,23 +270,25 @@ fun createHourlyForecast(hr_forecast: TimeseriesItem): HourlyForecast {
         val humidity = hr_forecast.data.instant.details.relativeHumidity
         // Extras
         extras = ForecastExtras()
-        extras.feelslikeF = getFeelsLikeTemp(highF, windMph, Math.round(humidity))
-        extras.feelslikeC = ConversionMethods.FtoC(getFeelsLikeTemp(highF, windMph, Math.round(humidity)))
-        extras.humidity = Math.round(humidity)
+        extras.feelslikeF = getFeelsLikeTemp(highF, windMph, humidity.roundToInt())
+        extras.feelslikeC =
+            ConversionMethods.FtoC(getFeelsLikeTemp(highF, windMph, humidity.roundToInt()))
+        extras.humidity = humidity.roundToInt()
         extras.dewpointF = ConversionMethods.CtoF(hr_forecast.data.instant.details.dewPointTemperature)
         extras.dewpointC = hr_forecast.data.instant.details.dewPointTemperature
         if (hr_forecast.data.instant.details.cloudAreaFraction != null) {
-            extras.cloudiness = Math.round(hr_forecast.data.instant.details.cloudAreaFraction)
+            extras.cloudiness = hr_forecast.data.instant.details.cloudAreaFraction.roundToInt()
         }
         // Precipitation
         if (hr_forecast.data.instant.details.probabilityOfPrecipitation != null) {
-            extras.pop = Math.round(hr_forecast.data.instant.details.probabilityOfPrecipitation)
+            extras.pop = hr_forecast.data.instant.details.probabilityOfPrecipitation.roundToInt()
         } else if (hr_forecast.data?.next1Hours?.details?.probabilityOfPrecipitation != null) {
-            extras.pop = Math.round(hr_forecast.data.next1Hours.details.probabilityOfPrecipitation)
+            extras.pop = hr_forecast.data.next1Hours.details.probabilityOfPrecipitation.roundToInt()
         } else if (hr_forecast.data?.next6Hours?.details?.probabilityOfPrecipitation != null) {
-            extras.pop = Math.round(hr_forecast.data.next6Hours.details.probabilityOfPrecipitation)
+            extras.pop = hr_forecast.data.next6Hours.details.probabilityOfPrecipitation.roundToInt()
         } else if (hr_forecast.data?.next12Hours?.details?.probabilityOfPrecipitation != null) {
-            extras.pop = Math.round(hr_forecast.data.next12Hours.details.probabilityOfPrecipitation)
+            extras.pop =
+                hr_forecast.data.next12Hours.details.probabilityOfPrecipitation.roundToInt()
         }
         extras.pressureIn = ConversionMethods.mbToInHg(hr_forecast.data.instant.details.airPressureAtSeaLevel)
         extras.pressureMb = hr_forecast.data.instant.details.airPressureAtSeaLevel

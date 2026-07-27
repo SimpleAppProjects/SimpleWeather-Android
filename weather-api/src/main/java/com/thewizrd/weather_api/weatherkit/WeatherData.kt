@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherkit
 
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
@@ -9,11 +10,17 @@ import com.thewizrd.shared_resources.weatherdata.model.*
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import kotlin.apply
+import kotlin.collections.ArrayList
+import kotlin.collections.firstOrNull
+import kotlin.collections.forEach
+import kotlin.let
 import kotlin.math.roundToInt
+import kotlin.run
+import kotlin.runCatching
 
 fun createWeatherData(root: com.thewizrd.weather_api.weatherkit.Weather): Weather {
     return Weather().apply {
@@ -145,10 +152,6 @@ fun createHourlyForecast(hour: HourWeatherConditions): HourlyForecast {
         condition = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.APPLE)
             .getWeatherCondition(hour.conditionCode)
 
-        windKph = hour.windSpeed
-        windMph = ConversionMethods.kphTomph(hour.windSpeed)
-        windDegrees = hour.windDirection
-
         extras = ForecastExtras().apply {
             feelslikeC = hour.temperatureApparent
             feelslikeF = ConversionMethods.CtoF(hour.temperatureApparent)
@@ -176,7 +179,7 @@ fun createHourlyForecast(hour: HourWeatherConditions): HourlyForecast {
             pressureIn = ConversionMethods.mbToInHg(hour.pressure)
             windDegrees = hour.windDirection
             windKph = hour.windSpeed
-            windMph = ConversionMethods.kphToMsec(hour.windSpeed)
+            windMph = ConversionMethods.kphTomph(hour.windSpeed)
             visibilityKm = hour.visibility / 1000
             visibilityMi = ConversionMethods.kmToMi(hour.visibility / 1000)
             windGustKph = hour.windGust

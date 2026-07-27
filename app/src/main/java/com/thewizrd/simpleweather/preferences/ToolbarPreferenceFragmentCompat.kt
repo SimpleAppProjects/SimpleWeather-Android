@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
+import com.google.android.material.R as materialRes
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -84,7 +85,7 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        preferenceScreen.tintIcons(requireContext().getAttrColor(R.attr.colorPrimary))
+        preferenceScreen.tintIcons(requireContext().getAttrColor(androidx.appcompat.R.attr.colorPrimary))
 
         // Toolbar
         binding.toolbar.setTitle(titleResId)
@@ -99,8 +100,8 @@ abstract class ToolbarPreferenceFragmentCompat : WindowColorPreferenceFragmentCo
     @SuppressLint("NotifyDataSetChanged")
     protected fun updateWindowColors(mode: UserThemeMode) {
         activity?.let {
-            var backgroundColor = it.getAttrColor(R.attr.colorSurfaceContainer)
-            var statusBarColor = it.getAttrColor(R.attr.colorSurfaceContainer)
+            var backgroundColor = it.getAttrColor(materialRes.attr.colorSurfaceContainer)
+            var statusBarColor = it.getAttrColor(materialRes.attr.colorSurfaceContainer)
             if (mode == UserThemeMode.AMOLED_DARK) {
                 statusBarColor = Colors.BLACK
                 backgroundColor = Colors.BLACK

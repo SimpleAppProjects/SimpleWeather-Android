@@ -42,7 +42,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class OpenWeatherMapProvider : WeatherProviderImpl {
@@ -250,6 +250,8 @@ class OpenWeatherMapProvider : WeatherProviderImpl {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // OWM reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)

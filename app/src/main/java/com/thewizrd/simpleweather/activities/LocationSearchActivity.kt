@@ -20,6 +20,7 @@ import androidx.core.view.ViewGroupCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.R as materialRes
 import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransform
@@ -191,7 +192,7 @@ class LocationSearchActivity : WindowColorActivity() {
             start = padding, end = padding, top = padding
         )
 
-        val color = getAttrColor(R.attr.colorPrimarySurface)
+        val color = getAttrColor(materialRes.attr.colorPrimarySurface)
         window.setTransparentWindow(color)
 
         lifecycleScope.launch {
@@ -267,7 +268,7 @@ class LocationSearchActivity : WindowColorActivity() {
     }
 
     private fun updateWindowColors(mode: UserThemeMode) {
-        var backgroundColor = getAttrColor(R.attr.colorSurfaceContainerHigh)
+        var backgroundColor = getAttrColor(materialRes.attr.colorSurfaceContainerHigh)
         if (mode == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
         }

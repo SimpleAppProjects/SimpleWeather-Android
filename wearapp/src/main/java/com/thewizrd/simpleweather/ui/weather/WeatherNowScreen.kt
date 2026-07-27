@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.ui.weather
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -76,6 +77,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.layout.fillMaxRectangle
+import com.thewizrd.common.controls.DetailItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherAlertViewModel
@@ -95,6 +97,7 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getColorFromTempF
 import com.thewizrd.shared_resources.weatherdata.model.Condition
 import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
@@ -122,7 +125,9 @@ import com.thewizrd.simpleweather.viewmodels.WeatherNowStateModel
 import com.thewizrd.simpleweather.viewmodels.WeatherNowViewModel
 import com.thewizrd.simpleweather.wearable.WearableListenerActions
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun WeatherNowScreen(
     navController: NavHostController,
@@ -203,6 +208,10 @@ fun WeatherNowScreen(
                             curTemp = weather.curTemp,
                             tempUnit = weather.tempUnit
                         )
+                        // FeelsLike
+                        weather.weatherDetailsMap[WeatherDetailsType.FEELSLIKE]?.let {
+                            FeelsLikeText(it)
+                        }
                         // Condition
                         weather.curCondition?.let { condition ->
                             ConditionText(condition)
@@ -376,12 +385,12 @@ private fun NoLocationsPrompt(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
         Icon(
-            painter = painterResource(R.drawable.ic_location_off_24dp),
+            painter = painterResource(sharedRes.drawable.ic_location_off_24dp),
             contentDescription = null,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = stringResource(id = R.string.prompt_location_not_set),
+            text = stringResource(id = sharedRes.string.prompt_location_not_set),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge
         )
@@ -431,7 +440,7 @@ private fun AlertsBox(navController: NavHostController) {
         ) {
             Icon(
                 modifier = Modifier.size(IconButtonDefaults.SmallIconSize),
-                painter = painterResource(id = R.drawable.ic_error_white),
+                painter = painterResource(id = sharedRes.drawable.ic_error_white),
                 tint = MaterialTheme.colorScheme.onErrorContainer,
                 contentDescription = null
             )
@@ -463,7 +472,7 @@ private fun ColumnScope.WeatherLocation(
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.CenterVertically),
-                painter = painterResource(id = R.drawable.ic_place_white_24dp),
+                painter = painterResource(id = sharedRes.drawable.ic_place_white_24dp),
                 contentDescription = null
             )
         }
@@ -520,6 +529,31 @@ private fun IconTempRow(
 }
 
 @Composable
+private fun FeelsLikeText(
+    detail: DetailItemViewModel
+) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.wnow_horizontal_padding),
+                vertical = 4.dp
+            ),
+        text = buildString {
+            append(detail.label)
+            append(": ")
+            append(detail.value)
+        },
+        color = LocalContentColor.current.copy(alpha = 0.75f),
+        textAlign = TextAlign.Center,
+        overflow = TextOverflow.Ellipsis,
+        letterSpacing = 0.sp,
+        maxLines = 1,
+        style = MaterialTheme.typography.bodySmall
+    )
+}
+
+@Composable
 private fun ConditionText(
     curCondition: String
 ) {
@@ -568,7 +602,7 @@ private fun HiLoLayout(
                     modifier = Modifier
                         .size(30.dp)
                         .offset(x = (-4).dp),
-                    painter = painterResource(id = R.drawable.wi_direction_up),
+                    painter = painterResource(id = sharedRes.drawable.wi_direction_up),
                     tint = Color(0xFFFF4500),
                     contentDescription = null
                 )
@@ -594,7 +628,7 @@ private fun HiLoLayout(
                     modifier = Modifier
                         .size(30.dp)
                         .offset(x = (-4).dp),
-                    painter = painterResource(id = R.drawable.wi_direction_down),
+                    painter = painterResource(id = sharedRes.drawable.wi_direction_down),
                     tint = Color(0xFF87CEFA),
                     contentDescription = null
                 )
@@ -633,14 +667,16 @@ private fun ConditionDetails(
             Row(
                 modifier = Modifier.padding(4.dp)
             ) {
-                Icon(
+                WeatherIcon(
                     modifier = Modifier
                         .size(20.dp)
                         .padding(end = 4.dp)
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = R.drawable.wi_umbrella),
-                    tint = colorResource(R.color.colorPrimaryLight),
-                    contentDescription = null
+                    weatherIcon = WeatherIcons.UMBRELLA,
+                    iconProvider = weather.iconProvider,
+                    tint = colorResource(sharedRes.color.colorPrimaryLight),
+                    showAsMonochrome = true,
+                    contentDescription = popData.label?.toString()
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -648,7 +684,7 @@ private fun ConditionDetails(
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.End,
                     maxLines = 1,
-                    color = colorResource(R.color.colorPrimaryLight)
+                    color = colorResource(sharedRes.color.colorPrimaryLight)
                 )
             }
         }
@@ -659,15 +695,17 @@ private fun ConditionDetails(
             Row(
                 modifier = Modifier.padding(4.dp)
             ) {
-                Icon(
+                WeatherIcon(
                     modifier = Modifier
                         .size(20.dp)
                         .padding(end = 4.dp)
                         .rotate(windData.iconRotation.toFloat())
                         .align(Alignment.CenterVertically),
-                    painter = painterResource(id = R.drawable.wi_wind_direction),
+                    weatherIcon = WeatherIcons.WIND_DIRECTION,
+                    useDefaultIconProvider = true,
                     tint = Color(0xFF20B2AA),
-                    contentDescription = null
+                    showAsMonochrome = true,
+                    contentDescription = windData.label?.toString()
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -825,7 +863,7 @@ private fun ForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_forecast),
+        label = stringResource(id = sharedRes.string.label_forecast),
         iconDrawableId = R.drawable.ic_date_range_black_24dp
     ) {
         navController.navigate(Screen.Forecast.route)
@@ -837,7 +875,7 @@ private fun HourlyForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_hourlyforecast),
+        label = stringResource(id = sharedRes.string.label_hourlyforecast),
         iconDrawableId = R.drawable.ic_access_time_black_24dp
     ) {
         navController.navigate(Screen.HourlyForecast.route)
@@ -849,8 +887,8 @@ private fun MinutelyForecastsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_precipitation),
-        iconDrawableId = R.drawable.wi_raindrops
+        label = stringResource(id = sharedRes.string.label_precipitation),
+        iconDrawableId = sharedRes.drawable.wi_raindrops
     ) {
         navController.navigate(Screen.Precipitation.route)
     }
@@ -861,7 +899,7 @@ private fun DetailsButton(
     navController: NavHostController
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.label_details),
+        label = stringResource(id = sharedRes.string.label_details),
         iconDrawableId = R.drawable.ic_list_black_24dp
     ) {
         navController.navigate(Screen.Details.route)
@@ -874,7 +912,7 @@ private fun DetailsTileEditorButton(
 ) {
     NavigationButton(
         label = stringResource(id = R.string.pref_title_detailstileeditor),
-        iconDrawableId = R.drawable.ic_mode_edit_white_24dp
+        iconDrawableId = sharedRes.drawable.ic_mode_edit_white_24dp
     ) {
         navController.navigate(Screen.DetailsTileEditor.route)
     }
@@ -897,8 +935,8 @@ private fun SettingsButton(
     activity: Activity
 ) {
     NavigationButton(
-        label = stringResource(id = R.string.action_settings),
-        iconDrawableId = R.drawable.ic_settings_black_24dp
+        label = stringResource(id = sharedRes.string.action_settings),
+        iconDrawableId = sharedRes.drawable.ic_settings_black_24dp
     ) {
         activity.startActivity(Intent(activity, SettingsActivity::class.java))
     }
@@ -910,7 +948,7 @@ private fun OpenOnPhoneButton(
 ) {
     NavigationButton(
         label = stringResource(id = R.string.action_openonphone),
-        iconDrawableId = R.drawable.common_full_open_on_phone,
+        iconDrawableId = R.drawable.ic_mobile_arrow_right,
         onClick = onOpenOnPhone
     )
 }
@@ -984,17 +1022,28 @@ private fun PreviewWeatherNowScreen() {
     }
     val weather = remember {
         Weather().apply {
+            location = Location().apply {
+                name = "New York"
+            }
             condition = Condition().apply {
                 icon = WeatherIcons.DAY_SUNNY
                 tempF = 70f
                 weather = "Sunny"
                 highF = 75f
                 lowF = 60f
+                windMph = 4f
+                windKph = 6.43f
+                windGustKph = 9f
+                windGustKph = 14.5f
+                windDegrees = 0
             }
-            location = Location().apply {
-                name = "New York"
+            precipitation = Precipitation().apply {
+                pop = 5
             }
         }.toUiModel()
+    }
+    val feelsLikeDetail = remember {
+        DetailItemViewModel(WeatherDetailsType.FEELSLIKE, "71°")
     }
 
     CompositionLocalProvider(
@@ -1034,6 +1083,8 @@ private fun PreviewWeatherNowScreen() {
                         tempUnit = "F"
                     )
                 }
+                // FeelsLike
+                FeelsLikeText(feelsLikeDetail)
                 // Condition
                 ConditionText("Sunny")
 

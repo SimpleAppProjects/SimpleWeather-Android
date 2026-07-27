@@ -204,10 +204,7 @@ fun createHourlyForecast(hourly: HourlyResponseItem): HourlyForecast {
 
         hourly.wind?.speed?.value?.let {
             extras.windKph = it
-            windKph = it
-
             extras.windMph = ConversionMethods.kphTomph(it)
-            windMph = extras.windMph
         }
         extras.windDegrees = hourly.wind?.direction?.degrees?.roundToInt()
 

@@ -97,7 +97,7 @@ interface WeatherDAO {
     suspend fun getForecastData(query: String): Forecasts?
 
     @Query("SELECT * FROM forecasts WHERE `query` = :query")
-    fun getLiveForecastData(query: String): Flow<Forecasts>
+    fun getLiveForecastData(query: String): Flow<Forecasts?>
 
     @Query("SELECT COUNT(*) FROM forecasts GROUP BY `query`")
     suspend fun getForecastDataCountGroupedByQuery(): Int

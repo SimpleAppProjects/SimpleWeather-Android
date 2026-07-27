@@ -56,11 +56,13 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.R as materialRes
 import com.google.android.material.color.DynamicColorsOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
+import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.controls.IconControl
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.ColorsUtils
@@ -70,6 +72,7 @@ import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ActivityUtils.recreateCompat
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.utils.isTextTruncated
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -261,7 +264,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                     showSnackbar(
                         Snackbar.make(
                             binding.rootView.context,
-                            R.string.error_location_denied,
+                            sharedRes.string.error_location_denied,
                             Snackbar.Duration.SHORT
                         ), null
                     )
@@ -444,8 +447,8 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
 
         // SwipeRefresh
         binding.refreshLayout.setRefreshingDelay(350)
-        binding.refreshLayout.setContainerColor(requireContext().getAttrColor(R.attr.colorPrimaryContainer))
-        binding.refreshLayout.setIndicatorColor(requireContext().getAttrColor(R.attr.colorPrimary))
+        binding.refreshLayout.setContainerColor(requireContext().getAttrColor(materialRes.attr.colorPrimaryContainer))
+        binding.refreshLayout.setIndicatorColor(requireContext().getAttrColor(androidx.appcompat.R.attr.colorPrimary))
         binding.refreshLayout.setOnRefreshListener {
             AnalyticsLogger.logEvent("WeatherNowFragment: onRefresh")
             wNowViewModel.refreshWeather(true)
@@ -953,10 +956,10 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                     showBanner(
                         Banner.make(
                             binding.root.context,
-                            R.string.prompt_location_not_set
+                            sharedRes.string.prompt_location_not_set
                         ).apply {
-                            setBannerIcon(R.drawable.ic_location_off_24dp)
-                            setPrimaryAction(R.string.label_fab_add_location) {
+                            setBannerIcon(sharedRes.drawable.ic_location_off_24dp)
+                            setPrimaryAction(sharedRes.string.label_fab_add_location) {
                                 binding.root.findNavController().safeNavigate(
                                     WeatherNowFragmentDirections.actionWeatherNowFragmentToLocationsFragment()
                                 )
@@ -1143,8 +1146,8 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        binding.refreshLayout.setContainerColor(requireContext().getAttrColor(R.attr.colorPrimaryContainer))
-        binding.refreshLayout.setIndicatorColor(requireContext().getAttrColor(R.attr.colorPrimary))
+        binding.refreshLayout.setContainerColor(requireContext().getAttrColor(materialRes.attr.colorPrimaryContainer))
+        binding.refreshLayout.setIndicatorColor(requireContext().getAttrColor(androidx.appcompat.R.attr.colorPrimary))
 
         // Resize necessary views
         adjustConditionPanelLayout()
@@ -1186,7 +1189,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                         wEx.message,
                         Snackbar.Duration.LONG
                     ).apply {
-                        setAction(R.string.action_retry) {
+                        setAction(sharedRes.string.action_retry) {
                             wNowViewModel.refreshWeather(false)
                         }
                     })
@@ -1194,7 +1197,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
             ErrorStatus.LOCATIONNOTSUPPORTED -> {
                 showSnackbar(
                     Snackbar.make(binding.root.context, wEx.message, Snackbar.Duration.LONG).apply {
-                        setAction(R.string.action_settings) {
+                        setAction(sharedRes.string.action_settings) {
                             runCatching {
                                 binding.root.findNavController()
                                     .safeNavigate(WeatherNowFragmentDirections.actionWeatherNowFragmentToSettingsFragment())
@@ -1224,7 +1227,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
             if (forceReload || (!ObjectsCompat.equals(
                     imageView.tag,
                     imageURI
-                ) || imageView.getTag(R.id.glide_custom_view_target_tag) == null)
+                ) || imageView.getTag(com.bumptech.glide.R.id.glide_custom_view_target_tag) == null)
             ) {
                 imageView.tag = imageURI
                 if (!imageURI.isNullOrBlank()) {
@@ -1274,7 +1277,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
                                                 .contentBasedSeedColor
 
                                             val dominantColor = seedColor ?: imageView.context.run {
-                                                getColor(R.color.colorPrimary)
+                                                getColor(sharedRes.color.colorPrimary)
                                             }
 
                                             val backgroundColor =
@@ -1490,7 +1493,7 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
     override fun updateWindowColors() {
         context?.let {
             var backgroundColor = it.getAttrColor(android.R.attr.colorBackground)
-            var navBarColor = it.getAttrColor(R.attr.colorSurface)
+            var navBarColor = it.getAttrColor(materialRes.attr.colorSurface)
             var statusBarColor = navBarColor
             if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                 backgroundColor = Colors.BLACK

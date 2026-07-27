@@ -25,6 +25,7 @@ import com.thewizrd.common.controls.ForecastsListViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -146,7 +147,7 @@ class WeatherListFragment : CollapsingToolbarFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
@@ -249,9 +250,9 @@ class WeatherListFragment : CollapsingToolbarFragment() {
 
     override val titleResId: Int
         get() = when (weatherListType) {
-            WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> R.string.label_forecast
-            WeatherListType.ALERTS -> R.string.title_fragment_alerts
-            else -> R.string.label_nav_weathernow
+            WeatherListType.FORECAST, WeatherListType.HOURLYFORECAST -> sharedRes.string.label_forecast
+            WeatherListType.ALERTS -> sharedRes.string.title_fragment_alerts
+            else -> sharedRes.string.label_nav_weathernow
         }
 
     private fun initialize() {

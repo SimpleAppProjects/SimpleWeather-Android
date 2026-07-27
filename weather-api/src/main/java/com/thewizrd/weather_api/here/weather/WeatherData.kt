@@ -201,12 +201,6 @@ fun createHourlyForecast(hr_forecast: ForecastsItem): HourlyForecast {
                 hr_forecast.iconName
             )
 
-        windDegrees = hr_forecast.windDirection?.toIntOrNull()
-        hr_forecast.windSpeed?.toFloatOrNull()?.let {
-            windMph = it
-            windKph = ConversionMethods.mphTokph(it)
-        }
-
         // Extras
         extras = ForecastExtras()
         hr_forecast.comfort?.toFloatOrNull()?.let {
@@ -237,9 +231,11 @@ fun createHourlyForecast(hr_forecast: ForecastsItem): HourlyForecast {
             extras.pressureIn = it
             extras.pressureMb = ConversionMethods.inHgToMB(it)
         }
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hr_forecast.windDirection?.toIntOrNull()
+        hr_forecast.windSpeed?.toFloatOrNull()?.let {
+            extras.windMph = it
+            extras.windKph = ConversionMethods.mphTokph(it)
+        }
     }
 }
 

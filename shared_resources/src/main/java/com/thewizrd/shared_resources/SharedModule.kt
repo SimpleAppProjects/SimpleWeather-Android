@@ -28,7 +28,13 @@ abstract class SharedModule {
         GMSSecurityProvider.installAsync(context)
 
         // Initialize logger
-        Logger.init(context)
+        runCatching {
+            Logger.init(context)
+        }.getOrElse {
+            if (!BuildConfig.DEBUG) {
+                throw it
+            }
+        }
     }
 
     open val httpClient: OkHttpClient by lazy {

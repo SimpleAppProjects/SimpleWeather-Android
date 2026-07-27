@@ -113,6 +113,9 @@ public final class WeatherIcons {
     public static final String DIRECTION_UP = "\uf058";
     public static final String DIRECTION_DOWN = "\uf044";
 
+    public static final String VISIBILITY = "\uf014-vis";
+    public static final String AIR_QUALITY = "\uf011-aqi";
+
     // Beaufort
     public static final String WIND_BEAUFORT_0 = "\uf0b7";
     public static final String WIND_BEAUFORT_1 = "\uf0b8";

@@ -85,7 +85,6 @@ import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.simpleweather.LaunchActivity
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.DetailsWeatherTileUtils
 import com.thewizrd.simpleweather.ui.theme.wearTileColorScheme
 import com.thewizrd.simpleweather.ui.tiles.tools.WearPreviewDevices
@@ -96,6 +95,7 @@ import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
+import com.thewizrd.shared_resources.R as sharedRes
 
 internal const val ID_DETAIL_ICON_PREFIX = "detail_icon:"
 internal const val ID_ROTATION_PREFIX = "rotation:"
@@ -152,7 +152,7 @@ internal fun detailsWeatherTileLayout(
                 when (detailItems.size) {
                     0 -> {
                         text(
-                            text = context.getString(R.string.label_nodata).layoutString,
+                            text = context.getString(sharedRes.string.label_nodata).layoutString,
                             typography = androidx.wear.protolayout.material3.Typography.LABEL_LARGE
                         )
                     }
@@ -192,14 +192,14 @@ internal fun detailsWeatherTileLayout(
                                     textEdgeButton(
                                         onClick = clickable(getLaunchAction(context)),
                                         labelContent = {
-                                            text(context.getString(R.string.label_nav_weathernow).layoutString)
+                                            text(context.getString(sharedRes.string.label_nav_weathernow).layoutString)
                                         }
                                     )
                                 } else {
                                     compactButton(
                                         onClick = clickable(getLaunchAction(context)),
                                         labelContent = {
-                                            text(context.getString(R.string.label_nav_weathernow).layoutString)
+                                            text(context.getString(sharedRes.string.label_nav_weathernow).layoutString)
                                         }
                                     )
                                 }
@@ -805,8 +805,6 @@ private fun buildMockWeatherData(): Weather {
                 highC = 23f + index / 2f
                 condition = "Sunny"
                 icon = WeatherIcons.DAY_SUNNY
-                windMph = 5f
-                windKph = 8f
                 extras = ForecastExtras().apply {
                     feelslikeF = 80f
                     feelslikeC = 26f

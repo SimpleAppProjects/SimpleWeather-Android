@@ -15,7 +15,7 @@ data class Data(
     var city: City? = null,
 
     @Json(name = "aqi")
-    var aqi: Int? = null,
+    var aqi: String? = null,
 
     @Json(name = "forecast")
     var forecast: Forecast? = null,

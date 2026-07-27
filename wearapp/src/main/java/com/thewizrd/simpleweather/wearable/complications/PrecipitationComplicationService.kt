@@ -9,11 +9,16 @@ import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R as sharedRes
 
 class PrecipitationComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -26,12 +31,24 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_umbrella
+
+    private val complicationIcon = WeatherIcons.UMBRELLA
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.RANGED_VALUE -> {
@@ -39,11 +56,16 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     50f, 0f, 100f,
                     PlainComplicationText.Builder("Chance: 50%").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder("50%").build()
                 ).setValueType(
                     RangedValueComplicationData.TYPE_PERCENTAGE
@@ -54,11 +76,16 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     PlainComplicationText.Builder("50%").build(),
                     PlainComplicationText.Builder("Chance: 50%").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -67,11 +94,16 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                 ).setTitle(
                     PlainComplicationText.Builder("50%").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
             else -> {
                 null
@@ -88,20 +120,37 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
             return null
         }
 
+        val wim = sharedDeps.weatherIconsManager
+
         val popChance = weather.precipitation?.pop ?: hourlyForecast?.extras?.pop
         val popChanceStr = popChance?.let { "${it}%" } ?: WeatherIcons.EM_DASH
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
                     popChance?.toFloat() ?: 0f, 0f, 100f,
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build()
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_chance)).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder(popChanceStr).build()
                 ).setValueType(
                     RangedValueComplicationData.TYPE_PERCENTAGE
@@ -113,31 +162,41 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                 ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder(popChanceStr).build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_chance)}: $popChanceStr"
+                        "${getString(sharedRes.string.label_chance)}: $popChanceStr"
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_chance)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_chance)).build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_chance)}: $popChanceStr"
+                        "${getString(sharedRes.string.label_chance)}: $popChanceStr"
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(popChanceStr).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }

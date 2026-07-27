@@ -128,7 +128,12 @@ fun WeatherNow(
                         weather.weatherDetailsMap.values
                     }
 
-                    WeatherDetailsScreen(backStackEntry, swipeFocusRequester, detailItems)
+                    WeatherDetailsScreen(
+                        backStackEntry,
+                        swipeFocusRequester,
+                        detailItems,
+                        iconProvider = weather.iconProvider
+                    )
                 }
 
                 composable(
@@ -140,7 +145,11 @@ fun WeatherNow(
                         },
                     )
                 ) { backStackEntry ->
-                    WeatherForecastScreen(backStackEntry, swipeFocusRequester)
+                    WeatherForecastScreen(
+                        backStackEntry,
+                        swipeFocusRequester,
+                        iconProvider = weather.iconProvider
+                    )
                 }
 
                 composable(
@@ -152,13 +161,21 @@ fun WeatherNow(
                         },
                     )
                 ) { backStackEntry ->
-                    WeatherHourlyForecastScreen(backStackEntry, swipeFocusRequester)
+                    WeatherHourlyForecastScreen(
+                        backStackEntry,
+                        swipeFocusRequester,
+                        iconProvider = weather.iconProvider
+                    )
                 }
 
                 composable(
                     route = Screen.Precipitation.route,
                 ) { backStackEntry ->
-                    WeatherMinutelyForecastScreen(backStackEntry, swipeFocusRequester)
+                    WeatherMinutelyForecastScreen(
+                        backStackEntry,
+                        swipeFocusRequester,
+                        iconProvider = weather.iconProvider
+                    )
                 }
 
                 composable(

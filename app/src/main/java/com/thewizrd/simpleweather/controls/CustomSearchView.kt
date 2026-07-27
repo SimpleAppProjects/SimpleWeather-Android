@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
+import com.google.android.material.R
 import com.google.android.material.elevation.ElevationOverlayProvider
 import com.google.android.material.search.SearchView
-import com.thewizrd.simpleweather.R
 
 open class CustomSearchView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null

@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 
 internal object ServiceNotificationHelper {
@@ -19,7 +20,7 @@ internal object ServiceNotificationHelper {
         // Gets an instance of the NotificationManager service
         val mNotifyMgr = context.getSystemService(NotificationManager::class.java)
         var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-        val notchannel_name = context.resources.getString(R.string.not_channel_name_general)
+        val notchannel_name = context.resources.getString(sharedRes.string.not_channel_name_general)
         if (mChannel == null) {
             mChannel = NotificationChannel(
                 NOT_CHANNEL_ID,
@@ -39,9 +40,9 @@ internal object ServiceNotificationHelper {
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun getForegroundNotification(context: Context): Notification {
         return NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_monochrome)
-            .setContentTitle(context.getString(R.string.not_title_weather_update))
-            .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+            .setSmallIcon(sharedRes.drawable.ic_launcher_monochrome)
+            .setContentTitle(context.getString(sharedRes.string.not_title_weather_update))
+            .setColor(ContextCompat.getColor(context, sharedRes.color.colorPrimary))
             .setOnlyAlertOnce(true)
             .setNotificationSilent()
             .setPriority(NotificationCompat.PRIORITY_LOW)

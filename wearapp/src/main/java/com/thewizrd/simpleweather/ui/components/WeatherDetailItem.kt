@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -19,15 +20,42 @@ import androidx.wear.compose.material3.LocalContentColor
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.thewizrd.common.controls.DetailItemViewModel
-import com.thewizrd.common.controls.WeatherDetailsType
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.simpleweather.ui.compose.tools.WearPreviewDevices
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
 import org.jetbrains.annotations.TestOnly
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherDetailItem(
-    model: DetailItemViewModel
+    model: DetailItemViewModel,
+    iconProvider: String? = null
+) {
+    val wim = remember {
+        sharedDeps.weatherIconsManager
+    }
+
+    WeatherDetailItem(
+        label = model.label,
+        value = model.value,
+        icon = model.icon,
+        iconRotation = model.iconRotation,
+        iconProvider = iconProvider,
+        showAsMonochrome = wim.shouldUseMonochrome(),
+        shouldAnimate = true
+    )
+}
+
+@Composable
+private fun WeatherDetailItem(
+    label: CharSequence,
+    value: CharSequence,
+    icon: String,
+    iconProvider: String? = null,
+    iconRotation: Int = 0,
+    showAsMonochrome: Boolean = false,
+    shouldAnimate: Boolean = true,
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -37,12 +65,12 @@ fun WeatherDetailItem(
             .height(60.dp),
         label = {
             Text(
-                text = spannableStringToAnnotatedString(model.label)
+                text = spannableStringToAnnotatedString(label)
             )
         },
         secondaryLabel = {
             Text(
-                text = spannableStringToAnnotatedString(model.value)
+                text = spannableStringToAnnotatedString(value)
             )
         },
         onClick = {},
@@ -53,7 +81,7 @@ fun WeatherDetailItem(
                     modifier = Modifier
                         .size(ButtonDefaults.IconSize)
                         .wrapContentSize(align = Alignment.Center),
-                    painter = painterResource(id = R.drawable.ic_error),
+                    painter = painterResource(id = sharedRes.drawable.ic_error),
                     contentDescription = "",
                     colorFilter = ColorFilter.tint(LocalContentColor.current)
                 )
@@ -62,9 +90,12 @@ fun WeatherDetailItem(
                     modifier = Modifier
                         .size(ButtonDefaults.IconSize)
                         .wrapContentSize(align = Alignment.Center)
-                        .rotate(model.iconRotation.toFloat()),
-                    weatherIcon = model.icon,
-                    tint = LocalContentColor.current
+                        .rotate(iconRotation.toFloat()),
+                    weatherIcon = icon,
+                    iconProvider = iconProvider,
+                    tint = LocalContentColor.current,
+                    shouldAnimate = shouldAnimate,
+                    showAsMonochrome = showAsMonochrome
                 )
             }
         }
@@ -77,9 +108,8 @@ fun WeatherDetailItem(
 @TestOnly
 fun PreviewWeatherDetailItem() {
     WeatherDetailItem(
-        model = DetailItemViewModel(WeatherDetailsType.FEELSLIKE).apply {
-            value = "70°"
-            label = "Feels like"
-        }
+        label = "Feels like",
+        value = "70°",
+        icon = WeatherIcons.THERMOMETER
     )
 }

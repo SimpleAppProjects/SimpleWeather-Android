@@ -140,10 +140,6 @@ fun createHourlyForecast(hr_forecast: ListItem): HourlyForecast {
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
             .getWeatherIcon(hr_forecast.weather[0].id.toString() + dn)
 
-        windDegrees = hr_forecast.wind.deg.roundToInt()
-        windMph = ConversionMethods.msecToMph(hr_forecast.wind.speed)
-        windKph = ConversionMethods.msecToKph(hr_forecast.wind.speed)
-
         // Extras
         extras = ForecastExtras()
         extras.humidity = hr_forecast.main.humidity
@@ -151,9 +147,9 @@ fun createHourlyForecast(hr_forecast: ListItem): HourlyForecast {
         // 1hPA = 1mbar
         extras.pressureMb = hr_forecast.main.pressure
         extras.pressureIn = ConversionMethods.mbToInHg(hr_forecast.main.pressure)
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hr_forecast.wind.deg.roundToInt()
+        extras.windMph = ConversionMethods.msecToMph(hr_forecast.wind.speed)
+        extras.windKph = ConversionMethods.msecToKph(hr_forecast.wind.speed)
         if (highC > 0 && highC < 60 && hr_forecast.main.humidity > 1) {
             extras.dewpointC = calculateDewpointC(highC, hr_forecast.main.humidity)
             extras.dewpointF = ConversionMethods.CtoF(extras.dewpointC)

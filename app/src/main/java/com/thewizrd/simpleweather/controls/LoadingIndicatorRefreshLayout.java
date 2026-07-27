@@ -354,11 +354,11 @@ public class LoadingIndicatorRefreshLayout extends ViewGroup implements NestedSc
         mCircleView = new AnimationFrameLayout(getContext());
         mCircleView.setLayoutParams(new LayoutParams(containerWidth, containerHeight));
         mCircleView.setBackground(new ShapeDrawable(new OvalShape()));
-        mCircleView.setBackgroundTintList(ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), R.attr.colorPrimaryContainer)));
+        mCircleView.setBackgroundTintList(ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), com.google.android.material.R.attr.colorPrimaryContainer)));
         mCircleView.setClipToOutline(true);
 
         mLoadingIndicator = new LoadingIndicator(getContext());
-        mLoadingIndicator.setIndicatorColor(ContextUtils.getAttrColor(getContext(), R.attr.colorPrimary));
+        mLoadingIndicator.setIndicatorColor(ContextUtils.getAttrColor(getContext(), androidx.appcompat.R.attr.colorPrimary));
         mLoadingIndicator.setContainerWidth(containerWidth);
         mLoadingIndicator.setContainerHeight(containerHeight);
         mLoadingIndicator.setIndicatorSize(indicatorSize);
@@ -367,7 +367,7 @@ public class LoadingIndicatorRefreshLayout extends ViewGroup implements NestedSc
 
         mStaticLoadingView = new AppCompatImageView(getContext());
         mStaticLoadingView.setImageResource(R.drawable.loading_indicator);
-        mStaticLoadingView.setImageTintList(ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), R.attr.colorPrimary)));
+        mStaticLoadingView.setImageTintList(ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), androidx.appcompat.R.attr.colorPrimary)));
         mStaticLoadingView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         mStaticLoadingView.setAdjustViewBounds(true);
         mStaticLoadingView.setLayoutParams(new FrameLayout.LayoutParams(indicatorSize, indicatorSize, Gravity.CENTER));

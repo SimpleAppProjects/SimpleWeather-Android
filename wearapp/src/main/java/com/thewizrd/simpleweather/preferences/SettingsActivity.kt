@@ -89,6 +89,7 @@ import com.thewizrd.simpleweather.wearable.tiles.WeatherTileHelper
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
 class SettingsActivity : UserLocaleActivity() {
     companion object {
@@ -178,7 +179,7 @@ class SettingsActivity : UserLocaleActivity() {
         private lateinit var onBackPressedCallback: OnBackPressedCallback
 
         override val titleResId: Int
-            get() = R.string.title_activity_settings
+            get() = sharedRes.string.title_activity_settings
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -196,7 +197,7 @@ class SettingsActivity : UserLocaleActivity() {
                         // functionality that depends on this permission.
                         followGps.isChecked = false
                         settingsManager.setFollowGPS(false)
-                        showToast(R.string.error_location_denied, Toast.LENGTH_SHORT)
+                        showToast(sharedRes.string.error_location_denied, Toast.LENGTH_SHORT)
                     }
                 }
             )
@@ -205,7 +206,7 @@ class SettingsActivity : UserLocaleActivity() {
                 override fun handleOnBackPressed() {
                     if (isProviderAndKeyInvalid()) {
                         // Set keyentrypref color to red
-                        showToast(R.string.message_enter_apikey, Toast.LENGTH_SHORT)
+                        showToast(sharedRes.string.message_enter_apikey, Toast.LENGTH_SHORT)
                     }
                 }
             }
@@ -427,7 +428,7 @@ class SettingsActivity : UserLocaleActivity() {
                                     )
                                 ) {
                                     showToast(
-                                        R.string.error_enable_location_services,
+                                        sharedRes.string.error_enable_location_services,
                                         Toast.LENGTH_SHORT
                                     )
                                     settingsManager.setFollowGPS(false)
@@ -457,11 +458,11 @@ class SettingsActivity : UserLocaleActivity() {
                 }
             intervalPref = findPreference(SettingsManager.KEY_REFRESHINTERVAL)!!
             if (enableAdditionalRefreshIntervals()) {
-                intervalPref.setEntries(R.array.premium_refreshinterval_entries)
-                intervalPref.setEntryValues(R.array.premium_refreshinterval_values)
+                intervalPref.setEntries(sharedRes.array.premium_refreshinterval_entries)
+                intervalPref.setEntryValues(sharedRes.array.premium_refreshinterval_values)
             } else {
-                intervalPref.setEntries(R.array.refreshinterval_entries)
-                intervalPref.setEntryValues(R.array.refreshinterval_values)
+                intervalPref.setEntries(sharedRes.array.refreshinterval_entries)
+                intervalPref.setEntryValues(sharedRes.array.refreshinterval_values)
             }
 
             bgLocationPref = findPreference(KEY_BGLOCATIONACCESS)!!
@@ -497,7 +498,7 @@ class SettingsActivity : UserLocaleActivity() {
             for (i in langCodes.indices) {
                 val code = langCodes[i]
                 if (TextUtils.isEmpty(code)) {
-                    langEntries[i] = getString(R.string.summary_default)
+                    langEntries[i] = getString(sharedRes.string.summary_default)
                 } else {
                     val localeCode = code.toString()
                     val locale = LocaleUtils.getLocaleForTag(localeCode)
@@ -765,7 +766,7 @@ class SettingsActivity : UserLocaleActivity() {
 
                                 dialog.dismiss()
                             } else {
-                                showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
+                                showToast(sharedRes.string.message_keyinvalid, Toast.LENGTH_SHORT)
                             }
                         } catch (e: WeatherException) {
                             Logger.writeLine(Log.ERROR, e)
@@ -790,7 +791,7 @@ class SettingsActivity : UserLocaleActivity() {
 
         private val localeSummaryFunc: Function<String, CharSequence> = Function { input ->
             if (input.isNullOrBlank()) {
-                getString(R.string.summary_default)
+                getString(sharedRes.string.summary_default)
             } else {
                 LocaleUtils.getLocaleDisplayName()
             }
@@ -833,13 +834,18 @@ class SettingsActivity : UserLocaleActivity() {
 
                 val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
                 val summary: Spannable = SpannableString(
-                    if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)
+                    if (keyVerified) getString(sharedRes.string.message_keyverified) else getString(
+                        sharedRes.string.message_keyinvalid
+                    )
                 )
                 summary.setSpan(colorSpan, 0, summary.length, 0)
                 keyEntry.summary = summary
             } else {
                 keyEntry.summary =
-                    getString(R.string.pref_summary_apikey, providerAPI ?: WeatherIcons.EM_DASH)
+                    getString(
+                        sharedRes.string.pref_summary_apikey,
+                        providerAPI ?: WeatherIcons.EM_DASH
+                    )
             }
         }
 
@@ -914,12 +920,12 @@ class SettingsActivity : UserLocaleActivity() {
         private lateinit var pressureUnitPref: ListPreference
 
         override val titleResId: Int
-            get() = R.string.pref_title_units
+            get() = sharedRes.string.pref_title_units
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_units, rootKey)
 
-            preferenceScreen.setTitle(R.string.pref_title_units)
+            preferenceScreen.setTitle(sharedRes.string.pref_title_units)
 
             tempUnitPref = findPreference(SettingsManager.KEY_TEMPUNIT)!!
             speedUnitPref = findPreference(SettingsManager.KEY_SPEEDUNIT)!!
@@ -931,8 +937,8 @@ class SettingsActivity : UserLocaleActivity() {
                 Preference.OnPreferenceClickListener {
                     activity?.let {
                         val params = WearDialogParams.Builder(it)
-                            .setTitle(R.string.pref_title_units)
-                            .setItems(R.array.default_units) { dialog, which ->
+                            .setTitle(sharedRes.string.pref_title_units)
+                            .setItems(sharedRes.array.default_units) { dialog, which ->
                                 val isFahrenheit = which == 0
                                 tempUnitPref.value =
                                     if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
@@ -960,7 +966,7 @@ class SettingsActivity : UserLocaleActivity() {
 
     class IconsFragment : WearIconProviderPickerFragment() {
         override val titleResId: Int
-            get() = R.string.pref_title_icons
+            get() = sharedRes.string.pref_title_icons
 
         override fun getDefaultKey(): String {
             return settingsManager.getIconsProvider()
@@ -1000,6 +1006,10 @@ class SettingsActivity : UserLocaleActivity() {
                 return
             }
             super.onRadioButtonConfirmed(selectedKey)
+            AnalyticsLogger.logEvent("W_Icon_Selected", Bundle().apply {
+                putString("iconProvider", selectedKey)
+            })
+            AnalyticsLogger.setUserProperty(AnalyticsProps.ICON_PROVIDER, selectedKey)
         }
     }
 
@@ -1012,7 +1022,7 @@ class SettingsActivity : UserLocaleActivity() {
         }
 
         override val titleResId: Int
-            get() = R.string.pref_title_about
+            get() = sharedRes.string.pref_title_about
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_aboutapp, rootKey)
@@ -1049,7 +1059,7 @@ class SettingsActivity : UserLocaleActivity() {
         private val confirmationViewModel: ConfirmationViewModel by viewModels()
 
         override val titleResId: Int
-            get() = R.string.pref_title_credits
+            get() = sharedRes.string.pref_title_credits
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -1118,7 +1128,7 @@ class SettingsActivity : UserLocaleActivity() {
 
     class OSSCreditsFragment : SwipeDismissPreferenceFragment() {
         override val titleResId: Int
-            get() = R.string.pref_title_oslibs
+            get() = sharedRes.string.pref_title_oslibs
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_oslibs, rootKey)

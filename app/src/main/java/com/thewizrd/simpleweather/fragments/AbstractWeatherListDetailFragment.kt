@@ -29,9 +29,9 @@ import androidx.core.content.res.use
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
+import androidx.navigation.fragment.R
 import androidx.navigation.fragment.NavHostFragment
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
-import com.thewizrd.simpleweather.R
 
 /**
  * A fragment supports adaptive two-pane layout. The first child is a list pane, which could be a

@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter
 class ClockToolbar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.toolbarStyle
+    defStyleAttr: Int = androidx.appcompat.R.attr.toolbarStyle
 ) : MaterialToolbar(context, attrs, defStyleAttr) {
     private var mFormat12: CharSequence? = null
     private var mFormat24: CharSequence? = null
@@ -107,7 +107,10 @@ class ClockToolbar @JvmOverloads constructor(
         val a = context.obtainStyledAttributes(attrs, R.styleable.ClockToolbar)
         ViewCompat.saveAttributeDataForStyleable(
             this, context, R.styleable.ClockToolbar,
-            attrs, a, defStyleAttr, R.style.Widget_MaterialComponents_Toolbar
+            attrs,
+            a,
+            defStyleAttr,
+            com.google.android.material.R.style.Widget_MaterialComponents_Toolbar
         )
 
         try {

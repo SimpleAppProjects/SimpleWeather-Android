@@ -3,6 +3,7 @@ package com.thewizrd.weather_api.meteomatics.weather
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -20,7 +21,6 @@ import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.auth.BasicAuthProviderKey
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
-import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
 import com.thewizrd.weather_api.smc.SunMoonCalcProvider
@@ -309,6 +309,8 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
     }
 
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)
         weather.condition!!.observationTime =

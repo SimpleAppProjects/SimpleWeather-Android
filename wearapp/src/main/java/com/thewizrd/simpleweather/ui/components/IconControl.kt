@@ -30,7 +30,6 @@ fun WeatherIcon(
         factory = {
             IconControl(it).apply {
                 this.scaleType = alignment.scaleType
-                this.showAsMonochrome = showAsMonochrome
                 this.shouldAnimate = shouldAnimate
                 this.forceDarkMode = forceDarkMode
                 this.iconProvider = iconProvider
@@ -40,8 +39,8 @@ fun WeatherIcon(
                 if (useDefaultIconProvider) {
                     useDefaultIconProvider()
                 }
-
                 this.contentDescription = contentDescription
+                this.showAsMonochrome = showAsMonochrome
             }
         },
         update = {
@@ -50,6 +49,9 @@ fun WeatherIcon(
             }
             if (it.weatherIcon != weatherIcon) {
                 it.weatherIcon = weatherIcon
+            }
+            if (it.showAsMonochrome != showAsMonochrome) {
+                it.showAsMonochrome = showAsMonochrome
             }
         }
     )

@@ -1,6 +1,7 @@
 package com.thewizrd.weather_api.meteofrance.weather
 
 import android.util.Log
+import androidx.core.net.toUri
 import com.ibm.icu.util.ULocale
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -11,7 +12,12 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.LocationUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.ZoneIdCompat
+import com.thewizrd.shared_resources.utils.createUnsupportedLocationException
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -38,15 +44,12 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class MeteoFranceProvider : WeatherProviderImpl() {
     companion object {
         private const val BASE_URL = "https://webservice.meteofrance.com/"
-        private const val CURRENT_QUERY_URL = BASE_URL + "observation/gridded?%s&lang=%s&token=%s"
-        private const val FORECAST_QUERY_URL = BASE_URL + "forecast?%s&lang=%s&token=%s"
-        private const val ALERTS_QUERY_URL = BASE_URL + "warning/full?domain=%s&token=%s"
     }
 
     init {
@@ -140,13 +143,33 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                     throw WeatherException(ErrorStatus.INVALIDAPIKEY)
                 }
 
+                val df = DecimalFormat.getInstance(Locale.ROOT) as DecimalFormat
+                df.applyPattern("0.####")
+
+                val currentRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendPath("v2/observation")
+                    .appendQueryParameter("lat", df.format(location.latitude))
+                    .appendQueryParameter("lon", df.format(location.longitude))
+                    .appendQueryParameter("lang", locale)
+                    .appendQueryParameter("token", key)
+                    .build()
+
                 val currentRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 15, TimeUnit.MINUTES)
-                    .url(String.format(CURRENT_QUERY_URL, query, locale, key))
+                    .url(currentRequestUri.toString())
                     .build()
+
+                val forecastRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendPath("v2/forecast")
+                    .appendQueryParameter("lat", df.format(location.latitude))
+                    .appendQueryParameter("lon", df.format(location.longitude))
+                    .appendQueryParameter("lang", locale)
+                    .appendQueryParameter("token", key)
+                    .build()
+
                 val forecastRequest = Request.Builder()
                     .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                    .url(String.format(FORECAST_QUERY_URL, query, locale, key))
+                    .url(forecastRequestUri.toString())
                     .build()
 
                 // Connect to webstream
@@ -171,18 +194,28 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 )
                 var alertsRoot: AlertsResponse? = null
 
-                if (foreRoot?.position?.dept != null) {
-                    val alertsRequest = Request.Builder()
-                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
-                        .url(String.format(ALERTS_QUERY_URL, foreRoot.position!!.dept, key))
+                foreRoot?.properties?.frenchDepartment.let { dept ->
+                    val alertsRequestUri = BASE_URL.toUri().buildUpon()
+                        .appendPath("v3/warning/full")
+                        .appendQueryParameter("domain", dept)
+                        .appendQueryParameter("token", key)
                         .build()
 
-                    alertsResponse = client.newCall(alertsRequest).await()
-                    alertStream = alertsResponse.getStream()
-                    alertsRoot = JSONParser.deserializer<AlertsResponse>(
-                        alertStream,
-                        AlertsResponse::class.java
-                    )
+                    val alertsRequest = Request.Builder()
+                        .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                        .url(alertsRequestUri.toString())
+                        .build()
+
+                    runCatching {
+                        alertsResponse = client.newCall(alertsRequest).await()
+                        alertStream = alertsResponse.getStream()
+                        alertsRoot = JSONParser.deserializer<AlertsResponse>(
+                            alertStream,
+                            AlertsResponse::class.java
+                        )
+                    }.getOrElse {
+                        Logger.warn("MeteoFranceProvider", it, "Error fetching alerts")
+                    }
                 }
 
                 // End Stream
@@ -227,6 +260,8 @@ class MeteoFranceProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // MeteoFrance reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)
@@ -242,36 +277,23 @@ class MeteoFranceProvider : WeatherProviderImpl() {
         }
 
         // Update icons
-        val now = ZonedDateTime.now(ZoneOffset.UTC).withZoneSameInstant(offset).toLocalTime()
-        val sunrise = weather.astronomy!!.sunrise.toLocalTime()
-        val sunset = weather.astronomy!!.sunset.toLocalTime()
-
-        weather.condition!!.icon =
-            getWeatherIcon(now.isBefore(sunrise) || now.isAfter(sunset), weather.condition!!.icon)
+        weather.condition!!.icon = getWeatherIcon(weather.condition!!.icon)
 
         for (forecast in weather.forecast!!) {
             forecast.date = forecast.date.plusSeconds(offset.totalSeconds.toLong())
+            forecast.icon = getWeatherIcon(false, forecast.icon)
         }
 
         for (hr_forecast in weather.hrForecast!!) {
             val hrf_date = hr_forecast.date.withZoneSameInstant(offset)
             hr_forecast.date = hrf_date
-            val hrf_localTime = hrf_date.toLocalTime()
-            hr_forecast.icon = getWeatherIcon(
-                hrf_localTime.isBefore(sunrise) || hrf_localTime.isAfter(sunset),
-                hr_forecast.icon
-            )
+            hr_forecast.icon = getWeatherIcon(hr_forecast.icon)
         }
 
         if (!weather.weatherAlerts.isNullOrEmpty()) {
             for (alert in weather.weatherAlerts) {
-                if (alert.date.offset != offset) {
-                    alert.date = alert.date.withZoneSameLocal(offset)
-                }
-
-                if (alert.expiresDate.offset != offset) {
-                    alert.expiresDate = alert.expiresDate.withZoneSameLocal(offset)
-                }
+                alert.date = alert.date.withZoneSameInstant(offset)
+                alert.expiresDate = alert.expiresDate.withZoneSameInstant(offset)
             }
         }
     }

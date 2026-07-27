@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
-import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.LocaleUtils
@@ -14,7 +13,8 @@ import java.text.DecimalFormat
 
 class MinutelyForecastViewModel(minutely: MinutelyForecast) {
     val date: String
-    val rainAmount: String
+    val precipAmount: String
+    val isSnow: Boolean
 
     init {
         val context = appLib.context
@@ -33,35 +33,38 @@ class MinutelyForecastViewModel(minutely: MinutelyForecast) {
         }
         date = minutely.date.format(fmt)
 
-        if (minutely.rainMm != null) {
-            val unit = settingsMgr.getPrecipitationUnit()
-            val precipValue: Float
-            val precipUnit: String
+        val raimMm = minutely.rainMm ?: 0f
+        val snowMm = minutely.snowMm ?: 0f
+        isSnow = snowMm > raimMm
+        val precipValueMm = if (isSnow) snowMm else raimMm
 
-            when (unit) {
-                Units.INCHES -> {
-                    precipValue = ConversionMethods.mmToIn(minutely.rainMm)
-                    precipUnit = context.getString(R.string.unit_in)
-                }
-                Units.MILLIMETERS -> {
-                    precipValue = minutely.rainMm
-                    precipUnit = context.getString(R.string.unit_mm)
-                }
-                else -> {
-                    precipValue = ConversionMethods.mmToIn(minutely.rainMm)
-                    precipUnit = context.getString(R.string.unit_in)
-                }
+        val unit = settingsMgr.getPrecipitationUnit()
+        val precipValue: Float
+        val precipUnit: String
+
+        when (unit) {
+            Units.INCHES -> {
+                precipValue = ConversionMethods.mmToIn(precipValueMm)
+                precipUnit = context.getString(R.string.unit_in)
             }
 
-            rainAmount = String.format(
-                LocaleUtils.getLocale(),
-                "%s %s",
-                df.format(precipValue.toDouble()),
-                precipUnit
-            )
-        } else {
-            rainAmount = WeatherIcons.EM_DASH
+            Units.MILLIMETERS -> {
+                precipValue = precipValueMm
+                precipUnit = context.getString(R.string.unit_mm)
+            }
+
+            else -> {
+                precipValue = ConversionMethods.mmToIn(precipValueMm)
+                precipUnit = context.getString(R.string.unit_in)
+            }
         }
+
+        precipAmount = String.format(
+            LocaleUtils.getLocale(),
+            "%s %s",
+            df.format(precipValue.toDouble()),
+            precipUnit
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -71,14 +74,16 @@ class MinutelyForecastViewModel(minutely: MinutelyForecast) {
         other as MinutelyForecastViewModel
 
         if (date != other.date) return false
-        if (rainAmount != other.rainAmount) return false
+        if (precipAmount != other.precipAmount) return false
+        if (isSnow != other.isSnow) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = date.hashCode()
-        result = 31 * result + rainAmount.hashCode()
+        result = 31 * result + precipAmount.hashCode()
+        result = 31 * result + isSnow.hashCode()
         return result
     }
 }

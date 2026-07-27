@@ -3,6 +3,7 @@ package com.thewizrd.weather_api.tomorrow
 import android.util.Log
 import androidx.core.net.toUri
 import com.ibm.icu.util.ULocale
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.icons.WeatherIcons
@@ -21,7 +22,6 @@ import com.thewizrd.shared_resources.weatherdata.auth.AuthType
 import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
-import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.extras.cacheRequestIfNeeded
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationiq.LocationIQProvider
@@ -46,7 +46,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
@@ -189,7 +189,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .appendQueryParameter("location", query)
                     .appendQueryParameter(
                         "fields",
-                        "temperature,temperatureApparent,temperatureMin,temperatureMax,dewPoint,humidity,windSpeed,windDirection,windGust,pressureSeaLevel,precipitationIntensity,precipitationProbability,snowAccumulation,sunriseTime,sunsetTime,visibility,cloudCover,moonPhase,weatherCode,weatherCodeFullDay,weatherCodeDay,weatherCodeNight,treeIndex,grassIndex,weedIndex,epaIndex,particulateMatter25,particulateMatter10,pollutantO3,pollutantNO2,pollutantCO,pollutantSO2"
+                        "temperature,temperatureApparent,temperatureMin,temperatureMax,dewPoint,humidity,windSpeed,windDirection,windGust,pressureSeaLevel,precipitationIntensity,precipitationProbability,precipitationType,snowAccumulation,sunriseTime,sunsetTime,visibility,cloudCover,moonPhase,weatherCode,weatherCodeFullDay,weatherCodeDay,weatherCodeNight,treeIndex,grassIndex,weedIndex,epaIndex,particulateMatter25,particulateMatter10,pollutantO3,pollutantNO2,pollutantCO,pollutantSO2"
                     )
                     .appendQueryParameter("timesteps", "current,1h,1d")
                     .appendQueryParameter("units", "metric")
@@ -207,7 +207,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     .appendQueryParameter("location", query)
                     .appendQueryParameter(
                         "fields",
-                        "precipitationIntensity,precipitationProbability"
+                        "precipitationIntensity,precipitationProbability,precipitationType"
                     )
                     .appendQueryParameter("timesteps", "1m")
                     .appendQueryParameter("units", "metric")
@@ -258,8 +258,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
                 runCatching {
                     minutelyResponse = client.newCall(minutelyRequest).await()
-                    checkForErrors(minutelyResponse!!)
-                    minutelyResponse!!.getStream().use {
+                    checkForErrors(minutelyResponse)
+                    minutelyResponse.getStream().use {
                         minutelyRoot =
                             JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                     }
@@ -267,8 +267,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
                 runCatching {
                     alertsResponse = client.newCall(alertsRequest).await()
-                    checkForErrors(alertsResponse!!)
-                    alertsResponse!!.getStream().use {
+                    checkForErrors(alertsResponse)
+                    alertsResponse.getStream().use {
                         alertsRoot = JSONParser.deserializer<AlertsRootobject>(
                             it,
                             AlertsRootobject::class.java
@@ -396,6 +396,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
 
         // Update tz for weather properties
@@ -464,13 +466,8 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
 
         if (!weather.weatherAlerts.isNullOrEmpty()) {
             for (alert in weather.weatherAlerts) {
-                if (alert.date.offset != offset) {
-                    alert.date = alert.date.withZoneSameLocal(offset)
-                }
-
-                if (alert.expiresDate.offset != offset) {
-                    alert.expiresDate = alert.expiresDate.withZoneSameLocal(offset)
-                }
+                alert.date = alert.date.withZoneSameInstant(offset)
+                alert.expiresDate = alert.expiresDate.withZoneSameInstant(offset)
             }
         }
     }
@@ -1010,7 +1007,9 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
             4210, 42100, 42101 -> context.getString(R.string.weather_rain)
             /* Heavy Rain */
             4201, 42010, 42011,
-            4211, 42110, 42111 -> context.getString(R.string.weather_heavyrain)
+            4211, 42110, 42111,
+            4202, 42020, 42021,
+            4212, 42120, 42121 -> context.getString(R.string.weather_heavyrain)
             /* Flurries */
             5001, 50010, 50011,
             5115, 51150, 51151,

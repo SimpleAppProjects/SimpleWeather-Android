@@ -11,7 +11,11 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.DateTimeUtils
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.ZoneIdCompat
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.auth.AuthType
@@ -40,7 +44,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import com.thewizrd.weather_api.openweather.weather.onecall.Rootobject as OneCallRootobject
 import com.thewizrd.weather_api.openweather.weather.onecall.createWeatherData as createOneCallWeatherData
@@ -243,6 +247,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // OWM reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)
@@ -290,13 +296,8 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
 
         if (weather.weatherAlerts?.isNotEmpty() == true) {
             for (alert in weather.weatherAlerts) {
-                if (alert.date.offset != offset) {
-                    alert.date = alert.date.withZoneSameLocal(offset)
-                }
-
-                if (alert.expiresDate.offset != offset) {
-                    alert.expiresDate = alert.expiresDate.withZoneSameLocal(offset)
-                }
+                alert.date = alert.date.withZoneSameInstant(offset)
+                alert.expiresDate = alert.expiresDate.withZoneSameInstant(offset)
             }
         }
     }

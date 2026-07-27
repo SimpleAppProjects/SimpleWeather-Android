@@ -49,6 +49,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherChartsFragment : CollapsingToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
@@ -115,7 +116,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
@@ -224,7 +225,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
     }
 
     override val titleResId: Int
-        get() = R.string.label_forecast
+        get() = sharedRes.string.label_forecast
 
     private fun initialize() {
         if (locationData == null) {
@@ -309,8 +310,8 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
                     if (hrfcasts.firstOrNull()?.extras?.pop != null || hrfcasts.lastOrNull()?.extras?.pop != null) {
                         popData = ForecastGraphViewModel(ctx)
                     }
-                    if (hrfcasts.firstOrNull()?.windMph != null && hrfcasts.firstOrNull()?.windKph != null ||
-                        hrfcasts.lastOrNull()?.windMph != null && hrfcasts.lastOrNull()?.windKph != null
+                    if (hrfcasts.firstOrNull()?.extras?.windMph != null && hrfcasts.firstOrNull()?.extras?.windKph != null ||
+                        hrfcasts.lastOrNull()?.extras?.windMph != null && hrfcasts.lastOrNull()?.extras?.windKph != null
                     ) {
                         windData = ForecastGraphViewModel(ctx)
                     }
@@ -343,7 +344,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
                     }
                 }
                 if (windData != null) {
-                    if (hrfcast.windMph != null && hrfcast.windKph != null) {
+                    if (hrfcast.extras?.windMph != null && hrfcast.extras?.windKph != null) {
                         windData.addForecastData(
                             hrfcast,
                             ForecastType.WIND,

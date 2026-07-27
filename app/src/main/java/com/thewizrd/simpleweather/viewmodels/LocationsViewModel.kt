@@ -21,6 +21,7 @@ import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.CommonActions
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.LocationPanelUiModel
 import kotlinx.coroutines.Dispatchers
@@ -263,7 +264,7 @@ class LocationsViewModel(app: Application) : AndroidViewModel(app) {
                 getApplication<Application>().getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
             if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
+                return LocationResult.Error(errorMessage = ErrorMessage.Resource(sharedRes.string.error_retrieve_location))
             }
 
             return locationProvider.getLatestLocationData()

@@ -1,7 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.plugin.compose'
 }
@@ -15,11 +13,11 @@ android {
         // Specifies the fully-qualified class name of the test instrumentation runner.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 26
-        targetSdkVersion libs.versions.targetSdkVersion.get()
+        targetSdkVersion libs.versions.wearTargetSdkVersion.get()
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code [Android: 0, WearOS: 1])
         // ex) 345100131 = (34, 5.10, 013, 1)
-        versionCode 365130141
-        versionName "5.13.0"
+        versionCode 365140111
+        versionName "5.14.0"
 
         vectorDrawables {
             useSupportLibrary true
@@ -64,8 +62,8 @@ android {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
         // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     composeOptions {
@@ -73,7 +71,7 @@ android {
     }
 
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     sourceSets {

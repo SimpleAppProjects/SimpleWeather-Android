@@ -97,6 +97,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import java.util.Collections
 import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun DetailsWeatherTileConfigScreen(
@@ -315,7 +316,7 @@ private fun DetailsWeatherTileConfigScreen(
                             ) {
                                 Icon(
                                     modifier = Modifier.size(ButtonDefaults.IconSize),
-                                    painter = painterResource(id = R.drawable.ic_close_white_24dp),
+                                    painter = painterResource(id = sharedRes.drawable.ic_close_white_24dp),
                                     contentDescription = null,
                                 )
                             }
@@ -396,7 +397,7 @@ private fun DetailsWeatherTileConfigScreen(
                     Icon(
                         modifier = Modifier.size(ButtonDefaults.IconSize),
                         painter = painterResource(id = R.drawable.ic_restart_alt_24dp),
-                        contentDescription = stringResource(R.string.action_reset),
+                        contentDescription = stringResource(sharedRes.string.action_reset),
                     )
                 }
                 IconButton(
@@ -458,14 +459,14 @@ private fun DetailsWeatherTileConfigScreen(
             modifier = Modifier.fillMaxSize(),
             visible = showAddTileDialog,
             onDismissRequest = { showAddTileDialog = false },
-            title = { Text(text = stringResource(id = R.string.label_details)) },
+            title = { Text(text = stringResource(id = sharedRes.string.label_details)) },
             edgeButton = {
                 EdgeButton(
                     onClick = { showAddTileDialog = false }
                 ) {
                     Icon(
                         modifier = Modifier.size(ButtonDefaults.IconSize),
-                        painter = painterResource(id = R.drawable.ic_close_white_24dp),
+                        painter = painterResource(id = sharedRes.drawable.ic_close_white_24dp),
                         contentDescription = stringResource(android.R.string.cancel)
                     )
                 }
@@ -540,7 +541,7 @@ private fun WeatherDetailsType.toWeatherIcon(): String = when (this) {
     WeatherDetailsType.WINDGUST -> WeatherIcons.CLOUDY_GUSTS
     WeatherDetailsType.HUMIDITY -> WeatherIcons.HUMIDITY
     WeatherDetailsType.PRESSURE -> WeatherIcons.BAROMETER
-    WeatherDetailsType.VISIBILITY -> WeatherIcons.FOG
+    WeatherDetailsType.VISIBILITY -> WeatherIcons.VISIBILITY
     WeatherDetailsType.POPCLOUDINESS -> WeatherIcons.CLOUDY
     WeatherDetailsType.POPCHANCE -> WeatherIcons.UMBRELLA
     WeatherDetailsType.POPRAIN -> WeatherIcons.RAINDROPS
@@ -551,33 +552,33 @@ private fun WeatherDetailsType.toWeatherIcon(): String = when (this) {
     WeatherDetailsType.MOONPHASE -> WeatherIcons.MOON_NEW
     WeatherDetailsType.BEAUFORT -> WeatherIcons.WIND_BEAUFORT_0
     WeatherDetailsType.UV -> WeatherIcons.UV_INDEX
-    WeatherDetailsType.AIRQUALITY -> WeatherIcons.CLOUDY_GUSTS
+    WeatherDetailsType.AIRQUALITY -> WeatherIcons.AIR_QUALITY
     WeatherDetailsType.TREEPOLLEN -> WeatherIcons.TREE_POLLEN
     WeatherDetailsType.GRASSPOLLEN -> WeatherIcons.GRASS_POLLEN
     WeatherDetailsType.RAGWEEDPOLLEN -> WeatherIcons.RAGWEED_POLLEN
 }
 
 private fun WeatherDetailsType.toLabelStringResId(): Int = when (this) {
-    WeatherDetailsType.SUNRISE -> R.string.label_sunrise
-    WeatherDetailsType.SUNSET -> R.string.label_sunset
-    WeatherDetailsType.FEELSLIKE -> R.string.label_feelslike
-    WeatherDetailsType.WINDSPEED -> R.string.label_wind
-    WeatherDetailsType.WINDGUST -> R.string.label_windgust
-    WeatherDetailsType.HUMIDITY -> R.string.label_humidity
-    WeatherDetailsType.PRESSURE -> R.string.label_pressure
-    WeatherDetailsType.VISIBILITY -> R.string.label_visibility
-    WeatherDetailsType.POPCHANCE -> R.string.label_chance
-    WeatherDetailsType.POPCLOUDINESS -> R.string.label_cloudiness
-    WeatherDetailsType.POPRAIN -> R.string.label_qpf_rain
-    WeatherDetailsType.POPSNOW -> R.string.label_qpf_snow
-    WeatherDetailsType.DEWPOINT -> R.string.label_dewpoint
-    WeatherDetailsType.MOONRISE -> R.string.label_moonrise
-    WeatherDetailsType.MOONSET -> R.string.label_moonset
-    WeatherDetailsType.MOONPHASE -> R.string.label_moonphase
-    WeatherDetailsType.BEAUFORT -> R.string.label_beaufort
-    WeatherDetailsType.UV -> R.string.label_uv
-    WeatherDetailsType.AIRQUALITY -> R.string.label_airquality
-    WeatherDetailsType.TREEPOLLEN -> R.string.label_tree_pollen
-    WeatherDetailsType.GRASSPOLLEN -> R.string.label_grass_pollen
-    WeatherDetailsType.RAGWEEDPOLLEN -> R.string.label_ragweed_pollen
+    WeatherDetailsType.SUNRISE -> sharedRes.string.label_sunrise
+    WeatherDetailsType.SUNSET -> sharedRes.string.label_sunset
+    WeatherDetailsType.FEELSLIKE -> sharedRes.string.label_feelslike
+    WeatherDetailsType.WINDSPEED -> sharedRes.string.label_wind
+    WeatherDetailsType.WINDGUST -> sharedRes.string.label_windgust
+    WeatherDetailsType.HUMIDITY -> sharedRes.string.label_humidity
+    WeatherDetailsType.PRESSURE -> sharedRes.string.label_pressure
+    WeatherDetailsType.VISIBILITY -> sharedRes.string.label_visibility
+    WeatherDetailsType.POPCHANCE -> sharedRes.string.label_chance
+    WeatherDetailsType.POPCLOUDINESS -> sharedRes.string.label_cloudiness
+    WeatherDetailsType.POPRAIN -> sharedRes.string.label_qpf_rain
+    WeatherDetailsType.POPSNOW -> sharedRes.string.label_qpf_snow
+    WeatherDetailsType.DEWPOINT -> sharedRes.string.label_dewpoint
+    WeatherDetailsType.MOONRISE -> sharedRes.string.label_moonrise
+    WeatherDetailsType.MOONSET -> sharedRes.string.label_moonset
+    WeatherDetailsType.MOONPHASE -> sharedRes.string.label_moonphase
+    WeatherDetailsType.BEAUFORT -> sharedRes.string.label_beaufort
+    WeatherDetailsType.UV -> sharedRes.string.label_uv
+    WeatherDetailsType.AIRQUALITY -> sharedRes.string.label_airquality
+    WeatherDetailsType.TREEPOLLEN -> sharedRes.string.label_tree_pollen
+    WeatherDetailsType.GRASSPOLLEN -> sharedRes.string.label_grass_pollen
+    WeatherDetailsType.RAGWEEDPOLLEN -> sharedRes.string.label_ragweed_pollen
 }

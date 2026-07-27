@@ -5,6 +5,7 @@ import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.tiles.RequestBuilders
 import com.google.android.horologist.tiles.images.drawableResToImageResource
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -49,21 +50,21 @@ class HourlyForecastWeatherTileProviderService : WeatherCoroutinesTileService() 
             ID_WEATHER_CHANCE_ICON -> {
                 addIdToImageMapping(
                     ID_WEATHER_CHANCE_ICON,
-                    drawableResToImageResource(R.drawable.wi_umbrella)
+                    drawableResToImageResource(sharedRes.drawable.wi_umbrella)
                 )
             }
 
             ID_WEATHER_CLOUDINESS_ICON -> {
                 addIdToImageMapping(
                     ID_WEATHER_CLOUDINESS_ICON,
-                    drawableResToImageResource(R.drawable.wi_cloudy)
+                    drawableResToImageResource(sharedRes.drawable.wi_cloudy)
                 )
             }
 
             ID_WEATHER_WINDSPEED_ICON -> {
                 addIdToImageMapping(
                     ID_WEATHER_WINDSPEED_ICON,
-                    drawableResToImageResource(R.drawable.wi_strong_wind)
+                    drawableResToImageResource(sharedRes.drawable.wi_strong_wind)
                 )
             }
         }

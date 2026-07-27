@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id 'com.android.legacy-kapt'
     id 'com.google.devtools.ksp'
     id 'androidx.room'
 }
@@ -11,7 +10,6 @@ android {
 
     defaultConfig {
         minSdk libs.versions.minSdkVersion.get().toInteger()
-        targetSdk libs.versions.targetSdkVersion.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -40,12 +38,12 @@ android {
     compileOptions {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     room {
@@ -63,13 +61,26 @@ android {
     productFlavors {
         nongms {
             dimension 'gms'
+            buildConfigField "boolean", "IS_NONGMS", "true"
         }
         fullgms {
             dimension 'gms'
+            buildConfigField "boolean", "IS_NONGMS", "false"
+            externalNativeBuild {
+                ndkBuild {
+                    arguments "FULL_GMS_VERSION=true"
+                }
+            }
         }
     }
 
     namespace 'com.thewizrd.weather_api'
+    lint {
+        targetSdk libs.versions.targetSdkVersion.get().toInteger()
+    }
+    testOptions {
+        targetSdk libs.versions.targetSdkVersion.get().toInteger()
+    }
 }
 
 dependencies {

@@ -21,6 +21,7 @@ import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.common.utils.glide.CustomRoundedCorners
 import com.thewizrd.common.utils.glide.TransparentOverlay
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
@@ -96,7 +97,7 @@ abstract class CustomBackgroundWidgetRemoteViewCreator(
                     updateViews.setColorAttr(
                         R.id.panda_container,
                         "setBackgroundColor",
-                        R.attr.colorSurface
+                        com.google.android.material.R.attr.colorSurface
                     )
                 } else {
                     updateViews.addView(

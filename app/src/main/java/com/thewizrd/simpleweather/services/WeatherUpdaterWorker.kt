@@ -1,5 +1,6 @@
 package com.thewizrd.simpleweather.services
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
@@ -23,6 +24,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.multiprocess.RemoteWorkManager
 import com.thewizrd.common.helpers.locationPermissionEnabled
+import com.thewizrd.common.helpers.notificationPermissionEnabled
 import com.thewizrd.common.location.LocationProvider
 import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ErrorMessage
@@ -30,6 +32,7 @@ import com.thewizrd.common.utils.LiveDataUtils.awaitWithTimeout
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.preferences.SettingsManager
@@ -150,9 +153,9 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
             }
 
             return NotificationCompat.Builder(context, NOT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_monochrome)
-                .setContentTitle(context.getString(R.string.not_title_weather_update))
-                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                .setSmallIcon(sharedRes.drawable.ic_launcher_monochrome)
+                .setContentTitle(context.getString(sharedRes.string.not_title_weather_update))
+                .setColor(ContextCompat.getColor(context, sharedRes.color.colorPrimary))
                 .setOnlyAlertOnce(true)
                 .setSilent(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -170,6 +173,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
     }
 
     private object WeatherUpdaterHelper {
+        @SuppressLint("MissingPermission")
         suspend fun executeWork(context: Context): Result {
             var result = Result.success()
 
@@ -333,7 +337,7 @@ class WeatherUpdaterWorker(context: Context, workerParams: WorkerParameters) : C
 
                 val locMan = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
                 if (locMan == null || !LocationManagerCompat.isLocationEnabled(locMan)) {
-                    return LocationResult.Error(errorMessage = ErrorMessage.Resource(R.string.error_retrieve_location))
+                    return LocationResult.Error(errorMessage = ErrorMessage.Resource(sharedRes.string.error_retrieve_location))
                 }
 
                 return locationProvider.getLatestLocationData(settingsManager.getLastGPSLocData())

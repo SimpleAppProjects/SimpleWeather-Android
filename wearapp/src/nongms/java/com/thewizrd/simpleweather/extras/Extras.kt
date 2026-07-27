@@ -39,7 +39,7 @@ fun SettingsActivity.IconsFragment.navigateUnsupportedIconPack() {
 }
 
 fun enableAdditionalRefreshIntervals(): Boolean {
-    return false
+    return true
 }
 
 fun checkPremiumStatus() {

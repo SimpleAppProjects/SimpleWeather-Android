@@ -394,7 +394,7 @@ class MainActivity : WindowColorActivity() {
 
     private fun updateWindowColors(mode: UserThemeMode) {
         var backgroundColor = getAttrColor(android.R.attr.colorBackground)
-        var navBarColor = getAttrColor(R.attr.colorSurface)
+        var navBarColor = getAttrColor(com.google.android.material.R.attr.colorSurface)
         if (mode == UserThemeMode.AMOLED_DARK) {
             backgroundColor = Colors.BLACK
             navBarColor = Colors.BLACK

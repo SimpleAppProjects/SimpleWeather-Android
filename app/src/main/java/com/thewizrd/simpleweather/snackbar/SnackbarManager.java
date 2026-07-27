@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.thewizrd.shared_resources.ApplicationLibKt;
-import com.thewizrd.simpleweather.R;
 
 import java.util.Stack;
 
@@ -168,18 +167,15 @@ public final class SnackbarManager {
             mSnackbarView.setText(snackPair.snackbar.getMessageText());
             mSnackbarView.setAction(snackPair.snackbar.getActionText(), snackPair.snackbar.getAction());
             // Override Snackbar action click listener to prevent it from being dismissed on click
-            mSnackbarView.getView().findViewById(R.id.snackbar_action).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (snackPair.snackbar.getAction() != null) {
-                        snackPair.snackbar.getAction().onClick(v);
-                    }
-                    // Now dismiss the Snackbar
-                    if (snackPair.callback != null)
-                        snackPair.callback.onDismissed(mSnackbarView, BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION);
-                    if (!mSnacks.isEmpty()) mSnacks.pop();
-                    updateView();
+            mSnackbarView.getView().findViewById(com.google.android.material.R.id.snackbar_action).setOnClickListener(v -> {
+                if (snackPair.snackbar.getAction() != null) {
+                    snackPair.snackbar.getAction().onClick(v);
                 }
+                // Now dismiss the Snackbar
+                if (snackPair.callback != null)
+                    snackPair.callback.onDismissed(mSnackbarView, BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION);
+                if (!mSnacks.isEmpty()) mSnacks.pop();
+                updateView();
             });
             if (!mSnackbarView.isShown()) mSnackbarView.show();
 

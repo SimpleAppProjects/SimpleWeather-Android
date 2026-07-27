@@ -11,8 +11,8 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
     init {
         val defaultIconMap = mutableMapOf<String, WeatherIconProvider>()
         defaultIconMap.addIconProvider(WeatherIconsEFProvider())
-        defaultIconMap.addIconProvider(WUndergroundIconsProvider())
         defaultIconMap.addIconProvider(WeatherIconicProvider())
+        defaultIconMap.addIconProvider(WeatherIconicProvider(isColored = true))
         defaultIconMap.addIconProvider(JDWIIconsProvider())
         defaultIconMap.addIconProvider(GoogleWeatherIconsProvider())
         defaultIconProviders = Collections.unmodifiableMap(defaultIconMap)
@@ -96,7 +96,9 @@ class WeatherIconsManager internal constructor() : WeatherIconsProvider {
                 "pixeden-icons_set-weather" -> true
 
                 "meteocons-basmilius",
-                "wci_sliu_iconfinder" -> false
+                "meteocons-basmilius-line",
+                "wci_sliu_iconfinder",
+                "w-iconic-jackd248-multicolor" -> false
 
                 else -> true
             }

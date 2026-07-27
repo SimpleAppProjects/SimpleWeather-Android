@@ -16,12 +16,10 @@ import com.thewizrd.shared_resources.weatherdata.model.Location
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.weather_api.weatherModule
-import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 @SuppressLint("VisibleForTests")
@@ -31,41 +29,40 @@ fun createWeatherData(currRoot: CurrentsResponse, foreRoot: ForecastResponse,
         location = createLocation(foreRoot)
         updateTime = ZonedDateTime.now(ZoneOffset.UTC)
 
-        forecast = ArrayList(foreRoot.dailyForecast!!.size)
-        hrForecast = ArrayList(foreRoot.forecast!!.size)
-
         // Forecast
-        for (daily in foreRoot.dailyForecast!!) {
-            forecast!!.add(createForecast(daily!!))
+        forecast = foreRoot.properties?.dailyForecast?.map { daily ->
+            createForecast(daily)
         }
-
-        for (hourly in foreRoot.forecast!!) {
-            hrForecast!!.add(createHourlyForecast(hourly!!, foreRoot.probabilityForecast))
+        hrForecast = foreRoot.properties?.forecast?.map { hourly ->
+            createHourlyForecast(hourly, foreRoot.properties.probabilityForecast)
         }
 
         condition = createCondition(currRoot)
         atmosphere = createAtmosphere(currRoot)
+        precipitation = createPrecipitation(currRoot)
 
         ttl = 180
 
         // Observation only gives temp & wind
         if (!hrForecast.isNullOrEmpty()) {
             val firstHr = hrForecast!![0]
-            atmosphere!!.humidity = firstHr.extras.humidity
-            atmosphere!!.pressureMb = firstHr.extras.pressureMb
-            atmosphere!!.pressureIn = firstHr.extras.pressureIn
-            atmosphere!!.dewpointC = firstHr.extras.dewpointC
-            atmosphere!!.dewpointF = firstHr.extras.dewpointF
-            atmosphere!!.visibilityKm = firstHr.extras.visibilityKm
-            atmosphere!!.visibilityMi = firstHr.extras.visibilityMi
+            atmosphere?.run {
+                humidity = firstHr.extras?.humidity
+                pressureMb = firstHr.extras?.pressureMb
+                pressureIn = firstHr.extras?.pressureIn
+                dewpointC = firstHr.extras?.dewpointC
+                dewpointF = firstHr.extras?.dewpointF
+                visibilityKm = firstHr.extras?.visibilityKm
+                visibilityMi = firstHr.extras?.visibilityMi
+            }
 
-            precipitation = Precipitation().apply {
-                cloudiness = firstHr.extras.cloudiness
-                pop = firstHr.extras.pop
-                qpfRainIn = firstHr.extras.qpfRainIn
-                qpfRainMm = firstHr.extras.qpfRainMm
-                qpfSnowIn = firstHr.extras.qpfSnowIn
-                qpfSnowCm = firstHr.extras.qpfSnowCm
+            precipitation?.run {
+                cloudiness = firstHr.extras?.cloudiness
+                pop = firstHr.extras?.pop
+                qpfRainIn = firstHr.extras?.qpfRainIn
+                qpfRainMm = firstHr.extras?.qpfRainMm
+                qpfSnowIn = firstHr.extras?.qpfSnowIn
+                qpfSnowCm = firstHr.extras?.qpfSnowCm
             }
         }
 
@@ -76,7 +73,7 @@ fun createWeatherData(currRoot: CurrentsResponse, foreRoot: ForecastResponse,
             condition!!.feelslikeC = ConversionMethods.FtoC(condition!!.feelslikeF)
         }
 
-        if ((condition?.highF == null || condition?.highC == null) && forecast!!.size > 0) {
+        if ((condition?.highF == null || condition?.highC == null) && forecast!!.isNotEmpty()) {
             condition!!.highF = forecast!![0].highF
             condition!!.highC = forecast!![0].highC
             condition!!.lowF = forecast!![0].lowF
@@ -93,9 +90,9 @@ fun createLocation(foreRoot: ForecastResponse): Location {
     return Location().apply {
         // Use location name from location provider
         name = null
-        latitude = foreRoot.position?.lat
-        longitude = foreRoot.position?.lon
-        tzLong = foreRoot.position?.timezone
+        latitude = foreRoot.geometry?.coordinates?.getOrNull(1)
+        longitude = foreRoot.geometry?.coordinates?.getOrNull(0)
+        tzLong = foreRoot.properties?.timezone
     }
 }
 
@@ -104,130 +101,122 @@ fun createForecast(day: DailyForecastItem): Forecast {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METEOFRANCE)
         val locale = LocaleUtils.getLocale()
 
-        date = LocalDateTime.ofEpochSecond(day.dt!!, 0, ZoneOffset.UTC)
+        date = ZonedDateTime.parse(day.time).toLocalDateTime()
 
-        day.T?.max?.let {
+        day.tMax?.let {
             highC = it
             highF = ConversionMethods.CtoF(it)
         }
 
-        day.T?.min?.let {
+        day.tMin?.let {
             lowC = it
             lowF = ConversionMethods.CtoF(it)
         }
 
         condition =
-            if (!day.weather12H?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!day.dailyWeatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
                     .startsWith("en_") ||
                 locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
-                day.weather12H?.desc
+                day.dailyWeatherDescription
             } else {
-                provider.getWeatherCondition(day.weather12H?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(false, day.dailyWeatherIcon))
             }
-        icon = provider.getWeatherIcon(false, day.weather12H?.icon)
+        icon = day.dailyWeatherIcon
 
         // Extras
         extras = ForecastExtras()
-        if (day.humidity?.max != null && day.humidity?.min != null) {
-            extras.humidity = ((day.humidity!!.min!! + day.humidity!!.max!!) / 2f).roundToInt()
+        if (day.relativeHumidityMax != null && day.relativeHumidityMin != null) {
+            extras.humidity =
+                ((day.relativeHumidityMin + day.relativeHumidityMax) / 2f).roundToInt()
         }
-        day.T?.sea?.let {
+        day.tSea?.let {
             extras.pressureMb = it
             extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
-        day.precipitation?.jsonMember24h?.let {
+        day.totalPrecipitation24h?.let {
             extras.qpfRainMm = it
             extras.qpfRainIn = ConversionMethods.mmToIn(it)
         }
-        extras.uvIndex = day.uv
+        extras.uvIndex = day.uvIndex
     }
 }
 
 fun createHourlyForecast(forecast: ForecastItem,
-                         probabilityForecasts: List<ProbabilityForecastItem?>?): HourlyForecast {
+                         probabilityForecasts: List<ProbabilityForecastItem>?
+): HourlyForecast {
     return HourlyForecast().apply {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METEOFRANCE)
         val locale = LocaleUtils.getLocale()
 
-        val date = Instant.ofEpochSecond(forecast.dt!!).atZone(ZoneOffset.UTC)
-        setDate(date)
+        date = ZonedDateTime.parse(forecast.time)
 
-        forecast.T?.value?.let {
+        forecast.t?.let {
             highC = it
             highF = ConversionMethods.CtoF(it)
         }
 
         condition =
-            if (!forecast.weather?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!forecast.weatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
                     .startsWith("en_") ||
                 locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
-                forecast.weather?.desc
+                forecast.weatherDescription
             } else {
-                provider.getWeatherCondition(forecast.weather?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(forecast.weatherIcon))
             }
-        icon = forecast.weather?.icon
+        icon = forecast.weatherIcon
 
         // Extras
         extras = ForecastExtras()
 
-        forecast.T?.windchill?.let {
+        forecast.tWindchill?.let {
             extras.feelslikeC = it
             extras.feelslikeF = ConversionMethods.CtoF(it)
         }
 
-        extras.humidity = forecast.humidity
+        extras.humidity = forecast.relativeHumidity
 
-        forecast.seaLevel?.let {
+        forecast.pSea?.let {
             extras.pressureMb = it
             extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
 
-        if (forecast.wind != null) {
-            if (forecast.wind!!.speed != null && forecast.wind!!.direction != null) {
-                windDegrees = forecast.wind!!.direction
-                windKph = ConversionMethods.msecToKph(forecast.wind!!.speed!!.toFloat())
-                windMph = ConversionMethods.msecToMph(forecast.wind!!.speed!!.toFloat())
-                extras.windDegrees = windDegrees
-                extras.windMph = windMph
-                extras.windKph = windKph
-            }
-            if (forecast.wind!!.gust != null) {
-                extras.windGustKph = ConversionMethods.msecToKph(forecast.wind!!.gust!!.toFloat())
-                extras.windGustMph = ConversionMethods.msecToMph(forecast.wind!!.gust!!.toFloat())
-            }
+        forecast.windSpeed?.let {
+            extras.windMph = ConversionMethods.msecToMph(it)
+            extras.windKph = ConversionMethods.msecToKph(it)
+            extras.windDegrees = forecast.windDirection
+        }
+        forecast.windSpeedGust?.let {
+            extras.windGustKph = ConversionMethods.msecToKph(it)
+            extras.windGustMph = ConversionMethods.msecToMph(it)
         }
 
-        if (forecast.rain != null) {
-            if (forecast.rain!!.jsonMember1h != null) {
-                extras.qpfRainMm = forecast.rain!!.jsonMember1h
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain!!.jsonMember1h!!)
-            } else if (forecast.rain!!.jsonMember3h != null) {
-                extras.qpfRainMm = forecast.rain!!.jsonMember3h
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain!!.jsonMember3h!!)
-            } else if (forecast.rain!!.jsonMember6h != null) {
-                extras.qpfRainMm = forecast.rain!!.jsonMember6h
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain!!.jsonMember6h!!)
-            }
+        if (forecast.rain1h != null) {
+            extras.qpfRainMm = forecast.rain1h
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain1h)
+        } else if (forecast.rain3h != null) {
+            extras.qpfRainMm = forecast.rain3h
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain3h)
+        } else if (forecast.rain6h != null) {
+            extras.qpfRainMm = forecast.rain6h
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.rain6h)
         }
 
-        if (forecast.snow != null) {
-            if (forecast.snow!!.jsonMember1h != null) {
-                extras.qpfSnowCm = forecast.snow!!.jsonMember1h!! / 10
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow!!.jsonMember1h!!)
-            } else if (forecast.snow!!.jsonMember3h != null) {
-                extras.qpfSnowCm = forecast.snow!!.jsonMember3h!! / 10
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow!!.jsonMember3h!!)
-            } else if (forecast.snow!!.jsonMember6h != null) {
-                extras.qpfSnowCm = forecast.snow!!.jsonMember6h!! / 10
-                extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow!!.jsonMember6h!!)
-            }
+        if (forecast.snow1h != null) {
+            extras.qpfSnowCm = forecast.snow1h / 10
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow1h)
+        } else if (forecast.snow3h != null) {
+            extras.qpfSnowCm = forecast.snow3h / 10
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow3h)
+        } else if (forecast.snow6h != null) {
+            extras.qpfSnowCm = forecast.snow6h / 10
+            extras.qpfRainIn = ConversionMethods.mmToIn(forecast.snow6h)
         }
 
-        extras.cloudiness = forecast.clouds
+        extras.cloudiness = forecast.totalCloudCover
 
         if (highC != null && extras.humidity != null) {
             extras.dewpointC = calculateDewpointC(highC, extras.humidity)
@@ -239,48 +228,59 @@ fun createHourlyForecast(forecast: ForecastItem,
         if (!probabilityForecasts.isNullOrEmpty()) {
             // Note: probability forecasts are given either every 3 or 6 hours
             // Rain/Snow object can contain forecast for either next 3 or 6 hrs, or both
-            val dt = forecast.dt!! // Unix time in seconds
-            val hrsInSec = TimeUnit.HOURS.toSeconds(1)
+            val dt = date.truncatedTo(ChronoUnit.HOURS)
             var found3hrForecast = false
             var _3hrForecastNA = false
 
             for (prob in probabilityForecasts) {
+                val probDt = ZonedDateTime.parse(prob.time).truncatedTo(ChronoUnit.HOURS)
+
                 // Check if timestamp is within 3-hr forecast
-                if (dt == prob!!.dt!! || dt == (prob.dt!! + hrsInSec) || dt == (prob.dt!! + hrsInSec * 2)) {
-                    if (prob.rain?.jsonMember3h != null) {
-                        extras.pop = prob.rain!!.jsonMember3h!!.toInt()
+                if (dt.isEqual(probDt) || dt.isEqual(probDt.plusHours(1)) || dt.isEqual(
+                        probDt.plusHours(
+                            2
+                        )
+                    )
+                ) {
+                    if (prob.rainHazard3h != null) {
+                        extras.pop = prob.rainHazard3h.toInt()
                         found3hrForecast = true
                         _3hrForecastNA = false
                     } else {
                         found3hrForecast = false
                         _3hrForecastNA = true
                     }
-                    if (extras.pop == null && prob.rain?.jsonMember6h != null) {
-                        extras.pop = prob.rain!!.jsonMember6h!!.toInt()
+                    if (extras.pop == null && prob.rainHazard3h != null) {
+                        extras.pop = prob.rainHazard3h.toInt()
                         _3hrForecastNA = true
                         found3hrForecast = false
                     }
                     if (extras.pop == null) {
-                        if (prob.snow?.jsonMember3h != null) {
-                            extras.pop = prob.snow!!.jsonMember3h!!.toInt()
+                        if (prob.snowHazard3h != null) {
+                            extras.pop = prob.snowHazard3h.toInt()
                         }
-                        if (prob.snow?.jsonMember6h != null) {
-                            extras.pop = prob.snow!!.jsonMember6h!!.toInt()
+                        if (prob.snowHazard6h != null) {
+                            extras.pop = prob.snowHazard6h.toInt()
                         }
                     }
                 }
 
                 // Timestamp is not within 3-hr forecast; check 6-hr timeframe
                 // Check if timestamp is within 6-hr forecast
-                if (extras.pop == null && (dt == (prob.dt!! + hrsInSec * 3) || dt == (prob.dt!! + hrsInSec * 4) || dt == (prob.dt!! + hrsInSec * 5))) {
-                    if (prob.rain!!.jsonMember6h != null) {
-                        extras.pop = prob.rain!!.jsonMember6h!!.toInt()
+                if (extras.pop == null && (dt.isEqual(probDt.plusHours(3)) || dt.isEqual(
+                        probDt.plusHours(
+                            4
+                        )
+                    ) || dt.isEqual(probDt.plusHours(5)))
+                ) {
+                    if (prob.rainHazard6h != null) {
+                        extras.pop = prob.rainHazard6h.toInt()
                         _3hrForecastNA = true
                         found3hrForecast = false
                     }
                     if (extras.pop == null) {
-                        if (prob.snow!!.jsonMember6h != null) {
-                            extras.pop = prob.snow!!.jsonMember6h!!.toInt()
+                        if (prob.snowHazard6h != null) {
+                            extras.pop = prob.snowHazard6h.toInt()
                         }
                     }
                 }
@@ -296,39 +296,46 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.METEOFRANCE)
         val locale = LocaleUtils.getLocale()
 
-        currRoot.observation?.T?.let {
+        currRoot.properties?.gridded?.t?.let {
             tempC = it
             tempF = ConversionMethods.CtoF(it)
         }
 
         weather =
-            if (!currRoot.observation?.weather?.desc.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!currRoot.properties?.gridded?.weatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
                     .startsWith("en_") ||
                 locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
-                currRoot.observation?.weather?.desc
+                currRoot.properties?.gridded?.weatherDescription
             } else {
-                provider.getWeatherCondition(currRoot.observation?.weather?.icon)
+                provider.getWeatherCondition(provider.getWeatherIcon(currRoot.properties?.gridded?.weatherIcon))
             }
-        icon = currRoot.observation?.weather?.icon
+        icon = currRoot.properties?.gridded?.weatherIcon
 
-        if (currRoot.observation!!.wind != null) {
-            windDegrees = currRoot.observation!!.wind!!.direction
-            if (currRoot.observation!!.wind!!.speed != null) {
-                windKph =
-                    ConversionMethods.msecToKph(currRoot.observation!!.wind!!.speed!!.toFloat())
-                windMph =
-                    ConversionMethods.msecToMph(currRoot.observation!!.wind!!.speed!!.toFloat())
-            }
+        windDegrees = currRoot.properties?.gridded?.windDirection
+        currRoot.properties?.gridded?.windSpeed?.let {
+            windKph = ConversionMethods.msecToKph(it)
+            windMph = ConversionMethods.msecToMph(it)
+        }
+        currRoot.properties?.gridded?.windSpeedGust?.let {
+            windGustKph = ConversionMethods.msecToKph(it)
+            windGustMph = ConversionMethods.msecToMph(it)
         }
 
-        observationTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currRoot.updatedOn!!), ZoneOffset.UTC)
+        observationTime =
+            ZonedDateTime.parse(currRoot.properties?.gridded?.time ?: currRoot.updateTime)
     }
 }
 
 fun createAtmosphere(currRoot: CurrentsResponse): Atmosphere {
     return Atmosphere().apply {
+        // no-op
+    }
+}
+
+fun createPrecipitation(currRoot: CurrentsResponse): Precipitation {
+    return Precipitation().apply {
         // no-op
     }
 }

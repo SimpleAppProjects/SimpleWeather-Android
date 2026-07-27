@@ -134,10 +134,6 @@ fun createHourlyForecast(hr_forecast: HourlyItem): HourlyForecast {
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
             .getWeatherIcon(hr_forecast.weather[0].id.toString() + dn)
 
-        windDegrees = hr_forecast.windDeg
-        windMph = ConversionMethods.msecToMph(hr_forecast.windSpeed)
-        windKph = ConversionMethods.msecToKph(hr_forecast.windSpeed)
-
         // Extras
         extras = ForecastExtras()
         extras.feelslikeF = ConversionMethods.KtoF(hr_forecast.feelsLike)
@@ -152,9 +148,9 @@ fun createHourlyForecast(hr_forecast: HourlyItem): HourlyForecast {
         // 1hPA = 1mbar
         extras.pressureMb = hr_forecast.pressure
         extras.pressureIn = ConversionMethods.mbToInHg(hr_forecast.pressure)
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hr_forecast.windDeg
+        extras.windMph = ConversionMethods.msecToMph(hr_forecast.windSpeed)
+        extras.windKph = ConversionMethods.msecToKph(hr_forecast.windSpeed)
         if (hr_forecast.windGust != null) {
             extras.windGustMph = ConversionMethods.msecToMph(hr_forecast.windGust)
             extras.windGustKph = ConversionMethods.msecToKph(hr_forecast.windGust)

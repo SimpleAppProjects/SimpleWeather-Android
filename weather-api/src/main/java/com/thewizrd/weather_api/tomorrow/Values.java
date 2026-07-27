@@ -21,6 +21,9 @@ public class Values {
     @Json(name = "precipitationIntensity")
     private Float precipitationIntensity;
 
+    @Json(name = "precipitationType")
+    private Integer precipitationType;
+
     @Json(name = "temperatureApparent")
     private Float temperatureApparent;
 
@@ -140,6 +143,14 @@ public class Values {
 
     public Float getPrecipitationIntensity() {
         return precipitationIntensity;
+    }
+
+    public Integer getPrecipitationType() {
+        return precipitationType;
+    }
+
+    public void setPrecipitationType(Integer precipitationType) {
+        this.precipitationType = precipitationType;
     }
 
     public void setTemperatureApparent(Float temperatureApparent) {

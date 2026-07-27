@@ -6,61 +6,53 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class CurrentsResponse(
 
-    @field:Json(name = "updated_on")
-    var updatedOn: Long? = null,
+	@Json(name = "update_time")
+	val updateTime: String? = null,
 
-    @field:Json(name = "observation")
-    var observation: Observation? = null,
+	@Json(name = "geometry")
+	val geometry: Geometry? = null,
 
-    @field:Json(name = "position")
-    var position: CurrentsPosition? = null
+	@Json(name = "type")
+	val type: String? = null,
+
+	@Json(name = "properties")
+	val properties: CurrentProperties? = null
 )
 
 @JsonClass(generateAdapter = true)
-data class CurrentsPosition(
+data class CurrentProperties(
 
-    @field:Json(name = "timezone")
-    var timezone: String? = null,
+	@Json(name = "timezone")
+	val timezone: String? = null,
 
-    @field:Json(name = "lon")
-    var lon: Float? = null,
-
-    @field:Json(name = "lat")
-    var lat: Float? = null
+	@Json(name = "gridded")
+	val gridded: Gridded? = null
 )
 
 @JsonClass(generateAdapter = true)
-data class Observation(
+data class Gridded(
 
-    @field:Json(name = "T")
-    var T: Float? = null,
+	@Json(name = "T")
+	val t: Float? = null,
 
-    @field:Json(name = "weather")
-    var weather: Weather? = null,
+	@Json(name = "weather_description")
+	val weatherDescription: String? = null,
 
-    @field:Json(name = "wind")
-    var wind: Wind? = null
+	@Json(name = "wind_icon")
+	val windIcon: String? = null,
+
+	@Json(name = "wind_speed")
+	val windSpeed: Float? = null,
+
+	@Json(name = "wind_direction")
+	val windDirection: Int? = null,
+
+	@Json(name = "time")
+	val time: String? = null,
+
+	@Json(name = "weather_icon")
+	val weatherIcon: String? = null,
+
+	@Json(name = "wind_speed_gust")
+	val windSpeedGust: Float? = null
 )
-/*
-@JsonClass(generateAdapter = true)
-data class Weather(
-
-	@field:Json(name = "icon")
-	var icon: String? = null,
-
-	@field:Json(name = "desc")
-	var desc: String? = null
-)
-@JsonClass(generateAdapter = true)
-data class Wind(
-
-	@field:Json(name = "icon")
-	var icon: String? = null,
-
-	@field:Json(name = "speed")
-	var speed: Int? = null,
-
-	@field:Json(name = "direction")
-	var direction: Int? = null
-)
-*/

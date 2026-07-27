@@ -39,9 +39,10 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Weather Unlocked API Services will be closing down on June 30th, 2026")
 class WeatherUnlockedProvider : WeatherProviderImpl() {
     companion object {
         private const val BASE_URL = "http://api.weatherunlocked.com/api/"
@@ -187,6 +188,8 @@ class WeatherUnlockedProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)
         weather.condition!!.observationTime =

@@ -78,7 +78,7 @@ public class DetailCard extends LinearLayout {
         binding = CardWeatherDetailBinding.inflate(inflater, this, true);
 
         bgDrawable = new MaterialShapeDrawable(
-                ShapeAppearanceModel.builder(context, R.style.ShapeAppearance_Material3_MediumComponent, 0)
+                ShapeAppearanceModel.builder(context, com.google.android.material.R.style.ShapeAppearance_Material3_MediumComponent, 0)
                         .build());
         bgDrawable.initializeElevationOverlay(context);
         bgDrawable.setElevation(ContextUtils.dpToPx(context, 1f));
@@ -92,19 +92,19 @@ public class DetailCard extends LinearLayout {
         Resources.Theme currentTheme = context.getTheme();
         TypedArray array;
 
-        array = currentTheme.obtainStyledAttributes(R.style.ShadowText, new int[]{android.R.attr.shadowRadius});
+        array = currentTheme.obtainStyledAttributes(com.thewizrd.shared_resources.R.style.ShadowText, new int[]{android.R.attr.shadowRadius});
         mShadowRadius = array.getFloat(0, 0);
         array.recycle();
 
-        array = currentTheme.obtainStyledAttributes(R.style.ShadowText, new int[]{android.R.attr.shadowDx});
+        array = currentTheme.obtainStyledAttributes(com.thewizrd.shared_resources.R.style.ShadowText, new int[]{android.R.attr.shadowDx});
         mShadowDx = array.getFloat(0, 0);
         array.recycle();
 
-        array = currentTheme.obtainStyledAttributes(R.style.ShadowText, new int[]{android.R.attr.shadowDy});
+        array = currentTheme.obtainStyledAttributes(com.thewizrd.shared_resources.R.style.ShadowText, new int[]{android.R.attr.shadowDy});
         mShadowDy = array.getFloat(0, 0);
         array.recycle();
 
-        array = currentTheme.obtainStyledAttributes(R.style.ShadowText, new int[]{android.R.attr.shadowColor});
+        array = currentTheme.obtainStyledAttributes(com.thewizrd.shared_resources.R.style.ShadowText, new int[]{android.R.attr.shadowColor});
         mShadowColor = array.getColor(0, 0);
         array.recycle();
 
@@ -112,9 +112,10 @@ public class DetailCard extends LinearLayout {
     }
 
     private void updateColors() {
-        setBackgroundColor(ContextUtils.getAttrColor(getContext(), R.attr.colorSurfaceContainer));
-        ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), R.attr.colorPrimary)));
-        bgDrawable.setStrokeColor(ContextCompat.getColorStateList(getContext(), R.color.m3_card_stroke_color));
+        setBackgroundColor(ContextUtils.getAttrColor(getContext(), com.google.android.material.R.attr.colorSurfaceContainer));
+        ImageViewCompat.setImageTintList(binding.detailIcon, ColorStateList.valueOf(ContextUtils.getAttrColor(getContext(), androidx.appcompat.R.attr.colorPrimary)));
+        binding.detailIcon.setShowAsMonochrome(binding.detailIcon.getShowAsMonochrome());
+        bgDrawable.setStrokeColor(ContextCompat.getColorStateList(getContext(), com.google.android.material.R.color.m3_card_stroke_color));
     }
 
     @Override

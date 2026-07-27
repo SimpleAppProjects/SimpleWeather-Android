@@ -91,6 +91,14 @@ class LocationQuery {
                     df.format(locationLong)
                 )
             }
+            WeatherAPI.OPENMETEO -> {
+                String.format(
+                    Locale.ROOT,
+                    "latitude=%s&longitude=%s",
+                    df.format(locationLat),
+                    df.format(locationLong)
+                )
+            }
             else -> {
                 String.format(
                     Locale.ROOT,

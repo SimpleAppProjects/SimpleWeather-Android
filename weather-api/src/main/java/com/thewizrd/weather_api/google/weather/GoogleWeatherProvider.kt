@@ -49,6 +49,8 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
         private const val CONDITIONS_PATH = "currentConditions:lookup"
         private const val FORECAST_PATH = "forecast/days:lookup"
         private const val HOURLY_FORECAST_PATH = "forecast/hours:lookup"
+        private const val MINUTELY_FORECAST_PATH = "forecast/minutes:lookup"
+        private const val PUBLIC_ALERTS_PATH = "publicAlerts:lookup"
     }
 
     init {
@@ -85,6 +87,10 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
 
     override fun getAuthType(): AuthType {
         return AuthType.APIKEY
+    }
+
+    override fun needsExternalAlertData(): Boolean {
+        return false
     }
 
     @Throws(WeatherException::class)
@@ -226,6 +232,36 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
                     .addGoogleAuth(context)
                     .build()
 
+                val minutelyRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendEncodedPath(MINUTELY_FORECAST_PATH)
+                    .appendQueryParameter("location.latitude", df.format(location.latitude))
+                    .appendQueryParameter("location.longitude", df.format(location.longitude))
+                    .appendQueryParameter("units_system", "METRIC")
+                    .appendQueryParameter("key", key)
+                    .build()
+
+                val minutelyRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                    .url(minutelyRequestUri.toString())
+                    .addUserAgent(context)
+                    .addGoogleAuth(context)
+                    .build()
+
+                val alertRequestUri = BASE_URL.toUri().buildUpon()
+                    .appendEncodedPath(PUBLIC_ALERTS_PATH)
+                    .appendQueryParameter("location.latitude", df.format(location.latitude))
+                    .appendQueryParameter("location.longitude", df.format(location.longitude))
+                    .appendQueryParameter("languageCode", locale)
+                    .appendQueryParameter("key", key)
+                    .build()
+
+                val alertRequest = Request.Builder()
+                    .cacheRequestIfNeeded(isKeyRequired(), 1, TimeUnit.HOURS)
+                    .url(alertRequestUri.toString())
+                    .addUserAgent(context)
+                    .addGoogleAuth(context)
+                    .build()
+
                 // Connect to webstream
                 conditionResponse = client.newCall(conditionRequest).await()
                 checkForErrors(conditionResponse)
@@ -238,8 +274,16 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
 
                 val dailyData = getDailyForecasts(client, dailyRequest)
                 val hourlyData = getHourlyForecasts(client, hourlyRequest)
+                val minutelyData = getMinutelyForecasts(client, minutelyRequest)
+                val alertData = getPublicAlerts(client, alertRequest)
 
-                weather = createWeatherData(conditionData, dailyData, hourlyData)
+                weather = createWeatherData(
+                    conditionData,
+                    dailyData,
+                    hourlyData,
+                    minutely = minutelyData,
+                    alerts = alertData
+                )
             } catch (ex: Exception) {
                 weather = null
                 if (ex is IOException) {
@@ -343,7 +387,89 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
         return hourlyData
     }
 
+    private suspend fun getMinutelyForecasts(
+        client: OkHttpClient,
+        minutelyRequest: Request
+    ): MinutelyResponse {
+        val minutelyData = MinutelyResponse()
+        val minutelySegments = mutableListOf<SegmentsItem>()
+
+        do {
+            val request = if (minutelyData.nextPageToken != null) {
+                val newUrl = minutelyRequest.url.newBuilder()
+                    .setQueryParameter("pageToken", minutelyData.nextPageToken)
+                    .build()
+
+                minutelyRequest.newBuilder()
+                    .url(newUrl)
+                    .build()
+            } else {
+                minutelyRequest
+            }
+
+            val minutelyResponse = client.newCall(request).await()
+            checkForErrors(minutelyResponse)
+            val minutelyResponseData = minutelyResponse.use { r ->
+                r.getStream().use { s ->
+                    JSONParser.deserializer<MinutelyResponse>(s, MinutelyResponse::class.java)
+                }
+            }
+
+            minutelyData.overallPredictionTimeframe = minutelyData.overallPredictionTimeframe
+                ?: minutelyResponseData?.overallPredictionTimeframe
+            minutelyData.timeZone = minutelyData.timeZone ?: minutelyResponseData?.timeZone
+            minutelyData.nextPageToken = minutelyResponseData?.nextPageToken
+
+            minutelyResponseData?.segments?.run { minutelySegments.addAll(this) }
+        } while (!minutelyData.nextPageToken.isNullOrEmpty())
+
+        minutelyData.segments = minutelySegments
+
+        return minutelyData
+    }
+
+    private suspend fun getPublicAlerts(
+        client: OkHttpClient,
+        alertsRequest: Request
+    ): AlertsResponse {
+        val alertsData = AlertsResponse()
+        val weatherAlerts = mutableListOf<PublicAlerts>()
+
+        do {
+            val request = if (alertsData.nextPageToken != null) {
+                val newUrl = alertsRequest.url.newBuilder()
+                    .setQueryParameter("pageToken", alertsData.nextPageToken)
+                    .build()
+
+                alertsRequest.newBuilder()
+                    .url(newUrl)
+                    .build()
+            } else {
+                alertsRequest
+            }
+
+            val alertsResponse = client.newCall(request).await()
+            checkForErrors(alertsResponse)
+            val alertsResponseData = alertsResponse.use { r ->
+                r.getStream().use { s ->
+                    JSONParser.deserializer<AlertsResponse>(s, AlertsResponse::class.java)
+                }
+            }
+
+            alertsData.regionCode = alertsData.regionCode ?: alertsResponseData?.regionCode
+            alertsData.nextPageToken = alertsResponseData?.nextPageToken
+
+            alertsResponseData?.weatherAlerts?.run { weatherAlerts.addAll(this) }
+        } while (!alertsData.nextPageToken.isNullOrEmpty())
+
+        alertsData.weatherAlerts = weatherAlerts
+
+        return alertsData
+    }
+
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // Update forecast, hourly, sunrise/sunset, moonrise/moonset
         val offset = location.tzOffset
 
@@ -356,6 +482,13 @@ class GoogleWeatherProvider : WeatherProviderImpl() {
         }
         weather.hrForecast?.forEach { hr_forecast ->
             hr_forecast.date = hr_forecast.date.withZoneSameInstant(offset)
+        }
+        weather.minForecast?.forEach { min_forecast ->
+            min_forecast.date = min_forecast.date.withZoneSameInstant(offset)
+        }
+        weather.weatherAlerts?.forEach { alert ->
+            alert.date = alert.date.withZoneSameInstant(offset)
+            alert.expiresDate = alert.expiresDate.withZoneSameInstant(offset)
         }
 
         if (weather.astronomy != null) {

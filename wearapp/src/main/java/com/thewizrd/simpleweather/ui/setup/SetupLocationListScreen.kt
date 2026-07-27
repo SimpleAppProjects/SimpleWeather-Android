@@ -38,6 +38,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.thewizrd.common.viewmodels.LocationSearchViewModel
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationQuery
@@ -129,7 +130,7 @@ private fun SetupLocationListScreen(
                                 .animateItem(),
                             transformation = SurfaceTransformation(transformationSpec),
                         ) {
-                            Text(text = stringResource(id = R.string.label_nav_locations))
+                            Text(text = stringResource(id = sharedRes.string.label_nav_locations))
                         }
                     }
 
@@ -157,7 +158,7 @@ private fun SetupLocationListScreen(
                             } else {
                                 {
                                     Icon(
-                                        painter = painterResource(id = R.drawable.ic_place_white_24dp),
+                                        painter = painterResource(id = sharedRes.drawable.ic_place_white_24dp),
                                         contentDescription = null
                                     )
                                 }
@@ -172,9 +173,10 @@ private fun SetupLocationListScreen(
                                 .animateItem(),
                             transformation = SurfaceTransformation(transformationSpec),
                         ) {
+                            val creditPrefix = stringResource(sharedRes.string.credit_prefix)
                             Text(text = remember(context, locationSource) {
                                 buildString {
-                                    append(context.getString(R.string.credit_prefix))
+                                    append(creditPrefix)
                                     append(" ")
                                     append(locationSource)
                                 }
@@ -192,7 +194,7 @@ private fun SetupLocationListScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.werror_querynotfound),
+                        text = stringResource(id = sharedRes.string.werror_querynotfound),
                         textAlign = TextAlign.Center
                     )
                     CompactButton(

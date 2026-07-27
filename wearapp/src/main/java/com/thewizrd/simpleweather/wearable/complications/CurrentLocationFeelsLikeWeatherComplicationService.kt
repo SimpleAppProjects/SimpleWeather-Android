@@ -15,7 +15,6 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
-import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -23,8 +22,9 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import com.thewizrd.weather_api.weatherModule
+import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastComplicationService() {
     companion object {
@@ -38,12 +38,23 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
-    private val complicationIconResId = R.drawable.wi_day_sunny
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val complicationIcon = WeatherIcons.DAY_SUNNY
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
@@ -51,11 +62,15 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                     PlainComplicationText.Builder("70°").build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon).build(),
+                        )
+                    }
+                }.build()
             }
 
             ComplicationType.LONG_TEXT -> {
@@ -65,30 +80,30 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                 ).setTitle(
                     PlainComplicationText.Builder("70°").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
+                        )
+                    }
+                }.build()
             }
 
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).build()
             }
 
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE),
-                        SmallImageType.ICON
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).build()
             }
@@ -122,14 +137,12 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
         val feelsLike =
             if (weather.condition?.feelslikeF != null && weather.condition!!.feelslikeF != weather.condition!!.feelslikeC) {
                 val temp =
-                    if (isFahrenheit) Math.round(weather.condition!!.feelslikeF) else Math.round(
-                        weather.condition!!.feelslikeC
-                    )
+                    if (isFahrenheit) weather.condition!!.feelslikeF.roundToInt() else weather.condition!!.feelslikeC.roundToInt()
                 String.format(LocaleUtils.getLocale(), "%d°", temp)
             } else {
                 WeatherIcons.EM_DASH
             }
-        val feelsLikeLabel = getString(R.string.label_feelslike)
+        val feelsLikeLabel = getString(sharedRes.string.label_feelslike)
 
         val tempUnit = if (isFahrenheit) Units.FAHRENHEIT else Units.CELSIUS
 
@@ -145,6 +158,8 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
 
         val wim = sharedDeps.weatherIconsManager
         val weatherIcon = wim.getWeatherIconResource(weather.condition!!.icon)
+        val monochromaticIcon = Icon.createWithResource(this, weatherIcon)
+            .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
                 getThemeContextOverride(false),
@@ -167,20 +182,19 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                     MonochromaticImage.Builder(icon).apply {
                         // Weather Icon
                         if (!wim.isFontIcon) {
-                            val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-                            setAmbientImage(
-                                Icon.createWithBitmap(
-                                    ImageUtils.tintedBitmapFromDrawable(
-                                        this@CurrentLocationFeelsLikeWeatherComplicationService,
-                                        wip.getWeatherIconResource(weather.condition!!.icon),
-                                        Colors.WHITE
-                                    )
-                                )
-                            )
+                            setAmbientImage(monochromaticIcon)
                         }
                     }
                         .build()
                 )
+
+                if (!wim.isFontIcon) {
+                    builder.setSmallImage(
+                        SmallImage.Builder(icon, SmallImageType.ICON)
+                            .setAmbientImage(monochromaticIcon)
+                            .build()
+                    )
+                }
 
                 builder.setTapAction(getTapIntent(this))
                 return builder.build()
@@ -200,18 +214,9 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                         MonochromaticImage.Builder(icon).build()
                     )
                 } else {
-                    val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(
-                                Icon.createWithBitmap(
-                                    ImageUtils.tintedBitmapFromDrawable(
-                                        this,
-                                        wip.getWeatherIconResource(weather.condition!!.icon),
-                                        Colors.WHITE
-                                    )
-                                )
-                            )
+                            .setAmbientImage(monochromaticIcon)
                             .build()
                     )
                 }
@@ -221,16 +226,8 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
             }
 
             ComplicationType.MONOCHROMATIC_IMAGE -> {
-                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-
                 return MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(
-                            this,
-                            wip.getWeatherIconResource(weather.condition!!.icon)
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)
@@ -238,21 +235,10 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
             }
 
             ComplicationType.SMALL_IMAGE -> {
-                val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
-
                 return SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        icon,
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithBitmap(
-                            ImageUtils.tintedBitmapFromDrawable(
-                                this,
-                                wip.getWeatherIconResource(weather.condition!!.icon),
-                                Colors.WHITE
-                            )
-                        )
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     contentDescription
                 ).setTapAction(
                     getTapIntent(this)

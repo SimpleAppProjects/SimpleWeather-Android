@@ -31,6 +31,7 @@ import androidx.wear.tiles.tooling.preview.TilePreviewHelper
 import com.google.android.horologist.tiles.images.toImageResource
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ConversionMethods
@@ -92,7 +93,7 @@ internal fun hourlyForecastPillsTileLayout(
             mainSlot = {
                 if (forecasts.isNullOrEmpty()) {
                     text(
-                        text = context.getString(R.string.label_nodata).layoutString,
+                        text = context.getString(sharedRes.string.label_nodata).layoutString,
                         alignment = TEXT_ALIGN_CENTER
                     )
                 } else {
@@ -195,7 +196,7 @@ private fun hourlyForecastPillsTileLayout(context: Context): TilePreviewData {
                     "$ID_WEATHER_ICON_PREFIX${WeatherIcons.DAY_SUNNY}",
                     ImageUtils.tintedBitmapFromDrawable(
                         context,
-                        R.drawable.wi_day_sunny,
+                        sharedRes.drawable.wi_day_sunny,
                         Colors.WHITE
                     ).toImageResource()
                 )
@@ -203,7 +204,7 @@ private fun hourlyForecastPillsTileLayout(context: Context): TilePreviewData {
                     "$ID_WEATHER_ICON_PREFIX${WeatherIcons.NA}",
                     ImageUtils.tintedBitmapFromDrawable(
                         context,
-                        R.drawable.wi_na,
+                        sharedRes.drawable.wi_na,
                         Colors.WHITE
                     ).toImageResource()
                 )
@@ -213,7 +214,7 @@ private fun hourlyForecastPillsTileLayout(context: Context): TilePreviewData {
                             "${ID_WEATHER_ICON_PREFIX}${item.icon}",
                             ImageUtils.tintedBitmapFromDrawable(
                                 context,
-                                R.drawable.wi_cloudy,
+                                sharedRes.drawable.wi_cloudy,
                                 Colors.WHITE
                             ).toImageResource()
                         )

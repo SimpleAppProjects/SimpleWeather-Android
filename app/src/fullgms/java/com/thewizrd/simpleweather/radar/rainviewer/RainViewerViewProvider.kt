@@ -333,7 +333,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
          */
         private fun checkTileExists(x: Int, y: Int, zoom: Int): Boolean {
             val minZoom = MIN_ZOOM_LEVEL
-            val maxZoom = MAX_ZOOM_LEVEL
+            val maxZoom = 7
 
             return zoom in minZoom..maxZoom
         }

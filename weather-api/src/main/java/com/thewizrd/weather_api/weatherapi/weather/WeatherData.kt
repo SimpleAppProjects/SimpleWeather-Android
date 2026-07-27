@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherapi.weather
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQICO
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQINO2
 import com.thewizrd.shared_resources.utils.AirQualityUtils.AQIO3
@@ -29,6 +30,7 @@ import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
+import com.thewizrd.shared_resources.weatherdata.model.Pollen
 import com.thewizrd.shared_resources.weatherdata.model.Precipitation
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
@@ -43,6 +45,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
+@SuppressLint("VisibleForTests")
 fun createWeatherData(root: ForecastResponse): Weather {
     return Weather().apply {
         location = createLocation(root.location!!)
@@ -52,20 +55,24 @@ fun createWeatherData(root: ForecastResponse): Weather {
                 .withZoneSameInstant(tzid)
         } ?: ZonedDateTime.now(tzid)
 
-        forecast = ArrayList(root.forecast!!.forecastday!!.size)
+        forecast = ArrayList<Forecast>().apply {
+            root.forecast?.forecastday?.size?.let {
+                ensureCapacity(it)
+            }
+        }
         hrForecast = ArrayList<HourlyForecast>().apply {
-            root.forecast!!.forecastday?.firstOrNull()?.hour?.size?.let {
+            root.forecast?.forecastday?.firstOrNull()?.hour?.size?.let {
                 ensureCapacity(it)
             }
         }
 
         // Forecast
-        for (day in root.forecast!!.forecastday!!) {
-            val fcast = createForecast(day, tzid)
+        root.forecast?.forecastday?.forEach { day ->
+            val fcast = createForecast(day)
 
             day.hour?.forEach { hour ->
                 val date = ZonedDateTime.ofInstant(
-                    Instant.ofEpochSecond(hour.timeEpoch!!.toLong()),
+                    Instant.ofEpochSecond(hour.timeEpoch!!),
                     ZoneOffset.UTC
                 )
 
@@ -79,15 +86,15 @@ fun createWeatherData(root: ForecastResponse): Weather {
 
         condition = createCondition(root.current!!, tzid)
         atmosphere = createAtmosphere(root.current!!)
-        if (root.forecast!!.forecastday!![0].date == condition!!.observationTime.toLocalDate()
+        if (root.forecast?.forecastday?.getOrNull(0)?.date == condition!!.observationTime.toLocalDate()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         ) {
-            astronomy = createAstronomy(root.forecast!!.forecastday!![0].astro!!)
+            astronomy = createAstronomy(root.forecast?.forecastday?.getOrNull(0)?.astro)
         }
         precipitation = createPrecipitation(root.current!!)
         ttl = 180
 
-        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.size > 0) {
+        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.isNotEmpty()) {
             condition!!.highF = forecast!![0].highF
             condition!!.highC = forecast!![0].highC
             condition!!.lowF = forecast!![0].lowF
@@ -104,13 +111,13 @@ fun createLocation(location: com.thewizrd.weather_api.weatherapi.weather.Locatio
     return Location().apply {
         /* Use name from location provider */
         //name = location.name
-        latitude = location.lat!!.toFloat()
-        longitude = location.lon!!.toFloat()
+        latitude = location.lat!!
+        longitude = location.lon!!
         tzLong = location.tzId!!
     }
 }
 
-fun createForecast(day: ForecastdayItem, tzid: ZoneId): Forecast {
+fun createForecast(day: ForecastdayItem): Forecast {
     return Forecast().apply {
         date = day.dateEpoch?.let {
             ZonedDateTime.ofInstant(Instant.ofEpochSecond(it), ZoneOffset.UTC)
@@ -164,10 +171,6 @@ fun createHourlyForecast(hour: HourItem, tzId: ZoneId): HourlyForecast {
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERAPI)
             .getWeatherIcon(hour.isDay == 0, hour.condition!!.code!!.toString())
 
-        windMph = hour.windMph
-        windKph = hour.windKph
-        windDegrees = hour.windDegree
-
         extras = ForecastExtras()
         extras.feelslikeF = hour.feelslikeF
         extras.feelslikeC = hour.feelslikeC
@@ -183,9 +186,9 @@ fun createHourlyForecast(hour: HourItem, tzId: ZoneId): HourlyForecast {
         extras.qpfSnowIn = hour.snowCm?.let { ConversionMethods.mmToIn(it * 10) }
         extras.pressureIn = hour.pressureIn
         extras.pressureMb = hour.pressureMb
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = hour.windDegree
+        extras.windMph = hour.windMph
+        extras.windKph = hour.windKph
         extras.visibilityMi = hour.visMiles
         extras.visibilityKm = hour.visKm
         extras.windGustMph = hour.gustMph
@@ -211,12 +214,48 @@ fun createCondition(current: Current, tzId: ZoneId): Condition {
         feelslikeC = current.feelslikeC
 
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERAPI)
-            .getWeatherIcon(current.isDay == 0, current.condition!!.code!!.toString())
+            .getWeatherIcon(current.isDay == 0, current.condition?.code?.toString())
 
         beaufort = Beaufort(getBeaufortScale(windMph.toInt()))
-        uv = UV(current.uv!!)
+        uv = current.uv?.let { UV(it) }
 
         airQuality = createAirQuality(current.airQuality)
+
+        current.pollen?.let { currentPollen ->
+            val treePollenValue = maxOf(
+                currentPollen.hazel ?: 0.0,
+                currentPollen.alder ?: 0.0,
+                currentPollen.birch ?: 0.0,
+                currentPollen.oak ?: 0.0
+            )
+            val grassPollenValue = currentPollen.grass ?: 0.0
+            val ragweedPollenValue =
+                maxOf(currentPollen.ragweed ?: 0.0, currentPollen.mugwort ?: 0.0)
+
+            pollen = Pollen().apply {
+                treePollenCount = when {
+                    treePollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    treePollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    treePollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    treePollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+                grassPollenCount = when {
+                    grassPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    grassPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    grassPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    grassPollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+                ragweedPollenCount = when {
+                    ragweedPollenValue in 1.0..20.0 -> Pollen.PollenCount.LOW
+                    ragweedPollenValue in 20.0..100.0 -> Pollen.PollenCount.MODERATE
+                    ragweedPollenValue in 100.0..300.0 -> Pollen.PollenCount.HIGH
+                    ragweedPollenValue >= 300.0 -> Pollen.PollenCount.VERY_HIGH
+                    else -> Pollen.PollenCount.UNKNOWN
+                }
+            }
+        }
 
         observationTime = current.lastUpdatedEpoch?.let {
             ZonedDateTime.ofInstant(Instant.ofEpochSecond(it), ZoneOffset.UTC)
@@ -245,33 +284,44 @@ fun createAtmosphere(current: Current): Atmosphere {
     }
 }
 
-fun createAstronomy(astro: Astro): Astronomy {
+fun createAstronomy(astro: Astro?): Astronomy {
     return Astronomy().apply {
         val now = LocalDate.now()
 
         runCatching {
-            sunrise = LocalTime.parse(astro.sunrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
-        }
-
-        runCatching {
-            sunset =
-                LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
-            if (sunrise != null && sunset.isBefore(sunrise)) {
-                // Is next day
-                sunset = LocalTime.parse(astro.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
-                    .atDate(now.plusDays(1))
+            sunrise =
+                LocalTime.parse(astro?.sunrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+        }.getOrElse {
+            if (astro?.sunrise == "Polar Day" || astro?.sunrise == "Polar Night") {
+                sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
             }
         }
 
         runCatching {
-            moonrise = LocalTime.parse(astro.moonrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            sunset =
+                LocalTime.parse(astro?.sunset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            if (sunrise != null && sunset.isBefore(sunrise)) {
+                // Is next day
+                sunset = LocalTime.parse(astro?.sunset, DateTimeFormatter.ofPattern("hh:mm a"))
+                    .atDate(now.plusDays(1))
+            }
+        }.getOrElse {
+            if (astro?.sunset == "Polar Day" || astro?.sunset == "Polar Night") {
+                sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
+            }
         }
 
         runCatching {
-            moonset = LocalTime.parse(astro.moonset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+            moonrise =
+                LocalTime.parse(astro?.moonrise, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
         }
 
-        when (astro.moonPhase) {
+        runCatching {
+            moonset =
+                LocalTime.parse(astro?.moonset, DateTimeFormatter.ofPattern("hh:mm a")).atDate(now)
+        }
+
+        when (astro?.moonPhase) {
             "New Moon" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.NEWMOON)
             "Waxing Crescent" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.WAXING_CRESCENT)
             "First Quarter" -> moonPhase = MoonPhase(MoonPhase.MoonPhaseType.FIRST_QTR)
@@ -284,10 +334,10 @@ fun createAstronomy(astro: Astro): Astronomy {
 
         // If the sun won't set/rise, set time to the future
         if (sunrise == null) {
-            sunrise = LocalDateTime.now().plusYears(1).minusNanos(1)
+            sunrise = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (sunset == null) {
-            sunset = LocalDateTime.now().plusYears(1).minusNanos(1)
+            sunset = DateTimeUtils.LOCALDATETIME_MIN
         }
         if (moonrise == null) {
             moonrise = DateTimeUtils.LOCALDATETIME_MIN

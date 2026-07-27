@@ -12,6 +12,7 @@ import com.thewizrd.weather_api.meteofrance.weather.MeteoFranceProvider
 import com.thewizrd.weather_api.meteomatics.weather.MeteomaticsWeatherProvider
 import com.thewizrd.weather_api.metno.MetnoWeatherProvider
 import com.thewizrd.weather_api.nws.NWSWeatherProvider
+import com.thewizrd.weather_api.openmeteo.OpenMeteoWeatherProvider
 import com.thewizrd.weather_api.openweather.location.OpenWeatherMapLocationProvider
 import com.thewizrd.weather_api.openweather.weather.OpenWeatherMapProvider
 import com.thewizrd.weather_api.tomorrow.TomorrowIOWeatherProvider
@@ -43,10 +44,11 @@ class WeatherProviderFactoryImpl : WeatherProviderFactory {
             WeatherAPI.DWD -> BrightSkyProvider()
             WeatherAPI.ECCC -> ECCCWeatherProvider()
             WeatherAPI.GOOGLE -> GoogleWeatherProvider()
+            WeatherAPI.OPENMETEO -> OpenMeteoWeatherProvider()
             else -> {
                 if (!BuildConfig.DEBUG) {
                     if (!BuildConfig.IS_NONGMS)
-                        WeatherApiProvider()
+                        OpenMeteoWeatherProvider()
                     else
                         MetnoWeatherProvider()
                 } else {

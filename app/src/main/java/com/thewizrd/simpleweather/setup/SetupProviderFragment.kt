@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialSharedAxis
 import com.thewizrd.common.preferences.KeyEntryPreferenceDialogFragment
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.exceptions.WeatherException
@@ -273,7 +274,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
 
                             fragment.dialog?.dismiss()
                         } else {
-                            showToast(R.string.message_keyinvalid, Toast.LENGTH_SHORT)
+                            showToast(sharedRes.string.message_keyinvalid, Toast.LENGTH_SHORT)
                         }
                     } catch (e: WeatherException) {
                         Logger.writeLine(Log.ERROR, e)
@@ -297,13 +298,16 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
             val keyVerified = settingsManager.isKeyVerified(providerPref.value)
             val colorSpan = ForegroundColorSpan(if (keyVerified) Color.GREEN else Color.RED)
             val summary = SpannableString(
-                if (keyVerified) getString(R.string.message_keyverified) else getString(R.string.message_keyinvalid)
+                if (keyVerified) getString(sharedRes.string.message_keyverified) else getString(
+                    sharedRes.string.message_keyinvalid
+                )
             )
             summary.setSpan(colorSpan, 0, summary.length, 0)
             keyEntry.summary = summary
         } else {
             val colorSpan = ForegroundColorSpan(Color.RED)
-            val summary = SpannableString(getString(R.string.pref_summary_apikey, providerAPI))
+            val summary =
+                SpannableString(getString(sharedRes.string.pref_summary_apikey, providerAPI))
             summary.setSpan(colorSpan, 0, summary.length, 0)
             keyEntry.summary = summary
         }
@@ -333,7 +337,7 @@ class SetupProviderFragment : CustomPreferenceFragmentCompat(), StepperFragment 
                 showSnackbar(
                     Snackbar.make(
                         it,
-                        R.string.message_enter_apikey,
+                        sharedRes.string.message_enter_apikey,
                         Snackbar.Duration.LONG
                     )
                 )

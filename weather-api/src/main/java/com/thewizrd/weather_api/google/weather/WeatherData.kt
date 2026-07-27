@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.google.weather
 
+import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
@@ -13,20 +14,23 @@ import com.thewizrd.shared_resources.weatherdata.model.Forecast
 import com.thewizrd.shared_resources.weatherdata.model.ForecastExtras
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Location
+import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase
 import com.thewizrd.shared_resources.weatherdata.model.MoonPhase.MoonPhaseType
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast
 import com.thewizrd.shared_resources.weatherdata.model.UV
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.weather_api.R
 import com.thewizrd.weather_api.weatherModule
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 fun createWeatherData(
     current: CurrentResponse,
     daily: DailyResponse,
-    hourly: HourlyResponse
+    hourly: HourlyResponse,
+    minutely: MinutelyResponse? = null,
+    alerts: AlertsResponse? = null
 ): Weather {
     return Weather().apply {
 
@@ -69,13 +73,18 @@ fun createWeatherData(
             createHourlyForecast(it)
         }
 
+        minForecast = minutely?.segments?.map {
+            createMinutelyForecast(it)
+        }
+
         condition = createCondition(current, todaysForecast?.second, todaysTxtForecast)
         atmosphere = createAtmosphere(current)
         astronomy = createAstronomy(todaysForecast?.first)
         precipitation = createPrecipitation(current)
+        weatherAlerts = createWeatherAlerts(alerts)
         ttl = 60 // TODO: TBD
 
-        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.size > 0) {
+        if ((condition!!.highF == null || condition!!.highC == null) && forecast!!.isNotEmpty()) {
             condition!!.highF = forecast!![0].highF
             condition!!.highC = forecast!![0].highC
             condition!!.lowF = forecast!![0].lowF
@@ -249,12 +258,6 @@ fun createHourlyForecast(hour: ForecastHoursItem): HourlyForecast {
         icon = wm.getWeatherIcon(hour.isDaytime?.not() ?: false, hour.weatherCondition?.type)
         condition = hour.weatherCondition?.description?.text
 
-        windDegrees = hour.wind?.direction?.degrees
-        hour.wind?.speed?.value?.let {
-            windKph = it
-            windMph = ConversionMethods.kphTomph(it)
-        }
-
         extras = ForecastExtras()
         hour.feelsLikeTemperature?.degrees?.let {
             extras.feelslikeC = it
@@ -275,9 +278,11 @@ fun createHourlyForecast(hour: ForecastHoursItem): HourlyForecast {
             extras.pressureMb = it
             extras.pressureIn = ConversionMethods.mbToInHg(it)
         }
-        extras.windDegrees = windDegrees
-        extras.windKph = windKph
-        extras.windMph = windMph
+        extras.windDegrees = hour.wind?.direction?.degrees
+        hour.wind?.speed?.value?.let {
+            extras.windKph = it
+            extras.windMph = ConversionMethods.kphTomph(it)
+        }
         hour.wind?.gust?.value?.let {
             extras.windGustKph = it
             extras.windGustMph = ConversionMethods.kphTomph(it)
@@ -287,6 +292,14 @@ fun createHourlyForecast(hour: ForecastHoursItem): HourlyForecast {
             extras.visibilityMi = ConversionMethods.kmToMi(it)
         }
         extras.cloudiness = hour.cloudCover
+    }
+}
+
+fun createMinutelyForecast(minute: SegmentsItem): MinutelyForecast {
+    return MinutelyForecast().apply {
+        date = ZonedDateTime.parse(minute.timeFrame?.startTime).withZoneSameInstant(ZoneOffset.UTC)
+        rainMm = minute.qpf?.quantity
+        snowMm = minute.snowfallAmount?.quantity
     }
 }
 

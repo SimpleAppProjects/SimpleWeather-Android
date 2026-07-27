@@ -87,7 +87,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
         condition = if (wm.supportsWeatherLocale()) forecast.condition
             ?: context.getString(R.string.weather_notavailable) else wm.getWeatherCondition(forecast.icon)
 
-        if (forecast.windMph != null && forecast.windKph != null && forecast.windMph >= 0 && forecast.windDegrees != null && forecast.windDegrees >= 0) {
+        if (forecast.extras?.windMph != null && forecast.extras?.windKph != null && forecast.extras.windMph >= 0 && forecast.extras?.windDegrees != null && forecast.extras.windDegrees >= 0) {
             val unit = settingsManager.getSpeedUnit()
             val speedVal: Int
             val speedUnit: String
@@ -116,7 +116,7 @@ class HourlyForecastNowViewModel(forecast: HourlyForecast) {
                 }
             }
 
-            windDirection = forecast.windDegrees.getValueOrDefault(0) + 180
+            windDirection = forecast.extras?.windDegrees.getValueOrDefault(0) + 180
 
             windSpeed = String.format(LocaleUtils.getLocale(), "%d %s", speedVal, speedUnit)
         }

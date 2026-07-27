@@ -4,18 +4,18 @@ buildscript {
     repositories {
         mavenCentral()
         google()
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://jitpack.io' }
     }
 
     dependencies {
         classpath libs.gradle
+        classpath libs.legacy.kapt.plugin
         classpath libs.com.google.devtools.ksp.gradle.plugin
         classpath libs.google.services
         classpath libs.firebase.crashlytics.gradle
         classpath libs.firebase.perf.plugin
         classpath libs.nav.safe.args.plugin
         classpath libs.room.plugin
-        classpath libs.kotlin.gradle.plugin
         classpath libs.compose.compiler.gradle.plugin
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -27,7 +27,7 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://jitpack.io' }
     }
 }
 

@@ -78,10 +78,10 @@ public class HourlyForecastItemViewModel extends BaseForecastItemViewModel {
             Logger.writeLine(Log.ERROR, nFe);
         }
 
-        if (forecast.getWindMph() != null && forecast.getWindKph() != null && forecast.getWindMph() >= 0 &&
-                forecast.getWindDegrees() != null && forecast.getWindDegrees() >= 0) {
-            windDirection = NumberUtils.getValueOrDefault(forecast.getWindDegrees(), 0);
-            windDir = WeatherUtils.getWindDirection(forecast.getWindDegrees());
+        if (forecast.getExtras() != null && forecast.getExtras().getWindMph() != null && forecast.getExtras().getWindKph() != null && forecast.getExtras().getWindMph() >= 0 &&
+                forecast.getExtras().getWindDegrees() != null && forecast.getExtras().getWindDegrees() >= 0) {
+            windDirection = NumberUtils.getValueOrDefault(forecast.getExtras().getWindDegrees(), 0);
+            windDir = WeatherUtils.getWindDirection(forecast.getExtras().getWindDegrees());
 
             final String unit = settingsMgr.getSpeedUnit();
             int speedVal;

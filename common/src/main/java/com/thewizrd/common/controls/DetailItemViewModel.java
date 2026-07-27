@@ -72,7 +72,7 @@ public class DetailItemViewModel {
                 break;
             case VISIBILITY:
                 this.label = context.getString(R.string.label_visibility);
-                this.icon = WeatherIcons.FOG;
+                this.icon = WeatherIcons.VISIBILITY;
                 break;
             case POPCHANCE:
                 this.label = context.getString(R.string.label_chance);
@@ -112,11 +112,11 @@ public class DetailItemViewModel {
                 break;
             case UV:
                 this.label = context.getString(R.string.label_uv);
-                this.icon = WeatherIcons.DAY_SUNNY;
+                this.icon = WeatherIcons.UV_INDEX;
                 break;
             case AIRQUALITY:
                 this.label = context.getString(R.string.label_airquality);
-                this.icon = WeatherIcons.CLOUDY_GUSTS;
+                this.icon = WeatherIcons.AIR_QUALITY;
                 break;
             case TREEPOLLEN:
                 this.label = context.getString(R.string.label_tree_pollen);
@@ -257,7 +257,7 @@ public class DetailItemViewModel {
         final Context context = SharedModuleKt.getSharedDeps().getContext();
         this.detailsType = WeatherDetailsType.AIRQUALITY;
         this.label = context.getString(R.string.label_airquality_short);
-        this.icon = WeatherIcons.CLOUDY_GUSTS;
+        this.icon = WeatherIcons.AIR_QUALITY;
         this.iconRotation = 0;
 
         if (aqi.getIndex() < 51) {
@@ -281,7 +281,6 @@ public class DetailItemViewModel {
         final Context context = SharedModuleKt.getSharedDeps().getContext();
         this.detailsType = WeatherDetailsType.UV;
         this.label = context.getString(R.string.label_uv);
-        this.icon = WeatherIcons.DAY_SUNNY;
         this.iconRotation = 0;
 
         if (uv.getIndex() < 3) {
@@ -294,6 +293,21 @@ public class DetailItemViewModel {
             this.value = context.getString(R.string.uv_8);
         } else if (uv.getIndex() >= 11) {
             this.value = context.getString(R.string.uv_11);
+        }
+
+        switch (uv.getIndex().intValue()) {
+            case 1 -> icon = WeatherIcons.UV_INDEX_1;
+            case 2 -> icon = WeatherIcons.UV_INDEX_2;
+            case 3 -> icon = WeatherIcons.UV_INDEX_3;
+            case 4 -> icon = WeatherIcons.UV_INDEX_4;
+            case 5 -> icon = WeatherIcons.UV_INDEX_5;
+            case 6 -> icon = WeatherIcons.UV_INDEX_6;
+            case 7 -> icon = WeatherIcons.UV_INDEX_7;
+            case 8 -> icon = WeatherIcons.UV_INDEX_8;
+            case 9 -> icon = WeatherIcons.UV_INDEX_9;
+            case 10 -> icon = WeatherIcons.UV_INDEX_10;
+            case 11 -> icon = WeatherIcons.UV_INDEX_11;
+            default -> icon = WeatherIcons.UV_INDEX;
         }
 
         this.shortValue = String.format(LocaleUtils.getLocale(), "%d", Math.round(uv.getIndex()));

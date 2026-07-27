@@ -9,16 +9,23 @@ import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageType
+import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
+import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import java.text.DecimalFormat
+import kotlin.math.max
+import kotlin.math.min
+import com.thewizrd.shared_resources.R as sharedRes
 
 class PressureComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -31,12 +38,24 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SHORT_TEXT,
             ComplicationType.LONG_TEXT
         )
-    private val complicationIconResId = R.drawable.wi_barometer
+
+    private val complicationIcon = WeatherIcons.BAROMETER
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
 
         return when (type) {
             ComplicationType.RANGED_VALUE -> {
@@ -44,11 +63,16 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
                     30.3f, 26f, 32f,
                     PlainComplicationText.Builder("Pressure: 30.3 inHg").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder("30.3 in").build()
                 ).build()
             }
@@ -58,25 +82,36 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("30.3 in").build(),
                     PlainComplicationText.Builder("Pressure: 30.3 inHg").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
 
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_pressure)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_pressure))
+                        .build(),
                     PlainComplicationText.Builder("Pressure: 30.3 inHg").build()
                 ).setTitle(
                     PlainComplicationText.Builder("30.3 inHg").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
 
             else -> {
@@ -114,25 +149,25 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
         when (unit) {
             Units.INHG -> {
                 pressureVal = df.format(pressureIn)
-                pressureUnit = getString(R.string.unit_inHg)
-                pressureUnitShort = getString(R.string.unit_in)
+                pressureUnit = getString(sharedRes.string.unit_inHg)
+                pressureUnitShort = getString(sharedRes.string.unit_in)
             }
 
             Units.MILLIBAR -> {
                 pressureVal = df.format(pressureMb)
-                pressureUnit = getString(R.string.unit_mBar).also { pressureUnitShort = it }
+                pressureUnit = getString(sharedRes.string.unit_mBar).also { pressureUnitShort = it }
             }
 
             Units.MMHG -> {
                 pressureVal = df.format(ConversionMethods.inHgToMmHg(pressureIn))
-                pressureUnit = getString(R.string.unit_mmHg)
-                pressureUnitShort = getString(R.string.unit_mm)
+                pressureUnit = getString(sharedRes.string.unit_mmHg)
+                pressureUnitShort = getString(sharedRes.string.unit_mm)
             }
 
             else -> {
                 pressureVal = df.format(pressureIn)
-                pressureUnit = getString(R.string.unit_inHg)
-                pressureUnitShort = getString(R.string.unit_in)
+                pressureUnit = getString(sharedRes.string.unit_inHg)
+                pressureUnitShort = getString(sharedRes.string.unit_in)
             }
         }
 
@@ -145,25 +180,46 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
 
     private fun buildUpdate(
         dataType: ComplicationType,
-        pressureStr: String? = null, pressureStrShort: String? = null, pressureVal: Float? = null
+        pressureStr: String? = null, pressureStrShort: String? = null, pressureInVal: Float? = null
     ): ComplicationData? {
+        val wim = sharedDeps.weatherIconsManager
+
+        val pressureProgress = pressureInVal ?: 26f
+        val pressureMin = min(pressureProgress, 26f)
+        val pressureMax = max(pressureProgress, 32f)
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+                .setTint(Colors.WHITESMOKE)
+        val icon = Icon.createWithBitmap(
+            ImageUtils.bitmapFromDrawable(
+                getThemeContextOverride(false),
+                wim.getWeatherIconResource(complicationIcon)
+            )
+        )
+
         return when (dataType) {
             ComplicationType.RANGED_VALUE -> {
                 RangedValueComplicationData.Builder(
-                    pressureVal ?: 26f, 26f, 32f,
+                    pressureProgress, pressureMin, pressureMax,
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setText(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setText(
                     PlainComplicationText.Builder(pressureStrShort ?: WeatherIcons.EM_DASH)
                         .build()
                 ).setTapAction(
@@ -178,38 +234,49 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
 
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_pressure)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_pressure))
+                        .build(),
                     PlainComplicationText.Builder(
                         String.format(
                             "%s: %s",
-                            getString(R.string.label_pressure),
-                            pressureStr ?: getString(R.string.weather_notavailable)
+                            getString(sharedRes.string.label_pressure),
+                            pressureStr ?: getString(sharedRes.string.weather_notavailable)
                         )
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(pressureStr ?: WeatherIcons.EM_DASH).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }

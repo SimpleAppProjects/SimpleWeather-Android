@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.weatherkit
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlert
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertSeverity
 import com.thewizrd.shared_resources.weatherdata.model.WeatherAlertType
@@ -8,7 +9,7 @@ import java.time.ZonedDateTime
 fun createWeatherAlerts(alerts: WeatherAlertCollection?): Collection<WeatherAlert>? {
     if (alerts?.alerts.isNullOrEmpty()) return null
 
-    val weatherAlerts = ArrayList<WeatherAlert>(alerts!!.alerts.size)
+    val weatherAlerts = ArrayList<WeatherAlert>(alerts.alerts.size)
 
     for (alert in alerts.alerts) {
         weatherAlerts.add(createWeatherAlert(alert))
@@ -17,13 +18,14 @@ fun createWeatherAlerts(alerts: WeatherAlertCollection?): Collection<WeatherAler
     return weatherAlerts
 }
 
+@SuppressLint("VisibleForTests")
 fun createWeatherAlert(alert: WeatherAlertSummary): WeatherAlert {
     return WeatherAlert().apply {
         title = alert.description
         message = alert.detailsUrl
         attribution = alert.source
-        date = ZonedDateTime.parse(alert.effectiveTime)
-        expiresDate = ZonedDateTime.parse(alert.expireTime)
+        date = ZonedDateTime.parse(alert.eventOnsetTime ?: alert.effectiveTime)
+        expiresDate = ZonedDateTime.parse(alert.eventEndTime ?: alert.expireTime)
         severity = when (alert.severity) {
             Severity.EXTREME -> WeatherAlertSeverity.EXTREME
             Severity.SEVERE -> WeatherAlertSeverity.SEVERE

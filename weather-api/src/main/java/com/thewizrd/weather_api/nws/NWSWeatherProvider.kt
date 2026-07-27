@@ -56,7 +56,8 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Collections
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class NWSWeatherProvider : WeatherProviderImpl() {
@@ -417,6 +418,8 @@ class NWSWeatherProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         val offset = location.tzOffset
 
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)

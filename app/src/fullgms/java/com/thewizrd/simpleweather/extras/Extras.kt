@@ -32,6 +32,7 @@ import com.thewizrd.simpleweather.utils.NavigationUtils.safeNavigate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import com.thewizrd.extras.R as extrasRes
 
 fun initializeExtras() {
     extrasModule.initialize()
@@ -84,7 +85,7 @@ fun BaseSettingsFragment.navigateToPremiumFragment() {
         showSnackbar(
             Snackbar.make(
                 rootView.context,
-                R.string.message_premium_required,
+                extrasRes.string.message_premium_required,
                 Snackbar.Duration.SHORT
             ),
             null
@@ -102,7 +103,7 @@ fun SettingsFragment.IconsFragment.navigateUnsupportedIconPack() {
         showSnackbar(
             Snackbar.make(
                 rootView.context,
-                R.string.message_premium_required,
+                extrasRes.string.message_premium_required,
                 Snackbar.Duration.SHORT
             ),
             null
@@ -124,7 +125,7 @@ fun isPremiumSupported(): Boolean {
 }
 
 fun isRadarInteractionEnabled(): Boolean {
-    return extrasModule.isAtLeastProEnabled()
+    return true
 }
 
 fun areNotificationExtrasEnabled(): Boolean {
@@ -133,8 +134,8 @@ fun areNotificationExtrasEnabled(): Boolean {
 
 fun SettingsFragment.createPremiumPreference(): Preference {
     val premiumPref = Preference(requireContext()).apply {
-        title = context.getString(R.string.pref_title_premium)
-        summary = context.getString(R.string.pref_summary_premium)
+        title = context.getString(extrasRes.string.pref_title_premium)
+        summary = context.getString(extrasRes.string.pref_summary_premium)
         setIcon(R.drawable.ic_star_24dp)
         order = 0
     }
@@ -147,7 +148,7 @@ fun SettingsFragment.createPremiumPreference(): Preference {
             showSnackbar(
                 Snackbar.make(
                     rootView.context,
-                    R.string.message_premium_required,
+                    extrasRes.string.message_premium_required,
                     Snackbar.Duration.SHORT
                 ),
                 null

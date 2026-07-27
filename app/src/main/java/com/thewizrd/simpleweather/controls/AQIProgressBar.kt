@@ -48,10 +48,11 @@ class AQIProgressBar @JvmOverloads constructor(
         thumbDrawable = MaterialShapeDrawable().apply {
             shadowCompatibilityMode = MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
             fillColor = ColorStateList.valueOf(THUMB_COLOR)
-            elevation = context.resources.getDimension(R.dimen.m3_slider_thumb_elevation)
+            elevation =
+                context.resources.getDimension(com.google.android.material.R.dimen.m3_slider_thumb_elevation)
 
             thumbSize =
-                context.resources.getDimensionPixelSize(R.dimen.mtrl_slider_thumb_radius) * 3 / 4
+                context.resources.getDimensionPixelSize(com.google.android.material.R.dimen.mtrl_slider_thumb_radius) * 3 / 4
 
             shapeAppearanceModel = ShapeAppearanceModel.builder()
                 .setAllCorners(CornerFamily.ROUNDED, thumbSize / 2f)

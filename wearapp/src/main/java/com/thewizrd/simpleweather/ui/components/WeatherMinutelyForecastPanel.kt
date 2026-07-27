@@ -16,11 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.tooling.preview.devices.WearDevices
@@ -29,21 +28,27 @@ import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.viewmodels.MinutelyForecastViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherMinutelyForecastPanel(
-    model: MinutelyForecastViewModel
+    model: MinutelyForecastViewModel,
+    iconProvider: String? = null
 ) {
     WeatherMinutelyForecastPanel(
         date = model.date,
-        rainAmount = model.rainAmount
+        precipAmount = model.precipAmount,
+        isSnow = model.isSnow,
+        iconProvider = iconProvider
     )
 }
 
 @Composable
 private fun WeatherMinutelyForecastPanel(
     date: String? = null,
-    rainAmount: String? = null
+    precipAmount: String? = null,
+    isSnow: Boolean = false,
+    iconProvider: String? = null
 ) {
     Row(
         modifier = Modifier
@@ -55,13 +60,19 @@ private fun WeatherMinutelyForecastPanel(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        Column(
             modifier = Modifier
                 .weight(1f),
-            textAlign = TextAlign.Center,
-            text = date ?: WeatherIcons.EM_DASH,
-            style = MaterialTheme.typography.bodyLarge
-        )
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                text = date ?: WeatherIcons.EM_DASH,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
         Column(
             modifier = Modifier
                 .weight(1f),
@@ -70,18 +81,31 @@ private fun WeatherMinutelyForecastPanel(
         ) {
             Text(
                 modifier = Modifier
-                    .weight(1f, false),
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 20.dp),
                 textAlign = TextAlign.Center,
-                text = rainAmount ?: WeatherIcons.PLACEHOLDER,
+                text = precipAmount ?: WeatherIcons.PLACEHOLDER,
                 style = MaterialTheme.typography.bodyLarge
             )
-            Icon(
-                modifier = Modifier
-                    .weight(1f, false)
-                    .size(20.dp),
-                painter = painterResource(R.drawable.wi_raindrop),
-                contentDescription = null,
-                tint = colorResource(id = R.color.colorSecondaryDark)
+            WeatherIcon(
+                modifier = Modifier.size(20.dp),
+                weatherIcon = if (isSnow) {
+                    WeatherIcons.SNOWFLAKE_COLD
+                } else {
+                    WeatherIcons.RAINDROP
+                },
+                iconProvider = iconProvider,
+                tint = if (isSnow) {
+                    colorResource(id = sharedRes.color.colorSecondaryLight)
+                } else {
+                    colorResource(id = sharedRes.color.colorSecondaryDark)
+                },
+                showAsMonochrome = true,
+                contentDescription = if (isSnow) {
+                    stringResource(id = sharedRes.string.label_qpf_snow)
+                } else {
+                    stringResource(id = sharedRes.string.label_qpf_rain)
+                }
             )
         }
     }
@@ -131,7 +155,7 @@ fun PreviewWeatherMinutelyForecastPanel() {
 
         WeatherMinutelyForecastPanel(
             date = ZonedDateTime.now().format(fmt),
-            rainAmount = "1.00 mm"
+            precipAmount = "1.00 mm"
         )
     }
 }

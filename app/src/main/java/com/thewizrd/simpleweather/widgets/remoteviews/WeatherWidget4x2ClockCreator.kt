@@ -11,6 +11,7 @@ import android.widget.RemoteViews
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.sharedDeps
@@ -72,7 +73,7 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
             ColorsUtils.isSuperLight(backgroundColor)
         )
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(viewCtx, R.style.ShadowText)
+            TextAppearanceSpan(viewCtx, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -146,7 +147,7 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         updateViews.setInt(R.id.refresh_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.refresh_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.refresh_button, R.drawable.ic_refresh)
+        updateViews.setImageViewResource(R.id.refresh_button, sharedRes.drawable.ic_refresh)
 
         // Setting icon
         updateViews.setImageViewBitmap(R.id.settings_button, null)
@@ -154,7 +155,10 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         updateViews.setInt(R.id.settings_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.settings_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.settings_button, R.drawable.ic_outline_settings_24)
+        updateViews.setImageViewResource(
+            R.id.settings_button,
+            sharedRes.drawable.ic_outline_settings_24
+        )
 
         // Location Name
         updateViews.setTextViewText(
@@ -306,13 +310,13 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textClockAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowTextHeavy)
+            TextAppearanceSpan(context, sharedRes.style.ShadowTextHeavy)
         } else {
             null
         }
 
         // Update clock widgets
-        val timeStr12hr = SpannableString(context.getText(R.string.clock_12_hours_format))
+        val timeStr12hr = SpannableString(context.getText(sharedRes.string.clock_12_hours_format))
 
         views.setCharSequence(
             R.id.clock_panel, "setFormat12Hour",
@@ -320,7 +324,8 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         )
         views.setCharSequence(
             R.id.clock_panel, "setFormat24Hour",
-            context.getText(R.string.clock_24_hours_format).applySpan(textClockAppearanceSpan)
+            context.getText(sharedRes.string.clock_24_hours_format)
+                .applySpan(textClockAppearanceSpan)
         )
 
         views.setTextViewTextSize(
@@ -346,7 +351,7 @@ class WeatherWidget4x2ClockCreator(context: Context) : WidgetRemoteViewCreator(c
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textClockAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowText)
+            TextAppearanceSpan(context, sharedRes.style.ShadowText)
         } else {
             null
         }

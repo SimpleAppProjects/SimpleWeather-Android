@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.textfield.TextInputLayout
+import com.thewizrd.common.R as commonRes
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.weatherdata.auth.*
 import com.thewizrd.simpleweather.R
@@ -107,10 +109,10 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
             when (authType) {
                 AuthType.APPID_APPCODE,
                 AuthType.BASIC -> {
-                    inflate(R.layout.layout_keyentry2_dialog, null)
+                    inflate(commonRes.layout.layout_keyentry2_dialog, null)
                 }
                 else -> {
-                    inflate(R.layout.layout_keyentry_dialog, null)
+                    inflate(commonRes.layout.layout_keyentry_dialog, null)
                 }
             }
         }
@@ -125,8 +127,8 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
             AuthType.APPID_APPCODE -> {
                 val credentials = providerKey as? ProviderAppKey
 
-                view.findViewById<TextInputLayout>(R.id.keyentry1_layout)?.apply {
-                    this.setHint(R.string.hint_appid)
+                view.findViewById<TextInputLayout>(commonRes.id.keyentry1_layout)?.apply {
+                    this.setHint(sharedRes.string.hint_appid)
                     editText?.let { editText ->
                         editText.requestFocus()
                         editText.setText(credentials?.appId ?: "")
@@ -137,8 +139,8 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
                         }
                     }
                 }
-                view.findViewById<TextInputLayout>(R.id.keyentry2_layout)?.apply {
-                    this.setHint(R.string.hint_appcode)
+                view.findViewById<TextInputLayout>(commonRes.id.keyentry2_layout)?.apply {
+                    this.setHint(sharedRes.string.hint_appcode)
                     editText?.let { editText ->
                         editText.setText(credentials?.appCode ?: "")
 
@@ -151,8 +153,8 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
             AuthType.BASIC -> {
                 val credentials = providerKey as? BasicAuthProviderKey
 
-                view.findViewById<TextInputLayout>(R.id.keyentry1_layout)?.apply {
-                    this.setHint(R.string.hint_username)
+                view.findViewById<TextInputLayout>(commonRes.id.keyentry1_layout)?.apply {
+                    this.setHint(sharedRes.string.hint_username)
                     editText?.let { editText ->
                         editText.requestFocus()
                         editText.setText(credentials?.username ?: "")
@@ -163,8 +165,8 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
                         }
                     }
                 }
-                view.findViewById<TextInputLayout>(R.id.keyentry2_layout)?.apply {
-                    this.setHint(R.string.hint_password)
+                view.findViewById<TextInputLayout>(commonRes.id.keyentry2_layout)?.apply {
+                    this.setHint(sharedRes.string.hint_password)
                     endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
                     passwordVisibilityToggleRequested(true)
 
@@ -178,8 +180,8 @@ class KeyEntryPreferenceDialogFragment : WearPreferenceDialogFragment() {
                 }
             }
             else -> {
-                view.findViewById<TextInputLayout>(R.id.keyentry1_layout)?.apply {
-                    this.setHint(R.string.key_hint)
+                view.findViewById<TextInputLayout>(commonRes.id.keyentry1_layout)?.apply {
+                    this.setHint(sharedRes.string.key_hint)
                     editText?.let { editText ->
                         editText.requestFocus()
                         editText.setText(key ?: "")

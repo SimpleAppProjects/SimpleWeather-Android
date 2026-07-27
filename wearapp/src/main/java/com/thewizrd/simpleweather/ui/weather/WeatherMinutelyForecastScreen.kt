@@ -29,7 +29,8 @@ import com.thewizrd.simpleweather.viewmodels.ForecastPanelsViewModel
 @Composable
 fun WeatherMinutelyForecastScreen(
     backStackEntry: NavBackStackEntry,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    iconProvider: String? = null
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -51,7 +52,7 @@ fun WeatherMinutelyForecastScreen(
             contentPadding = PaddingValues(top = 48.dp)
         ) {
             items(minutelyForecasts) {
-                WeatherMinutelyForecastPanel(model = it)
+                WeatherMinutelyForecastPanel(model = it, iconProvider = iconProvider)
             }
         }
 

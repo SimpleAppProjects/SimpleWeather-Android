@@ -37,10 +37,12 @@ import com.thewizrd.shared_resources.designer.initializeDependencies
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.ui.text.spannableStringToAnnotatedString
+import com.thewizrd.shared_resources.R as sharedRes
 
 @Composable
 fun WeatherForecastPanel(
-    model: ForecastItemViewModel
+    model: ForecastItemViewModel,
+    iconProvider: String? = null
 ) {
     val context = LocalContext.current
     val isLargeHeight = LocalConfiguration.current.screenHeightDp >= 225
@@ -81,6 +83,7 @@ fun WeatherForecastPanel(
                     width = 32.dp, height = 36.dp
                 ),
                 weatherIcon = model.weatherIcon,
+                iconProvider = iconProvider,
                 shouldAnimate = true
             )
             Column(
@@ -100,7 +103,7 @@ fun WeatherForecastPanel(
                     )
                     Icon(
                         modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.wi_direction_up),
+                        painter = painterResource(id = sharedRes.drawable.wi_direction_up),
                         tint = Color(0xFFFF4500),
                         contentDescription = null
                     )
@@ -118,7 +121,7 @@ fun WeatherForecastPanel(
                     )
                     Icon(
                         modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.wi_direction_down),
+                        painter = painterResource(id = sharedRes.drawable.wi_direction_down),
                         tint = Color(0xFF87CEFA),
                         contentDescription = null
                     )
@@ -132,20 +135,22 @@ fun WeatherForecastPanel(
         ) {
             if (popData != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp),
-                        painter = painterResource(R.drawable.wi_umbrella),
-                        tint = colorResource(R.color.colorPrimaryLight),
-                        contentDescription = null
+                        weatherIcon = WeatherIcons.UMBRELLA,
+                        iconProvider = iconProvider,
+                        tint = colorResource(sharedRes.color.colorPrimaryLight),
+                        showAsMonochrome = true,
+                        contentDescription = popData.label?.toString()
                     )
                     Text(
                         text = spannableStringToAnnotatedString(popData.value),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
                         textAlign = TextAlign.End,
                         maxLines = 1,
-                        color = colorResource(R.color.colorPrimaryLight)
+                        color = colorResource(sharedRes.color.colorPrimaryLight)
                     )
                 }
             }
@@ -162,15 +167,17 @@ fun WeatherForecastPanel(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    WeatherIcon(
                         modifier = Modifier
                             .size(20.dp)
                             .padding(end = 2.dp)
                             .rotate(windData.iconRotation.toFloat())
                             .align(Alignment.CenterVertically),
-                        painter = painterResource(R.drawable.wi_wind_direction),
+                        weatherIcon = WeatherIcons.WIND_DIRECTION,
+                        useDefaultIconProvider = true,
                         tint = Color(0xFF20B2AA),
-                        contentDescription = null
+                        showAsMonochrome = true,
+                        contentDescription = windData.label?.toString()
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),

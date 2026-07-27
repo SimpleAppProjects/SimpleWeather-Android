@@ -25,6 +25,8 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.thewizrd.common.controls.DetailItemViewModel
+import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.helpers.locationPermissionEnabled
@@ -56,6 +58,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.android.material.snackbar.Snackbar as materialSnackbar
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
     private lateinit var favorites: MutableCollection<LocationData>
@@ -68,6 +71,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
     private lateinit var fcastOptPref: ListPreference
     private lateinit var tap2switchPref: SwitchPreference
     private lateinit var graphTypePref: ListPreference
+    private lateinit var detailsTypePref: ListPreference
 
     override fun getPreferencesResId(): Int = R.xml.pref_widgetconfig
 
@@ -79,7 +83,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
 
         lifecycleScope.launch {
             locationPref.addEntry(R.string.pref_item_gpslocation, Constants.KEY_GPS)
-            locationPref.addEntry(R.string.label_btn_add_location, Constants.KEY_SEARCH)
+            locationPref.addEntry(sharedRes.string.label_btn_add_location, Constants.KEY_SEARCH)
 
             val favs = settingsManager.getFavorites()
             favorites.addAll(favs)
@@ -244,6 +248,32 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             fcastOptPref.setValueIndex(WidgetUtils.ForecastOption.FULL.value)
             findPreference<Preference>(KEY_FORECAST)!!.isVisible = false
         }
+
+        if (mWidgetType == WidgetType.Widget1x1Custom) {
+            detailsTypePref = findPreference(KEY_WEATHERDETAILSTYPEOPTION)!!
+
+            val entries = WeatherDetailsType.entries
+
+            detailsTypePref.entries = entries.map {
+                DetailItemViewModel(it, "").label
+            }.toTypedArray()
+            detailsTypePref.entryValues = entries.map { it.value.toString() }.toTypedArray()
+
+            detailsTypePref.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { _, newValue ->
+                    mWidgetOptions.putSerializable(
+                        KEY_WEATHERDETAILSTYPEOPTION,
+                        WeatherDetailsType.valueOf(newValue.toString().toInt())
+                    )
+                    updateWidgetView()
+                    true
+                }
+            detailsTypePref.isVisible = true
+
+            val detailsType = WidgetUtils.getWidgetDetailsType(mAppWidgetId)
+            detailsTypePref.value = detailsType.value.toString()
+            detailsTypePref.callChangeListener(detailsTypePref.value)
+        }
     }
 
     override fun onSetupActivityResult(result: ActivityResult) {
@@ -347,6 +377,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     96f * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget1x1Custom -> 1
                         WidgetType.Widget2x2 -> 2
                         WidgetType.Widget4x1 -> 1
                         WidgetType.Widget4x2 -> 2
@@ -371,6 +402,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     96f * when (mWidgetType) {
                         WidgetType.Unknown -> 4
                         WidgetType.Widget1x1 -> 1
+                        WidgetType.Widget1x1Custom -> 1
                         WidgetType.Widget2x2 -> 4 /* 2 is too small */
                         WidgetType.Widget4x1 -> 4
                         WidgetType.Widget4x2 -> 4
@@ -412,7 +444,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                 locationPref.findEntryFromValue(it)?.toString()
             } ?: locationView.context.getString(R.string.pref_location)).run {
                 if (WidgetUtils.isBackgroundOptionalWidget(mWidgetType) && txtShadowPref.isChecked) {
-                    applySpan(TextAppearanceSpan(locationView.context, R.style.ShadowText))
+                    applySpan(TextAppearanceSpan(locationView.context, sharedRes.style.ShadowText))
                 } else {
                     this
                 }
@@ -491,7 +523,11 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
         } else {
             context?.let {
                 showSnackbar(
-                    Snackbar.make(it, R.string.error_retrieve_location, Snackbar.Duration.SHORT)
+                    Snackbar.make(
+                        it,
+                        sharedRes.string.error_retrieve_location,
+                        Snackbar.Duration.SHORT
+                    )
                 )
             }
         }
@@ -527,7 +563,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
             showSnackbar(
                 Snackbar.make(
                     ctx,
-                    R.string.error_enable_location_services,
+                    sharedRes.string.error_enable_location_services,
                     Snackbar.Duration.SHORT
                 )
             )
@@ -550,7 +586,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_location_denied,
+                            sharedRes.string.error_location_denied,
                             Snackbar.Duration.SHORT
                         )
                     )
@@ -560,7 +596,7 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_retrieve_location,
+                            sharedRes.string.error_retrieve_location,
                             Snackbar.Duration.SHORT
                         )
                     )
@@ -624,6 +660,9 @@ class WeatherWidgetPreferenceFragment : BaseWeatherWidgetPreferenceFragment() {
         WidgetUtils.setUseTimeZone(mAppWidgetId, useTimeZonePref.isChecked)
         if (mWidgetType == WidgetType.Widget4x2Graph) {
             WidgetUtils.setWidgetGraphType(mAppWidgetId, graphTypePref.value.toInt())
+        }
+        if (mWidgetType == WidgetType.Widget1x1Custom) {
+            WidgetUtils.setWidgetDetailsType(mAppWidgetId, detailsTypePref.value.toInt())
         }
 
         super.finalizeWidgetUpdate()

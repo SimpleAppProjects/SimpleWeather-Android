@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.thewizrd.shared_resources.DateTimeConstants;
+import com.thewizrd.shared_resources.icons.WeatherIcons;
 import com.thewizrd.shared_resources.preferences.SettingsManager;
 import com.thewizrd.shared_resources.utils.Colors;
 import com.thewizrd.shared_resources.utils.ConversionMethods;
@@ -18,7 +19,6 @@ import com.thewizrd.shared_resources.weatherdata.model.BaseForecast;
 import com.thewizrd.shared_resources.weatherdata.model.Forecast;
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast;
 import com.thewizrd.shared_resources.weatherdata.model.MinutelyForecast;
-import com.thewizrd.simpleweather.R;
 import com.thewizrd.simpleweather.controls.graphs.BarGraphData;
 import com.thewizrd.simpleweather.controls.graphs.BarGraphDataSet;
 import com.thewizrd.simpleweather.controls.graphs.BarGraphEntry;
@@ -239,7 +239,7 @@ public class ForecastGraphViewModel {
     }
 
     private void addMinutelyEntryData(@NonNull MinutelyForecast forecast, LineDataSeries series) {
-        if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
+        if ((forecast.getRainMm() != null && forecast.getRainMm() >= 0) || (forecast.getSnowMm() != null && forecast.getSnowMm() >= 0)) {
 
             final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
             df.applyPattern("0.##");
@@ -254,13 +254,17 @@ public class ForecastGraphViewModel {
             final String unit = settingsMgr.getPrecipitationUnit();
             float precipValue;
 
+            float rainMm = forecast.getRainMm() != null ? forecast.getRainMm() : 0f;
+            float snowMm = forecast.getSnowMm() != null ? forecast.getSnowMm() : 0f;
+            boolean isSnow = snowMm > rainMm;
+
             switch (unit) {
                 case Units.INCHES:
                 default:
-                    precipValue = ConversionMethods.mmToIn(forecast.getRainMm());
+                    precipValue = ConversionMethods.mmToIn(isSnow ? snowMm : rainMm);
                     break;
                 case Units.MILLIMETERS:
-                    precipValue = forecast.getRainMm();
+                    precipValue = isSnow ? snowMm : rainMm;
                     break;
             }
 
@@ -280,7 +284,7 @@ public class ForecastGraphViewModel {
             default:
             case PRECIPITATION:
                 series = new LineDataSeries(entryData);
-                series.setSeriesColors(ContextCompat.getColor(context, R.color.colorPrimary));
+                series.setSeriesColors(ContextCompat.getColor(context, com.thewizrd.shared_resources.R.color.colorPrimary));
                 series.setSeriesMinMax(0f, 100f);
                 break;
             case WIND:
@@ -407,7 +411,7 @@ public class ForecastGraphViewModel {
                     entry = new BarGraphEntry(date, new YEntryData(0f, "0%"));
                 }
 
-                entry.setFillColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                entry.setFillColor(ContextCompat.getColor(context, com.thewizrd.shared_resources.R.color.colorPrimary));
                 dataSet.addEntry(entry);
             }
             case WIND -> {
@@ -509,7 +513,7 @@ public class ForecastGraphViewModel {
     }
 
     private void addMinutelyEntryData(@NonNull MinutelyForecast forecast, BarGraphDataSet dataSet) {
-        if (forecast.getRainMm() != null && forecast.getRainMm() >= 0) {
+        if ((forecast.getRainMm() != null && forecast.getRainMm() >= 0) || (forecast.getSnowMm() != null && forecast.getSnowMm() >= 0)) {
 
             final DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance(LocaleUtils.getLocale());
             df.applyPattern("0.##");
@@ -524,18 +528,18 @@ public class ForecastGraphViewModel {
             final String unit = settingsMgr.getPrecipitationUnit();
             float precipValue;
 
-            switch (unit) {
-                case Units.INCHES:
-                default:
-                    precipValue = ConversionMethods.mmToIn(forecast.getRainMm());
-                    break;
-                case Units.MILLIMETERS:
-                    precipValue = forecast.getRainMm();
-                    break;
-            }
+            float rainMm = forecast.getRainMm() != null ? forecast.getRainMm() : 0f;
+            float snowMm = forecast.getSnowMm() != null ? forecast.getSnowMm() : 0f;
+            boolean isSnow = snowMm > rainMm;
+
+            precipValue = switch (unit) {
+                default -> ConversionMethods.mmToIn(isSnow ? snowMm : rainMm);
+                case Units.MILLIMETERS -> isSnow ? snowMm : rainMm;
+            };
 
             final BarGraphEntry entry = new BarGraphEntry(date, new YEntryData(precipValue, String.format(LocaleUtils.getLocale(), "%s", df.format(precipValue))));
-            entry.setFillColor(Colors.DEEPSKYBLUE);
+            entry.setXWeatherIcon(isSnow ? WeatherIcons.SNOWFLAKE_COLD : WeatherIcons.RAINDROP);
+            entry.setFillColor(isSnow ? Colors.SKYBLUE : Colors.DEEPSKYBLUE);
             dataSet.addEntry(entry);
         }
     }
@@ -545,7 +549,7 @@ public class ForecastGraphViewModel {
 
         if (forecast instanceof Forecast) {
             Forecast fcast = (Forecast) forecast;
-            date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(R.string.forecast_date_format)));
+            date = fcast.getDate().format(DateTimeUtils.ofPatternForUserLocale(context.getString(com.thewizrd.shared_resources.R.string.forecast_date_format)));
         } else if (forecast instanceof HourlyForecast) {
             HourlyForecast fcast = (HourlyForecast) forecast;
 

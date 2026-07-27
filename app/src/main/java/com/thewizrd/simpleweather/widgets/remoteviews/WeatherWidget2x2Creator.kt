@@ -14,6 +14,7 @@ import com.thewizrd.common.controls.WeatherDetailsType
 import com.thewizrd.common.controls.WeatherUiModel
 import com.thewizrd.common.helpers.ColorsUtils
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -135,7 +136,7 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowText)
+            TextAppearanceSpan(context, sharedRes.style.ShadowText)
         } else {
             null
         }
@@ -195,7 +196,7 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
                 R.id.hi_icon,
                 ImageUtils.tintedBitmapFromDrawable(
                     context,
-                    R.drawable.wi_direction_up,
+                    sharedRes.drawable.wi_direction_up,
                     Colors.WHITE,
                     tempArrowIconSize,
                     tempArrowIconSize
@@ -205,7 +206,7 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
                 R.id.lo_icon,
                 ImageUtils.tintedBitmapFromDrawable(
                     context,
-                    R.drawable.wi_direction_down,
+                    sharedRes.drawable.wi_direction_down,
                     Colors.WHITE,
                     tempArrowIconSize,
                     tempArrowIconSize
@@ -227,8 +228,8 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
             updateViews.setInt(R.id.hi_icon, "setMaxWidth", tempArrowIconSize.toInt())
             updateViews.setInt(R.id.lo_icon, "setMaxWidth", tempArrowIconSize.toInt())
 
-            updateViews.setImageViewResource(R.id.hi_icon, R.drawable.wi_direction_up)
-            updateViews.setImageViewResource(R.id.lo_icon, R.drawable.wi_direction_down)
+            updateViews.setImageViewResource(R.id.hi_icon, sharedRes.drawable.wi_direction_up)
+            updateViews.setImageViewResource(R.id.lo_icon, sharedRes.drawable.wi_direction_down)
         }
 
         val chanceModel = weather.weatherDetailsMap[WeatherDetailsType.POPCHANCE]
@@ -411,7 +412,7 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         updateViews.setInt(R.id.refresh_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.refresh_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.refresh_button, R.drawable.ic_refresh)
+        updateViews.setImageViewResource(R.id.refresh_button, sharedRes.drawable.ic_refresh)
 
         // Setting icon
         updateViews.setImageViewBitmap(R.id.settings_button, null)
@@ -419,7 +420,10 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         updateViews.setInt(R.id.settings_button, "setMaxWidth", scaledIconSize)
         updateViews.setInt(R.id.settings_button, "setMaxHeight", scaledIconSize)
 
-        updateViews.setImageViewResource(R.id.settings_button, R.drawable.ic_outline_settings_24)
+        updateViews.setImageViewResource(
+            R.id.settings_button,
+            sharedRes.drawable.ic_outline_settings_24
+        )
 
         // Location Name
         updateViews.setTextViewText(
@@ -587,13 +591,14 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textClockAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowTextClock)
+            TextAppearanceSpan(context, sharedRes.style.ShadowTextClock)
         } else {
             null
         }
 
         // Update clock widgets
-        val timeStr12hr = SpannableString(context.getText(R.string.clock_12_hours_ampm_format))
+        val timeStr12hr =
+            SpannableString(context.getText(sharedRes.string.clock_12_hours_ampm_format))
         val start12hr = timeStr12hr.length - 2
         timeStr12hr.setSpan(
             RelativeSizeSpan(0.875f),
@@ -608,7 +613,8 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         )
         views.setCharSequence(
             R.id.clock_panel, "setFormat24Hour",
-            context.getText(R.string.clock_24_hours_format).applySpan(textClockAppearanceSpan)
+            context.getText(sharedRes.string.clock_24_hours_format)
+                .applySpan(textClockAppearanceSpan)
         )
 
         var clockTextSize =
@@ -639,7 +645,7 @@ class WeatherWidget2x2Creator(context: Context, loadBackground: Boolean = true) 
         val useTextShadow =
             newOptions.get(KEY_TXTSHADOW) as? Boolean ?: WidgetUtils.useTextShadow(appWidgetId)
         val textClockAppearanceSpan = if (useTextShadow) {
-            TextAppearanceSpan(context, R.style.ShadowTextClock)
+            TextAppearanceSpan(context, sharedRes.style.ShadowTextClock)
         } else {
             null
         }

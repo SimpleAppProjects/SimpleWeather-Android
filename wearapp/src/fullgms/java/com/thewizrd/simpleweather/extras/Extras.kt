@@ -6,10 +6,10 @@ package com.thewizrd.simpleweather.extras
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import com.thewizrd.extras.R
 import com.thewizrd.extras.extrasModule
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.simpleweather.FirebaseConfigurator
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.preferences.SettingsActivity
 import com.thewizrd.simpleweather.wearable.WearableListenerActions
 

@@ -10,8 +10,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
+import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.helpers.ObservableArrayList
 import com.thewizrd.common.helpers.OnListChangedListener
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.controls.FeatureItem
@@ -62,7 +64,7 @@ class FeaturesAdapter : RecyclerView.Adapter<FeaturesAdapter.ViewHolder>(), Item
             KEY_FEATURE_UV to R.string.pref_title_feature_uv,
             KEY_FEATURE_BEAUFORT to R.string.pref_title_feature_beaufort,
             KEY_FEATURE_AQINDEX to R.string.pref_title_feature_aqindex,
-            KEY_FEATURE_POLLEN to R.string.label_pollen_count,
+            KEY_FEATURE_POLLEN to sharedRes.string.label_pollen_count,
             KEY_FEATURE_MOONPHASE to R.string.pref_title_feature_moonphase,
             KEY_FEATURE_SUNPHASE to R.string.pref_title_feature_sunphase,
             KEY_FEATURE_RADAR to R.string.pref_title_feature_radar,
@@ -208,7 +210,7 @@ class FeaturesAdapter : RecyclerView.Adapter<FeaturesAdapter.ViewHolder>(), Item
     ) {
         val baseShapeModel = ShapeAppearanceModel.builder(
             context,
-            R.style.ShapeAppearance_Material3_Corner_Large,
+            com.google.android.material.R.style.ShapeAppearance_Material3_Corner_Large,
             0
         )
         val smallCornerSize = context.dpToPx(4f)

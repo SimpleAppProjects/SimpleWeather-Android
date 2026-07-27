@@ -180,12 +180,6 @@ fun createHourlyForecast(forecast: HourlyForecastDataItem): HourlyForecast {
         icon = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.WEATHERBITIO)
             .getWeatherIcon(forecast.weather?.icon)
 
-        windDegrees = forecast.windDir
-        forecast.windSpd?.let {
-            windKph = ConversionMethods.msecToKph(it)
-            windMph = ConversionMethods.msecToMph(it)
-        }
-
         // Extras
         extras = ForecastExtras()
         extras.humidity = forecast.rh
@@ -233,6 +227,7 @@ fun createMinutelyForecast(item: MinutelyItem): MinutelyForecast {
     return MinutelyForecast().apply {
         date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(item.ts!!.toLong()), ZoneOffset.UTC)
         rainMm = item.precip
+        snowMm = item.snow
     }
 }
 

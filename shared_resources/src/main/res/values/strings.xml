@@ -19,6 +19,7 @@
     <string name="api_google" translatable="false">Google</string>
     <string name="api_brightsky" translatable="false">Bright Sky (DWD)</string>
     <string name="api_eccc" translatable="false">Environment and Climate Change Canada (ECCC)</string>
+    <string name="api_openmeteo" translatable="false">Open-Meteo</string>
     <string name="radar_rainviewer" translatable="false">RainViewer</string>
     <string name="label_gpsfollow">Current Location</string>
     <string name="label_getstarted">Get Started</string>

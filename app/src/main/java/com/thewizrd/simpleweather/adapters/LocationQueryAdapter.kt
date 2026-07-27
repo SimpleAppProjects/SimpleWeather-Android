@@ -85,7 +85,7 @@ class LocationQueryAdapter :
     private fun updateItemCorners(cardView: MaterialCardView, @CornersType cornersType: Int) {
         val baseShapeModel = ShapeAppearanceModel.builder(
             cardView.context,
-            R.style.ShapeAppearance_Material3_Corner_Large,
+            com.google.android.material.R.style.ShapeAppearance_Material3_Corner_Large,
             0
         )
         val smallCornerSize = cardView.context.dpToPx(4f)

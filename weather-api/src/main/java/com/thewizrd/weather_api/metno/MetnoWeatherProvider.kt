@@ -30,10 +30,13 @@ import okhttp3.Request
 import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.text.DecimalFormat
-import java.time.*
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class MetnoWeatherProvider : WeatherProviderImpl() {
@@ -187,6 +190,8 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
         }
 
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // OWM reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)

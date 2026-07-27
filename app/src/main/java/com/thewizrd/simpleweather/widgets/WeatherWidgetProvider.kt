@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.BuildConfig
 import com.thewizrd.simpleweather.R
@@ -50,7 +51,7 @@ abstract class WeatherWidgetProvider : AppWidgetProvider() {
 
                 Toast.makeText(
                     context,
-                    context.getString(R.string.action_refresh) + "...",
+                    context.getString(sharedRes.string.action_refresh) + "...",
                     Toast.LENGTH_SHORT
                 ).show()
                 refreshWidget(context, intArrayOf(appWidgetId))

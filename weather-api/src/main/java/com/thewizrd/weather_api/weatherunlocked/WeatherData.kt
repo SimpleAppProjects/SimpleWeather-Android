@@ -144,19 +144,15 @@ fun createHourlyForecast(timeframe: TimeframesItem): HourlyForecast {
         condition = timeframe.wxDesc
         icon = timeframe.wxCode.toString()
 
-        windDegrees = timeframe.winddirDeg.roundToInt()
-        windMph = timeframe.windspdMph
-        windKph = timeframe.windspdKmh
-
         // Extras
         extras = ForecastExtras()
         extras.humidity = timeframe.humidPct.roundToInt()
         extras.cloudiness = timeframe.cloudtotalPct.roundToInt()
         extras.pressureMb = timeframe.slpMb
         extras.pressureIn = timeframe.slpIn
-        extras.windDegrees = windDegrees
-        extras.windMph = windMph
-        extras.windKph = windKph
+        extras.windDegrees = timeframe.winddirDeg.roundToInt()
+        extras.windMph = timeframe.windspdMph
+        extras.windKph = timeframe.windspdKmh
         extras.dewpointF = timeframe.dewpointF
         extras.dewpointC = timeframe.dewpointC
         extras.feelslikeF = timeframe.feelslikeF

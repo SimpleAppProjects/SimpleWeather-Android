@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -60,7 +61,8 @@ class ChartsViewModel(app: Application) : AndroidViewModel(app) {
                         ZonedDateTime.now(location.tzOffset).truncatedTo(ChronoUnit.HOURS)
                     ).distinctUntilChanged()
                 currentForecastsData =
-                    weatherDAO.getLiveForecastData(location.query).distinctUntilChanged()
+                    weatherDAO.getLiveForecastData(location.query).filterNotNull()
+                        .distinctUntilChanged()
 
                 flowScope = CoroutineScope(SupervisorJob())
                 flowScope?.launch {
@@ -84,7 +86,7 @@ class ChartsViewModel(app: Application) : AndroidViewModel(app) {
                         ?: ZoneOffset.UTC
                 ).truncatedTo(ChronoUnit.HOURS)
                 Pair(
-                    input.first?.minForecast?.filter { !it.date.isBefore(now) }?.take(60),
+                    input.first?.minForecast?.filter { !it.date.isBefore(now) },
                     input.second
                 )
             } else {

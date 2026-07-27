@@ -11,7 +11,11 @@ import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocationUtils
+import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.ZoneIdCompat
+import com.thewizrd.shared_resources.utils.createUnsupportedLocationException
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import com.thewizrd.shared_resources.weatherdata.model.isNullOrInvalid
@@ -36,7 +40,7 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class BrightSkyProvider : WeatherProviderImpl() {
@@ -228,6 +232,8 @@ class BrightSkyProvider : WeatherProviderImpl() {
 
     @Throws(WeatherException::class)
     override suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        super.updateWeatherData(location, weather)
+
         // DWD reports datetime in UTC; add location tz_offset
         val offset = location.tzOffset
         weather.updateTime = weather.updateTime!!.withZoneSameInstant(offset)
@@ -256,7 +262,7 @@ class BrightSkyProvider : WeatherProviderImpl() {
         for (forecast in weather.forecast!!) {
             forecast.icon.let {
                 forecast.icon = getWeatherIcon(it)
-                forecast.condition = getWeatherCondition(it)
+                forecast.condition = getWeatherCondition(forecast.icon)
             }
         }
 
@@ -271,7 +277,7 @@ class BrightSkyProvider : WeatherProviderImpl() {
                     hrfLocalTime.isBefore(sunrise) || hrfLocalTime.isAfter(sunset),
                     it
                 )
-                hr_forecast.condition = getWeatherCondition(it)
+                hr_forecast.condition = getWeatherCondition(hr_forecast.icon)
             }
         }
 

@@ -62,14 +62,6 @@
         </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
 
         <com.thewizrd.simpleweather.preferences.ProviderIconPreference
-            android:title="@string/api_wunlocked"
-            android:widgetLayout="@layout/credit_wunlocked">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://developer.weatherunlocked.com/" />
-        </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
-
-        <com.thewizrd.simpleweather.preferences.ProviderIconPreference
             android:title="@string/api_weatherapi"
             android:widgetLayout="@layout/credit_weatherapi">
             <intent
@@ -99,6 +91,14 @@
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://www.weather.gc.ca/" />
+        </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
+
+        <com.thewizrd.simpleweather.preferences.ProviderIconPreference
+            android:title="@string/api_openmeteo"
+            android:widgetLayout="@layout/credit_openmeteo">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://open-meteo.com/" />
         </com.thewizrd.simpleweather.preferences.ProviderIconPreference>
 
     </PreferenceCategory>

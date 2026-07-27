@@ -143,8 +143,7 @@
                 android:layout_marginEnd="4dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/wi_wind_direction"
-                android:tint="@color/colorTextPrimary" />
+                android:src="@drawable/wi_wind_direction" />
 
             <TextView
                 android:id="@+id/weather_windspeed"
@@ -177,8 +176,7 @@
                 android:layout_marginEnd="4dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/wi_humidity"
-                android:tint="@color/colorTextPrimary" />
+                android:src="@drawable/wi_humidity" />
 
             <TextView
                 android:id="@+id/humidity"
@@ -213,8 +211,7 @@
                 android:layout_marginEnd="4dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/wi_strong_wind"
-                android:tint="@color/colorTextPrimary" />
+                android:src="@drawable/wi_strong_wind" />
 
             <TextView
                 android:id="@+id/windgust"

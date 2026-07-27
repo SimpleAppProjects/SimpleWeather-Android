@@ -41,7 +41,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         mAdapter = adapter;
         Drawable deleteIcoDrawable = ContextCompat.getDrawable(context, R.drawable.ic_delete_outline_24dp);
         deleteIcon = DrawableCompat.wrap(deleteIcoDrawable);
-        DrawableCompat.setTint(deleteIcon, ContextUtils.getAttrColor(context, R.attr.colorOnError));
+        DrawableCompat.setTint(deleteIcon, ContextUtils.getAttrColor(context, com.google.android.material.R.attr.colorOnError));
         deleteBackground = ContextCompat.getDrawable(context, R.drawable.swipe_delete);
         iconMargin = context.getResources().getDimensionPixelSize(R.dimen.delete_icon_margin);
     }

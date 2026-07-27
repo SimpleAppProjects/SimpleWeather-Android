@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.thewizrd.common.R as commonRes
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColorStateList
 import com.thewizrd.simpleweather.R
@@ -32,12 +34,12 @@ class GPSPanelAdapter : LocationPanelAdapter() {
 
     inner class HeaderViewHolder internal constructor(itemView: View) :
         RecyclerView.ViewHolder(itemView), HeaderSetterInterface {
-        private val header = itemView.findViewById<TextView>(R.id.header)
+        private val header = itemView.findViewById<TextView>(commonRes.id.header)
 
         override fun setHeader() {
-            header.setText(R.string.label_currentlocation)
+            header.setText(sharedRes.string.label_currentlocation)
             header.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                R.drawable.ic_place_white_24dp,
+                sharedRes.drawable.ic_place_white_24dp,
                 0,
                 0,
                 0
@@ -74,7 +76,7 @@ class GPSPanelAdapter : LocationPanelAdapter() {
             LocationPanelItemType.HEADER_GPS -> {
                 HeaderViewHolder(
                     LayoutInflater.from(context)
-                        .inflate(R.layout.locations_header, parent, false)
+                        .inflate(commonRes.layout.locations_header, parent, false)
                 )
             }
             else -> {

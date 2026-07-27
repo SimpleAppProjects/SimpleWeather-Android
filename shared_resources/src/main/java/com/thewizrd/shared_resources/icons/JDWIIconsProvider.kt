@@ -159,6 +159,9 @@ class JDWIIconsProvider : WeatherIconProvider() {
             WeatherIcons.DIRECTION_UP -> R.drawable.material_arrow_upward
             WeatherIcons.DIRECTION_DOWN -> R.drawable.material_arrow_downward
 
+            WeatherIcons.VISIBILITY -> R.drawable.jdwi_visibility
+            WeatherIcons.AIR_QUALITY -> R.drawable.material_aq
+
             WeatherIcons.WIND_BEAUFORT_0 -> R.drawable.wi_wind_beaufort_0
             WeatherIcons.WIND_BEAUFORT_1 -> R.drawable.wi_wind_beaufort_1
             WeatherIcons.WIND_BEAUFORT_2 -> R.drawable.wi_wind_beaufort_2

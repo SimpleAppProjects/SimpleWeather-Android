@@ -17,6 +17,7 @@ import com.google.android.material.transition.MaterialFadeThrough
 import com.thewizrd.common.adapters.WeatherAlertPanelAdapter
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -73,7 +74,7 @@ class WeatherAlertFragment : CollapsingToolbarFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Setup Actionbar
-        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(R.attr.homeAsUpIndicator))
+        toolbar.setNavigationIcon(toolbar.context.getAttrResourceId(androidx.appcompat.R.attr.homeAsUpIndicator))
         toolbar.setNavigationOnClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
 
         // use this setting to improve performance if you know that changes
@@ -126,7 +127,7 @@ class WeatherAlertFragment : CollapsingToolbarFragment() {
     }
 
     override val titleResId: Int
-        get() = R.string.title_fragment_alerts
+        get() = sharedRes.string.title_fragment_alerts
 
     private suspend fun initialize() {
         if (locationData == null) {

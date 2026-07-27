@@ -90,11 +90,11 @@ public class BottomStepperNavigationBar extends RelativeLayout {
 
     private void initDefaultValues(Context context) {
         mBackgroundColor = ContextUtils.getAttrResourceId(context, android.R.attr.colorBackground);
-        mForegroundColor = ContextUtils.getAttrColorStateList(context, R.attr.colorAccent);
+        mForegroundColor = ContextUtils.getAttrColorStateList(context, androidx.appcompat.R.attr.colorAccent);
 
-        mBackButtonText = context.getString(R.string.label_back);
-        mStartButtonText = mNextButtonText = context.getString(R.string.label_next);
-        mCompleteButtonText = context.getString(R.string.abc_action_mode_done);
+        mBackButtonText = context.getString(com.thewizrd.shared_resources.R.string.label_back);
+        mStartButtonText = mNextButtonText = context.getString(com.thewizrd.shared_resources.R.string.label_next);
+        mCompleteButtonText = context.getString(androidx.appcompat.R.string.abc_action_mode_done);
 
         mBackButtonIcon = ContextCompat.getDrawable(context, R.drawable.ic_chevron_left);
         mNextButtonIcon = ContextCompat.getDrawable(context, R.drawable.ic_chevron_right);

@@ -11,11 +11,13 @@ import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
+import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WEATHERAPI
 import com.thewizrd.simpleweather.radar.eccc.ECCCRadarViewProvider
 import com.thewizrd.simpleweather.radar.nws.NWSRadarViewProvider
 import com.thewizrd.simpleweather.radar.openweather.OWMRadarViewProvider
 import com.thewizrd.simpleweather.radar.rainviewer.RainViewerViewProvider
 import com.thewizrd.simpleweather.radar.tomorrowio.TomorrowIoRadarViewProvider
+import com.thewizrd.simpleweather.radar.weatherapi.WeatherApiRadarViewProvider
 import com.thewizrd.weather_api.weatherModule
 
 object RadarProvider {
@@ -26,7 +28,8 @@ object RadarProvider {
         WeatherAPI.NWS,
         WeatherAPI.ECCC,
         WeatherAPI.OPENWEATHERMAP,
-        WeatherAPI.TOMORROWIO
+        WeatherAPI.TOMORROWIO,
+        WeatherAPI.WEATHERAPI
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class RadarProviders
@@ -70,6 +73,10 @@ object RadarProvider {
         ProviderEntry(
             "Tomorrow.io", WeatherAPI.TOMORROWIO,
             "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
+        ),
+        ProviderEntry(
+            "WeatherAPI.com", WEATHERAPI,
+            "https://weatherapi.com", "https://weatherapi.com/api"
         )
     )
 
@@ -77,19 +84,19 @@ object RadarProvider {
     @RadarProviders
     fun getRadarProvider(): String {
         val prefs = appLib.preferences
-        val provider = prefs.getString(KEY_RADARPROVIDER, WeatherAPI.RAINVIEWER)!!
+        val provider = prefs.getString(KEY_RADARPROVIDER, WeatherAPI.WEATHERAPI)!!
 
         if (provider == WeatherAPI.OPENWEATHERMAP) {
             val owm = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.OPENWEATHERMAP)
             // Fallback to default since API KEY is unavailable
             if (owm.getAPIKey() == null && settingsManager.getAPIKey(WeatherAPI.OPENWEATHERMAP) == null) {
-                return WeatherAPI.RAINVIEWER
+                return WeatherAPI.WEATHERAPI
             }
         } else if (provider == WeatherAPI.TOMORROWIO) {
             val tmr = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.TOMORROWIO)
             // Fallback to default since API KEY is unavailable
             if (tmr.getAPIKey() == null && settingsManager.getAPIKey(WeatherAPI.TOMORROWIO) == null) {
-                return WeatherAPI.RAINVIEWER
+                return WeatherAPI.WEATHERAPI
             }
         }
 
@@ -102,18 +109,34 @@ object RadarProvider {
         val radarProvider = getRadarProvider()
         val isEnabled = isRadarProviderEnabled(radarProvider)
 
-        return if (radarProvider == WeatherAPI.OPENWEATHERMAP && isEnabled) {
-            OWMRadarViewProvider(context, rootView)
-        } else if (radarProvider == WeatherAPI.TOMORROWIO && isEnabled) {
-            TomorrowIoRadarViewProvider(context, rootView)
-        } else if (radarProvider == WeatherAPI.NWS && isEnabled) {
-            NWSRadarViewProvider(context, rootView)
-        } else if (radarProvider == WeatherAPI.ECCC && isEnabled) {
-            ECCCRadarViewProvider(context, rootView)
-        } else if (radarProvider == WeatherAPI.RAINVIEWER && isEnabled) {
-            RainViewerViewProvider(context, rootView)
-        } else {
-            EmptyRadarViewProvider(context, rootView)
+        return when (radarProvider) {
+            WeatherAPI.OPENWEATHERMAP if isEnabled -> {
+                OWMRadarViewProvider(context, rootView)
+            }
+
+            WeatherAPI.TOMORROWIO if isEnabled -> {
+                TomorrowIoRadarViewProvider(context, rootView)
+            }
+
+            WeatherAPI.NWS if isEnabled -> {
+                NWSRadarViewProvider(context, rootView)
+            }
+
+            WeatherAPI.ECCC if isEnabled -> {
+                ECCCRadarViewProvider(context, rootView)
+            }
+
+            WeatherAPI.RAINVIEWER if isEnabled -> {
+                RainViewerViewProvider(context, rootView)
+            }
+
+            WeatherAPI.WEATHERAPI if isEnabled -> {
+                WeatherApiRadarViewProvider(context, rootView)
+            }
+
+            else -> {
+                EmptyRadarViewProvider(context, rootView)
+            }
         }
     }
 

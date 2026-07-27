@@ -20,10 +20,9 @@ import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColor
-import com.thewizrd.shared_resources.utils.ContextUtils.getAttrColorStateList
-import com.thewizrd.shared_resources.utils.ContextUtils.getAttrDrawable
 import com.thewizrd.shared_resources.utils.UserThemeMode
 import com.thewizrd.simpleweather.R
+import com.google.android.material.R as materialRes
 
 class FeatureItem @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -63,18 +62,18 @@ class FeatureItem @JvmOverloads constructor(
                 fillColor = ColorStateList.valueOf(
                     if (settingsManager.getUserThemeMode() == UserThemeMode.AMOLED_DARK) {
                         ColorUtils.compositeColors(
-                            context.getAttrColor(R.attr.colorSurfaceDim),
+                            context.getAttrColor(materialRes.attr.colorSurfaceDim),
                             Colors.BLACK
                         )
                     } else {
-                        context.getAttrColor(R.attr.colorSurfaceBright)
+                        context.getAttrColor(materialRes.attr.colorSurfaceBright)
                     }
                 )
                 initializeElevationOverlay(context)
                 elevation = 0f
                 shapeAppearanceModel = ShapeAppearanceModel.builder(
                     context,
-                    R.style.ShapeAppearance_Material3_Corner_LargeIncreased,
+                    materialRes.style.ShapeAppearance_Material3_Corner_LargeIncreased,
                     0
                 ).build()
             },

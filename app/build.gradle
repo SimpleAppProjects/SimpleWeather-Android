@@ -1,8 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id 'com.android.legacy-kapt'
     id 'com.google.devtools.ksp'
 }
 
@@ -18,11 +17,11 @@ android {
         targetSdkVersion libs.versions.targetSdkVersion.get().toInteger()
         // NOTE: Version Code Format (TargetSDK, Version Name, Build Number, Variant Code (Android: 0, WearOS: 1)
         // ex) 345100131 = (34, 5.10, 013, 0)
-        versionCode 365130140
-        versionName "5.13.0"
+        versionCode 375140110
+        versionName "5.14.0"
 
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
 
@@ -47,18 +46,19 @@ android {
         dataBinding true
         viewBinding true
         buildConfig true
+        resValues true
     }
 
     compileOptions {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
         // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     sourceSets {

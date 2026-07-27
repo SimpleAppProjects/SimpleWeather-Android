@@ -2,6 +2,7 @@ package com.thewizrd.weather_api.weatherdata
 
 import android.location.Location
 import android.util.Log
+import androidx.annotation.CallSuper
 import com.thewizrd.shared_resources.BuildConfig
 import com.thewizrd.shared_resources.R
 import com.thewizrd.shared_resources.appLib
@@ -16,6 +17,8 @@ import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.LocationUtils
 import com.thewizrd.shared_resources.utils.Logger
+import com.thewizrd.shared_resources.utils.calculateDewpoint
+import com.thewizrd.shared_resources.utils.calculateFeelsLikeTemp
 import com.thewizrd.shared_resources.weatherdata.AirQualityProvider
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherProvider
@@ -30,14 +33,16 @@ import com.thewizrd.weather_api.aqicn.AQICNProvider
 import com.thewizrd.weather_api.extras.isPremiumEnabled
 import com.thewizrd.weather_api.google.pollen.GooglePollenProvider
 import com.thewizrd.weather_api.nws.alerts.NWSAlertProvider
+import com.thewizrd.weather_api.openmeteo.OpenMeteoWeatherProvider
 import com.thewizrd.weather_api.utils.RateLimitedRequest
 import com.thewizrd.weather_api.utils.logMissingIcon
 import com.thewizrd.weather_api.weatherModule
 import com.thewizrd.weather_api.weatherapi.weather.WeatherApiProvider
-import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.sin
 
 abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
     protected lateinit var mLocationProvider: WeatherLocationProvider
@@ -200,6 +205,23 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
                         GooglePollenProvider().getPollenData(location)?.apply {
                             attribution = context.getString(R.string.api_google)
                         }
+                } else if (LocationUtils.isCAMSEuroCovered(location) && remoteConfigService.isProviderEnabled(
+                        WeatherAPI.OPENMETEO
+                    ) && (isPremiumEnabled() || BuildConfig.IS_NONGMS || settingsManager.isDevSettingsEnabled() && !settingsManager.getAPIKey(
+                        WeatherAPI.OPENMETEO
+                    ).isNullOrBlank())
+                ) {
+                    // Pollen coverage is only supported in Europe for Open-Meteo
+                    // https://open-meteo.com/en/docs/air-quality-api
+                    weather.condition!!.pollen =
+                        OpenMeteoWeatherProvider().getPollenData(location)?.apply {
+                            attribution = context.getString(R.string.api_openmeteo)
+                        }
+                } else if (remoteConfigService.isProviderEnabled(WeatherAPI.WEATHERAPI) && !BuildConfig.IS_NONGMS) {
+                    weather.condition!!.pollen =
+                        WeatherApiProvider().getPollenData(location)?.apply {
+                            attribution = context.getString(R.string.api_weatherapi)
+                        }
                 }
             }
         }
@@ -215,7 +237,20 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
      * @param weather  The weather data to update
      */
     @Throws(WeatherException::class)
-    protected abstract suspend fun updateWeatherData(location: LocationData, weather: Weather)
+    @CallSuper
+    protected open suspend fun updateWeatherData(location: LocationData, weather: Weather) {
+        weather.calculateDewpoint()
+        weather.calculateFeelsLikeTemp()
+
+        weather.forecast?.forEach {
+            it.calculateDewpoint()
+            it.calculateFeelsLikeTemp()
+        }
+        weather.hrForecast?.forEach {
+            it.calculateDewpoint()
+            it.calculateFeelsLikeTemp()
+        }
+    }
 
     private suspend fun updateAQIData(location: LocationData, weather: Weather) {
         val aqicnData = AQICNProvider().getAirQualityData(location)
@@ -237,36 +272,21 @@ abstract class WeatherProviderImpl : WeatherProvider, RateLimitedRequest {
 
                         if (weather.condition?.uv == null && date.isEqual(weather.condition!!.observationTime.toLocalDate())) {
                             if (weather.astronomy!!.sunrise != null && weather.astronomy!!.sunset != null) {
-                                val obsLocalTime = weather.condition!!.observationTime.toLocalTime()
-                                // if before sunrise, after sunset, or +/- 2hrs before/after sunrise/sunset, uv min
-                                if (obsLocalTime.isBefore(weather.astronomy!!.sunrise.toLocalTime()) ||
-                                    obsLocalTime.isAfter(weather.astronomy!!.sunset.toLocalTime()) ||
-                                    Duration.between(
-                                        weather.astronomy!!.sunrise.toLocalTime(),
-                                        obsLocalTime
-                                    ).abs().toHours() <= 2 ||
-                                    Duration.between(
-                                        weather.astronomy!!.sunset.toLocalTime(),
-                                        obsLocalTime
-                                    ).abs().toHours() <= 2
-                                ) {
-                                    weather.condition!!.uv = UV(uviData.min?.toFloat() ?: 0f)
-                                } else {
-                                    val totalSunlightTime =
-                                        weather.astronomy!!.sunset.toEpochSecond(location.tzOffset) - weather.astronomy!!.sunrise.toEpochSecond(
-                                            location.tzOffset
-                                        )
-                                    val solarNoon =
-                                        weather.astronomy!!.sunrise.plusSeconds(totalSunlightTime / 2)
+                                val sunrise =
+                                    weather.astronomy!!.sunrise.toEpochSecond(location.tzOffset)
+                                val sunset =
+                                    weather.astronomy!!.sunset.toEpochSecond(location.tzOffset)
+                                val obsTime = weather.condition!!.observationTime.toEpochSecond()
 
-                                    // If +/- 2hrs within solar noon, UV max
-                                    if (Duration.between(solarNoon.toLocalTime(), obsLocalTime)
-                                            .abs().toHours() <= 2
-                                    ) {
-                                        weather.condition!!.uv = UV(uviData.max?.toFloat() ?: 0f)
-                                    } else { // else uv avg
-                                        weather.condition!!.uv = UV(uviData.avg?.toFloat() ?: 0f)
-                                    }
+                                if (obsTime in (sunrise + 1) until sunset) {
+                                    val dayFraction =
+                                        (obsTime - sunrise).toDouble() / (sunset - sunrise)
+                                    val maxUV = uviData.max?.toFloat() ?: 0f
+                                    // Sinusoidal interpolation: peak at solar noon (dayFraction = 0.5)
+                                    weather.condition!!.uv =
+                                        UV(maxUV * sin(dayFraction * PI).toFloat())
+                                } else {
+                                    weather.condition!!.uv = UV(uviData.min?.toFloat() ?: 0f)
                                 }
                             }
                         }

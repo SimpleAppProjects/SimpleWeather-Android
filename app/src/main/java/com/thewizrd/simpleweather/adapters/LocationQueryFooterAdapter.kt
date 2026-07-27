@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.thewizrd.common.R
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.weatherModule
@@ -24,7 +25,7 @@ class LocationQueryFooterAdapter :
             val entry = WeatherAPI.LocationAPIs.find { lapi -> locationAPI == lapi.value }
             val credit = String.format(
                 "%s %s",
-                context.getString(R.string.credit_prefix),
+                context.getString(sharedRes.string.credit_prefix),
                 entry?.toString() ?: WeatherIcons.EM_DASH
             )
 

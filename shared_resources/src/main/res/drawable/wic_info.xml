@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <group
+        android:pivotX="16"
+        android:pivotY="16"
+        android:scaleX="1.5"
+        android:scaleY="1.5">
+        <group
+            android:scaleX="-1.000000"
+            android:scaleY="-1.000000"
+            android:translateX="32.019000"
+            android:translateY="32.490500">
+            <path
+                android:fillColor="@color/wicon_color"
+                android:pathData="M15.019,13.318C15.019,12.766 15.467,12.318 16.019,12.318C16.571,12.318 17.019,12.766 17.019,13.318L17.019,17.211C17.019,17.763 16.571,18.211 16.019,18.211C15.467,18.211 15.019,17.763 15.019,17.211L15.019,13.318ZM16.019,18.7C16.561,18.7 17.001,19.14 17.001,19.681C17.001,20.223 16.561,20.663 16.019,20.663C15.478,20.663 15.038,20.223 15.038,19.681C15.038,19.14 15.478,18.7 16.019,18.7Z" />
+        </group>
+        <group
+            android:scaleX="1.093820"
+            android:scaleY="1.093820"
+            android:translateX="-1.417760"
+            android:translateY="-2.781130">
+            <path
+                android:fillColor="@color/wicon_color"
+                android:pathData="M15.924,8.947C20.462,8.947 24.147,12.632 24.147,17.17C24.147,21.709 20.462,25.393 15.924,25.393C11.385,25.393 7.701,21.709 7.701,17.17C7.701,12.632 11.385,8.947 15.924,8.947ZM15.924,10.776C12.394,10.776 9.529,13.641 9.529,17.17C9.529,20.7 12.394,23.565 15.924,23.565C19.453,23.565 22.319,20.7 22.319,17.17C22.319,13.641 19.453,10.776 15.924,10.776Z" />
+        </group>
+    </group>
+</vector>

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.helpers.toImmutableCompatFlag
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.notifications.NotificationUtils
@@ -22,7 +23,7 @@ internal object ServiceNotificationHelper {
         // Gets an instance of the NotificationManager service
         val mNotifyMgr = context.getSystemService(NotificationManager::class.java)
         var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
-        val notchannel_name = context.resources.getString(R.string.not_channel_name_general)
+        val notchannel_name = context.resources.getString(sharedRes.string.not_channel_name_general)
         if (mChannel == null) {
             mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)
         }
@@ -38,7 +39,7 @@ internal object ServiceNotificationHelper {
     internal fun createForegroundNotification(context: Context): Notification {
         val notif = NotificationCompat.Builder(context, NOT_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.wi_cloud_refresh)
-            setSubText(context.getString(R.string.app_name))
+            setSubText(context.getString(sharedRes.string.app_name))
             setContentTitle(context.getString(R.string.message_widgetservice_running))
             setOnlyAlertOnce(true)
             setSilent(true)

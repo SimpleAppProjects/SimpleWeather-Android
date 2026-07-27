@@ -15,6 +15,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
 import com.thewizrd.shared_resources.utils.ConversionMethods
@@ -23,8 +24,8 @@ import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.utils.getWindDirection
 import com.thewizrd.shared_resources.weatherdata.model.HourlyForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
 import kotlin.math.roundToInt
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WindComplicationService : WeatherHourlyForecastComplicationService() {
     companion object {
@@ -38,12 +39,32 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
-    private val complicationIconResId = R.drawable.wi_strong_wind
+
+    private val complicationIcon = WeatherIcons.WIND_DIRECTION
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (!supportedComplicationTypes.contains(type)) {
             return NoDataComplicationData()
         }
+
+        val wim = sharedDeps.weatherIconsManager
+        val icon = Icon.createWithBitmap(
+            ImageUtils.rotateBitmap(
+                ImageUtils.bitmapFromDrawable(
+                    getThemeContextOverride(false),
+                    wim.getWeatherIconResource(complicationIcon)
+                ), 330.0f // 150° + 180
+            )
+        )
+        val monochromaticIcon = Icon.createWithBitmap(
+            ImageUtils.rotateBitmap(
+                ImageUtils.bitmapFromDrawable(
+                    getThemeContextOverride(false),
+                    wim.getWeatherIconResource(complicationIcon)
+                ), 330.0f // 150° + 180
+            )
+        )
+            .setTint(Colors.WHITESMOKE)
 
         return when (type) {
             ComplicationType.SHORT_TEXT -> {
@@ -51,17 +72,16 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     PlainComplicationText.Builder("5 mph").build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), 330.0f // 150° + 180
-                            )
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
                         )
-                    ).build()
-                ).build()
+                    }
+                }.build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
@@ -70,51 +90,30 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                 ).setTitle(
                     PlainComplicationText.Builder("5 mph, SSE").build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).build()
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build()
+                        )
+                    }
+                }.build()
             }
 
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), 330.0f // 150° + 180
-                            )
-                        )
-                    ).build(),
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).build()
             }
 
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), 330.0f // 150° + 180
-                            )
-                        ),
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), 330.0f // 150° + 180
-                            )
-                        )
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).build()
             }
@@ -134,9 +133,9 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             return null
         }
 
-        val windMph = weather.condition?.windMph ?: hourlyForecast?.windMph
-        val windKph = weather.condition?.windKph ?: hourlyForecast?.windKph
-        val windDirection = weather.condition?.windDegrees ?: hourlyForecast?.windDegrees
+        val windMph = weather.condition?.windMph ?: hourlyForecast?.extras?.windMph
+        val windKph = weather.condition?.windKph ?: hourlyForecast?.extras?.windKph
+        val windDirection = weather.condition?.windDegrees ?: hourlyForecast?.extras?.windDegrees
 
         if (windMph == null || windKph == null || windDirection == null || windMph < 0 || windKph < 0 || windDirection < 0) {
             return buildUpdate(dataType)
@@ -150,26 +149,26 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
         when (unit) {
             Units.MILES_PER_HOUR -> {
                 speedVal = windMph.roundToInt()
-                speedUnit = getString(R.string.unit_mph).also { speedUnitShort = it }
+                speedUnit = getString(sharedRes.string.unit_mph).also { speedUnitShort = it }
             }
             Units.KILOMETERS_PER_HOUR -> {
                 speedVal = windKph.roundToInt()
-                speedUnit = getString(R.string.unit_kph).also { speedUnitShort = it }
+                speedUnit = getString(sharedRes.string.unit_kph).also { speedUnitShort = it }
             }
             Units.METERS_PER_SECOND -> {
                 speedVal =
                     ConversionMethods.kphToMsec(windKph).roundToInt()
-                speedUnit = getString(R.string.unit_msec).also { speedUnitShort = it }
+                speedUnit = getString(sharedRes.string.unit_msec).also { speedUnitShort = it }
             }
             Units.KNOTS -> {
                 speedVal =
                     ConversionMethods.mphToKts(windMph).roundToInt()
-                speedUnit = getString(R.string.unit_knots)
+                speedUnit = getString(sharedRes.string.unit_knots)
                 speedUnitShort = "kn"
             }
             else -> {
                 speedVal = windMph.roundToInt()
-                speedUnit = getString(R.string.unit_mph).also { speedUnitShort = it }
+                speedUnit = getString(sharedRes.string.unit_mph).also { speedUnitShort = it }
             }
         }
 
@@ -190,6 +189,24 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
         dataType: ComplicationType,
         windSpeedShort: String? = null, windSpeedLong: String? = null, windDirection: Int = 0
     ): ComplicationData? {
+        val wim = sharedDeps.weatherIconsManager
+        val icon = Icon.createWithBitmap(
+            ImageUtils.rotateBitmap(
+                ImageUtils.bitmapFromDrawable(
+                    getThemeContextOverride(false),
+                    wim.getWeatherIconResource(complicationIcon)
+                ), windDirection.toFloat() + 180
+            )
+        )
+        val monochromaticIcon = Icon.createWithBitmap(
+            ImageUtils.rotateBitmap(
+                ImageUtils.bitmapFromDrawable(
+                    getThemeContextOverride(false),
+                    wim.getWeatherIconResource(complicationIcon)
+                ), windDirection.toFloat() + 180
+            )
+        ).setTint(Colors.WHITESMOKE)
+
         return when (dataType) {
             ComplicationType.SHORT_TEXT -> {
                 ShortTextComplicationData.Builder(
@@ -197,87 +214,63 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                         .build(),
                     PlainComplicationText.Builder(
                         windSpeedLong
-                            ?: "${getString(R.string.label_wind)}: ${getString(R.string.weather_notavailable)}"
+                            ?: "${getString(sharedRes.string.label_wind)}: ${getString(sharedRes.string.weather_notavailable)}"
                     ).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), windDirection.toFloat() + 180
-                            )
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
                         )
-                    ).build()
-                ).setTapAction(
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
             ComplicationType.LONG_TEXT -> {
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder(getString(R.string.label_wind)).build(),
+                    PlainComplicationText.Builder(getString(sharedRes.string.label_wind)).build(),
                     PlainComplicationText.Builder(
                         windSpeedLong
-                            ?: "${getString(R.string.label_wind)}: ${getString(R.string.weather_notavailable)}"
+                            ?: "${getString(sharedRes.string.label_wind)}: ${getString(sharedRes.string.weather_notavailable)}"
                     ).build()
                 ).setTitle(
                     PlainComplicationText.Builder(windSpeedLong ?: WeatherIcons.EM_DASH).build()
                 ).setMonochromaticImage(
-                    MonochromaticImage.Builder(
-                        Icon.createWithResource(this, complicationIconResId)
-                            .setTint(Colors.WHITESMOKE)
-                    ).build()
-                ).setTapAction(
+                    MonochromaticImage.Builder(monochromaticIcon).build()
+                ).apply {
+                    if (!wim.isFontIcon) {
+                        setSmallImage(
+                            SmallImage.Builder(icon, SmallImageType.ICON)
+                                .setAmbientImage(monochromaticIcon)
+                                .build(),
+                        )
+                    }
+                }.setTapAction(
                     getTapIntent(this)
                 ).build()
             }
 
             ComplicationType.MONOCHROMATIC_IMAGE -> {
                 MonochromaticImageComplicationData.Builder(
-                    MonochromaticImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), windDirection.toFloat() + 180
-                            )
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
-                    PlainComplicationText.Builder("${getString(R.string.label_wind)}: $windSpeedLong")
+                    MonochromaticImage.Builder(monochromaticIcon).build(),
+                    PlainComplicationText.Builder("${getString(sharedRes.string.label_wind)}: $windSpeedLong")
                         .build()
                 ).build()
             }
 
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
-                    SmallImage.Builder(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), windDirection.toFloat() + 180
-                            )
-                        ),
-                        SmallImageType.ICON
-                    ).setAmbientImage(
-                        Icon.createWithBitmap(
-                            ImageUtils.rotateBitmap(
-                                ImageUtils.bitmapFromDrawable(
-                                    getThemeContextOverride(false),
-                                    R.drawable.wi_wind_direction_white
-                                ), windDirection.toFloat() + 180
-                            )
-                        )
-                            .setTint(Colors.WHITESMOKE)
-                    ).build(),
+                    SmallImage.Builder(icon, SmallImageType.ICON)
+                        .setAmbientImage(monochromaticIcon)
+                        .build(),
                     PlainComplicationText.Builder(
-                        "${getString(R.string.label_wind)}: ${
+                        "${getString(sharedRes.string.label_wind)}: ${
                             windSpeedLong ?: getString(
-                                R.string.weather_notavailable
+                                sharedRes.string.weather_notavailable
                             )
                         }"
                     )

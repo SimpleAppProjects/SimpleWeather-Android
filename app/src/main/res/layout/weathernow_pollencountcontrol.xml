@@ -7,6 +7,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.thewizrd.shared_resources.icons.WeatherIcons" />
+
         <import type="com.thewizrd.shared_resources.utils.StringUtils" />
 
         <import type="com.thewizrd.simpleweather.preferences.FeatureSettings" />
@@ -59,11 +61,12 @@
                 app:layout_constraintEnd_toStartOf="@id/grasspollen_label"
                 app:layout_constraintHorizontal_chainStyle="packed" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.thewizrd.common.controls.IconControl
                 android:id="@+id/treepollen_icon"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                app:srcCompat="@drawable/ic_outline_tree"
+                app:animate="true"
+                app:weatherIcon="@{WeatherIcons.TREE_POLLEN}"
                 app:layout_constraintTop_toBottomOf="@id/treepollen_label"
                 app:layout_constraintBottom_toTopOf="@id/treepollen_description"
                 app:layout_constraintStart_toStartOf="parent"
@@ -104,11 +107,12 @@
                 app:layout_constraintStart_toEndOf="@id/treepollen_label"
                 app:layout_constraintEnd_toStartOf="@id/ragweedpollen_label" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.thewizrd.common.controls.IconControl
                 android:id="@+id/grasspollen_icon"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                app:srcCompat="@drawable/ic_baseline_grass"
+                app:animate="true"
+                app:weatherIcon="@{WeatherIcons.GRASS_POLLEN}"
                 app:layout_constraintTop_toBottomOf="@id/grasspollen_label"
                 app:layout_constraintBottom_toTopOf="@id/grasspollen_description"
                 app:layout_constraintStart_toEndOf="@id/treepollen_icon"
@@ -149,11 +153,12 @@
                 app:layout_constraintStart_toEndOf="@id/grasspollen_label"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.thewizrd.common.controls.IconControl
                 android:id="@+id/ragweedpollen_icon"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                app:srcCompat="@drawable/ic_ragweed_pollen"
+                app:animate="true"
+                app:weatherIcon="@{WeatherIcons.RAGWEED_POLLEN}"
                 app:layout_constraintTop_toBottomOf="@id/ragweedpollen_label"
                 app:layout_constraintBottom_toTopOf="@id/ragweedpollen_description"
                 app:layout_constraintStart_toEndOf="@id/grasspollen_icon"

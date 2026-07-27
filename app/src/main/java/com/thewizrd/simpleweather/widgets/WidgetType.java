@@ -22,7 +22,8 @@ public enum WidgetType {
     Widget4x2Tomorrow(15),
     Widget2x2M3(16),
     Widget4x4M3(17),
-    Widget4x2M3(18);
+    Widget4x2M3(18),
+    Widget1x1Custom(19);
 
     private final int value;
 

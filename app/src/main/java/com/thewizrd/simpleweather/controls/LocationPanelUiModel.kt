@@ -11,7 +11,7 @@ import com.thewizrd.shared_resources.utils.LocaleUtils
 import com.thewizrd.shared_resources.utils.Units
 import com.thewizrd.shared_resources.weatherdata.model.LocationType
 import com.thewizrd.shared_resources.weatherdata.model.Weather
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.simpleweather.images.getImageData
 import com.thewizrd.weather_api.weatherModule
 import kotlinx.coroutines.Dispatchers

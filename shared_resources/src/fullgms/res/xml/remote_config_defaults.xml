@@ -64,9 +64,9 @@
         <key>wunlocked</key>
         <value>
             {
-            "enabled": true,
+            "enabled": false,
             "locSource": "android",
-            "newWeatherSource": ""
+            "newWeatherSource": "weatherapi"
             }
         </value>
     </entry>
@@ -181,8 +181,18 @@
         </value>
     </entry>
     <entry>
+        <key>open_meteo</key>
+        <value>
+            {
+            "enabled": true,
+            "locSource": "weatherapi",
+            "newWeatherSource": ""
+            }
+        </value>
+    </entry>
+    <entry>
         <key>default_weather_provider</key>
-        <value>weatherapi</value>
+        <value>open_meteo</value>
     </entry>
     <entry>
         <key>key_imagedb_valid_days</key>

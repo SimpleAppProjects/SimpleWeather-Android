@@ -18,7 +18,7 @@ import com.google.android.material.shape.ShapeAppearanceModel
 import com.thewizrd.common.controls.BaseForecastItemViewModel
 import com.thewizrd.common.controls.ForecastItemViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
-import com.thewizrd.simpleweather.R
+import com.thewizrd.shared_resources.R
 import com.thewizrd.simpleweather.adapters.DetailsItemGridAdapter
 import com.thewizrd.simpleweather.databinding.WeatherDetailPanelBinding
 import java.util.Locale

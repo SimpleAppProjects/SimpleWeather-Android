@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.thewizrd.common.helpers.backgroundLocationPermissionEnabled
 import com.thewizrd.common.helpers.getBackgroundLocationRationale
 import com.thewizrd.common.location.LocationResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.localBroadcastManager
 import com.thewizrd.shared_resources.di.settingsManager
@@ -265,7 +266,7 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_retrieve_location,
+                            sharedRes.string.error_retrieve_location,
                             Snackbar.Duration.SHORT
                         )
                     )
@@ -295,7 +296,11 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
                 finalizeWidgetUpdate()
             } else {
                 showSnackbar(
-                    Snackbar.make(ctx, R.string.prompt_location_not_set, Snackbar.Duration.SHORT)
+                    Snackbar.make(
+                        ctx,
+                        sharedRes.string.prompt_location_not_set,
+                        Snackbar.Duration.SHORT
+                    )
                 )
             }
         }
@@ -336,7 +341,7 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
             showSnackbar(
                 Snackbar.make(
                     ctx,
-                    R.string.error_enable_location_services,
+                    sharedRes.string.error_enable_location_services,
                     Snackbar.Duration.SHORT
                 )
             )
@@ -359,7 +364,7 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_location_denied,
+                            sharedRes.string.error_location_denied,
                             Snackbar.Duration.SHORT
                         )
                     )
@@ -369,7 +374,7 @@ class WeatherWidget4x3LocationFragment : BaseWeatherWidgetPreferenceFragment() {
                     showSnackbar(
                         Snackbar.make(
                             ctx,
-                            R.string.error_retrieve_location,
+                            sharedRes.string.error_retrieve_location,
                             Snackbar.Duration.SHORT
                         )
                     )

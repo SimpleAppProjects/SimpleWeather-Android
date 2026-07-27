@@ -27,6 +27,7 @@ import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
 import com.thewizrd.shared_resources.utils.Units
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.adapters.SpacerAdapter
 import com.thewizrd.simpleweather.databinding.FragmentSetupSettingsBinding
@@ -67,10 +68,10 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                     showSnackbar(
                         Snackbar.make(
                             it,
-                            R.string.notification_perm_denied,
+                            sharedRes.string.notification_perm_denied,
                             Snackbar.Duration.SHORT
                         ).apply {
-                            setAction(R.string.action_settings) {
+                            setAction(sharedRes.string.action_settings) {
                                 runCatching {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                         it.context.openAppNotificationSettingsActivity()
@@ -92,10 +93,10 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
                     showSnackbar(
                         Snackbar.make(
                             it,
-                            R.string.notification_perm_denied,
+                            sharedRes.string.notification_perm_denied,
                             Snackbar.Duration.SHORT
                         ).apply {
-                            setAction(R.string.action_settings) {
+                            setAction(sharedRes.string.action_settings) {
                                 runCatching {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                         it.context.openAppNotificationSettingsActivity()
@@ -179,11 +180,11 @@ class SetupSettingsFragment : CustomPreferenceFragmentCompat() {
         }
 
         if (enableAdditionalRefreshIntervals()) {
-            intervalPref.setEntries(R.array.premium_refreshinterval_entries)
-            intervalPref.setEntryValues(R.array.premium_refreshinterval_values)
+            intervalPref.setEntries(sharedRes.array.premium_refreshinterval_entries)
+            intervalPref.setEntryValues(sharedRes.array.premium_refreshinterval_values)
         } else {
-            intervalPref.setEntries(R.array.refreshinterval_entries)
-            intervalPref.setEntryValues(R.array.refreshinterval_values)
+            intervalPref.setEntries(sharedRes.array.refreshinterval_entries)
+            intervalPref.setEntryValues(sharedRes.array.refreshinterval_values)
         }
 
         onGoingPref.setOnPreferenceChangeListener { preference, newValue ->

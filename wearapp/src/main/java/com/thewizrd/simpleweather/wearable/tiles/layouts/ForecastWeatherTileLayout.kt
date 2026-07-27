@@ -30,6 +30,7 @@ import com.google.android.horologist.tiles.images.drawableResToImageResource
 import com.google.android.horologist.tiles.images.toImageResource
 import com.thewizrd.common.controls.toUiModel
 import com.thewizrd.common.utils.ImageUtils
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.icons.WeatherIcons
 import com.thewizrd.shared_resources.preferences.SettingsManager
@@ -275,7 +276,7 @@ private fun forecastWeatherTilePreview(context: Context): TilePreviewData {
                     "$ID_WEATHER_ICON_PREFIX${WeatherIcons.DAY_SUNNY}",
                     ImageUtils.tintedBitmapFromDrawable(
                         context,
-                        R.drawable.wi_day_sunny,
+                        sharedRes.drawable.wi_day_sunny,
                         Colors.WHITE
                     ).toImageResource()
                 )
@@ -283,21 +284,21 @@ private fun forecastWeatherTilePreview(context: Context): TilePreviewData {
                     "$ID_WEATHER_ICON_PREFIX${WeatherIcons.NA}",
                     ImageUtils.tintedBitmapFromDrawable(
                         context,
-                        R.drawable.wi_na,
+                        sharedRes.drawable.wi_na,
                         Colors.WHITE
                     ).toImageResource()
                 )
                 .addIdToImageMapping(
                     ID_WEATHER_CHANCE_ICON,
-                    drawableResToImageResource(R.drawable.wi_umbrella_white)
+                    drawableResToImageResource(sharedRes.drawable.wi_umbrella_white)
                 )
                 .addIdToImageMapping(
                     ID_WEATHER_CLOUDINESS_ICON,
-                    drawableResToImageResource(R.drawable.wi_cloudy)
+                    drawableResToImageResource(sharedRes.drawable.wi_cloudy)
                 )
                 .addIdToImageMapping(
                     ID_WEATHER_WINDSPEED_ICON,
-                    drawableResToImageResource(R.drawable.wi_strong_wind)
+                    drawableResToImageResource(sharedRes.drawable.wi_strong_wind)
                 )
                 .apply {
                     forecasts.forEach { item ->
@@ -305,7 +306,7 @@ private fun forecastWeatherTilePreview(context: Context): TilePreviewData {
                             "${ID_WEATHER_ICON_PREFIX}${item.icon}",
                             ImageUtils.tintedBitmapFromDrawable(
                                 context,
-                                R.drawable.wi_cloudy,
+                                sharedRes.drawable.wi_cloudy,
                                 Colors.WHITE
                             ).toImageResource()
                         )

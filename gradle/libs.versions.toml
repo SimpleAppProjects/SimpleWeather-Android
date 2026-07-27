@@ -1,41 +1,42 @@
 [versions]
-compileSdkVersion = "36"
+compileSdkVersion = "37"
 minSdkVersion = "23"
-targetSdkVersion = "36"
+targetSdkVersion = "37"
+wearTargetSdkVersion = "36"
 
-gradleVersion = "8.13.2"
-kotlin_version = '2.1.20'
-kotlinx_version = '1.10.2'
-ksp_version = '2.1.20-2.0.1'
+gradleVersion = "9.3.1"
+kotlin_version = "2.3.21"
+kotlinx_version = "1.11.0"
+ksp_version = "2.3.6"
 
 desugar_version = '2.1.5'
 
-firebase_version = "34.7.0"
-firebaseCrashlyticsGradleVersion = "3.0.6"
+firebase_version = "34.16.0"
+firebaseCrashlyticsGradleVersion = "3.0.7"
 firebasePerfPluginVersion = "2.0.2"
-gms_location_version = '21.3.0'
-gms_base_version = '18.9.0'
-gms_basement_version = '18.9.0'
-gms_tasks_version = '18.4.0'
-gms_wearable_version = '19.0.0'
+gms_location_version = "21.4.0"
+gms_base_version = "18.10.0"
+gms_basement_version = "18.10.0"
+gms_tasks_version = "18.4.1"
+gms_wearable_version = "20.0.1"
 googleServicesVersion = "4.4.4"
 
-annotation_version = '1.9.1'
-activity_version = "1.12.1"
+annotation_version = "1.10.0"
+activity_version = "1.13.0"
 appcompat_version = '1.7.1'
 constraintlayout_version = '2.2.1'
-core_version = '1.17.0'
+core_version = "1.19.0"
 arch_core_runtime_version = '2.2.0'
 fragment_version = '1.8.9'
-lifecycle_version = "2.10.0"
-nav_version = "2.9.6"
-paging_version = '3.3.6'
+lifecycle_version = "2.11.0"
+nav_version = "2.9.8"
+paging_version = "3.5.0"
 preference_version = '1.2.1'
 recyclerview_version = '1.4.0'
 room_version = "2.8.4"
 coresplash_version = "1.2.0"
 vectordrawable_version = '1.2.0'
-work_version = '2.11.0'
+work_version = "2.11.2"
 
 test_core_version = '1.7.0'
 test_runner_version = '1.7.0'
@@ -46,30 +47,32 @@ androidx_truth_version = '1.7.0'
 google_truth_version = '1.4.5'
 espresso_core_version = "3.7.0"
 
-material_version = "1.14.0-alpha07"
-material_compose_version = "1.5.0-alpha10"
+material_version = "1.14.0"
+material_compose_version = "1.5.0-alpha24"
 
 compose_compiler_version = '1.5.15'
-compose_bom_version = "2025.12.00"
-wear_version = '1.3.0'
-wear_compose_version = "1.5.6"
+compose_bom_version = "2026.06.01"
+wear_version = "1.4.0"
+wear_compose_version = "1.6.2"
 wear_input_version = '1.2.0'
-wear_tiles_version = '1.5.0'
-wear_watchface_version = '1.2.1'
+wear_protolayout_version = "1.4.1"
+wear_tiles_version = "1.6.1"
+wear_watchface_version = "1.3.0"
 horologist_version = '0.7.15'
 accompanist_version = '0.37.3'
 
-glide_version = '5.0.5'
-icu4j_version = "78.1"
+glide_version = "5.0.9"
+icu4j_version = "78.3"
 jjwt_version = '0.13.0'
 moshi_version = '1.15.2'
-okhttp_version = "5.3.2"
+okhttp_version = "5.4.0"
 timber_version = '5.0.1'
 
-revcat_version = "9.15.4"
+revcat_version = "10.15.1"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
+legacy-kapt-plugin = { module = "com.android.legacy-kapt:com.android.legacy-kapt.gradle.plugin", version.ref = "gradleVersion" }
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin_version" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso_core_version" }
 junit = { module = "junit:junit", version.ref = "junit_version" }
@@ -79,7 +82,6 @@ firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlyti
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 firebase-perf-plugin = { module = "com.google.firebase:perf-plugin", version.ref = "firebasePerfPluginVersion" }
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin_version" }
 nav-safe-args-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "nav_version" }
 room-plugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room_version" }
 
@@ -134,8 +136,8 @@ work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "w
 wear = { module = "androidx.wear:wear", version.ref = "wear_version" }
 wear-input = { module = "androidx.wear:wear-input", version.ref = "wear_input_version" }
 wear-input-testing = { module = "androidx.wear:wear-input-testing", version.ref = "wear_input_version" }
-wear-phone-interactions = { module = "androidx.wear:wear-phone-interactions", version = "1.1.0" }
-wear-remote-interactions = { module = "androidx.wear:wear-remote-interactions", version = "1.1.0" }
+wear-phone-interactions = { module = "androidx.wear:wear-phone-interactions", version = "1.1.1" }
+wear-remote-interactions = { module = "androidx.wear:wear-remote-interactions", version = "1.2.0" }
 wear-watchface-complications-data = { module = "androidx.wear.watchface:watchface-complications-data", version.ref = "wear_watchface_version" }
 wear-watchface-complications-data-source-ktx = { module = "androidx.wear.watchface:watchface-complications-data-source-ktx", version.ref = "wear_watchface_version" }
 wear-tiles = { module = "androidx.wear.tiles:tiles", version.ref = "wear_tiles_version" }
@@ -143,8 +145,8 @@ wear-tiles-renderer = { module = "androidx.wear.tiles:tiles-renderer", version.r
 wear-tiles-testing = { module = "androidx.wear.tiles:tiles-testing", version.ref = "wear_tiles_version" }
 wear-tiles-tooling = { module = "androidx.wear.tiles:tiles-tooling", version.ref = "wear_tiles_version" }
 wear-tiles-tooling-preview = { module = "androidx.wear.tiles:tiles-tooling-preview", version.ref = "wear_tiles_version" }
-wear-protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "wear_version" }
-wear-protolayout-material3 = { module = "androidx.wear.protolayout:protolayout-material3", version.ref = "wear_version" }
+wear-protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "wear_protolayout_version" }
+wear-protolayout-material3 = { module = "androidx.wear.protolayout:protolayout-material3", version.ref = "wear_protolayout_version" }
 horologist-tiles = { module = "com.google.android.horologist:horologist-tiles", version.ref = "horologist_version" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity_version" }
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose_compiler_version" }
@@ -163,7 +165,7 @@ wear-tooling-preview = { module = "androidx.wear:wear-tooling-preview", version 
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist_version" }
 horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist_version" }
 horologist-compose-tools = { module = "com.google.android.horologist:horologist-compose-tools", version.ref = "horologist_version" }
-reorderable = { module = "sh.calvin.reorderable:reorderable", version = "3.0.0" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version = "3.1.0" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
@@ -176,9 +178,9 @@ navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-kt
 navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "nav_version" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide_version" }
 glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide_version" }
-colorpickerview = { module = "com.github.skydoves:colorpickerview", version = "2.3.0" }
+colorpickerview = { module = "com.github.skydoves:colorpickerview", version = "2.4.0" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
-gms-play-services-maps = { module = "com.google.android.gms:play-services-maps", version = "19.2.0" }
+gms-play-services-maps = { module = "com.google.android.gms:play-services-maps", version = "20.0.0" }
 play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version = "2.1.0" }
 play-feature-delivery-ktx = { module = "com.google.android.play:feature-delivery-ktx", version = "2.1.0" }
 play-review-ktx = { module = "com.google.android.play:review-ktx", version = "2.0.2" }
@@ -187,6 +189,7 @@ jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt_version" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt_version" }
 jjwt-orgjson = { module = "io.jsonwebtoken:jjwt-orgjson", version.ref = "jjwt_version" }
 moshi-java-codegen = { module = "com.github.nename0:moshi-java-codegen", version = "1.1.1" }
+#noinspection GradleDependency
 places = { module = "com.google.android.libraries.places:places", version = "4.4.1" }
 volley = { module = "com.android.volley:volley", version = "1.2.1" }
 gms-play-services-basement = { module = "com.google.android.gms:play-services-basement", version.ref = "gms_basement_version" }

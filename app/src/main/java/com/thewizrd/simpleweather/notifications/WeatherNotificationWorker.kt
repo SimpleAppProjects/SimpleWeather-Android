@@ -17,6 +17,7 @@ import com.thewizrd.common.helpers.areNotificationsEnabled
 import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.common.weatherdata.WeatherResult
+import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.preferences.SettingsManager
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.R
@@ -165,8 +166,10 @@ class WeatherNotificationWorker(context: Context, workerParams: WorkerParameters
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 var mChannel = mNotifyMgr.getNotificationChannel(NOT_CHANNEL_ID)
 
-                val notchannel_name = context.resources.getString(R.string.not_channel_name_weather)
-                val notchannel_desc = context.resources.getString(R.string.not_channel_desc_weather)
+                val notchannel_name =
+                    context.resources.getString(sharedRes.string.not_channel_name_weather)
+                val notchannel_desc =
+                    context.resources.getString(sharedRes.string.not_channel_desc_weather)
 
                 if (mChannel == null) {
                     mChannel = NotificationChannel(NOT_CHANNEL_ID, notchannel_name, NotificationManager.IMPORTANCE_LOW)

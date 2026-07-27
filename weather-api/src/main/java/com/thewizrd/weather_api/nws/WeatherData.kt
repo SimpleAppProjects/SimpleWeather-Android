@@ -288,13 +288,9 @@ fun createHourlyForecast(forecastItem: PeriodItem, adjustDate: Boolean = false):
         val windSpeed = forecastItem.windSpeed?.toFloatOrNull()
         val windDirection = forecastItem.windDirection?.toIntOrNull()
         if (windSpeed != null && windDirection != null) {
-            windDegrees = windDirection
-            windMph = windSpeed
-            windKph = ConversionMethods.mphTokph(windMph)
-
-            extras.windDegrees = windDegrees
-            extras.windMph = windMph
-            extras.windKph = windKph
+            extras.windDegrees = windDirection
+            extras.windMph = windSpeed
+            extras.windKph = ConversionMethods.mphTokph(windSpeed)
         }
 
         forecastItem.windChill?.toFloatOrNull()?.let {

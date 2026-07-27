@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:pathData="M16,16m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0"
+        android:fillType="evenOdd">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="2"
+                android:startY="2"
+                android:endX="30"
+                android:endY="30"
+                android:type="linear">
+                <item
+                    android:offset="0"
+                    android:color="#FFFCD35C" />
+                <item
+                    android:offset="1"
+                    android:color="#FFFBBC04" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:strokeWidth="1"
+        android:pathData="m17.125,2.085 l1.595,-0.813c1.24,-0.633 2.739,-0.125 3.386,1.146l0.832,1.635a2.57,2.57 0,0 0,1.82 1.378l1.748,0.32c1.36,0.248 2.287,1.577 2.093,3.002l-0.249,1.832a2.74,2.74 0,0 0,0.696 2.23l1.234,1.33a2.75,2.75 0,0 1,0 3.71l-1.234,1.33a2.74,2.74 0,0 0,-0.696 2.23l0.25,1.832c0.193,1.425 -0.734,2.754 -2.094,3.002l-1.748,0.32a2.57,2.57 0,0 0,-1.82 1.378l-0.832,1.635c-0.647,1.271 -2.145,1.779 -3.386,1.146l-1.595,-0.812a2.467,2.467 0,0 0,-2.25 0l-1.595,0.812c-1.24,0.633 -2.738,0.125 -3.386,-1.146l-0.832,-1.635a2.571,2.571 0,0 0,-1.82 -1.378l-1.748,-0.32c-1.36,-0.248 -2.286,-1.577 -2.093,-3.002l0.249,-1.832a2.741,2.741 0,0 0,-0.695 -2.23l-1.235,-1.33a2.75,2.75 0,0 1,0 -3.71l1.235,-1.33a2.74,2.74 0,0 0,0.695 -2.23L3.4,8.753c-0.192,-1.425 0.734,-2.754 2.094,-3.002l1.749,-0.32a2.57,2.57 0,0 0,1.82 -1.378l0.831,-1.635C10.542,1.147 12.04,0.64 13.28,1.272l1.596,0.813c0.709,0.36 1.54,0.36 2.249,0"
+        android:strokeAlpha="0.35"
+        android:fillColor="#00000000"
+        android:strokeColor="#FBBC04"
+        android:fillType="evenOdd"
+        android:fillAlpha="0.35" />
+</vector>

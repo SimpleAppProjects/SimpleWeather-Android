@@ -16,7 +16,7 @@ import com.thewizrd.common.helpers.SimpleGestureListener
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
-import com.thewizrd.simpleweather.R
+import com.google.android.material.R
 import com.thewizrd.simpleweather.adapters.LocationQueryAdapter
 import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
 

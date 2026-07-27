@@ -111,7 +111,7 @@ class DetailsWeatherTileProviderService : WeatherCoroutinesTileService() {
                 WeatherDetailsType.VISIBILITY.name -> {
                     this.addIdToImageMapping(
                         id,
-                        createImageResourceFromWeatherIcon(WeatherIcons.FOG, rotation)
+                        createImageResourceFromWeatherIcon(WeatherIcons.VISIBILITY, rotation)
                     )
                 }
 
@@ -181,14 +181,14 @@ class DetailsWeatherTileProviderService : WeatherCoroutinesTileService() {
                 WeatherDetailsType.UV.name -> {
                     this.addIdToImageMapping(
                         id,
-                        createImageResourceFromWeatherIcon(WeatherIcons.DAY_SUNNY, rotation)
+                        createImageResourceFromWeatherIcon(WeatherIcons.UV_INDEX, rotation)
                     )
                 }
 
                 WeatherDetailsType.AIRQUALITY.name -> {
                     this.addIdToImageMapping(
                         id,
-                        createImageResourceFromWeatherIcon(WeatherIcons.CLOUDY_GUSTS, rotation)
+                        createImageResourceFromWeatherIcon(WeatherIcons.AIR_QUALITY, rotation)
                     )
                 }
 

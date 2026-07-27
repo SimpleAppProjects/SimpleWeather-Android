@@ -22,6 +22,7 @@ import androidx.wear.compose.material3.Text
 import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.viewmodels.ConfirmationData
 import com.thewizrd.simpleweather.viewmodels.ConfirmationType
+import androidx.wear.R as wearRes
 
 @Composable
 fun ConfirmationOverlay(
@@ -90,7 +91,7 @@ fun ConfirmationOverlay(
                 },
                 content = {
                     val image =
-                        AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
+                        AnimatedImageVector.animatedVectorResource(wearRes.drawable.open_on_phone_animation)
                     var atEnd by remember { mutableStateOf(false) }
 
                     Icon(
@@ -102,7 +103,7 @@ fun ConfirmationOverlay(
                             }
                         ),
                         painter = rememberAnimatedVectorPainter(image, atEnd),
-                        contentDescription = stringResource(R.string.common_open_on_phone)
+                        contentDescription = stringResource(R.string.action_openonphone)
                     )
 
                     LaunchedEffect(Unit) {
