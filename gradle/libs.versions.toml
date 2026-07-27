@@ -4,14 +4,14 @@ minSdkVersion = "23"
 targetSdkVersion = "37"
 wearTargetSdkVersion = "36"
 
-gradleVersion = "9.2.1"
+gradleVersion = "9.3.1"
 kotlin_version = "2.3.21"
 kotlinx_version = "1.11.0"
 ksp_version = "2.3.6"
 
 desugar_version = '2.1.5'
 
-firebase_version = "34.15.0"
+firebase_version = "34.16.0"
 firebaseCrashlyticsGradleVersion = "3.0.7"
 firebasePerfPluginVersion = "2.0.2"
 gms_location_version = "21.4.0"
@@ -48,7 +48,7 @@ google_truth_version = '1.4.5'
 espresso_core_version = "3.7.0"
 
 material_version = "1.14.0"
-material_compose_version = "1.5.0-alpha23"
+material_compose_version = "1.5.0-alpha24"
 
 compose_compiler_version = '1.5.15'
 compose_bom_version = "2026.06.01"
@@ -68,7 +68,7 @@ moshi_version = '1.15.2'
 okhttp_version = "5.4.0"
 timber_version = '5.0.1'
 
-revcat_version = "10.14.0"
+revcat_version = "10.15.1"
 
 [libraries]
 com-google-devtools-ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp_version" }
@@ -136,7 +136,7 @@ work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "w
 wear = { module = "androidx.wear:wear", version.ref = "wear_version" }
 wear-input = { module = "androidx.wear:wear-input", version.ref = "wear_input_version" }
 wear-input-testing = { module = "androidx.wear:wear-input-testing", version.ref = "wear_input_version" }
-wear-phone-interactions = { module = "androidx.wear:wear-phone-interactions", version = "1.1.0" }
+wear-phone-interactions = { module = "androidx.wear:wear-phone-interactions", version = "1.1.1" }
 wear-remote-interactions = { module = "androidx.wear:wear-remote-interactions", version = "1.2.0" }
 wear-watchface-complications-data = { module = "androidx.wear.watchface:watchface-complications-data", version.ref = "wear_watchface_version" }
 wear-watchface-complications-data-source-ktx = { module = "androidx.wear.watchface:watchface-complications-data-source-ktx", version.ref = "wear_watchface_version" }
