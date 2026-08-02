@@ -20,7 +20,6 @@ import androidx.core.view.ViewGroupCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.R as materialRes
 import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransform
@@ -42,7 +41,6 @@ import com.thewizrd.shared_resources.utils.ContextUtils.getOrientation
 import com.thewizrd.shared_resources.utils.ContextUtils.isSmallestWidth
 import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.UserThemeMode
-import com.thewizrd.simpleweather.R
 import com.thewizrd.simpleweather.databinding.ActivityLocationSearchBinding
 import com.thewizrd.simpleweather.snackbar.SnackbarWindowAdjustCallback
 import kotlinx.coroutines.Job
@@ -51,6 +49,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import com.google.android.material.R as materialRes
 
 class LocationSearch : ActivityResultContract<Void?, LocationSearchResult>() {
     override fun createIntent(context: Context, input: Void?): Intent {
@@ -138,14 +137,14 @@ class LocationSearchActivity : WindowColorActivity() {
         }
 
         // Initialize
-        binding.searchView.setVisible(true)
-        binding.searchView.addTransitionListener { _, _, newState ->
+        binding.locationSearchView.setVisible(true)
+        binding.locationSearchView.addTransitionListener { _, _, newState ->
             if (newState == SearchView.TransitionState.HIDING || newState == SearchView.TransitionState.HIDDEN) {
                 setResult(RESULT_CANCELED)
                 onBackPressedDispatcher.onBackPressed()
             }
         }
-        binding.searchView.editText.addTextChangedListener(object : TextWatcher {
+        binding.locationSearchView.editText.addTextChangedListener(object : TextWatcher {
             private var textChangedJob: Job? = null
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -177,18 +176,18 @@ class LocationSearchActivity : WindowColorActivity() {
                 fetchLocations(newText)
             }
         })
-        binding.searchView.editText.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, _ ->
+        binding.locationSearchView.editText.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 fetchLocations(v.text.toString())
-                binding.searchView.clearFocusAndHideKeyboard()
+                binding.locationSearchView.clearFocusAndHideKeyboard()
                 return@OnEditorActionListener true
             }
             false
         })
-        binding.searchView.onItemClickListener = recyclerClickListener
+        binding.locationSearchView.onItemClickListener = recyclerClickListener
 
         val padding = dpToPx(8f).toInt()
-        binding.searchView.recyclerView.updatePaddingRelative(
+        binding.locationSearchView.recyclerView.updatePaddingRelative(
             start = padding, end = padding, top = padding
         )
 
@@ -207,13 +206,13 @@ class LocationSearchActivity : WindowColorActivity() {
 
         lifecycleScope.launch {
             locationSearchViewModel.isLoading.collect { loading ->
-                binding.searchView.showLoading(loading)
+                binding.locationSearchView.showLoading(loading)
             }
         }
 
         lifecycleScope.launch {
             locationSearchViewModel.locations.collectLatest {
-                binding.searchView.submitList(it)
+                binding.locationSearchView.submitList(it)
             }
         }
 
@@ -243,11 +242,11 @@ class LocationSearchActivity : WindowColorActivity() {
 
     override fun onResume() {
         super.onResume()
-        binding.searchView.requestFocusAndShowKeyboard()
+        binding.locationSearchView.requestFocusAndShowKeyboard()
     }
 
     override fun onPause() {
-        binding.searchView.clearFocusAndHideKeyboard()
+        binding.locationSearchView.clearFocusAndHideKeyboard()
         super.onPause()
     }
 
@@ -274,7 +273,7 @@ class LocationSearchActivity : WindowColorActivity() {
         }
 
         binding.root.setBackgroundColor(backgroundColor)
-        binding.searchView.setBackgroundOverlayColor(backgroundColor)
+        binding.locationSearchView.setBackgroundOverlayColor(backgroundColor)
 
         window.setTransparentWindow(
             backgroundColor, Colors.TRANSPARENT,
@@ -296,7 +295,7 @@ class LocationSearchActivity : WindowColorActivity() {
     }
 
     private fun onErrorMessage(error: ErrorMessage) {
-        binding.searchView.clearFocusAndHideKeyboard()
+        binding.locationSearchView.clearFocusAndHideKeyboard()
 
         when (error) {
             is ErrorMessage.Resource -> {

@@ -34,6 +34,11 @@
 # -keep class com.crashlytics.** { *; }
 # -dontwarn com.crashlytics.**
 
+# ConfirmationData
+-keep public enum com.thewizrd.simpleweather.viewmodels.ConfirmationType {
+  public *;
+}
+
 # Moshi
 # Keep name of @JsonClass type to lookup generated adapter
 -keepnames @com.squareup.moshi.JsonClass class *
