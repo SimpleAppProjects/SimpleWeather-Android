@@ -114,9 +114,9 @@ fun createForecast(day: DailyForecastItem): Forecast {
         }
 
         condition =
-            if (!day.dailyWeatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!day.dailyWeatherDescription.isNullOrBlank() && locale.toLanguageTag() == "en" || locale.toLanguageTag()
                     .startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale.toLanguageTag() == "fr" || locale.toLanguageTag().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
                 day.dailyWeatherDescription
@@ -158,9 +158,9 @@ fun createHourlyForecast(forecast: ForecastItem,
         }
 
         condition =
-            if (!forecast.weatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!forecast.weatherDescription.isNullOrBlank() && locale.toLanguageTag() == "en" || locale.toLanguageTag()
                     .startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale.toLanguageTag() == "fr" || locale.toLanguageTag().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
                 forecast.weatherDescription
@@ -302,9 +302,9 @@ fun createCondition(currRoot: CurrentsResponse): Condition {
         }
 
         weather =
-            if (!currRoot.properties?.gridded?.weatherDescription.isNullOrBlank() && locale.toString() == "en" || locale.toString()
+            if (!currRoot.properties?.gridded?.weatherDescription.isNullOrBlank() && locale.toLanguageTag() == "en" || locale.toLanguageTag()
                     .startsWith("en_") ||
-                locale.toString() == "fr" || locale.toString().startsWith("fr_") ||
+                locale.toLanguageTag() == "fr" || locale.toLanguageTag().startsWith("fr_") ||
                 locale == Locale.ROOT
             ) {
                 currRoot.properties?.gridded?.weatherDescription

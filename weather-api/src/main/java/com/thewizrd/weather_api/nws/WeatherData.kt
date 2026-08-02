@@ -202,7 +202,8 @@ fun createForecast(forecastItem: PeriodsItem): Forecast {
             }
         }
 
-        condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") ||
+        condition =
+            if (locale.toLanguageTag() == "en" || locale.toLanguageTag().startsWith("en_") ||
             locale == Locale.ROOT
         ) {
             forecastItem.shortForecast
@@ -236,7 +237,9 @@ fun createForecast(forecastItem: PeriodsItem, nightForecastItem: PeriodsItem): F
         lowF = nightForecastItem.temperature.toFloat()
         lowC = ConversionMethods.FtoC(lowF)
 
-        condition = if (locale.toString() == "en" || locale.toString().startsWith("en_") || locale == Locale.ROOT) {
+        condition = if (locale.toLanguageTag() == "en" || locale.toLanguageTag()
+                .startsWith("en_") || locale == Locale.ROOT
+        ) {
             forecastItem.shortForecast
         } else {
             provider.getWeatherCondition(forecastItem.icon)
@@ -273,7 +276,7 @@ fun createHourlyForecast(forecastItem: PeriodItem, adjustDate: Boolean = false):
             highC = ConversionMethods.FtoC(it)
         }
 
-        condition = if (locale.toString() == "en" || locale.toString()
+        condition = if (locale.toLanguageTag() == "en" || locale.toLanguageTag()
                 .startsWith("en_") || locale == Locale.ROOT
         ) {
             forecastItem.weather
@@ -314,7 +317,7 @@ fun createCondition(forecastResponse: ForecastResponse): Condition {
         val provider = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.NWS)
         val locale = LocaleUtils.getLocale()
 
-        weather = if (locale.toString() == "en" || locale.toString()
+        weather = if (locale.toLanguageTag() == "en" || locale.toLanguageTag()
                 .startsWith("en_") || locale == Locale.ROOT
         ) {
             forecastResponse.currentobservation.weather
