@@ -153,7 +153,7 @@ class HEREWeatherProvider : WeatherProviderImpl() {
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "WeatherResponse is null" }
 
                 // Fold into single item
                 val rootObject = root.places!!.fold(PlacesItem()) { base, item ->

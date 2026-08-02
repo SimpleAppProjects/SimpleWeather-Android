@@ -223,8 +223,8 @@ class MeteoFranceProvider : WeatherProviderImpl() {
                 forecastStream.closeQuietly()
                 alertStream?.closeQuietly()
 
-                requireNotNull(currRoot)
-                requireNotNull(foreRoot)
+                requireNotNull(currRoot) { "currRoot is null" }
+                requireNotNull(foreRoot) { "foreRoot is null" }
 
                 weather = createWeatherData(currRoot, foreRoot, alertsRoot)
             } catch (ex: Exception) {

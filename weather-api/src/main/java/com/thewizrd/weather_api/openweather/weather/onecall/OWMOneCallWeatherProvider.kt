@@ -213,7 +213,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "OneCallRootobject is null" }
 
                 weather = createOneCallWeatherData(root)
             } catch (ex: Exception) {
@@ -349,7 +349,7 @@ class OWMOneCallWeatherProvider : WeatherProviderImpl, AirQualityProvider {
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "AirPollutionResponse is null" }
 
                 aqiData = createAirQuality(root)
             } catch (ex: Exception) {

@@ -204,7 +204,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "ForecastResponse is null" }
 
                 weather = createWeatherData(root)
             } catch (ex: Exception) {
@@ -280,7 +280,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "ForecastResponse is null" }
 
                 alerts = createWeatherAlerts(root.alerts)
             } catch (ex: Exception) {
@@ -343,7 +343,7 @@ class WeatherApiProvider : WeatherProviderImpl(), WeatherAlertProvider, PollenPr
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "ForecastResponse is null" }
 
                 root.current?.pollen?.let { currentPollen ->
                     val treePollenValue = maxOf(
