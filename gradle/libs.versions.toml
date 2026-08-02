@@ -189,6 +189,7 @@ jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt_version" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt_version" }
 jjwt-orgjson = { module = "io.jsonwebtoken:jjwt-orgjson", version.ref = "jjwt_version" }
 moshi-java-codegen = { module = "com.github.nename0:moshi-java-codegen", version = "1.1.1" }
+google-maps-services = { module = "com.google.maps:google-maps-services", version = "2.2.0" }
 #noinspection GradleDependency
 places = { module = "com.google.android.libraries.places:places", version = "4.4.1" }
 volley = { module = "com.android.volley:volley", version = "1.2.1" }
