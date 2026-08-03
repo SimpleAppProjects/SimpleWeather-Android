@@ -232,9 +232,9 @@ class AccuWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     CurrentsResponse(it)
                 }
 
-                requireNotNull(dailyRoot)
-                requireNotNull(hourlyRoot)
-                requireNotNull(currentRoot)
+                requireNotNull(dailyRoot) { "dailyRoot is null" }
+                requireNotNull(hourlyRoot) { "hourlyRoot is null" }
+                requireNotNull(currentRoot) { "currentRoot is null" }
 
                 weather = createWeatherData(dailyRoot, hourlyRoot, currentRoot)
             } catch (ex: Exception) {
@@ -312,7 +312,7 @@ class AccuWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     }
                 }
 
-                requireNotNull(dailyRoot)
+                requireNotNull(dailyRoot) { "dailyRoot is null" }
 
                 val dailyForecast =
                     dailyRoot.dailyForecasts?.firstOrNull { !it?.airAndPollen.isNullOrEmpty() }

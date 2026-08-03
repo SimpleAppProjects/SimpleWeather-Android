@@ -271,8 +271,8 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     }
                 }.getOrNull()
 
-                requireNotNull(root)
-                requireNotNull(aqiRoot)
+                requireNotNull(root) { "ForecastResponse is null" }
+                requireNotNull(aqiRoot) { "AQIResponse is null" }
 
                 weather = createWeatherData(root, aqiRoot)
             } catch (ex: Exception) {
@@ -365,7 +365,7 @@ class OpenMeteoWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     JSONParser.deserializer<AQIResponse>(it, AQIResponse::class.java)
                 }
 
-                requireNotNull(root)
+                requireNotNull(root) { "AQIResponse is null" }
 
                 root.current?.let { current ->
                     val treePollenMeasure =

@@ -9,7 +9,9 @@ import com.thewizrd.shared_resources.locationdata.LocationData
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.locationdata.WeatherLocationProvider
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.google.location.createLocationModel
 import com.thewizrd.weather_api.google.location.getFromLocationAsync
@@ -108,7 +110,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
                 }
 
                 if (result == null) {
-                    result = addresses[0]
+                    result = addresses.firstOrNull()
                 }
             } catch (ex: Exception) {
                 result = null
@@ -165,7 +167,7 @@ abstract class WeatherLocationProviderImpl : WeatherLocationProvider, RateLimite
                 val addresses =
                     weatherModule.geocoder.getFromLocationNameAsync(model.locationName!!, 1)
 
-                result = addresses[0]
+                result = addresses.firstOrNull()
             } catch (ex: Exception) {
                 result = null
                 if (ex is IOException) {

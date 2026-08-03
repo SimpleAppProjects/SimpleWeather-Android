@@ -214,9 +214,9 @@ class MeteomaticsWeatherProvider : WeatherProviderImpl() {
                     }
                 }
 
-                requireNotNull(currentRoot)
-                requireNotNull(forecastRoot)
-                requireNotNull(hourlyRoot)
+                requireNotNull(currentRoot) { "currentRoot is null" }
+                requireNotNull(forecastRoot) { "forecastRoot is null" }
+                requireNotNull(hourlyRoot) { "hourlyRoot is null" }
 
                 weather = createWeatherData(currentRoot, forecastRoot, hourlyRoot)
             } catch (ex: Exception) {

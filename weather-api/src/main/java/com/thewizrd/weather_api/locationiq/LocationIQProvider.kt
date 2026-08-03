@@ -9,7 +9,10 @@ import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import com.thewizrd.weather_api.keys.Keys
@@ -27,7 +30,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.text.DecimalFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class LocationIQProvider : WeatherLocationProviderImpl() {
@@ -110,7 +113,7 @@ class LocationIQProvider : WeatherLocationProviderImpl() {
             val arrListType = listType<AutoCompleteQuery>()
             val root = JSONParser.deserializer<List<AutoCompleteQuery>>(stream, arrListType)
 
-            requireNotNull(root)
+            requireNotNull(root) { "List<AutoCompleteQuery> is null" }
 
             for (result in root) {
                 // Filter: only store city results

@@ -12,6 +12,12 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.maps.GeoApiContext
+import com.google.maps.GeocodingApi
+import com.google.maps.model.AddressType
+import com.google.maps.model.GeocodingResult
+import com.google.maps.model.LatLng
+import com.google.maps.model.LocationType
 import com.thewizrd.shared_resources.exceptions.ErrorStatus
 import com.thewizrd.shared_resources.exceptions.WeatherException
 import com.thewizrd.shared_resources.locationdata.LocationQuery
@@ -60,7 +66,7 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
     }
 
     override fun needsLocationFromName(): Boolean {
-        return true
+        return false // Location from ID takes precedence, so this is not required
     }
 
     private fun refreshToken() {
@@ -75,6 +81,10 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
             Places.initialize(ctx, getAPIKey()!!, LocaleUtils.getLocale())
             return Places.createClient(ctx)
         }
+
+    private val geoApiContext: GeoApiContext by lazy {
+        GeoApiContext.Builder().apiKey(getAPIKey()).build()
+    }
 
     @Throws(WeatherException::class)
     override suspend fun getLocations(
@@ -200,89 +210,101 @@ class GoogleLocationProvider : WeatherLocationProviderImpl() {
             return@withContext location
         }
 
-    @Throws(WeatherException::class)
-    override suspend fun getLocationFromName(
-        model: LocationQuery
-    ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!isGeocoderAvailable()) {
-            throw WeatherException(ErrorStatus.NETWORKERROR).apply {
-                initCause(Exception("Geocoder unavailable"))
-            }
-        }
-
-        val location: LocationQuery
-        var result: Address?
-        var wEx: WeatherException? = null
-
-        try {
-            val addresses = weatherModule.geocoder.getFromLocationNameAsync(model.locationName!!, 1)
-
-            result = addresses[0]
-        } catch (ex: Exception) {
-            result = null
-            if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
-            } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
-            }
-            Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
-        }
-
-        if (wEx != null) throw wEx
-
-        location = result?.let {
-            createLocationModel(
-                it,
-                model.weatherSource!!
-            )
-        }
-            ?: LocationQuery()
-
-        return@withContext location
+    override suspend fun getLocationFromName(model: LocationQuery): LocationQuery? {
+        return null
     }
 
     @Throws(WeatherException::class)
     override suspend fun getLocation(
         coordinate: Coordinate, weatherAPI: String?
     ): LocationQuery = withContext(Dispatchers.IO) {
-        if (!isGeocoderAvailable()) {
-            throw WeatherException(ErrorStatus.NETWORKERROR).apply {
-                initCause(Exception("Geocoder unavailable"))
-            }
-        }
-
-        val location: LocationQuery
-        var result: Address?
+        var location: LocationQuery? = null
         var wEx: WeatherException? = null
 
-        try {
-            val addresses =
-                weatherModule.geocoder.getFromLocationAsync(
-                    coordinate.latitude,
-                    coordinate.longitude,
-                    1
+        if (isGeocoderAvailable()) {
+            var result: Address?
+
+            try {
+                val addresses =
+                    weatherModule.geocoder.getFromLocationAsync(
+                        coordinate.latitude,
+                        coordinate.longitude,
+                        1
+                    )
+
+                result = addresses.firstOrNull()
+            } catch (ex: Exception) {
+                result = null
+                if (ex is IOException) {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                } else if (ex is IllegalArgumentException) {
+                    wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
+                }
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "GoogleLocationProvider: error getting geocoder location"
                 )
-
-            result = addresses[0]
-        } catch (ex: Exception) {
-            result = null
-            if (ex is IOException) {
-                wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
-            } else if (ex is IllegalArgumentException) {
-                wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
             }
-            Logger.writeLine(Log.ERROR, ex, "GoogleLocationProvider: error getting location")
+
+            if (wEx != null) throw wEx
+
+            location = result?.let {
+                createLocationModel(
+                    it,
+                    weatherAPI
+                )
+            }
         }
 
-        if (wEx != null) throw wEx
+        if (location == null) {
+            // Fallback to Geocoding API
+            var result: GeocodingResult?
 
-        location = result?.let {
-            createLocationModel(
-                it,
-                weatherAPI
-            )
+            try {
+                val response = GeocodingApi.reverseGeocode(
+                    geoApiContext,
+                    LatLng(coordinate.latitude, coordinate.longitude)
+                )
+                    .locationType(LocationType.GEOMETRIC_CENTER)
+                    .resultType(
+                        AddressType.STREET_ADDRESS,
+                        AddressType.ROUTE,
+                        AddressType.NEIGHBORHOOD,
+                        AddressType.SUBLOCALITY,
+                        AddressType.LOCALITY,
+                        AddressType.ADMINISTRATIVE_AREA_LEVEL_1,
+                        AddressType.ADMINISTRATIVE_AREA_LEVEL_2,
+                        AddressType.ADMINISTRATIVE_AREA_LEVEL_3,
+                        AddressType.ADMINISTRATIVE_AREA_LEVEL_4,
+                        AddressType.ADMINISTRATIVE_AREA_LEVEL_5
+                    )
+                    .await()
+
+                result = response.firstOrNull()
+            } catch (ex: Exception) {
+                result = null
+                if (ex is IOException) {
+                    wEx = WeatherException(ErrorStatus.NETWORKERROR, ex)
+                } else if (ex is IllegalArgumentException) {
+                    wEx = WeatherException(ErrorStatus.QUERYNOTFOUND, ex)
+                }
+                Logger.writeLine(
+                    Log.ERROR,
+                    ex,
+                    "GoogleLocationProvider: error getting geocoding result"
+                )
+            }
+
+            if (wEx != null) throw wEx
+
+            location = result?.let {
+                createLocationModel(
+                    it,
+                    weatherAPI
+                )
+            } ?: LocationQuery()
         }
-            ?: LocationQuery()
 
         return@withContext location
     }

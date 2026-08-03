@@ -159,7 +159,7 @@ class WeatherKitProvider : WeatherProviderImpl() {
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "weatherkit.Weather is null" }
 
                 weather = createWeatherData(root)
             } catch (ex: Exception) {

@@ -159,9 +159,9 @@ class MetnoWeatherProvider : WeatherProviderImpl() {
                 sunStream.closeQuietly()
                 moonStream.closeQuietly()
 
-                requireNotNull(foreRoot)
-                requireNotNull(sunRoot)
-                requireNotNull(moonRoot)
+                requireNotNull(foreRoot) { "foreRoot is null" }
+                requireNotNull(sunRoot) { "sunRoot is null" }
+                requireNotNull(moonRoot) { "moonRoot is null" }
 
                 weather = createWeatherData(foreRoot, sunRoot, moonRoot, location)
             } catch (ex: Exception) {

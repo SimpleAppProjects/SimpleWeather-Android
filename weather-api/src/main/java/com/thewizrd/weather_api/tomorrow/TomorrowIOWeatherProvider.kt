@@ -251,7 +251,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                 }
 
-                requireNotNull(root)
+                requireNotNull(root) { "Rootobject is null" }
 
                 var minutelyRoot: Rootobject? = null
                 var alertsRoot: AlertsRootobject? = null
@@ -351,7 +351,7 @@ class TomorrowIOWeatherProvider : WeatherProviderImpl(), PollenProvider {
                     JSONParser.deserializer<Rootobject>(it, Rootobject::class.java)
                 }
 
-                requireNotNull(root)
+                requireNotNull(root) { "Rootobject is null" }
 
                 root.data.timelines.firstOrNull()?.intervals?.firstOrNull()?.let { item ->
                     pollenData = Pollen().apply {

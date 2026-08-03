@@ -145,7 +145,8 @@ class ECCCWeatherProvider : WeatherProviderImpl() {
                 // End Stream
                 forecastStream.closeQuietly()
 
-                val foreRoot = requireNotNull(root?.firstOrNull())
+                val foreRoot =
+                    requireNotNull(root?.firstOrNull()) { "List<LocationResponseItem> is null" }
 
                 weather = createWeatherData(foreRoot)
             } catch (ex: Exception) {

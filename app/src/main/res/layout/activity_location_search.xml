@@ -26,7 +26,7 @@
         android:transitionName="shared_element_container">
 
         <com.thewizrd.simpleweather.controls.LocationSearchView
-            android:id="@+id/search_view"
+            android:id="@+id/location_search_view"
             style="@style/Widget.Material3Expressive.SearchView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

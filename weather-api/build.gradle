@@ -128,6 +128,7 @@ dependencies {
     implementation libs.moshi.adapters
     kapt libs.moshi.java.codegen
 
+    fullgmsImplementation libs.google.maps.services
     fullgmsImplementation libs.places
     fullgmsImplementation libs.volley // Required by Places API ^^^
     fullgmsImplementation libs.kotlinx.coroutines.play.services

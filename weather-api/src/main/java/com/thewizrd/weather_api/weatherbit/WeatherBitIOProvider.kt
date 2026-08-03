@@ -221,8 +221,8 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 currentStream.closeQuietly()
                 forecastStream.closeQuietly()
 
-                requireNotNull(currRoot)
-                requireNotNull(foreRoot)
+                requireNotNull(currRoot) { "currRoot is null" }
+                requireNotNull(foreRoot) { "foreRoot is null" }
 
                 var hourlyRoot: HourlyResponse? = null
 
@@ -307,7 +307,7 @@ class WeatherBitIOProvider : WeatherProviderImpl(), WeatherAlertProvider {
                 // End Stream
                 stream.closeQuietly()
 
-                requireNotNull(root)
+                requireNotNull(root) { "AlertsResponse is null" }
 
                 alerts = createWeatherAlerts(root.alerts, root.timezone!!)
             } catch (ex: Exception) {

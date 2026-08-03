@@ -9,7 +9,11 @@ import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.ConversionMethods
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI.LocationProviders
 import com.thewizrd.weather_api.google.location.isGeocoderAvailable
@@ -26,7 +30,7 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.URLEncoder
 import java.text.DecimalFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
@@ -100,7 +104,7 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
             val arrListType = listType<LocationItem>()
             val root = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
 
-            requireNotNull(root)
+            requireNotNull(root) { "List<LocationItem> is null" }
 
             for (result in root) {
                 val added = locations.add(createLocationModel(result, weatherAPI!!))
@@ -207,7 +211,7 @@ class WeatherApiLocationProvider : WeatherLocationProviderImpl() {
             val arrListType = listType<LocationItem>()
             val locations = JSONParser.deserializer<List<LocationItem>>(stream, arrListType)
 
-            requireNotNull(locations)
+            requireNotNull(locations) { "List<LocationItem> is null" }
 
             for (item in locations) {
                 if (abs(

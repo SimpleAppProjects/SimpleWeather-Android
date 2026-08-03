@@ -10,7 +10,10 @@ import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.await
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
 import com.thewizrd.shared_resources.sharedDeps
-import com.thewizrd.shared_resources.utils.*
+import com.thewizrd.shared_resources.utils.Coordinate
+import com.thewizrd.shared_resources.utils.JSONParser
+import com.thewizrd.shared_resources.utils.LocaleUtils
+import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.weather_api.keys.Keys
 import com.thewizrd.weather_api.locationdata.WeatherLocationProviderImpl
@@ -26,7 +29,7 @@ import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.text.DecimalFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
@@ -99,7 +102,7 @@ class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
             val arrListType = listType<ResponseItem>()
             val root = JSONParser.deserializer<List<ResponseItem>>(stream, arrListType)
 
-            requireNotNull(root)
+            requireNotNull(root) { "List<ResponseItem> is null" }
 
             locations = HashSet()
 
@@ -189,7 +192,7 @@ class OpenWeatherMapLocationProvider : WeatherLocationProviderImpl() {
             val arrListType = listType<ResponseItem>()
             val root = JSONParser.deserializer<List<ResponseItem>>(stream, arrListType)
 
-            requireNotNull(root)
+            requireNotNull(root) { "List<ResponseItem> is null" }
 
             result = root.first()
 
