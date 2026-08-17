@@ -15,6 +15,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -48,6 +49,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val icon = Icon.createWithBitmap(
             ImageUtils.rotateBitmap(
                 ImageUtils.bitmapFromDrawable(
@@ -60,7 +63,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ImageUtils.rotateBitmap(
                 ImageUtils.bitmapFromDrawable(
                     getThemeContextOverride(false),
-                    wim.getWeatherIconResource(complicationIcon)
+                    wip.getWeatherIconResource(complicationIcon)
                 ), 330.0f // 150° + 180
             )
         )
@@ -190,6 +193,8 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
         windSpeedShort: String? = null, windSpeedLong: String? = null, windDirection: Int = 0
     ): ComplicationData? {
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val icon = Icon.createWithBitmap(
             ImageUtils.rotateBitmap(
                 ImageUtils.bitmapFromDrawable(
@@ -202,7 +207,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ImageUtils.rotateBitmap(
                 ImageUtils.bitmapFromDrawable(
                     getThemeContextOverride(false),
-                    wim.getWeatherIconResource(complicationIcon)
+                    wip.getWeatherIconResource(complicationIcon)
                 ), windDirection.toFloat() + 180
             )
         ).setTint(Colors.WHITESMOKE)

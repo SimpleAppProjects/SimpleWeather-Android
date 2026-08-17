@@ -18,6 +18,7 @@ import com.thewizrd.common.weatherdata.WeatherDataLoader
 import com.thewizrd.common.weatherdata.WeatherRequest
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.AirQualityUtils.getIndexFromData
 import com.thewizrd.shared_resources.utils.Colors
@@ -102,8 +103,10 @@ class AQIComplicationService : BaseWeatherComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -179,6 +182,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val aqiModel = aqi?.apply { if (index == null) index = getIndexFromData() }
             ?.takeIf { it.index != null }?.let { AirQualityViewModel(it) }
@@ -188,7 +192,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
         val aqiProgressMax = aqiModel?.let { max(it.progressMax, it.progress).toFloat() } ?: 301f
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(

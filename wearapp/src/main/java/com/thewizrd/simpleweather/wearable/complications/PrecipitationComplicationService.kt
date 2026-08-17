@@ -13,6 +13,7 @@ import androidx.wear.watchface.complications.data.SmallImage
 import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -40,8 +41,10 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -121,12 +124,13 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val popChance = weather.precipitation?.pop ?: hourlyForecast?.extras?.pop
         val popChanceStr = popChance?.let { "${it}%" } ?: WeatherIcons.EM_DASH
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(

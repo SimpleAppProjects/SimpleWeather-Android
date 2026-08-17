@@ -16,6 +16,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.BeaufortViewModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -47,10 +48,11 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
         val complicationIcon = WeatherIcons.WIND_BEAUFORT_3
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -149,6 +151,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         val beaufortModel = beaufort?.let { BeaufortViewModel(it) }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val contentDescription = PlainComplicationText.Builder(
             beaufortModel?.let { "${beaufortModel.beaufort.label}: ${beaufortModel.progress}, ${beaufortModel.beaufort.value}" }
@@ -164,7 +167,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
         val beaufortIcon = beaufortModel?.beaufort?.icon ?: WeatherIcons.WIND_BEAUFORT_0
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(beaufortIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(beaufortIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(

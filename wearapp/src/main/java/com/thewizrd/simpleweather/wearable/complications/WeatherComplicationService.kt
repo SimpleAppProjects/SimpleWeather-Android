@@ -15,6 +15,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -44,9 +45,11 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val complicationIcon = WeatherIcons.DAY_SUNNY
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -142,13 +145,15 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
         } ?: getString(sharedRes.string.weather_notavailable)
 
         val wim = sharedDeps.weatherIconsManager
-        val weatherIcon = wim.getWeatherIconResource(weather.condition!!.icon)
-        val monochromaticIcon = Icon.createWithResource(this, weatherIcon)
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
+        val monochromaticIcon =
+            Icon.createWithResource(this, wip.getWeatherIconResource(weather.condition!!.icon))
             .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
                 getThemeContextOverride(false),
-                weatherIcon
+                wim.getWeatherIconResource(weather.condition!!.icon)
             )
         )
 

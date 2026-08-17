@@ -14,6 +14,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -47,8 +48,10 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
+
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -183,13 +186,14 @@ class PressureComplicationService : WeatherHourlyForecastComplicationService() {
         pressureStr: String? = null, pressureStrShort: String? = null, pressureInVal: Float? = null
     ): ComplicationData? {
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val pressureProgress = pressureInVal ?: 26f
         val pressureMin = min(pressureProgress, 26f)
         val pressureMax = max(pressureProgress, 32f)
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(

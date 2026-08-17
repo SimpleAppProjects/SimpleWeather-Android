@@ -14,6 +14,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 import com.thewizrd.common.controls.UVIndexViewModel
 import com.thewizrd.common.utils.ImageUtils
 import com.thewizrd.shared_resources.icons.WeatherIcons
+import com.thewizrd.shared_resources.icons.WeatherIconsEFProvider
 import com.thewizrd.shared_resources.sharedDeps
 import com.thewizrd.shared_resources.utils.Colors
 import com.thewizrd.shared_resources.utils.ContextUtils.getThemeContextOverride
@@ -41,10 +42,11 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
         val complicationIcon = WeatherIcons.UV_INDEX_3
 
         val monochromaticIcon =
-            Icon.createWithResource(this, wim.getWeatherIconResource(complicationIcon))
+            Icon.createWithResource(this, wip.getWeatherIconResource(complicationIcon))
                 .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
@@ -126,6 +128,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
         }
 
         val wim = sharedDeps.weatherIconsManager
+        val wip = wim.getIconProvider(WeatherIconsEFProvider.KEY)
 
         val uvIndex = weather.condition?.uv?.index ?: hourlyForecast?.extras?.uvIndex
         val uvModel = uvIndex?.let { UVIndexViewModel(UV(it)) }
@@ -137,7 +140,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
         val contentDescription = "${getString(sharedRes.string.label_uv)}: $uvStr"
         val uvIcon = uvModel?.icon ?: WeatherIcons.UV_INDEX
 
-        val monochromaticIcon = Icon.createWithResource(this, wim.getWeatherIconResource(uvIcon))
+        val monochromaticIcon = Icon.createWithResource(this, wip.getWeatherIconResource(uvIcon))
             .setTint(Colors.WHITESMOKE)
         val icon = Icon.createWithBitmap(
             ImageUtils.bitmapFromDrawable(
