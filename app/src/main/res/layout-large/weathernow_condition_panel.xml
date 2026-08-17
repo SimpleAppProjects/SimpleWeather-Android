@@ -310,6 +310,7 @@
                 android:textColorLink="@android:color/white"
                 android:textSize="12sp"
                 app:imageData="@{viewModel.imageData}"
+                app:showIfTrue="@{FeatureSettings.isBackgroundImageEnabled &amp;&amp; viewModel.imageData != null}"
                 tools:text="Attribution text goes here" />
 
         </LinearLayout>
