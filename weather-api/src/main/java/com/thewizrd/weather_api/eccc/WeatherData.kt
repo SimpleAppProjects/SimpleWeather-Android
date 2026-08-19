@@ -1,5 +1,6 @@
 package com.thewizrd.weather_api.eccc
 
+import android.annotation.SuppressLint
 import com.thewizrd.shared_resources.utils.ConversionMethods
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.shared_resources.utils.getBeaufortScale
@@ -16,11 +17,15 @@ import com.thewizrd.shared_resources.weatherdata.model.Location
 import com.thewizrd.shared_resources.weatherdata.model.TextForecast
 import com.thewizrd.shared_resources.weatherdata.model.Weather
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
+@SuppressLint("VisibleForTests")
 fun createWeatherData(root: LocationResponseItem): Weather {
     return Weather().apply {
         val now = root.lastUpdated?.let {
@@ -153,14 +158,16 @@ fun createAtmosphere(observation: Observation): Atmosphere {
 
 fun createAstronomy(riseSet: RiseSet?): Astronomy {
     return Astronomy().apply {
+        val now = LocalDate.now()
+
         riseSet?.rise?.let {
-            sunrise = it.epochTimeRounded?.toLongOrNull()?.let { riseEpoch ->
-                Instant.ofEpochSecond(riseEpoch).atZone(ZoneOffset.UTC).toLocalDateTime()
+            sunrise = it.time?.let { time24hr ->
+                LocalTime.parse(time24hr, DateTimeFormatter.ofPattern("H:mm")).atDate(now)
             }
         }
         riseSet?.set?.let {
-            sunset = it.epochTimeRounded?.toLongOrNull()?.let { setEpoch ->
-                Instant.ofEpochSecond(setEpoch).atZone(ZoneOffset.UTC).toLocalDateTime()
+            sunset = it.time?.let { time24hr ->
+                LocalTime.parse(time24hr, DateTimeFormatter.ofPattern("H:mm")).atDate(now)
             }
         }
 
