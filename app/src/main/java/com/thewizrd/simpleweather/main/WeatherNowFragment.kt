@@ -56,13 +56,11 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.google.android.material.R as materialRes
 import com.google.android.material.color.DynamicColorsOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.transition.MaterialFadeThrough
-import com.thewizrd.common.R as commonRes
 import com.thewizrd.common.controls.IconControl
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.ColorsUtils
@@ -72,7 +70,6 @@ import com.thewizrd.common.location.LocationResult
 import com.thewizrd.common.utils.ActivityUtils.recreateCompat
 import com.thewizrd.common.utils.ErrorMessage
 import com.thewizrd.common.utils.isTextTruncated
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.appLib
 import com.thewizrd.shared_resources.di.settingsManager
@@ -105,6 +102,7 @@ import com.thewizrd.simpleweather.banner.BannerManager
 import com.thewizrd.simpleweather.banner.BannerManagerInterface
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView
 import com.thewizrd.simpleweather.controls.ObservableNestedScrollView.OnTouchScrollChangeListener
+import com.thewizrd.simpleweather.controls.viewmodels.ForecastType
 import com.thewizrd.simpleweather.controls.viewmodels.ForecastsNowViewModel
 import com.thewizrd.simpleweather.controls.viewmodels.HourlyForecastNowViewModel
 import com.thewizrd.simpleweather.databinding.FragmentWeatherNowBinding
@@ -149,6 +147,8 @@ import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.min
+import com.google.android.material.R as materialRes
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInterface {
     init {
@@ -612,7 +612,8 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
             val onClickListener = object : RecyclerOnClickListenerInterface {
                 override fun onClick(view: View, position: Int) {
                     openDetails(
-                        WeatherChartsFragmentDirections.actionGlobalWeatherChartsFragment()
+                        TwoPaneNavGraphDirections.actionGlobalWeatherChartsFragment()
+                            .setForecastType(ForecastType.PRECIPITATION)
                     )
                 }
             }
@@ -672,6 +673,13 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
             uvControlBinding!!.viewModel = wNowViewModel
             uvControlBinding!!.lifecycleOwner = viewLifecycleOwner
 
+            uvControlBinding!!.root.setOnClickListener {
+                openDetails(
+                    TwoPaneNavGraphDirections.actionGlobalWeatherChartsFragment()
+                        .setForecastType(ForecastType.UVINDEX)
+                )
+            }
+
             uvControlBinding!!.uvIcon.setOnIconChangedListener(object :
                 IconControl.OnIconChangedListener {
                 override fun onIconChanged(view: IconControl) {
@@ -698,6 +706,13 @@ class WeatherNowFragment : AbstractWeatherListDetailFragment(), BannerManagerInt
 
             beaufortControlBinding!!.viewModel = wNowViewModel
             beaufortControlBinding!!.lifecycleOwner = viewLifecycleOwner
+
+            beaufortControlBinding!!.root.setOnClickListener {
+                openDetails(
+                    TwoPaneNavGraphDirections.actionGlobalWeatherChartsFragment()
+                        .setForecastType(ForecastType.WIND)
+                )
+            }
 
             beaufortControlBinding!!.beaufortIcon.setOnIconChangedListener(object :
                 IconControl.OnIconChangedListener {

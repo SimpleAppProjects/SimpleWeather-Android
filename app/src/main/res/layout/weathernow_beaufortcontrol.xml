@@ -31,7 +31,7 @@
 
             <TextView
                 android:id="@+id/beaufort_label"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
@@ -39,9 +39,22 @@
                 android:paddingVertical="@dimen/section_label_vertical_padding"
                 android:text="@string/label_beaufort"
                 android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/chevron_right"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHeight_min="48dp" />
+
+            <ImageView
+                android:id="@+id/chevron_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="?colorOnSurface"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/beaufort_label"
+                app:layout_constraintBottom_toBottomOf="@id/beaufort_label"
+                app:layout_constraintStart_toEndOf="@id/beaufort_label" />
 
             <com.thewizrd.common.controls.IconControl
                 android:id="@+id/beaufort_icon"

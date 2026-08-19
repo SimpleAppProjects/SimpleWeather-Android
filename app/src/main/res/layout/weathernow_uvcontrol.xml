@@ -30,15 +30,30 @@
 
             <TextView
                 android:id="@+id/uv_label"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
                 android:paddingHorizontal="@dimen/section_label_horizontal_padding"
                 android:paddingVertical="@dimen/section_label_vertical_padding"
                 android:text="@string/label_uv"
                 android:textAppearance="@style/TextAppearance.WeatherNow.SectionLabel"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/chevron_right"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHeight_min="48dp" />
+
+            <ImageView
+                android:id="@+id/chevron_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="?colorOnSurface"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/uv_label"
+                app:layout_constraintBottom_toBottomOf="@id/uv_label"
+                app:layout_constraintStart_toEndOf="@id/uv_label" />
 
             <com.thewizrd.common.controls.IconControl
                 android:id="@+id/uv_icon"

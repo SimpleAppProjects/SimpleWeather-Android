@@ -32,6 +32,10 @@
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />
+        <argument
+            android:name="ForecastType"
+            app:argType="com.thewizrd.simpleweather.controls.viewmodels.ForecastType"
+            android:defaultValue="PRECIPITATION" />
     </fragment>
     <fragment
         android:id="@+id/weatherAQIFragment"

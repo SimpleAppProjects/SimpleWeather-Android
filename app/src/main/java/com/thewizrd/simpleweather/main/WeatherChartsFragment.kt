@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -49,6 +50,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherChartsFragment : CollapsingToolbarFragment() {
@@ -59,6 +61,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
     private var locationData: LocationData? = null
 
     private lateinit var binding: FragmentWeatherListBinding
+    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var adapter: ChartsItemAdapter
 
     private val args: WeatherChartsFragmentArgs by navArgs()
@@ -129,6 +132,7 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
                 val maxWidth = context.resources.getDimension(R.dimen.wnow_max_view_width)
                 binding.recyclerView.addItemDecoration(InsetItemDecoration(it, maxWidth))
             }
+            layoutManager = it
         }
         binding.recyclerView.adapter = ConcatAdapter(
             SpacerAdapter(binding.recyclerView.context.dpToPx(4f).toInt()),
@@ -148,8 +152,25 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
 
         adapter.registerAdapterDataObserver(object : SimpleRecyclerViewAdapterObserver() {
             override fun onChanged() {
-                adapter.unregisterAdapterDataObserver(this)
-                inAppReviewManager.incrementCounter()
+                if (adapter.itemCount > 0) {
+                    adapter.unregisterAdapterDataObserver(this)
+                    binding.recyclerView.viewTreeObserver.addOnGlobalLayoutListener(object :
+                        ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            binding.recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                            runWithView {
+                                if (args.forecastType != null) {
+                                    val position =
+                                        adapter.currentList.indexOfFirst { it.forecastType == args.forecastType }
+                                    if (position >= 0) {
+                                        layoutManager.scrollToPositionWithOffset(position, 0)
+                                    }
+                                }
+                                inAppReviewManager.incrementCounter()
+                            }
+                        }
+                    })
+                }
             }
         })
 
@@ -193,13 +214,13 @@ class WeatherChartsFragment : CollapsingToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 runCatching {
-                    delay(5000)
+                    delay(5.seconds)
 
                     val paneIsOpened = twoPaneStateViewModel.twoPaneState.value.isOpened
                     if (isActive && isVisible && paneIsOpened && isViewAlive && inAppReviewManager.shouldShowReviewFlow()) {
                         // Wait for no movement
                         while (isActive && binding.recyclerView.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
-                            delay(2500)
+                            delay(2.5.seconds)
                         }
 
                         if (isActive) {

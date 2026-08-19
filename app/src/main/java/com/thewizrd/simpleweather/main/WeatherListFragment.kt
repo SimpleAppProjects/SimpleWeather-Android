@@ -25,7 +25,6 @@ import com.thewizrd.common.controls.ForecastsListViewModel
 import com.thewizrd.common.controls.HourlyForecastItemViewModel
 import com.thewizrd.common.controls.WeatherAlertsViewModel
 import com.thewizrd.common.helpers.SimpleRecyclerViewAdapterObserver
-import com.thewizrd.shared_resources.R as sharedRes
 import com.thewizrd.shared_resources.Constants
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.locationdata.LocationData
@@ -51,6 +50,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
+import com.thewizrd.shared_resources.R as sharedRes
 
 class WeatherListFragment : CollapsingToolbarFragment() {
     private val wNowViewModel: WeatherNowViewModel by activityViewModels()
@@ -217,13 +218,13 @@ class WeatherListFragment : CollapsingToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 runCatching {
-                    delay(5000)
+                    delay(5.seconds)
 
                     val paneIsOpened = twoPaneStateViewModel.twoPaneState.value.isOpened
                     if (isActive && isVisible && paneIsOpened && isViewAlive && inAppReviewManager.shouldShowReviewFlow()) {
                         // Wait for no movement
                         while (isActive && binding.recyclerView.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
-                            delay(2500)
+                            delay(2.5.seconds)
                         }
 
                         if (isActive) {
