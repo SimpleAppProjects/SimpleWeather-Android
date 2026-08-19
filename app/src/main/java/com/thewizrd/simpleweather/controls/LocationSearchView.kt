@@ -11,12 +11,12 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.thewizrd.common.helpers.SimpleGestureListener
 import com.thewizrd.shared_resources.helpers.ListAdapterOnClickInterface
 import com.thewizrd.shared_resources.locationdata.LocationQuery
 import com.thewizrd.shared_resources.utils.ContextUtils.dpToPx
-import com.google.android.material.R
 import com.thewizrd.simpleweather.adapters.LocationQueryAdapter
 import com.thewizrd.simpleweather.adapters.LocationQueryFooterAdapter
 
@@ -29,6 +29,7 @@ class LocationSearchView @JvmOverloads constructor(
     private val adapter = ConcatAdapter(locationAdapter)
 
     val recyclerView = RecyclerView(context, attrs).apply {
+        id = generateViewId()
         layoutParams = generateDefaultLayoutParams()
         clipToPadding = false
         setHasFixedSize(true)
@@ -110,6 +111,8 @@ class LocationSearchView @JvmOverloads constructor(
         }
 
     init {
+        this.isSaveFromParentEnabled = false
+
         recyclerView.setOnTouchListener { _, event ->
             runCatching {
                 gestureDetector.onTouchEvent(event)

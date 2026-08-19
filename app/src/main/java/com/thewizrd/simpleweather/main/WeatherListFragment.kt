@@ -181,7 +181,7 @@ class WeatherListFragment : CollapsingToolbarFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             twoPaneStateViewModel.twoPaneState.collectLatest { state ->
                 setNavigationIconVisible(!state.isSideBySide)
-                toolbar.subtitle = if (!state.isSideBySide) {
+                toolbar.subtitle = if (!state.isSideBySide && isAdded && activity != null) {
                     wNowViewModel.uiState.value.weather?.location
                 } else {
                     ""

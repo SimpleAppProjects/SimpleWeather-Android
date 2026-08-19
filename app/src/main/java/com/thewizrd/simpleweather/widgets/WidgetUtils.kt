@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.utils.JSONParser
 import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.simpleweather.widgets.preferences.KEY_WEATHERDETAILSTYPEOPTION
 import com.thewizrd.simpleweather.widgets.remoteviews.AbstractWidgetRemoteViewCreator
+import com.thewizrd.simpleweather.widgets.remoteviews.NoopWidgetRemoteViewCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget1x1Creator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget1x1CustomCreator
 import com.thewizrd.simpleweather.widgets.remoteviews.WeatherWidget2x2Creator
@@ -843,7 +844,7 @@ object WidgetUtils {
 
     fun getRemoteViewCreator(context: Context, appWidgetId: Int): AbstractWidgetRemoteViewCreator {
         return when (getWidgetTypeFromID(appWidgetId)) {
-            WidgetType.Unknown -> throw IllegalArgumentException("Unknown widget type")
+            WidgetType.Unknown -> NoopWidgetRemoteViewCreator(context)
             WidgetType.Widget1x1 -> WeatherWidget1x1Creator(context)
             WidgetType.Widget1x1Custom -> WeatherWidget1x1CustomCreator(context)
             WidgetType.Widget2x2 -> WeatherWidget2x2Creator(context)
