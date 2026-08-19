@@ -105,6 +105,9 @@ public class Values {
     @Json(name = "particulateMatter10")
     private Double particulateMatter10;
 
+    @Json(name = "uvIndex")
+    private Float uvIndex;
+
     public void setPrecipitationProbability(Float precipitationProbability) {
         this.precipitationProbability = precipitationProbability;
     }
@@ -367,5 +370,13 @@ public class Values {
 
     public void setParticulateMatter10(Double particulateMatter10) {
         this.particulateMatter10 = particulateMatter10;
+    }
+
+    public Float getUvIndex() {
+        return uvIndex;
+    }
+
+    public void setUvIndex(Float uvIndex) {
+        this.uvIndex = uvIndex;
     }
 }

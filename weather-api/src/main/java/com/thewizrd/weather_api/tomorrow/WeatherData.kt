@@ -180,6 +180,10 @@ fun createForecast(item: IntervalsItem): Forecast {
             extras.visibilityKm = it
             extras.visibilityMi = ConversionMethods.kmToMi(it)
         }
+
+        item.values.uvIndex?.let {
+            extras.uvIndex = it
+        }
     }
 }
 
@@ -274,6 +278,10 @@ fun createHourlyForecast(item: IntervalsItem): HourlyForecast {
         item.values.visibility?.let {
             extras.visibilityKm = it
             extras.visibilityMi = ConversionMethods.kmToMi(it)
+        }
+
+        item.values.uvIndex?.let {
+            extras.uvIndex = it
         }
     }
 }

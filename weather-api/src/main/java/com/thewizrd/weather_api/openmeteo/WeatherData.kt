@@ -188,6 +188,8 @@ fun createHourlyForecasts(hourly: Hourly): List<HourlyForecast>? {
                 extras.qpfSnowCm = it
                 extras.qpfSnowIn = ConversionMethods.mmToIn(it * 10)
             }
+
+            extras.uvIndex = hourly.uvIndex?.getOrNull(index)
         }
     }
 }
