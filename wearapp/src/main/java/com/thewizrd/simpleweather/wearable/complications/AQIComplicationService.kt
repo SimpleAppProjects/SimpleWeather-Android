@@ -126,7 +126,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -146,7 +146,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -164,7 +164,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -214,7 +214,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -238,7 +238,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -261,7 +261,7 @@ class AQIComplicationService : BaseWeatherComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }

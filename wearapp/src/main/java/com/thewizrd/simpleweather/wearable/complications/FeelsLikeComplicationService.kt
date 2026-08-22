@@ -62,7 +62,7 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -81,7 +81,7 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -144,7 +144,7 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -171,7 +171,7 @@ class FeelsLikeComplicationService : WeatherHourlyForecastComplicationService() 
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }

@@ -62,7 +62,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -81,7 +81,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -140,7 +140,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -163,7 +163,7 @@ class DewPointComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }

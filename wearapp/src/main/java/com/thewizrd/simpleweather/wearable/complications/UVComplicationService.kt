@@ -66,7 +66,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -88,7 +88,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -106,7 +106,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -162,7 +162,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -188,7 +188,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -210,7 +210,7 @@ class UVComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }

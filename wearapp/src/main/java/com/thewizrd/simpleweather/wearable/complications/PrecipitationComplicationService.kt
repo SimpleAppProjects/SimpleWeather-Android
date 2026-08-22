@@ -64,7 +64,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -84,7 +84,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -102,7 +102,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -150,7 +150,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -174,7 +174,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -196,7 +196,7 @@ class PrecipitationComplicationService : WeatherHourlyForecastComplicationServic
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }

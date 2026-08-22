@@ -80,7 +80,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -98,7 +98,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -115,7 +115,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     PlainComplicationText.Builder("Wind: 5 mph, SSE").build()
                 ).build()
@@ -227,7 +227,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -250,7 +250,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -270,7 +270,7 @@ class WindComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     PlainComplicationText.Builder(
                         "${getString(sharedRes.string.label_wind)}: ${

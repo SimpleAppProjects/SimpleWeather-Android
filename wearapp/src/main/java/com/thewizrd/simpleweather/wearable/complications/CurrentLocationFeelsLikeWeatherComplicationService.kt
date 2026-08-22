@@ -70,7 +70,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon).build(),
+                                .setAmbientImage(icon).build(),
                         )
                     }
                 }.build()
@@ -88,7 +88,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -105,7 +105,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).build()
@@ -190,7 +190,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                 if (!wim.isFontIcon) {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -215,7 +215,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
                 } else {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -236,7 +236,7 @@ class CurrentLocationFeelsLikeWeatherComplicationService : WeatherForecastCompli
             ComplicationType.SMALL_IMAGE -> {
                 return SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     contentDescription
                 ).setTapAction(

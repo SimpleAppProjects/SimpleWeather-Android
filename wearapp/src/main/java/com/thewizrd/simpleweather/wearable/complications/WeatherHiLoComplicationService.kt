@@ -69,7 +69,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon).build(),
+                                .setAmbientImage(icon).build(),
                         )
                     }
                 }.build()
@@ -86,7 +86,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon).build(),
+                                .setAmbientImage(icon).build(),
                         )
                     }
                 }.build()
@@ -204,7 +204,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 if (!wim.isFontIcon) {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -228,7 +228,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
                 } else {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -247,7 +247,7 @@ class WeatherHiLoComplicationService : WeatherForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 return SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     contentDescription
                 ).setTapAction(

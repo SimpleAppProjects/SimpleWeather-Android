@@ -72,7 +72,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -92,7 +92,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -110,7 +110,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build()
                         )
                     }
@@ -125,7 +125,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     PlainComplicationText.Builder("Beaufort: 3, Gentle Breeze").build()
                 ).build()
@@ -187,7 +187,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -209,7 +209,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -232,7 +232,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon)
+                                .setAmbientImage(icon)
                                 .build(),
                         )
                     }
@@ -251,7 +251,7 @@ class BeaufortComplicationService : WeatherHourlyForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     contentDescription
                 ).setTapAction(

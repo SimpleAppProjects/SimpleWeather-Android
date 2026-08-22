@@ -69,7 +69,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon).build(),
+                                .setAmbientImage(icon).build(),
                         )
                     }
                 }.build()
@@ -86,7 +86,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     if (!wim.isFontIcon) {
                         setSmallImage(
                             SmallImage.Builder(icon, SmallImageType.ICON)
-                                .setAmbientImage(monochromaticIcon).build(),
+                                .setAmbientImage(icon).build(),
                         )
                     }
                 }.build()
@@ -100,7 +100,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     PlainComplicationText.Builder("70° - Sunny").build()
                 ).build()
@@ -170,7 +170,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                     MonochromaticImage.Builder(icon).apply {
                         // Weather Icon
                         if (!wim.isFontIcon) {
-                            setAmbientImage(monochromaticIcon)
+                            setAmbientImage(icon)
                         }
                     }
                         .build()
@@ -179,7 +179,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                 if (!wim.isFontIcon) {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -203,7 +203,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
                 } else {
                     builder.setSmallImage(
                         SmallImage.Builder(icon, SmallImageType.ICON)
-                            .setAmbientImage(monochromaticIcon)
+                            .setAmbientImage(icon)
                             .build()
                     )
                 }
@@ -222,7 +222,7 @@ class WeatherComplicationService : WeatherForecastComplicationService() {
             ComplicationType.SMALL_IMAGE -> {
                 return SmallImageComplicationData.Builder(
                     SmallImage.Builder(icon, SmallImageType.ICON)
-                        .setAmbientImage(monochromaticIcon)
+                        .setAmbientImage(icon)
                         .build(),
                     contentDescription
                 ).setTapAction(
