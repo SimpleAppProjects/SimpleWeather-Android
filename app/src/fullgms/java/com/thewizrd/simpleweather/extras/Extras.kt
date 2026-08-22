@@ -176,12 +176,14 @@ fun SettingsFragment.AboutAppFragment.setupReviewPreference(preference: Preferen
                         .setData(PlayStoreUtils.getPlayStoreURI())
                 )
             } catch (e: ActivityNotFoundException) {
-                val i = Intent(Intent.ACTION_VIEW)
-                    .addCategory(Intent.CATEGORY_BROWSABLE)
-                    .setData(PlayStoreUtils.getPlayStoreWebURI())
+                runCatching {
+                    val i = Intent(Intent.ACTION_VIEW)
+                        .addCategory(Intent.CATEGORY_BROWSABLE)
+                        .setData(PlayStoreUtils.getPlayStoreWebURI())
 
-                if (i.resolveActivity(context.packageManager) != null) {
-                    startActivity(i)
+                    if (i.resolveActivity(context.packageManager) != null) {
+                        startActivity(i)
+                    }
                 }
             }
         }

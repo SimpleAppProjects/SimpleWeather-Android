@@ -25,6 +25,9 @@ class MoonPhaseAdapter : RecyclerView.Adapter<MoonPhaseAdapter.MoonPhaseViewHold
 
     inner class MoonPhaseViewHolder(val view: IconControl) : RecyclerView.ViewHolder(view) {
         fun bind(phaseType: MoonPhaseType, isSelected: Boolean = false) {
+            itemView.cancelPendingInputEvents()
+            itemView.animate().cancel()
+
             view.weatherIcon = when (phaseType) {
                 MoonPhaseType.NEWMOON -> WeatherIcons.MOON_NEW
                 MoonPhaseType.WAXING_CRESCENT -> WeatherIcons.MOON_WAXING_CRESCENT_3

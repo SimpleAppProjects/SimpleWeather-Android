@@ -18,6 +18,9 @@ class HourlyForecastItemAdapter : ListAdapter<HourlyForecastNowViewModel, Hourly
 
     inner class ViewHolder(private val binding: HourlyForecastItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(model: HourlyForecastNowViewModel) {
+            itemView.cancelPendingInputEvents()
+            itemView.animate().cancel()
+
             binding.viewModel = model
             binding.executePendingBindings()
         }
