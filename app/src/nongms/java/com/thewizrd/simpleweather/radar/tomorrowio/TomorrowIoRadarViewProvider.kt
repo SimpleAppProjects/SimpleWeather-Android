@@ -33,7 +33,6 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class TomorrowIoRadarViewProvider(context: Context, rootView: ViewGroup) :
@@ -289,15 +288,7 @@ class TomorrowIoRadarViewProvider(context: Context, rootView: ViewGroup) :
 
             if (mapFrame != null && !key.isNullOrBlank()) {
                 /* Define the URL pattern for the tile images */
-                return String.format(
-                    Locale.ROOT,
-                    "https://api.tomorrow.io/v4/map/tile/%d/%d/%d/precipitationIntensity/%s.png?apikey=%s",
-                    zoom,
-                    x,
-                    y,
-                    mapFrame.timestamp,
-                    key
-                )
+                return "https://api.tomorrow.io/v4/map/tile/${zoom}/${x}/${y}/precipitationIntensity/${mapFrame.timestamp}.png?apikey=${key}"
             }
 
             return null

@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
+import com.bumptech.glide.load.model.GlideUrl
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
@@ -20,15 +21,13 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
+import com.thewizrd.simpleweather.radar.BoundingBox
 import com.thewizrd.simpleweather.radar.CachingUrlTileProvider
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.math.atan
-import kotlin.math.pow
-import kotlin.math.sinh
 
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
@@ -265,7 +264,7 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
 
     private class NWSTileProvider(context: Context, private val mapFrame: RadarFrame?) :
         CachingUrlTileProvider(context, 256, 256) {
-        override fun getTileUrl(x: Int, y: Int, zoom: Int): String? {
+        override fun getTileUrl(x: Int, y: Int, zoom: Int): GlideUrl? {
             if (!checkTileExists(x, y, zoom)) {
                 return null
             }
@@ -277,7 +276,7 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
                 val uri =
                     "https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer/exportImage".toUri()
                         .buildUpon()
-                        .appendQueryParameter("bbox", bbox.toString())
+                        .appendQueryParameter("bbox", bbox.toXYString())
                         .appendQueryParameter("bboxSR", "4326")
                         .appendQueryParameter("size", "256,256")
                         .appendQueryParameter("time", mapFrame.timestamp)
@@ -285,7 +284,7 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
                         .appendQueryParameter("f", "image")
                         .build()
 
-                return uri.toString()
+                return GlideUrl(uri.toString())
             }
 
             return null
@@ -308,36 +307,4 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
     private data class RadarFrame(
         val timestamp: String
     )
-
-    private data class BoundingBox(
-        val xMin: Double,
-        val yMin: Double,
-        val xMax: Double,
-        val yMax: Double,
-    ) {
-        override fun toString(): String {
-            return "$xMin,$yMin,$xMax,$yMax"
-        }
-
-        companion object {
-            fun fromTile(x: Int, y: Int, zoom: Int): BoundingBox {
-                return BoundingBox(
-                    yMin = tile2lat(y + 1, zoom),
-                    yMax = tile2lat(y, zoom),
-                    xMin = tile2lon(x, zoom),
-                    xMax = tile2lon(x + 1, zoom)
-                )
-            }
-
-            // Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Common_programming_languages
-            private fun tile2lon(x: Int, z: Int): Double {
-                return x / 2.0.pow(z.toDouble()) * 360.0 - 180
-            }
-
-            private fun tile2lat(y: Int, z: Int): Double {
-                val n: Double = Math.PI - (2.0 * Math.PI * y) / 2.0.pow(z.toDouble())
-                return Math.toDegrees(atan(sinh(n)))
-            }
-        }
-    }
 }

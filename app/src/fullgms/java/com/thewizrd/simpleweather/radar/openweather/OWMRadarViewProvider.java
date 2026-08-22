@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.load.model.GlideUrl;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -58,15 +59,17 @@ public class OWMRadarViewProvider extends MapTileRadarViewProvider {
         }
 
         @Override
-        public String getTileUrl(int x, int y, int zoom) {
+        public GlideUrl getTileUrl(int x, int y, int zoom) {
             if (!checkTileExists(x, y, zoom)) {
                 return null;
             }
 
             /* Define the URL pattern for the tile images */
-            return String.format(
-                    Locale.ROOT, "https://tile.openweathermap.org/map/precipitation_new/%d/%d/%d.png?appid=%s", zoom, x, y,
-                    getKey()
+            return new GlideUrl(
+                    String.format(
+                            Locale.ROOT, "https://tile.openweathermap.org/map/precipitation_new/%d/%d/%d.png?appid=%s", zoom, x, y,
+                            getKey()
+                    )
             );
         }
 

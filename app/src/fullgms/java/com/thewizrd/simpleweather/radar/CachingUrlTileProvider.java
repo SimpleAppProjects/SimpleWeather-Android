@@ -7,6 +7,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.model.Tile;
@@ -52,6 +53,8 @@ public abstract class CachingUrlTileProvider implements TileProvider {
     private byte[] getTileImage(int x, int y, int z) {
         FutureTarget<Bitmap> bmpRequest = mGlide.asBitmap()
                 .load(getTileUrl(x, y, z))
+                .dontAnimate()
+                .dontTransform()
                 .submit();
 
         Bitmap bitmap = null;
@@ -84,5 +87,5 @@ public abstract class CachingUrlTileProvider implements TileProvider {
      * @param z the zoom level
      * @return the url to the tile specified by the parameters
      */
-    public abstract String getTileUrl(int x, int y, int z);
+    public abstract GlideUrl getTileUrl(int x, int y, int z);
 }

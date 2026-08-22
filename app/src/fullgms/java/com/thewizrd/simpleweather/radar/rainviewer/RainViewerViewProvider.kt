@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import com.bumptech.glide.load.model.GlideUrl
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
@@ -312,14 +313,14 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) : MapTileRad
     }
 
     private class RainViewTileProvider(context: Context, private val mapFrame: RadarFrame?) : CachingUrlTileProvider(context, 256, 256) {
-        override fun getTileUrl(x: Int, y: Int, zoom: Int): String? {
+        override fun getTileUrl(x: Int, y: Int, zoom: Int): GlideUrl? {
             if (!checkTileExists(x, y, zoom)) {
                 return null
             }
 
             if (mapFrame != null) {
                 /* Define the URL pattern for the tile images */
-                return String.format(Locale.ROOT, "%s%s/256/%d/%d/%d/1/1_1.png", mapFrame.host, mapFrame.path, zoom, x, y)
+                return GlideUrl("${mapFrame.host}${mapFrame.path}/256/${zoom}/${x}/${y}/1/1_1.png")
             }
 
             return null

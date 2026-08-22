@@ -12,6 +12,13 @@ fun Request.Builder.addGoogleAuth(context: Context): Request.Builder {
         .addHeader("X-Android-Cert", context.getPackageSignature() ?: "")
 }
 
+fun Context.getGoogleAuthHeaders(): Map<String, String> {
+    return mapOf(
+        "X-Android-Package" to packageName,
+        "X-Android-Cert" to (getPackageSignature() ?: "")
+    )
+}
+
 private fun Context.getPackageSignature(): String? {
     val signature = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         val info =

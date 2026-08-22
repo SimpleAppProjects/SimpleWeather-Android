@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import com.bumptech.glide.load.model.GlideUrl
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
@@ -262,7 +263,7 @@ class TomorrowIoRadarViewProvider(context: Context, rootView: ViewGroup) :
 
     private class TomorrowIoTileProvider(context: Context, private val mapFrame: RadarFrame?) :
         CachingUrlTileProvider(context, 256, 256) {
-        override fun getTileUrl(x: Int, y: Int, zoom: Int): String? {
+        override fun getTileUrl(x: Int, y: Int, zoom: Int): GlideUrl? {
             if (!checkTileExists(x, y, zoom)) {
                 return null
             }
@@ -271,15 +272,7 @@ class TomorrowIoRadarViewProvider(context: Context, rootView: ViewGroup) :
 
             if (mapFrame != null && !key.isNullOrBlank()) {
                 /* Define the URL pattern for the tile images */
-                return String.format(
-                    Locale.ROOT,
-                    "https://api.tomorrow.io/v4/map/tile/%d/%d/%d/precipitationIntensity/%s.png?apikey=%s",
-                    zoom,
-                    x,
-                    y,
-                    mapFrame.timestamp,
-                    key
-                )
+                return GlideUrl("https://api.tomorrow.io/v4/map/tile/${zoom}/${x}/${y}/precipitationIntensity/${mapFrame.timestamp}.png?apikey=${key}")
             }
 
             return null

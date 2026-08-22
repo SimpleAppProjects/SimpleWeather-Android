@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.radar.nws
 
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -11,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import com.google.android.material.slider.Slider
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.utils.Colors
@@ -18,6 +18,7 @@ import com.thewizrd.shared_resources.utils.Coordinate
 import com.thewizrd.shared_resources.utils.DateTimeUtils
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
+import com.thewizrd.simpleweather.radar.BoundingBox
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.modules.TileWriter
@@ -30,10 +31,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.math.atan
-import kotlin.math.pow
-import kotlin.math.sinh
-import androidx.core.net.toUri
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
@@ -295,7 +292,7 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
                 val uri =
                     "https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer/exportImage".toUri()
                         .buildUpon()
-                        .appendQueryParameter("bbox", bbox.toString())
+                        .appendQueryParameter("bbox", bbox.toXYString())
                         .appendQueryParameter("bboxSR", "4326")
                         .appendQueryParameter("size", "256,256")
                         .appendQueryParameter("time", mapFrame.timestamp)
@@ -313,36 +310,4 @@ class NWSRadarViewProvider(context: Context, rootView: ViewGroup) :
     private data class RadarFrame(
         val timestamp: String
     )
-
-    private data class BoundingBox(
-        val xMin: Double,
-        val yMin: Double,
-        val xMax: Double,
-        val yMax: Double,
-    ) {
-        override fun toString(): String {
-            return "$xMin,$yMin,$xMax,$yMax"
-        }
-
-        companion object {
-            fun fromTile(x: Int, y: Int, zoom: Int): BoundingBox {
-                return BoundingBox(
-                    yMin = tile2lat(y + 1, zoom),
-                    yMax = tile2lat(y, zoom),
-                    xMin = tile2lon(x, zoom),
-                    xMax = tile2lon(x + 1, zoom)
-                )
-            }
-
-            // Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Common_programming_languages
-            private fun tile2lon(x: Int, z: Int): Double {
-                return x / 2.0.pow(z.toDouble()) * 360.0 - 180
-            }
-
-            private fun tile2lat(y: Int, z: Int): Double {
-                val n: Double = Math.PI - (2.0 * Math.PI * y) / 2.0.pow(z.toDouble())
-                return Math.toDegrees(atan(sinh(n)))
-            }
-        }
-    }
 }

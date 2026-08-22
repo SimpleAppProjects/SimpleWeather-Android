@@ -11,8 +11,8 @@ import com.thewizrd.shared_resources.controls.ProviderEntry
 import com.thewizrd.shared_resources.di.settingsManager
 import com.thewizrd.shared_resources.remoteconfig.remoteConfigService
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
-import com.thewizrd.shared_resources.weatherdata.WeatherAPI.WEATHERAPI
 import com.thewizrd.simpleweather.radar.eccc.ECCCRadarViewProvider
+import com.thewizrd.simpleweather.radar.google.GoogleRadarViewProvider
 import com.thewizrd.simpleweather.radar.nws.NWSRadarViewProvider
 import com.thewizrd.simpleweather.radar.openweather.OWMRadarViewProvider
 import com.thewizrd.simpleweather.radar.rainviewer.RainViewerViewProvider
@@ -29,16 +29,22 @@ object RadarProvider {
         WeatherAPI.ECCC,
         WeatherAPI.OPENWEATHERMAP,
         WeatherAPI.TOMORROWIO,
-        WeatherAPI.WEATHERAPI
+        WeatherAPI.WEATHERAPI,
+        WeatherAPI.GOOGLE
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class RadarProviders
 
     @SuppressLint("WrongConstant")
     fun getRadarProviders(): List<ProviderEntry> {
-        val apiRadarProviders = listOf(WeatherAPI.OPENWEATHERMAP, WeatherAPI.TOMORROWIO)
+        val apiRadarProviders =
+            listOf(WeatherAPI.OPENWEATHERMAP, WeatherAPI.TOMORROWIO, WeatherAPI.GOOGLE)
 
         var providers = FullRadarProviders
+
+        if (settingsManager.isDevSettingsEnabled()) {
+            providers = providers.plus(TestingRadarProviders)
+        }
 
         apiRadarProviders.forEach { api ->
             val p = weatherModule.weatherManager.getWeatherProvider(api)
@@ -75,8 +81,17 @@ object RadarProvider {
             "https://www.tomorrow.io/weather-api/", "https://www.tomorrow.io/weather-api/"
         ),
         ProviderEntry(
-            "WeatherAPI.com", WEATHERAPI,
+            "WeatherAPI.com", WeatherAPI.WEATHERAPI,
             "https://weatherapi.com", "https://weatherapi.com/api"
+        )
+    )
+
+    private val TestingRadarProviders = listOf(
+        ProviderEntry(
+            "Google",
+            WeatherAPI.GOOGLE,
+            "https://www.google.com/maps",
+            "https://developers.google.com/maps/documentation/weather"
         )
     )
 
@@ -96,6 +111,12 @@ object RadarProvider {
             val tmr = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.TOMORROWIO)
             // Fallback to default since API KEY is unavailable
             if (tmr.getAPIKey() == null && settingsManager.getAPIKey(WeatherAPI.TOMORROWIO) == null) {
+                return WeatherAPI.WEATHERAPI
+            }
+        } else if (provider == WeatherAPI.GOOGLE) {
+            val tmr = weatherModule.weatherManager.getWeatherProvider(WeatherAPI.GOOGLE)
+            // Fallback to default since API KEY is unavailable
+            if (tmr.getAPIKey() == null && settingsManager.getAPIKey(WeatherAPI.GOOGLE) == null) {
                 return WeatherAPI.WEATHERAPI
             }
         }
@@ -132,6 +153,10 @@ object RadarProvider {
 
             WeatherAPI.WEATHERAPI if isEnabled -> {
                 WeatherApiRadarViewProvider(context, rootView)
+            }
+
+            WeatherAPI.GOOGLE if isEnabled -> {
+                GoogleRadarViewProvider(context, rootView)
             }
 
             else -> {

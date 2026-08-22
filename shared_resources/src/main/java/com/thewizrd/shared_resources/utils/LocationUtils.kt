@@ -376,6 +376,11 @@ object LocationUtils {
             return (lat in lat_min..lat_max) && (lon in lon_min..lon_max)
         }
 
+        fun intersects(other: BoundingBox): Boolean {
+            return lat_min <= other.lat_max && lat_max >= other.lat_min &&
+                    lon_min <= other.lon_max && lon_max >= other.lon_min
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

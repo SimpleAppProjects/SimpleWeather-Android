@@ -1,7 +1,6 @@
 package com.thewizrd.simpleweather.radar.eccc
 
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import com.google.android.material.slider.Slider
 import com.thewizrd.shared_resources.DateTimeConstants
 import com.thewizrd.shared_resources.okhttp3.OkHttp3Utils.getStream
@@ -23,6 +23,7 @@ import com.thewizrd.shared_resources.utils.Logger
 import com.thewizrd.shared_resources.weatherdata.WeatherAPI
 import com.thewizrd.simpleweather.databinding.RadarAnimateContainerBinding
 import com.thewizrd.simpleweather.extras.isRadarInteractionEnabled
+import com.thewizrd.simpleweather.radar.BoundingBox
 import com.thewizrd.simpleweather.radar.MapTileRadarViewProvider
 import com.thewizrd.weather_api.utils.APIRequestUtils.checkForErrors
 import com.thewizrd.weather_api.utils.RateLimitedRequest
@@ -47,10 +48,6 @@ import java.time.ZonedDateTime
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
-import kotlin.math.atan
-import kotlin.math.pow
-import kotlin.math.sinh
-import androidx.core.net.toUri
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class ECCCRadarViewProvider(context: Context, rootView: ViewGroup) :
@@ -387,7 +384,7 @@ class ECCCRadarViewProvider(context: Context, rootView: ViewGroup) :
                         .appendQueryParameter("SERVICE", "WMS")
                         .appendQueryParameter("VERSION", "1.3.0")
                         .appendQueryParameter("REQUEST", "GetMap")
-                        .appendQueryParameter("BBOX", bbox.toString())
+                        .appendQueryParameter("BBOX", bbox.toYXString())
                         .appendQueryParameter("CRS", "EPSG:4326")
                         .appendQueryParameter("WIDTH", "256")
                         .appendQueryParameter("HEIGHT", "256")
@@ -409,36 +406,4 @@ class ECCCRadarViewProvider(context: Context, rootView: ViewGroup) :
     private data class RadarFrame(
         val timestamp: String
     )
-
-    private data class BoundingBox(
-        val xMin: Double,
-        val yMin: Double,
-        val xMax: Double,
-        val yMax: Double,
-    ) {
-        override fun toString(): String {
-            return "$yMin,$xMin,$yMax,$xMax"
-        }
-
-        companion object {
-            fun fromTile(x: Int, y: Int, zoom: Int): BoundingBox {
-                return BoundingBox(
-                    yMin = tile2lat(y + 1, zoom),
-                    yMax = tile2lat(y, zoom),
-                    xMin = tile2lon(x, zoom),
-                    xMax = tile2lon(x + 1, zoom)
-                )
-            }
-
-            // Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Common_programming_languages
-            private fun tile2lon(x: Int, z: Int): Double {
-                return x / 2.0.pow(z.toDouble()) * 360.0 - 180
-            }
-
-            private fun tile2lat(y: Int, z: Int): Double {
-                val n: Double = Math.PI - (2.0 * Math.PI * y) / 2.0.pow(z.toDouble())
-                return Math.toDegrees(atan(sinh(n)))
-            }
-        }
-    }
 }

@@ -16,6 +16,7 @@ import com.thewizrd.simpleweather.extras.ExtrasKt;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -147,8 +148,16 @@ public abstract class MapTileRadarViewProvider extends RadarViewProvider impleme
 
         mv.setTileSource(TileSourceFactory.USGS_TOPO);
 
+        // Remove any stale additional http request properties
+        Configuration.getInstance().getAdditionalHttpRequestProperties().clear();
+
+        configureMapView(mv);
+
         return mv;
     }
+
+    @CallSuper
+    protected void configureMapView(@NonNull MapView mapView) {}
 
     @Nullable
     protected final IGeoPoint getMapCameraPosition() {

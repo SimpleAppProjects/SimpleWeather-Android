@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.view.isEmpty
+import com.bumptech.glide.load.model.GlideUrl
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
@@ -260,7 +261,7 @@ class WeatherApiRadarViewProvider(context: Context, rootView: ViewGroup) :
         CachingUrlTileProvider(context, 256, 256) {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
-        override fun getTileUrl(x: Int, y: Int, zoom: Int): String? {
+        override fun getTileUrl(x: Int, y: Int, zoom: Int): GlideUrl? {
             if (!checkTileExists(x, y, zoom)) {
                 return null
             }
@@ -276,7 +277,7 @@ class WeatherApiRadarViewProvider(context: Context, rootView: ViewGroup) :
                         x,
                         y
                     )
-                return url
+                return GlideUrl(url)
             }
 
             return null

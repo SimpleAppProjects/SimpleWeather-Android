@@ -42,7 +42,6 @@ import java.io.IOException
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.Locale
 
 @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
 class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
@@ -345,15 +344,7 @@ class RainViewerViewProvider(context: Context, rootView: ViewGroup) :
 
             if (mapFrame != null) {
                 /* Define the URL pattern for the tile images */
-                return String.format(
-                    Locale.ROOT,
-                    "%s%s/256/%d/%d/%d/1/1_1.png",
-                    mapFrame.host,
-                    mapFrame.path,
-                    zoom,
-                    x,
-                    y
-                )
+                return "${mapFrame.host}${mapFrame.path}/256/${zoom}/${x}/${y}/1/1_1.png"
             }
 
             return null
