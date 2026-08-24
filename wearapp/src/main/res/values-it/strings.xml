@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_setupfromphone">"Configura dal telefono"</string>
+    <string name="action_changelocation">"Cambia località"</string>
+    <string name="action_openonphone">"Apri sul telefono"</string>
+    <string name="message_openedonphone">"Aperto sul telefono..."</string>
+
+    <!-- Connection Status -->
+    <string name="status_disconnected">"Dispositivo non connesso"</string>
+    <string name="status_connecting">"Connessione in corso..."</string>
+    <string name="status_notinstalled">"App non installata sul dispositivo"</string>
+    <string name="status_connected">"Connesso"</string>
+    <string name="status_node_unavailable">"Il dispositivo non è connesso o l'app non è installata sul dispositivo..."</string>
+    <string name="status_node_notsupported">"Il dispositivo connesso non è supportato"</string>
+
+    <!-- Setup -->
+    <string name="prompt_confirmsetup">"Vuoi configurare e sincronizzare i dati dal tuo telefono/dispositivo connesso?"</string>
+    <string name="message_gettingstatus">"Recupero dello stato di connessione..."</string>
+    <string name="error_notinstalled">"Installa l'app sul dispositivo e riprova"</string>
+    <string name="message_continueondevice">"Continua la configurazione sul dispositivo connesso"</string>
+    <string name="message_retrievingdata">"Recupero dati dal dispositivo connesso..."</string>
+    <string name="error_syncing">"Impossibile sincronizzare i dati"</string>
+    <string name="message_settingsretrieved">"Dati delle impostazioni ricevuti..."</string>
+    <string name="message_locationretrieved">"Dati sulla posizione ricevuti..."</string>
+    <string name="message_weatherretrieved">"Dati meteorologici ricevuti..."</string>
+    <string name="message_synccompleted">"Sincronizzazione dati riuscita"</string>
+
+    <!-- Preferences -->
+    <string name="pref_sync_off">"Disattivato"</string>
+    <string name="pref_sync_deviceonly">"Sincronizza solo dal dispositivo"</string>
+    <string name="pref_sync_whenavailable">"Sincronizza dal dispositivo (quando disponibile)"</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_title_sync">"Sincronizza"</string>
+    <string name="pref_sync_title">"Sincronizzazione dati"</string>
+    <string name="pref_connectionstatus_title">"Stato della connessione"</string>
+    <string name="message_disconnected">"Disconnesso"</string>
+
+    <!-- Tile Labels -->
+    <string name="tile_label_currentweather">"Meteo attuale"</string>
+    <string name="tile_label_weather_forecast">"Meteo + Previsioni"</string>
+
+    <!-- Complication Labels
+Weather (High/Low) -->
+    <string name="complication_label_weather_hilo">"Meteo (Min / Max)"</string>
+    <string name="complication_label_weather_currentlocation">"Meteo (Posizione attuale)"</string>
+    <string name="tile_label_weather_hrforecast">"Meteo + Previsioni orarie"</string>
+    <string name="complication_label_weather_currentlocation_feelslike">"Meteo (Posizione attuale + Percepita)"</string>
+    <string name="title_tile_config">"Configura riquadro"</string>
+    <string name="message_reset_to_default">"Ripristinare le impostazioni predefinite?"</string>
+    <string name="pref_title_detailstileeditor">"Editor di riquadri"</string>
+</resources>

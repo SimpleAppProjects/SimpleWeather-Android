@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- https://aqicn.org/scale -->
+    <string name="aqi_level_0_50">"Buona"</string>
+    <string name="aqi_level_51_100">"Moderata"</string>
+    <string name="aqi_level_101_150">"Insalubre per i gruppi sensibili"</string>
+    <string name="aqi_level_151_200">"Insalubre"</string>
+    <string name="aqi_level_201_300">"Molto insalubre"</string>
+    <string name="aqi_level_300">"Pericolosa"</string>
+    <string name="aqi_desc_0_50">"La qualità dell'aria è considerata soddisfacente e l'inquinamento atmosferico comporta pochi o nessun rischio"</string>
+    <string name="aqi_desc_51_100">"La qualità dell'aria è accettabile"</string>
+    <string name="aqi_desc_101_150">"I membri dei gruppi sensibili potrebbero riscontrare effetti sulla salute. È improbabile che la popolazione generale ne sia interessata."</string>
+    <string name="aqi_desc_151_200">"Tutti potrebbero iniziare a riscontrare effetti sulla salute; i membri dei gruppi sensibili potrebbero riscontrare effetti più gravi"</string>
+    <string name="aqi_desc_201_300">"Avvisi sanitari in condizioni di emergenza. È più probabile che l'intera popolazione sia interessata."</string>
+    <string name="aqi_desc_300">"Allarme sanitario: tutti potrebbero riscontrare effetti sulla salute più gravi"</string>
+</resources>

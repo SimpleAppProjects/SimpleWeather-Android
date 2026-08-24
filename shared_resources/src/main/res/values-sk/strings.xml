@@ -205,7 +205,6 @@
     <string name="label_minutelyforecast">"Minútová predpoveď"</string>
     <string name="hint_username">"Používateľské meno"</string>
     <string name="hint_password">"Heslo"</string>
-    <string name="pref_category_terms">Podmienky</string>
     <string name="pref_title_privacypolicy">"Pravidlá ochrany súkromia"</string>
     <string name="pref_title_termsofservice">"Podmienky služby"</string>
     <string name="label_moreinfo">"Viac informácií"</string>
@@ -217,5 +216,8 @@
     <string name="werror_ratelimited">"Príliš veľa požiadaviek. Prosím, skúste to znova po niekoľkých minútach"</string>
     <string name="werror_locationnotsupported">"Tento poskytovateľ počasia túto lokalitu nepodporuje."</string>
     <string name="notification_perm_denied">"Povolenie na oznámenie zamietnuté"</string>
-    <string name="pref_title_color">Farba</string>
+    <string name="pref_title_color">"Farba"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Podmienky"</string>
 </resources>

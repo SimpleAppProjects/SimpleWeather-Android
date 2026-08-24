@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"كل دقيقة"</string>
     <string name="hint_username">"اسم المستخدم"</string>
     <string name="hint_password">"كلمة المرور"</string>
-    <string name="pref_category_terms">الشروط</string>
     <string name="pref_title_privacypolicy">"سياسة الخصوصية"</string>
     <string name="pref_title_termsofservice">"شروط الخدمة"</string>
     <string name="label_moreinfo">"مزيد من المعلومات"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"طلبات كثيرة جداً. يرجى المحاولة مرة أخرى بعد بضع دقائق"</string>
     <string name="werror_locationnotsupported">"لا يدعم مزود الطقس هذا الموقع"</string>
     <string name="notification_perm_denied">"تم رفض إذن الإخطار"</string>
-    <string name="pref_title_color">اللون</string>
+    <string name="pref_title_color">"اللون"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"الشروط"</string>
 </resources>

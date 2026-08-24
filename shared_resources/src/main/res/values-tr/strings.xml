@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"Dakikalık"</string>
     <string name="hint_username">"Kullanıcı Adı"</string>
     <string name="hint_password">"Şifre"</string>
-    <string name="pref_category_terms">Hizmet Şartları</string>
     <string name="pref_title_privacypolicy">"Gizlilik politikası"</string>
     <string name="pref_title_termsofservice">"Hizmet Şartları"</string>
     <string name="label_moreinfo">"Daha Fazla Bilgi"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"Çok fazla istek var. Lütfen birkaç dakika sonra tekrar deneyin"</string>
     <string name="werror_locationnotsupported">"Bu konum bu hava durumu sağlayıcısı tarafından desteklenmiyor"</string>
     <string name="notification_perm_denied">"Bildirim izni reddedildi"</string>
-    <string name="pref_title_color">Renk</string>
+    <string name="pref_title_color">"Renk"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Hizmet Şartları"</string>
 </resources>

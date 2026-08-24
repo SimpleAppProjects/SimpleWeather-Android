@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moonphase_new">"Luna nuova"</string>
+    <string name="moonphase_waxcrescent">"Luna crescente"</string>
+    <string name="moonphase_firstqtr">"Primo quarto"</string>
+    <string name="moonphase_waxgibbous">"Gibbosa crescente"</string>
+    <string name="moonphase_full">"Luna piena"</string>
+    <string name="moonphase_wangibbous">"Gibbosa calante"</string>
+    <string name="moonphase_lastqtr">"Ultimo quarto"</string>
+    <string name="moonphase_wancrescent">"Luna calante"</string>
+    <string name="moonphase_new_short">"Nuova"</string>
+    <string name="moonphase_waxcrescent_short">"Crescente"</string>
+    <string name="moonphase_firstqtr_short">"Primo quarto"</string>
+    <string name="moonphase_waxgibbous_short">"Crescente"</string>
+    <string name="moonphase_full_short">"Piena"</string>
+    <string name="moonphase_wangibbous_short">"Calante"</string>
+    <string name="moonphase_lastqtr_short">"Ultimo quarto"</string>
+    <string name="moonphase_wancrescent_short">"Calante"</string>
+</resources>

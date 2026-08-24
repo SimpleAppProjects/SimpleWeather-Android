@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"Percenként"</string>
     <string name="hint_username">"Felhasználónév"</string>
     <string name="hint_password">"Jelszó"</string>
-    <string name="pref_category_terms">Szolgáltatási feltételek</string>
     <string name="pref_title_privacypolicy">"Adatvédelmi irányelvek"</string>
     <string name="pref_title_termsofservice">"Szolgáltatási feltételek"</string>
     <string name="label_moreinfo">"További információ"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"Túl sok kérés. Kérjük, néhány perc múlva próbálja újra."</string>
     <string name="werror_locationnotsupported">"Ezt a helyet nem támogatja ez az időjárás-szolgáltató."</string>
     <string name="notification_perm_denied">"Értesítési engedély megtagadva"</string>
-    <string name="pref_title_color">Szín</string>
+    <string name="pref_title_color">"Szín"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Szolgáltatási feltételek"</string>
 </resources>

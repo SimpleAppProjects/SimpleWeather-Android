@@ -224,7 +224,6 @@
     <string name="label_minutelyforecast">"分钟预报"</string>
     <string name="hint_username">"用户名"</string>
     <string name="hint_password">"密码"</string>
-    <string name="pref_category_terms">条款</string>
     <string name="pref_title_privacypolicy">"隐私权政策"</string>
     <string name="pref_title_termsofservice">"服务条款"</string>
 
@@ -238,5 +237,8 @@
     <string name="werror_ratelimited">"请求太多。请几分钟后再试一次"</string>
     <string name="werror_locationnotsupported">"此天气提供商不支持该位置"</string>
     <string name="notification_perm_denied">"拒绝通知许可"</string>
-    <string name="pref_title_color">颜色</string>
+    <string name="pref_title_color">"颜色"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"条款"</string>
 </resources>

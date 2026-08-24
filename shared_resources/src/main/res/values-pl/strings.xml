@@ -208,7 +208,6 @@
     <string name="label_minutelyforecast">"Prognoza minutowa"</string>
     <string name="hint_username">"Nazwa użytkownika"</string>
     <string name="hint_password">"Hasło"</string>
-    <string name="pref_category_terms">Warunki</string>
     <string name="pref_title_privacypolicy">"Polityka prywatności"</string>
     <string name="pref_title_termsofservice">"Warunki korzystania z usługi"</string>
     <string name="label_moreinfo">"Więcej informacji"</string>
@@ -220,5 +219,8 @@
     <string name="werror_ratelimited">"Zbyt wiele żądań. Spróbuj ponownie za kilka minut"</string>
     <string name="werror_locationnotsupported">"Ta lokalizacja nie jest obsługiwana przez tego dostawcę pogody"</string>
     <string name="notification_perm_denied">"Odmowa pozwolenia na powiadomienie"</string>
-    <string name="pref_title_color">Kolor</string>
+    <string name="pref_title_color">"Kolor"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Warunki"</string>
 </resources>

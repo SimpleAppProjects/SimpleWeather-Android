@@ -205,7 +205,6 @@
     <string name="label_minutelyforecast">"Minuut Voorspelling"</string>
     <string name="hint_username">"Gebruikersnaam"</string>
     <string name="hint_password">"Wachtwoord"</string>
-    <string name="pref_category_terms">Voorwaarden</string>
     <string name="pref_title_privacypolicy">"Privacybeleid"</string>
     <string name="pref_title_termsofservice">"Servicevoorwaarden"</string>
     <string name="label_moreinfo">"Meer informatie"</string>
@@ -217,5 +216,8 @@
     <string name="werror_ratelimited">"Te veel aanvragen. Probeer het opnieuw na een paar minuten"</string>
     <string name="werror_locationnotsupported">"Locatie wordt niet ondersteund door huidige weerprovider"</string>
     <string name="notification_perm_denied">"Melding toestemming geweigerd"</string>
-    <string name="pref_title_color">Kleur</string>
+    <string name="pref_title_color">"Kleur"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Voorwaarden"</string>
 </resources>

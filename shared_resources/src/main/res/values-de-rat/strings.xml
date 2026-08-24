@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"Vorhersage im Minutentakt"</string>
     <string name="hint_username">"Nutzername"</string>
     <string name="hint_password">"Passwort"</string>
-    <string name="pref_category_terms">Nutzungsbedingungen</string>
     <string name="pref_title_privacypolicy">"Adatvédelmi irányelvek"</string>
     <string name="pref_title_termsofservice">"Nutzungsbedingungen"</string>
     <string name="label_moreinfo">"Mehr Infos"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"Zu viele Anfragen. Bitte versuchen Sie es nach ein paar Minuten erneut"</string>
     <string name="werror_locationnotsupported">"Dieser Standort wird von diesem Wetteranbieter nicht unterstützt"</string>
     <string name="notification_perm_denied">"Benachrichtigungserlaubnis verweigert"</string>
-    <string name="pref_title_color">Farbe</string>
+    <string name="pref_title_color">"Farbe"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Nutzungsbedingungen"</string>
 </resources>

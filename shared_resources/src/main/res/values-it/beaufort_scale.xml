@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="beaufort_0">"Calma"</string>
+    <string name="beaufort_1">"Bava di vento"</string>
+    <string name="beaufort_2">"Brezza leggera"</string>
+    <string name="beaufort_3">"Brezza gentile"</string>
+    <string name="beaufort_4">"Brezza moderata"</string>
+    <string name="beaufort_5">"Brezza tesa"</string>
+    <string name="beaufort_6">"Vento forte"</string>
+    <string name="beaufort_7">"Burrasca moderata"</string>
+    <string name="beaufort_8">"Burrasca"</string>
+    <string name="beaufort_9">"Forta burrasca"</string>
+    <string name="beaufort_10">"Tempesta"</string>
+    <string name="beaufort_11">"Tempesta violenta"</string>
+    <string name="beaufort_12">"Uragano"</string>
+</resources>

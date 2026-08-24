@@ -199,7 +199,6 @@
     <string name="label_minutelyforecast">"Minutely"</string>
     <string name="hint_username">"Username"</string>
     <string name="hint_password">"Password"</string>
-    <string name="pref_category_terms">Terms</string>
     <string name="pref_title_privacypolicy">"Privacy Policy"</string>
     <string name="pref_title_termsofservice">"Terms of Service"</string>
     <string name="label_moreinfo">"More Info"</string>
@@ -211,5 +210,8 @@
     <string name="werror_ratelimited">"Too many requests. Please try again after a few minutes"</string>
     <string name="werror_locationnotsupported">"Location not supported by this weather provider"</string>
     <string name="notification_perm_denied">"Notification permission denied"</string>
-    <string name="pref_title_color">Colour</string>
+    <string name="pref_title_color">"Colour"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Terms"</string>
 </resources>

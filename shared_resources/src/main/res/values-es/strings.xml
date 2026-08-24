@@ -234,7 +234,6 @@
     <string name="label_minutelyforecast">"Previsión de minutos"</string>
     <string name="hint_username">"Nombre de usuario"</string>
     <string name="hint_password">"Contraseña"</string>
-    <string name="pref_category_terms">Términos</string>
     <string name="pref_title_privacypolicy">"Política de privacidad"</string>
     <string name="pref_title_termsofservice">"Zmluvné podmienky"</string>
     <string name="label_moreinfo">"Más información"</string>
@@ -246,5 +245,8 @@
     <string name="werror_ratelimited">"Demasiadas solicitudes. Vuelva a intentarlo pasados unos minutos"</string>
     <string name="werror_locationnotsupported">"Esta ubicación no es compatible con este proveedor meteorológico"</string>
     <string name="notification_perm_denied">"Permiso de notificación denegado"</string>
-    <string name="pref_title_color">Color</string>
+    <string name="pref_title_color">"Color"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Términos"</string>
 </resources>

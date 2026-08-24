@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"Pe minute"</string>
     <string name="hint_username">"Nume de utilizator"</string>
     <string name="hint_password">"Parolă"</string>
-    <string name="pref_category_terms">Termeni</string>
     <string name="pref_title_privacypolicy">"Politica de confidențialitate"</string>
     <string name="pref_title_termsofservice">"Termeni și condiții"</string>
     <string name="label_moreinfo">"Mai multe informații"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"Prea multe cereri. Vă rugăm să încercați din nou după câteva minute"</string>
     <string name="werror_locationnotsupported">"Această locație nu este acceptată de acest furnizor de servicii meteo"</string>
     <string name="notification_perm_denied">"Notificare permisiune refuzată"</string>
-    <string name="pref_title_color">Culoare</string>
+    <string name="pref_title_color">"Culoare"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Termeni"</string>
 </resources>

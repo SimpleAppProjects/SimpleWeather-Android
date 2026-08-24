@@ -197,7 +197,6 @@
     <string name="label_minutelyforecast">"Минутно"</string>
     <string name="hint_username">"Имя пользователя"</string>
     <string name="hint_password">"Пароль"</string>
-    <string name="pref_category_terms">Условия</string>
     <string name="pref_title_privacypolicy">"Политика конфиденциальности"</string>
     <string name="pref_title_termsofservice">"Условия использования"</string>
     <string name="label_moreinfo">"Подробнее"</string>
@@ -209,5 +208,8 @@
     <string name="werror_ratelimited">"Слишком много запросов. Пожалуйста, повторите попытку через несколько минут"</string>
     <string name="werror_locationnotsupported">"Это местоположение не поддерживается этим поставщиком погоды"</string>
     <string name="notification_perm_denied">"Разрешение на уведомление отклонено"</string>
-    <string name="pref_title_color">Цвет</string>
+    <string name="pref_title_color">"Цвет"</string>
+
+    <!-- Terms of Service -->
+    <string name="pref_category_terms">"Условия"</string>
 </resources>
